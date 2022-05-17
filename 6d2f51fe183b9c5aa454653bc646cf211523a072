@@ -142,6 +142,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "06b08619_ff6207f2",
+        "filename": "aom/aom_image.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-05-17T20:07:14Z",
+      "side": 1,
+      "message": "\u003e \u003e Could you clarify why this is counter-intuitive?\n\u003e \n\u003e `FULL` goes from 8b `[0..255]` to 10b `[0\u003c\u003c2..(255\u003c\u003c2)|((1\u003c\u003c2)-1)]`\n\u003e `LIMITED` goes from 8b `[16..235]` to 10b `[16\u003c\u003c2..(235\u003c\u003c2)]`\n\u003e \n\u003e `{FULL [0..1020], LIMITED [0..940]}` or `{FULL [0..1023], LIMITED [0..943]}` would make more sense to me for 10b. Basically fill the upper bound with `|((1\u003c\u003c2)-1)` after `\u003c\u003c2` for both `FULL` and `LIMITED` or for none, but not just for one or the other.\n\u003e \n\u003e Another way of seeing it: for 10b, if `(255\u003c\u003c2)+1` is part of `FULL`, why `(235\u003c\u003c2)+1` is not part of `LIMITED`?\n\u003e \n\u003e Anyway it is just designed as is and does not matter much.\n\u003e \n\u003e \u003e I am afraid that I don\u0027t understand this question. Could you clarify it?\n\u003e \n\u003e I wanted to take a look at the implementation of some `avifLimited8bToLimited10bY()` but I could not find it nearby `avifLimitedToFullY()`. Is there anything similar in libavif?\n\nffmpeg should support this. One way is via the scaler:\nhttp://ffmpeg.org/ffmpeg-scaler.html",
+      "parentUuid": "0f3f9aba_db6d6970",
+      "revId": "6d2f51fe183b9c5aa454653bc646cf211523a072",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "df5c8c77_543d606d",
