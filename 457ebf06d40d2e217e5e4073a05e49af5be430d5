@@ -34,6 +34,24 @@
       "parentUuid": "dd2801af_41216c14",
       "revId": "457ebf06d40d2e217e5e4073a05e49af5be430d5",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "68d3efe1_6eaa98cb",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2022-05-17T08:44:07Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nThe ‘three_scene_cut_180p’ content has two scene changes within the first 1000 frames. We observed that, when the speed feature is enabled, encoding of the second scene consumes more bits than earlier.\n\nAs the scene is mostly static, more number of transform skips are chosen and the speed feature tries to bypass winner mode processing. When transform is skip from MODE_EVAL stage, in parent version transform split is happening due to winner mode evaluation, whereas in the current CL transform split is not happening as winner mode processing is bypassed.\n\nDue to this behavior, the percentage of blocks coded with transform splits is less, which is causing BD-Rate impact.\n\nThanks \u0026 Regards,\nVenkata.",
+      "parentUuid": "3646d380_2cd70f8f",
+      "revId": "457ebf06d40d2e217e5e4073a05e49af5be430d5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ],
   "submitRequirementResults": [
