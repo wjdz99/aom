@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "037f9df8_78dab79a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8471
+      },
+      "writtenOn": "2022-05-18T19:06:34Z",
+      "side": 1,
+      "message": "[ RUN      ] NEON/FullPrecisionQuantizeTest.DISABLED_Speed/0\nc_time \u003d 2176833 \t simd_time \u003d 2068270 \t Gain \u003d 1.052490 \nc_time \u003d 2316762 \t simd_time \u003d 2142091 \t Gain \u003d 1.081542 \nc_time \u003d 2436072 \t simd_time \u003d 2226973 \t Gain \u003d 1.093894 \nc_time \u003d 2564267 \t simd_time \u003d 2314498 \t Gain \u003d 1.107915 \nc_time \u003d 2681216 \t simd_time \u003d 2404541 \t Gain \u003d 1.115064 \nc_time \u003d 2806914 \t simd_time \u003d 2486747 \t Gain \u003d 1.128749 \nc_time \u003d 2924179 \t simd_time \u003d 2571466 \t Gain \u003d 1.137164 \nc_time \u003d 3053297 \t simd_time \u003d 2662052 \t Gain \u003d 1.146971 \nc_time \u003d 3180073 \t simd_time \u003d 2736045 \t Gain \u003d 1.162288 \nc_time \u003d 3294502 \t simd_time \u003d 2838448 \t Gain \u003d 1.160670 \nc_time \u003d 3411001 \t simd_time \u003d 2922652 \t Gain \u003d 1.167091 \nc_time \u003d 3532448 \t simd_time \u003d 3006022 \t Gain \u003d 1.175124 \nc_time \u003d 3655840 \t simd_time \u003d 3093020 \t Gain \u003d 1.181965 \nc_time \u003d 3780015 \t simd_time \u003d 3172684 \t Gain \u003d 1.191425 \nc_time \u003d 3903289 \t simd_time \u003d 3258790 \t Gain \u003d 1.197773 \nc_time \u003d 4019879 \t simd_time \u003d 3344340 \t Gain \u003d 1.201995 \nc_time \u003d 4137626 \t simd_time \u003d 3422129 \t Gain \u003d 1.209080 \nc_time \u003d 4262318 \t simd_time \u003d 3510153 \t Gain \u003d 1.214283 \nc_time \u003d 4388985 \t simd_time \u003d 3614851 \t Gain \u003d 1.214154 \nc_time \u003d 4507620 \t simd_time \u003d 3676938 \t Gain \u003d 1.225917 \nc_time \u003d 4624228 \t simd_time \u003d 3771783 \t Gain \u003d 1.226006 \nc_time \u003d 4736177 \t simd_time \u003d 3859203 \t Gain \u003d 1.227242 \nc_time \u003d 4872883 \t simd_time \u003d 3961698 \t Gain \u003d 1.229999 \nc_time \u003d 4989645 \t simd_time \u003d 4026081 \t Gain \u003d 1.239331 \nc_time \u003d 5109471 \t simd_time \u003d 4135340 \t Gain \u003d 1.235562 \nc_time \u003d 5243488 \t simd_time \u003d 4217520 \t Gain \u003d 1.243263 \nc_time \u003d 5337335 \t simd_time \u003d 4309216 \t Gain \u003d 1.238586 \nc_time \u003d 5461157 \t simd_time \u003d 4402238 \t Gain \u003d 1.240541 \nc_time \u003d 5584237 \t simd_time \u003d 4508177 \t Gain \u003d 1.238691 \nc_time \u003d 5707127 \t simd_time \u003d 4569083 \t Gain \u003d 1.249075 \nc_time \u003d 5833738 \t simd_time \u003d 4671368 \t Gain \u003d 1.248829 \nc_time \u003d 5941974 \t simd_time \u003d 4801677 \t Gain \u003d 1.237479 \nc_time \u003d 6064712 \t simd_time \u003d 4887249 \t Gain \u003d 1.240926 \n[       OK ] NEON/FullPrecisionQuantizeTest.DISABLED_Speed/0 (250133 ms)",
+      "revId": "af3c6645b56c77244f39d47a3b6bbf86f3b3e30a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
