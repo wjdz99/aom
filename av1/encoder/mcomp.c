@@ -1685,6 +1685,10 @@ int av1_full_pixel_search(const FULLPEL_MV start_mv,
     cost_list[4] = INT_MAX;
   }
 
+  assert(ms_params->ms_buffers.src->width == ms_params->ms_buffers.ref->width &&
+         ms_params->ms_buffers.src->height ==
+             ms_params->ms_buffers.ref->height);
+
   switch (search_method) {
     case FAST_BIGDIA:
       var = fast_bigdia_search(start_mv, ms_params, step_param, 0, cost_list,
