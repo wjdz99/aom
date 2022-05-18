@@ -52,6 +52,24 @@
       "parentUuid": "c0ff6e89_f8f3c279",
       "revId": "910a8fffc0fe0605df3034a791efb558bf595ebd",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c410cdd8_82280461",
+        "filename": "aom/aom_image.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 137,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-05-18T16:58:06Z",
+      "side": 1,
+      "message": "I\u0027m sorry I wasn\u0027t clear about the period. The Doxygen output will still be one long line, but the three bit depths will be separated by periods.\n\nList items look good. Thanks!",
+      "parentUuid": "8f6be6bc_cccbb1eb",
+      "revId": "910a8fffc0fe0605df3034a791efb558bf595ebd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
