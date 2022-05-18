@@ -1620,7 +1620,8 @@ static void set_rt_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->rt_sf.short_circuit_low_temp_var = 1;
     sf->rt_sf.use_nonrd_altref_frame = 0;
     sf->rt_sf.nonrd_prune_ref_frame_search = 2;
-    sf->rt_sf.nonrd_check_partition_merge_mode = 0;
+    sf->rt_sf.nonrd_check_partition_merge_mode =
+        cpi->oxcf.tune_cfg.content == AOM_CONTENT_SCREEN ? 1 : 0;
     sf->rt_sf.var_part_split_threshold_shift = 8;
     sf->interp_sf.cb_pred_filter_search = 1;
     sf->rt_sf.var_part_based_on_qidx = 4;
@@ -1629,6 +1630,8 @@ static void set_rt_speed_features_framesize_independent(AV1_COMP *cpi,
   if (speed >= 9) {
     sf->rt_sf.sse_early_term_inter_search = EARLY_TERM_IDX_3;
     sf->lpf_sf.cdef_pick_method = CDEF_PICK_FROM_Q;
+    sf->rt_sf.nonrd_check_partition_merge_mode =
+        cpi->oxcf.tune_cfg.content == AOM_CONTENT_SCREEN ? 1 : 0;
     sf->rt_sf.estimate_motion_for_var_based_partition = 0;
     sf->rt_sf.force_large_partition_blocks = 1;
     sf->rt_sf.skip_intra_pred = 2;
@@ -1641,6 +1644,7 @@ static void set_rt_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->rt_sf.sse_early_term_inter_search = EARLY_TERM_IDX_4;
     sf->rt_sf.nonrd_agressive_skip = 1;
     sf->rt_sf.nonrd_prune_ref_frame_search = 3;
+    sf->rt_sf.nonrd_check_partition_merge_mode = 0;
     sf->rt_sf.var_part_split_threshold_shift = 10;
     sf->mv_sf.subpel_search_method = SUBPEL_TREE_PRUNED_MORE;
     sf->rt_sf.force_half_pel_block = 1;
