@@ -16,8 +16,6 @@
 #include <stdio.h>
 
 #include "aom_dsp/txfm_common.h"
-#include "av1/common/blockd.h"
-#include "av1/encoder/encoder.h"
 #include "config/aom_dsp_rtcd.h"
 #include "config/av1_rtcd.h"
 
@@ -27,13 +25,15 @@
 #include "aom_ports/aom_timer.h"
 #include "aom_ports/mem.h"
 
-#include "av1/encoder/model_rd.h"
+#include "av1/common/blockd.h"
 #include "av1/common/mvref_common.h"
 #include "av1/common/pred_common.h"
 #include "av1/common/reconinter.h"
 #include "av1/common/reconintra.h"
 
 #include "av1/encoder/encodemv.h"
+#include "av1/encoder/encoder.h"
+#include "av1/encoder/model_rd.h"
 #include "av1/encoder/nonrd_opt.h"
 #include "av1/encoder/rdopt.h"
 #include "av1/encoder/reconinter_enc.h"
@@ -2369,11 +2369,10 @@ void set_color_sensitivity(AV1_COMP *cpi, MACROBLOCK *x, MACROBLOCKD *xd,
   }
 }
 
-void setup_compound_prediction(AV1_COMP *cpi, MACROBLOCK *x,
+void setup_compound_prediction(const AV1_COMMON *cm, MACROBLOCK *x,
                                struct buf_2d yv12_mb[8][MAX_MB_PLANE],
-                               int *use_ref_frame_mask, int flag_comp,
+                               const int *use_ref_frame_mask, int flag_comp,
                                int *ref_mv_idx) {
-  AV1_COMMON *const cm = &cpi->common;
   MACROBLOCKD *const xd = &x->e_mbd;
   MB_MODE_INFO *const mbmi = xd->mi[0];
   MB_MODE_INFO_EXT *const mbmi_ext = &x->mbmi_ext;
@@ -2435,10 +2434,10 @@ static void set_compound_mode(MACROBLOCK *x, int comp_index, int ref_frame,
   }
 }
 
-static int skip_comp_based_on_sad(AV1_COMP *cpi, MACROBLOCK *x,
-                                  const int mi_row, const int mi_col,
-                                  BLOCK_SIZE bsize) {
-  AV1_COMMON *const cm = &cpi->common;
+static int skip_comp_based_on_sad(const AV1_COMP *cpi, const int mi_row,
+                                  const int mi_col, BLOCK_SIZE bsize,
+                                  int qindex) {
+  const AV1_COMMON *const cm = &cpi->common;
   assert(!(mi_row % 16) && !(mi_col % 16));
   const int sb_size_by_mb = (cm->seq_params->sb_size == BLOCK_128X128)
                                 ? (cm->seq_params->mib_size >> 1)
@@ -2449,7 +2448,7 @@ static int skip_comp_based_on_sad(AV1_COMP *cpi, MACROBLOCK *x,
                                            { 2700, 3200 } };  // CPU 10
   const uint64_t sad_blkwise_var_th = 5000;
   const float qindex_th_scale[5] = { 0.75f, 0.9f, 1.0f, 1.1f, 1.25f };
-  const int qindex_band = (5 * x->qindex) >> QINDEX_BITS;
+  const int qindex_band = (5 * qindex) >> QINDEX_BITS;
   assert(qindex_band < 5);
   const int sp_idx = (cpi->sf.rt_sf.sad_based_comp_prune >= 2);
   const int bsize_idx = (bsize == BLOCK_128X128);
@@ -2495,6 +2494,157 @@ static int skip_comp_based_on_sad(AV1_COMP *cpi, MACROBLOCK *x,
   return 0;
 }
 
+// Set up the mv/ref_frames etc based on the comp_index. Returns 0 if it
+// succeeds, 1 if it fails.
+static AOM_INLINE int setup_compound_params_from_comp_idx(
+    const AV1_COMP *cpi, MACROBLOCK *x, struct buf_2d yv12_mb[8][MAX_MB_PLANE],
+    BLOCK_SIZE bsize, PREDICTION_MODE *this_mode, MV_REFERENCE_FRAME *ref_frame,
+    MV_REFERENCE_FRAME *ref_frame2, int_mv frame_mv[MB_MODE_COUNT][REF_FRAMES],
+    const int *use_ref_frame_mask, int comp_index) {
+  const AV1_COMMON *const cm = &cpi->common;
+  int ref_mv_idx = 0;
+  int num_comp_modes_ref = 0;
+  *ref_frame = LAST_FRAME;
+  *ref_frame2 = GOLDEN_FRAME;
+
+  if (cpi->ppi->use_svc && cpi->svc.temporal_layer_id == 0)
+    num_comp_modes_ref = 2;
+  else if (bsize > BLOCK_16X16)
+    num_comp_modes_ref = 1;
+
+  if (comp_index % 3 == 0) {
+    int i = 0;
+    // Only needs to be done once per reference pair.
+    if (comp_index == 3) i = 1;
+    if (comp_index == 6) i = 2;
+    if (cpi->sf.rt_sf.ref_frame_comp_nonrd[i])
+      setup_compound_prediction(cm, x, yv12_mb, use_ref_frame_mask, i,
+                                &ref_mv_idx);
+  }
+  // num_comp_modes_ref == 1 only do (0,0)
+  if (num_comp_modes_ref == 1 && comp_index % 3 != 0) return 1;
+  // num_comp_modes_ref == 2 only do (0,0) and (NEAREST_NEAREST)
+  if (num_comp_modes_ref == 2 && comp_index % 3 == 2) return 1;
+  if (comp_index >= 0 && comp_index < 3) {
+    // comp_index = 0,1,2 for (0/NEAREST/NEAR) for GOLDEN_LAST.
+    if (cpi->sf.rt_sf.ref_frame_comp_nonrd[0] == 0 ||
+        !(cpi->ref_frame_flags & AOM_GOLD_FLAG))
+      return 1;
+  } else if (comp_index >= 3 && comp_index < 6) {
+    // comp_index = 3,4,5 for (0/NEAREST/NEAR) for LAST2_LAST.
+    *ref_frame2 = LAST2_FRAME;
+    if (cpi->sf.rt_sf.ref_frame_comp_nonrd[1] == 0 ||
+        !(cpi->ref_frame_flags & AOM_LAST2_FLAG))
+      return 1;
+  } else if (comp_index >= 6 && comp_index < 9) {
+    // comp_index = 6,7,8 for (0/NEAREST/NEAR) for ALTREF_LAST.
+    *ref_frame2 = ALTREF_FRAME;
+    if (cpi->sf.rt_sf.ref_frame_comp_nonrd[2] == 0 ||
+        !(cpi->ref_frame_flags & AOM_ALT_FLAG))
+      return 1;
+  }
+  set_compound_mode(x, comp_index, *ref_frame, *ref_frame2, ref_mv_idx,
+                    frame_mv, this_mode);
+  if (*this_mode != GLOBAL_GLOBALMV &&
+      frame_mv[*this_mode][*ref_frame].as_int == 0 &&
+      frame_mv[*this_mode][*ref_frame2].as_int == 0)
+    return 1;
+  return 0;
+}
+
+static AOM_INLINE bool skip_inter_mode(
+    const AV1_COMP *cpi, const MACROBLOCK *x, const MB_MODE_INFO *mi,
+    const int *use_ref_frame_mask, const RD_STATS *best_rdc,
+    const BEST_PICKMODE *best_pickmode,
+    const int_mv frame_mv[MB_MODE_COUNT][REF_FRAMES],
+    unsigned int last_frame_zeromv_sse, int force_skip_low_temp_var,
+    int64_t thresh_sad_pred) {
+  const PREDICTION_MODE this_mode = mi->mode;
+  const MV_REFERENCE_FRAME ref_frame = mi->ref_frame[0];
+  const MV_REFERENCE_FRAME ref_frame2 = mi->ref_frame[1];
+  const BLOCK_SIZE bsize = mi->bsize;
+
+  if (!use_ref_frame_mask[ref_frame]) return true;
+
+  if (x->force_zeromv_skip &&
+      (this_mode != GLOBALMV || ref_frame != LAST_FRAME))
+    return true;
+
+  // If the segment reference frame feature is enabled then do nothing if the
+  // current ref frame is not allowed.
+  const struct segmentation *const seg = &cpi->common.seg;
+  const int segment_id = mi->segment_id;
+  if (segfeature_active(seg, segment_id, SEG_LVL_REF_FRAME) &&
+      get_segdata(seg, segment_id, SEG_LVL_REF_FRAME) != (int)ref_frame)
+    return true;
+
+  // For screen content:
+  if (cpi->oxcf.tune_cfg.content == AOM_CONTENT_SCREEN) {
+    // If source_sad is computed: skip non-zero motion
+    // check for stationary (super)blocks. Otherwise if superblock
+    // has motion skip the modes with zero motion for flat blocks.
+    if (cpi->sf.rt_sf.source_metrics_sb_nonrd) {
+      if ((frame_mv[this_mode][ref_frame].as_int != 0 &&
+           x->content_state_sb.source_sad_nonrd == kZeroSad) ||
+          (frame_mv[this_mode][ref_frame].as_int == 0 &&
+           x->content_state_sb.source_sad_nonrd != kZeroSad &&
+           x->source_variance == 0))
+        return true;
+    }
+    // Skip NEWMV search on scene cuts for flat blocks.
+    if (cpi->rc.high_source_sad && this_mode == NEWMV &&
+        (x->source_variance < 100))
+      return true;
+  }
+
+  if (skip_mode_by_bsize_and_ref_frame(
+          this_mode, ref_frame, bsize, x->nonrd_prune_ref_frame_search,
+          last_frame_zeromv_sse, cpi->sf.rt_sf.nonrd_agressive_skip))
+    return true;
+
+  if (skip_mode_by_low_temp(this_mode, ref_frame, bsize, x->content_state_sb,
+                            frame_mv[this_mode][ref_frame],
+                            force_skip_low_temp_var))
+    return true;
+
+  // Disable this drop out case if the ref frame segment level feature is
+  // enabled for this segment. This is to prevent the possibility that we
+  // end up unable to pick any mode.
+  if (!segfeature_active(seg, segment_id, SEG_LVL_REF_FRAME)) {
+    // Check for skipping GOLDEN and ALTREF based pred_mv_sad.
+    if (cpi->sf.rt_sf.nonrd_prune_ref_frame_search > 0 &&
+        x->pred_mv_sad[ref_frame] != INT_MAX && ref_frame != LAST_FRAME) {
+      if ((int64_t)(x->pred_mv_sad[ref_frame]) > thresh_sad_pred) return true;
+    }
+  }
+  // Check for skipping NEARMV based on pred_mv_sad.
+  if (this_mode == NEARMV && x->pred_mv1_sad[ref_frame] != INT_MAX &&
+      x->pred_mv1_sad[ref_frame] > (x->pred_mv0_sad[ref_frame] << 1))
+    return true;
+
+  const int comp_pred = ref_frame2 > INTRA_FRAME;
+  if (!comp_pred) {
+    const int *const rd_threshes = cpi->rd.threshes[segment_id][bsize];
+    const int *const rd_thresh_freq_fact = x->thresh_freq_fact[bsize];
+    if (skip_mode_by_threshold(
+            this_mode, ref_frame, frame_mv[this_mode][ref_frame],
+            cpi->rc.frames_since_golden, rd_threshes, rd_thresh_freq_fact,
+            best_rdc->rdcost, best_pickmode->best_mode_skip_txfm,
+            (cpi->sf.rt_sf.nonrd_agressive_skip ? 1 : 0)))
+      return true;
+  }
+
+  return false;
+}
+
+static AOM_INLINE bool is_svc_base_layer(const AV1_COMP *cpi) {
+  return cpi->ppi->use_svc && cpi->svc.temporal_layer_id == 0;
+}
+
+static AOM_INLINE bool is_svc_enhancement_layer(const AV1_COMP *cpi) {
+  return cpi->ppi->use_svc && cpi->svc.temporal_layer_id != 0;
+}
+
 void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
                                   MACROBLOCK *x, RD_STATS *rd_cost,
                                   BLOCK_SIZE bsize, PICK_MODE_CONTEXT *ctx) {
@@ -2516,8 +2666,6 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
   struct buf_2d yv12_mb[REF_FRAMES][MAX_MB_PLANE];
   RD_STATS this_rdc, best_rdc;
   const unsigned char segment_id = mi->segment_id;
-  const int *const rd_threshes = cpi->rd.threshes[segment_id][bsize];
-  const int *const rd_thresh_freq_fact = x->thresh_freq_fact[bsize];
   int best_early_term = 0;
   unsigned int ref_costs_single[REF_FRAMES];
   int force_skip_low_temp_var = 0;
@@ -2556,13 +2704,8 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
   const int mi_col = xd->mi_col;
   int svc_mv_col = 0;
   int svc_mv_row = 0;
-  int force_mv_inter_layer = 0;
   int use_modeled_non_rd_cost = 0;
-  int comp_pred = 0;
-  int num_comp_modes_ref = 0;
   int tot_num_comp_modes = 9;
-  int ref_mv_idx = 0;
-  int skip_comp_mode = 0;
 #if CONFIG_AV1_TEMPORAL_DENOISING
   const int denoise_recheck_zeromv = 1;
   AV1_PICKMODE_CTX_DEN ctx_den;
@@ -2621,7 +2764,7 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
   // to source, so use subpel motion vector to compensate. The nonzero motion
   // is half pixel shifted to left and top, so (-4, -4). This has more effect
   // on higher resolutins, so condition it on that for now.
-  if (cpi->ppi->use_svc && svc->spatial_layer_id > 0 &&
+  if (is_svc_enhancement_layer(cpi) &&
       svc->downsample_filter_phase[svc->spatial_layer_id - 1] == 8 &&
       cm->width * cm->height > 640 * 480) {
     svc_mv_col = -4;
@@ -2636,16 +2779,18 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
 
   // Compound modes per reference pair (GOLDEN_LAST/LAST2_LAST/ALTREF_LAST):
   // (0_0)/(NEAREST_NEAREST)/(NEAR_NEAR).
-  // For now to reduce slowdowm, use only (0,0) for blocks above 16x16
+  // For now to reduce slowdown, use only (0,0) for blocks above 16x16
   // for non-svc case or on enhancement layers for svc.
-  if (cpi->sf.rt_sf.use_comp_ref_nonrd && is_comp_ref_allowed(bsize)) {
-    if (cpi->ppi->use_svc && cpi->svc.temporal_layer_id == 0)
-      num_comp_modes_ref = 2;
-    else if (bsize > BLOCK_16X16)
-      num_comp_modes_ref = 1;
-    else
-      tot_num_comp_modes = 0;
-  } else {
+  if (!cpi->sf.rt_sf.use_comp_ref_nonrd || !is_comp_ref_allowed(bsize)) {
+    tot_num_comp_modes = 0;
+  }
+  if (!is_svc_base_layer(cpi) && bsize <= BLOCK_16X16) {
+    tot_num_comp_modes = 0;
+  }
+  // Skip compound mode based on sad
+  if (cpi->sf.rt_sf.sad_based_comp_prune && bsize >= BLOCK_64X64 &&
+      cpi->src_sad_blk_64x64 != NULL &&
+      skip_comp_based_on_sad(cpi, mi_row, mi_col, bsize, x->qindex)) {
     tot_num_comp_modes = 0;
   }
 
@@ -2658,7 +2803,7 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
   }
 
   thresh_sad_pred = ((int64_t)x->pred_mv_sad[LAST_FRAME]) << 1;
-  // Increase threshold for less agressive pruning.
+  // Increase threshold for less aggressive pruning.
   if (cpi->sf.rt_sf.nonrd_prune_ref_frame_search == 1)
     thresh_sad_pred += (x->pred_mv_sad[LAST_FRAME] >> 2);
 
@@ -2695,19 +2840,12 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
              tx_mode_to_biggest_tx_size[txfm_params->tx_mode_search_type]),
       TX_16X16);
 
-  // Skip compound mode based on sad
-  if ((cpi->sf.rt_sf.sad_based_comp_prune) && (bsize >= BLOCK_64X64) &&
-      (cpi->src_sad_blk_64x64 != NULL))
-    skip_comp_mode = skip_comp_based_on_sad(cpi, x, mi_row, mi_col, bsize);
-
   for (int idx = 0; idx < num_inter_modes + tot_num_comp_modes; ++idx) {
-    const struct segmentation *const seg = &cm->seg;
-
     int rate_mv = 0;
     int is_skippable;
     int this_early_term = 0;
     int skip_this_mv = 0;
-    comp_pred = 0;
+    int comp_pred = 0;
     PREDICTION_MODE this_mode;
     MB_MODE_INFO_EXT *const mbmi_ext = &x->mbmi_ext;
     RD_STATS nonskip_rdc;
@@ -2716,48 +2854,12 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
            sizeof(txfm_info->blk_skip[0]) * num_8x8_blocks);
 
     if (idx >= num_inter_modes) {
-      if (skip_comp_mode) continue;
-      int comp_index = idx - num_inter_modes;
-      if (comp_index % 3 == 0) {
-        int i = 0;
-        ref_mv_idx = 0;
-        // Only needs to be done once per reference pair.
-        if (comp_index == 3) i = 1;
-        if (comp_index == 6) i = 2;
-        if (cpi->sf.rt_sf.ref_frame_comp_nonrd[i])
-          setup_compound_prediction(cpi, x, yv12_mb, use_ref_frame_mask, i,
-                                    &ref_mv_idx);
-      }
-      // num_comp_modes_ref == 1 only do (0,0)
-      if (num_comp_modes_ref == 1 && comp_index % 3 != 0) continue;
-      // num_comp_modes_ref == 2 only do (0,0) and (NEAREST_NEAREST)
-      if (num_comp_modes_ref == 2 && comp_index % 3 == 2) continue;
-      ref_frame = LAST_FRAME;
-      ref_frame2 = GOLDEN_FRAME;
-      if (comp_index >= 0 && comp_index < 3) {
-        // comp_index = 0,1,2 for (0/NEAREST/NEAR) for GOLDEN_LAST.
-        if (cpi->sf.rt_sf.ref_frame_comp_nonrd[0] == 0 ||
-            !(cpi->ref_frame_flags & AOM_GOLD_FLAG))
-          continue;
-      } else if (comp_index >= 3 && comp_index < 6) {
-        // comp_index = 3,4,5 for (0/NEAREST/NEAR) for LAST2_LAST.
-        ref_frame2 = LAST2_FRAME;
-        if (cpi->sf.rt_sf.ref_frame_comp_nonrd[1] == 0 ||
-            !(cpi->ref_frame_flags & AOM_LAST2_FLAG))
-          continue;
-      } else if (comp_index >= 6 && comp_index < 9) {
-        // comp_index = 6,7,8 for (0/NEAREST/NEAR) for ALTREF_LAST.
-        ref_frame2 = ALTREF_FRAME;
-        if (cpi->sf.rt_sf.ref_frame_comp_nonrd[2] == 0 ||
-            !(cpi->ref_frame_flags & AOM_ALT_FLAG))
-          continue;
-      }
-      set_compound_mode(x, comp_index, ref_frame, ref_frame2, ref_mv_idx,
-                        frame_mv, &this_mode);
-      if (this_mode != GLOBAL_GLOBALMV &&
-          frame_mv[this_mode][ref_frame].as_int == 0 &&
-          frame_mv[this_mode][ref_frame2].as_int == 0)
+      const int comp_index = idx - num_inter_modes;
+      if (setup_compound_params_from_comp_idx(
+              cpi, x, yv12_mb, bsize, &this_mode, &ref_frame, &ref_frame2,
+              frame_mv, use_ref_frame_mask, comp_index)) {
         continue;
+      }
       comp_pred = 1;
     } else {
       this_mode = ref_mode_set[idx].pred_mode;
@@ -2773,14 +2875,19 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
     mi->ref_frame[0] = ref_frame;
     mi->ref_frame[1] = ref_frame2;
 
-    if (!use_ref_frame_mask[ref_frame]) continue;
-
-    if (x->force_zeromv_skip &&
-        (this_mode != GLOBALMV || ref_frame != LAST_FRAME))
+    if (skip_inter_mode(cpi, x, mi, use_ref_frame_mask, &best_rdc,
+                        &best_pickmode, frame_mv, sse_zeromv_norm,
+                        force_skip_low_temp_var, thresh_sad_pred)) {
       continue;
+    }
 
-    force_mv_inter_layer = 0;
-    if (cpi->ppi->use_svc && svc->spatial_layer_id > 0 &&
+    // If the lower spatial layer uses an averaging filter for downsampling
+    // (phase = 8), the target decimated pixel is shifted by (1/2, 1/2) relative
+    // to source, so use subpel motion vector to compensate. The nonzero motion
+    // is half pixel shifted to left and top, so (-4, -4). This has more effect
+    // on higher resolutions, so condition it on that for now.
+    int force_mv_inter_layer = 0;
+    if (is_svc_enhancement_layer(cpi) &&
         ((ref_frame == LAST_FRAME && svc->skip_mvsearch_last) ||
          (ref_frame == GOLDEN_FRAME && svc->skip_mvsearch_gf) ||
          (ref_frame == ALTREF_FRAME && svc->skip_mvsearch_altref))) {
@@ -2795,65 +2902,6 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
                  frame_mv[this_mode][ref_frame].as_mv.row != svc_mv_row) {
         continue;
       }
-    }
-
-    // If the segment reference frame feature is enabled then do nothing if the
-    // current ref frame is not allowed.
-    if (segfeature_active(seg, segment_id, SEG_LVL_REF_FRAME) &&
-        get_segdata(seg, segment_id, SEG_LVL_REF_FRAME) != (int)ref_frame)
-      continue;
-
-    // For screen content:
-    if (cpi->oxcf.tune_cfg.content == AOM_CONTENT_SCREEN) {
-      // If source_sad is computed: skip non-zero motion
-      // check for stationary (super)blocks. Otherwise if superblock
-      // has motion skip the modes with zero motion for flat blocks.
-      if (cpi->sf.rt_sf.source_metrics_sb_nonrd) {
-        if ((frame_mv[this_mode][ref_frame].as_int != 0 &&
-             x->content_state_sb.source_sad_nonrd == kZeroSad) ||
-            (frame_mv[this_mode][ref_frame].as_int == 0 &&
-             x->content_state_sb.source_sad_nonrd != kZeroSad &&
-             x->source_variance == 0))
-          continue;
-      }
-      // Skip NEWMV search on scene cuts for flat blocks.
-      if (cpi->rc.high_source_sad && this_mode == NEWMV &&
-          (x->source_variance < 100))
-        continue;
-    }
-
-    if (skip_mode_by_bsize_and_ref_frame(
-            this_mode, ref_frame, bsize, x->nonrd_prune_ref_frame_search,
-            sse_zeromv_norm, cpi->sf.rt_sf.nonrd_agressive_skip))
-      continue;
-
-    if (skip_mode_by_low_temp(this_mode, ref_frame, bsize, x->content_state_sb,
-                              frame_mv[this_mode][ref_frame],
-                              force_skip_low_temp_var))
-      continue;
-
-    // Disable this drop out case if the ref frame segment level feature is
-    // enabled for this segment. This is to prevent the possibility that we
-    // end up unable to pick any mode.
-    if (!segfeature_active(seg, segment_id, SEG_LVL_REF_FRAME)) {
-      // Check for skipping GOLDEN and ALTREF based pred_mv_sad.
-      if (cpi->sf.rt_sf.nonrd_prune_ref_frame_search > 0 &&
-          x->pred_mv_sad[ref_frame] != INT_MAX && ref_frame != LAST_FRAME) {
-        if ((int64_t)(x->pred_mv_sad[ref_frame]) > thresh_sad_pred) continue;
-      }
-    }
-    // Check for skipping NEARMV based on pred_mv_sad.
-    if (this_mode == NEARMV && x->pred_mv1_sad[ref_frame] != INT_MAX &&
-        x->pred_mv1_sad[ref_frame] > (x->pred_mv0_sad[ref_frame] << 1))
-      continue;
-
-    if (!comp_pred) {
-      if (skip_mode_by_threshold(
-              this_mode, ref_frame, frame_mv[this_mode][ref_frame],
-              cpi->rc.frames_since_golden, rd_threshes, rd_thresh_freq_fact,
-              best_rdc.rdcost, best_pickmode.best_mode_skip_txfm,
-              (cpi->sf.rt_sf.nonrd_agressive_skip ? 1 : 0)))
-        continue;
     }
 
     // Select prediction reference frames.
