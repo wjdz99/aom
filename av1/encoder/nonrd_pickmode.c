@@ -2369,11 +2369,10 @@ void set_color_sensitivity(AV1_COMP *cpi, MACROBLOCK *x, MACROBLOCKD *xd,
   }
 }
 
-void setup_compound_prediction(AV1_COMP *cpi, MACROBLOCK *x,
+void setup_compound_prediction(const AV1_COMMON *cm, MACROBLOCK *x,
                                struct buf_2d yv12_mb[8][MAX_MB_PLANE],
-                               int *use_ref_frame_mask, int flag_comp,
+                               const int *use_ref_frame_mask, int flag_comp,
                                int *ref_mv_idx) {
-  AV1_COMMON *const cm = &cpi->common;
   MACROBLOCKD *const xd = &x->e_mbd;
   MB_MODE_INFO *const mbmi = xd->mi[0];
   MB_MODE_INFO_EXT *const mbmi_ext = &x->mbmi_ext;
@@ -2435,10 +2434,10 @@ static void set_compound_mode(MACROBLOCK *x, int comp_index, int ref_frame,
   }
 }
 
-static int skip_comp_based_on_sad(AV1_COMP *cpi, MACROBLOCK *x,
-                                  const int mi_row, const int mi_col,
-                                  BLOCK_SIZE bsize) {
-  AV1_COMMON *const cm = &cpi->common;
+static int skip_comp_based_on_sad(const AV1_COMP *cpi, const int mi_row,
+                                  const int mi_col, BLOCK_SIZE bsize,
+                                  int qindex) {
+  const AV1_COMMON *const cm = &cpi->common;
   assert(!(mi_row % 16) && !(mi_col % 16));
   const int sb_size_by_mb = (cm->seq_params->sb_size == BLOCK_128X128)
                                 ? (cm->seq_params->mib_size >> 1)
@@ -2449,7 +2448,7 @@ static int skip_comp_based_on_sad(AV1_COMP *cpi, MACROBLOCK *x,
                                            { 2700, 3200 } };  // CPU 10
   const uint64_t sad_blkwise_var_th = 5000;
   const float qindex_th_scale[5] = { 0.75f, 0.9f, 1.0f, 1.1f, 1.25f };
-  const int qindex_band = (5 * x->qindex) >> QINDEX_BITS;
+  const int qindex_band = (5 * qindex) >> QINDEX_BITS;
   assert(qindex_band < 5);
   const int sp_idx = (cpi->sf.rt_sf.sad_based_comp_prune >= 2);
   const int bsize_idx = (bsize == BLOCK_128X128);
@@ -2492,6 +2491,68 @@ static int skip_comp_based_on_sad(AV1_COMP *cpi, MACROBLOCK *x,
 
   if (blk_sad < sad_skp_comp_th_val) return 1;
 
+  return 0;
+}
+
+// Set up the mv/ref_frames etc based on the comp_index. Returns 0 if it
+// succeeds, 1 if it fails.
+static AOM_INLINE int setup_compound_params_from_comp_idx(
+    const AV1_COMP *cpi, MACROBLOCK *x, struct buf_2d yv12_mb[8][MAX_MB_PLANE],
+    BLOCK_SIZE bsize, PREDICTION_MODE *this_mode, MV_REFERENCE_FRAME *ref_frame,
+    MV_REFERENCE_FRAME *ref_frame2, int_mv frame_mv[MB_MODE_COUNT][REF_FRAMES],
+    const int *use_ref_frame_mask, int comp_index) {
+  const AV1_COMMON *const cm = &cpi->common;
+  int ref_mv_idx = 0;
+  int num_comp_modes_ref = 0;
+  *ref_frame = LAST_FRAME;
+  *ref_frame2 = GOLDEN_FRAME;
+
+  if (cpi->ppi->use_svc && cpi->svc.temporal_layer_id == 0)
+    num_comp_modes_ref = 2;
+  else if (bsize > BLOCK_16X16)
+    num_comp_modes_ref = 1;
+  if (cpi->ppi->use_svc && cpi->svc.temporal_layer_id == 0)
+    num_comp_modes_ref = 2;
+  else if (bsize > BLOCK_16X16)
+    num_comp_modes_ref = 1;
+
+  if (comp_index % 3 == 0) {
+    int i = 0;
+    // Only needs to be done once per reference pair.
+    if (comp_index == 3) i = 1;
+    if (comp_index == 6) i = 2;
+    if (cpi->sf.rt_sf.ref_frame_comp_nonrd[i])
+      setup_compound_prediction(cm, x, yv12_mb, use_ref_frame_mask, i,
+                                &ref_mv_idx);
+  }
+  // num_comp_modes_ref == 1 only do (0,0)
+  if (num_comp_modes_ref == 1 && comp_index % 3 != 0) return 1;
+  // num_comp_modes_ref == 2 only do (0,0) and (NEAREST_NEAREST)
+  if (num_comp_modes_ref == 2 && comp_index % 3 == 2) return 1;
+  if (comp_index >= 0 && comp_index < 3) {
+    // comp_index = 0,1,2 for (0/NEAREST/NEAR) for GOLDEN_LAST.
+    if (cpi->sf.rt_sf.ref_frame_comp_nonrd[0] == 0 ||
+        !(cpi->ref_frame_flags & AOM_GOLD_FLAG))
+      return 1;
+  } else if (comp_index >= 3 && comp_index < 6) {
+    // comp_index = 3,4,5 for (0/NEAREST/NEAR) for LAST2_LAST.
+    *ref_frame2 = LAST2_FRAME;
+    if (cpi->sf.rt_sf.ref_frame_comp_nonrd[1] == 0 ||
+        !(cpi->ref_frame_flags & AOM_LAST2_FLAG))
+      return 1;
+  } else if (comp_index >= 6 && comp_index < 9) {
+    // comp_index = 6,7,8 for (0/NEAREST/NEAR) for ALTREF_LAST.
+    *ref_frame2 = ALTREF_FRAME;
+    if (cpi->sf.rt_sf.ref_frame_comp_nonrd[2] == 0 ||
+        !(cpi->ref_frame_flags & AOM_ALT_FLAG))
+      return 1;
+  }
+  set_compound_mode(x, comp_index, *ref_frame, *ref_frame2, ref_mv_idx,
+                    frame_mv, this_mode);
+  if (*this_mode != GLOBAL_GLOBALMV &&
+      frame_mv[*this_mode][*ref_frame].as_int == 0 &&
+      frame_mv[*this_mode][*ref_frame2].as_int == 0)
+    return 1;
   return 0;
 }
 
@@ -2558,11 +2619,7 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
   int svc_mv_row = 0;
   int force_mv_inter_layer = 0;
   int use_modeled_non_rd_cost = 0;
-  int comp_pred = 0;
-  int num_comp_modes_ref = 0;
   int tot_num_comp_modes = 9;
-  int ref_mv_idx = 0;
-  int skip_comp_mode = 0;
 #if CONFIG_AV1_TEMPORAL_DENOISING
   const int denoise_recheck_zeromv = 1;
   AV1_PICKMODE_CTX_DEN ctx_den;
@@ -2636,16 +2693,19 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
 
   // Compound modes per reference pair (GOLDEN_LAST/LAST2_LAST/ALTREF_LAST):
   // (0_0)/(NEAREST_NEAREST)/(NEAR_NEAR).
-  // For now to reduce slowdowm, use only (0,0) for blocks above 16x16
+  // For now to reduce slowdown, use only (0,0) for blocks above 16x16
   // for non-svc case or on enhancement layers for svc.
-  if (cpi->sf.rt_sf.use_comp_ref_nonrd && is_comp_ref_allowed(bsize)) {
-    if (cpi->ppi->use_svc && cpi->svc.temporal_layer_id == 0)
-      num_comp_modes_ref = 2;
-    else if (bsize > BLOCK_16X16)
-      num_comp_modes_ref = 1;
-    else
-      tot_num_comp_modes = 0;
-  } else {
+  if (!cpi->sf.rt_sf.use_comp_ref_nonrd || !is_comp_ref_allowed(bsize)) {
+    tot_num_comp_modes = 0;
+  }
+  if (!(cpi->ppi->use_svc && cpi->svc.temporal_layer_id == 0) &&
+      bsize <= BLOCK_16X16) {
+    tot_num_comp_modes = 0;
+  }
+  // Skip compound mode based on sad
+  if (cpi->sf.rt_sf.sad_based_comp_prune && bsize >= BLOCK_64X64 &&
+      cpi->src_sad_blk_64x64 != NULL &&
+      skip_comp_based_on_sad(cpi, mi_row, mi_col, bsize, x->qindex)) {
     tot_num_comp_modes = 0;
   }
 
@@ -2695,11 +2755,6 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
              tx_mode_to_biggest_tx_size[txfm_params->tx_mode_search_type]),
       TX_16X16);
 
-  // Skip compound mode based on sad
-  if ((cpi->sf.rt_sf.sad_based_comp_prune) && (bsize >= BLOCK_64X64) &&
-      (cpi->src_sad_blk_64x64 != NULL))
-    skip_comp_mode = skip_comp_based_on_sad(cpi, x, mi_row, mi_col, bsize);
-
   for (int idx = 0; idx < num_inter_modes + tot_num_comp_modes; ++idx) {
     const struct segmentation *const seg = &cm->seg;
 
@@ -2707,7 +2762,7 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
     int is_skippable;
     int this_early_term = 0;
     int skip_this_mv = 0;
-    comp_pred = 0;
+    int comp_pred = 0;
     PREDICTION_MODE this_mode;
     MB_MODE_INFO_EXT *const mbmi_ext = &x->mbmi_ext;
     RD_STATS nonskip_rdc;
@@ -2716,48 +2771,12 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
            sizeof(txfm_info->blk_skip[0]) * num_8x8_blocks);
 
     if (idx >= num_inter_modes) {
-      if (skip_comp_mode) continue;
-      int comp_index = idx - num_inter_modes;
-      if (comp_index % 3 == 0) {
-        int i = 0;
-        ref_mv_idx = 0;
-        // Only needs to be done once per reference pair.
-        if (comp_index == 3) i = 1;
-        if (comp_index == 6) i = 2;
-        if (cpi->sf.rt_sf.ref_frame_comp_nonrd[i])
-          setup_compound_prediction(cpi, x, yv12_mb, use_ref_frame_mask, i,
-                                    &ref_mv_idx);
-      }
-      // num_comp_modes_ref == 1 only do (0,0)
-      if (num_comp_modes_ref == 1 && comp_index % 3 != 0) continue;
-      // num_comp_modes_ref == 2 only do (0,0) and (NEAREST_NEAREST)
-      if (num_comp_modes_ref == 2 && comp_index % 3 == 2) continue;
-      ref_frame = LAST_FRAME;
-      ref_frame2 = GOLDEN_FRAME;
-      if (comp_index >= 0 && comp_index < 3) {
-        // comp_index = 0,1,2 for (0/NEAREST/NEAR) for GOLDEN_LAST.
-        if (cpi->sf.rt_sf.ref_frame_comp_nonrd[0] == 0 ||
-            !(cpi->ref_frame_flags & AOM_GOLD_FLAG))
-          continue;
-      } else if (comp_index >= 3 && comp_index < 6) {
-        // comp_index = 3,4,5 for (0/NEAREST/NEAR) for LAST2_LAST.
-        ref_frame2 = LAST2_FRAME;
-        if (cpi->sf.rt_sf.ref_frame_comp_nonrd[1] == 0 ||
-            !(cpi->ref_frame_flags & AOM_LAST2_FLAG))
-          continue;
-      } else if (comp_index >= 6 && comp_index < 9) {
-        // comp_index = 6,7,8 for (0/NEAREST/NEAR) for ALTREF_LAST.
-        ref_frame2 = ALTREF_FRAME;
-        if (cpi->sf.rt_sf.ref_frame_comp_nonrd[2] == 0 ||
-            !(cpi->ref_frame_flags & AOM_ALT_FLAG))
-          continue;
-      }
-      set_compound_mode(x, comp_index, ref_frame, ref_frame2, ref_mv_idx,
-                        frame_mv, &this_mode);
-      if (this_mode != GLOBAL_GLOBALMV &&
-          frame_mv[this_mode][ref_frame].as_int == 0 &&
-          frame_mv[this_mode][ref_frame2].as_int == 0)
+      const int comp_index = idx - num_inter_modes;
+      if (setup_compound_params_from_comp_idx(
+              cpi, x, yv12_mb, bsize, &this_mode, &ref_frame, &ref_frame2,
+              frame_mv, use_ref_frame_mask, comp_index)) {
         continue;
+      }
       comp_pred = 1;
     } else {
       this_mode = ref_mode_set[idx].pred_mode;
