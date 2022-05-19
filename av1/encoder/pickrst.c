@@ -1122,6 +1122,8 @@ static int linsolve_wiener(int n, int64_t *A, int stride, int64_t *b,
   return 1;
 }
 
+#define SYMBOL_BITS 28
+
 // Fix vector b, update vector a
 static AOM_INLINE void update_a_sep_sym(int wiener_win, int64_t **Mc,
                                         int64_t **Hc, int32_t *a, int32_t *b) {
@@ -1175,8 +1177,10 @@ static AOM_INLINE void update_a_sep_sym(int wiener_win, int64_t **Mc,
       S[wiener_halfwin1 - 1] -= 2 * S[i];
     }
     for (i = 0; i < wiener_win; ++i) {
-      a[i] = (int32_t)CLIP(S[i], -(1 << (WIENER_FILT_BITS - 1)),
-                           (1 << (WIENER_FILT_BITS - 1)) - 1);
+      // H may use (signed) 26 bits with 12-bit content. After descaling H * b
+      // by 16, the result may take (signed) 37 bits.
+      a[i] = (int32_t)CLIP(S[i], -(1 << (SYMBOL_BITS - 1)),
+                           (1 << (SYMBOL_BITS - 1)) - 1);
     }
   }
 }
@@ -1235,11 +1239,15 @@ static AOM_INLINE void update_b_sep_sym(int wiener_win, int64_t **Mc,
       S[wiener_halfwin1 - 1] -= 2 * S[i];
     }
     for (i = 0; i < wiener_win; ++i) {
-      b[i] = (int32_t)CLIP(S[i], -(1 << (WIENER_FILT_BITS - 1)),
-                           (1 << (WIENER_FILT_BITS - 1)) - 1);
+      // H may use (signed) 26 bits with 12-bit content. After descaling H * b
+      // by 16, the result may take (signed) 37 bits.
+      b[i] = (int32_t)CLIP(S[i], -(1 << (SYMBOL_BITS - 1)),
+                           (1 << (SYMBOL_BITS - 1)) - 1);
     }
   }
 }
+
+#undef SYMBOL_BITS
 
 static void wiener_decompose_sep_sym(int wiener_win, int64_t *M, int64_t *H,
                                      int32_t *a, int32_t *b) {
