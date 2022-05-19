@@ -186,6 +186,7 @@ static const char kY4MRegularHeader[] =
 
 TEST(Y4MHeaderTest, RegularHeader) {
   libaom_test::TempOutFile f;
+  ASSERT_NE(f.file(), nullptr);
   fwrite(kY4MRegularHeader, 1, sizeof(kY4MRegularHeader), f.file());
   fflush(f.file());
   EXPECT_EQ(0, fseek(f.file(), 0, 0));
@@ -213,6 +214,7 @@ static const char kY4MLongHeader[] =
 
 TEST(Y4MHeaderTest, LongHeader) {
   libaom_test::TempOutFile tmpfile;
+  ASSERT_NE(tmpfile.file(), nullptr);
   FILE *f = tmpfile.file();
   fwrite(kY4MLongHeader, 1, sizeof(kY4MLongHeader), f);
   fflush(f);
@@ -239,6 +241,7 @@ static const char kY4MFullRangeHeader[] =
 
 TEST(Y4MHeaderTest, FullRangeHeader) {
   libaom_test::TempOutFile tmpfile;
+  ASSERT_NE(tmpfile.file(), nullptr);
   FILE *f = tmpfile.file();
   fwrite(kY4MFullRangeHeader, 1, sizeof(kY4MFullRangeHeader), f);
   fflush(f);
