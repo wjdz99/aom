@@ -16,6 +16,23 @@
       "message": "Hi Wan-Teh, Chi Yo,\n\nWe have pushed the latest patch-set after taking care of your comments. \n\nPlease review.\n\nRegards,\nMudassir\n",
       "revId": "8737c732eb48e4dbbedf401e41c4911668b39e9e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7ca26e31_4160c351",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-05-19T17:37:39Z",
+      "side": 1,
+      "message": "LGTM. Chi Yo, what do you think?",
+      "revId": "8737c732eb48e4dbbedf401e41c4911668b39e9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
