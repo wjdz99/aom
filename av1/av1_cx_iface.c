@@ -2867,13 +2867,20 @@ static aom_codec_err_t encoder_encode(aom_codec_alg_priv_t *ctx,
       if (!ppi->lookahead) {
         int lag_in_frames = cpi_lap != NULL ? cpi_lap->oxcf.gf_cfg.lag_in_frames
                                             : cpi->oxcf.gf_cfg.lag_in_frames;
+
         AV1EncoderConfig *oxcf = &cpi->oxcf;
         const BLOCK_SIZE sb_size = av1_select_sb_size(
             oxcf, oxcf->frm_dim_cfg.width, oxcf->frm_dim_cfg.height,
             cpi->svc.number_spatial_layers);
-        oxcf->border_in_pixels =
+        const int border_size =
             av1_get_enc_border_size(av1_is_resize_needed(oxcf),
                                     oxcf->kf_cfg.key_freq_max == 0, sb_size);
+        oxcf->border_in_pixels = border_size;
+#if CONFIG_FRAME_PARALLEL_ENCODE
+        for (int i = 0; i < ppi->num_fp_contexts; i++) {
+          ppi->parallel_cpi[i]->oxcf.border_in_pixels = border_size;
+        }
+#endif
 
         ppi->lookahead = av1_lookahead_init(
             cpi->oxcf.frm_dim_cfg.width, cpi->oxcf.frm_dim_cfg.height,
