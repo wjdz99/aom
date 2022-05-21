@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1110e3c5_2938e03c",
+        "filename": "test/video_source.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-05-21T05:02:18Z",
+      "side": 1,
+      "message": "I was going to send a fix, but this was improved recently.",
+      "range": {
+        "startLine": 82,
+        "startChar": 44,
+        "endLine": 82,
+        "endChar": 73
+      },
+      "revId": "d7c2dad904a7e03a05a1e725923cb17d845d1503",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3b4cd106_2a5ec760",
+        "filename": "test/video_source.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-05-21T05:02:18Z",
+      "side": 1,
+      "message": "name_template.data() would be an option if this were built as c++17. const_cast\u0027ing the earlier version is considered undefined behavior.",
+      "revId": "d7c2dad904a7e03a05a1e725923cb17d845d1503",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
