@@ -353,10 +353,14 @@ if(CONFIG_AV1_ENCODER AND ENABLE_TESTS)
               "${AOM_ROOT}/test/y4m_video_source.h"
               "${AOM_ROOT}/test/yuv_video_source.h")
 
-  list(APPEND AV1_RC_QMODE_SOURCES "${AOM_ROOT}/test/mock_ratectrl_qmode.h"
+  list(APPEND AV1_RC_QMODE_SOURCES
+              "${AOM_ROOT}/test/mock_ratectrl_qmode.h"
               "${AOM_ROOT}/test/ratectrl_qmode_test.cc"
               "${AOM_ROOT}/test/ducky_encode_test.cc"
-              "${AOM_ROOT}/common/y4minput.c" "${AOM_ROOT}/common/y4minput.h"
+              "${AOM_ROOT}/common/y4minput.c"
+              "${AOM_ROOT}/common/y4minput.h"
+              "${AOM_ROOT}/common/ivfenc.c"
+              "${AOM_ROOT}/common/ivfenc.h"
               "${AOM_ROOT}/common/tools_common.c"
               "${AOM_ROOT}/common/tools_common.h"
               "${AOM_GEN_SRC_DIR}/usage_exit.c")
