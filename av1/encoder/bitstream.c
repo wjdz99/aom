@@ -3394,11 +3394,16 @@ uint32_t av1_write_sequence_header_obu(const SequenceHeader *seq_params,
               &wb);
         }
       }
+      printf(
+          "av1_write_sequence_header_obu display_model_info_present_flag %d\n",
+          seq_params->display_model_info_present_flag);
       if (seq_params->display_model_info_present_flag) {
         aom_wb_write_bit(
             &wb, seq_params->op_params[i].display_model_param_present_flag);
         if (seq_params->op_params[i].display_model_param_present_flag) {
           assert(seq_params->op_params[i].initial_display_delay <= 10);
+          printf("i %d initial_display_delay %d\n", i,
+                 seq_params->op_params[i].initial_display_delay);
           aom_wb_write_literal(
               &wb, seq_params->op_params[i].initial_display_delay - 1, 4);
         }

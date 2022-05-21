@@ -210,10 +210,13 @@ static uint32_t read_sequence_header_obu(AV1Decoder *pbi,
         if (seq_params->op_params[i].display_model_param_present_flag) {
           seq_params->op_params[i].initial_display_delay =
               aom_rb_read_literal(rb, 4) + 1;
-          if (seq_params->op_params[i].initial_display_delay > 10)
+          printf("\ndeco i %d initial_display_delay %d\n", i,
+                 seq_params->op_params[i].initial_display_delay);
+          if (seq_params->op_params[i].initial_display_delay > 10) {
             aom_internal_error(
                 &pbi->error, AOM_CODEC_UNSUP_BITSTREAM,
                 "AV1 does not support more than 10 decoded frames delay");
+          }
         } else {
           seq_params->op_params[i].initial_display_delay = 10;
         }

@@ -11,6 +11,7 @@
 #ifndef AOM_COMMON_IVFENC_H_
 #define AOM_COMMON_IVFENC_H_
 
+#include "aom/aom_encoder.h"
 #include "common/tools_common.h"
 
 struct aom_codec_enc_cfg;
@@ -19,6 +20,11 @@ struct aom_codec_cx_pkt;
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+void ivf_write_file_header_with_video_info(FILE *outfile, unsigned int fourcc,
+                                           int frame_cnt, int frame_width,
+                                           int frame_height,
+                                           aom_rational_t timebase);
 
 void ivf_write_file_header(FILE *outfile, const struct aom_codec_enc_cfg *cfg,
                            uint32_t fourcc, int frame_cnt);
