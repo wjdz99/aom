@@ -53,6 +53,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e307cd38_94ae2693",
+        "filename": "test/film_grain_table_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 195,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-05-21T02:21:43Z",
+      "side": 1,
+      "message": "\u003e \u003e ```\n\u003e \u003e static FILE *GetTempOutFile(std::string *file_name) {\n\u003e \u003e   file_name-\u003eclear();\n\u003e \u003e #if defined(_WIN32)\n\u003e \u003e   ...\n\u003e \u003e #else\n\u003e \u003e   char name_template[] \u003d \"/tmp/libaomtest.XXXXXX\";\n\u003e \u003e   const int fd \u003d mkstemp(name_template);\n\u003e \u003e   *file_name \u003d name_template;\n\u003e \u003e   return fdopen(fd, \"wb+\");\n\u003e \u003e #endif\n\u003e \u003e }\n\u003e \u003e ```\n\u003e \u003e \n\u003e \u003e If mkstemp() returns -1, ideally we should return NULL without calling fdopen(). The fdopen() man page says it *may* return NULL (with errno\u003dEBADF) if -1 is passed:\n\u003e \u003e \n\u003e \u003e https://pubs.opengroup.org/onlinepubs/9699919799/functions/fdopen.html\n\u003e \n\u003e I\u0027ll follow up with a change that addresses this and uses testing::TempDir() as you suggested.\n\nhttps://aomedia-review.googlesource.com/c/aom/+/158243",
+      "parentUuid": "56817457_b0082d6f",
+      "revId": "5941268c963a66d6fc990bfc6c558ab1ce2db876",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d55c6ffc_af82943a",
