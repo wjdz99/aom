@@ -19,6 +19,9 @@
 #endif
 #include <cstdio>
 #include <cstdlib>
+#include <cstring>
+#include <memory>
+#include <new>
 #include <string>
 #include "test/acm_random.h"
 #include "aom/aom_encoder.h"
@@ -71,9 +74,25 @@ static FILE *GetTempOutFile(std::string *file_name) {
   }
   return NULL;
 #else
-  char name_template[] = "/tmp/libaomtest.XXXXXX";
-  const int fd = mkstemp(name_template);
-  *file_name = name_template;
+  std::string temp_dir = testing::TempDir();
+  if (temp_dir.empty()) {
+    EXPECT_FALSE(temp_dir.empty());
+    return NULL;
+  }
+  // testing::TempDir() may use the value of an environment variable without
+  // checking for a trailing path delimiter.
+  if (temp_dir[temp_dir.size() - 1] != '/') temp_dir += '/';
+  const std::string name_template = temp_dir + "libaomtest.XXXXXX";
+  std::unique_ptr<char[]> temp_file_name(
+      new (std::nothrow) char[name_template.size() + 1]);
+  if (temp_file_name == nullptr) {
+    EXPECT_NE(temp_file_name, nullptr);
+    return NULL;
+  }
+  strcpy(temp_file_name.get(), name_template.c_str());
+  const int fd = mkstemp(temp_file_name.get());
+  if (fd == -1) return NULL;
+  *file_name = temp_file_name.get();
   return fdopen(fd, "wb+");
 #endif
 }
