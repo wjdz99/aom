@@ -341,6 +341,17 @@ static void cyclic_refresh_update_map(AV1_COMP *const cpi) {
   unsigned char *const seg_map = cpi->enc_seg.map;
   int i, block_count, bl_index, sb_rows, sb_cols, sbs_in_frame;
   int xmis, ymis, x, y;
+  uint64_t sb_sad = 0;
+  uint64_t thresh_sad_low = 0;
+  uint64_t thresh_sad = INT64_MAX;
+  // Don't contrain the map new key frame or new scene/slide change.
+  if (cr->use_block_sad_scene_det && cpi->rc.frames_since_key > 30 &&
+      cr->counter_encode_maxq_scene_change > 30) {
+    int scale1 = (cm->width * cm->height < 640 * 360) ? 5 : 7;
+    int scale2 = (cm->width * cm->height < 640 * 360) ? 2 : 3;
+    thresh_sad = (scale1 * 64 * 64);
+    thresh_sad_low = (scale2 * 64 * 64);
+  }
   memset(seg_map, CR_SEGMENT_ID_BASE, mi_params->mi_rows * mi_params->mi_cols);
   sb_cols = (mi_params->mi_cols + cm->seq_params->mib_size - 1) /
             cm->seq_params->mib_size;
@@ -370,6 +381,9 @@ static void cyclic_refresh_update_map(AV1_COMP *const cpi) {
     // Loop through all MI blocks in superblock and update map.
     xmis = AOMMIN(mi_params->mi_cols - mi_col, cm->seq_params->mib_size);
     ymis = AOMMIN(mi_params->mi_rows - mi_row, cm->seq_params->mib_size);
+    if (cr->use_block_sad_scene_det && cpi->src_sad_blk_64x64 != NULL) {
+      sb_sad = cpi->src_sad_blk_64x64[sb_col_index + sb_cols * sb_row_index];
+    }
     // cr_map only needed at 8x8 blocks.
     for (y = 0; y < ymis; y += 2) {
       for (x = 0; x < xmis; x += 2) {
@@ -377,7 +391,7 @@ static void cyclic_refresh_update_map(AV1_COMP *const cpi) {
         // If the block is as a candidate for clean up then mark it
         // for possible boost/refresh (segment 1). The segment id may get
         // reset to 0 later if block gets coded anything other than GLOBALMV.
-        if (cr->map[bl_index2] == 0) {
+        if (cr->map[bl_index2] == 0 || sb_sad < thresh_sad_low) {
           sum_map += 4;
         } else if (cr->map[bl_index2] < 0) {
           cr->map[bl_index2]++;
@@ -386,7 +400,7 @@ static void cyclic_refresh_update_map(AV1_COMP *const cpi) {
     }
     // Enforce constant segment over superblock.
     // If segment is at least half of superblock, set to 1.
-    if (sum_map >= (xmis * ymis) >> 1) {
+    if (sum_map >= (xmis * ymis) >> 1 && sb_sad < thresh_sad) {
       for (y = 0; y < ymis; y++)
         for (x = 0; x < xmis; x++) {
           seg_map[bl_index + y * mi_params->mi_cols + x] = CR_SEGMENT_ID_BOOST1;
@@ -399,6 +413,11 @@ static void cyclic_refresh_update_map(AV1_COMP *const cpi) {
     }
   } while (cr->target_num_seg_blocks < block_count && i != cr->sb_index);
   cr->sb_index = i;
+  if (cr->target_num_seg_blocks == 0) {
+    // Set segmentation map to 0 and disable.
+    memset(seg_map, 0, cm->mi_params.mi_rows * cm->mi_params.mi_cols);
+    av1_disable_segmentation(&cm->seg);
+  }
 }
 
 // Set cyclic refresh parameters.
@@ -451,6 +470,11 @@ void av1_cyclic_refresh_update_parameters(AV1_COMP *const cpi) {
     cr->percent_refresh = 15;
   cr->max_qdelta_perc = 60;
   cr->time_for_refresh = 0;
+  cr->use_block_sad_scene_det =
+      (cpi->oxcf.tune_cfg.content != AOM_CONTENT_SCREEN &&
+       cm->seq_params->sb_size == BLOCK_64X64)
+          ? 1
+          : 0;
   cr->motion_thresh = 32;
   cr->rate_boost_fac =
       (cpi->oxcf.tune_cfg.content == AOM_CONTENT_SCREEN) ? 10 : 15;
