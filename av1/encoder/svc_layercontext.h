@@ -118,6 +118,7 @@ typedef struct SVC {
   int num_encoded_top_layer;
   int first_layer_denoise;
   int high_source_sad_superframe;
+  int last_frame_is_temporal_base;
   /*!\endcond */
 
   /*!

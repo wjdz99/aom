@@ -360,7 +360,8 @@ static struct lookahead_entry *choose_frame_source(
   if (frame_params->show_frame) {
     // show frame, pop from buffer
     // Get last frame source.
-    if (cm->current_frame.frame_number > 0) {
+    if (cm->current_frame.frame_number > 0 &&
+        (cpi->svc.number_temporal_layers == 1 || cpi->svc.last_frame_is_temporal_base)) {
       *last_source = av1_lookahead_peek(cpi->ppi->lookahead, src_index - 1,
                                         cpi->compressor_stage);
     }

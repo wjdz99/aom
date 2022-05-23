@@ -268,6 +268,7 @@ void av1_save_layer_context(AV1_COMP *const cpi) {
   }
   if (svc->spatial_layer_id == svc->number_spatial_layers - 1)
     svc->current_superframe++;
+  svc->last_frame_is_temporal_base = (svc->temporal_layer_id == 0) ? 1 : 0;
 }
 
 int av1_svc_primary_ref_frame(const AV1_COMP *const cpi) {

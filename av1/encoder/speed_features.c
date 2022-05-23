@@ -2209,6 +2209,11 @@ void av1_set_speed_features_qindex_dependent(AV1_COMP *cpi, int speed) {
               ? 0
               : cm->quant_params.base_qindex > qindex_thresh;
     }
+    if (cpi->svc.number_temporal_layers > 1) {
+      if (cpi->svc.temporal_layer_id == 0 &&
+          cm->quant_params.base_qindex < 180)
+        sf->rt_sf.force_large_partition_blocks = 0;
+    }
     return;
   }
 
