@@ -1354,6 +1354,9 @@ static void set_rt_speed_feature_framesize_dependent(const AV1_COMP *const cpi,
     }
     sf->rt_sf.partition_direct_merging = 0;
   }
+  if (cpi->svc.number_temporal_layers > 1) {
+    if (cpi->svc.temporal_layer_id == 0) sf->rt_sf.nonrd_agressive_skip = 0;
+  }
 }
 
 // TODO(kyslov): now this is very similar to
