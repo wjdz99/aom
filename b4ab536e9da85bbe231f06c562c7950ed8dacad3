@@ -16,6 +16,154 @@
       "message": "Hi Wan-Teh, Frank,\n\nIn this CL, we refactored the code related to CfL mode evaluation when the speed feature cfl_search_range is set to 1. In the parent version of the CL, the best alpha and the relevant rd cost are computed for each chroma plane one after the other. However the computed rd costs are discarded if alpha parameters of both the chroma planes are zeroes as this is not a valid scenario.\n  \nIn this CL, we refactored the code to compute alpha parameters of both the planes first and the relevant rd cost computation is skipped if alpha parameters of both the chroma planes are zeroes, thus saving transform evaluation. The CL is applicable only for --allintra, speed\u003e\u003d6 and is bit-exact with the parent version. \n \nFor AVIF still-image encode with tune\u003dpsnr,\n\n        Encode Time  \nspeed    Reduction(%) \n  6        1.161\n  7        1.773\n  8        0.961\n  \nFor AVIF still-image encode with tune\u003dssim,\n\n         Encode Time  \nspeed    Reduction(%) \n  6        1.134\n  7        1.857\n  8        1.138\n\nFollowing are the instruction count reduction results when libaom –allintra frame encoding (50 frames) was tested for a borg setup. \n   \n       Instruction Count  \nspeed    Reduction(%) \n  6        1.334\n  7        1.544\n  8        1.294\n\nFor libaom AV1 video encode, bit-match is verified (w.r.t. parent commit) for \u0027GOOD\u0027 and \u0027RT\u0027 encoding modes for a few contents with different encoding configurations. It is verified that the CL is bit-exact for --allintra encode, speed\u003d4,5 with no speed impact (speed-up through the current CL is not applicable for these presets as cfl_search_range is not set to 1 at these speed levels).\n\nThe instruction count reduction specified has been measured using the command:\n$ perf stat -e instructions:u ./aomenc …\n\nPlease review the CL. \n\nRegards,\nRanjit\n",
       "revId": "b4ab536e9da85bbe231f06c562c7950ed8dacad3",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c743d7e0_327fde16",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-05-23T22:47:09Z",
+      "side": 1,
+      "message": "Hi Ranjit,\n\nI suggest some comments. I am not familiar with CfL. But I read your CL and can follow it mostly.",
+      "revId": "b4ab536e9da85bbe231f06c562c7950ed8dacad3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fbb3ff8d_006b7565",
+        "filename": "av1/encoder/intra_mode_search.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 582,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-05-23T22:47:09Z",
+      "side": 1,
+      "message": "Nit/optional: Should we declare the cfl_dir_ls constant array here? It is only used by the next two functions, so it seems good to declare it close to its users.",
+      "revId": "b4ab536e9da85bbe231f06c562c7950ed8dacad3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "161a254a_899b6910",
+        "filename": "av1/encoder/intra_mode_search.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 583,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-05-23T22:47:09Z",
+      "side": 1,
+      "message": "Please document the return value of this function.",
+      "revId": "b4ab536e9da85bbe231f06c562c7950ed8dacad3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "63a518e4_756ea184",
+        "filename": "av1/encoder/intra_mode_search.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 639,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-05-23T22:47:09Z",
+      "side": 1,
+      "message": "At this point, if cfl_search_range \u003d\u003d 1, we can skip the rest of the function and return immediately, because the nested for loop is a no-op.",
+      "revId": "b4ab536e9da85bbe231f06c562c7950ed8dacad3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f1fc145b_f883fb5b",
+        "filename": "av1/encoder/intra_mode_search.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 688,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-05-23T22:47:09Z",
+      "side": 1,
+      "message": "Nit/optional: This can be declared as two variables. It seems to make the code slightly easier to understand:\n\n  int est_best_cfl_idx_u, est_best_cfl_idx_v;",
+      "revId": "b4ab536e9da85bbe231f06c562c7950ed8dacad3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "14da297a_ca0a4991",
+        "filename": "av1/encoder/intra_mode_search.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 693,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-05-23T22:47:09Z",
+      "side": 1,
+      "message": "Nit: It would be good to note that xd-\u003ecfl.use_dc_pred_cache is set to 1 while we call cfl_pick_plane_parameter() and cfl_pick_plane_rd(), and xd-\u003ecfl.use_dc_pred_cache must be reset to 0 (and both xd-\u003ecfl.dc_pred_is_cached[0] and xd-\u003ecfl.dc_pred_is_cached[1] be set to 0) before returning from this function.\n\nIf you know why we have to this, it would be good to explain that in the comment.",
+      "revId": "b4ab536e9da85bbe231f06c562c7950ed8dacad3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "da530677_4412792e",
+        "filename": "av1/encoder/intra_mode_search.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 699,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-05-23T22:47:09Z",
+      "side": 1,
+      "message": "Nit/optional: It would be good to explain why we check cfl_search_range \u003d\u003d 1 here. It\u0027s okay to omit the comment if this is obvious to people familiar with cfl_search_range.",
+      "range": {
+        "startLine": 699,
+        "startChar": 6,
+        "endLine": 699,
+        "endChar": 27
+      },
+      "revId": "b4ab536e9da85bbe231f06c562c7950ed8dacad3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e4b547ea_3217fb45",
+        "filename": "av1/encoder/intra_mode_search.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 702,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-05-23T22:47:09Z",
+      "side": 1,
+      "message": "Nit: add a comma (,) after the word \"planes\".",
+      "range": {
+        "startLine": 702,
+        "startChar": 23,
+        "endLine": 702,
+        "endChar": 29
+      },
+      "revId": "b4ab536e9da85bbe231f06c562c7950ed8dacad3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
