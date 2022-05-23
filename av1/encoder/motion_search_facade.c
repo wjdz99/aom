@@ -117,6 +117,32 @@ static INLINE void get_mv_candidate_from_tpl(const AV1_COMP *const cpi,
   }
 }
 
+static AOM_INLINE const search_site_config *get_search_site_config(
+    search_site_config *ss_cfg_buf,
+    const MotionVectorSearchParams *mv_search_params,
+    const SEARCH_METHODS search_method, const int ref_stride) {
+  if (ref_stride == mv_search_params->search_site_cfg[SS_CFG_SRC]->stride) {
+    return mv_search_params->search_site_cfg[SS_CFG_SRC];
+  } else if (ref_stride ==
+             mv_search_params->search_site_cfg[SS_CFG_LOOKAHEAD]->stride) {
+    return mv_search_params->search_site_cfg[SS_CFG_LOOKAHEAD];
+  }
+
+#if CONFIG_REALTIME_ONLY
+  assert(0 && "Realtime mode should not need to reset search_site_config.");
+  return mv_search_params->search_site_cfg[SS_CFG_SRC];
+#else
+  if (ref_stride != ss_cfg_buf[search_method].stride) {
+    const int level =
+        search_method == NSTEP_8PT || search_method == CLAMPED_DIAMOND;
+    av1_init_motion_compensation[search_method](&ss_cfg_buf[search_method],
+                                                ref_stride, level);
+  }
+
+  return ss_cfg_buf;
+#endif  // CONFIG_REALTIME_ONLY
+}
+
 void av1_single_motion_search(const AV1_COMP *const cpi, MACROBLOCK *x,
                               BLOCK_SIZE bsize, int ref_idx, int *rate_mv,
                               int search_range, inter_mode_info *mode_info,
@@ -216,11 +242,19 @@ void av1_single_motion_search(const AV1_COMP *const cpi, MACROBLOCK *x,
     }
   }
 
+  // Hot fix for asan complaints when resize mode is on. When resize mode is on,
+  // the stride of the reference frame can be different from indicated by
+  // MotionVectorSearchParams::search_site_cfg. When this happens, we need to
+  // readjust the stride.
+  const SEARCH_METHODS search_method = cpi->sf.mv_sf.search_method;
+  const int ref_stride = xd->plane[0].pre[0].stride;
+  const search_site_config *src_search_site_cfg = get_search_site_config(
+      x->search_site_cfg_buf, mv_search_params, search_method, ref_stride);
+
   // Further reduce the search range.
   if (search_range < INT_MAX) {
     const search_site_config *search_site_cfg =
-        &mv_search_params
-             ->search_site_cfg[SS_CFG_SRC][cpi->sf.mv_sf.search_method];
+        &src_search_site_cfg[cpi->sf.mv_sf.search_method];
     // Max step_param is search_site_cfg->num_search_steps.
     if (search_range < 1) {
       step_param = search_site_cfg->num_search_steps;
@@ -238,11 +272,9 @@ void av1_single_motion_search(const AV1_COMP *const cpi, MACROBLOCK *x,
 
   // Allow more mesh searches for screen content type on the ARF.
   const int fine_search_interval = use_fine_search_interval(cpi);
-  const search_site_config *src_search_sites =
-      mv_search_params->search_site_cfg[SS_CFG_SRC];
   FULLPEL_MOTION_SEARCH_PARAMS full_ms_params;
   av1_make_default_fullpel_ms_params(&full_ms_params, cpi, x, bsize, &ref_mv,
-                                     src_search_sites, fine_search_interval);
+                                     src_search_site_cfg, fine_search_interval);
 
   switch (mbmi->motion_mode) {
     case SIMPLE_TRANSLATION: {
@@ -590,8 +622,11 @@ int av1_joint_motion_search(const AV1_COMP *cpi, MACROBLOCK *x,
 
     // Make motion search params
     FULLPEL_MOTION_SEARCH_PARAMS full_ms_params;
+    const SEARCH_METHODS search_method = cpi->sf.mv_sf.search_method;
+    const int ref_stride = xd->plane[0].pre[0].stride;
     const search_site_config *src_search_sites =
-        cpi->mv_search_params.search_site_cfg[SS_CFG_SRC];
+        get_search_site_config(x->search_site_cfg_buf, &cpi->mv_search_params,
+                               search_method, ref_stride);
     av1_make_default_fullpel_ms_params(&full_ms_params, cpi, x, bsize,
                                        &ref_mv[id].as_mv, src_search_sites,
                                        /*fine_search_interval=*/0);
@@ -738,8 +773,11 @@ int av1_compound_single_motion_search(const AV1_COMP *cpi, MACROBLOCK *x,
 
   // Make motion search params
   FULLPEL_MOTION_SEARCH_PARAMS full_ms_params;
+  const SEARCH_METHODS search_method = cpi->sf.mv_sf.search_method;
+  const int ref_stride = xd->plane[0].pre[0].stride;
   const search_site_config *src_search_sites =
-      cpi->mv_search_params.search_site_cfg[SS_CFG_SRC];
+      get_search_site_config(x->search_site_cfg_buf, &cpi->mv_search_params,
+                             search_method, ref_stride);
   av1_make_default_fullpel_ms_params(&full_ms_params, cpi, x, bsize,
                                      &ref_mv.as_mv, src_search_sites,
                                      /*fine_search_interval=*/0);
@@ -940,8 +978,6 @@ int_mv av1_simple_motion_search(AV1_COMP *const cpi, MACROBLOCK *x, int mi_row,
       AOMMIN(cpi->mv_search_params.mv_step_param +
                  cpi->sf.part_sf.simple_motion_search_reduce_search_steps,
              MAX_MVSEARCH_STEPS - 2);
-  const search_site_config *src_search_sites =
-      cpi->mv_search_params.search_site_cfg[SS_CFG_SRC];
   int cost_list[5];
   const int ref_idx = 0;
   int var;
@@ -959,6 +995,11 @@ int_mv av1_simple_motion_search(AV1_COMP *const cpi, MACROBLOCK *x, int mi_row,
   // Allow more mesh searches for screen content type on the ARF.
   const int fine_search_interval = use_fine_search_interval(cpi);
   FULLPEL_MOTION_SEARCH_PARAMS full_ms_params;
+  const SEARCH_METHODS search_method = cpi->sf.mv_sf.search_method;
+  const int ref_stride = xd->plane[0].pre[0].stride;
+  const search_site_config *src_search_sites =
+      get_search_site_config(x->search_site_cfg_buf, &cpi->mv_search_params,
+                             search_method, ref_stride);
   av1_make_default_fullpel_ms_params(&full_ms_params, cpi, x, bsize, &ref_mv,
                                      src_search_sites, fine_search_interval);
 
