@@ -1,6 +1,23 @@
 {
   "comments": [
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "ca6714b8_d2131c19",
+        "filename": "test/video_source.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-05-23T22:11:40Z",
+      "side": 1,
+      "message": "I remember gtest\u0027s ASSERT and EXPECT macros should only be called in the TEST functions.",
+      "revId": "d7c2dad904a7e03a05a1e725923cb17d845d1503",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "1110e3c5_2938e03c",
@@ -19,6 +36,46 @@
         "startChar": 44,
         "endLine": 82,
         "endChar": 73
+      },
+      "revId": "d7c2dad904a7e03a05a1e725923cb17d845d1503",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1d7b3c4c_b751a02e",
+        "filename": "test/video_source.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-05-23T22:11:40Z",
+      "side": 1,
+      "message": "Optional: Since we already use std::string, I think it is futile to avoid bad_alloc exceptions.",
+      "revId": "d7c2dad904a7e03a05a1e725923cb17d845d1503",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3bd5d9cc_aa0e848d",
+        "filename": "test/video_source.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-05-23T22:11:40Z",
+      "side": 1,
+      "message": "Nit: We can just call memcpy:\n  memcpy(temp_file_name.get(), name_template.c_str(), temp_file_name_size);\n\nAlso, we don\u0027t need to create the name_template variable. We can concatenate temp_dir and \"libaomtest.XXXXXX\" in the temp_file_name.get() buffer directly.",
+      "range": {
+        "startLine": 94,
+        "startChar": 0,
+        "endLine": 95,
+        "endChar": 34
       },
       "revId": "d7c2dad904a7e03a05a1e725923cb17d845d1503",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
