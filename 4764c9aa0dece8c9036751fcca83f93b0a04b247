@@ -33,6 +33,24 @@
       "message": "There is a mixture of nullptr and NULL in this function. Not sure if that\u0027s intentional.",
       "revId": "4764c9aa0dece8c9036751fcca83f93b0a04b247",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2634f670_85204078",
+        "filename": "test/video_source.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-05-24T23:55:27Z",
+      "side": 1,
+      "message": "\u003e There is a mixture of nullptr and NULL in this function. Not sure if that\u0027s intentional.\n\nIt was only to be consistent with the return on line 74. I made an earlier comment that we should normalize this in one pass. I\u0027ll follow up.",
+      "parentUuid": "4c41ae3e_b112f19c",
+      "revId": "4764c9aa0dece8c9036751fcca83f93b0a04b247",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
