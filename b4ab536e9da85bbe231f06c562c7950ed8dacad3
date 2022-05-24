@@ -69,6 +69,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e1d0ee3e_5c12bbcb",
+        "filename": "av1/encoder/intra_mode_search.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 582,
+      "author": {
+        "id": 6245
+      },
+      "writtenOn": "2022-05-24T14:53:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fbb3ff8d_006b7565",
+      "revId": "b4ab536e9da85bbe231f06c562c7950ed8dacad3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "161a254a_899b6910",
@@ -82,6 +100,24 @@
       "writtenOn": "2022-05-23T22:47:09Z",
       "side": 1,
       "message": "Please document the return value of this function.",
+      "revId": "b4ab536e9da85bbe231f06c562c7950ed8dacad3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "31308d1b_8a0d2559",
+        "filename": "av1/encoder/intra_mode_search.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 583,
+      "author": {
+        "id": 6245
+      },
+      "writtenOn": "2022-05-24T14:53:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "161a254a_899b6910",
       "revId": "b4ab536e9da85bbe231f06c562c7950ed8dacad3",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -103,6 +139,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e4ce313e_6dff7cdf",
+        "filename": "av1/encoder/intra_mode_search.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 639,
+      "author": {
+        "id": 6245
+      },
+      "writtenOn": "2022-05-24T14:53:30Z",
+      "side": 1,
+      "message": "Done. We made a similar change in cfl_pick_plane_parameter() function as well at line numbered 600 in the latest patchset.",
+      "parentUuid": "63a518e4_756ea184",
+      "revId": "b4ab536e9da85bbe231f06c562c7950ed8dacad3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "f1fc145b_f883fb5b",
@@ -120,6 +174,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a45c11de_06488719",
+        "filename": "av1/encoder/intra_mode_search.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 688,
+      "author": {
+        "id": 6245
+      },
+      "writtenOn": "2022-05-24T14:53:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f1fc145b_f883fb5b",
+      "revId": "b4ab536e9da85bbe231f06c562c7950ed8dacad3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "14da297a_ca0a4991",
@@ -133,6 +205,24 @@
       "writtenOn": "2022-05-23T22:47:09Z",
       "side": 1,
       "message": "Nit: It would be good to note that xd-\u003ecfl.use_dc_pred_cache is set to 1 while we call cfl_pick_plane_parameter() and cfl_pick_plane_rd(), and xd-\u003ecfl.use_dc_pred_cache must be reset to 0 (and both xd-\u003ecfl.dc_pred_is_cached[0] and xd-\u003ecfl.dc_pred_is_cached[1] be set to 0) before returning from this function.\n\nIf you know why we have to this, it would be good to explain that in the comment.",
+      "revId": "b4ab536e9da85bbe231f06c562c7950ed8dacad3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a32048e7_f71eb328",
+        "filename": "av1/encoder/intra_mode_search.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 693,
+      "author": {
+        "id": 6245
+      },
+      "writtenOn": "2022-05-24T14:53:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "14da297a_ca0a4991",
       "revId": "b4ab536e9da85bbe231f06c562c7950ed8dacad3",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -160,6 +250,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "b8d21455_d0c42f0f",
+        "filename": "av1/encoder/intra_mode_search.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 699,
+      "author": {
+        "id": 6245
+      },
+      "writtenOn": "2022-05-24T14:53:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da530677_4412792e",
+      "range": {
+        "startLine": 699,
+        "startChar": 6,
+        "endLine": 699,
+        "endChar": 27
+      },
+      "revId": "b4ab536e9da85bbe231f06c562c7950ed8dacad3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e4b547ea_3217fb45",
@@ -173,6 +287,30 @@
       "writtenOn": "2022-05-23T22:47:09Z",
       "side": 1,
       "message": "Nit: add a comma (,) after the word \"planes\".",
+      "range": {
+        "startLine": 702,
+        "startChar": 23,
+        "endLine": 702,
+        "endChar": 29
+      },
+      "revId": "b4ab536e9da85bbe231f06c562c7950ed8dacad3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c9b14d00_9d2fa75a",
+        "filename": "av1/encoder/intra_mode_search.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 702,
+      "author": {
+        "id": 6245
+      },
+      "writtenOn": "2022-05-24T14:53:30Z",
+      "side": 1,
+      "message": "Ack. We modified this comment to suit the new comment added at line numbered 707 in the latest patchset.",
+      "parentUuid": "e4b547ea_3217fb45",
       "range": {
         "startLine": 702,
         "startChar": 23,
