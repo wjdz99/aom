@@ -1671,6 +1671,11 @@ int av1_full_pixel_search(const FULLPEL_MV start_mv,
   const int is_intra_mode = ms_params->is_intra_mode;
   int run_mesh_search = ms_params->run_mesh_search;
 
+  assert(ms_params->ms_buffers.src->width == ms_params->ms_buffers.ref->width &&
+         ms_params->ms_buffers.src->height ==
+             ms_params->ms_buffers.ref->height);
+  assert(ms_params->ms_buffers.ref->stride == ms_params->search_sites->stride);
+
   int var = 0;
   MARK_MV_INVALID(best_mv);
   if (second_best_mv) {
