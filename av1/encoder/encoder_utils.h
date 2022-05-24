@@ -1057,7 +1057,7 @@ static AOM_INLINE int av1_get_enc_border_size(bool resize, bool all_intra,
   } else if (all_intra) {
     return AOM_ENC_ALLINTRA_BORDER;
   } else {
-    return block_size_wide[sb_size] + 32;
+    return AOM_ENC_NO_SCALE_BORDER;
   }
 }
 
