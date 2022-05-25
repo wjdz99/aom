@@ -36,6 +36,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ce8b157c_92b39a26",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-05-25T17:06:54Z",
+      "side": 1,
+      "message": "Here is my CL for similar warnings in highbd_quantize_b_neon():\nhttps://aomedia-review.googlesource.com/c/aom/+/157785\n\nIt would be good to use the same approach (either declaring those variables as intptr_t or casting n_coeffs to int) to fix these warnings.",
+      "parentUuid": "379bc89f_1d0fef84",
+      "revId": "2727d2d517f05f29c58ef984604fac43b3c02736",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "8634060b_670aef95",
