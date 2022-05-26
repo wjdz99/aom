@@ -1502,6 +1502,13 @@ typedef struct REAL_TIME_SPEED_FEATURES {
 
   // Reduce the mv resolution for zero mv if the variance is low.
   bool reduce_zeromv_mvres;
+
+  // A qindex threshold that determines whether to use qindex based
+  // CDEF filter strength estimation for screen content types.
+  // This speed feature has a substantial gain on coding metrics,
+  // with moderate increased encoding time.
+  // Set to zero to turn off this speed feature.
+  int screen_content_cdef_filter_qindex_thresh;
 } REAL_TIME_SPEED_FEATURES;
 
 /*!\endcond */
