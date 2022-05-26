@@ -571,11 +571,73 @@ static void pick_cdef_from_qp(AV1_COMMON *const cm, int skip_cdef,
   }
 }
 
+static void pick_cdef_from_qp_sc(AV1_COMMON *const cm, int skip_cdef,
+                                 int frames_since_key) {
+  const int bd = cm->seq_params->bit_depth;
+  const int q =
+      av1_ac_quant_QTX(cm->quant_params.base_qindex, 0, bd) >> (bd - 8);
+  CdefInfo *const cdef_info = &cm->cdef_info;
+  // Check the speed feature to avoid extra signaling.
+  if (skip_cdef) {
+    cdef_info->cdef_bits = 1;
+    cdef_info->nb_cdef_strengths = 2;
+  } else {
+    cdef_info->cdef_bits = 0;
+    cdef_info->nb_cdef_strengths = 1;
+  }
+  cdef_info->cdef_damping = 3 + (cm->quant_params.base_qindex >> 6);
+
+  // Quadratic fit for mean primary and secondary filter strength separately
+  int y_primary = 0;
+  int y_secondary = 0;
+  int uv_primary = 0;
+  int uv_secondary = 0;
+  y_primary =
+      (int)(5.88217781e-06 * q * q + 6.10391455e-03 * q + 9.95043102e-02);
+  y_secondary =
+      (int)(-7.79934857e-06 * q * q + 6.58957830e-03 * q + 8.81045025e-01);
+  uv_primary =
+      (int)(-6.79500136e-06 * q * q + 1.02695586e-02 * q + 1.36126802e-01);
+  uv_secondary =
+      (int)(-9.99613695e-08 * q * q - 1.79361339e-05 * q + 1.17022324e+0);
+
+  y_primary = clamp(y_primary, 0, 15);
+  y_secondary = clamp(y_secondary, 0, 3);
+  uv_primary = clamp(uv_primary, 0, 15);
+  uv_secondary = clamp(uv_secondary, 0, 3);
+  cdef_info->cdef_strengths[0] = y_primary * CDEF_SEC_STRENGTHS + y_secondary;
+  cdef_info->cdef_uv_strengths[0] =
+      uv_primary * CDEF_SEC_STRENGTHS + uv_secondary;
+  cdef_info->cdef_strengths[0] = clamp(cdef_info->cdef_strengths[0], 0, 63);
+  cdef_info->cdef_uv_strengths[0] =
+      clamp(cdef_info->cdef_uv_strengths[0], 0, 63);
+  if (skip_cdef) {
+    cdef_info->cdef_strengths[1] = 0;
+    cdef_info->cdef_uv_strengths[1] = 0;
+  }
+  const CommonModeInfoParams *const mi_params = &cm->mi_params;
+  const int nvfb = (mi_params->mi_rows + MI_SIZE_64X64 - 1) / MI_SIZE_64X64;
+  const int nhfb = (mi_params->mi_cols + MI_SIZE_64X64 - 1) / MI_SIZE_64X64;
+  MB_MODE_INFO **mbmi = mi_params->mi_grid_base;
+  for (int r = 0; r < nvfb; ++r) {
+    for (int c = 0; c < nhfb; ++c) {
+      MB_MODE_INFO *current_mbmi = mbmi[MI_SIZE_64X64 * c];
+      current_mbmi->cdef_strength = 0;
+      if (skip_cdef && current_mbmi->skip_cdef_curr_sb &&
+          frames_since_key > 10) {
+        current_mbmi->cdef_strength = 1;
+      }
+    }
+    mbmi += MI_SIZE_64X64 * mi_params->mi_stride;
+  }
+}
+
 void av1_cdef_search(MultiThreadInfo *mt_info, const YV12_BUFFER_CONFIG *frame,
                      const YV12_BUFFER_CONFIG *ref, AV1_COMMON *cm,
                      MACROBLOCKD *xd, CDEF_PICK_METHOD pick_method, int rdmult,
                      int skip_cdef_feature, int frames_since_key,
-                     CDEF_CONTROL cdef_control, int non_reference_frame) {
+                     CDEF_CONTROL cdef_control, const int is_screen_content,
+                     int non_reference_frame) {
   assert(cdef_control != CDEF_NONE);
   if (cdef_control == CDEF_REFERENCE && non_reference_frame) {
     CdefInfo *const cdef_info = &cm->cdef_info;
@@ -587,7 +649,11 @@ void av1_cdef_search(MultiThreadInfo *mt_info, const YV12_BUFFER_CONFIG *frame,
   }
 
   if (pick_method == CDEF_PICK_FROM_Q) {
-    pick_cdef_from_qp(cm, skip_cdef_feature, frames_since_key);
+    if (is_screen_content) {
+      pick_cdef_from_qp_sc(cm, skip_cdef_feature, frames_since_key);
+    } else {
+      pick_cdef_from_qp(cm, skip_cdef_feature, frames_since_key);
+    }
     return;
   }
   const CommonModeInfoParams *const mi_params = &cm->mi_params;

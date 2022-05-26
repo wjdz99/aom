@@ -2164,6 +2164,7 @@ static void cdef_restoration_frame(AV1_COMP *cpi, AV1_COMMON *cm,
                     cpi->sf.lpf_sf.cdef_pick_method, cpi->td.mb.rdmult,
                     cpi->sf.rt_sf.skip_cdef_sb, cpi->rc.frames_since_key,
                     cpi->oxcf.tool_cfg.cdef_control,
+                    cpi->oxcf.tune_cfg.content == AOM_CONTENT_SCREEN,
                     cpi->svc.non_reference_frame);
 
     // Apply the filter
