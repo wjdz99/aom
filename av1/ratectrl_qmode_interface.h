@@ -20,7 +20,6 @@
 namespace aom {
 
 constexpr int kBlockRefCount = 2;
-constexpr int kRefFrameTableSize = 7;
 
 struct MotionVector {
   int row;          // subpel row
@@ -31,7 +30,8 @@ struct MotionVector {
 struct RateControlParam {
   int max_gop_show_frame_count;
   int min_gop_show_frame_count;
-  int max_ref_frames;
+  int max_ref_frames;        // maximum references per frame
+  int ref_frame_table_size;  // number of reference frame buffers
   int base_q_index;
   int frame_width;
   int frame_height;
@@ -96,14 +96,13 @@ struct GopFrame {
                           // will not serve as a reference frame
   std::vector<ReferenceFrame>
       ref_frame_list;  // A list of available reference frames in priority order
-                       // for the current to-be-coded frame. The list size
-                       // should be less or equal to kRefFrameTableSize. The
-                       // reference frames with smaller indices are more likely
-                       // to be a good reference frame. Therefore, they should
-                       // be prioritized when the reference frame count is
-                       // limited. For example, if we plan to use 3 reference
-                       // frames, we should choose ref_frame_list[0],
-                       // ref_frame_list[1] and ref_frame_list[2].
+                       // for the current to-be-coded frame. The reference
+                       // frames with smaller indices are more likely to be a
+                       // good reference frame. Therefore, they should be
+                       // prioritized when the reference frame count is limited.
+                       // For example, if we plan to use 3 reference frames, we
+                       // should choose ref_frame_list[0], ref_frame_list[1] and
+                       // ref_frame_list[2].
   int layer_depth;     // Layer depth in the GOP structure
   ReferenceFrame primary_ref_frame;  // We will use the primary reference frame
                                      // to update current frame's initial
@@ -130,7 +129,19 @@ struct FirstpassInfo {
   std::vector<FIRSTPASS_STATS> stats_list;
 };
 
-using RefFrameTable = std::array<GopFrame, kRefFrameTableSize>;
+// RefFrameTable is simply a fixed-size array of GopFrame, but unlike
+// std::array, the number of elements is determined at run time.
+// The size must equal ref_frame_table_size (as specified in RateControlParam).
+class RefFrameTable {
+ public:
+  RefFrameTable(int size) : frames_(size) {}
+  RefFrameTable() = delete;
+  const GopFrame &operator[](int i) const { return frames_[i]; }
+  GopFrame &operator[](int i) { return frames_[i]; }
+
+ private:
+  std::vector<GopFrame> frames_;
+};
 
 struct GopEncodeInfo {
   std::vector<FrameEncodeParameters> param_list;
