@@ -147,7 +147,7 @@ void av1_accumulate_next_frame_stats(const FIRSTPASS_STATS *stats,
 // pointing to.
 void av1_identify_regions(const FIRSTPASS_STATS *const stats_start,
                           int total_frames, int offset, REGIONS *regions,
-                          int *total_regions);
+                          int *total_regions, int max_regions_num);
 
 #ifdef __cplusplus
 }  // extern "C"

@@ -787,10 +787,11 @@ GopStructList AV1RateControlQMode::DetermineGopInfo(
     // Handle the situation that frames_to_key > MAX_FIRSTPASS_ANALYSIS_FRAMES
     // here or refactor av1_identify_regions() to make it support
     // frames_to_key > MAX_FIRSTPASS_ANALYSIS_FRAMES
-    assert(frames_to_key <= MAX_FIRSTPASS_ANALYSIS_FRAMES);
+    // assert(frames_to_key <= MAX_FIRSTPASS_ANALYSIS_FRAMES);
     int total_regions = 0;
     av1_identify_regions(firstpass_info.stats_list.data() + key_order_index,
-                         frames_to_key, 0, regions_list.data(), &total_regions);
+                         frames_to_key, 0, regions_list.data(), &total_regions,
+                         frames_to_key);
     regions_list.resize(total_regions);
     std::vector<int> gf_intervals = PartitionGopIntervals(
         rc_param_, firstpass_info.stats_list, regions_list, key_order_index,

@@ -1748,17 +1748,21 @@ static void cleanup_blendings(REGIONS *regions, int *num_regions) {
 
 void av1_identify_regions(const FIRSTPASS_STATS *const stats_start,
                           int total_frames, int offset, REGIONS *regions,
-                          int *total_regions) {
+                          int *total_regions, int max_regions_num) {
   int k;
   if (total_frames <= 1) return;
 
   // store the initial decisions
-  REGIONS temp_regions[MAX_FIRSTPASS_ANALYSIS_FRAMES];
-  av1_zero_array(temp_regions, MAX_FIRSTPASS_ANALYSIS_FRAMES);
+  REGIONS *temp_regions =
+      (REGIONS *)aom_malloc(max_regions_num * sizeof(temp_regions[0]));
+  av1_zero_array(temp_regions, max_regions_num);
   // buffers for filtered stats
-  double filt_intra_err[MAX_FIRSTPASS_ANALYSIS_FRAMES] = { 0 };
-  double filt_coded_err[MAX_FIRSTPASS_ANALYSIS_FRAMES] = { 0 };
-  double grad_coded[MAX_FIRSTPASS_ANALYSIS_FRAMES] = { 0 };
+  double *filt_intra_err =
+      (double *)aom_calloc(max_regions_num, sizeof(*filt_intra_err));
+  double *filt_coded_err =
+      (double *)aom_calloc(max_regions_num, sizeof(*filt_coded_err));
+  double *grad_coded =
+      (double *)aom_calloc(max_regions_num, sizeof(*grad_coded));
 
   int cur_region = 0, this_start = 0, this_last;
 
@@ -1847,6 +1851,11 @@ void av1_identify_regions(const FIRSTPASS_STATS *const stats_start,
     regions[k].start += offset;
     regions[k].last += offset;
   }
+
+  aom_free(temp_regions);
+  aom_free(filt_coded_err);
+  aom_free(filt_intra_err);
+  aom_free(grad_coded);
 }
 
 static int find_regions_index(const REGIONS *regions, int num_regions,
@@ -3732,11 +3741,12 @@ void av1_get_second_pass_params(AV1_COMP *cpi,
                        twopass->stats_buf_ctx->stats_in_end);
         av1_identify_regions(cpi->twopass_frame.stats_in, rest_frames,
                              (rc->frames_since_key == 0), p_rc->regions,
-                             &p_rc->num_regions);
+                             &p_rc->num_regions, MAX_FIRSTPASS_ANALYSIS_FRAMES);
       } else {
         av1_identify_regions(
             cpi->twopass_frame.stats_in - (rc->frames_since_key == 0),
-            rest_frames, 0, p_rc->regions, &p_rc->num_regions);
+            rest_frames, 0, p_rc->regions, &p_rc->num_regions,
+            MAX_FIRSTPASS_ANALYSIS_FRAMES);
       }
     }
 
