@@ -772,7 +772,8 @@ GopStructList AV1RateControlQMode::DetermineGopInfo(
     const FirstpassInfo &firstpass_info) {
   const int stats_size = static_cast<int>(firstpass_info.stats_list.size());
   GopStructList gop_list;
-  RefFrameManager ref_frame_manager(rc_param_.max_ref_frames);
+  RefFrameManager ref_frame_manager(rc_param_.max_ref_frames,
+                                    rc_param_.ref_frame_table_size);
   int global_coding_idx_offset = 0;
   int global_order_idx_offset = 0;
   std::vector<int> key_frame_list = GetKeyFrameList(firstpass_info);
@@ -1051,8 +1052,7 @@ GopEncodeInfo AV1RateControlQMode::GetGopEncodeInfo(
   const std::vector<RefFrameTable> ref_frame_table_list =
       GetRefFrameTableList(gop_struct, ref_frame_table_snapshot_init);
 
-  GopEncodeInfo gop_encode_info;
-  gop_encode_info.final_snapshot = ref_frame_table_list.back();
+  std::vector<FrameEncodeParameters> param_list;
   TplGopDepStats gop_dep_stats =
       ComputeTplGopDepStats(tpl_gop_stats, ref_frame_table_list);
   const int frame_count =
@@ -1073,9 +1073,9 @@ GopEncodeInfo AV1RateControlQMode::GetGopEncodeInfo(
                                                      qstep_ratio, AOM_BITS_8);
     const GopFrame &gop_frame = gop_struct.gop_frame_list[i];
     param.rdmult = GetRDMult(gop_frame, param.q_index);
-    gop_encode_info.param_list.push_back(param);
+    param_list.push_back(param);
   }
-  return gop_encode_info;
+  return {param_list, ref_frame_table_list.back()};
 }
 
 }  // namespace aom

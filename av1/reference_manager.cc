@@ -22,7 +22,7 @@ namespace aom {
 
 void RefFrameManager::Reset() {
   free_ref_idx_list_.clear();
-  for (int i = 0; i < kRefFrameTableSize; ++i) {
+  for (int i = 0; i < ref_frame_table_size_; ++i) {
     free_ref_idx_list_.push_back(i);
     ref_frame_table_[i] = GopFrameInvalid();
   }
@@ -160,10 +160,10 @@ ReferenceName get_ref_name(RefUpdateType ref_update_type, int priority_idx,
 
 // Generate a list of available reference frames in priority order for the
 // current to-be-coded frame. The list size should be less or equal to
-// kRefFrameTableSize. The reference frames with smaller indices are more likely
-// to be a good reference frame. Therefore, they should be prioritized when the
-// reference frame count is limited. For example, if we plan to use 3 reference
-// frames, we should choose ref_frame_list[0], ref_frame_list[1] and
+// ref_frame_table_size_. The reference frames with smaller indices are more
+// likely to be a good reference frame. Therefore, they should be prioritized
+// when the reference frame count is limited. For example, if we plan to use 3
+// reference frames, we should choose ref_frame_list[0], ref_frame_list[1] and
 // ref_frame_list[2].
 std::vector<ReferenceFrame> RefFrameManager::GetRefFrameListByPriority() const {
   constexpr int round_robin_size = 3;
@@ -214,7 +214,7 @@ void RefFrameManager::UpdateOrder(int global_order_idx) {
 }
 
 int RefFrameManager::ColocatedRefIdx(int global_order_idx) {
-  if (forward_stack_.size() == 0) return -1;
+  if (forward_stack_.empty()) return -1;
   int ref_idx = forward_stack_.back();
   int arf_global_order_idx = ref_frame_table_[ref_idx].global_order_idx;
   if (arf_global_order_idx == global_order_idx) {
@@ -265,8 +265,7 @@ ReferenceFrame RefFrameManager::GetPrimaryRefFrame(
     const GopFrame &gop_frame) const {
   assert(gop_frame.is_valid);
   std::vector<std::pair<PrimaryRefKey, int>> candidate_list;
-  for (int ref_idx = 0; ref_idx < static_cast<int>(ref_frame_table_.size());
-       ++ref_idx) {
+  for (int ref_idx = 0; ref_idx < ref_frame_table_size_; ++ref_idx) {
     const GopFrame &ref_frame = ref_frame_table_[ref_idx];
     if (ref_frame.is_valid) {
       assert(ref_idx == ref_frame.update_ref_idx);
