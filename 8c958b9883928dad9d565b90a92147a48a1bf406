@@ -18,6 +18,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "6a2152d5_914d7bd5",
+        "filename": "test/decode_api_test.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-05-27T22:31:27Z",
+      "side": 1,
+      "message": "\u003e Can this use EXPECT_EQ?\n\nGood catch. I only replaced instances of !\u003d, I wasn\u0027t expecting these.",
+      "parentUuid": "6975f1c6_9853ebc0",
+      "revId": "8c958b9883928dad9d565b90a92147a48a1bf406",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b0b0f240_7aa17052",
@@ -31,6 +49,30 @@
       "writtenOn": "2022-05-27T17:14:22Z",
       "side": 1,
       "message": "Change these to EXPECT_EQ?",
+      "range": {
+        "startLine": 286,
+        "startChar": 0,
+        "endLine": 288,
+        "endChar": 60
+      },
+      "revId": "8c958b9883928dad9d565b90a92147a48a1bf406",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "28adc196_6238ea1c",
+        "filename": "test/metadata_test.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 288,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-05-27T22:31:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b0b0f240_7aa17052",
       "range": {
         "startLine": 286,
         "startChar": 0,
