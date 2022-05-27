@@ -134,7 +134,7 @@ struct FirstpassInfo {
 // The size must equal ref_frame_table_size (as specified in RateControlParam).
 class RefFrameTable {
  public:
-  explicit RefFrameTable(int size) : frames_(size) {}
+  RefFrameTable(int size) : frames_(size) {}
   RefFrameTable() = delete;
   const GopFrame &operator[](int i) const { return frames_[i]; }
   GopFrame &operator[](int i) { return frames_[i]; }
