@@ -5265,9 +5265,13 @@ void av1_decode_tg_tiles_and_wrapup(AV1Decoder *pbi, const uint8_t *data,
 
   if (!cm->features.allow_intrabc && !tiles->single_tile_decoding) {
     if (cm->lf.filter_level[0] || cm->lf.filter_level[1]) {
+      // Frame border extension is not required in the decoder
+      // as it happens in extend_mc_border().
+      const int do_extend_border = 0;
       av1_loop_filter_frame_mt(&cm->cur_frame->buf, cm, &pbi->dcb.xd, 0,
                                num_planes, 0, pbi->tile_workers,
-                               pbi->num_workers, &pbi->lf_row_sync, 0);
+                               pbi->num_workers, &pbi->lf_row_sync, 0,
+                               do_extend_border);
     }
 
     const int do_cdef =
@@ -5287,9 +5291,13 @@ void av1_decode_tg_tiles_and_wrapup(AV1Decoder *pbi, const uint8_t *data,
 
       if (do_cdef) {
         if (pbi->num_workers > 1) {
+          // Frame border extension is not required in the decoder
+          // as it happens in extend_mc_border().
+          const int do_extend_border = 0;
           av1_cdef_frame_mt(cm, &pbi->dcb.xd, pbi->cdef_worker,
                             pbi->tile_workers, &pbi->cdef_sync,
-                            pbi->num_workers, av1_cdef_init_fb_row_mt);
+                            pbi->num_workers, av1_cdef_init_fb_row_mt,
+                            do_extend_border);
         } else {
           av1_cdef_frame(&pbi->common.cur_frame->buf, cm, &pbi->dcb.xd,
                          av1_cdef_init_fb_row);
@@ -5305,7 +5313,7 @@ void av1_decode_tg_tiles_and_wrapup(AV1Decoder *pbi, const uint8_t *data,
           av1_loop_restoration_filter_frame_mt(
               (YV12_BUFFER_CONFIG *)xd->cur_buf, cm, optimized_loop_restoration,
               pbi->tile_workers, pbi->num_workers, &pbi->lr_row_sync,
-              &pbi->lr_ctxt);
+              &pbi->lr_ctxt, 0);
         } else {
           av1_loop_restoration_filter_frame((YV12_BUFFER_CONFIG *)xd->cur_buf,
                                             cm, optimized_loop_restoration,
@@ -5320,7 +5328,7 @@ void av1_decode_tg_tiles_and_wrapup(AV1Decoder *pbi, const uint8_t *data,
           av1_loop_restoration_filter_frame_mt(
               (YV12_BUFFER_CONFIG *)xd->cur_buf, cm, optimized_loop_restoration,
               pbi->tile_workers, pbi->num_workers, &pbi->lr_row_sync,
-              &pbi->lr_ctxt);
+              &pbi->lr_ctxt, 0);
         } else {
           av1_loop_restoration_filter_frame((YV12_BUFFER_CONFIG *)xd->cur_buf,
                                             cm, optimized_loop_restoration,
