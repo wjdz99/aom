@@ -87,6 +87,7 @@ typedef struct LoopFilterWorkerData {
 
   AV1_DEBLOCKING_PARAMETERS params_buf[MAX_MIB_SIZE];
   TX_SIZE tx_buf[MAX_MIB_SIZE];
+  int do_extend_border;
 } LFWorkerData;
 /*!\endcond */
 

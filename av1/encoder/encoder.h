@@ -4073,6 +4073,11 @@ static INLINE int is_restoration_used(const AV1_COMMON *const cm) {
          !cm->tiles.large_scale;
 }
 
+static INLINE int is_cdef_used(const AV1_COMMON *const cm) {
+  return cm->seq_params->enable_cdef && !cm->features.coded_lossless &&
+         !cm->tiles.large_scale;
+}
+
 static INLINE int is_inter_tx_size_search_level_one(
     const TX_SPEED_FEATURES *tx_sf) {
   return (tx_sf->inter_tx_size_search_init_depth_rect >= 1 &&
