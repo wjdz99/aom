@@ -140,11 +140,13 @@ void av1_loop_filter_dealloc(AV1LfSync *lf_sync) {
 
 static void loop_filter_data_reset(LFWorkerData *lf_data,
                                    YV12_BUFFER_CONFIG *frame_buffer,
-                                   struct AV1Common *cm, MACROBLOCKD *xd) {
+                                   struct AV1Common *cm, MACROBLOCKD *xd,
+                                   int do_extend_border) {
   struct macroblockd_plane *pd = xd->plane;
   lf_data->frame_buffer = frame_buffer;
   lf_data->cm = cm;
   lf_data->xd = xd;
+  lf_data->do_extend_border = do_extend_border;
   for (int i = 0; i < MAX_MB_PLANE; i++) {
     memcpy(&lf_data->planes[i].dst, &pd[i].dst, sizeof(lf_data->planes[i].dst));
     lf_data->planes[i].subsampling_x = pd[i].subsampling_x;
@@ -286,7 +288,8 @@ static AOM_FORCE_INLINE bool skip_loop_filter_plane(const int planes_to_lf[3],
 }
 
 static void enqueue_lf_jobs(AV1LfSync *lf_sync, int start, int stop,
-                            const int planes_to_lf[3], int lpf_opt_level) {
+                            const int planes_to_lf[3], int lpf_opt_level,
+                            int *extend_border_mt, int do_extend_border) {
   int mi_row, plane, dir;
   AV1LfMTInfo *lf_job_queue = lf_sync->job_queue;
   lf_sync->jobs_enqueued = 0;
@@ -308,6 +311,7 @@ static void enqueue_lf_jobs(AV1LfSync *lf_sync, int start, int stop,
         lf_job_queue->lpf_opt_level = lpf_opt_level;
         lf_job_queue++;
         lf_sync->jobs_enqueued++;
+        extend_border_mt[plane] = do_extend_border;
       }
     }
   }
@@ -337,7 +341,8 @@ static INLINE void thread_loop_filter_rows(
     const YV12_BUFFER_CONFIG *const frame_buffer, AV1_COMMON *const cm,
     struct macroblockd_plane *planes, MACROBLOCKD *xd, int mi_row, int plane,
     int dir, int lpf_opt_level, AV1LfSync *const lf_sync,
-    AV1_DEBLOCKING_PARAMETERS *params_buf, TX_SIZE *tx_buf) {
+    AV1_DEBLOCKING_PARAMETERS *params_buf, TX_SIZE *tx_buf,
+    int do_extend_border) {
   const int sb_cols =
       CEIL_POWER_OF_TWO(cm->mi_params.mi_cols, MAX_MIB_SIZE_LOG2);
   const int r = mi_row >> MAX_MIB_SIZE_LOG2;
@@ -398,6 +403,20 @@ static INLINE void thread_loop_filter_rows(
         av1_filter_block_plane_horz(cm, xd, plane, &planes[plane], mi_row,
                                     mi_col);
       }
+      if (do_extend_border) {
+        const YV12_BUFFER_CONFIG *ybf = frame_buffer;
+        const int extend_bottom_border =
+            (mi_row + MAX_MIB_SIZE >= cm->mi_params.mi_rows);
+        const int ss_y = planes[plane].subsampling_y;
+        const int row_start = (mi_row * MI_SIZE) >> ss_y;
+        const int v_start = (mi_row == 0) ? 0 : row_start - 8;
+        const int row_end = ((mi_row + MAX_MIB_SIZE) * MI_SIZE) >> ss_y;
+        const int v_end =
+            extend_bottom_border ? ybf->crop_heights[plane > 0] : row_end - 8;
+        for (int i = plane; i < AOMMIN(plane + num_planes, MAX_MB_PLANE); i++) {
+          aom_extend_frame_borders_plane_row(ybf, i, v_start, v_end);
+        }
+      }
     }
   }
 }
@@ -409,10 +428,11 @@ static int loop_filter_row_worker(void *arg1, void *arg2) {
   AV1LfMTInfo *cur_job_info;
   while ((cur_job_info = get_lf_job_info(lf_sync)) != NULL) {
     const int lpf_opt_level = cur_job_info->lpf_opt_level;
-    thread_loop_filter_rows(
-        lf_data->frame_buffer, lf_data->cm, lf_data->planes, lf_data->xd,
-        cur_job_info->mi_row, cur_job_info->plane, cur_job_info->dir,
-        lpf_opt_level, lf_sync, lf_data->params_buf, lf_data->tx_buf);
+    thread_loop_filter_rows(lf_data->frame_buffer, lf_data->cm, lf_data->planes,
+                            lf_data->xd, cur_job_info->mi_row,
+                            cur_job_info->plane, cur_job_info->dir,
+                            lpf_opt_level, lf_sync, lf_data->params_buf,
+                            lf_data->tx_buf, lf_data->do_extend_border);
   }
   return 1;
 }
@@ -421,7 +441,7 @@ static void loop_filter_rows_mt(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm,
                                 MACROBLOCKD *xd, int start, int stop,
                                 const int planes_to_lf[3], AVxWorker *workers,
                                 int num_workers, AV1LfSync *lf_sync,
-                                int lpf_opt_level) {
+                                int lpf_opt_level, int do_extend_border) {
   const AVxWorkerInterface *const winterface = aom_get_worker_interface();
   // Number of superblock rows and cols
   const int sb_rows =
@@ -440,7 +460,8 @@ static void loop_filter_rows_mt(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm,
            sizeof(*(lf_sync->cur_sb_col[i])) * sb_rows);
   }
 
-  enqueue_lf_jobs(lf_sync, start, stop, planes_to_lf, lpf_opt_level);
+  enqueue_lf_jobs(lf_sync, start, stop, planes_to_lf, lpf_opt_level,
+                  cm->extend_border_mt, do_extend_border);
 
   // Set up loopfilter thread data.
   for (i = num_workers - 1; i >= 0; --i) {
@@ -452,7 +473,7 @@ static void loop_filter_rows_mt(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm,
     worker->data2 = lf_data;
 
     // Loopfilter data
-    loop_filter_data_reset(lf_data, frame, cm, xd);
+    loop_filter_data_reset(lf_data, frame, cm, xd, do_extend_border);
 
     // Start loopfiltering
     if (i == 0) {
@@ -486,7 +507,7 @@ static void loop_filter_rows(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm,
       for (dir = 0; dir < 2; ++dir) {
         thread_loop_filter_rows(frame, cm, xd->plane, xd, mi_row, plane, dir,
                                 lpf_opt_level, /*lf_sync=*/NULL, params_buf,
-                                tx_buf);
+                                tx_buf, 0);
       }
     }
   }
@@ -496,7 +517,7 @@ void av1_loop_filter_frame_mt(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm,
                               MACROBLOCKD *xd, int plane_start, int plane_end,
                               int partial_frame, AVxWorker *workers,
                               int num_workers, AV1LfSync *lf_sync,
-                              int lpf_opt_level) {
+                              int lpf_opt_level, int do_extend_border) {
   int start_mi_row, end_mi_row, mi_rows_to_filter;
   int planes_to_lf[3];
 
@@ -523,7 +544,8 @@ void av1_loop_filter_frame_mt(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm,
   if (num_workers > 1) {
     // Enqueue and execute loopfiltering jobs.
     loop_filter_rows_mt(frame, cm, xd, start_mi_row, end_mi_row, planes_to_lf,
-                        workers, num_workers, lf_sync, lpf_opt_level);
+                        workers, num_workers, lf_sync, lpf_opt_level,
+                        do_extend_border);
   } else {
     // Directly filter in the main thread.
     loop_filter_rows(frame, cm, xd, start_mi_row, end_mi_row, planes_to_lf,
@@ -719,6 +741,7 @@ static void enqueue_lr_jobs(AV1LrSync *lr_sync, AV1LrStruct *lr_ctxt,
 
   for (int plane = 0; plane < num_planes; plane++) {
     if (cm->rst_info[plane].frame_restoration_type == RESTORE_NONE) continue;
+    cm->extend_border_mt[plane] = lr_ctxt->do_extend_border;
     const int is_uv = plane > 0;
     const int ss_y = is_uv && cm->seq_params->subsampling_y;
 
@@ -845,6 +868,12 @@ static int loop_restoration_row_worker(void *arg1, void *arg2) {
       copy_funs[plane](lr_ctxt->dst, lr_ctxt->frame, ctxt[plane].tile_rect.left,
                        ctxt[plane].tile_rect.right, cur_job_info->v_copy_start,
                        cur_job_info->v_copy_end);
+
+      if (lr_ctxt->do_extend_border) {
+        const YV12_BUFFER_CONFIG *ybf = lr_ctxt->frame;
+        aom_extend_frame_borders_plane_row(
+            ybf, plane, cur_job_info->v_copy_start, cur_job_info->v_copy_end);
+      }
     } else {
       break;
     }
@@ -918,15 +947,16 @@ static void foreach_rest_unit_in_planes_mt(AV1LrStruct *lr_ctxt,
 void av1_loop_restoration_filter_frame_mt(YV12_BUFFER_CONFIG *frame,
                                           AV1_COMMON *cm, int optimized_lr,
                                           AVxWorker *workers, int num_workers,
-                                          AV1LrSync *lr_sync, void *lr_ctxt) {
+                                          AV1LrSync *lr_sync, void *lr_ctxt,
+                                          int do_extend_border) {
   assert(!cm->features.all_lossless);
 
   const int num_planes = av1_num_planes(cm);
 
   AV1LrStruct *loop_rest_ctxt = (AV1LrStruct *)lr_ctxt;
 
-  av1_loop_restoration_filter_frame_init(loop_rest_ctxt, frame, cm,
-                                         optimized_lr, num_planes);
+  av1_loop_restoration_filter_frame_init(
+      loop_rest_ctxt, frame, cm, optimized_lr, num_planes, do_extend_border);
 
   foreach_rest_unit_in_planes_mt(loop_rest_ctxt, workers, num_workers, lr_sync,
                                  cm);
@@ -1002,13 +1032,26 @@ static AOM_INLINE int get_cdef_row_next_job(AV1CdefSync *const cdef_sync,
 static int cdef_sb_row_worker_hook(void *arg1, void *arg2) {
   AV1CdefSync *const cdef_sync = (AV1CdefSync *)arg1;
   AV1CdefWorkerData *const cdef_worker = (AV1CdefWorkerData *)arg2;
-  const int nvfb =
-      (cdef_worker->cm->mi_params.mi_rows + MI_SIZE_64X64 - 1) / MI_SIZE_64X64;
+  AV1_COMMON *cm = cdef_worker->cm;
+  const int nvfb = (cm->mi_params.mi_rows + MI_SIZE_64X64 - 1) / MI_SIZE_64X64;
   int cur_fbr;
   while (get_cdef_row_next_job(cdef_sync, &cur_fbr, nvfb)) {
-    av1_cdef_fb_row(cdef_worker->cm, cdef_worker->xd, cdef_worker->linebuf,
-                    cdef_worker->colbuf, cdef_worker->srcbuf, cur_fbr,
+    MACROBLOCKD *xd = cdef_worker->xd;
+    av1_cdef_fb_row(cm, xd, cdef_worker->linebuf, cdef_worker->colbuf,
+                    cdef_worker->srcbuf, cur_fbr,
                     cdef_worker->cdef_init_fb_row_fn, cdef_sync);
+    if (cdef_worker->do_extend_border) {
+      for (int plane = 0; plane < av1_num_planes(cm); ++plane) {
+        const YV12_BUFFER_CONFIG *ybf = &cm->cur_frame->buf;
+        const int is_uv = plane > 0;
+        const int mi_high = MI_SIZE_LOG2 - xd->plane[plane].subsampling_y;
+        const int unit_height = MI_SIZE_64X64 << mi_high;
+        const int v_start = cur_fbr * unit_height;
+        const int v_end =
+            AOMMIN(v_start + unit_height, ybf->crop_heights[is_uv]);
+        aom_extend_frame_borders_plane_row(ybf, plane, v_start, v_end);
+      }
+    }
   }
   return 1;
 }
@@ -1017,12 +1060,16 @@ static int cdef_sb_row_worker_hook(void *arg1, void *arg2) {
 static void prepare_cdef_frame_workers(
     AV1_COMMON *const cm, MACROBLOCKD *xd, AV1CdefWorkerData *const cdef_worker,
     AVxWorkerHook hook, AVxWorker *const workers, AV1CdefSync *const cdef_sync,
-    int num_workers, cdef_init_fb_row_t cdef_init_fb_row_fn) {
+    int num_workers, cdef_init_fb_row_t cdef_init_fb_row_fn,
+    int do_extend_border) {
   const int num_planes = av1_num_planes(cm);
 
   cdef_worker[0].srcbuf = cm->cdef_info.srcbuf;
-  for (int plane = 0; plane < num_planes; plane++)
+  for (int plane = 0; plane < num_planes; plane++) {
     cdef_worker[0].colbuf[plane] = cm->cdef_info.colbuf[plane];
+    cm->extend_border_mt[plane] = do_extend_border;
+  }
+  cdef_worker[0].do_extend_border = do_extend_border;
   for (int i = num_workers - 1; i >= 0; i--) {
     AVxWorker *const worker = &workers[i];
     cdef_worker[i].cm = cm;
@@ -1030,6 +1077,7 @@ static void prepare_cdef_frame_workers(
     cdef_worker[i].cdef_init_fb_row_fn = cdef_init_fb_row_fn;
     for (int plane = 0; plane < num_planes; plane++)
       cdef_worker[i].linebuf[plane] = cm->cdef_info.linebuf[plane];
+    cdef_worker[i].do_extend_border = do_extend_border;
 
     worker->hook = hook;
     worker->data1 = cdef_sync;
@@ -1111,8 +1159,8 @@ void av1_cdef_init_fb_row_mt(const AV1_COMMON *const cm,
 void av1_cdef_frame_mt(AV1_COMMON *const cm, MACROBLOCKD *const xd,
                        AV1CdefWorkerData *const cdef_worker,
                        AVxWorker *const workers, AV1CdefSync *const cdef_sync,
-                       int num_workers,
-                       cdef_init_fb_row_t cdef_init_fb_row_fn) {
+                       int num_workers, cdef_init_fb_row_t cdef_init_fb_row_fn,
+                       int do_extend_border) {
   YV12_BUFFER_CONFIG *frame = &cm->cur_frame->buf;
   const int num_planes = av1_num_planes(cm);
 
@@ -1122,7 +1170,7 @@ void av1_cdef_frame_mt(AV1_COMMON *const cm, MACROBLOCKD *const xd,
   reset_cdef_job_info(cdef_sync);
   prepare_cdef_frame_workers(cm, xd, cdef_worker, cdef_sb_row_worker_hook,
                              workers, cdef_sync, num_workers,
-                             cdef_init_fb_row_fn);
+                             cdef_init_fb_row_fn, do_extend_border);
   launch_cdef_workers(workers, num_workers);
   sync_cdef_workers(workers, cm, num_workers);
 }
