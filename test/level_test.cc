@@ -22,7 +22,7 @@
 namespace {
 const int kLevelMin = 0;
 const int kLevelMax = 31;
-const int kLevelKeepStats = 24;
+const int kLevelKeepStats = 28;
 // Speed settings tested
 static const int kCpuUsedVectors[] = {
   1,
@@ -84,9 +84,8 @@ TEST_P(LevelTest, TestTargetLevelApi) {
   for (int operating_point = 0; operating_point <= 32; ++operating_point) {
     for (int level = 0; level <= 32; ++level) {
       const int target_level = operating_point * 100 + level;
-      if ((level <= 24 && level != 2 && level != 3 && level != 6 &&
-           level != 7 && level != 10 && level != 11 && level != 20 &&
-           level != 21 && level != 22 && level != 23) ||
+      if ((level <= 28 && level != 2 && level != 3 && level != 6 &&
+           level != 7 && level != 10 && level != 11) ||
           level == 31 || operating_point > 31) {
         EXPECT_EQ(AOM_CODEC_OK,
                   AOM_CODEC_CONTROL_TYPECHECKED(
