@@ -70,6 +70,30 @@
       },
       "revId": "b8ae65509d9c30302747d11a7e167f9d3e583967",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "817273fa_8e97f577",
+        "filename": "av1/encoder/pass2_strategy.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1751,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-05-31T16:30:44Z",
+      "side": 1,
+      "message": "can you explain ? what do you mean \"referring to regions\"?",
+      "parentUuid": "d4c9efa3_b64663b0",
+      "range": {
+        "startLine": 1751,
+        "startChar": 50,
+        "endLine": 1751,
+        "endChar": 65
+      },
+      "revId": "b8ae65509d9c30302747d11a7e167f9d3e583967",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
