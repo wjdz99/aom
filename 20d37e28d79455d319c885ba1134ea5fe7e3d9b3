@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "81f8bb0f_f891a744",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 29295
+      },
+      "writtenOn": "2022-05-31T14:37:19Z",
+      "side": 1,
+      "message": "Hi Yunqing, \n\nThis CL tunes an existing sf: skip_newmv_mode_based_on_sse for rtc testset for RT speed 6. Please find the Borg results below:\n\n                  Instruction Count          BD-Rate Loss(%)        \n cpu    Test-set     Reduction(%)     avg.psnr   ovr.psnr    ssim\n  6       rtc          0.839           0.0596     0.0436    0.0332\nIn the commit message, BD rate impact column: \n[+] sign is for BD-Rate drop \n[-] sign is for BD-Rate improvement \nThe instruction count reduction specified has been measured using command: $ perf stat -e instructions:u ./aomenc …\nDetails of the worst case drop contents are below:\n\n cpu   Test-set  Max BD-Rate Loss(%)      Clip-name\n  6      rtc          0.6725            tacomascmvvga\nPlease review the CL.\nThanks!",
+      "revId": "20d37e28d79455d319c885ba1134ea5fe7e3d9b3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
