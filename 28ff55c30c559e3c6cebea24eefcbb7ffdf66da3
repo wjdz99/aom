@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c33ba2a7_57176781",
+        "filename": "CHANGELOG",
+        "patchSetId": 2
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-06-01T20:59:31Z",
+      "side": 1,
+      "message": "should we include those internal ones in the public release?",
+      "range": {
+        "startLine": 37,
+        "startChar": 6,
+        "endLine": 37,
+        "endChar": 22
+      },
+      "revId": "28ff55c30c559e3c6cebea24eefcbb7ffdf66da3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
