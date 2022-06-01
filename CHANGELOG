@@ -1,3 +1,121 @@
+2022-06-01 v3.4.0
+  This release includes compression efficiency and perceptual quality
+  improvements, speedup and memory optimizations, and some new features.
+
+  - New Features
+    * New --dist-metric flag with “qm-psnr” value to use quantization
+      matrices in the distortion computation for RD search.
+    * New command line option “--auto-intra-tools-off=1” to make
+      all-intra encoding faster for high bit rate under
+      “--deltaq-mode=3” mode.
+    * New image format AOM_IMG_FMT_NV12 can be used as input to the
+      encoder. The presence of AOM_IMG_FMT_NV12 can be detected at
+      compile time by checking if the macro AOM_HAVE_IMG_FMT_NV12 is
+      defined.
+
+  - Compression Efficiency Improvements
+    * Correctly calculate SSE for high bitdepth in skip mode, 0.2% to
+      0.6% coding gain.
+    * RTC at speed 9/10: BD-rate gain of ~4/5% and speedup of ~10/5%
+    * RTC screen content coding: many improvements for real-time screen
+      at speed 10 (quality, speedup, and rate control), up to high
+      resolutions (1080p).
+    * RTC-SVC: fixes to make intra-only frames work for spatial layers.
+    * RTC-SVC: quality improvements for temporal layers.
+    * AV1 RT: A new passive rate control strategy for screen content, an
+      average of 7.5% coding gain, with some clips of 20+%. The feature
+      is turned off by default due to higher bit rate variation.
+
+  - Perceptual Quality Improvements
+    * RTC: Visual quality improvements for high speeds (9/10)
+
+  - Speedup and Memory Optimizations
+    * Ongoing improvements to intra-frame encoding performance on Arm
+    * Faster encoding speed for  “--deltaq-mode=3” mode.
+
+  - Bug Fixes
+    * Bug: b/204460717
+    * Bug: b/210677928
+    * Bug: b/217282899
+    * Bug: b/217457914
+    * Bug: b/217459896
+    * Bug: b/217461546
+    * Bug: b/217461825
+    * Bug: b/217462944
+    * Bug: b/221916304
+    * Bug: b/222461449
+    * Bug: b/227207606
+    * Bug: b/228221339
+    * Bug: b/228634712
+    * Bug: b/229104835
+    * Bug: b/229500034
+    * Bug: b/229955363
+    * Bug: b/231616924
+    * Bug: b/231719821
+    * Bug: b/217457914
+    * Bug: b/217458685
+    * Bug: https://crbug.com/aomedia/2032
+    * Bug: https://crbug.com/aomedia/2397
+    * Bug: https://crbug.com/aomedia/2563
+    * Bug: https://crbug.com/aomedia/2815
+    * Bug: https://crbug.com/aomedia/3009
+    * Bug: https://crbug.com/aomedia/3018
+    * Bug: https://crbug.com/aomedia/3045
+    * Bug: https://crbug.com/aomedia/3101
+    * Bug: https://crbug.com/aomedia/3130
+    * Bug: https://crbug.com/aomedia/3173
+    * Bug: https://crbug.com/aomedia/3184
+    * Bug: https://crbug.com/aomedia/3187
+    * Bug: https://crbug.com/aomedia/3190
+    * Bug: https://crbug.com/aomedia/3195
+    * Bug: https://crbug.com/aomedia/3197
+    * Bug: https://crbug.com/aomedia/3201
+    * Bug: https://crbug.com/aomedia/3202
+    * Bug: https://crbug.com/aomedia/3204
+    * Bug: https://crbug.com/aomedia/3205
+    * Bug: https://crbug.com/aomedia/3207
+    * Bug: https://crbug.com/aomedia/3208
+    * Bug: https://crbug.com/aomedia/3209
+    * Bug: https://crbug.com/aomedia/3213
+    * Bug: https://crbug.com/aomedia/3214
+    * Bug: https://crbug.com/aomedia/3219
+    * Bug: https://crbug.com/aomedia/3222
+    * Bug: https://crbug.com/aomedia/3223
+    * Bug: https://crbug.com/aomedia/3225
+    * Bug: https://crbug.com/aomedia/3226
+    * Bug: https://crbug.com/aomedia/3228
+    * Bug: https://crbug.com/aomedia/3232
+    * Bug: https://crbug.com/aomedia/3236
+    * Bug: https://crbug.com/aomedia/3237
+    * Bug: https://crbug.com/aomedia/3238
+    * Bug: https://crbug.com/aomedia/3240
+    * Bug: https://crbug.com/aomedia/3243
+    * Bug: https://crbug.com/aomedia/3244
+    * Bug: https://crbug.com/aomedia/3246
+    * Bug: https://crbug.com/aomedia/3248
+    * Bug: https://crbug.com/aomedia/3250
+    * Bug: https://crbug.com/aomedia/3251
+    * Bug: https://crbug.com/aomedia/3252
+    * Bug: https://crbug.com/aomedia/3255
+    * Bug: https://crbug.com/aomedia/3257
+    * Bug: https://crbug.com/aomedia/3259
+    * Bug: https://crbug.com/aomedia/3260
+    * Bug: https://crbug.com/aomedia/3267
+    * Bug: https://crbug.com/aomedia/3268
+    * Bug: https://crbug.com/aomedia/3269
+    * Bug: https://crbug.com/aomedia/3276
+    * Bug: https://crbug.com/aomedia/3278
+    * Bug: https://crbug.com/chromium/1290068
+    * Bug: https://crbug.com/chromium/1303237
+    * Bug: https://crbug.com/chromium/1304990
+    * Bug: https://crbug.com/chromium/1321141
+    * Bug: https://crbug.com/chromium/1321388
+    * Bug: https://crbug.com/oss-fuzz/44846
+    * Bug: https://crbug.com/oss-fuzz/44856
+    * Bug: https://crbug.com/oss-fuzz/44862
+    * Bug: https://crbug.com/oss-fuzz/44904
+    * Bug: https://crbug.com/oss-fuzz/45056
+
 2022-01-28 v3.3.0
   This release includes compression efficiency and perceptual quality
   improvements, speedup and memory optimizations, some new features, and
