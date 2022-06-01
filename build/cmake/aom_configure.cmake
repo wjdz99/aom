@@ -110,6 +110,20 @@ endif()
 if(BUILD_SHARED_LIBS)
   set(CONFIG_PIC 1)
   set(CONFIG_SHARED 1)
+else()
+  aom_check_c_compiles("pie_check" "
+                        #if !(__pie__ || __PIE__)
+                        #error Neither __pie__ or __PIE__ are set
+                        #endif
+                        void unused(void) {
+                          (void)unused;
+                        }" HAVE_PIE)
+
+  if(HAVE_PIE)
+    # If -fpie or -fPIE are used ensure the assembly code has PIC enabled to
+    # avoid DT_TEXTRELs: /usr/bin/ld: warning: creating DT_TEXTREL in a PIE
+    set(CONFIG_PIC 1)
+  endif()
 endif()
 
 if(NOT MSVC)
