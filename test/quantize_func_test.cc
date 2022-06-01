@@ -176,15 +176,18 @@ class QuantizeTestBase
             << "Q mismatch on test: " << i << " at position: " << j
             << " Q: " << q << " coeff: " << coeff_ptr[j];
       }
-
+#if 1
       for (int j = 0; j < n_coeffs; ++j) {
         ASSERT_EQ(dqcoeff_ref[j], dqcoeff[j])
             << "Dq mismatch on test: " << i << " at position: " << j
             << " Q: " << q << " coeff: " << coeff_ptr[j];
       }
+#endif
 
+#if 1
       ASSERT_EQ(eob[0], eob[1])
           << "eobs mismatch on test: " << i << " Q: " << q;
+#endif
     }
   }
 
@@ -307,6 +310,7 @@ class LowPrecisionQuantizeTest
   }
 };
 
+#if 1
 TEST_P(FullPrecisionQuantizeTest, ZeroInput) {
   FillCoeffZero();
   QuantizeRun(false);
@@ -316,29 +320,34 @@ TEST_P(FullPrecisionQuantizeTest, LargeNegativeInput) {
   FillDcLargeNegative();
   QuantizeRun(false, 0, 1);
 }
-
+#endif
+#if 1
 TEST_P(FullPrecisionQuantizeTest, DcOnlyInput) {
   FillDcOnly();
   QuantizeRun(false, 0, 1);
 }
+#endif
 
+#if 1
 TEST_P(FullPrecisionQuantizeTest, RandomInput) {
   QuantizeRun(true, 0, kTestNum);
 }
-
+#endif
+#if 1
 TEST_P(FullPrecisionQuantizeTest, MultipleQ) {
   for (int q = 0; q < QINDEX_RANGE; ++q) {
     QuantizeRun(true, q, kTestNum);
   }
 }
-
+#endif
+#if 1
 // Force the coeff to be half the value of the dequant.  This exposes a
 // mismatch found in av1_quantize_fp_sse2().
 TEST_P(FullPrecisionQuantizeTest, CoeffHalfDequant) {
   FillCoeff(16);
   QuantizeRun(false, 25, 1);
 }
-
+#endif
 TEST_P(FullPrecisionQuantizeTest, DISABLED_Speed) {
   tran_low_t *coeff_ptr = coeff_;
   const intptr_t n_coeffs = coeff_num();
@@ -567,7 +576,9 @@ const QuantizeParam<QuantizeFunc> kQParamArrayAvx2[] = {
   make_tuple(&aom_quantize_b_adaptive_c, &aom_quantize_b_adaptive_avx2,
              static_cast<TX_SIZE>(TX_8X8), TYPE_B, AOM_BITS_8),
   make_tuple(&aom_quantize_b_adaptive_c, &aom_quantize_b_adaptive_avx2,
-             static_cast<TX_SIZE>(TX_4X4), TYPE_B, AOM_BITS_8)
+             static_cast<TX_SIZE>(TX_4X4), TYPE_B, AOM_BITS_8),
+  make_tuple(&aom_quantize_b_c, &aom_quantize_b_avx2,
+             static_cast<TX_SIZE>(TX_16X16), TYPE_B, AOM_BITS_8),
 };
 
 INSTANTIATE_TEST_SUITE_P(AVX2, FullPrecisionQuantizeTest,
