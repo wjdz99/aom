@@ -24,6 +24,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "1dd3079e_9c71263d",
+        "filename": "CHANGELOG",
+        "patchSetId": 2
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-06-01T22:56:40Z",
+      "side": 1,
+      "message": "Done. Thanks!",
+      "parentUuid": "3e5f895b_d9e36a2b",
+      "range": {
+        "startLine": 5,
+        "startChar": 8,
+        "endLine": 5,
+        "endChar": 16
+      },
+      "revId": "28ff55c30c559e3c6cebea24eefcbb7ffdf66da3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c33ba2a7_57176781",
@@ -37,6 +61,30 @@
       "writtenOn": "2022-06-01T20:59:31Z",
       "side": 1,
       "message": "should we include those internal ones in the public release?",
+      "range": {
+        "startLine": 37,
+        "startChar": 6,
+        "endLine": 37,
+        "endChar": 22
+      },
+      "revId": "28ff55c30c559e3c6cebea24eefcbb7ffdf66da3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a1553cf6_334cbf2f",
+        "filename": "CHANGELOG",
+        "patchSetId": 2
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-06-01T22:56:40Z",
+      "side": 1,
+      "message": "These Buganizer bug numbers come from commit messages. So they are already public. It\u0027s just that only Google employees can view these bug reports.\n\nPerhaps we can include the titles of these Buganizer bug reports so that people who cannot view the bug reports have an idea what they are?",
+      "parentUuid": "c33ba2a7_57176781",
       "range": {
         "startLine": 37,
         "startChar": 6,
