@@ -46,6 +46,30 @@
       },
       "revId": "4437585a6bf3bc2a8b128a376dfcd20fc787a7d6",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "55b005e6_4956518c",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2022-06-02T23:08:19Z",
+      "side": 1,
+      "message": "got it. thanks for the pointer!",
+      "parentUuid": "5e7b6262_c50f5533",
+      "range": {
+        "startLine": 12,
+        "startChar": 6,
+        "endLine": 12,
+        "endChar": 15
+      },
+      "revId": "4437585a6bf3bc2a8b128a376dfcd20fc787a7d6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
