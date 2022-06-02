@@ -3006,6 +3006,12 @@ static aom_codec_err_t encoder_encode(aom_codec_alg_priv_t *ctx,
     }
 #endif  // CONFIG_FRAME_PARALLEL_ENCODE
 
+    // Reset gf_frame_index at the beginning of sub gop
+    if (is_stat_consumption_stage(cpi) && ppi->gf_group.size > 0 &&
+        cpi->gf_frame_index == ppi->gf_group.size) {
+      cpi->gf_frame_index = 0;
+    }
+
     // Get the next visible frame. Invisible frames get packed with the next
     // visible frame.
     while (cpi_data.cx_data_sz >= ctx->cx_data_sz / 2 && !is_frame_visible) {
