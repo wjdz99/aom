@@ -24,7 +24,27 @@
 #include "test/video_source.h"
 #include "third_party/googletest/src/googletest/include/gtest/gtest.h"
 
+#define AV1_FOURCC 0x31305641
+
 namespace aom {
+
+void Lay16Bits(uint8_t *array, int index, int value) {
+  array[index] = (uint8_t)(value);
+  array[index + 1] = (uint8_t)(value >> 8);
+}
+
+void Lay32Bits(uint8_t *array, int index, int value) {
+  for (int i = 0; i < 4; i++) {
+    array[index + i] = (uint8_t)(value >> (i * 8));
+  }
+}
+
+void Lay64Bits(uint8_t *array, int index, int64_t value) {
+  for (int i = 0; i < 8; i++) {
+    array[index + i] = (uint8_t)(value >> (i * 8));
+  }
+}
+
 TEST(DuckyEncodeTest, ComputeFirstPassStats) {
   aom_rational_t frame_rate = { 30, 1 };
   VideoInfo video_info = { 352,        288,
@@ -59,10 +79,46 @@ TEST(DuckyEncodeTest, EncodeFrame) {
   // provide proper information.
   int coding_frame_count = 5;
   EncodeFrameDecision decision = { EncodeFrameMode::kNone, {} };
+
+  FILE *bitstream_file = fopen(
+      "/usr/local/google/home/jianj/Codes/aom/linux_build/bitstream.ivf", "wb");
+  assert(bitstream_file != nullptr);
+  uint8_t ivf_header_[32];
+  memset(ivf_header_, 0, 32);
+
+  ivf_header_[0] = 'D';
+  ivf_header_[1] = 'K';
+  ivf_header_[2] = 'I';
+  ivf_header_[3] = 'F';
+  Lay16Bits(ivf_header_, 4, 0);   // version
+  Lay16Bits(ivf_header_, 6, 32);  // header size
+  ivf_header_[8] = 'A';           // fourcc
+  ivf_header_[9] = 'V';
+  ivf_header_[10] = '0';
+  ivf_header_[11] = '1';
+
+  Lay16Bits(ivf_header_, 12, 352);
+  Lay16Bits(ivf_header_, 14, 288);
+  Lay32Bits(ivf_header_, 16, 0);
+  Lay32Bits(ivf_header_, 20, 0);
+  Lay32Bits(ivf_header_, 24, 10);
+  Lay32Bits(ivf_header_, 28, 0);
+
   for (int i = 0; i < coding_frame_count; ++i) {
     EncodeFrameResult encode_frame_result = ducky_encode.EncodeFrame(decision);
+    uint8_t frame_header[12];
+    size_t frame_size = encode_frame_result.bitstream_buf.size();
+    Lay32Bits(frame_header, 0, (int)frame_size);
+    Lay64Bits(frame_header, 4, 0);
+
+    if (i == 0) fwrite(ivf_header_, 32, 1, bitstream_file);
+
+    fwrite(frame_header, 12, 1, bitstream_file);
+    fwrite(encode_frame_result.bitstream_buf.data(), 1, frame_size,
+           bitstream_file);
   }
   ducky_encode.EndEncode();
+  fclose(bitstream_file);
 }
 
 // TODO(b/231517281): Re-enable after fix.
