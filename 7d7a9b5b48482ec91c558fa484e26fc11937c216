@@ -16,6 +16,24 @@
       "message": "Thanks for the reviews.\n\nMemo to myself: this should not be submitted until the downstream CL\u0027s are ready to be submitted (modulo the cherry pick).",
       "revId": "7d7a9b5b48482ec91c558fa484e26fc11937c216",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "dad1d89a_df6c3c8f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-06-02T11:07:31Z",
+      "side": 1,
+      "message": "Resolve.",
+      "parentUuid": "10e5fa1e_0f52cd9a",
+      "revId": "7d7a9b5b48482ec91c558fa484e26fc11937c216",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
