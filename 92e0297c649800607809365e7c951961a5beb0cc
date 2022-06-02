@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "955c5b3f_cb7a4630",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-06-02T00:56:51Z",
+      "side": 1,
+      "message": "I\u0027d expect that this will cause TestGetRefFrameTableListNotFirstGop to fail. (At least I hope it will! If not, then I\u0027m misunderstanding something.) \n\nYou could do something like this to fix it:\n\n -  const auto matches_previous \u003d GopFrameMatches(previous);\n +  // Frames in the initial table should have coding_idx of -1\n +  // to prevent propagating TPL stats to already coded frames.\n +  auto previous_modified \u003d previous;\n +  previous_modified.coding_idx \u003d -1;\n +  const auto matches_previous \u003d GopFrameMatches(previous_modified);",
+      "revId": "92e0297c649800607809365e7c951961a5beb0cc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f903fb73_482e9d9d",
+        "filename": "av1/ratectrl_qmode.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 1006,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-06-02T00:56:51Z",
+      "side": 1,
+      "message": "In theory this could be moved inside the else above; it\u0027s not necessary for the first gop, because the table is initialized with GopFrameInvalid, which sets coding_idx to -1.\n\nBut there\u0027s no harm in doing it here unconditionally either. It\u0027s up to you.",
+      "revId": "92e0297c649800607809365e7c951961a5beb0cc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
