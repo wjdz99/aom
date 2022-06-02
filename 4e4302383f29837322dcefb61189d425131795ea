@@ -24,6 +24,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "44543acb_d9d59527",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2022-06-02T05:03:40Z",
+      "side": 1,
+      "message": "Borg shows 6.6% speed increase.",
+      "parentUuid": "437a92e3_d02f34dc",
+      "range": {
+        "startLine": 12,
+        "startChar": 0,
+        "endLine": 12,
+        "endChar": 11
+      },
+      "revId": "4e4302383f29837322dcefb61189d425131795ea",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "59083997_07186bea",
@@ -37,6 +61,30 @@
       "writtenOn": "2022-06-02T00:34:53Z",
       "side": 1,
       "message": "this can be \"else if\" ?",
+      "range": {
+        "startLine": 535,
+        "startChar": 4,
+        "endLine": 535,
+        "endChar": 6
+      },
+      "revId": "4e4302383f29837322dcefb61189d425131795ea",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cd9742d7_85f8dd29",
+        "filename": "av1/encoder/pickcdef.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 535,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2022-06-02T05:03:40Z",
+      "side": 1,
+      "message": "The current form is OK.\nThe else branch (line 534) refers to the non-screen case.\nThe if branch (line 535) refers to inter frames in the non-screen case.",
+      "parentUuid": "59083997_07186bea",
       "range": {
         "startLine": 535,
         "startChar": 4,
