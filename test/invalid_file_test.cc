@@ -88,7 +88,7 @@ class InvalidFileTest : public ::libaom_test::DecoderTest,
       } else {
         EXPECT_EQ(expected_res_dec, res_dec)
             << "Results don't match: frame number = " << video.frame_number()
-            << ". (" << decoder->DecodeError() << ")";
+            << "name" << input.filename << ". (" << decoder->DecodeError() << ")";
       }
     }
 
@@ -146,7 +146,8 @@ const DecodeParam kAV1InvalidFileTests[] = {
   { 1, "invalid-oss-fuzz-10227.ivf", nullptr },
   { 4, "invalid-oss-fuzz-10555.ivf", nullptr },
   { 1, "invalid-oss-fuzz-10705.ivf", nullptr },
-  { 1, "invalid-oss-fuzz-10723.ivf", "invalid-oss-fuzz-10723.ivf.res.2" },
+  // The following test case was removed because now the codec supports 7.x and 8.x levels
+  // { 1, "invalid-oss-fuzz-10723.ivf", "invalid-oss-fuzz-10723.ivf.res.2" },
   { 1, "invalid-oss-fuzz-10779.ivf", nullptr },
   { 1, "invalid-oss-fuzz-11477.ivf", nullptr },
   { 1, "invalid-oss-fuzz-11479.ivf", "invalid-oss-fuzz-11479.ivf.res.2" },
