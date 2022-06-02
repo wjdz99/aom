@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6ada93ef_62346b95",
+        "filename": "CHANGELOG",
+        "patchSetId": 3
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-06-02T02:25:32Z",
+      "side": 1,
+      "message": "We should make a clear statement about api/abi compatibility:\nhttps://crbug.com/webm/1757",
+      "revId": "3bc7ca9db7fcd2dc0356c3e910356591337d131f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1f3d3297_1dc5980b",
+        "filename": "CHANGELOG",
+        "patchSetId": 3
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-06-02T02:25:32Z",
+      "side": 1,
+      "message": "I don\u0027t think there are existing instances of fancy-quotes. Can we keep the text ascii?",
+      "range": {
+        "startLine": 6,
+        "startChar": 34,
+        "endLine": 6,
+        "endChar": 35
+      },
+      "revId": "3bc7ca9db7fcd2dc0356c3e910356591337d131f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2883b2f8_fa14ebf1",
+        "filename": "CHANGELOG",
+        "patchSetId": 3
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-06-02T02:25:32Z",
+      "side": 1,
+      "message": "I guess you could strip the common \"Bug: \" prefix since it\u0027s under the Bug Fixes header.",
+      "range": {
+        "startLine": 58,
+        "startChar": 6,
+        "endLine": 58,
+        "endChar": 10
+      },
+      "revId": "3bc7ca9db7fcd2dc0356c3e910356591337d131f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
