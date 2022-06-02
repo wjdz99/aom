@@ -1001,6 +1001,10 @@ std::vector<RefFrameTable> AV1RateControlQMode::GetRefFrameTableList(
   }
 
   std::vector<RefFrameTable> ref_frame_table_list;
+
+  // Reset the frame processing order of the initial ref_frame_table.
+  for (GopFrame &gop_frame : ref_frame_table) gop_frame.coding_idx = -1;
+
   ref_frame_table_list.push_back(ref_frame_table);
   for (const GopFrame &gop_frame : gop_struct.gop_frame_list) {
     if (gop_frame.is_key_frame) {
