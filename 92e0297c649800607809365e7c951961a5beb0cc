@@ -54,6 +54,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "947b9638_febf8a33",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2022-06-02T01:34:06Z",
+      "side": 1,
+      "message": "Done\n\nGood, the original unit test catches the change.\n\nThanks for the pointers!",
+      "parentUuid": "e61a7346_9bea8957",
+      "revId": "92e0297c649800607809365e7c951961a5beb0cc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "f903fb73_482e9d9d",
@@ -67,6 +85,24 @@
       "writtenOn": "2022-06-02T00:56:51Z",
       "side": 1,
       "message": "In theory this could be moved inside the else above; it\u0027s not necessary for the first gop, because the table is initialized with GopFrameInvalid, which sets coding_idx to -1.\n\nBut there\u0027s no harm in doing it here unconditionally either. It\u0027s up to you.",
+      "revId": "92e0297c649800607809365e7c951961a5beb0cc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8ece45a9_445215fd",
+        "filename": "av1/ratectrl_qmode.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 1006,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2022-06-02T01:34:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f903fb73_482e9d9d",
       "revId": "92e0297c649800607809365e7c951961a5beb0cc",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
