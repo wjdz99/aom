@@ -707,7 +707,8 @@ void av1_change_config(struct AV1_COMP *cpi, const AV1EncoderConfig *oxcf,
          sizeof(level_params->target_seq_level_idx));
   level_params->keep_level_stats = 0;
   for (int i = 0; i < MAX_NUM_OPERATING_POINTS; ++i) {
-    if (level_params->target_seq_level_idx[i] <= SEQ_LEVELS) {
+    if (level_params->target_seq_level_idx[i] < SEQ_LEVELS ||
+        level_params->target_seq_level_idx[i] == SEQ_LEVEL_KEEP_STATS) {
       level_params->keep_level_stats |= 1u << i;
       if (!level_params->level_info[i]) {
         CHECK_MEM_ERROR(cm, level_params->level_info[i],
