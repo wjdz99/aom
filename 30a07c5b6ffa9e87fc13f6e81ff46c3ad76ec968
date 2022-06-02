@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1e068788_a2b3a033",
+        "filename": "aom/src/aom_encoder.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-06-02T23:18:39Z",
+      "side": 1,
+      "message": "I\u0027m a little concerned about link stability, though we haven\u0027t changed hosts in quite a while. It might be better to add the output from git log --oneline for the commit in question.",
+      "revId": "30a07c5b6ffa9e87fc13f6e81ff46c3ad76ec968",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "76b6060f_7b8278d6",
+        "filename": "aom/src/aom_encoder.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-06-02T23:18:39Z",
+      "side": 1,
+      "message": "this could be TODO(https://crbug.com/aomedia/3228)",
+      "range": {
+        "startLine": 56,
+        "startChar": 10,
+        "endLine": 56,
+        "endChar": 13
+      },
+      "revId": "30a07c5b6ffa9e87fc13f6e81ff46c3ad76ec968",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
