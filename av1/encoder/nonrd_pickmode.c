@@ -2816,6 +2816,11 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
       // If source_sad is computed: skip non-zero motion
       // check for stationary (super)blocks. Otherwise if superblock
       // has motion skip the modes with zero motion for flat blocks.
+      // For the latter condition, NEWMV will be tested, but if NEWMV
+      // is (0, 0) we should also skip this mode. This is done below
+      // after the search_new_mv.
+      // TODO:(marpan): Refine this latter conditon as the non-zero
+      // motion content_state is based on superblock, not coding block.
       if (cpi->sf.rt_sf.source_metrics_sb_nonrd) {
         if ((frame_mv[this_mode][ref_frame].as_int != 0 &&
              x->content_state_sb.source_sad_nonrd == kZeroSad) ||
@@ -2892,6 +2897,15 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
     }
 
     if (skip_this_mv && !comp_pred) continue;
+
+    if (this_mode == NEWMV &&
+        cpi->oxcf.tune_cfg.content == AOM_CONTENT_SCREEN &&
+        cpi->sf.rt_sf.source_metrics_sb_nonrd) {
+      if (frame_mv[this_mode][ref_frame].as_int == 0 &&
+          x->content_state_sb.source_sad_nonrd != kZeroSad &&
+          x->source_variance == 0)
+        continue;
+    }
 
     mi->mode = this_mode;
     mi->mv[0].as_int = frame_mv[this_mode][ref_frame].as_int;
