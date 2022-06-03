@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0efe239a_22ccfd32",
+        "filename": "av1/arg_defs.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 576,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-06-03T18:25:40Z",
+      "side": 1,
+      "message": "\"0\" can also be changed to \"0 (2.0)\" for consistency.",
+      "revId": "905abbb42334d7688cdb91315136d456a5e6b5fc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0d25a0b3_55d6c918",
+        "filename": "av1/arg_defs.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 577,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-06-03T18:25:40Z",
+      "side": 1,
+      "message": "The comment for the corresponding codec control AV1E_SET_TARGET_SEQ_LEVEL_IDX is a more complete version of this message. It should receive the same treatment:\n\n```\n  /*!\\brief Control to set target sequence level index for a certain operating\n   * point(OP), int parameter\n   * Possible values are in the form of \"ABxy\"(pad leading zeros if less than\n   * 4 digits).\n   *  - AB: OP index.\n   *  - xy: Target level index for the OP. Can be values 0~23(corresponding to\n   *    level 2.0 ~ 7.3) or 24(keep level stats only for level monitoring) or\n   *    31(maximum level parameter, no level-based constraints).\n   *\n   * E.g.:\n   * - \"0\" means target level index 0 for the 0th OP;\n   * - \"111\" means target level index 11 for the 1st OP;\n   * - \"1021\" means target level index 21 for the 10th OP.\n   *\n   * If the target level is not specified for an OP, the maximum level parameter\n   * of 31 is used as default.\n   */\n  AV1E_SET_TARGET_SEQ_LEVEL_IDX \u003d 54,\n```",
+      "revId": "905abbb42334d7688cdb91315136d456a5e6b5fc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
