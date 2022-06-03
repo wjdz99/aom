@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a29e3eb1_93fb8466",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2022-06-03T23:52:47Z",
+      "side": 1,
+      "message": "Thanks for the fix to the curve.Upload the new results, including speed/instruction_count, when you can.",
+      "revId": "75aeb9640369e8e2bcecdac6efc84a7fa72afd6a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a4d715cf_d3b8ce65",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 2163,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2022-06-03T23:52:47Z",
+      "side": 1,
+      "message": "can clamp this to something like: MAX(x, rc-\u003ebest_quality + 5), with x ~ 20?",
+      "revId": "75aeb9640369e8e2bcecdac6efc84a7fa72afd6a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
