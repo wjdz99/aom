@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5e3e3161_c2ffb3c7",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-06-03T19:21:16Z",
+      "side": 1,
+      "message": "Hi Bohan,\n\nI have some questions about this CL. Please see my comments below.",
+      "revId": "b15360e9f4588a75146fe2e2f474033e3b6cd72e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2971a233_e004ae56",
+        "filename": "av1/encoder/level.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1250,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-06-03T19:21:16Z",
+      "side": 1,
+      "message": "Note that these three lines are the same as the first three lines of the original code of av1_get_target_seq_level_idx(). At first glance it seems that this function should also initialize the entire seq_level_idx array to SEQ_LEVEL_MAX. But I think a more fundamental problem is that the caller does not know the actual size of the array (seq_params-\u003eoperating_points_cnt_minus_1 + 1), so it \"blindly\" checks all 32 entries in the array.",
+      "revId": "b15360e9f4588a75146fe2e2f474033e3b6cd72e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "104a94d1_15150ff4",
+        "filename": "av1/encoder/level.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1280,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-06-03T19:21:16Z",
+      "side": 1,
+      "message": "Bohan, could you explain why this change is needed?\n \nI found that av1_get_target_seq_level_idx() and the related av1_get_seq_level_idx() function above are only used in aomenc.c (except test/level_test.cc):\n\n \n```\n    if (pass \u003d\u003d global.passes - 1) {\n      FOREACH_STREAM(stream, streams) {\n        int levels[32] \u003d { 0 };\n        int target_levels[32] \u003d { 0 };\n        aom_codec_control(\u0026stream-\u003eencoder, AV1E_GET_SEQ_LEVEL_IDX, levels);\n        aom_codec_control(\u0026stream-\u003eencoder, AV1E_GET_TARGET_SEQ_LEVEL_IDX,\n                          target_levels);\n\n        for (int i \u003d 0; i \u003c 32; i++) {\n          if (levels[i] \u003e target_levels[i]) {\n            aom_tools_warn(\n                \"Failed to encode to target level %d.%d for operating point \"\n                \"%d. The output level is %d.%d\",\n                2 + (target_levels[i] \u003e\u003e 2), target_levels[i] \u0026 3, i,\n                2 + (levels[i] \u003e\u003e 2), levels[i] \u0026 3);\n          }\n        }\n      }\n    }\n```\n\nThe for loop inspects all 32 elements of the levels and target_levels arrays, but only the first seq_params-\u003eoperating_points_cnt_minus_1 + 1 elements of those two arrays should be used.\n\nAlso, the original code should not cause this for loop to malfunction, because the unused elements in the two arrays will be both equal to 0 (the initial value). So I guess this change fixes some other problem. Is it because you want to implement the comment \"If a target level is not set, the result will be 31.\"?\n\n```\n  /*!\\brief Codec control function to get the target sequence level index for\n   * each operating point. int* parameter. There can be at most 32 operating\n   * points. The results will be written into a provided integer array of\n   * sufficient size. If a target level is not set, the result will be 31.\n   * Please refer to https://aomediacodec.github.io/av1-spec/#levels for more\n   * details on level definitions and indices.\n   */\n  AV1E_GET_TARGET_SEQ_LEVEL_IDX \u003d 155,\n```",
+      "revId": "b15360e9f4588a75146fe2e2f474033e3b6cd72e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
