@@ -44,6 +44,11 @@ typedef struct {
   TX_TYPE tx_type;
 } TxCandidateInfo;
 
+enum {
+  TX_PRUNE_LARGEST = 0x1,
+  TX_PRUNE_SPLIT = 0x2,
+} UENUM1BYTE(TX_PRUNE_MASK_TYPE);
+
 // origin_threshold * 128 / 100
 static const uint32_t skip_pred_threshold[3][BLOCK_SIZES_ALL] = {
   {
@@ -1646,8 +1651,8 @@ static float get_dev(float mean, double x2_sum, int num) {
 
 // Feature used by the model to predict tx split: the mean and standard
 // deviation values of the block and sub-blocks.
-static AOM_INLINE void get_mean_dev_features(const int16_t *data, int stride,
-                                             int bw, int bh, float *feature) {
+static AOM_INLINE int get_mean_dev_features(const int16_t *data, int stride,
+                                            int bw, int bh, float *feature) {
   const int16_t *const data_ptr = &data[0];
   const int subh = (bh >= bw) ? (bh >> 1) : bh;
   const int subw = (bw >= bh) ? (bw >> 1) : bw;
@@ -1690,6 +1695,8 @@ static AOM_INLINE void get_mean_dev_features(const int16_t *data, int stride,
     // Mean of deviations.
     feature[feature_idx++] = dev_sum / blk_idx;
   }
+
+  return feature_idx;
 }
 
 static int ml_predict_tx_split(MACROBLOCK *x, BLOCK_SIZE bsize, int blk_row,
@@ -1704,7 +1711,8 @@ static int ml_predict_tx_split(MACROBLOCK *x, BLOCK_SIZE bsize, int blk_row,
   const int bh = tx_size_high[tx_size];
 
   float features[64] = { 0.0f };
-  get_mean_dev_features(diff, diff_stride, bw, bh, features);
+  int num_features = get_mean_dev_features(diff, diff_stride, bw, bh, features);
+  (void)num_features;
 
   float score = 0.0f;
   av1_nn_predict(features, nn_config, 1, &score);
@@ -2758,6 +2766,49 @@ static AOM_INLINE void choose_smallest_tx_size(const AV1_COMP *const cpi,
                        FTXS_NONE, skip_trellis);
 }
 
+static void ml_predict_intra_tx_split(MACROBLOCK *x, int blk_row, int blk_col,
+                                      BLOCK_SIZE bsize, TX_SIZE tx_size) {
+  // Disable the pruning logic using NN model
+  // a) for lossless coding as only 4x4 transform is evaluated in this case (or)
+  // b) when transform and block sizes do not match
+  if (x->qindex == 0 || txsize_to_bsize[tx_size] != bsize) return;
+
+  const NN_CONFIG *nn_config = av1_intra_tx_split_nnconfig_map[tx_size];
+  if (!nn_config) return;
+
+  const float *const intra_tx_prune_thresh =
+      av1_intra_tx_prune_nn_thresh[tx_size];
+
+  float features[NUM_INTRA_TX_SPLIT_FEATURES] = { 0.0f };
+  const int diff_stride = block_size_wide[bsize];
+  MACROBLOCKD *const xd = &x->e_mbd;
+  const int16_t *diff = x->plane[0].src_diff + MI_SIZE * blk_row * diff_stride +
+                        MI_SIZE * blk_col;
+  const int bw = tx_size_wide[tx_size];
+  const int bh = tx_size_high[tx_size];
+
+  int feature_idx = get_mean_dev_features(diff, diff_stride, bw, bh, features);
+
+  features[feature_idx++] = logf(1.0f + (float)x->source_variance);
+
+  const int dc_q = av1_dc_quant_QTX(x->qindex, 0, xd->bd) >> (xd->bd - 8);
+  const float log_dc_q_square = logf(1.0f + (float)(dc_q * dc_q) / 256.0f);
+  features[feature_idx++] = log_dc_q_square;
+  assert(feature_idx == NUM_INTRA_TX_SPLIT_FEATURES);
+  for (int i = 0; i < NUM_INTRA_TX_SPLIT_FEATURES; i++) {
+    features[i] = (features[i] - av1_intra_tx_split_8x8_mean[i]) /
+                  av1_intra_tx_split_8x8_std[i];
+  }
+
+  float score = 0.0f;
+  av1_nn_predict(features, nn_config, 1, &score);
+
+  if (score <= intra_tx_prune_thresh[0])
+    x->nn_prune_mask_for_intra_tx_depths |= TX_PRUNE_SPLIT;
+  else if (score > intra_tx_prune_thresh[1])
+    x->nn_prune_mask_for_intra_tx_depths |= TX_PRUNE_LARGEST;
+}
+
 // Search for the best uniform transform size and type for current coding block.
 static AOM_INLINE void choose_tx_size_type_from_rd(const AV1_COMP *const cpi,
                                                    MACROBLOCK *x,
@@ -2803,12 +2854,21 @@ static AOM_INLINE void choose_tx_size_type_from_rd(const AV1_COMP *const cpi,
   TxfmSearchInfo *txfm_info = &x->txfm_search_info;
   for (int tx_size = start_tx, depth = init_depth; depth <= MAX_TX_DEPTH;
        depth++, tx_size = sub_tx_size_map[tx_size]) {
+    // Set flag to enable the evaluation of NN classifier to prune transform
+    // depths. As the features are based on intra residual data of largest
+    // transform, the evaluation of NN model is enabled only for this case.
+    x->enable_nn_prune_intra_tx_depths =
+        (cpi->sf.tx_sf.nn_based_intra_tx_size_prune_level &&
+         tx_size == start_tx);
+
     if ((!cpi->oxcf.txfm_cfg.enable_tx64 &&
          txsize_sqr_up_map[tx_size] == TX_64X64) ||
         (!cpi->oxcf.txfm_cfg.enable_rect_tx &&
          tx_size_wide[tx_size] != tx_size_high[tx_size])) {
+      x->enable_nn_prune_intra_tx_depths = 0;
       continue;
     }
+    if (x->nn_prune_mask_for_intra_tx_depths & TX_PRUNE_SPLIT) break;
 
     RD_STATS this_rd_stats;
     rd[depth] = av1_uniform_txfm_yrd(cpi, x, &this_rd_stats, ref_best_rd, bs,
@@ -2834,6 +2894,11 @@ static AOM_INLINE void choose_tx_size_type_from_rd(const AV1_COMP *const cpi,
     av1_copy_array(xd->tx_type_map, best_txk_type_map, num_blks);
     av1_copy_array(txfm_info->blk_skip, best_blk_skip, num_blks);
   }
+
+  // Reset the flags to avoid the unnecessary evaluation of NN model and
+  // incorrect consumption of prune mask
+  x->enable_nn_prune_intra_tx_depths = 0;
+  x->nn_prune_mask_for_intra_tx_depths = 0;
 }
 
 // Search for the best transform type for the given transform block in the
@@ -2860,6 +2925,14 @@ static AOM_INLINE void block_rd_txfm(int plane, int block, int blk_row,
   if (!is_inter) {
     av1_predict_intra_block_facade(cm, xd, plane, blk_col, blk_row, tx_size);
     av1_subtract_txb(x, plane, plane_bsize, blk_col, blk_row, tx_size);
+    if (x->enable_nn_prune_intra_tx_depths) {
+      ml_predict_intra_tx_split(x, blk_row, blk_col, plane_bsize, tx_size);
+      if (x->nn_prune_mask_for_intra_tx_depths & TX_PRUNE_LARGEST) {
+        av1_invalid_rd_stats(&args->rd_stats);
+        args->exit_early = 1;
+        return;
+      }
+    }
   }
 
   TXB_CTX txb_ctx;
