@@ -1229,6 +1229,23 @@ typedef struct macroblock {
   uint8_t color_sensitivity_sb[2];
   //! Color sensitivity flag for the coding block.
   uint8_t color_sensitivity[2];
+
+  /*! \brief Bit-mask for pruning transform depth R-D evaluation.
+   *
+   * Used to signal which uniform transform partitions should be pruned for
+   * a prediction block in intra frames. 0th bit indicates that the evaluation
+   * of largest transform size possible should be avoided and 1st bit indicates
+   * that the evaluation of split(first-level) of largest transform size should
+   * be avoided.
+   */
+  uint8_t nn_prune_mask_for_intra_tx_depths;
+
+  /*! \brief Indicates if NN model can be used to prune transform depths.
+   *
+   * Used to signal whether NN model should be evaluated to prune
+   * the R-D evaluation of specific transform depths.
+   */
+  bool enable_nn_prune_intra_tx_depths;
   /**@}*/
 
   /*****************************************************************************
