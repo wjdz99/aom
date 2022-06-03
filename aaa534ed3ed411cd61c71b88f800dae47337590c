@@ -151,6 +151,24 @@
       "parentUuid": "355b485c_39e853a3",
       "revId": "aaa534ed3ed411cd61c71b88f800dae47337590c",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b6b72564_addc6f75",
+        "filename": "test/level_test.cc",
+        "patchSetId": 7
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-06-03T20:13:08Z",
+      "side": 1,
+      "message": "\u003e I think currently libaom is using the enum to automatically tracking the reserved one. Do you think changing to using 30 would be better?\n\nIt would avoid behavior changes between releases if you expected this value to be useful.",
+      "parentUuid": "59b0a329_8fd1f940",
+      "revId": "aaa534ed3ed411cd61c71b88f800dae47337590c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
