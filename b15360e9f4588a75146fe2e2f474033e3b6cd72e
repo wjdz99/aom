@@ -156,6 +156,24 @@
       "parentUuid": "a72787e6_78aed566",
       "revId": "b15360e9f4588a75146fe2e2f474033e3b6cd72e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4e58cb74_f7f67e3e",
+        "filename": "av1/encoder/level.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1280,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2022-06-06T18:01:34Z",
+      "side": 1,
+      "message": "Thanks for the reply! I think option 1 makes sense, but since this is already used by people using ffmpeg, I fear that reverting the CL would mean that those who are experimenting with this would be caught by surprise, as ffmpeg patches tend to take a few weeks to finally merge. So how about we do this:\n\nFirst we add one more GET_NUM_OPERATING_POINTS API as you described, and submit a patch to ffmpeg to use that API to only check the proper number of levels. However we do not revert this CL as they are not really contradicting. In this way with or without the new patch, ffmpeg should work fine. \n\nAnd we also do 2 (extent get_seq_level_idx to set everything to SEQ_LEVEL_MAX), which will also not break how ffmpeg / aomenc is currently using these APIs. This is also better because even with get_num_operating_points, the clients could still send in an array that is larger than that size, and we can make sure they output a reasonable number.\n\nWhat do you think of this proposal?",
+      "parentUuid": "96f162a8_d739f926",
+      "revId": "b15360e9f4588a75146fe2e2f474033e3b6cd72e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
