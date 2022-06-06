@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d497a4db_640462d1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2022-06-06T07:34:38Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nWe have rebased the patch and also regenerated the borg results. Please review the patch.\n\nThanks \u0026 Regards,\nVenkata.",
+      "revId": "432d81ea31be11bcf2c1f700b0c471040d688d34",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
