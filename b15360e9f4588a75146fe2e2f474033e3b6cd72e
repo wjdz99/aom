@@ -174,6 +174,24 @@
       "parentUuid": "96f162a8_d739f926",
       "revId": "b15360e9f4588a75146fe2e2f474033e3b6cd72e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a7b667c2_c5c336ea",
+        "filename": "av1/encoder/level.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1280,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-06-06T23:08:22Z",
+      "side": 1,
+      "message": "Hi Bohan,\n\nSince this CL was committed recently (on May 25) and has not appeared in any libaom release, it should be fine to revert it. But I am not familiar with the ffmpeg development process, so I defer to your judgment.\n\nAlso, we can first modify ffmpeg/libavcodec/libaomenc.c to initialize the \n`levels` and `target_levels` arrays to all 31 instead of all 0:\n\n```\ndiff --git a/libavcodec/libaomenc.c b/libavcodec/libaomenc.c\nindex 7865ae161f..6c3308f2a7 100644\n--- a/libavcodec/libaomenc.c\n+++ b/libavcodec/libaomenc.c\n@@ -367,8 +367,12 @@ static av_cold int aom_free(AVCodecContext *avctx)\n #if defined(AOM_CTRL_AV1E_GET_SEQ_LEVEL_IDX) \u0026\u0026 \\\n     defined(AOM_CTRL_AV1E_GET_TARGET_SEQ_LEVEL_IDX)\n     if (!(avctx-\u003eflags \u0026 AV_CODEC_FLAG_PASS1)) {\n-        int levels[32] \u003d { 0 };\n-        int target_levels[32] \u003d { 0 };\n+        int levels[32];\n+        int target_levels[32];\n+        for (int i \u003d 0; i \u003c 32; i++) {\n+            levels[i] \u003d 31;\n+            target_levels[i] \u003d 31;\n+        }\n \n         if (!codecctl_intp(avctx, AV1E_GET_SEQ_LEVEL_IDX, levels) \u0026\u0026\n             !codecctl_intp(avctx, AV1E_GET_TARGET_SEQ_LEVEL_IDX,\n```\n\nThis allows ffmpeg/libavcodec/libaomenc.c to work with versions of libaom without this CL. Then we can revert this CL and add AV1E_GET_NUM_OPERATING_POINTS in either order.\n\nNote: I am writing a CL to add AV1E_GET_NUM_OPERATING_POINTS, but I won\u0027t revert this CL.",
+      "parentUuid": "4e58cb74_f7f67e3e",
+      "revId": "b15360e9f4588a75146fe2e2f474033e3b6cd72e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
