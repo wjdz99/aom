@@ -51,6 +51,24 @@
       "parentUuid": "a4d715cf_d3b8ce65",
       "revId": "75aeb9640369e8e2bcecdac6efc84a7fa72afd6a",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "18503a66_da3587fe",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 2163,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2022-06-06T05:59:16Z",
+      "side": 1,
+      "message": "Done\n\nMIN() is not necessary since the base_qindex must be smaller than rc-\u003eworst_quality.",
+      "parentUuid": "1ea5690a_df7caf96",
+      "revId": "75aeb9640369e8e2bcecdac6efc84a7fa72afd6a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
