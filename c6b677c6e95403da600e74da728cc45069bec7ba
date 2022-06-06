@@ -16,6 +16,24 @@
       "message": "Can you add it to datarate_test.cc or end_to_end_test.cc (even better) since it\u0027s running 1 layer non svc and not related to the rate?",
       "revId": "c6b677c6e95403da600e74da728cc45069bec7ba",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "dff6b071_b0bb0f49",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2022-06-06T07:08:13Z",
+      "side": 1,
+      "message": "prefer to keep it in the the svc tests for now, which are more general.",
+      "parentUuid": "c5536657_d9af36f6",
+      "revId": "c6b677c6e95403da600e74da728cc45069bec7ba",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
