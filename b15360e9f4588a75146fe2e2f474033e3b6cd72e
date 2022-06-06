@@ -88,6 +88,23 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "48492fcd_e9aa5b7b",
+        "filename": "av1/encoder/level.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1271,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-06-06T16:55:34Z",
+      "side": 1,
+      "message": "Strictly speaking, this change can be considered as an incompatible change, because it assumes the output array target_seq_level_idx has at least 32 (\u003d MAX_NUM_OPERATING_POINTS) elements. Previously, if a user knew there was only one operating point (the default case), the user could pass an output array of size one, which seemed to be allowed by our documentation:\n\n```\n  /*!\\brief Codec control function to get the target sequence level index for\n   * each operating point. int* parameter. There can be at most 32 operating\n   * points. The results will be written into a provided integer array of\n   * sufficient size. If a target level is not set, the result will be 31.\n   * Please refer to https://aomediacodec.github.io/av1-spec/#levels for more\n   * details on level definitions and indices.\n   */\n  AV1E_GET_TARGET_SEQ_LEVEL_IDX \u003d 155,\n```\n\nThe comment \"a provided integer array of sufficient size\" could be interpreted to mean \"a provided integer array of a size greater than or equal to the number of operating points\".",
+      "revId": "b15360e9f4588a75146fe2e2f474033e3b6cd72e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "104a94d1_15150ff4",
@@ -119,6 +136,24 @@
       "side": 1,
       "message": "Hi Wan-Teh, thanks for the comments. Yes I think your observations are correct. Basically this patch is to make sure that we output 31 when the target seq level is not set. This is used by aomenc, and also possibly other clients like ffmpeg.",
       "parentUuid": "104a94d1_15150ff4",
+      "revId": "b15360e9f4588a75146fe2e2f474033e3b6cd72e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "96f162a8_d739f926",
+        "filename": "av1/encoder/level.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1280,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-06-06T16:55:34Z",
+      "side": 1,
+      "message": "Hi Bohan,\n\nThank you for the reply. I studied how AV1E_GET_SEQ_LEVEL_IDX and AV1E_GET_TARGET_SEQ_LEVEL_IDX are used by aomenc and ffmpeg/libavcodec/libaomenc.c. I understand the problem now. There seem to be two reasonable solutions.\n\n1. Leave AV1E_GET_SEQ_LEVEL_IDX and AV1E_GET_TARGET_SEQ_LEVEL_IDX unchanged. (This means reverting this CL.) Add a new codec control, AV1E_GET_NUM_OPERATING_POINTS, that returns the value of `seq_params-\u003eoperating_points_cnt_minus_1 + 1`. Suppose that value is N. Then modify aomenc and ffmpeg/libavcodec/libaomenc.c to only inspect the first N elements in the `levels` and `target_levels` arrays.\n\nThis is the preferred solution because it tells the users of AV1E_GET_SEQ_LEVEL_IDX and AV1E_GET_TARGET_SEQ_LEVEL_IDX explicitly how many entries in the output arrays are in use, so that the unused entries are skipped.\n\n2. Change both AV1E_GET_SEQ_LEVEL_IDX and AV1E_GET_TARGET_SEQ_LEVEL_IDX to initialize the unused entries in the output arrays to SEQ_LEVEL_MAX. This means changing av1_get_seq_level_idx() similar to how this CL changed av1_get_target_seq_level_idx().\n\nRationale: Since the current code in both aomenc and ffmpeg/libavcodec/libaomenc.c compares `levels[i]` with `target_levels[i]`, the unused entries in these two arrays should be set to a value that allows the comparison of unused entries to be meaningful.\n\nIf we allow aomenc and ffmpeg/libavcodec/libaomenc.c to assume that unused entries in the output arrays of AV1E_GET_SEQ_LEVEL_IDX and AV1E_GET_TARGET_SEQ_LEVEL_IDX are set to SEQ_LEVEL_MAX, then this behavior should be formally documented in source code comments and should be tested by test/level_test.cc.\n\nNOTE: There is a third possible solution. We can also require the users of AV1E_GET_SEQ_LEVEL_IDX and AV1E_GET_TARGET_SEQ_LEVEL_IDX to initialize the output arrays to all SEQ_LEVEL_MAX. Right now they initialize the output arrays to all 0 because it can be done with the simple initializer `\u003d { 0 }`.",
+      "parentUuid": "a72787e6_78aed566",
       "revId": "b15360e9f4588a75146fe2e2f474033e3b6cd72e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
