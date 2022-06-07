@@ -16,6 +16,24 @@
       "message": "Any thought on why using a different formula to estimate cdef filter parameter can cause 6.1% slowdown? Seems the computational cost of the formula itself is roughly the same as before?",
       "revId": "706ba329ecd89f764cc2880e987e1b07a9be0b24",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1090824a_6a673039",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2022-06-07T22:25:39Z",
+      "side": 1,
+      "message": "likely more aggressive filtering pushes Q down more which feeds back and increases encode time.\n\nmy suggestion is get this in, as is, for speed 9. But for speed 10 use a much larger Q threshold for selecting new filter (try something like 100 to see if speed-slowdown (instruction_count) goes down), as max-q is used on the slide changes..",
+      "parentUuid": "f849971a_3f93f560",
+      "revId": "706ba329ecd89f764cc2880e987e1b07a9be0b24",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
