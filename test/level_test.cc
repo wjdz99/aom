@@ -69,6 +69,12 @@ class LevelTest
     ASSERT_GE(level_[0], kLevelMin);
   }
 
+  virtual void PostEncodeFrameHook(::libaom_test::Encoder *encoder) {
+    int num_operating_points;
+    encoder->Control(AV1E_GET_NUM_OPERATING_POINTS, &num_operating_points);
+    ASSERT_EQ(num_operating_points, 1);
+  }
+
   libaom_test::TestMode encoding_mode_;
   int cpu_used_;
   int target_level_;
