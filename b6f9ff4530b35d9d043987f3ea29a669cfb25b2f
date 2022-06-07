@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "406fedeb_5f69ba7b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8471
+      },
+      "writtenOn": "2022-06-07T18:08:46Z",
+      "side": 1,
+      "message": "[ RUN      ] AVX2/FullPrecisionQuantizeTest.DISABLED_Speed/0\nc_time \u003d 157656 \t simd_time \u003d 109880 \t Gain \u003d 1.434802 \nc_time \u003d 175361 \t simd_time \u003d 124478 \t Gain \u003d 1.408771 \nc_time \u003d 223874 \t simd_time \u003d 130180 \t Gain \u003d 1.719727 \nc_time \u003d 224384 \t simd_time \u003d 140689 \t Gain \u003d 1.594894 \nc_time \u003d 247773 \t simd_time \u003d 153861 \t Gain \u003d 1.610369 \nc_time \u003d 273795 \t simd_time \u003d 164457 \t Gain \u003d 1.664842 \nc_time \u003d 295755 \t simd_time \u003d 178592 \t Gain \u003d 1.656037 \nc_time \u003d 320074 \t simd_time \u003d 189495 \t Gain \u003d 1.689089 \nc_time \u003d 343822 \t simd_time \u003d 203155 \t Gain \u003d 1.692412 \nc_time \u003d 369174 \t simd_time \u003d 212549 \t Gain \u003d 1.736889 \nc_time \u003d 393366 \t simd_time \u003d 228433 \t Gain \u003d 1.722019 \nc_time \u003d 419558 \t simd_time \u003d 241590 \t Gain \u003d 1.736653 \nc_time \u003d 445954 \t simd_time \u003d 254425 \t Gain \u003d 1.752792 \nc_time \u003d 471661 \t simd_time \u003d 266701 \t Gain \u003d 1.768501 \nc_time \u003d 495170 \t simd_time \u003d 279593 \t Gain \u003d 1.771039 \nc_time \u003d 517819 \t simd_time \u003d 292046 \t Gain \u003d 1.773073 \nc_time \u003d 540328 \t simd_time \u003d 305136 \t Gain \u003d 1.770778 ",
+      "revId": "b6f9ff4530b35d9d043987f3ea29a669cfb25b2f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
