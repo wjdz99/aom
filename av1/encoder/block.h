@@ -446,6 +446,24 @@ typedef struct {
    * reset mb rd hash record when mode evaluation type changes.
    */
   int mode_eval_type;
+#if !CONFIG_REALTIME_ONLY
+  /*! \brief Bit-mask for pruning R-D evaluation of transform depth.
+   *
+   * Used to signal the transform depth that should be pruned for an intra
+   * prediction block. Bit 0 indicates that the evaluation of largest transform
+   * size for the current block should be skipped. Bit 1 indicates that the
+   * evaluation of split(depth >= 1) of largest transform size should be
+   * skipped.
+   */
+  uint8_t nn_prune_mask_for_intra_tx_depths;
+
+  /*! \brief Indicates if NN model should be invoked to prune transform depths.
+   *
+   * Used to signal whether NN model should be evaluated to prune the R-D
+   * evaluation of specific transform depths.
+   */
+  bool enable_nn_prune_intra_tx_depths;
+#endif
 } TxfmSearchParams;
 
 /*!\cond */
