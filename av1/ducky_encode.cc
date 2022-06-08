@@ -272,6 +272,33 @@ void DuckyEncode::StartEncode(const std::vector<FIRSTPASS_STATS> &stats_list) {
                   impl_ptr_->rc_end_usage, pass, &stats_list);
 }
 
+static void DuckyEncodeInfoSetGopStruct(AV1_PRIMARY *ppi,
+                                        GopStruct gop_struct) {
+  GF_GROUP *gf_group = &ppi->gf_group;
+  ppi->p_rc.baseline_gf_interval = gop_struct.show_frame_count;
+  ppi->internal_altref_allowed = 1;
+
+  gf_group->size = gop_struct.gop_frame_list.size();
+  gf_group->max_layer_depth = 0;
+
+  int i = 0;
+  for (auto &frame : gop_struct.gop_frame_list) {
+    gf_group->update_type[i] = (int)frame.update_type;
+    if (frame.update_type == GopFrameType::kRegularArf) gf_group->arf_index = i;
+    gf_group->cur_frame_idx[i] = 0;
+    gf_group->arf_src_offset[i] = frame.order_idx;
+    gf_group->src_offset[i] = frame.order_idx;
+    // TODO(jingning): Placeholder - update the arf boost.
+    gf_group->arf_boost[i] = 500;
+    gf_group->layer_depth[i] = frame.layer_depth;
+    gf_group->max_layer_depth =
+        AOMMAX(frame.layer_depth, gf_group->max_layer_depth);
+    gf_group->refbuf_state[i] =
+        frame.is_key_frame ? REFBUF_RESET : REFBUF_UPDATE;
+    ++i;
+  }
+}
+
 static void DuckyEncodeInfoSetEncodeFrameDecision(
     DuckyEncodeInfo *ducky_encode_info, const EncodeFrameDecision &decision) {
   DuckyEncodeFrameInfo *frame_info = &ducky_encode_info->frame_info;
@@ -313,12 +340,37 @@ static void WriteObu(AV1_PRIMARY *ppi, AV1_COMP_DATA *cpi_data) {
       obu_header_size + obu_payload_size + length_field_size;
 }
 
-// TODO(jianj): Implement this function to return TPL stats from av1.
+// Obtain TPL stats through ducky_encode.
 std::vector<TplGopStats> DuckyEncode::ComputeTplStats(
     const GopStructList &gop_list) {
-  std::vector<TplGopStats> tpl_gop_stats;
-  (void)gop_list;
-  return tpl_gop_stats;
+  std::vector<TplGopStats> tpl_gop_stats_list;
+  AV1_PRIMARY *ppi = impl_ptr_->enc_resource.ppi;
+
+  // Go through each gop and encode each frame in the gop
+  for (size_t i = 0; i < gop_list.size(); ++i) {
+    const aom::GopStruct &gop_struct = gop_list[i];
+
+    DuckyEncodeInfoSetGopStruct(ppi, gop_struct);
+
+    fprintf(stderr, "i = %ld, gop length = %d\n", i,
+            gop_struct.show_frame_count);
+
+    for (auto &frame : gop_struct.gop_frame_list) {
+      fprintf(stderr, "coding idx = %d, is_arf = %d, show frame = %d\n",
+              frame.coding_idx, frame.is_arf_frame, frame.is_show_frame);
+    }
+
+    aom::TplGopStats tpl_gop_stats;
+    for (auto &frame : gop_struct.gop_frame_list) {
+      // encoding frame frame_number
+      aom::EncodeFrameDecision frame_decision = { aom::EncodeFrameMode::kQindex,
+                                                  { 128, -1 } };
+      (void)frame;
+      EncodeFrame(frame_decision);
+    }
+  }
+
+  return tpl_gop_stats_list;
 }
 
 EncodeFrameResult DuckyEncode::EncodeFrame(

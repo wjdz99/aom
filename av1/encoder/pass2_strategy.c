@@ -2436,6 +2436,8 @@ static void set_gop_bits_boost(AV1_COMP *cpi, int i, int is_intra_only,
  */
 static void define_gf_group(AV1_COMP *cpi, EncodeFrameParams *frame_params,
                             int is_final_pass) {
+  if (cpi->use_ducky_encode) return;
+
   AV1_COMMON *const cm = &cpi->common;
   RATE_CONTROL *const rc = &cpi->rc;
   PRIMARY_RATE_CONTROL *const p_rc = &cpi->ppi->p_rc;
@@ -3874,6 +3876,10 @@ void av1_get_second_pass_params(AV1_COMP *cpi,
     }
 #endif
   }
+
+  fprintf(stderr, "gf frame index = %d, gf group size = %d\n", 
+          cpi->gf_frame_index, gf_group->size);
+
   assert(cpi->gf_frame_index < gf_group->size);
 
   if (gf_group->update_type[cpi->gf_frame_index] == ARF_UPDATE ||

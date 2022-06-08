@@ -40,9 +40,17 @@ GopFrame GopFrameInvalid() {
 }
 
 void SetGopFrameByType(GopFrameType gop_frame_type, GopFrame *gop_frame) {
+  gop_frame->update_type = gop_frame_type;
   switch (gop_frame_type) {
     case GopFrameType::kRegularKey:
       gop_frame->is_key_frame = 1;
+      gop_frame->is_arf_frame = 0;
+      gop_frame->is_show_frame = 1;
+      gop_frame->is_golden_frame = 1;
+      gop_frame->encode_ref_mode = EncodeRefMode::kRegular;
+      break;
+    case GopFrameType::kRegularGolden:
+      gop_frame->is_key_frame = 0;
       gop_frame->is_arf_frame = 0;
       gop_frame->is_show_frame = 1;
       gop_frame->is_golden_frame = 1;
@@ -157,7 +165,6 @@ GopStruct ConstructGop(RefFrameManager *ref_frame_manager, int show_frame_count,
   int order_start = 0;
   int order_end = show_frame_count - 1;
   int coding_idx;
-
   bool has_arf_frame = show_frame_count > kMinIntervalToAddArf;
 
   GopFrame gop_frame;
@@ -748,6 +755,7 @@ static std::vector<int> PartitionGopIntervals(
   GF_GROUP_STATS gf_stats;
   InitGFStats(&gf_stats);
   int num_stats = static_cast<int>(stats_list.size());
+
   while (i + order_index < num_stats) {
     // reaches next key frame, break here
     if (i >= frames_to_key - 1) {
@@ -785,6 +793,7 @@ static std::vector<int> PartitionGopIntervals(
       ++i;
       continue;
     }
+
     // the current last frame in the gf group
     int original_last = cut_here > 1 ? i : i - 1;
     int cur_last = FindBetterGopCut(
@@ -807,6 +816,7 @@ static std::vector<int> PartitionGopIntervals(
 
     if (cut_here == 2 && i >= frames_to_key) break;
   }
+
   std::vector<int> gf_intervals;
   // save intervals
   for (size_t n = 1; n < cut_pos.size(); n++) {
