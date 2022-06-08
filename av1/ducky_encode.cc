@@ -313,12 +313,27 @@ static void WriteObu(AV1_PRIMARY *ppi, AV1_COMP_DATA *cpi_data) {
       obu_header_size + obu_payload_size + length_field_size;
 }
 
-// TODO(jianj): Implement this function to return TPL stats from av1.
+// Obtain TPL stats through ducky_encode.
 std::vector<TplGopStats> DuckyEncode::ComputeTplStats(
     const GopStructList &gop_list) {
-  std::vector<TplGopStats> tpl_gop_stats;
+  std::vector<TplGopStats> tpl_gop_stats_list;
   (void)gop_list;
-  return tpl_gop_stats;
+
+  // Go through each gop and encode each frame in the gop
+  for (size_t i = 0; i < gop_list.size(); ++i) {
+    const aom::GopStruct &gop_struct = gop_list[i];
+    aom::TplGopStats tpl_gop_stats;
+    for (auto &frame : gop_struct.gop_frame_list) {
+      // encoding frame frame_number
+      aom::EncodeFrameDecision frame_decision = {
+        aom::EncodeFrameMode::kQindex, {128, -1}
+      };
+      (void)frame;
+      EncodeFrame(frame_decision);
+    }
+  }
+
+  return tpl_gop_stats_list;
 }
 
 EncodeFrameResult DuckyEncode::EncodeFrame(
