@@ -10,6 +10,7 @@
  */
 
 #include <stdint.h>
+#include <stdio.h>
 
 #include "av1/common/blockd.h"
 #include "config/aom_config.h"

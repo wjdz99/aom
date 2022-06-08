@@ -11,6 +11,7 @@
 
 #include <stdint.h>
 #include <float.h>
+#include <stdio.h>
 
 #include "av1/encoder/thirdpass.h"
 #include "config/aom_config.h"

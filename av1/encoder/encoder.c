@@ -3676,6 +3676,7 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
   // takes a space in the gf group. Therefore, even when
   // it is not shown, we still need update the count down.
   if (cm->show_frame) {
+    fprintf(stderr, "\nshow frame here\n");
     update_frame_index_set(&cpi->frame_index_set, cm->show_frame);
     ++current_frame->frame_number;
   }
@@ -3718,6 +3719,9 @@ int av1_encode(AV1_COMP *const cpi, uint8_t *const dest,
       cpi->ppi->gf_group.refbuf_state[cpi->gf_frame_index] == REFBUF_RESET) {
     current_frame->frame_number = 0;
   }
+
+  fprintf(stderr, "frame number = %d, order offset = %d\n",
+          current_frame->frame_number, frame_params->order_offset);
 
   current_frame->order_hint =
       current_frame->frame_number + frame_params->order_offset;
