@@ -10,6 +10,7 @@
  */
 
 #include <stdint.h>
+#include <stdio.h>
 
 #include "av1/common/blockd.h"
 #include "config/aom_config.h"
@@ -843,7 +844,9 @@ static int denoise_and_encode(AV1_COMP *const cpi, uint8_t *const dest,
       // In rare case, it's possible to have non ARF/GF update_type here.
       // We should set allow_tpl to zero in the situation
       allow_tpl =
-          allow_tpl && (update_type == ARF_UPDATE || update_type == GF_UPDATE);
+          allow_tpl &&
+          (update_type == ARF_UPDATE || update_type == GF_UPDATE ||
+           cpi->use_ducky_encode);
     }
 
     if (allow_tpl) {
@@ -1234,7 +1237,10 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
         av1_lookahead_pop_sz(cpi->ppi->lookahead, cpi->compressor_stage);
 
     // Continue buffering look ahead buffer.
-    if (srcbuf_size < pop_size) return -1;
+    if (srcbuf_size < pop_size) {
+      fprintf(stderr, "srcbuf_size < pop_size\n");
+      return -1;
+    }
   }
 
   if (!av1_lookahead_peek(cpi->ppi->lookahead, 0, cpi->compressor_stage)) {
@@ -1245,6 +1251,7 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
       cpi->ppi->twopass.first_pass_done = 1;
     }
 #endif
+    fprintf(stderr, "look ahead peek null\n");
     return -1;
   }
 

@@ -21,7 +21,7 @@ extern "C" void usage_exit(void) { exit(EXIT_FAILURE); }
 int main(int argc, const char **argv_) {
   (void)argc;
   (void)argv_;
-  std::string input_file = "/export/hda3/Videos/derf/bus_cif.y4m";
+  std::string input_file = "/Users/jingning/aomedia/aom/build/cmake/bus_cif.y4m";
   aom_rational_t frame_rate = { 30, 1 };
   aom::VideoInfo input_video = { 352, 288,       frame_rate, AOM_IMG_FMT_I420,
                                  55,  input_file };
@@ -40,12 +40,25 @@ int main(int argc, const char **argv_) {
 
   std::vector<FIRSTPASS_STATS> frame_stats =
       ducky_encode.ComputeFirstPassStats();
+
+
+  fprintf(stderr, "obtained first pass\n\n");
+
   aom::FirstpassInfo firstpass_info = { (352 / 16 + 1) * (288 / 16 + 1),
                                         frame_stats };
   aom::GopStructList gop_list = qmode_rc.DetermineGopInfo(firstpass_info);
   ducky_encode.StartEncode(frame_stats);
+
+  fprintf(stderr, "determine gop length.. done\n");
+
   std::vector<aom::TplGopStats> tpl_gop_stats_list =
       ducky_encode.ComputeTplStats(gop_list);
+
+  fprintf(stderr, "compute tpl stats... done\n");
+
+  // TODO(jingning): Re-enable the next final encoding stage once the TPL stats
+  // collection is done.
+  return 0;
 
   aom::RefFrameTable ref_frame_table;
 

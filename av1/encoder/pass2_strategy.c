@@ -18,6 +18,7 @@
 /*! @} - end defgroup gf_group_algo */
 
 #include <stdint.h>
+#include <stdio.h>
 
 #include "config/aom_config.h"
 #include "config/aom_scale_rtcd.h"
@@ -799,11 +800,10 @@ static int64_t calculate_total_gf_group_bits(AV1_COMP *cpi,
   }
 
   // Clamp odd edge cases.
-  total_group_bits = (total_group_bits < 0)
-                         ? 0
-                         : (total_group_bits > twopass->kf_group_bits)
-                               ? twopass->kf_group_bits
-                               : total_group_bits;
+  total_group_bits = (total_group_bits < 0) ? 0
+                     : (total_group_bits > twopass->kf_group_bits)
+                         ? twopass->kf_group_bits
+                         : total_group_bits;
 
   // Clip based on user supplied data rate variability limit.
   if (total_group_bits > (int64_t)max_bits * p_rc->baseline_gf_interval)
@@ -3025,8 +3025,8 @@ static int64_t get_kf_group_bits(AV1_COMP *cpi, double kf_group_err,
       double vbr_corpus_complexity_lap =
           cpi->oxcf.rc_cfg.vbr_corpus_complexity_lap / 10.0;
       /* Get the average corpus complexity of the frame */
-      kf_group_bits = (int64_t)(
-          kf_group_bits * (kf_group_avg_error / vbr_corpus_complexity_lap));
+      kf_group_bits = (int64_t)(kf_group_bits * (kf_group_avg_error /
+                                                 vbr_corpus_complexity_lap));
     }
   } else {
     kf_group_bits = (int64_t)(twopass->bits_left *
@@ -3636,6 +3636,20 @@ void av1_get_second_pass_params(AV1_COMP *cpi,
   GF_GROUP *const gf_group = &cpi->ppi->gf_group;
   const AV1EncoderConfig *const oxcf = &cpi->oxcf;
 
+  fprintf(stderr, "gf frame index = %d, gf group size = %d\n",
+          cpi->gf_frame_index, gf_group->size);
+
+  if (cpi->use_ducky_encode) {
+    frame_params->frame_type = gf_group->frame_type[cpi->gf_frame_index];
+    frame_params->show_frame =
+        !(gf_group->update_type[cpi->gf_frame_index] == ARF_UPDATE ||
+          gf_group->update_type[cpi->gf_frame_index] == INTNL_ARF_UPDATE);
+
+    av1_tf_info_filtering(&cpi->ppi->tf_info, cpi, gf_group);
+
+    return;
+  }
+
   const FIRSTPASS_STATS *const start_pos = cpi->twopass_frame.stats_in;
   int update_total_stats = 0;
 
@@ -3874,6 +3888,7 @@ void av1_get_second_pass_params(AV1_COMP *cpi,
     }
 #endif
   }
+
   assert(cpi->gf_frame_index < gf_group->size);
 
   if (gf_group->update_type[cpi->gf_frame_index] == ARF_UPDATE ||
@@ -4014,7 +4029,7 @@ void av1_twopass_postencode_update(AV1_COMP *cpi) {
   const RateControlCfg *const rc_cfg = &cpi->oxcf.rc_cfg;
 
   // Increment the stats_in pointer.
-  if (is_stat_consumption_stage(cpi) &&
+  if (is_stat_consumption_stage(cpi) && !cpi->use_ducky_encode &&
       (cpi->gf_frame_index < cpi->ppi->gf_group.size ||
        rc->frames_to_key == 0)) {
     const int update_type = cpi->ppi->gf_group.update_type[cpi->gf_frame_index];

@@ -11,6 +11,7 @@
 
 #include <stdint.h>
 #include <float.h>
+#include <stdio.h>
 
 #include "av1/encoder/thirdpass.h"
 #include "config/aom_config.h"
@@ -902,7 +903,8 @@ static AOM_INLINE void mode_estimation(AV1_COMP *cpi,
   ref_frame_ptr[0] =
       best_mode == NEW_NEWMV
           ? tpl_data->ref_frame[comp_ref_frames[best_cmp_rf_idx][0]]
-          : best_rf_idx >= 0 ? tpl_data->ref_frame[best_rf_idx] : NULL;
+      : best_rf_idx >= 0 ? tpl_data->ref_frame[best_rf_idx]
+                         : NULL;
   ref_frame_ptr[1] =
       best_mode == NEW_NEWMV
           ? tpl_data->ref_frame[comp_ref_frames[best_cmp_rf_idx][1]]
@@ -1429,6 +1431,12 @@ static AOM_INLINE void init_gop_frames_for_tpl(
     // is the display index of the frame.
     tpl_frame->frame_display_index =
         lookahead_index + cm->current_frame.frame_number;
+
+    fprintf(stderr,
+            "gf index = %d, display idx = %d, show frame count = %d, look "
+            "ahead index = %d\n",
+            gf_index, buf->display_idx, cpi->frame_index_set.show_frame_count,
+            lookahead_index);
     assert(buf->display_idx ==
            cpi->frame_index_set.show_frame_count + lookahead_index);
 
