@@ -2453,8 +2453,9 @@ static int skip_comp_based_on_sad(AV1_COMP *cpi, MACROBLOCK *x,
   assert(qindex_band < 5);
   const int sp_idx = (cpi->sf.rt_sf.sad_based_comp_prune >= 2);
   const int bsize_idx = (bsize == BLOCK_128X128);
-  const uint64_t sad_skp_comp_th_val = (uint64_t)(
-      sad_skp_comp_th[sp_idx][bsize_idx] * qindex_th_scale[qindex_band]);
+  const uint64_t sad_skp_comp_th_val =
+      (uint64_t)(sad_skp_comp_th[sp_idx][bsize_idx] *
+                 qindex_th_scale[qindex_band]);
   uint64_t blk_sad = 0, sad00, sad01, sad10, sad11, min_sad, max_sad;
   const int sbi_col = mi_col / 16;
   const int sbi_row = mi_row / 16;
@@ -3151,7 +3152,8 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
                         &best_pickmode, ctx);
 
   if (cpi->oxcf.tune_cfg.content == AOM_CONTENT_SCREEN &&
-      !x->force_zeromv_skip && is_inter_mode(best_pickmode.best_mode) &&
+      !cpi->oxcf.txfm_cfg.use_inter_dct_only && !x->force_zeromv_skip &&
+      is_inter_mode(best_pickmode.best_mode) &&
       (!cpi->sf.rt_sf.prune_idtx_nonrd ||
        (cpi->sf.rt_sf.prune_idtx_nonrd && bsize <= BLOCK_32X32 &&
         best_pickmode.best_mode_skip_txfm != 1 && x->source_variance > 200))) {
