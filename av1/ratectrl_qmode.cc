@@ -1064,9 +1064,10 @@ std::vector<RefFrameTable> AV1RateControlQMode::GetRefFrameTableList(
 
 TplGopDepStats ComputeTplGopDepStats(
     const TplGopStats &tpl_gop_stats,
-    const std::vector<RefFrameTable> &ref_frame_table_list) {
-  const int frame_count = static_cast<int>(ref_frame_table_list.size());
-
+    const std::vector<RefFrameTable> &ref_frame_table_list,
+    const GopStruct &gop_struct) {
+  // const int frame_count = static_cast<int>(ref_frame_table_list.size());
+  const int frame_count = gop_struct.show_frame_count;
   // Create the struct to store TPL dependency stats
   TplGopDepStats tpl_gop_dep_stats;
   for (int coding_idx = 0; coding_idx < frame_count; coding_idx++) {
@@ -1110,7 +1111,7 @@ GopEncodeInfo AV1RateControlQMode::GetGopEncodeInfo(
   GopEncodeInfo gop_encode_info;
   gop_encode_info.final_snapshot = ref_frame_table_list.back();
   TplGopDepStats gop_dep_stats =
-      ComputeTplGopDepStats(tpl_gop_stats, ref_frame_table_list);
+      ComputeTplGopDepStats(tpl_gop_stats, ref_frame_table_list, gop_struct);
   const int frame_count =
       static_cast<int>(tpl_gop_stats.frame_stats_list.size());
   for (int i = 0; i < frame_count; i++) {
