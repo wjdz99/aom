@@ -843,7 +843,8 @@ static int denoise_and_encode(AV1_COMP *const cpi, uint8_t *const dest,
       // In rare case, it's possible to have non ARF/GF update_type here.
       // We should set allow_tpl to zero in the situation
       allow_tpl =
-          allow_tpl && (update_type == ARF_UPDATE || update_type == GF_UPDATE);
+          allow_tpl && (update_type == ARF_UPDATE || update_type == GF_UPDATE ||
+                        cpi->use_ducky_encode);
     }
 
     if (allow_tpl) {

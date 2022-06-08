@@ -3636,6 +3636,17 @@ void av1_get_second_pass_params(AV1_COMP *cpi,
   GF_GROUP *const gf_group = &cpi->ppi->gf_group;
   const AV1EncoderConfig *const oxcf = &cpi->oxcf;
 
+  if (cpi->use_ducky_encode) {
+    frame_params->frame_type = gf_group->frame_type[cpi->gf_frame_index];
+    frame_params->show_frame =
+        !(gf_group->update_type[cpi->gf_frame_index] == ARF_UPDATE ||
+          gf_group->update_type[cpi->gf_frame_index] == INTNL_ARF_UPDATE);
+
+    av1_tf_info_filtering(&cpi->ppi->tf_info, cpi, gf_group);
+
+    return;
+  }
+
   const FIRSTPASS_STATS *const start_pos = cpi->twopass_frame.stats_in;
   int update_total_stats = 0;
 
@@ -4014,7 +4025,7 @@ void av1_twopass_postencode_update(AV1_COMP *cpi) {
   const RateControlCfg *const rc_cfg = &cpi->oxcf.rc_cfg;
 
   // Increment the stats_in pointer.
-  if (is_stat_consumption_stage(cpi) &&
+  if (is_stat_consumption_stage(cpi) && !cpi->use_ducky_encode &&
       (cpi->gf_frame_index < cpi->ppi->gf_group.size ||
        rc->frames_to_key == 0)) {
     const int update_type = cpi->ppi->gf_group.update_type[cpi->gf_frame_index];
