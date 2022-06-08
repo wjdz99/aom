@@ -94,7 +94,8 @@ int GetBlockOverlapArea(int r0, int c0, int r1, int c1, int size);
 
 TplGopDepStats ComputeTplGopDepStats(
     const TplGopStats &tpl_gop_stats,
-    const std::vector<RefFrameTable> &ref_frame_table_list);
+    const std::vector<RefFrameTable> &ref_frame_table_list,
+    const GopStruct &gop_struct);
 
 class AV1RateControlQMode : public AV1RateControlQModeInterface {
  public:
