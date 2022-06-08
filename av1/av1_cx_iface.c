@@ -2951,14 +2951,11 @@ static aom_codec_err_t encoder_encode(aom_codec_alg_priv_t *ctx,
       int simulate_parallel_frame = 0;
       int status = -1;
       cpi->do_frame_data_update = true;
-#if CONFIG_FRAME_PARALLEL_ENCODE
-#if CONFIG_FRAME_PARALLEL_ENCODE_2
       cpi->ref_idx_to_skip = INVALID_IDX;
       cpi->ref_refresh_index = INVALID_IDX;
       cpi->refresh_idx_available = false;
-#endif  // CONFIG_FRAME_PARALLEL_ENCODE_2
 
-#if CONFIG_FPMT_TEST
+#if CONFIG_FRAME_PARALLEL_ENCODE && CONFIG_FPMT_TEST
       simulate_parallel_frame =
           cpi->ppi->fpmt_unit_test_cfg == PARALLEL_SIMULATION_ENCODE ? 1 : 0;
       if (simulate_parallel_frame) {
@@ -2971,8 +2968,7 @@ static aom_codec_err_t encoder_encode(aom_codec_alg_priv_t *ctx,
         status = av1_get_compressed_data(cpi, &cpi_data);
       }
 
-#endif
-#endif
+#endif  // CONFIG_FRAME_PARALLEL_ENCODE && CONFIG_FPMT_TEST
       if (!simulate_parallel_frame) {
         if (ppi->gf_group.frame_parallel_level[cpi->gf_frame_index] == 0) {
           status = av1_get_compressed_data(cpi, &cpi_data);
