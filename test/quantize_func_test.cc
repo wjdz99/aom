@@ -543,6 +543,7 @@ const QuantizeParam<QuantizeFunc> kQParamArrayAvx2[] = {
              static_cast<TX_SIZE>(TX_16X16), TYPE_B, AOM_BITS_10),
   make_tuple(&aom_highbd_quantize_b_c, &aom_highbd_quantize_b_avx2,
              static_cast<TX_SIZE>(TX_16X16), TYPE_B, AOM_BITS_12),
+#if !CONFIG_REALTIME_ONLY
   make_tuple(&aom_highbd_quantize_b_adaptive_c,
              &aom_highbd_quantize_b_adaptive_avx2,
              static_cast<TX_SIZE>(TX_16X16), TYPE_B, AOM_BITS_8),
@@ -561,13 +562,16 @@ const QuantizeParam<QuantizeFunc> kQParamArrayAvx2[] = {
   make_tuple(&aom_highbd_quantize_b_32x32_adaptive_c,
              &aom_highbd_quantize_b_32x32_adaptive_avx2,
              static_cast<TX_SIZE>(TX_32X32), TYPE_B, AOM_BITS_12),
-#endif
+#endif  // !CONFIG_REALTIME_ONLY
+#endif  // CONFIG_AV1_HIGHBITDEPTH
+#if !CONFIG_REALTIME_ONLY
   make_tuple(&aom_quantize_b_adaptive_c, &aom_quantize_b_adaptive_avx2,
              static_cast<TX_SIZE>(TX_16X16), TYPE_B, AOM_BITS_8),
   make_tuple(&aom_quantize_b_adaptive_c, &aom_quantize_b_adaptive_avx2,
              static_cast<TX_SIZE>(TX_8X8), TYPE_B, AOM_BITS_8),
   make_tuple(&aom_quantize_b_adaptive_c, &aom_quantize_b_adaptive_avx2,
              static_cast<TX_SIZE>(TX_4X4), TYPE_B, AOM_BITS_8)
+#endif  // !CONFIG_REALTIME_ONLY
 };
 
 INSTANTIATE_TEST_SUITE_P(AVX2, FullPrecisionQuantizeTest,
@@ -608,6 +612,7 @@ const QuantizeParam<QuantizeFunc> kQParamArraySSE2[] = {
              static_cast<TX_SIZE>(TX_16X16), TYPE_B, AOM_BITS_10),
   make_tuple(&aom_highbd_quantize_b_c, &aom_highbd_quantize_b_sse2,
              static_cast<TX_SIZE>(TX_16X16), TYPE_B, AOM_BITS_12),
+#if !CONFIG_REALTIME_ONLY
   make_tuple(&aom_highbd_quantize_b_adaptive_c,
              &aom_highbd_quantize_b_adaptive_sse2,
              static_cast<TX_SIZE>(TX_16X16), TYPE_B, AOM_BITS_8),
@@ -632,12 +637,14 @@ const QuantizeParam<QuantizeFunc> kQParamArraySSE2[] = {
   make_tuple(&aom_highbd_quantize_b_32x32_adaptive_c,
              &aom_highbd_quantize_b_32x32_adaptive_sse2,
              static_cast<TX_SIZE>(TX_32X32), TYPE_B, AOM_BITS_12),
+#endif  // !CONFIG_REALTIME_ONLY
   make_tuple(&aom_highbd_quantize_b_64x64_c, &aom_highbd_quantize_b_64x64_sse2,
              static_cast<TX_SIZE>(TX_64X64), TYPE_B, AOM_BITS_8),
   make_tuple(&aom_highbd_quantize_b_64x64_c, &aom_highbd_quantize_b_64x64_sse2,
              static_cast<TX_SIZE>(TX_64X64), TYPE_B, AOM_BITS_10),
   make_tuple(&aom_highbd_quantize_b_64x64_c, &aom_highbd_quantize_b_64x64_sse2,
              static_cast<TX_SIZE>(TX_64X64), TYPE_B, AOM_BITS_12),
+#if !CONFIG_REALTIME_ONLY
   make_tuple(&aom_highbd_quantize_b_64x64_adaptive_c,
              &aom_highbd_quantize_b_64x64_adaptive_sse2,
              static_cast<TX_SIZE>(TX_64X64), TYPE_B, AOM_BITS_8),
@@ -647,7 +654,9 @@ const QuantizeParam<QuantizeFunc> kQParamArraySSE2[] = {
   make_tuple(&aom_highbd_quantize_b_64x64_adaptive_c,
              &aom_highbd_quantize_b_64x64_adaptive_sse2,
              static_cast<TX_SIZE>(TX_64X64), TYPE_B, AOM_BITS_12),
-#endif
+#endif  // !CONFIG_REALTIME_ONLY
+#endif  // CONFIG_AV1_HIGHBITDEPTH
+#if !CONFIG_REALTIME_ONLY
   make_tuple(&aom_quantize_b_adaptive_c, &aom_quantize_b_adaptive_sse2,
              static_cast<TX_SIZE>(TX_16X16), TYPE_B, AOM_BITS_8),
   make_tuple(&aom_quantize_b_adaptive_c, &aom_quantize_b_adaptive_sse2,
@@ -672,6 +681,7 @@ const QuantizeParam<QuantizeFunc> kQParamArraySSE2[] = {
   make_tuple(&aom_quantize_b_64x64_adaptive_c,
              &aom_quantize_b_64x64_adaptive_sse2,
              static_cast<TX_SIZE>(TX_64X64), TYPE_B, AOM_BITS_8)
+#endif  // !CONFIG_REALTIME_ONLY
 };
 
 INSTANTIATE_TEST_SUITE_P(SSE2, FullPrecisionQuantizeTest,
@@ -730,6 +740,7 @@ const QuantizeParam<QuantizeFunc> kQParamArrayNEON[] = {
              static_cast<TX_SIZE>(TX_32X32), TYPE_B, AOM_BITS_12),
   make_tuple(&aom_highbd_quantize_b_64x64_c, &aom_highbd_quantize_b_64x64_neon,
              static_cast<TX_SIZE>(TX_64X64), TYPE_B, AOM_BITS_12),
+#if !CONFIG_REALTIME_ONLY
   make_tuple(&aom_highbd_quantize_b_adaptive_c,
              &aom_highbd_quantize_b_adaptive_neon,
              static_cast<TX_SIZE>(TX_16X16), TYPE_B, AOM_BITS_12),
@@ -739,7 +750,8 @@ const QuantizeParam<QuantizeFunc> kQParamArrayNEON[] = {
   make_tuple(&aom_highbd_quantize_b_64x64_adaptive_c,
              &aom_highbd_quantize_b_64x64_adaptive_neon,
              static_cast<TX_SIZE>(TX_64X64), TYPE_B, AOM_BITS_12),
-#endif
+#endif  // !CONFIG_REALTIME_ONLY
+#endif  // CONFIG_AV1_HIGHBITDEPTH
 };
 
 INSTANTIATE_TEST_SUITE_P(NEON, FullPrecisionQuantizeTest,
