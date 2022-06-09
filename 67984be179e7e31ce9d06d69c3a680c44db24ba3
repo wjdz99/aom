@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a035a9f6_f7733f23",
+        "filename": "aom_dsp/x86/quantize_avx2.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-06-09T02:54:33Z",
+      "side": 1,
+      "message": "these ()s could be removed here and in other cases like line 51",
+      "range": {
+        "startLine": 41,
+        "startChar": 54,
+        "endLine": 41,
+        "endChar": 55
+      },
+      "revId": "67984be179e7e31ce9d06d69c3a680c44db24ba3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
