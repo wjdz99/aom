@@ -16,6 +16,24 @@
       "message": "Doesn\u0027t setting it to MAXQ shut it off?",
       "revId": "ab7e9a1270c2710064b1e9de3ddf1d493fb41475",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6be0a5ec_05276a48",
+        "filename": "av1/encoder/speed_features.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 1510,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2022-06-09T17:12:53Z",
+      "side": 1,
+      "message": "0 shuts it off.\nSince the filter strength is estimated when qindex \u003e thresh.",
+      "parentUuid": "7cb98bba_8b79f610",
+      "revId": "ab7e9a1270c2710064b1e9de3ddf1d493fb41475",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
