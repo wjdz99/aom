@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "147c14f8_b0bbd217",
+        "filename": "av1/encoder/tpl_model.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 1502,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2022-06-09T22:43:40Z",
+      "side": 1,
+      "message": "A tpl function call might extend the frame beyond the current GOP.\n\nIf we store the stats per block, we might record more than that corresponds to the current GOP.\n\nMaybe check in the stats writing stage, see if the display frame index in the first GOP can go beyond the GOP length?\n\nIf that\u0027s the case, then it looks like we might miss a GOP\u0027s TPL stats somewhere?",
+      "range": {
+        "startLine": 1502,
+        "startChar": 7,
+        "endLine": 1502,
+        "endChar": 80
+      },
+      "revId": "cb0e7727ff47b9ecc7239ba46297369f0b7168a5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
