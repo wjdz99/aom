@@ -62,9 +62,10 @@ static unsigned int tx_domain_dist_thresholds[4][MODE_EVAL_TYPES] = {
 // applicable (Eg : IntraBc). Index 1: Mode evaluation. Index 2: Winner mode
 // evaluation. Index 1 and 2 are applicable when
 // enable_winner_mode_for_use_tx_domain_dist speed feature is ON
-static unsigned int tx_domain_dist_types[3][MODE_EVAL_TYPES] = { { 0, 2, 0 },
-                                                                 { 1, 2, 0 },
-                                                                 { 2, 2, 0 } };
+static unsigned int
+    tx_domain_dist_types[TX_DOMAIN_DIST_LEVELS][MODE_EVAL_TYPES] = {
+      { 0, 2, 0 }, { 1, 2, 0 }, { 2, 2, 0 }, { 2, 2, 2 }
+    };
 
 // Threshold values to be used for disabling coeff RD-optimization
 // based on block MSE / qstep^2.
@@ -369,7 +370,7 @@ static void set_allintra_speed_features_framesize_independent(
     sf->tx_sf.tx_type_search.skip_tx_search = 1;
 
     sf->rd_sf.perform_coeff_opt = 2;
-    sf->rd_sf.tx_domain_dist_level = 1;
+    sf->rd_sf.tx_domain_dist_level = TX_DOMAIN_DIST_LVL_1;
     sf->rd_sf.tx_domain_dist_thres_level = 1;
 
     sf->lpf_sf.cdef_pick_method = CDEF_FAST_SEARCH_LVL1;
@@ -497,6 +498,8 @@ static void set_allintra_speed_features_framesize_independent(
     sf->tx_sf.tx_type_search.prune_tx_type_est_rd = 0;
 
     sf->rd_sf.perform_coeff_opt = 6;
+    sf->rd_sf.tx_domain_dist_level = TX_DOMAIN_DIST_LVL_3;
+
     sf->lpf_sf.cdef_pick_method = CDEF_FAST_SEARCH_LVL4;
     sf->lpf_sf.lpf_pick = LPF_PICK_FROM_Q;
 
@@ -954,7 +957,8 @@ static void set_good_speed_features_framesize_independent(
     sf->tx_sf.tx_type_search.skip_tx_search = 1;
 
     sf->rd_sf.perform_coeff_opt = boosted ? 2 : 3;
-    sf->rd_sf.tx_domain_dist_level = boosted ? 1 : 2;
+    sf->rd_sf.tx_domain_dist_level =
+        boosted ? TX_DOMAIN_DIST_LVL_1 : TX_DOMAIN_DIST_LVL_2;
     sf->rd_sf.tx_domain_dist_thres_level = 1;
 
     sf->lpf_sf.dual_sgr_penalty_level = 1;
@@ -1492,7 +1496,7 @@ static void set_rt_speed_features_framesize_independent(AV1_COMP *cpi,
 
   sf->rd_sf.optimize_coefficients = NO_TRELLIS_OPT;
   sf->rd_sf.simple_model_rd_from_var = 1;
-  sf->rd_sf.tx_domain_dist_level = 2;
+  sf->rd_sf.tx_domain_dist_level = TX_DOMAIN_DIST_LVL_2;
   sf->rd_sf.tx_domain_dist_thres_level = 2;
 
   sf->lpf_sf.cdef_pick_method = CDEF_FAST_SEARCH_LVL4;
@@ -1920,7 +1924,7 @@ static AOM_INLINE void init_rd_sf(RD_CALC_SPEED_FEATURES *rd_sf,
   }
   rd_sf->use_mb_rd_hash = 0;
   rd_sf->simple_model_rd_from_var = 0;
-  rd_sf->tx_domain_dist_level = 0;
+  rd_sf->tx_domain_dist_level = TX_DOMAIN_DIST_LVL_0;
   rd_sf->tx_domain_dist_thres_level = 0;
   rd_sf->perform_coeff_opt = 0;
 }
@@ -2156,8 +2160,8 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi, int speed) {
          tx_domain_dist_thresholds[cpi->sf.rd_sf.tx_domain_dist_thres_level],
          sizeof(winner_mode_params->tx_domain_dist_threshold));
 
-  assert(cpi->sf.rd_sf.tx_domain_dist_level >= 0 &&
-         cpi->sf.rd_sf.tx_domain_dist_level < 3);
+  assert(cpi->sf.rd_sf.tx_domain_dist_level >= TX_DOMAIN_DIST_LVL_0 &&
+         cpi->sf.rd_sf.tx_domain_dist_level < TX_DOMAIN_DIST_LEVELS);
   memcpy(winner_mode_params->use_transform_domain_distortion,
          tx_domain_dist_types[cpi->sf.rd_sf.tx_domain_dist_level],
          sizeof(winner_mode_params->use_transform_domain_distortion));
@@ -2257,7 +2261,8 @@ void av1_set_speed_features_qindex_dependent(AV1_COMP *cpi, int speed) {
 
       if (is_1080p_or_larger && cm->quant_params.base_qindex <= 108) {
         sf->inter_sf.selective_ref_frame = 2;
-        sf->rd_sf.tx_domain_dist_level = boosted ? 1 : 2;
+        sf->rd_sf.tx_domain_dist_level =
+            boosted ? TX_DOMAIN_DIST_LVL_1 : TX_DOMAIN_DIST_LVL_2;
         sf->rd_sf.tx_domain_dist_thres_level = 1;
         sf->part_sf.simple_motion_search_early_term_none = 1;
         sf->tx_sf.tx_type_search.ml_tx_split_thresh = 4000;
