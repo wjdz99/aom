@@ -1,6 +1,23 @@
 {
   "comments": [
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "e18950c0_6615a66a",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-06-10T17:52:52Z",
+      "side": 1,
+      "message": "Nit: Please avoid using the abbreviation \"sf\" in commit messages and comments. It is fine to use the abbreviation in the subject line because it has a 50-character limit.",
+      "revId": "50df0684fa9362f5bda453c6d983fb064a6aa570",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "5bb90268_14d27cba",
@@ -14,6 +31,296 @@
       "writtenOn": "2022-06-10T15:22:11Z",
       "side": 1,
       "message": "Hi Chi Yo, Wan-Teh,\nWe addressed the comments in the latest patchset (patchset 5) and did a sanity verification of the same. \nPlease review the CL.\nRegards,\nRanjit\n",
+      "revId": "50df0684fa9362f5bda453c6d983fb064a6aa570",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0c02a238_3d86dbd1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-06-10T17:52:52Z",
+      "side": 1,
+      "message": "Ranjit: Thank you for the CL. Although I read the CL carefully, I am not familiar with the code, so I only checked coding style and general issues. Please wait for Chi Yo\u0027s review.",
+      "revId": "50df0684fa9362f5bda453c6d983fb064a6aa570",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3c2848dc_0c97ea00",
+        "filename": "av1/encoder/block.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 448,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-06-10T17:52:52Z",
+      "side": 1,
+      "message": "Nit: Add a blank line after this line.",
+      "revId": "50df0684fa9362f5bda453c6d983fb064a6aa570",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "468be516_f36f676c",
+        "filename": "av1/encoder/block.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 450,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-06-10T17:52:52Z",
+      "side": 1,
+      "message": "Nit: Bit-mask \u003d\u003e Bitmask\n\nThis word is usually spelled without the hyphen.",
+      "revId": "50df0684fa9362f5bda453c6d983fb064a6aa570",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "29e9976e_d2be97be",
+        "filename": "av1/encoder/block.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 455,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-06-10T17:52:52Z",
+      "side": 1,
+      "message": "Nit: add a space before the opening paranthesis \u0027(\u0027.",
+      "revId": "50df0684fa9362f5bda453c6d983fb064a6aa570",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8fea0a9e_9dc055db",
+        "filename": "av1/encoder/speed_features.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 1201,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-06-10T17:52:52Z",
+      "side": 1,
+      "message": "Nit: Since this field is of the `bool` type, we should use `false` and `true` instead of 0 and 1 when documenting its values.",
+      "range": {
+        "startLine": 1200,
+        "startChar": 0,
+        "endLine": 1201,
+        "endChar": 6
+      },
+      "revId": "50df0684fa9362f5bda453c6d983fb064a6aa570",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cadda5cf_3916d2ca",
+        "filename": "av1/encoder/speed_features.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 1202,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-06-10T17:52:52Z",
+      "side": 1,
+      "message": "Nit: Add a blank line to separate the paragraphs in the comment block:\n\n  // ...\n  // 1: Avoid the evaluation of specific transform depths using NN\n  // model.\n  //\n  // For allintra encode, this speed feature reduces instruction count\n  // by 4.76%, 8.92% and 11.28% for speed 6, 7 and 8 with coding performance\n  // ...",
+      "revId": "50df0684fa9362f5bda453c6d983fb064a6aa570",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "64e03e24_9901a9b6",
+        "filename": "av1/encoder/tx_prune_model_weights.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-06-10T17:52:52Z",
+      "side": 1,
+      "message": "Although this file (av1/encoder/tx_prune_model_weights.h) is a .h file, it is only included by av1/encoder/tx_search.c. In some software projects the file suffix .inc is used for this kind of file, because they are not really header files.\n\nIt would be good to add a file comment here to describe how this file is intended to be used. Also, we should remove the #ifdef __cplusplus extern \"C\" stuff because it is not necessary.\n\nNote: We could also remove the header include guard AOM_AV1_ENCODER_TX_PRUNE_MODEL_WEIGHTS_H_, but I am worried that the Style Check would fail.",
+      "revId": "50df0684fa9362f5bda453c6d983fb064a6aa570",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "23a5965d_f893adfa",
+        "filename": "av1/encoder/tx_search.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-06-10T17:52:52Z",
+      "side": 1,
+      "message": "Move this enum definition to av1/encoder/block.h near the declaration of the nn_prune_mask_for_intra_tx_depths field?\n\nThe values of this enum type are only used with nn_prune_mask_for_intra_tx_depths.",
+      "revId": "50df0684fa9362f5bda453c6d983fb064a6aa570",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b5700a72_50bbc4f7",
+        "filename": "av1/encoder/tx_search.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 1659,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-06-10T17:52:52Z",
+      "side": 1,
+      "message": "1. Please document the return value. (I think it\u0027s the number of elements written to the output array.)\n\n2. This is a pre-existing problem. The comment should document how large the output array `feature` should be.",
+      "revId": "50df0684fa9362f5bda453c6d983fb064a6aa570",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1dde7a86_eadd50ea",
+        "filename": "av1/encoder/tx_search.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 1661,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-06-10T17:52:52Z",
+      "side": 1,
+      "message": "Nit: I suggest naming this parameter `features` (plural).",
+      "range": {
+        "startLine": 1661,
+        "startChar": 68,
+        "endLine": 1661,
+        "endChar": 74
+      },
+      "revId": "50df0684fa9362f5bda453c6d983fb064a6aa570",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8b9cab6d_aed4065e",
+        "filename": "av1/encoder/tx_search.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 2783,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-06-10T17:52:52Z",
+      "side": 1,
+      "message": "It would be good to explain concisely whythe pruning logic is disabled for case 2 and case 3, like you do in case 1 (line 2781) and in the comment at line 2788.",
+      "range": {
+        "startLine": 2782,
+        "startChar": 0,
+        "endLine": 2783,
+        "endChar": 45
+      },
+      "revId": "50df0684fa9362f5bda453c6d983fb064a6aa570",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "02a6ad85_4be13252",
+        "filename": "av1/encoder/tx_search.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 2810,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-06-10T17:52:52Z",
+      "side": 1,
+      "message": "IMPORTANT: If this assertion is correct, it implies that the conditional `blk_idx \u003e 1` at line 1698 is always true or always false, i.e., a constant.\n\nIf that conditional is not a constant, then this assertion will fail sometimes.",
+      "revId": "50df0684fa9362f5bda453c6d983fb064a6aa570",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c3a408dd_31300588",
+        "filename": "av1/encoder/tx_search.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 2816,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-06-10T17:52:52Z",
+      "side": 1,
+      "message": "Nit/optional: It should be unnecessary to initialize `score` because av1_nn_predict() will always set it as the output argument, right?",
+      "revId": "50df0684fa9362f5bda453c6d983fb064a6aa570",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "258338f1_fe3bdb39",
+        "filename": "av1/encoder/tx_search.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 2823,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-06-10T17:52:52Z",
+      "side": 1,
+      "message": "IMPORTANT: Because of the `else` in line 2822, we never set TX_PRUNE_SPLIT and TX_PRUNE_LARGEST at the same time. This means in the current implementation, nn_prune_mask_for_intra_tx_depths does not need to be a bitmask; it can be a simple enum type.\n\nDo you think we will set both TX_PRUNE_SPLIT and TX_PRUNE_LARGEST under some conditions in the future?",
+      "revId": "50df0684fa9362f5bda453c6d983fb064a6aa570",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9cdead2f_39bcba14",
+        "filename": "av1/encoder/tx_search.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 2917,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-06-10T17:52:52Z",
+      "side": 1,
+      "message": "Nit: add a period at the end of the sentence.",
+      "revId": "50df0684fa9362f5bda453c6d983fb064a6aa570",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7be45ea8_dbd1bef2",
+        "filename": "av1/encoder/tx_search.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 2918,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-06-10T17:52:52Z",
+      "side": 1,
+      "message": "Nit: we can set this to `false` because this is of the `bool` type.",
       "revId": "50df0684fa9362f5bda453c6d983fb064a6aa570",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
