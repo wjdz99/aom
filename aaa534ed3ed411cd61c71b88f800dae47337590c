@@ -241,6 +241,24 @@
       "parentUuid": "9f4f4360_e6633bff",
       "revId": "aaa534ed3ed411cd61c71b88f800dae47337590c",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "206e2973_45eb44dd",
+        "filename": "test/level_test.cc",
+        "patchSetId": 7
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-06-10T20:10:03Z",
+      "side": 1,
+      "message": "\u003e \u003e By reserved do you mean it is possible that we will use them for actual level indices in the future?\n\u003e \n\u003e Right. 31 is the established max, so as Wan-Teh suggested going outside of that range would work. A compatible change would keep 24 as is and offset the later levels.\n\nI\u0027m ok with the structure as it is now. It does cause a break, but I think this structure will be more stable.",
+      "parentUuid": "da29348f_b45478fb",
+      "revId": "aaa534ed3ed411cd61c71b88f800dae47337590c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
