@@ -39,6 +39,30 @@
       },
       "revId": "bf6806158b775ff1bda5aad6960941da93ad61e2",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3513b533_f499440c",
+        "filename": "aom_dsp/x86/quantize_avx2.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 8471
+      },
+      "writtenOn": "2022-06-10T01:15:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c5732ac6_a29f4038",
+      "range": {
+        "startLine": 27,
+        "startChar": 42,
+        "endLine": 27,
+        "endChar": 71
+      },
+      "revId": "bf6806158b775ff1bda5aad6960941da93ad61e2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
