@@ -16,6 +16,29 @@
       "message": "[ RUN      ] AVX2/FullPrecisionQuantizeTest.DISABLED_Speed/0\nc_time \u003d 549632 \t simd_time \u003d 375255 \t Gain \u003d 1.464689 \nc_time \u003d 643509 \t simd_time \u003d 417068 \t Gain \u003d 1.542935 \nc_time \u003d 740275 \t simd_time \u003d 451409 \t Gain \u003d 1.639921 \nc_time \u003d 839882 \t simd_time \u003d 487285 \t Gain \u003d 1.723595 \nc_time \u003d 939127 \t simd_time \u003d 517992 \t Gain \u003d 1.813015 \nc_time \u003d 1034956 \t simd_time \u003d 558510 \t Gain \u003d 1.853066 \nc_time \u003d 1132722 \t simd_time \u003d 593681 \t Gain \u003d 1.907964 \nc_time \u003d 1231224 \t simd_time \u003d 649718 \t Gain \u003d 1.895013 \nc_time \u003d 1330255 \t simd_time \u003d 666109 \t Gain \u003d 1.997053 \nc_time \u003d 1427369 \t simd_time \u003d 701837 \t Gain \u003d 2.033762 \nc_time \u003d 1525122 \t simd_time \u003d 735800 \t Gain \u003d 2.072740 \nc_time \u003d 1624564 \t simd_time \u003d 773330 \t Gain \u003d 2.100738 \nc_time \u003d 1720214 \t simd_time \u003d 805952 \t Gain \u003d 2.134388 \nc_time \u003d 1819503 \t simd_time \u003d 844853 \t Gain \u003d 2.153633 \nc_time \u003d 1922586 \t simd_time \u003d 885820 \t Gain \u003d 2.170403 \nc_time \u003d 2019691 \t simd_time \u003d 922629 \t Gain \u003d 2.189061 \nc_time \u003d 2118073 \t simd_time \u003d 958392 \t Gain \u003d 2.210028 \nc_time \u003d 2215746 \t simd_time \u003d 993200 \t Gain \u003d 2.230916 \nc_time \u003d 2312872 \t simd_time \u003d 1031611 \t Gain \u003d 2.242000 \nc_time \u003d 2410809 \t simd_time \u003d 1065300 \t Gain \u003d 2.263033 \nc_time \u003d 2508265 \t simd_time \u003d 1102251 \t Gain \u003d 2.275584 \nc_time \u003d 2608114 \t simd_time \u003d 1138158 \t Gain \u003d 2.291522 \nc_time \u003d 2706762 \t simd_time \u003d 1173834 \t Gain \u003d 2.305916 \nc_time \u003d 2803866 \t simd_time \u003d 1212054 \t Gain \u003d 2.313318 \nc_time \u003d 2899388 \t simd_time \u003d 1248807 \t Gain \u003d 2.321726 \nc_time \u003d 2999706 \t simd_time \u003d 1319431 \t Gain \u003d 2.273484 \nc_time \u003d 3098289 \t simd_time \u003d 1342486 \t Gain \u003d 2.307874 \nc_time \u003d 3196493 \t simd_time \u003d 1388447 \t Gain \u003d 2.302207 \nc_time \u003d 3294176 \t simd_time \u003d 1420867 \t Gain \u003d 2.318427 \nc_time \u003d 3392221 \t simd_time \u003d 1456582 \t Gain \u003d 2.328891 \nc_time \u003d 3491910 \t simd_time \u003d 1490639 \t Gain \u003d 2.342559 \nc_time \u003d 3588665 \t simd_time \u003d 1528984 \t Gain \u003d 2.347091 \nc_time \u003d 3683193 \t simd_time \u003d 1544101 \t Gain \u003d 2.385332 ",
       "revId": "bf6806158b775ff1bda5aad6960941da93ad61e2",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c5732ac6_a29f4038",
+        "filename": "aom_dsp/x86/quantize_avx2.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-06-10T00:58:28Z",
+      "side": 1,
+      "message": "I think you\u0027ll want to cast the whole result here, meaning wrap the expression in ()s since the 1 will undergo int promotion. Either way is probably ok as log_scale\u0027s range won\u0027t out range.",
+      "range": {
+        "startLine": 27,
+        "startChar": 42,
+        "endLine": 27,
+        "endChar": 71
+      },
+      "revId": "bf6806158b775ff1bda5aad6960941da93ad61e2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
