@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1a3f4116_5290baa3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8471
+      },
+      "writtenOn": "2022-06-10T23:46:22Z",
+      "side": 1,
+      "message": "[ RUN      ] AVX2/FullPrecisionQuantizeTest.DISABLED_Speed/0\nc_time \u003d 882874 \t simd_time \u003d 363035 \t Gain \u003d 2.431925 \nc_time \u003d 944940 \t simd_time \u003d 398585 \t Gain \u003d 2.370737 \nc_time \u003d 1038675 \t simd_time \u003d 455076 \t Gain \u003d 2.282421 \nc_time \u003d 1091913 \t simd_time \u003d 469098 \t Gain \u003d 2.327686 \nc_time \u003d 1166688 \t simd_time \u003d 527972 \t Gain \u003d 2.209754 \nc_time \u003d 1240749 \t simd_time \u003d 541527 \t Gain \u003d 2.291204 \nc_time \u003d 1315360 \t simd_time \u003d 598882 \t Gain \u003d 2.196359 \nc_time \u003d 1387292 \t simd_time \u003d 613337 \t Gain \u003d 2.261876 \nc_time \u003d 1464997 \t simd_time \u003d 672430 \t Gain \u003d 2.178661 \nc_time \u003d 1563989 \t simd_time \u003d 685276 \t Gain \u003d 2.282276 \nc_time \u003d 1607885 \t simd_time \u003d 744906 \t Gain \u003d 2.158507 \nc_time \u003d 1688192 \t simd_time \u003d 756532 \t Gain \u003d 2.231488 \nc_time \u003d 1757619 \t simd_time \u003d 793463 \t Gain \u003d 2.215124 \nc_time \u003d 1836373 \t simd_time \u003d 830328 \t Gain \u003d 2.211624 \nc_time \u003d 1900761 \t simd_time \u003d 867451 \t Gain \u003d 2.191203 \nc_time \u003d 1981580 \t simd_time \u003d 903756 \t Gain \u003d 2.192605 \nc_time \u003d 2131049 \t simd_time \u003d 938289 \t Gain \u003d 2.271208 \nc_time \u003d 2129099 \t simd_time \u003d 975464 \t Gain \u003d 2.182652 \nc_time \u003d 2202359 \t simd_time \u003d 1012263 \t Gain \u003d 2.175679 \nc_time \u003d 2275965 \t simd_time \u003d 1046624 \t Gain \u003d 2.174577 \nc_time \u003d 2347789 \t simd_time \u003d 1083268 \t Gain \u003d 2.167320 \nc_time \u003d 2423001 \t simd_time \u003d 1120908 \t Gain \u003d 2.161641 \nc_time \u003d 2487728 \t simd_time \u003d 1156407 \t Gain \u003d 2.151256 \nc_time \u003d 2640141 \t simd_time \u003d 1193174 \t Gain \u003d 2.212704 \nc_time \u003d 2635041 \t simd_time \u003d 1228082 \t Gain \u003d 2.145656 \nc_time \u003d 2715958 \t simd_time \u003d 1304697 \t Gain \u003d 2.081677 \nc_time \u003d 2790084 \t simd_time \u003d 1344003 \t Gain \u003d 2.075951 \nc_time \u003d 2866077 \t simd_time \u003d 1379426 \t Gain \u003d 2.077732 \nc_time \u003d 2940891 \t simd_time \u003d 1417090 \t Gain \u003d 2.075303 \nc_time \u003d 3017154 \t simd_time \u003d 1452188 \t Gain \u003d 2.077661 \nc_time \u003d 3164548 \t simd_time \u003d 1489533 \t Gain \u003d 2.124524 \nc_time \u003d 3175601 \t simd_time \u003d 1528689 \t Gain \u003d 2.077336 \nc_time \u003d 3252900 \t simd_time \u003d 1547334 \t Gain \u003d 2.102261 ",
+      "revId": "9b22982fd347bd91654c08b66346477c982418cd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
