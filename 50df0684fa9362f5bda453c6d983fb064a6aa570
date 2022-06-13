@@ -18,6 +18,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "8f1c0a64_b37dffce",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 6245
+      },
+      "writtenOn": "2022-06-13T20:17:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e18950c0_6615a66a",
+      "revId": "50df0684fa9362f5bda453c6d983fb064a6aa570",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "5776e3e3_6c1106f1",
@@ -31,6 +49,30 @@
       "writtenOn": "2022-06-10T18:12:54Z",
       "side": 1,
       "message": "Could you explain why this speed feature does not have any impact for speed\u003d9?\n\nYou can explain that in the commit message or in a source code comment.",
+      "range": {
+        "startLine": 12,
+        "startChar": 30,
+        "endLine": 12,
+        "endChar": 64
+      },
+      "revId": "50df0684fa9362f5bda453c6d983fb064a6aa570",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a67a1238_dc3ba7ab",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 6245
+      },
+      "writtenOn": "2022-06-13T20:17:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5776e3e3_6c1106f1",
       "range": {
         "startLine": 12,
         "startChar": 30,
@@ -75,6 +117,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e3a10067_c814a042",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 6245
+      },
+      "writtenOn": "2022-06-13T20:17:23Z",
+      "side": 1,
+      "message": "Sure. We shall wait for review comments from Chi-Yo.",
+      "parentUuid": "0c02a238_3d86dbd1",
+      "revId": "50df0684fa9362f5bda453c6d983fb064a6aa570",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "3c2848dc_0c97ea00",
@@ -88,6 +148,24 @@
       "writtenOn": "2022-06-10T17:52:52Z",
       "side": 1,
       "message": "Nit: Add a blank line after this line.",
+      "revId": "50df0684fa9362f5bda453c6d983fb064a6aa570",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "156b68b4_ebdfe751",
+        "filename": "av1/encoder/block.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 448,
+      "author": {
+        "id": 6245
+      },
+      "writtenOn": "2022-06-13T20:17:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3c2848dc_0c97ea00",
       "revId": "50df0684fa9362f5bda453c6d983fb064a6aa570",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -109,6 +187,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "62fb5097_693ef755",
+        "filename": "av1/encoder/block.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 450,
+      "author": {
+        "id": 6245
+      },
+      "writtenOn": "2022-06-13T20:17:23Z",
+      "side": 1,
+      "message": "Ack.\n\nWe corrected the variable name and explanation as bit-mask based implementation is avoided in the latest patchset.",
+      "parentUuid": "468be516_f36f676c",
+      "revId": "50df0684fa9362f5bda453c6d983fb064a6aa570",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "29e9976e_d2be97be",
@@ -122,6 +218,24 @@
       "writtenOn": "2022-06-10T17:52:52Z",
       "side": 1,
       "message": "Nit: add a space before the opening paranthesis \u0027(\u0027.",
+      "revId": "50df0684fa9362f5bda453c6d983fb064a6aa570",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "04e807b7_4049420d",
+        "filename": "av1/encoder/block.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 455,
+      "author": {
+        "id": 6245
+      },
+      "writtenOn": "2022-06-13T20:17:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "29e9976e_d2be97be",
       "revId": "50df0684fa9362f5bda453c6d983fb064a6aa570",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -149,6 +263,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "6c505a78_e47dc94a",
+        "filename": "av1/encoder/speed_features.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 1201,
+      "author": {
+        "id": 6245
+      },
+      "writtenOn": "2022-06-13T20:17:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8fea0a9e_9dc055db",
+      "range": {
+        "startLine": 1200,
+        "startChar": 0,
+        "endLine": 1201,
+        "endChar": 6
+      },
+      "revId": "50df0684fa9362f5bda453c6d983fb064a6aa570",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "cadda5cf_3916d2ca",
@@ -162,6 +300,24 @@
       "writtenOn": "2022-06-10T17:52:52Z",
       "side": 1,
       "message": "Nit: Add a blank line to separate the paragraphs in the comment block:\n\n  // ...\n  // 1: Avoid the evaluation of specific transform depths using NN\n  // model.\n  //\n  // For allintra encode, this speed feature reduces instruction count\n  // by 4.76%, 8.92% and 11.28% for speed 6, 7 and 8 with coding performance\n  // ...",
+      "revId": "50df0684fa9362f5bda453c6d983fb064a6aa570",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "273d7e36_3f34fdbb",
+        "filename": "av1/encoder/speed_features.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 1202,
+      "author": {
+        "id": 6245
+      },
+      "writtenOn": "2022-06-13T20:17:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cadda5cf_3916d2ca",
       "revId": "50df0684fa9362f5bda453c6d983fb064a6aa570",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -183,6 +339,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "0a2ab62e_5c7d3d49",
+        "filename": "av1/encoder/tx_prune_model_weights.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 6245
+      },
+      "writtenOn": "2022-06-13T20:17:23Z",
+      "side": 1,
+      "message": "\u003e It would be good to add a file comment here to describe how this file is intended to be used. \n\nDone. \n\n\u003e Also, we should remove the #ifdef __cplusplus extern \"C\" stuff because it is not necessary.\n\nPlease let us know if we should explore this.",
+      "parentUuid": "64e03e24_9901a9b6",
+      "revId": "50df0684fa9362f5bda453c6d983fb064a6aa570",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "23a5965d_f893adfa",
@@ -196,6 +370,24 @@
       "writtenOn": "2022-06-10T17:52:52Z",
       "side": 1,
       "message": "Move this enum definition to av1/encoder/block.h near the declaration of the nn_prune_mask_for_intra_tx_depths field?\n\nThe values of this enum type are only used with nn_prune_mask_for_intra_tx_depths.",
+      "revId": "50df0684fa9362f5bda453c6d983fb064a6aa570",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "09cc2039_61b77f7e",
+        "filename": "av1/encoder/tx_search.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 6245
+      },
+      "writtenOn": "2022-06-13T20:17:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "23a5965d_f893adfa",
       "revId": "50df0684fa9362f5bda453c6d983fb064a6aa570",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -217,6 +409,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a82eeb0a_682b28f8",
+        "filename": "av1/encoder/tx_search.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 1659,
+      "author": {
+        "id": 6245
+      },
+      "writtenOn": "2022-06-13T20:17:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b5700a72_50bbc4f7",
+      "revId": "50df0684fa9362f5bda453c6d983fb064a6aa570",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "1dde7a86_eadd50ea",
@@ -230,6 +440,30 @@
       "writtenOn": "2022-06-10T17:52:52Z",
       "side": 1,
       "message": "Nit: I suggest naming this parameter `features` (plural).",
+      "range": {
+        "startLine": 1661,
+        "startChar": 68,
+        "endLine": 1661,
+        "endChar": 74
+      },
+      "revId": "50df0684fa9362f5bda453c6d983fb064a6aa570",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7da85e33_55512fa2",
+        "filename": "av1/encoder/tx_search.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 1661,
+      "author": {
+        "id": 6245
+      },
+      "writtenOn": "2022-06-13T20:17:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1dde7a86_eadd50ea",
       "range": {
         "startLine": 1661,
         "startChar": 68,
@@ -259,6 +493,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "a18e32f7_b20f30b4",
+        "filename": "av1/encoder/tx_search.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 1722,
+      "author": {
+        "id": 6245
+      },
+      "writtenOn": "2022-06-13T20:17:23Z",
+      "side": 1,
+      "message": "For rectangular transforms, all the elements of features[] may not be populated. Hence we feel it is recommended to initialize the array to avoid any potential uninitialized access. \n\nWe have removed the initialization for the \u0027score\u0027 variable in ml_predict_intra_tx_depth_prune().",
+      "parentUuid": "d8a4f191_a32401d2",
+      "revId": "50df0684fa9362f5bda453c6d983fb064a6aa570",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "8b9cab6d_aed4065e",
         "filename": "av1/encoder/tx_search.c",
         "patchSetId": 5
@@ -270,6 +522,30 @@
       "writtenOn": "2022-06-10T17:52:52Z",
       "side": 1,
       "message": "It would be good to explain concisely whythe pruning logic is disabled for case 2 and case 3, like you do in case 1 (line 2781) and in the comment at line 2788.",
+      "range": {
+        "startLine": 2782,
+        "startChar": 0,
+        "endLine": 2783,
+        "endChar": 45
+      },
+      "revId": "50df0684fa9362f5bda453c6d983fb064a6aa570",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8e60d34d_7e478421",
+        "filename": "av1/encoder/tx_search.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 2783,
+      "author": {
+        "id": 6245
+      },
+      "writtenOn": "2022-06-13T20:17:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8b9cab6d_aed4065e",
       "range": {
         "startLine": 2782,
         "startChar": 0,
@@ -297,6 +573,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "186a676c_9205b296",
+        "filename": "av1/encoder/tx_search.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 2810,
+      "author": {
+        "id": 6245
+      },
+      "writtenOn": "2022-06-13T20:17:23Z",
+      "side": 1,
+      "message": "Ack. As 8x8 transform block (square) is only supported currently, the condition is always true. This assertion may fail in future if the support for rectangular transform blocks is also added as lesser number of features will be available in this case (\u0027blk_idx \u003e 1\u0027 will be true in this case also). \n\nAs per our understanding the conditional  \u0027blk_idx \u003e 1\u0027  at line 1698 can be removed as it should always be true for square/rectangular transform blocks in case of inter/intra transform split. Please let us know if we should pursue this in a separate CL.",
+      "parentUuid": "02a6ad85_4be13252",
+      "revId": "50df0684fa9362f5bda453c6d983fb064a6aa570",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c3a408dd_31300588",
@@ -310,6 +604,24 @@
       "writtenOn": "2022-06-10T17:52:52Z",
       "side": 1,
       "message": "Nit/optional: It should be unnecessary to initialize `score` because av1_nn_predict() will always set it as the output argument, right?",
+      "revId": "50df0684fa9362f5bda453c6d983fb064a6aa570",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e1a08d09_d81e674b",
+        "filename": "av1/encoder/tx_search.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 2816,
+      "author": {
+        "id": 6245
+      },
+      "writtenOn": "2022-06-13T20:17:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c3a408dd_31300588",
       "revId": "50df0684fa9362f5bda453c6d983fb064a6aa570",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -331,6 +643,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "59b0747a_516fdd8a",
+        "filename": "av1/encoder/tx_search.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 2823,
+      "author": {
+        "id": 6245
+      },
+      "writtenOn": "2022-06-13T20:17:23Z",
+      "side": 1,
+      "message": "Done.\n\nThough it is possible to prune both largest and split transforms (using features like current best rd etc), we have not experimented with the same. Hence we modified the enum as per current behavior.",
+      "parentUuid": "258338f1_fe3bdb39",
+      "revId": "50df0684fa9362f5bda453c6d983fb064a6aa570",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "9cdead2f_39bcba14",
@@ -348,6 +678,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "949f771f_692b7a5f",
+        "filename": "av1/encoder/tx_search.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 2917,
+      "author": {
+        "id": 6245
+      },
+      "writtenOn": "2022-06-13T20:17:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9cdead2f_39bcba14",
+      "revId": "50df0684fa9362f5bda453c6d983fb064a6aa570",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "7be45ea8_dbd1bef2",
@@ -361,6 +709,24 @@
       "writtenOn": "2022-06-10T17:52:52Z",
       "side": 1,
       "message": "Nit: we can set this to `false` because this is of the `bool` type.",
+      "revId": "50df0684fa9362f5bda453c6d983fb064a6aa570",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1634ee4b_03031256",
+        "filename": "av1/encoder/tx_search.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 2918,
+      "author": {
+        "id": 6245
+      },
+      "writtenOn": "2022-06-13T20:17:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7be45ea8_dbd1bef2",
       "revId": "50df0684fa9362f5bda453c6d983fb064a6aa570",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
