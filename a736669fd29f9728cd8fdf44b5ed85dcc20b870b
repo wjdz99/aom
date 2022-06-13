@@ -16,6 +16,126 @@
       "message": "Hi Wan-Teh, Chi Yo,\nWe addressed the comments in the latest patchset (patchset 6) and did a sanity verification of the same. \nPlease review the CL.\nRegards,\nRanjit",
       "revId": "a736669fd29f9728cd8fdf44b5ed85dcc20b870b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8d36a710_c3a752c8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-06-13T23:22:31Z",
+      "side": 1,
+      "message": "LGTM. I suggest some comment fixes and clarifications.",
+      "revId": "a736669fd29f9728cd8fdf44b5ed85dcc20b870b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0e774dc8_943a065a",
+        "filename": "av1/encoder/block.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 468,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-06-13T23:22:31Z",
+      "side": 1,
+      "message": "Optional: This sentence and the first sentence of the next paragraph say essentially the same thing. We just need one of them.",
+      "revId": "a736669fd29f9728cd8fdf44b5ed85dcc20b870b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d6d224f8_c24d0f11",
+        "filename": "av1/encoder/block.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 474,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-06-13T23:22:31Z",
+      "side": 1,
+      "message": "1. Make the following two fixes:\n\n  Value 0 \u003d\u003e TX_PRUNE_LARGEST\n\n  Value 1 \u003d\u003e TX_PRUNE_SPLIT\n\n2. The descriptions of these two values should be moved to the definition of the TX_PRUNE_TYPE enum type above.",
+      "range": {
+        "startLine": 471,
+        "startChar": 23,
+        "endLine": 474,
+        "endChar": 16
+      },
+      "revId": "a736669fd29f9728cd8fdf44b5ed85dcc20b870b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1992b49a_7fd81240",
+        "filename": "av1/encoder/tx_prune_model_weights.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-06-13T23:22:31Z",
+      "side": 1,
+      "message": "Please mention that this file is only included by av1/encoder/tx_search.c.",
+      "revId": "a736669fd29f9728cd8fdf44b5ed85dcc20b870b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "be06bfd0_3e02906b",
+        "filename": "av1/encoder/tx_search.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 1650,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-06-13T23:22:31Z",
+      "side": 1,
+      "message": "Did you mean 12 or 14? NUM_INTRA_TX_SPLIT_FEATURES is defined as 14.\n\nI guess you meant this function writes at most 12 elements to the output array. And then the caller of this function appends 2 elements. That\u0027s why NUM_INTRA_TX_SPLIT_FEATURES is 14?",
+      "range": {
+        "startLine": 1650,
+        "startChar": 3,
+        "endLine": 1650,
+        "endChar": 5
+      },
+      "revId": "a736669fd29f9728cd8fdf44b5ed85dcc20b870b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fa84afda_8b2139b7",
+        "filename": "av1/encoder/tx_search.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 2789,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-06-13T23:22:31Z",
+      "side": 1,
+      "message": "Nit/optional: Change this sentence to:\n\nThe model can be further improved in terms of speed/quality by considering the following experiments:",
+      "range": {
+        "startLine": 2788,
+        "startChar": 16,
+        "endLine": 2789,
+        "endChar": 45
+      },
+      "revId": "a736669fd29f9728cd8fdf44b5ed85dcc20b870b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }

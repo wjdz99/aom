@@ -357,6 +357,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "c78e11db_3b67ec89",
+        "filename": "av1/encoder/tx_prune_model_weights.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-06-13T23:22:31Z",
+      "side": 1,
+      "message": "I would remove the #ifdef __cplusplus extern \"C\" stuff. But it\u0027s just a cosmetic issue and I am worried that it may be added back as a \"cleanup\".",
+      "parentUuid": "0a2ab62e_5c7d3d49",
+      "revId": "50df0684fa9362f5bda453c6d983fb064a6aa570",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "23a5965d_f893adfa",
@@ -587,6 +605,24 @@
       "side": 1,
       "message": "Ack. As 8x8 transform block (square) is only supported currently, the condition is always true. This assertion may fail in future if the support for rectangular transform blocks is also added as lesser number of features will be available in this case (\u0027blk_idx \u003e 1\u0027 will be true in this case also). \n\nAs per our understanding the conditional  \u0027blk_idx \u003e 1\u0027  at line 1698 can be removed as it should always be true for square/rectangular transform blocks in case of inter/intra transform split. Please let us know if we should pursue this in a separate CL.",
       "parentUuid": "02a6ad85_4be13252",
+      "revId": "50df0684fa9362f5bda453c6d983fb064a6aa570",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0539626d_d48d500c",
+        "filename": "av1/encoder/tx_search.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 2810,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-06-13T23:22:31Z",
+      "side": 1,
+      "message": "Yes, please look into removing the conditional \u0027blk_idx \u003e 1\u0027 at line 1698.",
+      "parentUuid": "186a676c_9205b296",
       "revId": "50df0684fa9362f5bda453c6d983fb064a6aa570",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
