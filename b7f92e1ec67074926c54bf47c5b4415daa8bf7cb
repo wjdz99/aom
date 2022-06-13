@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "02a65175_d61376ab",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-06-13T22:41:47Z",
+      "side": 1,
+      "message": "I suggest we first apply the following patch to ffmpeg:\n\n```\ndiff --git a/libavcodec/libaomenc.c b/libavcodec/libaomenc.c\nindex 7865ae161f..0841bf6bc8 100644\n--- a/libavcodec/libaomenc.c\n+++ b/libavcodec/libaomenc.c\n@@ -367,8 +367,13 @@ static av_cold int aom_free(AVCodecContext *avctx)\n #if defined(AOM_CTRL_AV1E_GET_SEQ_LEVEL_IDX) \u0026\u0026 \\\n     defined(AOM_CTRL_AV1E_GET_TARGET_SEQ_LEVEL_IDX)\n     if (!(avctx-\u003eflags \u0026 AV_CODEC_FLAG_PASS1)) {\n-        int levels[32] \u003d { 0 };\n-        int target_levels[32] \u003d { 0 };\n+        int levels[32];\n+        int target_levels[32];\n+\n+        for (int i \u003d 0; i \u003c 32; i++) {\n+            levels[i] \u003d 31;\n+            target_levels[i] \u003d 31;\n+        }\n \n         if (!codecctl_intp(avctx, AV1E_GET_SEQ_LEVEL_IDX, levels) \u0026\u0026\n             !codecctl_intp(avctx, AV1E_GET_TARGET_SEQ_LEVEL_IDX,\n```\n\nThen, when https://aomedia-review.googlesource.com/c/aom/+/159048 is reviewed and merged, revert the above patch and modify ffmpeg to use the new codec control AV1E_GET_NUM_OPERATING_POINTS.",
+      "revId": "b7f92e1ec67074926c54bf47c5b4415daa8bf7cb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
