@@ -16,6 +16,24 @@
       "message": "I am not sure if we need to document this codec control, which is only used in a unit test.",
       "revId": "95954a1b3f1e3231dd17f17b6d873e3720077047",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b69c300e_ff3d8b13",
+        "filename": "CHANGELOG",
+        "patchSetId": 1
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-06-13T23:46:28Z",
+      "side": 1,
+      "message": "\u003e I am not sure if we need to document this codec control, which is only used in a unit test.\n\nit\u0027s probably not that useful to users, you could remove it.",
+      "parentUuid": "4d829e0b_5903d1ec",
+      "revId": "95954a1b3f1e3231dd17f17b6d873e3720077047",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
