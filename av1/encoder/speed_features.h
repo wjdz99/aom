@@ -1596,6 +1596,10 @@ typedef struct REAL_TIME_SPEED_FEATURES {
 
   // Allow for disabling cdf update for non reference frames in svc mode.
   bool disable_cdf_update_non_reference_frame;
+
+  // In multi-threaded encoding, enable top right dependency wait of threads at
+  // mi level.
+  bool top_right_sync_wait_in_mis;
 } REAL_TIME_SPEED_FEATURES;
 
 /*!\endcond */
