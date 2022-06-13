@@ -751,6 +751,19 @@ static AOM_INLINE void hybrid_intra_mode_search(AV1_COMP *cpi,
     av1_nonrd_pick_intra_mode(cpi, x, rd_cost, bsize, ctx);
 }
 
+static AOM_INLINE int is_top_right_block_in_sb(BLOCK_SIZE sb_size,
+                                               BLOCK_SIZE bsize, int mi_row,
+                                               int mi_col) {
+  const int sb_size_in_mi = mi_size_wide[sb_size];
+  const int bw_in_mi = mi_size_wide[bsize];
+  const int blk_row_in_sb = mi_row & (sb_size_in_mi - 1);
+  const int blk_col_in_sb = mi_col & (sb_size_in_mi - 1);
+  const int top_right_block_in_sb =
+      (blk_row_in_sb == 0) && (blk_col_in_sb + bw_in_mi >= sb_size_in_mi);
+
+  return top_right_block_in_sb;
+}
+
 // For real time/allintra row-mt enabled multi-threaded encoding with cost
 // update frequency set to COST_UPD_TILE/COST_UPD_OFF, tile ctxt is not updated
 // at superblock level. Thus, it is not required for the encoding of top-right
@@ -763,15 +776,8 @@ static AOM_INLINE void wait_for_top_right_sb(
     AV1EncRowMultiThreadInfo *enc_row_mt, AV1EncRowMultiThreadSync *row_mt_sync,
     TileInfo *tile_info, BLOCK_SIZE sb_size, int sb_mi_size_log2,
     BLOCK_SIZE bsize, int mi_row, int mi_col) {
-  const int sb_size_in_mi = mi_size_wide[sb_size];
-  const int bw_in_mi = mi_size_wide[bsize];
-  const int blk_row_in_sb = mi_row & (sb_size_in_mi - 1);
-  const int blk_col_in_sb = mi_col & (sb_size_in_mi - 1);
-  const int top_right_block_in_sb =
-      (blk_row_in_sb == 0) && (blk_col_in_sb + bw_in_mi >= sb_size_in_mi);
-
   // Don't wait if the block is the not the top-right block in the superblock.
-  if (!top_right_block_in_sb) return;
+  if (!is_top_right_block_in_sb(sb_size, bsize, mi_row, mi_col)) return;
 
   // Wait for the top-right superblock to finish encoding.
   const int sb_row_in_tile =
@@ -780,6 +786,81 @@ static AOM_INLINE void wait_for_top_right_sb(
       (mi_col - tile_info->mi_col_start) >> sb_mi_size_log2;
 
   enc_row_mt->sync_read_ptr(row_mt_sync, sb_row_in_tile, sb_col_in_tile);
+}
+
+static AOM_INLINE void wait_for_top_right_mi(
+    AV1EncRowMultiThreadSync *row_mt_sync, TileInfo *tile_info, int sb_size,
+    BLOCK_SIZE bsize, int mi_row, int mi_col) {
+  // Don't wait if the block is the not the top-right block in the superblock.
+  if (!is_top_right_block_in_sb(sb_size, bsize, mi_row, mi_col)) return;
+
+  const int sb_mi_size_log2 = mi_size_wide_log2[sb_size];
+  const int sb_row_in_tile =
+      (mi_row - tile_info->mi_row_start) >> sb_mi_size_log2;
+  const int mi_col_in_tile = mi_col - tile_info->mi_col_start;
+  const int mi_cols_in_tile = tile_info->mi_col_end - tile_info->mi_col_start;
+  const int bw_in_mi = mi_size_wide[bsize];
+
+#if CONFIG_MULTITHREAD
+  if (sb_row_in_tile) {
+    pthread_mutex_t *const mutex = &row_mt_sync->mutex_[sb_row_in_tile - 1];
+    pthread_mutex_lock(mutex);
+
+    while (AOMMIN(mi_col_in_tile + bw_in_mi, mi_cols_in_tile) >=
+           row_mt_sync->finished_block_in_mi[sb_row_in_tile - 1]) {
+      pthread_cond_wait(&row_mt_sync->cond_[sb_row_in_tile - 1], mutex);
+    }
+    pthread_mutex_unlock(mutex);
+  }
+#else
+  (void)row_mt_sync;
+  (void)tile_info;
+  (void)sb_size;
+  (void)bsize;
+  (void)mi_row;
+  (void)mi_col;
+#endif  // CONFIG_MULTITHREAD
+}
+
+static AOM_INLINE void write_completed_mi(AV1EncRowMultiThreadSync *row_mt_sync,
+                                          TileInfo *tile_info,
+                                          BLOCK_SIZE sb_size, BLOCK_SIZE bsize,
+                                          int mi_row, int mi_col) {
+  const int sb_size_in_mi = mi_size_high[sb_size];
+  const int sb_mi_size_log2 = mi_size_wide_log2[sb_size];
+  const int bh_in_mi = mi_size_high[bsize];
+  const int bw_in_mi = mi_size_wide[bsize];
+  const int blk_row_in_sb = mi_row & (sb_size_in_mi - 1);
+  const int bottom_block_in_sb = blk_row_in_sb + bh_in_mi >= sb_size_in_mi;
+
+  // Don't write if the block is the not the bottom block in the
+  // superblock.
+  if (!bottom_block_in_sb) return;
+
+  const int sb_row_in_tile =
+      (mi_row - tile_info->mi_row_start) >> sb_mi_size_log2;
+  const int mi_col_in_tile = mi_col + bw_in_mi - tile_info->mi_col_start;
+  const int mi_cols_in_tile = tile_info->mi_col_end - tile_info->mi_col_start;
+
+#if CONFIG_MULTITHREAD
+  int finished_mi_col = mi_col_in_tile < mi_cols_in_tile - 1
+                            ? mi_col_in_tile
+                            : mi_cols_in_tile + 1;
+
+  pthread_mutex_lock(&row_mt_sync->mutex_[sb_row_in_tile]);
+
+  row_mt_sync->finished_block_in_mi[sb_row_in_tile] = finished_mi_col;
+
+  pthread_cond_signal(&row_mt_sync->cond_[sb_row_in_tile]);
+  pthread_mutex_unlock(&row_mt_sync->mutex_[sb_row_in_tile]);
+#else
+  (void)row_mt_sync;
+  (void)tile_info;
+  (void)sb_size;
+  (void)bsize;
+  (void)mi_row;
+  (void)mi_col;
+#endif  // CONFIG_MULTITHREAD
 }
 
 /*!\brief Interface for AV1 mode search for an individual coding block
@@ -2139,6 +2220,9 @@ static void encode_b_nonrd(const AV1_COMP *const cpi, TileDataEnc *tile_data,
 #if CONFIG_COLLECT_COMPONENT_TIMING
   end_timing((AV1_COMP *)cpi, encode_b_nonrd_time);
 #endif
+  if (!dry_run && enable_top_right_sync_wait_in_mis(cpi))
+    write_completed_mi(&tile_data->row_mt_sync, &tile_data->tile_info,
+                       cm->seq_params->sb_size, bsize, mi_row, mi_col);
 }
 
 /*!\brief Top level function to pick block mode for non-RD optimized case
@@ -2195,12 +2279,6 @@ static void pick_sb_modes_nonrd(AV1_COMP *const cpi, TileDataEnc *tile_data,
   TxfmSearchInfo *txfm_info = &x->txfm_search_info;
   int i;
 
-  // This is only needed for real time/allintra row-mt enabled multi-threaded
-  // encoding with cost update frequency set to COST_UPD_TILE/COST_UPD_OFF.
-  wait_for_top_right_sb(&cpi->mt_info.enc_row_mt, &tile_data->row_mt_sync,
-                        &tile_data->tile_info, cm->seq_params->sb_size,
-                        cm->seq_params->mib_size_log2, bsize, mi_row, mi_col);
-
 #if CONFIG_COLLECT_COMPONENT_TIMING
   start_timing(cpi, pick_sb_modes_nonrd_time);
 #endif
@@ -2224,6 +2302,18 @@ static void pick_sb_modes_nonrd(AV1_COMP *const cpi, TileDataEnc *tile_data,
   setup_block_rdmult(cpi, x, mi_row, mi_col, bsize, aq_mode, mbmi);
   // Set error per bit for current rdmult
   av1_set_error_per_bit(&x->errorperbit, x->rdmult);
+
+  // This is only needed for real time/allintra row-mt enabled multi-threaded
+  // encoding with cost update frequency set to COST_UPD_TILE/COST_UPD_OFF.
+  if (enable_top_right_sync_wait_in_mis(cpi)) {
+    wait_for_top_right_mi(&tile_data->row_mt_sync, &tile_data->tile_info,
+                          cm->seq_params->sb_size, bsize, mi_row, mi_col);
+  } else {
+    wait_for_top_right_sb(&cpi->mt_info.enc_row_mt, &tile_data->row_mt_sync,
+                          &tile_data->tile_info, cm->seq_params->sb_size,
+                          cm->seq_params->mib_size_log2, bsize, mi_row, mi_col);
+  }
+
   // Find best coding mode & reconstruct the MB so it is available
   // as a predictor for MBs that follow in the SB
   if (frame_is_intra_only(cm)) {
