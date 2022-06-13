@@ -86,7 +86,9 @@ static AOM_INLINE void add_ref_mv_candidate(
     for (ref = 0; ref < 2; ++ref) {
       if (candidate->ref_frame[ref] == rf[0]) {
         const int is_gm_block =
-            is_global_mv_block(candidate, gm_params[rf[0]].wmtype);
+            (gm_params[rf[0]].wmtype <= TRANSLATION)
+                ? 0
+                : is_global_mv_block(candidate, gm_params[rf[0]].wmtype);
         const int_mv this_refmv =
             is_gm_block ? gm_mv_candidates[0] : get_block_mv(candidate, ref);
         for (index = 0; index < *refmv_count; ++index) {
@@ -112,7 +114,8 @@ static AOM_INLINE void add_ref_mv_candidate(
       int_mv this_refmv[2];
 
       for (ref = 0; ref < 2; ++ref) {
-        if (is_global_mv_block(candidate, gm_params[rf[ref]].wmtype))
+        if ((gm_params[rf[ref]].wmtype > TRANSLATION) &&
+            is_global_mv_block(candidate, gm_params[rf[ref]].wmtype))
           this_refmv[ref] = gm_mv_candidates[ref];
         else
           this_refmv[ref] = get_block_mv(candidate, ref);
