@@ -562,9 +562,12 @@ TEST(RateControlQModeTest, ComputeTplGopDepStats) {
 TEST(RefFrameManagerTest, GetRefFrameCount) {
   const std::vector<int> order_idx_list = { 0, 4, 2, 1, 2, 3, 4 };
   const std::vector<GopFrameType> type_list = {
-    GopFrameType::kRegularKey,      GopFrameType::kRegularArf,
-    GopFrameType::kIntermediateArf, GopFrameType::kRegularLeaf,
-    GopFrameType::kShowExisting,    GopFrameType::kRegularLeaf,
+    GopFrameType::kRegularKey,
+    GopFrameType::kRegularArf,
+    GopFrameType::kIntermediateArf,
+    GopFrameType::kRegularLeaf,
+    GopFrameType::kIntermediateOverlay,
+    GopFrameType::kRegularLeaf,
     GopFrameType::kOverlay
   };
   RefFrameManager ref_manager(kRefFrameTableSize);
@@ -586,7 +589,8 @@ TEST(RefFrameManagerTest, GetRefFrameCount) {
 
   // update reference frame until we see the first kShowExisting frame
   const int first_show_existing_idx = 4;
-  EXPECT_EQ(type_list[first_show_existing_idx], GopFrameType::kShowExisting);
+  EXPECT_EQ(type_list[first_show_existing_idx],
+            GopFrameType::kIntermediateOverlay);
   for (; coding_idx <= first_show_existing_idx; ++coding_idx) {
     GopFrame gop_frame =
         GopFrameBasic(0, 0, coding_idx, order_idx_list[coding_idx], 0, 0,
