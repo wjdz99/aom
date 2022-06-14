@@ -22,6 +22,30 @@
       },
       "revId": "614a5ddd41cc27793abdd932500bfd283a536958",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bf47ec87_d0f0e3be",
+        "filename": "av1/ratectrl_qmode_interface.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2022-06-14T17:36:23Z",
+      "side": 1,
+      "message": "order_idx gives where the current coding frame is in the sequence. For an ARF, this could be in the future location.\n\ndisplay_idx gives which frame has been displayed thus far by the codec. If the current coding frame is an ARF, this could be less than coding_idx.",
+      "parentUuid": "c399e482_04cba945",
+      "range": {
+        "startLine": 95,
+        "startChar": 0,
+        "endLine": 95,
+        "endChar": 59
+      },
+      "revId": "614a5ddd41cc27793abdd932500bfd283a536958",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
