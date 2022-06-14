@@ -21,7 +21,7 @@ extern "C" void usage_exit(void) { exit(EXIT_FAILURE); }
 int main(int argc, const char **argv_) {
   (void)argc;
   (void)argv_;
-  std::string input_file = "/export/hda3/Videos/derf/bus_cif.y4m";
+  std::string input_file = "/Users/jingning/aomedia/aom/build/cmake/bus_cif.y4m";
   aom_rational_t frame_rate = { 30, 1 };
   aom::VideoInfo input_video = { 352, 288,       frame_rate, AOM_IMG_FMT_I420,
                                  55,  input_file };

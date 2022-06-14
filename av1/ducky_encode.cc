@@ -24,6 +24,7 @@
 #include "av1/encoder/encoder.h"
 #include "av1/encoder/ethread.h"
 #include "av1/encoder/firstpass.h"
+#include "av1/encoder/temporal_filter.h"
 #include "av1/ducky_encode.h"
 
 #include "common/tools_common.h"
@@ -200,6 +201,8 @@ static EncoderResource InitEncoder(
       cpi->common.features.byte_alignment,
       /*num_lap_buffers=*/0, /*is_all_intra=*/0,
       cpi->oxcf.tool_cfg.enable_global_motion);
+
+  av1_tf_info_alloc(&cpi->ppi->tf_info, cpi);
   assert(ppi->lookahead != nullptr);
   return enc_resource;
 }
@@ -356,6 +359,7 @@ std::vector<TplGopStats> DuckyEncode::ComputeTplStats(
   for (size_t i = 0; i < gop_list.size(); ++i) {
     const aom::GopStruct &gop_struct = gop_list[i];
     DuckyEncodeInfoSetGopStruct(ppi, gop_struct);
+
     aom::TplGopStats tpl_gop_stats;
     for (auto &frame : gop_struct.gop_frame_list) {
       // encoding frame frame_number
