@@ -545,6 +545,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "7cb74a5b_38ab319e",
+        "filename": "av1/encoder/tx_search.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 1722,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-06-14T16:27:32Z",
+      "side": 1,
+      "message": "Chi Yo, Ranjit: Thank you for your replies.\n\nThe reason I asked whether the `features` output array needs to be initialized is not because I was worried about the initialization overhead. I just wanted to check my understanding of the code.",
+      "parentUuid": "73fc1f0b_4f57ce1d",
+      "revId": "50df0684fa9362f5bda453c6d983fb064a6aa570",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "8b9cab6d_aed4065e",
