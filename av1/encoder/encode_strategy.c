@@ -754,6 +754,8 @@ static int denoise_and_encode(AV1_COMP *const cpi, uint8_t *const dest,
       apply_filtering = cpi->sf.hl_sf.second_alt_ref_filtering;
     }
   }
+
+  fprintf(stderr, "apply filtering = %d\n", apply_filtering);
 #if CONFIG_COLLECT_COMPONENT_TIMING
   if (cpi->oxcf.pass == 2) start_timing(cpi, apply_filtering_time);
 #endif
@@ -822,6 +824,10 @@ static int denoise_and_encode(AV1_COMP *const cpi, uint8_t *const dest,
   av1_set_frame_size(cpi, cm->superres_upscaled_width,
                      cm->superres_upscaled_height);
   if (set_mv_params) av1_set_mv_search_params(cpi);
+
+  fprintf(stderr, "show frame = %d\n", cm->show_frame);
+  fprintf(stderr, "gf index = %d, update type = %d\n", cpi->gf_frame_index,
+          gf_group->update_type[cpi->gf_frame_index]);
 
 #if CONFIG_RD_COMMAND
   if (frame_params->frame_type == KEY_FRAME) {
@@ -1235,7 +1241,10 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
         av1_lookahead_pop_sz(cpi->ppi->lookahead, cpi->compressor_stage);
 
     // Continue buffering look ahead buffer.
-    if (srcbuf_size < pop_size) return -1;
+    if (srcbuf_size < pop_size) {
+      fprintf(stderr, "srcbuf size < pop size\n");
+      return -1;
+    }
   }
 
   if (!av1_lookahead_peek(cpi->ppi->lookahead, 0, cpi->compressor_stage)) {
@@ -1246,6 +1255,7 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
       cpi->ppi->twopass.first_pass_done = 1;
     }
 #endif
+    fprintf(stderr, "src frame buffer empty\n");
     return -1;
   }
 
@@ -1340,8 +1350,11 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
       cpi->ppi->twopass.first_pass_done = 1;
     }
 #endif
+    fprintf(stderr, "src frame null\n");
     return -1;
   }
+
+  fprintf(stderr, "source frame ok\n");
 
   // reset src_offset to allow actual encode call for this frame to get its
   // source.
@@ -1387,9 +1400,13 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
     }
     // only one operating point supported now
     const int64_t pts64 = ticks_to_timebase_units(timestamp_ratio, *time_stamp);
-    if (pts64 < 0 || pts64 > UINT32_MAX) return AOM_CODEC_ERROR;
+    if (pts64 < 0 || pts64 > UINT32_MAX) {
+      fprintf(stderr, "pts64 range wrong\n");
+      return AOM_CODEC_ERROR;
+    }
     cm->frame_presentation_time = (uint32_t)pts64;
   }
+  fprintf(stderr, "pts range ok\n");
 
 #if CONFIG_COLLECT_COMPONENT_TIMING
   start_timing(cpi, av1_get_one_pass_rt_params_time);
@@ -1574,6 +1591,8 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
     cm->quant_params.using_qmatrix = oxcf->q_cfg.using_qm;
   }
 
+  fprintf(stderr, "encode process starts\n\n");
+
 #if CONFIG_REALTIME_ONLY
   if (av1_encode(cpi, dest, &frame_input, &frame_params, &frame_results) !=
       AOM_CODEC_OK) {
@@ -1588,9 +1607,12 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
     }
   } else if (denoise_and_encode(cpi, dest, &frame_input, &frame_params,
                                 &frame_results) != AOM_CODEC_OK) {
+    fprintf(stderr, "encode process failed\n\n");
     return AOM_CODEC_ERROR;
   }
 #endif  // CONFIG_REALTIME_ONLY
+
+  fprintf(stderr, "encode process done\n\n");
 
   // This is used in rtc temporal filter case. Use true source in the PSNR
   // calculation.
@@ -1635,6 +1657,8 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
   if (*size > 0) {
     cpi->droppable = is_frame_droppable(&cpi->svc, &ext_flags->refresh_frame);
   }
+
+  fprintf(stderr, "frame coding complete\n");
 
   return AOM_CODEC_OK;
 }

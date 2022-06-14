@@ -4449,10 +4449,12 @@ int av1_get_compressed_data(AV1_COMP *cpi, AV1_COMP_DATA *const cpi_data) {
     start_timing(cpi, av1_encode_strategy_time);
 #endif
 
+  fprintf(stderr, "start encoding\n");
   const int result = av1_encode_strategy(
       cpi, &cpi_data->frame_size, cpi_data->cx_data, &cpi_data->lib_flags,
       &cpi_data->ts_frame_start, &cpi_data->ts_frame_end,
       cpi_data->timestamp_ratio, &cpi_data->pop_lookahead, cpi_data->flush);
+  fprintf(stderr, "encoding results = %d\n", result);
 
 #if CONFIG_COLLECT_COMPONENT_TIMING
   if (cpi->oxcf.pass == 2 || cpi->oxcf.pass == 0)
