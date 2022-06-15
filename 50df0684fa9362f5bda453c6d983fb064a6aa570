@@ -375,6 +375,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "81dc93e7_53239268",
+        "filename": "av1/encoder/tx_prune_model_weights.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 6245
+      },
+      "writtenOn": "2022-06-15T03:35:28Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "c78e11db_3b67ec89",
+      "revId": "50df0684fa9362f5bda453c6d983fb064a6aa570",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "23a5965d_f893adfa",
@@ -659,6 +677,24 @@
       "side": 1,
       "message": "Yes, please look into removing the conditional \u0027blk_idx \u003e 1\u0027 at line 1698.",
       "parentUuid": "186a676c_9205b296",
+      "revId": "50df0684fa9362f5bda453c6d983fb064a6aa570",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "015d6572_58c7868d",
+        "filename": "av1/encoder/tx_search.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 2810,
+      "author": {
+        "id": 6245
+      },
+      "writtenOn": "2022-06-15T03:35:28Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "0539626d_d48d500c",
       "revId": "50df0684fa9362f5bda453c6d983fb064a6aa570",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
