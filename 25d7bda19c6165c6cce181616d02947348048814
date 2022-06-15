@@ -16,6 +16,63 @@
       "message": "Hi Wan-Teh, Frank,\n\nThis CL enables the usage of transform domain distortion during the winner mode evaluation stage for allintra speed\u003e\u003d6. The same is achieved by introducing an aggressive level for the speed feature tx_domain_dist_level. The documentation for this speed feature is also updated to be synonymous with its implementation. Since R-D evaluation is not performed in allintra speed\u003d9, this change has no impact in this case.\n\nFor AVIF still-image encode with tune\u003dpsnr,\n                 Encode Time      BD-Rate Loss(%)\n    cpu-used     Reduction(%)     psnr       ssim\n        6           4.480         0.0863     0.0730\n        7           2.848         0.0714     0.0696\n        8           3.120         0.0295     0.0145\n\nFor AVIF still image encode with tune\u003dssim,\n                 Encode Time      BD-Rate Loss(%)\n    cpu-used     Reduction(%)     psnr       ssim\n        6           4.139         0.0660     0.0992\n        7           2.473         0.0560     0.0648\n        8           2.479         0.0131    -0.0042\n\nFollowing are the instruction count reduction results when libaom allintra frame encoding (50 frames) was tested for a borg setup. \n                Instruction Count        BD-Rate Loss(%)      \n    cpu-used     Reduction(%)     avg.psnr  ovr.psnr   ssim\n        6           4.886          0.0667    0.0670    0.0354\n        7           3.328          0.0506    0.0494    0.0282\n        8           3.788          0.0249    0.0257    0.0067\n\nWe also tried setting a less aggressive approach by setting use_transform_domain_distortion\u003d1 for winner mode stage such that the distortion would get computed in image domain for final RD_STATS. For AVIF still-image encode with tune\u003dpsnr, the following results were observed:\n                 Encode Time      BD-Rate Loss(%)\n    cpu-used     Reduction(%)     psnr       ssim\n        6           3.346         0.0416     0.0451\n        7           1.954         0.0234     0.0427\n        8           2.102         0.0086    -0.0073\n\nHowever, we went ahead with the current approach as the incremental encode-time reduction of 1.021% and BD-rate(PSNR) loss of 0.045% with respect to the above experiment are well within the trade-off.\n\nFor libaom AV1 video encode, bit-match is verified (w.r.t. parent commit) for \u0027GOOD\u0027 and \u0027RT\u0027 encoding modes for a few contents with different encoding configurations. It is verified that the CL is bit-exact for allintra encode, speed\u003d5,9 with no speed impact.\n\nIn the commit message, BD rate impact column:\n[+] sign is for BD-Rate drop\n[-] sign is for BD-Rate improvement\nThe instruction count reduction specified has been measured using the command:\n$ perf stat -e instructions:u ./aomenc …\n\nPlease review.\n\nRegards,\nJayasanker.",
       "revId": "25d7bda19c6165c6cce181616d02947348048814",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1261bbbf_676939e8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-06-15T22:51:36Z",
+      "side": 1,
+      "message": "Jayasanker: This looks good. I suggest a comment change.\n\nChi Yo: Just FYI.",
+      "revId": "25d7bda19c6165c6cce181616d02947348048814",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6ec2b57d_5d01e8e7",
+        "filename": "av1/encoder/speed_features.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-06-15T22:51:36Z",
+      "side": 1,
+      "message": "Optional: Define a constant for the value 4 and use the constant here and in line 2162.",
+      "range": {
+        "startLine": 65,
+        "startChar": 41,
+        "endLine": 65,
+        "endChar": 42
+      },
+      "revId": "25d7bda19c6165c6cce181616d02947348048814",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "00c154db_0474a1ab",
+        "filename": "av1/encoder/speed_features.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 1209,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-06-15T22:51:36Z",
+      "side": 1,
+      "message": "Please use \"pixel domain\" instead of \"image domain\" in this comment block.",
+      "revId": "25d7bda19c6165c6cce181616d02947348048814",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
