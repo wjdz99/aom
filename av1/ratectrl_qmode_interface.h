@@ -164,6 +164,8 @@ struct GopEncodeInfo {
   RefFrameTable final_snapshot;  // RefFrameTable snapshot after coding this GOP
 };
 
+using GopEncodeInfoList = std::vector<GopEncodeInfo>;
+
 struct TplFrameStats {
   int min_block_size;
   int frame_width;
