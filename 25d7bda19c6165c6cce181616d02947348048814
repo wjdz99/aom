@@ -58,6 +58,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "bddc0117_8057b9a1",
+        "filename": "av1/encoder/speed_features.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 14993
+      },
+      "writtenOn": "2022-06-16T14:30:42Z",
+      "side": 1,
+      "message": "Ack. We have defined an enumeration type TX_DOMAIN_DIST_LEVEL to track the speed feature levels. We have also modified the assert() at line 2162 and the variable type accordingly.",
+      "parentUuid": "6ec2b57d_5d01e8e7",
+      "range": {
+        "startLine": 65,
+        "startChar": 41,
+        "endLine": 65,
+        "endChar": 42
+      },
+      "revId": "25d7bda19c6165c6cce181616d02947348048814",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "00c154db_0474a1ab",
@@ -71,6 +95,24 @@
       "writtenOn": "2022-06-15T22:51:36Z",
       "side": 1,
       "message": "Please use \"pixel domain\" instead of \"image domain\" in this comment block.",
+      "revId": "25d7bda19c6165c6cce181616d02947348048814",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "11705c09_9866c9ab",
+        "filename": "av1/encoder/speed_features.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 1209,
+      "author": {
+        "id": 14993
+      },
+      "writtenOn": "2022-06-16T14:30:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "00c154db_0474a1ab",
       "revId": "25d7bda19c6165c6cce181616d02947348048814",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
