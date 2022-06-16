@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c7bb04a2_ff51f6f6",
+        "filename": "apps/qmode_rc_encoder.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-06-16T17:33:03Z",
+      "side": 0,
+      "message": "I think you may want to keep this comment (and related {}) in the proper place in the new CL to keep the overall structure clear.",
+      "range": {
+        "startLine": 67,
+        "startChar": 0,
+        "endLine": 67,
+        "endChar": 69
+      },
+      "revId": "f13d707fb9a269cde25b29a57fef66a24cf07018",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
