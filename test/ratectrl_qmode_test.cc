@@ -627,7 +627,7 @@ TEST(RateControlQModeTest, ComputeTplGopDepStats) {
     ref_frame_table_list.push_back(CreateToyRefFrameTable(i));
   }
   const TplGopDepStats &gop_dep_stats = ComputeTplGopDepStats(
-      tpl_gop_stats, ref_frame_table_list, gop_struct.show_frame_count);
+      tpl_gop_stats, ref_frame_table_list);
 
   double expected_sum = 0;
   for (int i = 2; i >= 0; i--) {
