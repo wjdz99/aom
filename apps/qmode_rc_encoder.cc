@@ -66,9 +66,11 @@ int main(int argc, const char **argv_) {
 
     // TODO(jingning): Extract the tpl stats through ducky_encode and make
     // frame encoding decisions.
-    aom::GopEncodeInfo gop_encode_info;
-    // = qmode_rc.GetGopEncodeInfo(gop_struct, tpl_gop_stats, ref_frame_table);
+    aom::GopEncodeInfo gop_encode_info =
+        qmode_rc.GetGopEncodeInfo(gop_struct, tpl_gop_stats, ref_frame_table);
     ref_frame_table = gop_encode_info.final_snapshot;
+
+    fprintf(stderr, "gop encode info [0] qp = %d\n", gop_encode_info.param_list[0].q_index);
     gop_encode_info_list.push_back(gop_encode_info);
   }
 

@@ -361,8 +361,10 @@ TplGopStats DuckyEncode::ObtainTplStats(const GopStruct gop_struct) {
 
     if (gop_struct.gop_frame_list[idx].update_type == GopFrameType::kOverlay ||
         gop_struct.gop_frame_list[idx].update_type ==
-            GopFrameType::kIntermediateOverlay)
+            GopFrameType::kIntermediateOverlay) {
+      tpl_gop_stats.frame_stats_list.push_back(tpl_frame_stats);
       continue;
+    }
 
     const int mi_rows = tpl_frame->mi_rows;
     const int mi_cols = tpl_frame->mi_cols;
