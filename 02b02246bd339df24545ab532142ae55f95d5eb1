@@ -24,6 +24,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "583a7653_a026dcd7",
+        "filename": "av1/ratectrl_qmode.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 1068,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-06-16T15:49:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f0fbf4df_f88b5837",
+      "range": {
+        "startLine": 1068,
+        "startChar": 21,
+        "endLine": 1068,
+        "endChar": 31
+      },
+      "revId": "02b02246bd339df24545ab532142ae55f95d5eb1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d2edd2e5_10baf23b",
@@ -37,6 +61,30 @@
       "writtenOn": "2022-06-16T14:53:59Z",
       "side": 1,
       "message": "Commented out code can probably be removed.",
+      "range": {
+        "startLine": 1069,
+        "startChar": 0,
+        "endLine": 1069,
+        "endChar": 75
+      },
+      "revId": "02b02246bd339df24545ab532142ae55f95d5eb1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3b7ef502_34192246",
+        "filename": "av1/ratectrl_qmode.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 1069,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-06-16T15:49:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d2edd2e5_10baf23b",
       "range": {
         "startLine": 1069,
         "startChar": 0,
@@ -70,6 +118,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "557e8db9_b9a905ca",
+        "filename": "test/ratectrl_qmode_test.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-06-16T15:49:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ceb543ab_ba806663",
+      "range": {
+        "startLine": 50,
+        "startChar": 69,
+        "endLine": 50,
+        "endChar": 77
+      },
+      "revId": "02b02246bd339df24545ab532142ae55f95d5eb1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "42fd9c1a_7a6fa461",
@@ -83,6 +155,30 @@
       "writtenOn": "2022-06-16T14:53:59Z",
       "side": 1,
       "message": "A simpler way of doing this, instead of using std::stoi, would be to just do something like this:\n\n std::string ReadInt(std::istream \u0026stream, int *value) {\n   int64_t long_value;\n   std::string result \u003d ReadLongInt(stream, \u0026long_value);\n   *value \u003d long_value;\n   return result;\n }\n\nI\u0027m not sure if any of the compilers that libaom supports would disallow copying an int64_t into an int. If so, it may be necessary to add a static_cast.",
+      "range": {
+        "startLine": 70,
+        "startChar": 0,
+        "endLine": 70,
+        "endChar": 55
+      },
+      "revId": "02b02246bd339df24545ab532142ae55f95d5eb1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5caea4d6_4ec3441b",
+        "filename": "test/ratectrl_qmode_test.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-06-16T15:49:18Z",
+      "side": 1,
+      "message": "Done\n\nI did this so marked all the related comments as Done as well.",
+      "parentUuid": "42fd9c1a_7a6fa461",
       "range": {
         "startLine": 70,
         "startChar": 0,
@@ -116,6 +212,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ce7dadf2_d89c0bdd",
+        "filename": "test/ratectrl_qmode_test.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-06-16T15:49:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bdee41a6_535b3acc",
+      "range": {
+        "startLine": 71,
+        "startChar": 2,
+        "endLine": 75,
+        "endChar": 3
+      },
+      "revId": "02b02246bd339df24545ab532142ae55f95d5eb1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "878c1df2_c396d231",
@@ -129,6 +249,30 @@
       "writtenOn": "2022-06-16T14:53:59Z",
       "side": 1,
       "message": "If you really want to check if there are unexpected characters at the end, you should pass a second argument to stoi, and check that it points to a null character, similar to what\u0027s done with \"end\" in the above functions.",
+      "range": {
+        "startLine": 77,
+        "startChar": 23,
+        "endLine": 77,
+        "endChar": 35
+      },
+      "revId": "02b02246bd339df24545ab532142ae55f95d5eb1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b5af45f9_5293fd8a",
+        "filename": "test/ratectrl_qmode_test.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-06-16T15:49:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "878c1df2_c396d231",
       "range": {
         "startLine": 77,
         "startChar": 23,
@@ -162,6 +306,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "84533318_8a88d7df",
+        "filename": "test/ratectrl_qmode_test.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-06-16T15:49:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "eff36882_60c6d9b2",
+      "range": {
+        "startLine": 78,
+        "startChar": 11,
+        "endLine": 78,
+        "endChar": 38
+      },
+      "revId": "02b02246bd339df24545ab532142ae55f95d5eb1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "67c5c60d_c1c680e5",
@@ -175,6 +343,30 @@
       "writtenOn": "2022-06-16T14:53:59Z",
       "side": 1,
       "message": "It shouldn\u0027t really be necessary to log this to stderr; presumably the caller will report it.",
+      "range": {
+        "startLine": 79,
+        "startChar": 0,
+        "endLine": 79,
+        "endChar": 59
+      },
+      "revId": "02b02246bd339df24545ab532142ae55f95d5eb1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "160118a8_127524a6",
+        "filename": "test/ratectrl_qmode_test.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-06-16T15:49:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "67c5c60d_c1c680e5",
       "range": {
         "startLine": 79,
         "startChar": 0,
@@ -208,6 +400,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "22e87a0c_74a93673",
+        "filename": "test/ratectrl_qmode_test.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-06-16T15:49:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "205bec0a_55ed01ec",
+      "range": {
+        "startLine": 80,
+        "startChar": 12,
+        "endLine": 80,
+        "endChar": 39
+      },
+      "revId": "02b02246bd339df24545ab532142ae55f95d5eb1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "264015f4_2cbc55e4",
@@ -231,6 +447,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f6d5fcfa_63bb486f",
+        "filename": "test/ratectrl_qmode_test.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 157,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-06-16T15:49:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "264015f4_2cbc55e4",
+      "range": {
+        "startLine": 157,
+        "startChar": 0,
+        "endLine": 157,
+        "endChar": 24
+      },
+      "revId": "02b02246bd339df24545ab532142ae55f95d5eb1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "f4d55a8b_ce9e06ae",
@@ -244,6 +484,30 @@
       "writtenOn": "2022-06-16T14:53:59Z",
       "side": 1,
       "message": "Instead of a bool, this could be an int num_skipped, and then tpl_gop_idx would just be gop_idx - num_skipped.",
+      "range": {
+        "startLine": 1032,
+        "startChar": 6,
+        "endLine": 1032,
+        "endChar": 24
+      },
+      "revId": "02b02246bd339df24545ab532142ae55f95d5eb1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a6cc0c00_266b64ad",
+        "filename": "test/ratectrl_qmode_test.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 1032,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-06-16T15:49:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f4d55a8b_ce9e06ae",
       "range": {
         "startLine": 1032,
         "startChar": 6,
