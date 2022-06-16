@@ -35,6 +35,23 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "42eb2bd3_2b02bb3b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 14
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-06-16T16:42:10Z",
+      "side": 1,
+      "message": "Bohan,\n\nIt looks like the changes for CWG-C013 have not been committed to the repository for the AV1 specification:\nhttps://github.com/AOMediaCodec/av1-spec/commits/master\n\nIt may be better to wait until the changes have been committed to the spec repository, so that it has a \"draft\" status. Could you check with the chairs of the Codec Working Group (Adrian and Andrey)?",
+      "revId": "836e046a84418f759e34aa05794777da321c1ad0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "70d3d67e_160e6271",
