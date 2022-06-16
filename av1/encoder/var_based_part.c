@@ -1063,7 +1063,12 @@ static void setup_planes(AV1_COMP *cpi, MACROBLOCK *x, unsigned int *y_sad,
 
   // For non-SVC GOLDEN is another temporal reference. Check if it should be
   // used as reference for partitioning.
-  if (!cpi->ppi->use_svc && (cpi->ref_frame_flags & AOM_GOLD_FLAG)) {
+  // For screen add extra constraint that source_sad_sad is above kLow state,
+  // this saves some computation as additional golden ref is not as useful
+  // for screen.
+  if (!cpi->ppi->use_svc && (cpi->ref_frame_flags & AOM_GOLD_FLAG) &&
+      (cpi->oxcf.tune_cfg.content != AOM_CONTENT_SCREEN ||
+       x->content_state_sb.source_sad_nonrd > kLowSad)) {
     yv12_g = get_ref_frame_yv12_buf(cm, GOLDEN_FRAME);
     if (yv12_g && yv12_g != yv12) {
       av1_setup_pre_planes(xd, 0, yv12_g, mi_row, mi_col,
