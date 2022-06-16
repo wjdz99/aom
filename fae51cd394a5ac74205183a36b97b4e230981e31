@@ -39,6 +39,30 @@
       },
       "revId": "fae51cd394a5ac74205183a36b97b4e230981e31",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7ad88e9e_c5754a0a",
+        "filename": "aom_dsp/x86/highbd_quantize_intrin_avx2.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 293,
+      "author": {
+        "id": 8471
+      },
+      "writtenOn": "2022-06-16T13:18:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "de3a3072_8feb7521",
+      "range": {
+        "startLine": 293,
+        "startChar": 8,
+        "endLine": 293,
+        "endChar": 16
+      },
+      "revId": "fae51cd394a5ac74205183a36b97b4e230981e31",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
