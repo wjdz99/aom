@@ -94,6 +94,30 @@
       },
       "revId": "05f613ad3afc43234b7681ed8caf30de511c1fdb",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b3969b52_6f3ed7ef",
+        "filename": "av1/ratectrl_qmode_interface.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 167,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-06-17T13:45:49Z",
+      "side": 1,
+      "message": "Currently this type isn\u0027t used by AV1RateControlQModeInterface, so as this stands I don\u0027t think it belongs here. If we were going to change the signature of GetGopEncodeInfo to use this instead of GopEncodeInfo, that\u0027s a different story.\n\nBut if there\u0027s no real advantage to doing that vs. just having a client call GetGopEncodeInfo in a loop, I don\u0027t see any point in making that change.",
+      "parentUuid": "4f06baff_44ba6375",
+      "range": {
+        "startLine": 167,
+        "startChar": 0,
+        "endLine": 167,
+        "endChar": 53
+      },
+      "revId": "05f613ad3afc43234b7681ed8caf30de511c1fdb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
