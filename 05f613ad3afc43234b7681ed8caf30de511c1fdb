@@ -142,6 +142,30 @@
       },
       "revId": "05f613ad3afc43234b7681ed8caf30de511c1fdb",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bfee5933_4896c2f8",
+        "filename": "av1/ratectrl_qmode_interface.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 167,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2022-06-17T16:23:23Z",
+      "side": 1,
+      "message": "I moved this to ducky_encode.h as it is the underlying codec\u0027s call to go with either GOP or sequence to transport the EncodeInfo.",
+      "parentUuid": "1c5b9c92_3bdc5fb7",
+      "range": {
+        "startLine": 167,
+        "startChar": 0,
+        "endLine": 167,
+        "endChar": 53
+      },
+      "revId": "05f613ad3afc43234b7681ed8caf30de511c1fdb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
