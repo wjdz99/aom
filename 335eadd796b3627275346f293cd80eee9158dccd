@@ -48,6 +48,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "c979944e_6f34cad2",
+        "filename": "apps/qmode_rc_encoder.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2022-06-18T17:37:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f4cd36dc_12096a89",
+      "range": {
+        "startLine": 25,
+        "startChar": 6,
+        "endLine": 25,
+        "endChar": 59
+      },
+      "revId": "335eadd796b3627275346f293cd80eee9158dccd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "f7b312c0_7ed51297",
@@ -61,6 +85,30 @@
       "writtenOn": "2022-06-18T00:58:25Z",
       "side": 1,
       "message": "Overlay frames are always coded at the base q index?",
+      "range": {
+        "startLine": 1150,
+        "startChar": 32,
+        "endLine": 1150,
+        "endChar": 44
+      },
+      "revId": "335eadd796b3627275346f293cd80eee9158dccd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "56adcacf_d4ac8901",
+        "filename": "av1/ratectrl_qmode.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 1150,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2022-06-18T17:37:44Z",
+      "side": 1,
+      "message": "yes, that\u0027s intended, as they are well predicted by the collocated ARFs.",
+      "parentUuid": "f7b312c0_7ed51297",
       "range": {
         "startLine": 1150,
         "startChar": 32,
