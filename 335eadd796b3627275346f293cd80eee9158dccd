@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f75d7be8_953c6cc0",
+        "filename": "apps/qmode_rc_encoder.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-06-18T00:58:25Z",
+      "side": 1,
+      "message": "This should not be hardcoded to a path on your computer. :-)",
+      "range": {
+        "startLine": 25,
+        "startChar": 6,
+        "endLine": 25,
+        "endChar": 59
+      },
+      "revId": "335eadd796b3627275346f293cd80eee9158dccd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f7b312c0_7ed51297",
+        "filename": "av1/ratectrl_qmode.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 1150,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-06-18T00:58:25Z",
+      "side": 1,
+      "message": "Overlay frames are always coded at the base q index?",
+      "range": {
+        "startLine": 1150,
+        "startChar": 32,
+        "endLine": 1150,
+        "endChar": 44
+      },
+      "revId": "335eadd796b3627275346f293cd80eee9158dccd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
