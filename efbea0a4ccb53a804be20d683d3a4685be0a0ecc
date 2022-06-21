@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "721feaff_7c3eae7d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2022-06-21T13:39:46Z",
+      "side": 1,
+      "message": "Hi Wan-Teh, Frank,\n\nThe speed feature default_max_partition_size is set to BLOCK_32X32 for speed\u003e\u003d6. Hence, the reconstruction with dry-run in av1_rd_pick_partition() is redundant for bsize \u003e BLOCK_32X32. In this CL, we have introduced a function do_dry_run_encode_for_current_block(), which conditionally calls encode_sb() with dry-run and thereby eliminates the above mentioned redundant cases. Also the calls to av1_restore_context() is limited to blocks for which reconstruction is ensured (either during dry-run or final encode). Currently the calls to av1_restore_context() from split_partition_search() only needs to be explicitly handled.\n\nThis CL gives speedup only for speed 6 when super block size is 128X128 (currently this CL has no impact for resolutions \u003c\u003d 480p where the super block size is 64X64). We have not extended this optimization for speed\u003e\u003d 7, as it uses variance based partitioning where the speed feature default_max_partition_size is not respected. Furthermore, as non-rd partition search is used while evaluating all/larger partitions for speed\u003e\u003d9/8, there is no redundant reconstruction.\n\nFor AVIF still-image encode with tune\u003dpsnr,\n                 Encode Time\n    cpu-used     Reduction(%)\n        6           1.582\n\nFor AVIF still-image encode with tune\u003dssim,\n                 Encode Time\n    cpu-used     Reduction(%)\n        6           1.464\n\nFollowing are the instruction count reduction results when libaom allintra frame encoding (50 frames) was tested for a borg setup. \n                Instruction Count\n    cpu-used     Reduction(%)\n        6           0.638    \n\nFor allintra encoding, gains are less as it is averaged across all resolutions (lowres, midres and hdres).     \n\nFor libaom AV1 video encode, bit-match is verified (w.r.t. parent commit) for \u0027GOOD\u0027, \u0027RT\u0027 and ‘ALLINTRA’ encoding modes for a few contents with different encoding configurations. It is verified that the CL is bit-exact for AVIF still-image encode, for all speed presets with speed up observed only in speed\u003d6.\n\nThe instruction count reduction specified has been measured using the command:\n$ perf stat -e instructions:u ./aomenc …\n\nPlease review.\n\nRegards,\nMudassir\n",
+      "revId": "efbea0a4ccb53a804be20d683d3a4685be0a0ecc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
