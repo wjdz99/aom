@@ -112,13 +112,14 @@ void av1_row_mt_sync_write_dummy(AV1EncRowMultiThreadSync *row_mt_sync, int r,
 
 void av1_row_mt_sync_read(AV1EncRowMultiThreadSync *row_mt_sync, int r, int c) {
 #if CONFIG_MULTITHREAD
-  const int nsync = row_mt_sync->sync_range;
+  const int top_right_sb_sync_delay = row_mt_sync->top_right_sb_sync_delay;
 
   if (r) {
     pthread_mutex_t *const mutex = &row_mt_sync->mutex_[r - 1];
     pthread_mutex_lock(mutex);
 
-    while (c > row_mt_sync->num_finished_cols[r - 1] - nsync) {
+    while (c >
+           row_mt_sync->num_finished_cols[r - 1] - top_right_sb_sync_delay) {
       pthread_cond_wait(&row_mt_sync->cond_[r - 1], mutex);
     }
     pthread_mutex_unlock(mutex);
@@ -133,16 +134,16 @@ void av1_row_mt_sync_read(AV1EncRowMultiThreadSync *row_mt_sync, int r, int c) {
 void av1_row_mt_sync_write(AV1EncRowMultiThreadSync *row_mt_sync, int r, int c,
                            int cols) {
 #if CONFIG_MULTITHREAD
-  const int nsync = row_mt_sync->sync_range;
+  const int top_right_sb_sync_delay = row_mt_sync->top_right_sb_sync_delay;
   int cur;
   // Only signal when there are enough encoded blocks for next row to run.
   int sig = 1;
 
   if (c < cols - 1) {
     cur = c;
-    if (c % nsync) sig = 0;
+    if (c % top_right_sb_sync_delay) sig = 0;
   } else {
-    cur = cols + nsync;
+    cur = cols + top_right_sb_sync_delay;
   }
 
   if (sig) {
@@ -159,6 +160,13 @@ void av1_row_mt_sync_write(AV1EncRowMultiThreadSync *row_mt_sync, int r, int c,
   (void)c;
   (void)cols;
 #endif  // CONFIG_MULTITHREAD
+}
+
+static AOM_INLINE get_top_right_sb_sync_delay(const AV1_COMMON *cm) {
+  if (!av1_allow_intrabc(cm)) return ROW_MT_TOP_RIGHT_SB_LAG_DEFAULT;
+  return cm->seq_params->sb_size == BLOCK_128X128
+             ? ROW_MT_TOP_RIGHT_SB_LAG_INTRABC_SB128
+             : ROW_MT_TOP_RIGHT_SB_LAG_INTRABC_SB64;
 }
 
 // Allocate memory for row synchronization
@@ -188,8 +196,8 @@ static void row_mt_sync_mem_alloc(AV1EncRowMultiThreadSync *row_mt_sync,
                   aom_malloc(sizeof(*row_mt_sync->num_finished_cols) * rows));
 
   row_mt_sync->rows = rows;
-  // Set up nsync.
-  row_mt_sync->sync_range = 1;
+  // Set up the top-right superblock delay.
+  row_mt_sync->top_right_sb_sync_delay = get_top_right_sb_sync_delay(cm);
 }
 
 // Deallocate row based multi-threading synchronization related mutex and data

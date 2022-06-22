@@ -22,6 +22,10 @@
 extern "C" {
 #endif
 
+#define ROW_MT_TOP_RIGHT_SB_LAG_DEFAULT 1
+#define ROW_MT_TOP_RIGHT_SB_LAG_INTRABC_SB128 3
+#define ROW_MT_TOP_RIGHT_SB_LAG_INTRABC_SB64 5
+
 struct AV1Common;
 
 typedef struct AV1LfMTInfo {
