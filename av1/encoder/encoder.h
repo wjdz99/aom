@@ -1370,9 +1370,10 @@ typedef struct {
   /*!
    * Number of extra superblocks of the top row to be complete for encoding
    * of the current superblock to start. A value of 1 indicates top-right
-   * dependency.
+   * dependency. In case of intraBC, a larger value is required due to hardware
+   * constraints.
    */
-  int sync_range;
+  int top_right_sb_sync_delay;
   /*!
    * Number of superblock rows.
    */
