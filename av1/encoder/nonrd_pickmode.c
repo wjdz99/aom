@@ -2866,6 +2866,10 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
       }
       // Skip NEWMV search for flat blocks.
       if (this_mode == NEWMV && x->source_variance < 100) continue;
+      // Skip non-LAST for strong color.
+      if (ref_frame > LAST_FRAME &&
+          (x->color_sensitivity[0] == 1 || x->color_sensitivity[1] == 1))
+        continue;
     }
 
     if (skip_mode_by_bsize_and_ref_frame(
