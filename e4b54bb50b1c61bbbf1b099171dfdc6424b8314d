@@ -50,6 +50,24 @@
       "message": "Nit/optional: We can calculate `num_sub_blks` directly:\n\n  const int num_sub_blks \u003d (1 + (bh \u003e\u003d bw)) * (1 + (bw \u003e\u003d bh));",
       "revId": "e4b54bb50b1c61bbbf1b099171dfdc6424b8314d",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9cb22ea5_492229a7",
+        "filename": "av1/encoder/tx_search.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1662,
+      "author": {
+        "id": 6245
+      },
+      "writtenOn": "2022-06-23T04:04:03Z",
+      "side": 1,
+      "message": "Ack.\n\nAs the number of sub-blocks is 2 or 4, the suggested approach (2 additions + 1 multiplication) requires lesser operations than the current approach (1 initialization + 2/4 additions). As the current approach is more readable and may not lead to a perceivable difference in encoding time, we prefer the current approach.\n\nPlease let us know your thoughts.",
+      "parentUuid": "1755353d_f982ef80",
+      "revId": "e4b54bb50b1c61bbbf1b099171dfdc6424b8314d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
