@@ -42,14 +42,6 @@ struct EncodeFrameResult {
   double psnr;
 };
 
-enum class EncodeFrameMode {
-  kNone,           // Let native AV1 determine q index and rdmult
-  kQindex,         // DuckyEncode determines q index and AV1 determines rdmult
-  kQindexRdmult,   // DuckyEncode determines q index and rdmult
-  kGopInfoQindex,  // DuckyEncode determines the gop and qp
-  kGopInfoQindexRdmult,  // DuckyEncode determines the gop, qp, and rdmult
-};
-
 struct EncodeFrameDecision {
   ducky_encode_frame_mode qp_mode;
   ducky_encode_gop_mode gop_mode;
