@@ -95,14 +95,4 @@ TEST(DuckyEncodeTest, EncodeFrameWithQindex) {
   ducky_encode.EndEncode();
 }
 
-TEST(DuckyEncodeTest, EncodeFrameMode) {
-  EXPECT_EQ(DUCKY_ENCODE_FRAME_MODE_NONE,
-            static_cast<DUCKY_ENCODE_FRAME_MODE>(EncodeFrameMode::kNone));
-  EXPECT_EQ(DUCKY_ENCODE_FRAME_MODE_QINDEX,
-            static_cast<DUCKY_ENCODE_FRAME_MODE>(EncodeFrameMode::kQindex));
-  EXPECT_EQ(
-      DUCKY_ENCODE_FRAME_MODE_QINDEX_RDMULT,
-      static_cast<DUCKY_ENCODE_FRAME_MODE>(EncodeFrameMode::kQindexRdmult));
-}
-
 }  // namespace aom
