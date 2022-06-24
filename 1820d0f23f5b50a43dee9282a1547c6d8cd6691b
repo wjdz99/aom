@@ -70,6 +70,30 @@
       },
       "revId": "1820d0f23f5b50a43dee9282a1547c6d8cd6691b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "056a1c7f_e8f87394",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 2317,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-06-24T21:26:18Z",
+      "side": 1,
+      "message": "Ah, I guess that\u0027s another convention: snake_case ending in _t.\n\nReminds me of https://xkcd.com/927/.\n\nI guess as long as it\u0027s consistent with something in the code base...",
+      "parentUuid": "c948a110_1bc67985",
+      "range": {
+        "startLine": 2317,
+        "startChar": 13,
+        "endLine": 2317,
+        "endChar": 36
+      },
+      "revId": "1820d0f23f5b50a43dee9282a1547c6d8cd6691b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
