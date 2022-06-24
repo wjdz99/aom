@@ -3232,31 +3232,6 @@ static int encode_with_and_without_superres(AV1_COMP *cpi, size_t *size,
   return err;
 }
 
-// Conditions to disable cdf_update mode in selective mode for real-time.
-// Handle case for layers, scene change, and resizing.
-static int selective_disable_cdf_rtc(AV1_COMP *cpi) {
-  AV1_COMMON *const cm = &cpi->common;
-  RATE_CONTROL *const rc = &cpi->rc;
-  // For single layer.
-  if (cpi->svc.number_spatial_layers == 1 &&
-      cpi->svc.number_temporal_layers == 1) {
-    // Don't disable on intra_only, scene change (high_source_sad = 1),
-    // or resized frame. To avoid quality loss for now, force enable at
-    // every 8 frames.
-    if (frame_is_intra_only(cm) || is_frame_resize_pending(cpi) ||
-        rc->high_source_sad || rc->frames_since_key < 10 ||
-        cpi->cyclic_refresh->counter_encode_maxq_scene_change < 10 ||
-        cm->current_frame.frame_number % 8 == 0)
-      return 0;
-    else
-      return 1;
-  } else if (cpi->svc.number_temporal_layers > 1) {
-    // Disable only on top temporal enhancement layer for now.
-    return cpi->svc.temporal_layer_id == cpi->svc.number_temporal_layers - 1;
-  }
-  return 1;
-}
-
 #if !CONFIG_REALTIME_ONLY
 static void subtract_stats(FIRSTPASS_STATS *section,
                            const FIRSTPASS_STATS *frame) {
@@ -3376,6 +3351,10 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
                                   frame_might_allow_warped_motion(cm);
 
   cpi->last_frame_type = current_frame->frame_type;
+
+  if (frame_is_intra_only(cm)) {
+    cpi->frames_since_last_update = 0;
+  }
 
   if (frame_is_sframe(cm)) {
     GF_GROUP *gf_group = &cpi->ppi->gf_group;
@@ -3566,7 +3545,7 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
         features->disable_cdf_update =
             (frame_is_intra_only(cm) || !cm->show_frame) ? 0 : 1;
       } else {
-        features->disable_cdf_update = selective_disable_cdf_rtc(cpi);
+        features->disable_cdf_update = av1_selective_disable_cdf_rtc(cpi);
       }
       break;
   }
@@ -3662,6 +3641,12 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
   }
 
   cpi->last_frame_type = current_frame->frame_type;
+
+  if (cm->features.disable_cdf_update) {
+    cpi->frames_since_last_update++;
+  } else {
+    cpi->frames_since_last_update = 1;
+  }
 
   // Clear the one shot update flags for segmentation map and mode/ref loop
   // filter deltas.

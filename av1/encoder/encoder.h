@@ -3380,6 +3380,11 @@ typedef struct AV1_COMP {
    */
   DuckyEncodeInfo ducky_encode_info;
 #endif  // CONFIG_REALTIME_ONLY
+        //
+  /*!
+   * Frames since last updatable inter frame
+   */
+  int frames_since_last_update;
 } AV1_COMP;
 
 /*!
@@ -4020,8 +4025,8 @@ static AOM_INLINE int is_psnr_calc_enabled(const AV1_COMP *cpi) {
          cm->show_frame;
 }
 
-static INLINE int is_frame_resize_pending(AV1_COMP *const cpi) {
-  ResizePendingParams *const resize_pending_params =
+static INLINE int is_frame_resize_pending(const AV1_COMP *const cpi) {
+  const ResizePendingParams *const resize_pending_params =
       &cpi->resize_pending_params;
   return (resize_pending_params->width && resize_pending_params->height &&
           (cpi->common.width != resize_pending_params->width ||
@@ -4124,6 +4129,31 @@ static INLINE char const *get_frame_type_enum(int type) {
   return "error";
 }
 #endif
+
+// Conditions to disable cdf_update mode in selective mode for real-time.
+// Handle case for layers, scene change, and resizing.
+static AOM_INLINE int av1_selective_disable_cdf_rtc(const AV1_COMP *cpi) {
+  const AV1_COMMON *const cm = &cpi->common;
+  const RATE_CONTROL *const rc = &cpi->rc;
+  // For single layer.
+  if (cpi->svc.number_spatial_layers == 1 &&
+      cpi->svc.number_temporal_layers == 1) {
+    // Don't disable on intra_only, scene change (high_source_sad = 1),
+    // or resized frame. To avoid quality loss for now, force enable at
+    // every 8 frames.
+    if (frame_is_intra_only(cm) || is_frame_resize_pending(cpi) ||
+        rc->high_source_sad || rc->frames_since_key < 10 ||
+        cpi->cyclic_refresh->counter_encode_maxq_scene_change < 10 ||
+        cm->current_frame.frame_number % 8 == 0)
+      return 0;
+    else
+      return 1;
+  } else if (cpi->svc.number_temporal_layers > 1) {
+    // Disable only on top temporal enhancement layer for now.
+    return cpi->svc.temporal_layer_id == cpi->svc.number_temporal_layers - 1;
+  }
+  return 1;
+}
 
 /*!\endcond */
 
