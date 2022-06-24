@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "60386967_8356fcf4",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 2317,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-06-24T20:14:10Z",
+      "side": 1,
+      "message": "Jerome: Why is this lower case snake_case?\n\ngo/c-style uses CamelCase for types.\nIn libaom, enums seem to be ALL_CAPS.\n\nYou could use either of those, but I don\u0027t think there\u0027s any precedent for lower case snake_case for an enum type name.",
+      "range": {
+        "startLine": 2317,
+        "startChar": 13,
+        "endLine": 2317,
+        "endChar": 36
+      },
+      "revId": "1820d0f23f5b50a43dee9282a1547c6d8cd6691b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
