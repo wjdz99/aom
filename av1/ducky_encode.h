@@ -43,14 +43,16 @@ struct EncodeFrameResult {
 };
 
 enum class EncodeFrameMode {
-  kNone,          // Let native AV1 determine q index and rdmult
-  kQindex,        // DuckyEncode determines q index and AV1 determines rdmult
-  kQindexRdmult,  // DuckyEncode determines q index and rdmult
-  kGopInfo        // DuckyEncode determines the gop structure
+  kNone,           // Let native AV1 determine q index and rdmult
+  kQindex,         // DuckyEncode determines q index and AV1 determines rdmult
+  kQindexRdmult,   // DuckyEncode determines q index and rdmult
+  kGopInfoQindex,  // DuckyEncode determines the gop and qp
+  kGopInfoQindexRdmult,  // DuckyEncode determines the gop, qp, and rdmult
 };
 
 struct EncodeFrameDecision {
-  EncodeFrameMode mode;
+  DUCKY_ENCODE_FRAME_MODE qp_mode;
+  DUCKY_ENCODE_GOP_MODE gop_mode;
   FrameEncodeParameters parameters;
 };
 
