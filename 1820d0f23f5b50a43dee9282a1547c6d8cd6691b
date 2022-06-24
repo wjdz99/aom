@@ -22,6 +22,30 @@
       },
       "revId": "1820d0f23f5b50a43dee9282a1547c6d8cd6691b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4a7b9ab7_ea56f040",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 2317,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-06-24T20:15:55Z",
+      "side": 1,
+      "message": "I was looking at this one:\nhttps://aomedia.googlesource.com/aom/+/refs/heads/main/aom_dsp/noise_model.h#165\n\nIt came up on the first when I searched for \"UENUM1BYTE\" in the code base....\n\nI\u0027ll change it to ALL_CAPS.",
+      "parentUuid": "60386967_8356fcf4",
+      "range": {
+        "startLine": 2317,
+        "startChar": 13,
+        "endLine": 2317,
+        "endChar": 36
+      },
+      "revId": "1820d0f23f5b50a43dee9282a1547c6d8cd6691b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
