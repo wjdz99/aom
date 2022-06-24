@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "941043da_a14773ad",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-06-24T09:12:57Z",
+      "side": 1,
+      "message": "I have a couple suggestions that aren\u0027t necessarily for this CL, but may be worth considering for a follow-up.",
+      "revId": "484049bdc67f28d0f56e03729b5f8e1f3c8d072f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1b80f67c_fed4f339",
+        "filename": "av1/encoder/encode_strategy.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 832,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-06-24T09:12:57Z",
+      "side": 1,
+      "message": "Instead of treating the mode as a level like this, using \u003e\u003d, would it be clearer or less error prone to treat it as a bit vector, with separate bits for Q-index, rdmult, and GOP, and then checking the bits?",
+      "range": {
+        "startLine": 832,
+        "startChar": 64,
+        "endLine": 832,
+        "endChar": 66
+      },
+      "revId": "484049bdc67f28d0f56e03729b5f8e1f3c8d072f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7e308239_c3a0bc78",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 2310,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-06-24T09:12:57Z",
+      "side": 1,
+      "message": "Instead of having two versions of this enum, why not just have a single C-compatible version? i.e, why can\u0027t DuckyEncode just use this enum?",
+      "range": {
+        "startLine": 2310,
+        "startChar": 0,
+        "endLine": 2310,
+        "endChar": 58
+      },
+      "revId": "484049bdc67f28d0f56e03729b5f8e1f3c8d072f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
