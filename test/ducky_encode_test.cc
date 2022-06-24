@@ -58,7 +58,9 @@ TEST(DuckyEncodeTest, EncodeFrame) {
   // TODO(angiebird): Set coding_frame_count properly, once the DuckyEncode can
   // provide proper information.
   int coding_frame_count = 5;
-  EncodeFrameDecision decision = { EncodeFrameMode::kNone, {} };
+  EncodeFrameDecision decision = { DUCKY_ENCODE_FRAME_MODE_NONE,
+                                   DUCKY_ENCODE_GOP_MODE_NONE,
+                                   {} };
   for (int i = 0; i < coding_frame_count; ++i) {
     EncodeFrameResult encode_frame_result = ducky_encode.EncodeFrame(decision);
   }
@@ -82,7 +84,9 @@ TEST(DuckyEncodeTest, EncodeFrameWithQindex) {
   // provide proper information.
   int coding_frame_count = 5;
   int q_index = 0;
-  EncodeFrameDecision decision = { EncodeFrameMode::kQindex, { q_index, -1 } };
+  EncodeFrameDecision decision = { DUCKY_ENCODE_FRAME_MODE_NONE,
+                                   DUCKY_ENCODE_GOP_MODE_NONE,
+                                   { q_index, -1 } };
   for (int i = 0; i < coding_frame_count; ++i) {
     EncodeFrameResult encode_frame_result = ducky_encode.EncodeFrame(decision);
     // TODO(angiebird): Check why distortion is not zero when q_index = 0
