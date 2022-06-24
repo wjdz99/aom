@@ -46,6 +46,30 @@
       },
       "revId": "ee2880c22dc2ff73101cdb5b68e46cbfb27f0408",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4cb9995c_604cd7f4",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 2322,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2022-06-24T19:46:34Z",
+      "side": 1,
+      "message": "i was trying to work around the complier warning on linux that complained these enum defined in C to be used in C++ header.",
+      "parentUuid": "a3c811b1_0b095669",
+      "range": {
+        "startLine": 2319,
+        "startChar": 0,
+        "endLine": 2322,
+        "endChar": 3
+      },
+      "revId": "ee2880c22dc2ff73101cdb5b68e46cbfb27f0408",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
