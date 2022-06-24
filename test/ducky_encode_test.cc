@@ -58,7 +58,9 @@ TEST(DuckyEncodeTest, EncodeFrame) {
   // TODO(angiebird): Set coding_frame_count properly, once the DuckyEncode can
   // provide proper information.
   int coding_frame_count = 5;
-  EncodeFrameDecision decision = { EncodeFrameMode::kNone, {} };
+  EncodeFrameDecision decision = { aom::EncodeFrameMode::kNone,
+                                   aom::EncodeGopMode::kNone,
+                                   {} };
   for (int i = 0; i < coding_frame_count; ++i) {
     EncodeFrameResult encode_frame_result = ducky_encode.EncodeFrame(decision);
   }
@@ -82,7 +84,9 @@ TEST(DuckyEncodeTest, EncodeFrameWithQindex) {
   // provide proper information.
   int coding_frame_count = 5;
   int q_index = 0;
-  EncodeFrameDecision decision = { EncodeFrameMode::kQindex, { q_index, -1 } };
+  EncodeFrameDecision decision = { aom::EncodeFrameMode::kNone,
+                                   aom::EncodeGopMode::kNone,
+                                   { q_index, -1 } };
   for (int i = 0; i < coding_frame_count; ++i) {
     EncodeFrameResult encode_frame_result = ducky_encode.EncodeFrame(decision);
     // TODO(angiebird): Check why distortion is not zero when q_index = 0
@@ -93,12 +97,12 @@ TEST(DuckyEncodeTest, EncodeFrameWithQindex) {
 
 TEST(DuckyEncodeTest, EncodeFrameMode) {
   EXPECT_EQ(DUCKY_ENCODE_FRAME_MODE_NONE,
-            static_cast<DUCKY_ENCODE_FRAME_MODE>(EncodeFrameMode::kNone));
+            static_cast<ducky_encode_frame_mode>(EncodeFrameMode::kNone));
   EXPECT_EQ(DUCKY_ENCODE_FRAME_MODE_QINDEX,
-            static_cast<DUCKY_ENCODE_FRAME_MODE>(EncodeFrameMode::kQindex));
+            static_cast<ducky_encode_frame_mode>(EncodeFrameMode::kQindex));
   EXPECT_EQ(
       DUCKY_ENCODE_FRAME_MODE_QINDEX_RDMULT,
-      static_cast<DUCKY_ENCODE_FRAME_MODE>(EncodeFrameMode::kQindexRdmult));
+      static_cast<ducky_encode_frame_mode>(EncodeFrameMode::kQindexRdmult));
 }
 
 }  // namespace aom
