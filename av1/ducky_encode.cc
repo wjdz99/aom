@@ -358,7 +358,6 @@ TplGopStats DuckyEncode::ObtainTplStats(const GopStruct gop_struct) {
   for (size_t idx = 0; idx < gop_struct.gop_frame_list.size(); ++idx) {
     TplFrameStats tpl_frame_stats = {};
     TplDepFrame *tpl_frame = &ppi->tpl_data.tpl_frame[idx];
-
     if (gop_struct.gop_frame_list[idx].update_type == GopFrameType::kOverlay ||
         gop_struct.gop_frame_list[idx].update_type ==
             GopFrameType::kIntermediateOverlay) {
@@ -424,8 +423,9 @@ std::vector<TplGopStats> DuckyEncode::ComputeTplStats(
     aom::TplGopStats tpl_gop_stats;
     for (auto &frame : gop_struct.gop_frame_list) {
       // encoding frame frame_number
-      aom::EncodeFrameDecision frame_decision = { aom::EncodeFrameMode::kQindex,
-                                                  { 128, -1 } };
+      aom::EncodeFrameDecision frame_decision = {
+        aom::EncodeFrameMode::kGopInfoQindex, { 128, -1 }
+      };
       (void)frame;
       EncodeFrame(frame_decision);
     }
@@ -451,7 +451,7 @@ std::vector<EncodeFrameResult> DuckyEncode::EncodeVideo(
 
     for (auto &frame_param : gop_encode_info.param_list) {
       aom::EncodeFrameDecision frame_decision = {
-        aom::EncodeFrameMode::kQindexRdmult, frame_param
+        aom::EncodeFrameMode::kGopInfoQindexRdmult, frame_param
       };
       encoded_frame_list.push_back(EncodeFrame(frame_decision));
     }

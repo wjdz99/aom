@@ -2312,8 +2312,11 @@ typedef enum {
   DUCKY_ENCODE_FRAME_MODE_NONE,  // Let native AV1 determine q index and rdmult
   DUCKY_ENCODE_FRAME_MODE_QINDEX,  // DuckyEncode determines q index and AV1
                                    // determines rdmult
-  DUCKY_ENCODE_FRAME_MODE_QINDEX_RDMULT  // DuckyEncode determines q index and
-                                         // rdmult
+  DUCKY_ENCODE_FRAME_MODE_QINDEX_RDMULT,  // DuckyEncode determines q index and
+                                          // rdmult
+  DUCKY_ENCODE_FRAME_MODE_GOP_QINDEX,     // RC lib controls GOP and q index
+  DUCKY_ENCODE_FRAME_MODE_GOP_QINDEX_RDMULT  // RC lib controls GOP, q,
+                                             // and rdmult
 } DUCKY_ENCODE_FRAME_MODE;
 
 typedef struct DuckyEncodeFrameInfo {
