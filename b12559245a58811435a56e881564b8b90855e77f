@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e03d048b_1488fc0a",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 2329,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-06-24T20:04:20Z",
+      "side": 1,
+      "message": "This is good (using the same name for the type and the struct). I\u0027d do the same for the enums.",
+      "range": {
+        "startLine": 2324,
+        "startChar": 0,
+        "endLine": 2329,
+        "endChar": 23
+      },
+      "revId": "b12559245a58811435a56e881564b8b90855e77f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
