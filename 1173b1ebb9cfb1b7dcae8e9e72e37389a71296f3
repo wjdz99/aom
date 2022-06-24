@@ -34,6 +34,24 @@
       "parentUuid": "63c50c98_0faa2f58",
       "revId": "1173b1ebb9cfb1b7dcae8e9e72e37389a71296f3",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a1f56dea_2cb3d22f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-06-24T17:29:42Z",
+      "side": 1,
+      "message": "\u003e I didn\u0027t know that adding the Bug: line did not require a new review. I will go ahead and submit this CL.\n\nCorrect, it\u0027s the minimum level of vote stickiness we enabled for this project. We have the option of expanding it further to be more like Chrome.",
+      "parentUuid": "d32209cb_1756948e",
+      "revId": "1173b1ebb9cfb1b7dcae8e9e72e37389a71296f3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ],
   "submitRequirementResults": [
