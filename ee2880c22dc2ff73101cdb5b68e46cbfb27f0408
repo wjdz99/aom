@@ -70,6 +70,30 @@
       },
       "revId": "ee2880c22dc2ff73101cdb5b68e46cbfb27f0408",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bcca8083_db8c4788",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 2322,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-06-24T19:51:10Z",
+      "side": 1,
+      "message": "How were they defined and what was the warning? UENUM1BYTE ought to work fine in C++.",
+      "parentUuid": "4cb9995c_604cd7f4",
+      "range": {
+        "startLine": 2319,
+        "startChar": 0,
+        "endLine": 2322,
+        "endChar": 3
+      },
+      "revId": "ee2880c22dc2ff73101cdb5b68e46cbfb27f0408",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
