@@ -16,6 +16,23 @@
       "message": "Hi Wan-Teh, James, Yunqing,\n\nThis patch introduces an extra top-right delay when the intraBC tool is enabled so as to ensure that a sufficient number of superblocks have finished encoding in the previous rows before starting to encode the current superblock. This ensures that row-multithreaded encoding respects the hardware constraints on\nparallel processing with the intraBC tool and thus prevents any invalid access while building the predictor. \n\nAlso, the unit test ScreenContentToolsMultiThreadTestLarge.ScreenContentToolsTest is reintroduced with thread sanitizer as the data race issue is resolved with this change.\n\nThis change is supposed to  cause an increase in multi-threaded encode-time for video frames where the intraBC tool gets evaluated as the threads need to wait for more superblocks to finish processing in the previous rows. Also, this change could create a potential change in the bitstream for screen contents when encoded with row-multithreading as the invalid access is fixed while building the predictor with intraBC. For non-screen content inputs, this patch has no impact on the coding performance as the encoder behaviour is retained.\n\nWhile working on this issue, we came across a couple of alternate approaches as mentioned below:\n1. Modify “sync_range” by accounting for the intraBC delay: This approach was not taken as the variable “sync_range” also denotes the superblock interval at which the conditional variable should be signalled to resolve dependencies across threads. Changing this variable would introduce additional delay in signalling, which is not desirable.\n2. Decouple “sync_range” and top-right delay by introducing a separate variable for top-right delay: The variable “sync_range” currently implies the top-right delay along with the signalling interval. However, this approach was not taken up as decoupling these functionalities would change the encoder behaviour in default case as the minimum top-right delay expected from “sync_range” will no longer be respected with this approach.\n\nHence, we went ahead with the current approach of maintaining the additional intraBC top-right delay in a separate variable. Please let us know your opinions on our understanding as well as the approach taken.\n\nFor libaom AV1 video encode, bit-match is verified (w.r.t. parent commit) for \u0027GOOD\u0027, \u0027RT\u0027 and \u0027ALLINTRA\u0027 encoding modes for a few non-screen contents with row multi-threading enabled.\n\nPlease review.\n\nRegards,\nJayasanker.",
       "revId": "d01ca1a827d020d65c4e3f518553573f65248ad2",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "49a49c32_fe050fc6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-06-27T20:18:32Z",
+      "side": 1,
+      "message": "I\u0027ll leave this open for others to comment",
+      "revId": "d01ca1a827d020d65c4e3f518553573f65248ad2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
