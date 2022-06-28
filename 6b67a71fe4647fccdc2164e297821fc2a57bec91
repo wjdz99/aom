@@ -34,6 +34,24 @@
       "parentUuid": "3381a444_e387f3b7",
       "revId": "6b67a71fe4647fccdc2164e297821fc2a57bec91",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "432862f6_f7ac5113",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9616
+      },
+      "writtenOn": "2022-06-28T06:47:37Z",
+      "side": 1,
+      "message": "Yes, Yunqing. We shall submit a CL to clean up the configuration macros from aom_config_defaults.cmake file.",
+      "parentUuid": "b970f236_ccce40e2",
+      "revId": "6b67a71fe4647fccdc2164e297821fc2a57bec91",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ],
   "submitRequirementResults": [
