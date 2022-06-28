@@ -786,6 +786,7 @@ static AOM_INLINE void grade_source_content_sb(AV1_COMP *cpi,
       x->content_state_sb.source_sad_rd = kZeroSad;
   }
   if (calc_src_content) av1_source_content_sb(cpi, x, mi_row, mi_col);
+  x->zero_sad_block = x->content_state_sb.source_sad_nonrd == kZeroSad;
 }
 
 /*!\brief Encode a superblock row by breaking it into superblocks
@@ -876,6 +877,7 @@ static AOM_INLINE void encode_sb_row(AV1_COMP *cpi, ThreadData *td,
     x->content_state_sb.lighting_change = 0;
     x->content_state_sb.low_sumdiff = 0;
     x->force_zeromv_skip = 0;
+    x->zero_sad_block = 0;
 
     if (cpi->oxcf.mode == ALLINTRA) {
       x->intra_sb_rdmult_modifier = 128;

@@ -2223,6 +2223,22 @@ static void pick_sb_modes_nonrd(AV1_COMP *const cpi, TileDataEnc *tile_data,
     } else {
       x->source_variance =
           av1_get_sby_perpixel_variance(cpi, &x->plane[0].src, bsize);
+      if (cpi->oxcf.tune_cfg.content == AOM_CONTENT_SCREEN &&
+          cm->current_frame.frame_type != KEY_FRAME &&
+          bsize != cpi->common.seq_params->sb_size &&
+          x->content_state_sb.source_sad_nonrd != kZeroSad) {
+        uint8_t *src_y = cpi->source->y_buffer;
+        int src_ystride = cpi->source->y_stride;
+        uint8_t *last_src_y = cpi->last_source->y_buffer;
+        int last_src_ystride = cpi->last_source->y_stride;
+        const int offset =
+            cpi->source->y_stride * (mi_row << 2) + (mi_col << 2);
+        src_y += offset;
+        last_src_y += offset;
+        unsigned int y_sad = cpi->ppi->fn_ptr[bsize].sdf(
+            src_y, src_ystride, last_src_y, last_src_ystride);
+        x->zero_sad_block = (y_sad == 0) ? 1 : 0;
+      }
     }
   }
   // Save rdmult before it might be changed, so it can be restored later.
