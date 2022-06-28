@@ -2187,7 +2187,7 @@ static void estimate_intra_mode(
         cpi->sf.rt_sf.source_metrics_sb_nonrd) {
       // For spatially flat blocks with zero motion only check
       // DC mode.
-      if (x->content_state_sb.source_sad_nonrd == kZeroSad &&
+      if (x->zero_sad_block == 1 &&
           x->source_variance == 0 && this_mode != DC_PRED)
         continue;
       // Only test Intra for big blocks if spatial_variance is 0.
@@ -2254,7 +2254,7 @@ static void estimate_intra_mode(
       // Otherwise bias against intra for blocks with zero
       // motion and no color, on non-scene/slide changes.
       else if (!cpi->rc.high_source_sad && x->source_variance > 0 &&
-               x->content_state_sb.source_sad_nonrd == kZeroSad &&
+               x->zero_sad_block == 1 &&
                x->color_sensitivity[0] == 0 && x->color_sensitivity[1] == 0)
         this_rdc.rdcost = (9 * this_rdc.rdcost) >> 3;
     }
@@ -2856,9 +2856,9 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
       // below after search_new_mv.
       if (cpi->sf.rt_sf.source_metrics_sb_nonrd) {
         if ((frame_mv[this_mode][ref_frame].as_int != 0 &&
-             x->content_state_sb.source_sad_nonrd == kZeroSad) ||
+             x->zero_sad_block == 1) ||
             (frame_mv[this_mode][ref_frame].as_int == 0 &&
-             x->content_state_sb.source_sad_nonrd != kZeroSad &&
+             x->zero_sad_block == 0 &&
              ((x->color_sensitivity[0] == 0 && x->color_sensitivity[1] == 0) ||
               cpi->rc.high_source_sad) &&
              x->source_variance == 0))
@@ -2952,7 +2952,7 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
         cpi->oxcf.tune_cfg.content == AOM_CONTENT_SCREEN &&
         cpi->sf.rt_sf.source_metrics_sb_nonrd) {
       if (frame_mv[this_mode][ref_frame].as_int == 0 &&
-          x->content_state_sb.source_sad_nonrd != kZeroSad &&
+          x->zero_sad_block == 0 &&
           ((x->color_sensitivity[0] == 0 && x->color_sensitivity[1] == 0) ||
            cpi->rc.high_source_sad) &&
           x->source_variance == 0)
