@@ -1060,20 +1060,9 @@ static void setup_planes(AV1_COMP *cpi, MACROBLOCK *x, unsigned int *y_sad,
   const YV12_BUFFER_CONFIG *yv12 = get_ref_frame_yv12_buf(cm, LAST_FRAME);
   assert(yv12 != NULL);
   const YV12_BUFFER_CONFIG *yv12_g = NULL;
-
-  // For non-SVC GOLDEN is another temporal reference. Check if it should be
-  // used as reference for partitioning.
-  if (!cpi->ppi->use_svc && (cpi->ref_frame_flags & AOM_GOLD_FLAG) &&
-      x->content_state_sb.source_sad_nonrd != kZeroSad) {
-    yv12_g = get_ref_frame_yv12_buf(cm, GOLDEN_FRAME);
-    if (yv12_g && yv12_g != yv12) {
-      av1_setup_pre_planes(xd, 0, yv12_g, mi_row, mi_col,
-                           get_ref_scale_factors(cm, GOLDEN_FRAME), num_planes);
-      *y_sad_g = cpi->ppi->fn_ptr[bsize].sdf(
-          x->plane[0].src.buf, x->plane[0].src.stride, xd->plane[0].pre[0].buf,
-          xd->plane[0].pre[0].stride);
-    }
-  }
+  const unsigned int thresh_y_sad =
+      (cm->seq_params->sb_size == BLOCK_64X64) ? 8000 : 25000;   // 2 * (64 * 64) , 1.5 * (128 * 128)
+  x->force_skip_golden_nonrd = 0;
 
   av1_setup_pre_planes(xd, 0, yv12, mi_row, mi_col,
                        get_ref_scale_factors(cm, LAST_FRAME), num_planes);
@@ -1095,11 +1084,24 @@ static void setup_planes(AV1_COMP *cpi, MACROBLOCK *x, unsigned int *y_sad,
         xd->plane[0].pre[0].stride);
   }
 
+  // For non-SVC GOLDEN is another temporal reference. Check if it should be
+  // used as reference for partitioning.
+  if (!cpi->ppi->use_svc && (cpi->ref_frame_flags & AOM_GOLD_FLAG) &&
+      x->content_state_sb.source_sad_nonrd != kZeroSad &&
+      *y_sad > thresh_y_sad) {
+    yv12_g = get_ref_frame_yv12_buf(cm, GOLDEN_FRAME);
+    if (yv12_g && yv12_g != yv12) {
+      av1_setup_pre_planes(xd, 0, yv12_g, mi_row, mi_col,
+                           get_ref_scale_factors(cm, GOLDEN_FRAME), num_planes);
+      *y_sad_g = cpi->ppi->fn_ptr[bsize].sdf(
+          x->plane[0].src.buf, x->plane[0].src.stride, xd->plane[0].pre[0].buf,
+          xd->plane[0].pre[0].stride);
+    }
+  }
+
   // Pick the ref frame for partitioning, use golden frame only if its
   // lower sad.
   if (*y_sad_g < 0.9 * *y_sad) {
-    av1_setup_pre_planes(xd, 0, yv12_g, mi_row, mi_col,
-                         get_ref_scale_factors(cm, GOLDEN_FRAME), num_planes);
     mi->ref_frame[0] = GOLDEN_FRAME;
     mi->mv[0].as_int = 0;
     *y_sad = *y_sad_g;
@@ -1109,6 +1111,10 @@ static void setup_planes(AV1_COMP *cpi, MACROBLOCK *x, unsigned int *y_sad,
     *ref_frame_partition = LAST_FRAME;
     x->nonrd_prune_ref_frame_search =
         cpi->sf.rt_sf.nonrd_prune_ref_frame_search;
+    av1_setup_pre_planes(xd, 0, yv12, mi_row, mi_col,
+                         get_ref_scale_factors(cm, LAST_FRAME), num_planes);
+    if (*y_sad_g >  (*y_sad) << 1)
+      x->force_skip_golden_nonrd = 1;
   }
 
   // Only calculate the predictor for non-zero MV.

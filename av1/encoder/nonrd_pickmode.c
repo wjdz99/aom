@@ -2017,6 +2017,8 @@ static AOM_INLINE void get_ref_frame_use_mask(AV1_COMP *cpi, MACROBLOCK *x,
     use_alt_ref_frame = 0;
   }
 
+  if (x->force_skip_golden_nonrd) use_golden_ref_frame = 0;
+
   use_alt_ref_frame =
       cpi->ref_frame_flags & AOM_ALT_FLAG ? use_alt_ref_frame : 0;
   use_golden_ref_frame =
