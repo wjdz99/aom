@@ -1314,6 +1314,7 @@ void av1_avg_cdf_symbols(FRAME_CONTEXT *ctx_left, FRAME_CONTEXT *ctx_tr,
 // its collocated block in the last frame.
 void av1_source_content_sb(AV1_COMP *cpi, MACROBLOCK *x, int mi_row,
                            int mi_col) {
+  AV1_COMMON *const cm = &cpi->common;
   unsigned int tmp_sse;
   unsigned int tmp_variance;
   const BLOCK_SIZE bsize = cpi->common.seq_params->sb_size;
@@ -1332,6 +1333,25 @@ void av1_source_content_sb(AV1_COMP *cpi, MACROBLOCK *x, int mi_row,
 #endif
   src_y += offset;
   last_src_y += offset;
+
+  if (cpi->sf.rt_sf.sad_based_comp_prune) {
+    const int num_mi_cols = cm->mi_params.mi_cols;
+    const int sb_size_by_mb = (cm->seq_params->sb_size == BLOCK_128X128)
+                                  ? (cm->seq_params->mib_size >> 1)
+                                  : cm->seq_params->mib_size;
+    const int sb_cols = (num_mi_cols + sb_size_by_mb - 1) / sb_size_by_mb;
+    uint64_t blk_sad = cpi->src_sad_blk_64x64[(mi_col >> 4) + (mi_row >> 4) * sb_cols];
+    uint64_t thresh1 = 5 * (64 * 64);
+    uint64_t thresh2 = 12 * (64 * 64);
+    if (blk_sad == 0)
+      x->content_state_sb.source_sad_nonrd = kZeroSad;
+    else if (blk_sad < thresh1)
+      x->content_state_sb.source_sad_nonrd = kLowSad;
+    else if (blk_sad > thresh2)
+      x->content_state_sb.source_sad_nonrd = kHighSad;
+    return;
+  }
+
   tmp_variance = cpi->ppi->fn_ptr[bsize].vf(src_y, src_ystride, last_src_y,
                                             last_src_ystride, &tmp_sse);
   // rd thresholds
@@ -1363,7 +1383,6 @@ void av1_source_content_sb(AV1_COMP *cpi, MACROBLOCK *x, int mi_row,
 
   // In-place temporal filter. If psnr calculation is enabled, we store the
   // source for that.
-  AV1_COMMON *const cm = &cpi->common;
   // Calculate n*mean^2
   const unsigned int nmean2 = tmp_sse - tmp_variance;
   const int ac_q_step = av1_ac_quant_QTX(cm->quant_params.base_qindex, 0,
