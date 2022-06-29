@@ -1015,6 +1015,8 @@ typedef struct macroblock {
    */
   int force_zeromv_skip;
 
+  int force_skip_golden_nonrd;
+
   /*! \brief Previous segment id for which qmatrices were updated.
    * This is used to bypass setting of qmatrices if no change in qindex.
    */
