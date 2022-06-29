@@ -75,6 +75,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "b6d6b3a4_5974fbc7",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 1383,
+      "author": {
+        "id": 14993
+      },
+      "writtenOn": "2022-06-29T13:28:37Z",
+      "side": 1,
+      "message": "With the current implementation, the extra top-right delay is only accounted for during the top-right dependency check in av1_row_mt_sync_read(). As per our understanding, accounting the additional top-right delay with sync_range will introduce additional delay while signalling the conditional variable in av1_row_mt_sync_write() by making the thread wait until it finishes encoding of (sync_range + intrabc_extra_top_right_sb_delay) number of superblocks to signal the progress. Hence we preferred the current approach.\n\nPlease let us know your opinion on our understanding.",
+      "parentUuid": "00fbbcd2_97692811",
+      "range": {
+        "startLine": 1383,
+        "startChar": 6,
+        "endLine": 1383,
+        "endChar": 38
+      },
+      "revId": "d01ca1a827d020d65c4e3f518553573f65248ad2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "41195891_8305f9ad",
