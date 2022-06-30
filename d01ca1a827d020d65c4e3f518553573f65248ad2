@@ -99,6 +99,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "fddcaf9f_fb80559a",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 1383,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2022-06-30T05:10:01Z",
+      "side": 1,
+      "message": "My question is if this extra_top_right_sb_delay causes MT speed drop? If yes and sync_range \u003e 1, we can lower sync_range to get back the speed loss.",
+      "parentUuid": "b6d6b3a4_5974fbc7",
+      "range": {
+        "startLine": 1383,
+        "startChar": 6,
+        "endLine": 1383,
+        "endChar": 38
+      },
+      "revId": "d01ca1a827d020d65c4e3f518553573f65248ad2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "41195891_8305f9ad",
