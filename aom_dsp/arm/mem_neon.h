@@ -15,6 +15,17 @@
 #include <string.h>
 #include "aom_dsp/aom_dsp_common.h"
 
+// Support for these xN intrinsics is lacking in older versions of GCC.
+#if defined(__GNUC__) && !defined(__clang__)
+#if __GNUC__ < 8 || defined(__arm__)
+static INLINE uint16x8x4_t vld1q_u16_x4(uint16_t const *ptr) {
+  uint16x8x4_t res = { { vld1q_u16(ptr + 0 * 8), vld1q_u16(ptr + 1 * 8),
+                         vld1q_u16(ptr + 2 * 8), vld1q_u16(ptr + 3 * 8) } };
+  return res;
+}
+#endif  // __GNUC__ < 8 || defined(__arm__)
+#endif  // defined(__GNUC__) && !defined(__clang__)
+
 static INLINE void store_row2_u8_8x8(uint8_t *s, int p, const uint8x8_t s0,
                                      const uint8x8_t s1) {
   vst1_u8(s, s0);
