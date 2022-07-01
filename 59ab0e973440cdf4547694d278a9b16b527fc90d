@@ -1,6 +1,23 @@
 {
   "comments": [
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "0478c2ea_ecd0331a",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-07-01T21:35:35Z",
+      "side": 1,
+      "message": "Please add a \"Bug: aomedia:3278\" line to the commit message.\n\nYou can file a bug report and reference that bug instead if you prefer to track the decoder side of the bug separately.",
+      "revId": "59ab0e973440cdf4547694d278a9b16b527fc90d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "c8f7825a_169bf658",
@@ -14,6 +31,57 @@
       "writtenOn": "2022-07-01T21:04:44Z",
       "side": 1,
       "message": "Hi Wan-Teh, James, Yunqing,\n\nThis patch introduces an extra top-right delay when the intraBC tool is enabled so as to ensure that a sufficient number of superblocks have finished decoding in the previous rows before starting to decode the current superblock. This ensures that row-multithreaded decoding respects the hardware constraints on\nparallel processing with the intraBC tool and thus prevents any invalid access while building the predictor.\n\nWith the current design of the decoder, the number of worker threads are limited to 2 per tile.(AOM_MAX_THREADS_PER_TILE) This implies that only a maximum of 2 threads could work in parallel during row multithreaded decoding. Hence we were not able to demonstrate the invalid access in the decoder.\n\nHowever, we have modified the decoder to spawn more threads during row multithreaded decoding and introduced an artificial delay during the processing of the first superblock row for the parsing to finish and make more threads available for row parallel decoding. Additionally, we forced out of top-right DVs in the encoded stream so that the invalid access should happen during the decoding process. With this, we were able to observe the invalid access in the decoder for the parent version of this patch and it is verified that the current patch fixes this behaviour. We are currently exploring the preparation of a patch which would demonstrate this behaviour in a decoder unit test.\n\nThis patch is supposed to cause an increase in decode time for frames with intraBC enabled because of the additional top-right delay during the sync_read().\n\nPlease review.\n\nRegards,\nJaysanker.",
+      "revId": "59ab0e973440cdf4547694d278a9b16b527fc90d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a477f6ed_c4cf646b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-07-01T21:35:35Z",
+      "side": 1,
+      "message": "Hi Jayasanker,\n\nThank you for demonstrating the bug on the decoder side and writing a fix. Since James and Yunqing reviewed your encoder-side fix (https://aomedia-review.googlesource.com/c/aom/+/159581), it would be good to have them review this CL.\n\nI compared this CL with your encoder-side fix carefully and verified that they are essentially the same. I suggest some changes.",
+      "revId": "59ab0e973440cdf4547694d278a9b16b527fc90d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "185c380d_02a3a0f0",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 3652,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-07-01T21:35:35Z",
+      "side": 1,
+      "message": "This is an exact copy of the get_intrabc_extra_top_right_sb_delay() function in av1/encoder/ethread.c. We should share the code.\n\nI suggest we declare this function (add the av1_ prefix to the function name) in av1/common/thread_common.h and define this function in av1/common/thread_common.c. Once we do this, we can delete the INTRABC_ROW_MT_TOP_RIGHT_SB128_DELAY and INTRABC_ROW_MT_TOP_RIGHT_SB64_DELAY macros because they are used only in this function. Just manually expand these two macros in this function.",
+      "revId": "59ab0e973440cdf4547694d278a9b16b527fc90d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b87bdd9f_1692cf4d",
+        "filename": "av1/decoder/decoder.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 161,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-07-01T21:35:35Z",
+      "side": 1,
+      "message": "Nit: I suggest placing this field immediately after the `sync_range` field, as you did in av1/encoder/encoder.h.",
       "revId": "59ab0e973440cdf4547694d278a9b16b527fc90d",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
