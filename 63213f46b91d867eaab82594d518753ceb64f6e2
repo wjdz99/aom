@@ -1,6 +1,23 @@
 {
   "comments": [
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "dbc3483b_b23f0e1c",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 7
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2022-07-01T22:46:24Z",
+      "side": 1,
+      "message": "any outliers, can you add what the worse case bdrate-loss and spd is?",
+      "revId": "63213f46b91d867eaab82594d518753ceb64f6e2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "de37f71e_ac625477",
@@ -14,6 +31,40 @@
       "writtenOn": "2022-07-01T21:58:16Z",
       "side": 1,
       "message": "Good performance for rtc set.",
+      "revId": "63213f46b91d867eaab82594d518753ceb64f6e2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ba39b635_9249aeed",
+        "filename": "av1/encoder/rd.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 709,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2022-07-01T22:46:24Z",
+      "side": 1,
+      "message": "i think you can add comment here that this logic is currently from selective_disable_cdf_rtc(), but may be tuned in the future.",
+      "revId": "63213f46b91d867eaab82594d518753ceb64f6e2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "20cc561d_0e6492ac",
+        "filename": "av1/encoder/speed_features.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 1573,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2022-07-01T22:46:24Z",
+      "side": 1,
+      "message": "good to add comment here that this is currently overrides the setting:\n--mode-cost-upd-freq\u003d3 (never update, except on key and first delta).",
       "revId": "63213f46b91d867eaab82594d518753ceb64f6e2",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
