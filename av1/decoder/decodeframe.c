@@ -2530,7 +2530,8 @@ static INLINE void sync_read(AV1DecRowMTSync *const dec_row_mt_sync, int r,
     pthread_mutex_t *const mutex = &dec_row_mt_sync->mutex_[r - 1];
     pthread_mutex_lock(mutex);
 
-    while (c > dec_row_mt_sync->cur_sb_col[r - 1] - nsync) {
+    while (c > dec_row_mt_sync->cur_sb_col[r - 1] - nsync -
+                   dec_row_mt_sync->intrabc_extra_top_right_sb_delay) {
       pthread_cond_wait(&dec_row_mt_sync->cond_[r - 1], mutex);
     }
     pthread_mutex_unlock(mutex);
@@ -2553,7 +2554,7 @@ static INLINE void sync_write(AV1DecRowMTSync *const dec_row_mt_sync, int r,
     cur = c;
     if (c % nsync) sig = 0;
   } else {
-    cur = sb_cols + nsync;
+    cur = sb_cols + nsync + dec_row_mt_sync->intrabc_extra_top_right_sb_delay;
   }
 
   if (sig) {
@@ -3704,6 +3705,18 @@ static AOM_INLINE void row_mt_frame_init(AV1Decoder *pbi, int tile_rows_start,
 #endif
 }
 
+static AOM_INLINE int get_intrabc_extra_top_right_sb_delay(
+    const AV1_COMMON *cm) {
+  // No additional top-right delay when intraBC tool is not enabled.
+  if (!av1_allow_intrabc(cm)) return 0;
+  // A minimum top-right delay of 1 superblock is assured with 'sync_range'.
+  // Hence, return only the additional superblock delay with intraBC tool.
+  return (cm->seq_params->sb_size == BLOCK_128X128
+              ? INTRABC_ROW_MT_TOP_RIGHT_SB128_DELAY
+              : INTRABC_ROW_MT_TOP_RIGHT_SB64_DELAY) -
+         1;
+}
+
 static const uint8_t *decode_tiles_row_mt(AV1Decoder *pbi, const uint8_t *data,
                                           const uint8_t *data_end,
                                           int start_tile, int end_tile) {
@@ -3802,6 +3815,14 @@ static const uint8_t *decode_tiles_row_mt(AV1Decoder *pbi, const uint8_t *data,
       dec_row_mt_alloc(&tile_data->dec_row_mt_sync, cm, max_sb_rows);
     }
     pbi->allocated_row_mt_sync_rows = max_sb_rows;
+  }
+
+  // Calculate the additional intraBC top-right delay for the current frame and
+  // store it in the decoder row multithread sync structure.
+  for (int i = 0; i < n_tiles; i++) {
+    TileDataDec *const tile_data = pbi->tile_data + i;
+    tile_data->dec_row_mt_sync.intrabc_extra_top_right_sb_delay =
+        get_intrabc_extra_top_right_sb_delay(cm);
   }
 
   tile_mt_queue(pbi, tile_cols, tile_rows, tile_rows_start, tile_rows_end,
