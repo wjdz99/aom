@@ -144,12 +144,21 @@ typedef struct AV1DecRowMTSyncData {
 #endif
   int allocated_sb_rows;
   int *cur_sb_col;
+  // Denotes the superblock interval at which conditional signalling should
+  // happen. Also denotes the minimum number of extra superblocks of the top row
+  // to be complete to start decoding the current superblock. A value of 1
+  // indicates top-right dependency.
   int sync_range;
   int mi_rows;
   int mi_cols;
   int mi_rows_parse_done;
   int mi_rows_decode_started;
   int num_threads_working;
+  // Denotes the additional number of superblocks in the previous row to be
+  // complete to start decoding the current superblock when intraBC tool is
+  // enabled. This additional top-right delay is required to satisfy the
+  // hardware constraints for intraBC tool when row multithreading is enabled.
+  int intrabc_extra_top_right_sb_delay;
 } AV1DecRowMTSync;
 
 typedef struct AV1DecRowMTInfo {
