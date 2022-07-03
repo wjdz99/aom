@@ -1065,7 +1065,11 @@ typedef struct INTRA_MODE_SPEED_FEATURES {
   // value indicates more aggressive pruning threshold.
   int chroma_intra_pruning_with_hog;
 
-  // Enable/disable smooth intra modes.
+  // Enable/disable smooth intra prediction modes.
+  // 0 : Enable smooth intra prediction modes
+  // 1 : Disable all smooth intra prediction modes for luma plane only
+  // 2 : Disable all smooth intra prediction modes for luma plane and prune
+  // UV_SMOOTH_PRED mode for chroma based on source variance
   int disable_smooth_intra;
 
   // Prune filter intra modes in intra frames.

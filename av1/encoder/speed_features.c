@@ -480,6 +480,7 @@ static void set_allintra_speed_features_framesize_independent(
   }
 
   if (speed >= 6) {
+    sf->intra_sf.disable_smooth_intra = 2;
     sf->intra_sf.prune_filter_intra_level = 2;
     sf->intra_sf.chroma_intra_pruning_with_hog = 4;
     sf->intra_sf.intra_pruning_with_hog = 4;
