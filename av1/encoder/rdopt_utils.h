@@ -748,6 +748,10 @@ unsigned int av1_high_get_sby_perpixel_variance(const struct AV1_COMP *cpi,
                                                 const struct buf_2d *ref,
                                                 BLOCK_SIZE bs, int bd);
 
+unsigned int av1_get_sbuv_perpixel_variance(const struct AV1_COMP *cpi,
+                                            const MACROBLOCK *x,
+                                            BLOCK_SIZE bsize, int plane);
+
 static INLINE int is_mode_intra(PREDICTION_MODE mode) {
   return mode < INTRA_MODE_END;
 }
