@@ -804,7 +804,7 @@ TEST(RefFrameManagerTest, GetRefFrameListByPriority) {
       ref_manager.GetRefFrameListByPriority();
   EXPECT_EQ(ref_frame_list.size(), order_idx_list.size());
   std::vector<int> expected_global_order_idx = { 2, 0, 1, 4 };
-  std::vector<ReferenceName> expected_names = { ReferenceName::kBwdrefFrame,
+  std::vector<ReferenceName> expected_names = { ReferenceName::kAltrefFrame,
                                                 ReferenceName::kGoldenFrame,
                                                 ReferenceName::kLastFrame,
                                                 ReferenceName::kAltref2Frame };
