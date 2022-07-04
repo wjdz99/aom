@@ -95,6 +95,9 @@ set_aom_config_var(CONFIG_DEBUG 0 "Enable debug-only code.")
 set_aom_config_var(CONFIG_EXCLUDE_SIMD_MISMATCH 0
                    "Exclude mismatch in SIMD functions for testing/debugging.")
 set_aom_config_var(CONFIG_MISMATCH_DEBUG 0 "Mismatch debugging flag.")
+set_aom_config_var(
+  CONFIG_IBC_MULTITHREAD_TR_ACCESS_TEST 0
+  "Flag for testing the top-right access with intraBC multi-threading.")
 
 # AV1 feature flags.
 set_aom_config_var(CONFIG_ACCOUNTING 0 "Enables bit accounting.")
