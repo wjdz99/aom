@@ -65,7 +65,14 @@
 #define ACCT_STR __func__
 
 #define AOM_MIN_THREADS_PER_TILE 1
+#if CONFIG_IBC_MULTITHREAD_TR_ACCESS_TEST
+// Enable spawning of more worker threads beyond the theoretical limit of 2 so
+// that more threads would be available for each tile during the frame decoding
+// stage.
+#define AOM_MAX_THREADS_PER_TILE 8
+#else
 #define AOM_MAX_THREADS_PER_TILE 2
+#endif
 
 // This is needed by ext_tile related unit tests.
 #define EXT_TILE_DEBUG 1
@@ -3261,6 +3268,13 @@ static int row_mt_worker_hook(void *arg1, void *arg2) {
     int tile_row = next_job_info.tile_row;
     int tile_col = next_job_info.tile_col;
     int mi_row = next_job_info.mi_row;
+
+#if CONFIG_IBC_MULTITHREAD_TR_ACCESS_TEST && defined(__linux__)
+    // Introduce an artificial delay of 35ms to delay the decoding of the first
+    // superblock row. This ensures that the valid top-right region for intraBC
+    // tool is not fully available while reconstructing the current block.
+    if (frame_is_intra_only(cm) && mi_row == 0) usleep(35000);
+#endif
 
     TileDataDec *tile_data =
         pbi->tile_data + tile_row * cm->tiles.cols + tile_col;

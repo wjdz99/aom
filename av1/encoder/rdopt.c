@@ -3227,6 +3227,25 @@ static int64_t rd_pick_intrabc_mode_sb(const AV1_COMP *cpi, MACROBLOCK *x,
     }
 
     if (bestsme == INT_MAX) continue;
+#if CONFIG_IBC_MULTITHREAD_TR_ACCESS_TEST
+    // Force the best DV to point to the starting of the superblock which is
+    // located 2 rows before and 5 columns ahead of the current superblock. This
+    // DV is hard coded to simulate a scenario where the DV accesses a region
+    // beyond the top-right superblock while still being a valid DV as per the
+    // intraBC hardware constraints. This assumption is valid only in the case
+    // of 64x64 superblocks.
+    assert(cm->seq_params->sb_size == BLOCK_64X64);
+    const int active_sb_row = mi_row >> cm->seq_params->mib_size_log2;
+    const int active_sb_col = mi_col >> cm->seq_params->mib_size_log2;
+    const int src_sb_row = active_sb_row - 2;
+    const int src_sb_col = active_sb_col + 5;
+    best_mv.as_fullmv.row =
+        src_sb_row * block_size_high[cm->seq_params->sb_size] -
+        mi_row * MI_SIZE;
+    best_mv.as_fullmv.col =
+        src_sb_col * block_size_wide[cm->seq_params->sb_size] -
+        mi_col * MI_SIZE;
+#endif
     const MV dv = get_mv_from_fullmv(&best_mv.as_fullmv);
     if (!av1_is_fullmv_in_range(&fullms_params.mv_limits,
                                 get_fullmv_from_mv(&dv)))
@@ -3259,6 +3278,12 @@ static int64_t rd_pick_intrabc_mode_sb(const AV1_COMP *cpi, MACROBLOCK *x,
     if (!av1_txfm_search(cpi, x, bsize, &rd_stats_yuv, &rd_stats_y,
                          &rd_stats_uv, rate_mode + rate_mv, INT64_MAX))
       continue;
+#if CONFIG_IBC_MULTITHREAD_TR_ACCESS_TEST
+    // Introduce a bias for intraBC mode after forcing the DV so as to ensure
+    // that the forced DV gets signalled in the bitstream.
+    rd_stats_yuv.rate >>= 3;
+    rd_stats_yuv.dist >>= 3;
+#endif
     rd_stats_yuv.rdcost =
         RDCOST(x->rdmult, rd_stats_yuv.rate, rd_stats_yuv.dist);
     if (rd_stats_yuv.rdcost < best_rd) {

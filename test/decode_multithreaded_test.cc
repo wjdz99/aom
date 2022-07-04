@@ -26,14 +26,16 @@ namespace {
 static const int kNumMultiThreadDecoders = 3;
 
 class AV1DecodeMultiThreadedTest
-    : public ::libaom_test::CodecTestWith5Params<int, int, int, int, int>,
+    : public ::libaom_test::CodecTestWith7Params<int, int, int, int, int, int,
+                                                 int>,
       public ::libaom_test::EncoderTest {
  protected:
   AV1DecodeMultiThreadedTest()
       : EncoderTest(GET_PARAM(0)), md5_single_thread_(), md5_multi_thread_(),
         n_tile_cols_(GET_PARAM(1)), n_tile_rows_(GET_PARAM(2)),
         n_tile_groups_(GET_PARAM(3)), set_cpu_used_(GET_PARAM(4)),
-        row_mt_(GET_PARAM(5)) {
+        row_mt_(GET_PARAM(5)), sb_size_(GET_PARAM(6)),
+        tune_content_(GET_PARAM(7)) {
     init_flags_ = AOM_CODEC_USE_PSNR;
     aom_codec_dec_cfg_t cfg = aom_codec_dec_cfg_t();
     cfg.w = 704;
@@ -78,6 +80,8 @@ class AV1DecodeMultiThreadedTest
       encoder->Control(AV1E_SET_TILE_ROWS, n_tile_rows_);
       encoder->Control(AV1E_SET_NUM_TG, n_tile_groups_);
       encoder->Control(AOME_SET_CPUUSED, set_cpu_used_);
+      encoder->Control(AV1E_SET_SUPERBLOCK_SIZE, sb_size_);
+      encoder->Control(AV1E_SET_TUNE_CONTENT, tune_content_);
     }
   }
 
@@ -130,6 +134,8 @@ class AV1DecodeMultiThreadedTest
   int n_tile_groups_;
   int set_cpu_used_;
   int row_mt_;
+  int sb_size_;
+  int tune_content_;
 };
 
 // run an encode and do the decode both in single thread
@@ -156,12 +162,16 @@ TEST_P(AV1DecodeMultiThreadedTestLarge, MD5Match) {
 // TODO(ranjit): More tests have to be added using pre-generated MD5.
 AV1_INSTANTIATE_TEST_SUITE(AV1DecodeMultiThreadedTest, ::testing::Values(1, 2),
                            ::testing::Values(1, 2), ::testing::Values(1),
-                           ::testing::Values(3), ::testing::Values(0, 1));
+                           ::testing::Values(3), ::testing::Values(0, 1),
+                           ::testing::Values(AOM_SUPERBLOCK_SIZE_DYNAMIC),
+                           ::testing::Values(AOM_CONTENT_DEFAULT));
 AV1_INSTANTIATE_TEST_SUITE(AV1DecodeMultiThreadedTestLarge,
                            ::testing::Values(0, 1, 2, 6),
                            ::testing::Values(0, 1, 2, 6),
                            ::testing::Values(1, 4), ::testing::Values(0),
-                           ::testing::Values(0, 1));
+                           ::testing::Values(0, 1),
+                           ::testing::Values(AOM_SUPERBLOCK_SIZE_DYNAMIC),
+                           ::testing::Values(AOM_CONTENT_DEFAULT));
 
 class AV1DecodeMultiThreadedLSTestLarge
     : public AV1DecodeMultiThreadedTestLarge {};
@@ -177,6 +187,34 @@ TEST_P(AV1DecodeMultiThreadedLSTestLarge, MD5Match) {
 AV1_INSTANTIATE_TEST_SUITE(AV1DecodeMultiThreadedLSTestLarge,
                            ::testing::Values(6), ::testing::Values(6),
                            ::testing::Values(1), ::testing::Values(0, 3),
-                           ::testing::Values(0, 1));
+                           ::testing::Values(0, 1),
+                           ::testing::Values(AOM_SUPERBLOCK_SIZE_DYNAMIC),
+                           ::testing::Values(AOM_CONTENT_DEFAULT));
+
+#if CONFIG_IBC_MULTITHREAD_TR_ACCESS_TEST
+// Unit test to demonstrate top-right dependency with intraBC multithreading.
+// This test forces a DV which is beyond the default top-right region while
+// still being valid as per the intraBC hardware constraints. This test
+// demonstrates the invalid access seen with intraBC tool in
+// https://crbug.com/aomedia/3278 in the absence of a fix in the decoder
+// library.
+class AV1DecodeIBCMultiThreadedTRAccessTest
+    : public AV1DecodeMultiThreadedTest {};
+
+TEST_P(AV1DecodeIBCMultiThreadedTRAccessTest, MD5Match) {
+  cfg_.large_scale_tile = 0;
+  single_thread_dec_->Control(AV1_SET_TILE_MODE, 0);
+  for (int i = 0; i < kNumMultiThreadDecoders; ++i)
+    multi_thread_dec_[i]->Control(AV1_SET_TILE_MODE, 0);
+  DoTest();
+}
+
+AV1_INSTANTIATE_TEST_SUITE(AV1DecodeIBCMultiThreadedTRAccessTest,
+                           ::testing::Values(0), ::testing::Values(0),
+                           ::testing::Values(1), ::testing::Values(5),
+                           ::testing::Values(1),
+                           ::testing::Values(AOM_SUPERBLOCK_SIZE_64X64),
+                           ::testing::Values(AOM_CONTENT_SCREEN));
+#endif
 
 }  // namespace
