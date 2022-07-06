@@ -681,18 +681,23 @@ void av1_rc_update_rate_correction_factors(AV1_COMP *cpi, int is_encode_stage,
     correction_factor = (double)cpi->rc.projected_frame_size /
                         (double)projected_size_based_on_q;
 
-  // More heavily damped adjustment used if we have been oscillating either side
-  // of target.
-  if (correction_factor > 0.0) {
-    adjustment_limit = 0.25 + 0.5 * AOMMIN(1, fabs(log10(correction_factor)));
-  } else {
-    adjustment_limit = 0.75;
-  }
-
   if (cpi->is_screen_content_type) {
     correction_factor = AOMMIN(AOMMAX(correction_factor, 0.5), 2.0);
   } else {
     correction_factor = AOMMIN(AOMMAX(correction_factor, 0.25), 4.0);
+  }
+
+  // decide how heavily to dampen the adjustment
+  if (correction_factor > 0.0) {
+    if (cpi->is_screen_content_type) {
+      adjustment_limit =
+          0.25 + 0.5 * AOMMIN(0.5, fabs(log10(correction_factor)));
+    } else {
+      adjustment_limit =
+          0.25 + 0.75 * AOMMIN(0.5, fabs(log10(correction_factor)));
+    }
+  } else {
+    adjustment_limit = 0.75;
   }
 
   cpi->rc.q_2_frame = cpi->rc.q_1_frame;
