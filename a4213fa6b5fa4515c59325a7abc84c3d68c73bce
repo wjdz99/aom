@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "39867cf0_7815295f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2022-07-07T21:27:07Z",
+      "side": 1,
+      "message": "Ran a borg test on midres2 set to verify this CL\u0027s impact to quality:\nspeed 1: \navg_psnr:  ovr_psnr:  ssim:  encoding_spdup:\n 0.004      0.005     0.000    0.020\n\nNo change for speed \u003e 1 (TPL compound prediction is disabled)\n",
+      "revId": "a4213fa6b5fa4515c59325a7abc84c3d68c73bce",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
