@@ -1550,6 +1550,7 @@ static void set_rt_speed_features_framesize_independent(AV1_COMP *cpi,
                 FLAG_EARLY_TERMINATE;
   sf->rt_sf.var_part_split_threshold_shift = 5;
   if (!frame_is_intra_only(&cpi->common)) sf->rt_sf.var_part_based_on_qidx = 1;
+  sf->rt_sf.fixed_mult_var_based_part = false;
 
   // For SVC: use better mv search on base temporal layers, and only
   // on base spatial layer if highest resolution is above 640x360.
@@ -1659,6 +1660,7 @@ static void set_rt_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->winner_mode_sf.dc_blk_pred_level = 0;
     sf->rt_sf.var_part_based_on_qidx = 3;
     sf->rt_sf.prune_global_globalmv_with_zeromv = true;
+    sf->rt_sf.fixed_mult_var_based_part = true;
   }
 
   if (speed >= 8) {
@@ -1673,6 +1675,7 @@ static void set_rt_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->interp_sf.cb_pred_filter_search = 1;
     sf->rt_sf.var_part_based_on_qidx = 4;
     sf->rt_sf.partition_direct_merging = 1;
+    sf->rt_sf.fixed_mult_var_based_part = true;
   }
   if (speed >= 9) {
     sf->lpf_sf.cdef_pick_method = CDEF_PICK_FROM_Q;
@@ -1686,6 +1689,7 @@ static void set_rt_speed_features_framesize_independent(AV1_COMP *cpi,
       sf->rt_sf.intra_y_mode_bsize_mask_nrd[i] = INTRA_DC;
     sf->rt_sf.var_part_based_on_qidx = 0;
     sf->rt_sf.frame_level_mode_cost_update = true;
+    sf->rt_sf.fixed_mult_var_based_part = false;
   }
   if (speed >= 10) {
     sf->rt_sf.sse_early_term_inter_search = EARLY_TERM_IDX_4;
@@ -1696,6 +1700,7 @@ static void set_rt_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->rt_sf.force_half_pel_block = 1;
     sf->rt_sf.reduce_zeromv_mvres = true;
     sf->rt_sf.screen_content_cdef_filter_qindex_thresh = 80;
+    sf->rt_sf.fixed_mult_var_based_part = false;
   }
 }
 

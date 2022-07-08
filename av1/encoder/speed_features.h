@@ -1585,6 +1585,14 @@ typedef struct REAL_TIME_SPEED_FEATURES {
   // overrides the command line setting --mode-cost-upd-freq=3 (never update
   // except on key frame and first delta).
   bool frame_level_mode_cost_update;
+
+  // Use a fixed multiplier (threshold) for variance based partitioning for
+  // low complexity blocks at a relatively low bit rate.
+  // This speed feature tends to encourage less partition splits.
+  // This speed feature has neutral coding gain, with 2% speed up for speed 7.
+  // This speed feature has -0.28% ovr_psnr, -0.86% SSIM coding gain,
+  // with 5% speed up for speed 8.
+  bool fixed_mult_var_based_part;
 } REAL_TIME_SPEED_FEATURES;
 
 /*!\endcond */
