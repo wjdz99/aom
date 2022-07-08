@@ -1593,6 +1593,11 @@ typedef struct REAL_TIME_SPEED_FEATURES {
 
   // Allow for disabling cdf update for non reference frames in svc mode.
   bool disable_cdf_update_non_reference_frame;
+
+  // Use a fixed multiplier (threshold) for variance based partitioning for
+  // low complexity blocks at a relatively low bit rate.
+  // This speed feature tends to encourage less partition splits.
+  bool fixed_mult_var_based_part;
 } REAL_TIME_SPEED_FEATURES;
 
 /*!\endcond */
