@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4cc212a4_8a85ead7",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2022-07-11T05:30:52Z",
+      "side": 1,
+      "message": "Hi Wan-Teh, Yunqing, Chi Yo,\n\nIn this CL, we have introduced a speed feature ‘prune_smooth_intra_mode_for_chroma’, to prune UV_SMOOTH_PRED mode in intra frames based on chroma source variance. The function \u0027av1_get_sbuv_perpixel_variance()\u0027 is newly added to calculate the source variance of chroma planes and if it is below a threshold of 20 (empirically derived) for both the planes, UV_SMOOTH_PRED mode is skipped. This speed feature is enabled for speed \u003e\u003d 6 and has no impact on speed\u003d9 as it takes the nonrd path.\n\nFor AVIF still-image encode with tune\u003dpsnr,\n                 Encode Time                BD-Rate Loss(%)\n    cpu-used     Reduction(%)    psnr      psnrCb    psnrCr    ssim\n       6           1.556         0.0492   -0.0391    0.0692    0.0615\n       7           2.139        -0.0136   -0.4015   -0.2347    0.0172\n       8           0.903         0.0029   -0.0066   -0.0271    0.0067   \n\nFor AVIF still image encode with tune\u003dssim,\n                 Encode Time                BD-Rate Loss(%)\n    cpu-used     Reduction(%)    psnr      psnrCb    psnrCr    ssim\n       6           1.503         0.0379   -0.1488   -0.0121    0.0480\n       7           2.321        -0.0149   -0.3030   -0.2181    0.0022\n       8           1.196         0.0011   -0.0689   -0.0456    0.0038\n\n\nFollowing are the instruction count reduction results when libaom allintra frame encoding (50 frames) was tested for a borg setup. \n               Instruction Count        BD-Rate Loss(%)      \n     cpu-used    Reduction(%)    avg.psnr  avg.psnrCb avg.psnrCr ovr.psnr  ssim\n        6          1.900         0.0413    0.1000     0.1469    -0.0406    0.0515\n        7          2.205         0.0209   -0.0403    -0.0240     0.0215    0.0375\n        8          1.974         0.0077    0.0547     0.0531     0.0083    0.0206\n\n\nFor libaom AV1 video encode, bit-match is verified (w.r.t. parent commit) for \u0027GOOD\u0027 and \u0027RT\u0027 encoding modes for a few contents with different encoding configurations. It is verified that the CL is bit-exact for allintra encode, speed\u003d5,9 with no speed impact.\n\nIn the commit message, BD rate impact column:\n[+] sign is for BD-Rate drop\n[-] sign is for BD-Rate improvement\nThe instruction count reduction specified has been measured using the command:\n$ perf stat -e instructions:u ./aomenc …\n\nPlease review.\n\nRegards,\nMudassir.\n",
+      "revId": "ace3fb271f56279e17fa10d9a0932c43839beec5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
