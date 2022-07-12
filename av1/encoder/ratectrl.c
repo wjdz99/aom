@@ -1091,6 +1091,13 @@ static int rc_pick_q_and_bounds_no_stats_cbr(const AV1_COMP *cpi, int width,
   assert(has_no_stats_stage(cpi));
   assert(cpi->oxcf.rc_cfg.mode == AOM_CBR);
 
+  if (current_frame->frame_type != KEY_FRAME && !cpi->ppi->use_svc &&
+      p_rc->buffer_level > -2 * p_rc->optimal_buffer_level &&
+      rc->avg_source_sad < 8000 && rc->avg_source_sad > 0 &&
+      rc->frame_source_sad > 0) {
+    active_worst_quality -= 32;
+  }
+
   // Clip the active best and worst quality values to limits
   active_best_quality =
       clamp(active_best_quality, rc->best_quality, rc->worst_quality);
