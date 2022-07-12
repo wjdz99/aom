@@ -903,6 +903,9 @@ static int calc_active_worst_quality_no_stats_vbr(const AV1_COMP *cpi) {
   return AOMMIN(active_worst_quality, rc->worst_quality);
 }
 
+#define AVG_SAD_THRESH 8000
+#define ACTIVE_WORST_QUALITY_OFFSET 32
+
 // Adjust active_worst_quality level based on buffer level.
 static int calc_active_worst_quality_no_stats_cbr(const AV1_COMP *cpi) {
   // Adjust active_worst_quality: If buffer is above the optimal/target level,
@@ -969,6 +972,20 @@ static int calc_active_worst_quality_no_stats_cbr(const AV1_COMP *cpi) {
   } else {
     // Set to worst_quality if buffer is below critical level.
     active_worst_quality = rc->worst_quality;
+  }
+
+  // Use a more aggressive active_worst_quality such that frames with mid and
+  // low complexities could have an option to be encoded with a lower QP.
+  // The threshold is determined experimentally.
+  // Exclude screen content videos since they have different statistical
+  // properties.
+  if (cm->current_frame.frame_type != KEY_FRAME && !cpi->ppi->use_svc &&
+      !cpi->is_screen_content_type &&
+      p_rc->buffer_level > p_rc->optimal_buffer_level / 4 &&
+      rc->avg_source_sad < AVG_SAD_THRESH && rc->avg_source_sad > 0 &&
+      rc->frame_source_sad > 0 &&
+      active_worst_quality > ACTIVE_WORST_QUALITY_OFFSET) {
+    active_worst_quality -= ACTIVE_WORST_QUALITY_OFFSET;
   }
   return active_worst_quality;
 }
