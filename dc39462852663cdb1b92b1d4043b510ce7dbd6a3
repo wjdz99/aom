@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "69d8a774_346eb5e3",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 8
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2022-07-14T19:02:34Z",
+      "side": 1,
+      "message": "what is worse-bdrate loss for the screen set?",
+      "revId": "dc39462852663cdb1b92b1d4043b510ce7dbd6a3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f30e04e3_dae4070a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2022-07-14T19:02:34Z",
+      "side": 1,
+      "message": "nice gains!",
+      "revId": "dc39462852663cdb1b92b1d4043b510ce7dbd6a3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e14a2ea4_8cf3a7b9",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 3337,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2022-07-14T19:02:34Z",
+      "side": 1,
+      "message": "can we remove the frame_mv_best[this_mode][] assignment (also line 3342)?",
+      "revId": "dc39462852663cdb1b92b1d4043b510ce7dbd6a3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
