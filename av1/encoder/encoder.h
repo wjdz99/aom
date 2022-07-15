@@ -3820,6 +3820,11 @@ static INLINE int is_one_pass_rt_params(const AV1_COMP *cpi) {
          cpi->oxcf.gf_cfg.lag_in_frames == 0;
 }
 
+static INLINE int use_one_pass_rt_reference_structure(const AV1_COMP *cpi) {
+  return cpi->oxcf.speed >= 5 && cpi->ppi->number_spatial_layers == 1 &&
+         cpi->ppi->number_temporal_layers == 1;
+}
+
 // Function return size of frame stats buffer
 static INLINE int get_stats_buf_size(int num_lap_buffer, int num_lag_buffer) {
   /* if lookahead is enabled return num_lap_buffers else num_lag_buffers */
