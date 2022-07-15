@@ -399,6 +399,11 @@ static void cyclic_refresh_update_map(AV1_COMP *const cpi) {
     }
   } while (cr->target_num_seg_blocks < block_count && i != cr->sb_index);
   cr->sb_index = i;
+  if (cr->target_num_seg_blocks == 0) {
+    // Set segmentation map to 0 and disable.
+    memset(seg_map, 0, cm->mi_params.mi_rows * cm->mi_params.mi_cols);
+    av1_disable_segmentation(&cm->seg);
+  }
 }
 
 // Set cyclic refresh parameters.
