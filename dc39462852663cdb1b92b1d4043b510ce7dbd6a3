@@ -18,6 +18,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "e6fc51eb_0899f91f",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 8
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2022-07-15T02:39:54Z",
+      "side": 1,
+      "message": "About 1.25%",
+      "parentUuid": "69d8a774_346eb5e3",
+      "revId": "dc39462852663cdb1b92b1d4043b510ce7dbd6a3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "f30e04e3_dae4070a",
@@ -48,6 +66,24 @@
       "writtenOn": "2022-07-14T19:02:34Z",
       "side": 1,
       "message": "can we remove the frame_mv_best[this_mode][] assignment (also line 3342)?",
+      "revId": "dc39462852663cdb1b92b1d4043b510ce7dbd6a3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e95c4c71_eb167182",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 3337,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2022-07-15T02:39:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e14a2ea4_8cf3a7b9",
       "revId": "dc39462852663cdb1b92b1d4043b510ce7dbd6a3",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
