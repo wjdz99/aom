@@ -1001,8 +1001,21 @@ static AOM_INLINE void restore_all_coding_context(AV1_COMP *cpi) {
 static AOM_INLINE void refresh_reference_frames(AV1_COMP *cpi) {
   AV1_COMMON *const cm = &cpi->common;
   // All buffers are refreshed for shown keyframes and S-frames.
+  int num_ref_buffers = REF_FRAMES;
+  // In RT, golden frame occupies the 6th slot and other reference frames
+  // occupy slots 0 to 5. As slot 7 is not occupied by any reference frame,
+  // end_index is set to 7.
+  if (is_one_pass_rt_params(cpi) && use_one_pass_rt_reference_structure(cpi) &&
+      cm->seq_params->order_hint_info.enable_order_hint == 0) {
+    const int is_ref_buf_reset =
+        (cpi->ppi->gf_group.refbuf_state[cpi->gf_frame_index] == REFBUF_RESET);
+    assert(IMPLIES(((cm->current_frame.refresh_frame_flags >> 7) & 1) == 1,
+                   is_ref_buf_reset));
+    (void)is_ref_buf_reset;
+    num_ref_buffers--;
+  }
 
-  for (int ref_frame = 0; ref_frame < REF_FRAMES; ref_frame++) {
+  for (int ref_frame = 0; ref_frame < num_ref_buffers; ref_frame++) {
     if (((cm->current_frame.refresh_frame_flags >> ref_frame) & 1) == 1) {
       assign_frame_buffer_p(&cm->ref_frame_map[ref_frame], cm->cur_frame);
     }
