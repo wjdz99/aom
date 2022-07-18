@@ -16,6 +16,24 @@
       "message": "for my screen speed 10 run (off codebase from Friday) i got:\n(-6.270, -5.494)\n\njust checking to make sure we\u0027re running same test/command line",
       "revId": "0fa14318b9d36721d49e4b01dc00010c406a0433",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fb854004_35d2342b",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5610
+      },
+      "writtenOn": "2022-07-18T08:15:30Z",
+      "side": 1,
+      "message": "It is possible the command line was not quite the same as I spent a bit of time chasing that bug re warped motion for screen mode. Is is also possible the baseline was slightly different.",
+      "parentUuid": "d437d70f_c3ab5521",
+      "revId": "0fa14318b9d36721d49e4b01dc00010c406a0433",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
