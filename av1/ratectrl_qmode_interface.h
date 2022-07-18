@@ -82,6 +82,11 @@ enum class ReferenceName {
   kAltrefFrame = 7,
 };
 
+struct Status {
+  aom_codec_err_t code;
+  std::string message;  // Should be empty if code == AOM_CODEC_OK.
+};
+
 struct ReferenceFrame {
   int index;  // Index of reference slot containing the reference frame
   ReferenceName name;
@@ -160,6 +165,8 @@ struct FirstpassInfo {
 using RefFrameTable = std::vector<GopFrame>;
 
 struct GopEncodeInfo {
+  Status status;
+  // The following fields are only valid if status is okay.
   std::vector<FrameEncodeParameters> param_list;
   RefFrameTable final_snapshot;  // RefFrameTable snapshot after coding this GOP
 };
@@ -175,9 +182,9 @@ struct TplGopStats {
   std::vector<TplFrameStats> frame_stats_list;
 };
 
-struct Status {
-  aom_codec_err_t code;
-  std::string message;  // Should be empty if code == AOM_CODEC_OK.
+struct GopInfo {
+  Status status;
+  GopStructList gop_struct_list;  // Only valid if status is okay.
 };
 
 class AV1RateControlQModeInterface {
@@ -186,8 +193,7 @@ class AV1RateControlQModeInterface {
   virtual ~AV1RateControlQModeInterface();
 
   virtual Status SetRcParam(const RateControlParam &rc_param) = 0;
-  virtual GopStructList DetermineGopInfo(
-      const FirstpassInfo &firstpass_info) = 0;
+  virtual GopInfo DetermineGopInfo(const FirstpassInfo &firstpass_info) = 0;
   // Accept firstpass and TPL info from the encoder and return q index and
   // rdmult. This needs to be called with consecutive GOPs as returned by
   // DetermineGopInfo.
