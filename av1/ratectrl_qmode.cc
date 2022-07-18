@@ -839,16 +839,17 @@ static std::vector<int> PartitionGopIntervals(
   return gf_intervals;
 }
 
-GopStructList AV1RateControlQMode::DetermineGopInfo(
+GopInfo AV1RateControlQMode::DetermineGopInfo(
     const FirstpassInfo &firstpass_info) {
   const int stats_size = static_cast<int>(firstpass_info.stats_list.size());
-  GopStructList gop_list;
+  GopInfo gop_info;
+  gop_info.status.code = AOM_CODEC_OK;
   RefFrameManager ref_frame_manager(rc_param_.ref_frame_table_size);
   // Encoding only 1 frame, should be key frame.
   if (stats_size == 1) {
     GopStruct gop = ConstructGop(&ref_frame_manager, 1, 1, 0, 0);
-    gop_list.push_back(gop);
-    return gop_list;
+    gop_info.gop_struct_list.push_back(gop);
+    return gop_info;
   }
 
   int global_coding_idx_offset = 0;
@@ -876,10 +877,10 @@ GopStructList AV1RateControlQMode::DetermineGopInfo(
       assert(gop.show_frame_count == show_frame_count);
       global_coding_idx_offset += static_cast<int>(gop.gop_frame_list.size());
       global_order_idx_offset += gop.show_frame_count;
-      gop_list.push_back(gop);
+      gop_info.gop_struct_list.push_back(gop);
     }
   }
-  return gop_list;
+  return gop_info;
 }
 
 TplFrameDepStats CreateTplFrameDepStats(int frame_height, int frame_width,
@@ -1038,7 +1039,6 @@ void TplFrameDepStatsPropagate(int coding_idx,
             (unit_row * unit_size + mv_row) / unit_size;
         const int ref_unit_col_low =
             (unit_col * unit_size + mv_col) / unit_size;
-
         for (int j = 0; j < 2; ++j) {
           for (int k = 0; k < 2; ++k) {
             const int ref_unit_row = ref_unit_row_low + j;
@@ -1145,6 +1145,7 @@ GopEncodeInfo AV1RateControlQMode::GetGopEncodeInfo(
       GetRefFrameTableList(gop_struct, ref_frame_table_snapshot_init);
 
   GopEncodeInfo gop_encode_info;
+  gop_encode_info.status.code = AOM_CODEC_OK;
   gop_encode_info.final_snapshot = ref_frame_table_list.back();
   TplGopDepStats gop_dep_stats =
       ComputeTplGopDepStats(tpl_gop_stats, ref_frame_table_list);
@@ -1170,6 +1171,7 @@ GopEncodeInfo AV1RateControlQMode::GetGopEncodeInfo(
       const double qstep_ratio = sqrt(1 / frame_importance);
       param.q_index = av1_get_q_index_from_qstep_ratio(rc_param_.base_q_index,
                                                        qstep_ratio, AOM_BITS_8);
+
       if (rc_param_.base_q_index) param.q_index = AOMMAX(param.q_index, 1);
     }
     param.rdmult = GetRDMult(gop_frame, param.q_index);
