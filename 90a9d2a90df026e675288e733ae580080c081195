@@ -16,6 +16,23 @@
       "message": "Hi Chi Yo, Wan-Teh, Yunqing,\n\nThe function av1_get_perpixel_variance() calculates the variance for a given plane and bit-depth. As discussed in the review comments of the CL https://aomedia-review.googlesource.com/c/aom/+/159881, this CL replaces av1_high_get_sby_perpixel_variance() and av1_get_sby_perpixel_variance() functions with the above function and abstracts the relevant control code. This CL also addresses the comments given on the above mentioned CL.\n\nav1_get_perpixel_variance() calls is_cur_buf_hbd() which checks xd-\u003ecur_buf (pointing to source buffer). Hence, to ensure that xd-\u003ecur_buf is available whenever av1_get_perpixel_variance() is invoked, its initialization is moved to encode_frame_to_data_rate().\n\nApart from the above mentioned approach (as in the current CL), we also considered the below 3 approaches to handle hbd path.\n\nApproach 1: Compute \u0027use_hbd\u0027 flag and pass it as an argument to av1_get_perpixel_variance() (say av1_get_perpixel_variance_1()).\n\nApproach 2: Create a wrapper function, say av1_get_perpixel_variance_2(), for av1_get_perpixel_variance_1() from Approach 1. The wrapper function internally computes the \u0027use_hbd\u0027 flag using the function is_cur_buf_hbd(). Call av1_get_perpixel_variance_2() wherever xd-\u003ecub_buf is available and call av1_get_perpixel_variance_1() directly where \u0027use_hbd\u0027 is derived locally (not from xd-\u003ecub_buf, e.g., in av1_set_screen_content_options()).\n\nApproach 3: Do not modify the code where xd-\u003ecur_buf is not populated.\n\nWe went ahead with the current approach as it is less complex and avoids code duplication.\n\nFor libaom AV1 video encode, bit-match is verified (w.r.t. parent commit) for \u0027GOOD\u0027 , \u0027RT\u0027 and ‘ALLINTRA’ encoding modes for a few contents with different encoding configurations.\n\nPlease review this patch and let us know your opinion on this approach.\n\nRegards,\nMudassir\n",
       "revId": "90a9d2a90df026e675288e733ae580080c081195",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "aa3fc150_efa54c89",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2022-07-20T18:30:00Z",
+      "side": 1,
+      "message": "I\u0027m personally not a fan of checking cpi-\u003esource\u0027s bitdepth to determine the bitdepth of a separate buffer, but this convention is consistent with the rest of the codebase. So I don\u0027t have a problem with it.",
+      "revId": "90a9d2a90df026e675288e733ae580080c081195",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
