@@ -1637,14 +1637,14 @@ static void set_rt_speed_features_framesize_independent(AV1_COMP *cpi,
     // For SVC: use better mv search on base temporal layers, and only
     // on base spatial layer if highest resolution is above 640x360.
     if (cpi->svc.number_temporal_layers > 1 &&
-        cpi->svc.temporal_layer_id < cpi->svc.number_temporal_layers - 1 &&
+        cpi->svc.temporal_layer_id == 0 &&
         (cpi->svc.spatial_layer_id == 0 ||
          cpi->oxcf.frm_dim_cfg.width * cpi->oxcf.frm_dim_cfg.height <=
              640 * 360)) {
       sf->mv_sf.search_method = NSTEP;
       sf->mv_sf.subpel_search_method = SUBPEL_TREE;
       sf->rt_sf.fullpel_search_step_param = 6;
-    } else if (cpi->svc.non_reference_frame) {
+    } else {
       sf->mv_sf.subpel_search_method = SUBPEL_TREE_PRUNED_MORE;
       sf->rt_sf.fullpel_search_step_param = 10;
     }
