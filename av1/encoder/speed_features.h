@@ -1585,6 +1585,9 @@ typedef struct REAL_TIME_SPEED_FEATURES {
   // overrides the command line setting --mode-cost-upd-freq=3 (never update
   // except on key frame and first delta).
   bool frame_level_mode_cost_update;
+
+  // Allow for disabling cdf update for non reference frames in svc mode.
+  bool disable_cdf_update_non_reference_frame;
 } REAL_TIME_SPEED_FEATURES;
 
 /*!\endcond */
