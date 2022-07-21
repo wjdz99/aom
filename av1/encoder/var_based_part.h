@@ -28,6 +28,10 @@ extern "C" {
   100  // Use increased thresholds for midres for speed 9 when qindex is above
        // this threshold
 
+#define QINDEX_LARGE_BLOCK_THR2 \
+  80  // Use increased thresholds for midres for speed 7 / 8 when qindex is
+      // above this threshold
+
 /*!\brief Set the thresholds for variance based partition.
  *
  * Set the variance split thresholds for following the block sizes:
