@@ -69,6 +69,7 @@ typedef struct PICK_MODE_CONTEXT {
 #endif
 } PICK_MODE_CONTEXT;
 
+#if !CONFIG_REALTIME_ONLY
 typedef struct PC_TREE {
   PARTITION_TYPE partitioning;
   BLOCK_SIZE block_size;
@@ -84,6 +85,17 @@ typedef struct PC_TREE {
   struct PC_TREE *split[4];
   int index;
 } PC_TREE;
+#else
+typedef struct PC_TREE {
+  PARTITION_TYPE partitioning;
+  BLOCK_SIZE block_size;
+  PICK_MODE_CONTEXT *none;
+  PICK_MODE_CONTEXT *horizontal[2];
+  PICK_MODE_CONTEXT *vertical[2];
+  struct PC_TREE *split[4];
+  int index;
+} PC_TREE;
+#endif
 
 typedef struct SIMPLE_MOTION_DATA_TREE {
   BLOCK_SIZE block_size;

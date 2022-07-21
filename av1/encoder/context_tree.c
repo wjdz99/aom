@@ -149,6 +149,7 @@ void av1_free_pmc(PICK_MODE_CONTEXT *ctx, int num_planes) {
   aom_free(ctx);
 }
 
+#if !CONFIG_REALTIME_ONLY
 PC_TREE *av1_alloc_pc_tree_node(BLOCK_SIZE bsize) {
   PC_TREE *pc_tree = NULL;
   struct aom_internal_error_info error;
@@ -178,6 +179,29 @@ PC_TREE *av1_alloc_pc_tree_node(BLOCK_SIZE bsize) {
 
   return pc_tree;
 }
+#else
+PC_TREE *av1_alloc_pc_tree_node(BLOCK_SIZE bsize) {
+  PC_TREE *pc_tree = NULL;
+  struct aom_internal_error_info error;
+
+  AOM_CHECK_MEM_ERROR(&error, pc_tree, aom_calloc(1, sizeof(*pc_tree)));
+
+  pc_tree->partitioning = PARTITION_NONE;
+  pc_tree->block_size = bsize;
+  pc_tree->index = 0;
+
+  pc_tree->none = NULL;
+  for (int i = 0; i < 2; ++i) {
+    pc_tree->horizontal[i] = NULL;
+    pc_tree->vertical[i] = NULL;
+  }
+  for (int i = 0; i < 4; ++i) {
+    pc_tree->split[i] = NULL;
+  }
+
+  return pc_tree;
+}
+#endif
 
 #define FREE_PMC_NODE(CTX)         \
   do {                             \
@@ -185,6 +209,7 @@ PC_TREE *av1_alloc_pc_tree_node(BLOCK_SIZE bsize) {
     CTX = NULL;                    \
   } while (0)
 
+#if !CONFIG_REALTIME_ONLY
 void av1_free_pc_tree_recursive(PC_TREE *pc_tree, int num_planes, int keep_best,
                                 int keep_none) {
   if (pc_tree == NULL) return;
@@ -228,6 +253,35 @@ void av1_free_pc_tree_recursive(PC_TREE *pc_tree, int num_planes, int keep_best,
 
   if (!keep_best && !keep_none) aom_free(pc_tree);
 }
+#else
+void av1_free_pc_tree_recursive(PC_TREE *pc_tree, int num_planes, int keep_best,
+                                int keep_none) {
+  if (pc_tree == NULL) return;
+
+  const PARTITION_TYPE partition = pc_tree->partitioning;
+
+  if (!keep_none && (!keep_best || (partition != PARTITION_NONE)))
+    FREE_PMC_NODE(pc_tree->none);
+
+  for (int i = 0; i < 2; ++i) {
+    if (!keep_best || (partition != PARTITION_HORZ))
+      FREE_PMC_NODE(pc_tree->horizontal[i]);
+    if (!keep_best || (partition != PARTITION_VERT))
+      FREE_PMC_NODE(pc_tree->vertical[i]);
+  }
+
+  if (!keep_best || (partition != PARTITION_SPLIT)) {
+    for (int i = 0; i < 4; ++i) {
+      if (pc_tree->split[i] != NULL) {
+        av1_free_pc_tree_recursive(pc_tree->split[i], num_planes, 0, 0);
+        pc_tree->split[i] = NULL;
+      }
+    }
+  }
+
+  if (!keep_best && !keep_none) aom_free(pc_tree);
+}
+#endif
 
 void av1_setup_sms_tree(AV1_COMP *const cpi, ThreadData *td) {
   // The structure 'sms_tree' is used to store the simple motion search data for
