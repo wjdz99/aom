@@ -3386,6 +3386,11 @@ typedef struct AV1_COMP {
    * Frames since last frame with cdf update.
    */
   int frames_since_last_update;
+
+  /*!
+   * RTC: non-rd case
+   */
+  PC_TREE *rt_pc_root;
 } AV1_COMP;
 
 /*!
