@@ -33,6 +33,41 @@
       "message": "Thanks for the CL! Nice speedups! The overall tradeoff is quite good. The concern is that the VBP threshold decisioning becomes more complicated.\n\nPushing more use of large partitions could hurt the visual quality. E.g. too many larger partitions are used in the moving areas of a frame.\n\nCould you encode few clips (with high BDrate drop) to check the visual quality change? Also, how ssim/vmaf change (especially for worse case clips)?\n",
       "revId": "8beb438ac337eae9cbf35bbdb4da56a24825ea05",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "14328914_b19eafe4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2022-07-22T17:14:14Z",
+      "side": 1,
+      "message": "Thanks for the CL. \"force_large_partition_blocks\" has big impact on speed but it is the main source of visual quality artifacts at speed 9/10, so we prefer to make sure the speed 7/8 don\u0027t have these quality issues. It may possibly be extended if very conservative (so maybe level 1 and 2 for both rtc and rtc_derf), so you can try those settings. We\u0027ll need to run visual tests on this.",
+      "parentUuid": "04355a80_c36b622b",
+      "revId": "8beb438ac337eae9cbf35bbdb4da56a24825ea05",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ba070dbe_af0fff2f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2022-07-22T17:14:14Z",
+      "side": 1,
+      "message": "Thanks for the CL. We found that force_large_partition_blocks to be often main source of visual artifacts at speed 9/10, so we preferred to make sure the higher quality speed 7/8 don\u0027t have these issues. But it may be extended if very conservative (like your level 1 and 2), so we\u0027ll need to run some visual tests on this. Its generally safer to do this for higher resolutions, so my main concern is for the low-res/derf set.",
+      "revId": "8beb438ac337eae9cbf35bbdb4da56a24825ea05",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
