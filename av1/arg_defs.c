@@ -641,7 +641,7 @@ const av1_codec_arg_definitions_t g_av1_codec_arg_defs = {
       NULL, "enable-tx-size-search", 1,
       "Enable transform size search to find the best size for each block. "
       "If false, transforms always have the largest possible size "
-      "(0: false, 1: true (default))"),
+      "(0: false, 1: true (default)). It can not work with non rd pick mode."),
 
   .loopfilter_control = ARG_DEF(
       NULL, "loopfilter-control", 1,
