@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "973bf8d6_c8fd5743",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2022-07-22T14:14:24Z",
+      "side": 1,
+      "message": "Hi Chi Yo, Wan-Teh, Yunqing,\n\nThe CL https://aomedia-review.googlesource.com/c/aom/+/160221 cleaned up code related to luma variance calculation by replacing av1_high_get_sby_perpixel_variance() and av1_get_sby_perpixel_variance() with av1_get_perpixel_variance(). The relevant code was not cleaned up from frame_average_variance() in tune_vmaf.c which resulted in build failure with\nCONFIG_TUNE_VMAF\u003d1. \n\nThe function av1_get_perpixel_variance() introduced in the above mentioned CL, which handles the variance computation for any given plane and bit-depth, calls the function is_cur_buf_hbd() and expects xd-\u003ecur_buf to be populated. When frame_average_variance() is called from av1_receive_raw_frame(), xd-\u003ecur_buf is NULL as \u0027cpi-\u003esource\u0027 with which it should be initialized is not yet available. Hence, we cannot directly call the function av1_get_perpixel_variance(). To handle this scenario, in this CL we have renamed the function av1_get_perpixel_variance() to av1_get_perpixel_variance_facade() and a new function av1_get_perpixel_variance() is created inside by abstracting variance calculation code to handle the access of buffers other than xd-\u003ecur_buf. Same is depicted in the below code snippet\n\nav1_get_perpixel_variance_facade() {\n   use_hbd \u003d is_cur_buf_hbd(xd);\n   av1_get_perpixel_variance(use_hbd);\n}\n\nWith this refactoring, in functions frame_average_variance() and av1_set_screen_content_options(), where use_hbd is not currently computed using is_cur_buf_hbd(), av1_get_perpixel_variance() can be called by passing the locally derived ‘use_hbd’ flag. This will also ensure that, ‘use_hbd’ flag is being derived from the same buffer for which variance computation is being done.\n\nFor libaom AV1 video encode, bit-match is verified (w.r.t. parent commit) for \u0027GOOD\u0027 , \u0027RT\u0027 and ‘ALLINTRA’ encoding modes for a few contents with different encoding configurations.\n\nPlease review.\n\nRegards,\nMudassir\n",
+      "revId": "613bda9ba81e2e3198d491bad435f2996ea75edd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
