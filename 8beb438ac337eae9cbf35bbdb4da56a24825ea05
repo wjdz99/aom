@@ -16,6 +16,23 @@
       "message": "Hi Yunqing,\n\nThis CL softly extends logic of the sf force_large_partition_blocks to speed 8 and 7. The sf is renamed as prefer_large_partition_blocks to gradually increase aggressiveness from speed 7 to higher speeds. Speed 9 and above is unchanged. \n\nSpeed-quality trade off:\n```\n               Instruction Count        BD-Rate Loss(%)       \ncpu Resolution   Reduction(%)    avg.psnr   ovr.psnr    ssim   trade-off\n 7         rtc      1.648         0.1277     0.1437    0.1918    0.0775 \n 7    rtc_derf      4.614         0.1887     0.2244    0.2353    0.0409 \n 7     Average      3.095         0.1531     0.1773    0.2099    0.0495 \n\n 8         rtc      3.249        -0.0760     0.3086   -0.0706   -0.0234 \n 8    rtc_derf     13.198        -0.4424    -0.5092   -0.3018   -0.0335 \n 8     Average      8.102        -0.2287    -0.0322   -0.1669   -0.0282 \n```\n\nIn the commit message:\n[-] sign indicates encode time increase\n[+] sign indicates encode time reduction\nThe instruction count reduction specified has been measured using command:\n$ perf stat -e instructions:u ./aomenc\n\nWorse case-drops:\n```\ncpu   BD Rate Drop (%)   max-drop-content\n 7       1.9750            desktop2_320_180\n 8       2.7842             niklas_320_240\n```\nKindly review the patch.\n\nThanks,\nNeeraj",
       "revId": "8beb438ac337eae9cbf35bbdb4da56a24825ea05",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "04355a80_c36b622b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2022-07-22T16:49:01Z",
+      "side": 1,
+      "message": "Thanks for the CL! Nice speedups! The overall tradeoff is quite good. The concern is that the VBP threshold decisioning becomes more complicated.\n\nPushing more use of large partitions could hurt the visual quality. E.g. too many larger partitions are used in the moving areas of a frame.\n\nCould you encode few clips (with high BDrate drop) to check the visual quality change? Also, how ssim/vmaf change (especially for worse case clips)?\n",
+      "revId": "8beb438ac337eae9cbf35bbdb4da56a24825ea05",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
