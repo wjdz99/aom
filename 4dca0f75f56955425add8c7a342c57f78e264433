@@ -69,6 +69,52 @@
       "parentUuid": "7506aa51_866a5850",
       "revId": "4dca0f75f56955425add8c7a342c57f78e264433",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "58d2fe59_f080b7a4",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 3283,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2022-07-23T00:22:40Z",
+      "side": 1,
+      "message": "Is there a way to force using intrabc mode from the beginning, so you don\u0027t need to modify code at this level?",
+      "range": {
+        "startLine": 3282,
+        "startChar": 4,
+        "endLine": 3283,
+        "endChar": 58
+      },
+      "revId": "4dca0f75f56955425add8c7a342c57f78e264433",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e0d2a5f2_70f2f43c",
+        "filename": "build/cmake/aom_config_defaults.cmake",
+        "patchSetId": 3
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2022-07-23T00:22:40Z",
+      "side": 1,
+      "message": "Is it possible to add an encoder control (like what you did for FPMT testing), so this config flag can be removed?",
+      "range": {
+        "startLine": 99,
+        "startChar": 2,
+        "endLine": 99,
+        "endChar": 39
+      },
+      "revId": "4dca0f75f56955425add8c7a342c57f78e264433",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
