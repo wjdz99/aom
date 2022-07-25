@@ -252,6 +252,8 @@ typedef struct {
   int frame_level_fast_extra_bits;
 
   double frame_level_rate_correction_factors[RATE_FACTOR_LEVELS];
+
+  int cnt_zeromv;
   /*!\endcond */
 } RATE_CONTROL;
 
