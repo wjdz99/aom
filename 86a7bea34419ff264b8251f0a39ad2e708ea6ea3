@@ -16,6 +16,24 @@
       "message": "Without test coverage this could easily regress. Can we add something to one of the encode tests?",
       "revId": "86a7bea34419ff264b8251f0a39ad2e708ea6ea3",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f15a5de6_15419fd4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2022-07-25T21:20:26Z",
+      "side": 1,
+      "message": "I add unit tests to cover end to end test without failures for this.\nThe test also covers \"--deltaq-mode\".",
+      "parentUuid": "7410b227_125007de",
+      "revId": "86a7bea34419ff264b8251f0a39ad2e708ea6ea3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
