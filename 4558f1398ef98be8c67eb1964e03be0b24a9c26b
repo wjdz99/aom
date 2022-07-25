@@ -24,6 +24,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "dffd9fcf_a6be1f85",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 8
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2022-07-25T18:10:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "df45609b_903c221f",
+      "range": {
+        "startLine": 9,
+        "startChar": 33,
+        "endLine": 9,
+        "endChar": 40
+      },
+      "revId": "4558f1398ef98be8c67eb1964e03be0b24a9c26b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "492ef86d_79eb0b0e",
@@ -47,6 +71,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "09e0b409_c266f30f",
+        "filename": "examples/svc_encoder_rtc.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 1108,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2022-07-25T18:10:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "492ef86d_79eb0b0e",
+      "range": {
+        "startLine": 1108,
+        "startChar": 10,
+        "endLine": 1108,
+        "endChar": 23
+      },
+      "revId": "4558f1398ef98be8c67eb1964e03be0b24a9c26b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "645168c0_7a305e54",
@@ -60,6 +108,30 @@
       "writtenOn": "2022-07-25T17:31:02Z",
       "side": 1,
       "message": "Nit: could we replace this with memset like what\u0027s done on line 1116?",
+      "range": {
+        "startLine": 1309,
+        "startChar": 0,
+        "endLine": 1313,
+        "endChar": 0
+      },
+      "revId": "4558f1398ef98be8c67eb1964e03be0b24a9c26b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d605c959_0d6f7fca",
+        "filename": "examples/svc_encoder_rtc.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 1313,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2022-07-25T18:10:38Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "645168c0_7a305e54",
       "range": {
         "startLine": 1309,
         "startChar": 0,
