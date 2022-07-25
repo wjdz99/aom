@@ -1538,10 +1538,28 @@ void av1_ml_predict_breakout(AV1_COMP *const cpi, const MACROBLOCK *const x,
 }
 #undef FEATURES
 
+static AOM_INLINE int calc_num_neighbors_lt_given_bsize(
+    const MACROBLOCKD *const xd, BLOCK_SIZE blk_size) {
+  int num_neighbors_lt_given_blk_size = 0;
+  if (xd->left_available)
+    num_neighbors_lt_given_blk_size += (xd->left_mbmi->bsize <= blk_size);
+  if (xd->up_available)
+    num_neighbors_lt_given_blk_size += (xd->above_mbmi->bsize <= blk_size);
+  return num_neighbors_lt_given_blk_size;
+}
+
+// Disables rectangular partitions for BLOCK_16X16 if neither left nor above
+// block is of size <= BLOCK_16X16.
+static AOM_INLINE void prune_16x16_rect_part_based_on_neighbor_blk(
+    const MACROBLOCKD *const xd, PartitionSearchState *part_state) {
+  if (!calc_num_neighbors_lt_given_bsize(xd, BLOCK_16X16))
+    av1_disable_rect_partitions(part_state);
+}
 void av1_prune_partitions_before_search(AV1_COMP *const cpi,
                                         MACROBLOCK *const x,
                                         SIMPLE_MOTION_DATA_TREE *const sms_tree,
-                                        PartitionSearchState *part_state) {
+                                        PartitionSearchState *part_state,
+                                        int64_t best_rd) {
   const AV1_COMMON *const cm = &cpi->common;
   const CommonModeInfoParams *const mi_params = &cm->mi_params;
 
@@ -1652,11 +1670,8 @@ void av1_prune_partitions_before_search(AV1_COMP *const cpi,
     const MACROBLOCKD *const xd = &x->e_mbd;
     int prune_sub_8x8 = 1;
     if (cpi->sf.part_sf.prune_sub_8x8_partition_level == 1) {
-      int num_neighbors_lt_8x8 = 0;
-      if (xd->left_available)
-        num_neighbors_lt_8x8 += (xd->left_mbmi->bsize <= BLOCK_8X8);
-      if (xd->up_available)
-        num_neighbors_lt_8x8 += (xd->above_mbmi->bsize <= BLOCK_8X8);
+      int num_neighbors_lt_8x8 =
+          calc_num_neighbors_lt_given_bsize(xd, BLOCK_8X8);
       // Evaluate only if both left and above blocks are of size <= BLOCK_8X8.
       if (num_neighbors_lt_8x8 == 2) {
         prune_sub_8x8 = 0;
@@ -1665,6 +1680,9 @@ void av1_prune_partitions_before_search(AV1_COMP *const cpi,
     if (prune_sub_8x8) {
       av1_disable_all_splits(part_state);
     }
+  } else if (cpi->sf.part_sf.prune_16x16_rect_partitions &&
+             bsize == BLOCK_16X16 && best_rd != INT64_MAX) {
+    prune_16x16_rect_part_based_on_neighbor_blk(&x->e_mbd, part_state);
   }
 
   // A CNN-based speed feature pruning out either split or all non-split

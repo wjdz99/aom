@@ -106,7 +106,8 @@ void av1_ml_predict_breakout(AV1_COMP *const cpi, const MACROBLOCK *const x,
 void av1_prune_partitions_before_search(AV1_COMP *const cpi,
                                         MACROBLOCK *const x,
                                         SIMPLE_MOTION_DATA_TREE *const sms_tree,
-                                        PartitionSearchState *part_state);
+                                        PartitionSearchState *part_state,
+                                        int64_t best_rd);
 
 // Prune out partitions that lead to coding block sizes outside the min and max
 // bsizes set by the encoder. Max and min square partition levels are defined as
