@@ -658,6 +658,18 @@ typedef struct PARTITION_SPEED_FEATURES {
   // 2 : prune always
   int prune_sub_8x8_partition_level;
 
+  // Prune rectangular partitions for BLOCK_16X16.
+  // false : no pruning
+  // true : prune BLOCK_16X8 and BLOCK_8X16 rectangular partitions based on
+  // neighbor block information
+  //
+  // For allintra encode, this speed feature reduces instruction count by x% for
+  // speed 6 with coding performance change less than x.x%. For AVIF image
+  // encode, this speed feature reduces encode time by x.x% for speed 6 on a
+  // typical image dataset with coding performance change less than x.x%. This
+  // speed feature is not applicable for speed >= 7.
+  bool prune_16x16_rect_partitions;
+
   // Prune rectangular split based on simple motion search split/no_split score.
   // 0: disable pruning, 1: enable pruning
   int simple_motion_search_rect_split;

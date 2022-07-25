@@ -5119,7 +5119,8 @@ bool av1_rd_pick_partition(AV1_COMP *const cpi, ThreadData *td,
 #endif
   // Pruning: before searching any partition type, using source and simple
   // motion search results to prune out unlikely partitions.
-  av1_prune_partitions_before_search(cpi, x, sms_tree, &part_search_state);
+  av1_prune_partitions_before_search(cpi, x, sms_tree, &part_search_state,
+                                     best_rdc.rdcost);
 
   // Pruning: eliminating partition types leading to coding block sizes outside
   // the min and max bsize limitations set from the encoder.

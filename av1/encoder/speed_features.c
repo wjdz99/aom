@@ -493,6 +493,7 @@ static void set_allintra_speed_features_framesize_independent(
         allow_screen_content_tools ? 0 : 2;
     sf->part_sf.prune_sub_8x8_partition_level =
         allow_screen_content_tools ? 0 : 1;
+    sf->part_sf.prune_16x16_rect_partitions = true;
     sf->part_sf.prune_part4_search = 3;
     // TODO(jingning): This might not be a good trade off if the
     // target image quality is very low.
@@ -1776,6 +1777,7 @@ static AOM_INLINE void init_part_sf(PARTITION_SPEED_FEATURES *part_sf) {
   part_sf->early_term_after_none_split = 0;
   part_sf->ml_predict_breakout_level = 0;
   part_sf->prune_sub_8x8_partition_level = 0;
+  part_sf->prune_16x16_rect_partitions = false;
   part_sf->simple_motion_search_rect_split = 0;
   part_sf->reuse_prev_rd_results_for_part_ab = 0;
   part_sf->reuse_best_prediction_for_part_ab = 0;
