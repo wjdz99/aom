@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b2d42df4_b681b081",
+        "filename": "examples/svc_encoder_rtc.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 1108,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-07-25T18:12:21Z",
+      "side": 1,
+      "message": "better to use pre-defined AOM_MAX_LAYERS",
+      "range": {
+        "startLine": 1108,
+        "startChar": 24,
+        "endLine": 1108,
+        "endChar": 29
+      },
+      "revId": "2bb33d0b597f2f3404a431f3d09b286e93d2b5ce",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
