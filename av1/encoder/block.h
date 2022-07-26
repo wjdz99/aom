@@ -448,7 +448,8 @@ typedef struct {
   TX_MODE tx_mode_search_type;
 
   /*!
-   * Flag to enable/disable DC block prediction.
+   * Determines whether a block can be predicted as transform skip or DC only
+   * based on residual mean and variance.
    */
   unsigned int predict_dc_level;
 

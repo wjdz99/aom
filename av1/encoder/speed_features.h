@@ -1293,9 +1293,9 @@ typedef struct WINNER_MODE_SPEED_FEATURES {
   // 1 / 2 : Use configured number of winner candidates
   int motion_mode_for_winner_cand;
 
-  // Early DC only txfm block prediction
+  // Early prediction of tranform skip block or DC only block
   // 0: speed feature OFF
-  // 1 / 2 : Use the configured level for different modes
+  // 1 / 2 / 3: Use the configured level for different modes
   int dc_blk_pred_level;
 
   // If on, disables interpolation filter search in handle_inter_mode loop, and
