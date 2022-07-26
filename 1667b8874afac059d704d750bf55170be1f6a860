@@ -51,6 +51,24 @@
       "parentUuid": "20fc6441_4c681c7c",
       "revId": "1667b8874afac059d704d750bf55170be1f6a860",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c884cb26_c632ae86",
+        "filename": "av1/encoder/speed_features.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 2108,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-07-26T00:49:54Z",
+      "side": 1,
+      "message": "\u003e Good catch!\n\u003e I found it is due to decoder not properly configured.\n\u003e Note that the failure (as reported in the issue) happens when \"--test-decode\u003dfatal\" is set.\n\u003e \n\u003e Here I track back in the unit test and I found that it should work as long as we could set \"CONFIG_AV1_DECODE\" to true in \"test/test_encode_driver.cc\" (line 231).\n\u003e \n\u003e DO you know how to set the config inside the unit test?\n\nThat\u0027s just part of the configuration at compile time, which shows up in aom_config.h. The decoder is enabled by default. In the test you can put any decoder specific code under a #if check, but the test driver should be handling the check as it is now:\n\nhttps://aomedia.googlesource.com/aom/+/refs/heads/main/test/encode_test_driver.h#259",
+      "parentUuid": "4f638488_2d19a05a",
+      "revId": "1667b8874afac059d704d750bf55170be1f6a860",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
