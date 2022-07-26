@@ -1962,6 +1962,7 @@ static INLINE void predict_dc_only_block(
   const int qstep = x->plane[plane].dequant_QTX[1] >> dequant_shift;
   uint64_t block_var = UINT64_MAX;
   const int dc_qstep = x->plane[plane].dequant_QTX[0] >> 3;
+  const int dc_blk_pred_level = x->txfm_search_params.predict_dc_level;
   *block_sse = pixel_diff_stats(x, plane, blk_row, blk_col, plane_bsize,
                                 txsize_to_bsize[tx_size], block_mse_q8,
                                 per_px_mean, &block_var);
@@ -2003,7 +2004,7 @@ static INLINE void predict_dc_only_block(
         RDCOST(x->rdmult, best_rd_stats->rate, best_rd_stats->sse);
 
     x->plane[plane].txb_entropy_ctx[block] = 0;
-  } else if (block_var < var_threshold) {
+  } else if ((block_var < var_threshold) && dc_blk_pred_level > 1) {
     // Predict DC only blocks based on residual variance.
     // For chroma plane, this early prediction is disabled for intra blocks.
     if ((plane == 0) || (plane > 0 && is_inter_block(mbmi))) *dc_only_blk = 1;

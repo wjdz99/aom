@@ -124,10 +124,12 @@ static unsigned int predict_skip_levels[3][MODE_EVAL_TYPES] = { { 0, 0, 0 },
 // applicable. Index 1: Mode evaluation, Index 2: Winner mode evaluation
 // Values indicate the aggressiveness of skip flag prediction.
 // 0 : no early DC block prediction
-// 1 : Early DC block prediction based on error variance
-static unsigned int predict_dc_levels[3][MODE_EVAL_TYPES] = { { 0, 0, 0 },
-                                                              { 1, 1, 0 },
-                                                              { 1, 1, 1 } };
+// 1 : Early prediction of skip block based on residual mean and variance
+// 2 : Early prediction of skip block or dc only block based on residual mean
+// and variance
+static unsigned int predict_dc_levels[4][MODE_EVAL_TYPES] = {
+  { 0, 0, 0 }, { 1, 1, 0 }, { 2, 2, 0 }, { 2, 2, 2 }
+};
 
 #if !CONFIG_FPMT_TEST
 // This table holds the maximum number of reference frames for global motion.
@@ -512,6 +514,7 @@ static void set_allintra_speed_features_framesize_independent(
 
     sf->winner_mode_sf.multi_winner_mode_type = MULTI_WINNER_MODE_OFF;
     sf->winner_mode_sf.prune_winner_mode_eval_level = 1;
+    sf->winner_mode_sf.dc_blk_pred_level = 1;
   }
   // The following should make all-intra mode speed 7 approximately equal
   // to real-time speed 6,
@@ -1160,7 +1163,7 @@ static void set_good_speed_features_framesize_independent(
     sf->winner_mode_sf.multi_winner_mode_type =
         frame_is_intra_only(&cpi->common) ? MULTI_WINNER_MODE_DEFAULT
                                           : MULTI_WINNER_MODE_OFF;
-    sf->winner_mode_sf.dc_blk_pred_level = boosted ? 0 : 1;
+    sf->winner_mode_sf.dc_blk_pred_level = boosted ? 0 : 2;
 
     sf->lpf_sf.lpf_pick = LPF_PICK_FROM_FULL_IMAGE_NON_DUAL;
   }
@@ -1195,7 +1198,7 @@ static void set_good_speed_features_framesize_independent(
     sf->tpl_sf.subpel_force_stop = FULL_PEL;
     sf->tpl_sf.gop_length_decision_method = 2;
 
-    sf->winner_mode_sf.dc_blk_pred_level = 1;
+    sf->winner_mode_sf.dc_blk_pred_level = 2;
 
     sf->fp_sf.disable_recon = 1;
   }
@@ -1233,7 +1236,7 @@ static void set_good_speed_features_framesize_independent(
 
     sf->rd_sf.perform_coeff_opt = is_boosted_arf2_bwd_type ? 6 : 8;
 
-    sf->winner_mode_sf.dc_blk_pred_level = 2;
+    sf->winner_mode_sf.dc_blk_pred_level = 3;
     sf->winner_mode_sf.multi_winner_mode_type = MULTI_WINNER_MODE_OFF;
 
     sf->fp_sf.skip_zeromv_motion_search = 1;
@@ -1533,7 +1536,7 @@ static void set_rt_speed_features_framesize_independent(AV1_COMP *cpi,
   sf->lpf_sf.cdef_pick_method = CDEF_FAST_SEARCH_LVL4;
   sf->lpf_sf.lpf_pick = LPF_PICK_FROM_Q;
 
-  sf->winner_mode_sf.dc_blk_pred_level = frame_is_intra_only(cm) ? 0 : 2;
+  sf->winner_mode_sf.dc_blk_pred_level = frame_is_intra_only(cm) ? 0 : 3;
   sf->winner_mode_sf.enable_winner_mode_for_tx_size_srch = 1;
   sf->winner_mode_sf.tx_size_search_level = 1;
   sf->winner_mode_sf.winner_mode_ifs = 1;
