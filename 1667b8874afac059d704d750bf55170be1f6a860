@@ -33,6 +33,24 @@
       "message": "if I remove this check the new test still passes, did I miss something?",
       "revId": "1667b8874afac059d704d750bf55170be1f6a860",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4f638488_2d19a05a",
+        "filename": "av1/encoder/speed_features.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 2108,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2022-07-26T00:17:16Z",
+      "side": 1,
+      "message": "Good catch!\nI found it is due to decoder not properly configured.\nNote that the failure (as reported in the issue) happens when \"--test-decode\u003dfatal\" is set.\n\nHere I track back in the unit test and I found that it should work as long as we could set \"CONFIG_AV1_DECODE\" to true in \"test/test_encode_driver.cc\" (line 231).\n\nDO you know how to set the config inside the unit test?",
+      "parentUuid": "20fc6441_4c681c7c",
+      "revId": "1667b8874afac059d704d750bf55170be1f6a860",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
