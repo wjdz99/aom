@@ -1660,6 +1660,7 @@ static void set_rt_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->winner_mode_sf.dc_blk_pred_level = 0;
     sf->rt_sf.var_part_based_on_qidx = 3;
     sf->rt_sf.prune_global_globalmv_with_zeromv = true;
+    sf->rt_sf.prune_nearest_nearestmv_with_nearestmv = true;
   }
 
   if (speed >= 8) {
@@ -1674,6 +1675,7 @@ static void set_rt_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->interp_sf.cb_pred_filter_search = 1;
     sf->rt_sf.var_part_based_on_qidx = 4;
     sf->rt_sf.partition_direct_merging = 1;
+    sf->rt_sf.prune_nearest_nearestmv_with_nearestmv = false;
   }
   if (speed >= 9) {
     sf->lpf_sf.cdef_pick_method = CDEF_PICK_FROM_Q;
@@ -2030,6 +2032,7 @@ static AOM_INLINE void init_rt_sf(REAL_TIME_SPEED_FEATURES *rt_sf) {
   rt_sf->frame_level_mode_cost_update = false;
   rt_sf->check_only_zero_zeromv_on_large_blocks = false;
   rt_sf->disable_cdf_update_non_reference_frame = false;
+  rt_sf->prune_nearest_nearestmv_with_nearestmv = false;
 }
 
 void av1_set_speed_features_framesize_dependent(AV1_COMP *cpi, int speed) {
