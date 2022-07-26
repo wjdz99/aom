@@ -16,6 +16,24 @@
       "message": "can you add comment on the change: are you increasing the base threshold for the low-res low-bitrates/high Q?\n\nwhat are the worst-case bdrate clips?\n\nand how does speed 8 rtc_derf compare?",
       "revId": "d017cdc28ea642e37aabf932628855205bcf1aba",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6fb978eb_ccecd104",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2022-07-26T17:16:16Z",
+      "side": 1,
+      "message": "Added comments to describe the change and best/worst clips.\n\nWhat do you mean speed 8 comparison?",
+      "parentUuid": "ae57fec7_661e75a3",
+      "revId": "d017cdc28ea642e37aabf932628855205bcf1aba",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
