@@ -1594,6 +1594,10 @@ typedef struct REAL_TIME_SPEED_FEATURES {
 
   // Allow for disabling cdf update for non reference frames in svc mode.
   bool disable_cdf_update_non_reference_frame;
+
+  // Prune nearest_nearestmv with nearest if nearest is significantly worse than
+  // the best mode in its frame.
+  bool prune_nearest_nearestmv_with_nearestmv;
 } REAL_TIME_SPEED_FEATURES;
 
 /*!\endcond */
