@@ -16,6 +16,23 @@
       "message": "Hi Yunqing,\n\nIn this patch, we have fixed two possible issues related to color_sensitivity. The details are as follows: \n\n1. The y_sad used in chroma_check() for setting the color_sensitivity is based on last frame so uv_sad based on last frame should be used in the comparison. However, for zero motion, uv_sad based on golden frame was being used sometimes, as the predictor could be set based on golden frame in the function setup_planes(). To overcome this issue, last frame predictor block is setup in chroma_check() function.\n\n2. In set_color_sensitivity() function, the predictor buffer used in uv_sad calculation, \u0027pd-\u003edst\u0027 is not setup before. To fix this issue, in this patch, zero mv predictor buffer based on last frame is used for uv_sad calculation.\n\nThe results are as follows : \n```\n               Instruction Count        BD-Rate Loss(%)       \ncpu Resolution   Reduction(%)    avg.psnr   ovr.psnr    ssim            \n 7         rtc      0.190        -0.0558    -0.0215   -0.0489        \n 7    rtc_derf      0.521         0.0278     0.0560    0.2069        \n 7     Average      0.351        -0.0210     0.0108    0.0576        \n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t   \n 8         rtc      0.179        -0.0061     0.0354    0.0286        \n 8    rtc_derf      0.322        -0.0945    -0.0340   -0.0355        \n 8     Average      0.248        -0.0430     0.0065    0.0019        \n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t   \n 9         rtc      0.778         0.1075     0.2223    0.2661        \n 9    rtc_derf      0.455         0.0446     0.1076    0.1068        \n 9     Average      0.621         0.0813     0.1745    0.1997        \n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t   \n10         rtc      0.433         0.2927     0.3855    0.4580        \n10    rtc_derf      0.294        -0.0647     0.0113    0.0074        \n10     Average      0.365         0.1438     0.2296    0.2703\n```\nThe patch is bit-exact for rt speed 5, 6. Please review.    \n\nThank you.",
       "revId": "f6e94ee62f91bf98c061440d99c5c546354d3462",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2801616c_b2a9255f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2022-07-26T17:31:22Z",
+      "side": 1,
+      "message": "The fix seems correct Wondering about the bdrate loss, mainly for speed 10. What was the worst-case loss?\n\nCan you also run the borg stats for screen speed 10? Recent fix to the color sensitivity setting gave bdrate gains, more so for screen mode.",
+      "revId": "f6e94ee62f91bf98c061440d99c5c546354d3462",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
