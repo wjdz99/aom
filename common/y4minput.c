@@ -23,7 +23,7 @@
 // Reads 'size' bytes from 'file' into 'buf' with some fault tolerance.
 // Returns true on success.
 static int file_read(void *buf, size_t size, FILE *file) {
-  const int kMaxTries = 6;
+  const int kMaxTries = 5;
   int try_count = 0;
   int file_error = 0;
   size_t len = 0;
