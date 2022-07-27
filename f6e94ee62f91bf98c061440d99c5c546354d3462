@@ -33,6 +33,24 @@
       "message": "The fix seems correct Wondering about the bdrate loss, mainly for speed 10. What was the worst-case loss?\n\nCan you also run the borg stats for screen speed 10? Recent fix to the color sensitivity setting gave bdrate gains, more so for screen mode.",
       "revId": "f6e94ee62f91bf98c061440d99c5c546354d3462",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3ae930b2_12239798",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 14729
+      },
+      "writtenOn": "2022-07-27T09:56:34Z",
+      "side": 1,
+      "message": "Worst case loss for speed 10 are as follows:\n```\nContent                BD-Rate Loss(%)       \n                avg.psnr   ovr.psnr    ssim      \njimredvga_25fps    1.62      1.42      1.98\ndesktop360p        1.55      1.77      1.93\nkirlandvga         0.66      1.88      1.67\ntestnoise720p      1.20      1.04      1.56\n```\nThe results for screen speed 10 are as follows:  \n```\n               Instruction Count        BD-Rate Loss(%)       \ncpu  Resolution   Reduction(%)    avg.psnr   ovr.psnr    ssim         \n10   rtc-screen      0.979        -0.1390    -0.7616   -0.7314     \n```\nWorst case loss \n```\nContent                                    BD-Rate Loss(%)       \n                                     avg.psnr   ovr.psnr    ssim  \nscreenshare_colorslides.1820_1320     0.7070    0.7852     1.2630\n```",
+      "parentUuid": "2801616c_b2a9255f",
+      "revId": "f6e94ee62f91bf98c061440d99c5c546354d3462",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
