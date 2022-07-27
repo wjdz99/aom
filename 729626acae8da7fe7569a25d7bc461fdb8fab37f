@@ -52,6 +52,24 @@
       "parentUuid": "25e8dd57_80c6d3b5",
       "revId": "729626acae8da7fe7569a25d7bc461fdb8fab37f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e35fd1f5_263bdaa6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2022-07-27T00:15:44Z",
+      "side": 1,
+      "message": "I see what you mean. You are thinking about the case when different SB rows have very different partition structures. Right? Let\u0027s think about it differently - anyway, the encoder needs to allocate memory for any partition occurred. This should be true with or without this change. So, we shouldn\u0027t see a memory increase. This change just allows more sharing of allocated pc tree structure.\n\nI also ran a test (vga, 4 threads, 4 tiles) to see how MT encoder memory changes before/after the change. Saw a memory reduction for row-mt\u003d0, and a similar memory usage for row-mt\u003d1.",
+      "parentUuid": "c9798e97_53065f3a",
+      "revId": "729626acae8da7fe7569a25d7bc461fdb8fab37f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
