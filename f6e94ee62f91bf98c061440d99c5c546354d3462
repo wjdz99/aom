@@ -51,6 +51,24 @@
       "parentUuid": "2801616c_b2a9255f",
       "revId": "f6e94ee62f91bf98c061440d99c5c546354d3462",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f847cb76_4a5095ff",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2022-07-27T21:08:43Z",
+      "side": 1,
+      "message": "Thanks for the results. \n\nI ran the rtc test for speed 10 with vs without your patch, and I seem to get more favorable results. The avg. bdrate loss I got on rtc set: 0.067/0.224/0.172\nAnd bdrate for jimredvga is a gain: -0.443/-0.349/-0.50 (similar type gain for desktop360p).\n\nNot sure why the difference, but in any case the fix looks good.",
+      "parentUuid": "3ae930b2_12239798",
+      "revId": "f6e94ee62f91bf98c061440d99c5c546354d3462",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
