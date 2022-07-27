@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f20b18db_22774e4c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 9
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 29295
+      },
+      "writtenOn": "2022-07-27T12:33:29Z",
+      "side": 1,
+      "message": "Hi Marco,\n\nPlease find below the results after tuning:\n\nSpeed-quality trade off:\n```\n ------------------------------------------------------------\n|cpu| Res    |Instr. Count |    BD-Rate Drop (%)             |\n|   |        | Reduction(%)| avg. psnr | ovr. psnr |  ssim   |\n ------------------------------------------------------------\n| 8 |rtc     |   2.277     | -0.2221   |   0.1351  | -0.1772 |\n| 8 |rtc-derf|   4.822     | -0.5304   |  -0.4686  | -0.5035 |\n| 8 |Average |   3.518     | -0.3506   |  -0.1164  | -0.3132 |\n ------------------------------------------------------------\n```\nIn the commit message:\n[-] sign indicates encode time increase\n[+] sign indicates encode time reduction\nThe instruction count reduction specified has been measured using command:\n$ perf stat -e instructions:u ./aomenc\n\nWorst case-drops:\n```\ncpu   Res       BD Rate Drop (%)   max-drop-content\n 8    rtc         1.9434             mj1vc720p\n 8    rtc-derf    1.5308             niklas_320_240\n```\n\nKindly review the patch.\n\nThanks,\nNeeraj",
+      "revId": "0b828e11e2333aadb81187ad47e9adb58c1c810d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
