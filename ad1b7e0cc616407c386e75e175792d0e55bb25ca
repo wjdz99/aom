@@ -16,6 +16,52 @@
       "message": "Hi Yunqing,\n\nIn this patch we have fixed uninitialized data access of cur_frame-\u003eseg_map. The details are as follows: \n\nWhen segmentation is disabled for a frame, \u0027cur_frame-\u003eseg_map\u0027 is not initialized, as there is no function call to av1_cyclic_refresh_update_segment(). But \u0027cur_frame-\u003eseg_map\u0027 is accessed in av1_get_spatial_seg_pred() present in av1_cyclic_reset_segment_skip() resulting in access of stale data. Thus, in this patch, call to the function av1_cyclic_reset_segment_skip() is disabled whenever segmentation is disabled. \n\nAlso, when \u0027cyclic_refresh-\u003eskip_over4x4\u0027 is set in rt speed 10, \u0027cur_frame-\u003eseg_map\u0027 is updated every other 4x4 block. But the function av1_get_spatial_seg_pred() assumes \u0027cur_frame-\u003eseg_map\u0027 to be set for every 4x4 block. Hence, the function av1_get_spatial_seg_pred() is modified to access data at 8x8 block whenever \u0027cyclic_refresh-\u003eskip_over4x4\u0027 is set.\n\nThe patch is bit-exact for rt speed 5, 6. Please find the results below:\n\n```\n               Instruction Count        BD-Rate Loss(%)       \ncpu Resolution   Reduction(%)    avg.psnr   ovr.psnr    ssim        \n 7         rtc      0.001         0.0011     0.0009    0.0114    \n 7    rtc_derf     -0.308        -0.1001    -0.0661    0.1557    \n 7     Average     -0.150        -0.0410    -0.0270    0.0715    \n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t         \n 8         rtc      0.012         0.0034     0.0018    0.0057    \n 8    rtc_derf     -0.483        -0.0563    -0.0395    0.2798    \n 8     Average     -0.230        -0.0215    -0.0154    0.1199    \n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t   \n 9         rtc      0.009        -0.0086    -0.0087   -0.0095    \n 9    rtc_derf     -0.101        -0.1061    -0.1225    0.2889    \n 9     Average     -0.045        -0.0493    -0.0561    0.1148    \n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t   \n10         rtc      0.013         0.0060     0.0142    0.0196    \n10    rtc_derf      0.008        -0.0642    -0.0637   -0.0930    \n10     Average      0.010        -0.0232    -0.0183   -0.0273  \n```\nPlease review. \n\nThanks",
       "revId": "ad1b7e0cc616407c386e75e175792d0e55bb25ca",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6cc7ab39_8262d1f3",
+        "filename": "av1/common/pred_common.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2022-07-27T21:35:28Z",
+      "side": 1,
+      "message": "Nit: this can be const.\nAlso, could you rename this variable to something more descriptive like step_size?",
+      "range": {
+        "startLine": 48,
+        "startChar": 2,
+        "endLine": 48,
+        "endChar": 32
+      },
+      "revId": "ad1b7e0cc616407c386e75e175792d0e55bb25ca",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "03712b10_e795674e",
+        "filename": "av1/encoder/partition_search.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2126,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2022-07-27T21:35:28Z",
+      "side": 1,
+      "message": "Could you add an assert for cm-\u003eseg.enabled inside av1_cyclic_reset_segment_skip so we don\u0027t accidentally access uninitialized data in the future?",
+      "range": {
+        "startLine": 2126,
+        "startChar": 4,
+        "endLine": 2126,
+        "endChar": 33
+      },
+      "revId": "ad1b7e0cc616407c386e75e175792d0e55bb25ca",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
