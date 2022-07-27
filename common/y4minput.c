@@ -1187,9 +1187,11 @@ int y4m_input_fetch_frame(y4m_input *_y4m, FILE *_fin, aom_image_t *_img) {
     return -1;
   }
   /*Read the frame data that does need conversion.*/
-  if (!file_read(_y4m->aux_buf, _y4m->aux_buf_read_sz, _fin)) {
-    fprintf(stderr, "Error reading Y4M frame data.\n");
-    return -1;
+  if (_y4m->aux_buf) {
+    if (!file_read(_y4m->aux_buf, _y4m->aux_buf_read_sz, _fin)) {
+      fprintf(stderr, "Error reading Y4M frame data.\n");
+      return -1;
+    }
   }
   /*Now convert the just read frame.*/
   (*_y4m->convert)(_y4m, _y4m->dst_buf, _y4m->aux_buf);
