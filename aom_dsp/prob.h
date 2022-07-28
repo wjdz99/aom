@@ -641,26 +641,22 @@ static INLINE uint8_t get_prob(unsigned int num, unsigned int den) {
 }
 
 static INLINE void update_cdf(aom_cdf_prob *cdf, int8_t val, int nsymbs) {
-  int rate;
-  int i, tmp;
+  int rate, count, i;
 
-  static const int nsymbs2speed[17] = { 0, 0, 1, 1, 2, 2, 2, 2, 2,
-                                        2, 2, 2, 2, 2, 2, 2, 2 };
   assert(nsymbs < 17);
-  rate = 3 + (cdf[nsymbs] > 15) + (cdf[nsymbs] > 31) +
-         nsymbs2speed[nsymbs];  // + get_msb(nsymbs);
-  tmp = AOM_ICDF(0);
+  count = cdf[nsymbs];
+  rate = 4 + (count >> 4)  // + (cdf[nsymbs] > 15) + (cdf[nsymbs] > 31)
+         + (nsymbs > 3);   // + get_msb(nsymbs) - 1
 
-  // Single loop (faster)
-  for (i = 0; i < nsymbs - 1; ++i) {
-    tmp = (i == val) ? 0 : tmp;
-    if (tmp < cdf[i]) {
-      cdf[i] -= ((cdf[i] - tmp) >> rate);
+  i = 0;
+  do {
+    if (i < val) {
+      cdf[i] += (CDF_PROB_TOP - cdf[i]) >> rate;
     } else {
-      cdf[i] += ((tmp - cdf[i]) >> rate);
+      cdf[i] -= cdf[i] >> rate;
     }
-  }
-  cdf[nsymbs] += (cdf[nsymbs] < 32);
+  } while (++i < nsymbs - 1);
+  cdf[nsymbs] = count + (count < 32);
 }
 
 #ifdef __cplusplus
