@@ -118,6 +118,30 @@
       },
       "revId": "692fe393d28977126f60e651e8c22202b96b8205",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "60514f7f_ae779791",
+        "filename": "av1/ratectrl_qmode.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 922,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2022-07-29T18:14:36Z",
+      "side": 1,
+      "message": "Seems that the SW integration has redundant tpl block assignments. They are removed here https://aomedia-review.googlesource.com/c/aom/+/160542\n\nThe HW tpl stats assignment might come with a variable block size, so you might want to keep the increment as 1 on mi_row/col index. And remove the check condition here.",
+      "parentUuid": "dcfa0f47_52446927",
+      "range": {
+        "startLine": 920,
+        "startChar": 0,
+        "endLine": 922,
+        "endChar": 0
+      },
+      "revId": "692fe393d28977126f60e651e8c22202b96b8205",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
