@@ -46,6 +46,30 @@
       },
       "revId": "692fe393d28977126f60e651e8c22202b96b8205",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "375d3f70_aeae1493",
+        "filename": "av1/ratectrl_qmode.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 922,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-07-29T17:39:05Z",
+      "side": 1,
+      "message": "Okay, I can remove those if it\u0027s useful to allow them to not be a multiple of min_block_size.\n\nBut the one I saw failing was col (it was 4, with min_block_size of 16). Is that expected?",
+      "parentUuid": "496204e7_5246eb87",
+      "range": {
+        "startLine": 920,
+        "startChar": 0,
+        "endLine": 922,
+        "endChar": 0
+      },
+      "revId": "692fe393d28977126f60e651e8c22202b96b8205",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
