@@ -189,6 +189,30 @@
       },
       "revId": "692fe393d28977126f60e651e8c22202b96b8205",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3887529e_c64233f8",
+        "filename": "av1/ratectrl_qmode.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 1209,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-08-01T12:34:02Z",
+      "side": 1,
+      "message": "Sorry, I just noticed this comment now.\n\nIt\u0027s a StatusOr\u003cTplGopDepStats\u003e, which is conceptually a union of a TplGopDepStats and a Status, where the TplGopDepStats is only valid if the status is OK.\n\nOnce you\u0027ve validated the status of a StatusOr\u003cT\u003e (as I did above on line 1195), you can use operator* to return a reference to the contained T, and operator-\u003e to access a field of the contained T.\n\nThis is very widely used in google3, and has been open sourced in Abseil. Rather than having aomedia take a dependency on Abseil, I ported over simplified versions of Status and StatusOr, but I\u0027ve attempted to keep the API as similar as possible.",
+      "parentUuid": "965a4cf0_90f8a807",
+      "range": {
+        "startLine": 1209,
+        "startChar": 23,
+        "endLine": 1209,
+        "endChar": 25
+      },
+      "revId": "692fe393d28977126f60e651e8c22202b96b8205",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ],
   "submitRequirementResults": [
