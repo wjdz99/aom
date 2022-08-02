@@ -36,6 +36,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "270b28b7_964e4d1d",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 30842
+      },
+      "writtenOn": "2022-08-02T19:38:27Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "01c3d793_47709e54",
+      "revId": "c9ab4c264a944accb6814c6a5ac2ee8202b4c182",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "9fe5a0b2_599a5cdb",
@@ -49,6 +67,24 @@
       "writtenOn": "2022-07-29T23:33:38Z",
       "side": 1,
       "message": "I suggest we use the C99 feature and declare variables at first use, in the middle of the function:\n\n```\n  int count \u003d cdf[nsymbs];\n  int rate \u003d 4 + (count \u003e\u003e 4) + (nsymbs \u003e 3);\n\n  int i \u003d 0;\n```\n\nNote that I also removed the commented-out original code. If you think the code is unclear without a comment, we can copy and adapt the following comment from libgav1:\n\n```\n  // rate is computed in the spec as:\n  //  3 + ( cdf[N] \u003e 15 ) + ( cdf[N] \u003e 31 ) + Min(FloorLog2(N), 2)\n  // In this case cdf[N] is |count|.\n  // Min(FloorLog2(N), 2) is 1 for symbol_count \u003d\u003d {2, 3} and 2 for all\n  // symbol_count \u003e 3. So the equation becomes:\n  //  4 + (count \u003e 15) + (count \u003e 31) + (symbol_count \u003e 3).\n  // Note that the largest value for count is 32 (it is not incremented beyond\n  // 32). So using that information:\n  //  count \u003e\u003e 4 is 0 for count from 0 to 15.\n  //  count \u003e\u003e 4 is 1 for count from 16 to 31.\n  //  count \u003e\u003e 4 is 2 for count \u003d\u003d 31.\n  // Now, the equation becomes:\n  //  4 + (count \u003e\u003e 4) + (symbol_count \u003e 3).\n```",
+      "revId": "c9ab4c264a944accb6814c6a5ac2ee8202b4c182",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3796a4cb_328905d7",
+        "filename": "aom_dsp/prob.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 651,
+      "author": {
+        "id": 30842
+      },
+      "writtenOn": "2022-08-02T19:38:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9fe5a0b2_599a5cdb",
       "revId": "c9ab4c264a944accb6814c6a5ac2ee8202b4c182",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }

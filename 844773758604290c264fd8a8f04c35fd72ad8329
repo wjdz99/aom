@@ -24,6 +24,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "c7571c9c_b8c780f0",
+        "filename": "aom_dsp/prob.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 30842
+      },
+      "writtenOn": "2022-08-02T19:38:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0dccec5b_fd5e4c25",
+      "range": {
+        "startLine": 2,
+        "startChar": 17,
+        "endLine": 2,
+        "endChar": 21
+      },
+      "revId": "844773758604290c264fd8a8f04c35fd72ad8329",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "30e2e241_07d3f184",
@@ -55,6 +79,24 @@
       "side": 1,
       "message": "\u003e nsymbs - 1 should be \u003e 0, so this can become a do/while to save a comparison.\n\nhttps://chromium.googlesource.com/codecs/libgav1/+/dc2ae123784cf1a9504d6b4eba112170574e31e0/src/utils/entropy_decoder.cc#63",
       "parentUuid": "30e2e241_07d3f184",
+      "revId": "844773758604290c264fd8a8f04c35fd72ad8329",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "57df36d5_b696674a",
+        "filename": "aom_dsp/prob.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 651,
+      "author": {
+        "id": 30842
+      },
+      "writtenOn": "2022-08-02T19:38:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "798bfec3_35a3919f",
       "revId": "844773758604290c264fd8a8f04c35fd72ad8329",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
