@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6b732e5d_4b516efd",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2022-08-02T12:16:27Z",
+      "side": 1,
+      "message": "Hi James,\n\nAs you pointed out in the patch (https://aomedia-review.googlesource.com/c/aom/+/155366/4/aom_dsp/aom_dsp_rtcd_defs.pl#1126), the function aom_hadamard_8x8_dual() is specific to low bit depth. Hence, for better readability this CL renames aom_hadamard_8x8_dual() to aom_hadamard_lp_8x8_dual().\n\nEven though aom_hadamard_8x8_dual() is called for an 8x16 block, intrinsic is implemented such that hadamard txfm is performed at 8x8 level for two 8x8 blocks simultaneously. Hence, we preferred to rename as aom_hadamard_lp_8x8_dual() instead of aom_hadamard_lp_8x16().\n\nAlso, we are planning to submit a follow-up patch for the other issue which you pointed out in the patch (https://aomedia-review.googlesource.com/c/aom/+/155366/4/av1/encoder/nonrd_pickmode.c#897).\n\nThanks \u0026 Regards,\nVenkata.\n",
+      "revId": "45ed5d8cda4177e1ee48f500d928293323a171d1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
