@@ -73,6 +73,7 @@ list(APPEND AOM_UNIT_TEST_ENCODER_SOURCES
             "${AOM_ROOT}/test/level_test.cc"
             "${AOM_ROOT}/test/metadata_test.cc"
             "${AOM_ROOT}/test/monochrome_test.cc"
+            "${AOM_ROOT}/test/mv_cost_test.cc"
             "${AOM_ROOT}/test/resize_test.cc"
             "${AOM_ROOT}/test/scalability_test.cc"
             "${AOM_ROOT}/test/sharpness_test.cc"
