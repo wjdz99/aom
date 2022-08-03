@@ -16,6 +16,23 @@
       "message": "Hi Yunqing,\n\nThis patch reduces the number of reference frame buffers by one. In the existing implementation, frame buffer allocated for key frame was not released when a new frame replaced key frame (which is initially the golden frame) as the golden reference frame. This is because key frame refreshed 8 reference frame  slots (0-7) and reference frame slot 7 is not refreshed by any frame. \n\nIn this patch, as key frame refreshes 7 reference frame slots (0-6), buffer holding key frame is released when a new golden frame is encoded (as key frame is not used as reference thereafter), therby reducing the required number of reference frame buffers by one. This memory optimization is disabled when order hint is enabled as all reference frames order hints are written into the bitstream in such a case. \n\nThis CL is bit-exact with no impact on encode-time.\n\nThe peak memory reduction achieved are as follows:\n```   \n                   Peak Memory Reduction (%)\nResolution    cpu 6   cpu 7  cpu 8   cpu 9   cpu 10\n320x180       3.41\t3.36\t3.44\t3.55\t3.55\n320x240       3.62\t3.80\t3.69\t3.69\t3.69\n640x360       4.10\t4.18\t4.18\t4.18\t4.18\n640x480       4.19\t4.25\t4.25\t4.25\t4.25\n1280x720      4.25\t4.28\t4.28\t4.28\t4.28\n\t\t\t  \t\t\t\t\nAverage       3.91\t3.97\t3.97\t3.99\t3.99\n```\nMemory is measured using the command\n valgrind --tool\u003dmassif ./aomenc ...\n \nPlease review.\nThank you.\n\n\n\n",
       "revId": "089b9b2926a371e944c00eaaae772c91175dd33f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8966ed28_6f6b993e",
+        "filename": "av1/encoder/encoder_utils.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 1011,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2022-08-03T03:25:40Z",
+      "side": 1,
+      "message": "I\u0027m fine with this change, but I think there should be a flag set in av1_set_reference_structure_one_pass_rt() (which defines the reference structure for rtc) to enable this feature. The reference structure defined there doesn\u0027t currently used the 7th slot, but if someone changes that then this will fail.\n\nSo maybe added a new flag to enable this feature, and set it in av1_set_reference_structure_one_pass_rt() with comment to say that it assumes slot 7 is not used.",
+      "revId": "089b9b2926a371e944c00eaaae772c91175dd33f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
