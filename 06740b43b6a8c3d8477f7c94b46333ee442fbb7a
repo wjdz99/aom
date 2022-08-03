@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e95bb749_99e3a710",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 2680,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2022-08-03T21:19:22Z",
+      "side": 1,
+      "message": "Should the condition be that slot 7 is not refreshed and not ever referenced (ref_idx set to 7)? If gld_fixed_slot is set to 0 above (we have always used 1), then gld_idx happens to be set to 7 and there would be a crash.",
+      "revId": "06740b43b6a8c3d8477f7c94b46333ee442fbb7a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
