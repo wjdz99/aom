@@ -18,6 +18,12 @@
 // Support for these xN intrinsics is lacking in older versions of GCC.
 #if defined(__GNUC__) && !defined(__clang__)
 #if __GNUC__ < 8 || defined(__arm__)
+static INLINE uint8x16x2_t vld1q_u8_x2(uint8_t const *ptr) {
+  uint8x16x2_t res = { { vld1q_u8(ptr + 0 * 16), vld1q_u8(ptr + 1 * 16),
+                         vld1q_u8(ptr + 2 * 16), vld1q_u8(ptr + 3 * 16) } };
+  return res;
+}
+
 static INLINE uint16x8x4_t vld1q_u16_x4(uint16_t const *ptr) {
   uint16x8x4_t res = { { vld1q_u16(ptr + 0 * 8), vld1q_u16(ptr + 1 * 8),
                          vld1q_u16(ptr + 2 * 8), vld1q_u16(ptr + 3 * 8) } };
