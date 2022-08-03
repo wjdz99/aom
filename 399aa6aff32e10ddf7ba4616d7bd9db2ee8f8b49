@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "82d38283_34c1c3f3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 10
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-08-03T04:54:19Z",
+      "side": 1,
+      "message": "I\u0027ll let Wan-Teh make another pass.",
+      "revId": "399aa6aff32e10ddf7ba4616d7bd9db2ee8f8b49",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e9e02f0c_60ec8614",
+        "filename": "aom_dsp/prob.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 645,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-08-03T04:54:19Z",
+      "side": 1,
+      "message": "sorry I missed it before: count and rate can be const.",
+      "revId": "399aa6aff32e10ddf7ba4616d7bd9db2ee8f8b49",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
