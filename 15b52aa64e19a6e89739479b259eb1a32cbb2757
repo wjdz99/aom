@@ -16,6 +16,23 @@
       "message": "Hi Wan-Teh, Frank,\n\nThe speed feature dc_blk_pred_level determines if a block should be coded as transform skip or dc only block based on residual statistics. This CL extends this speed feature to allintra speed\u003e\u003d6 by introducing a new intermediate level 1 which only determines if the block should be coded as transform skip. The existing speed feature level 1 is made as level 2. When we tried including ‘dc only block’ related checks, the results were not in tradeoff for allintra encoding. Hence, we introduced a new intermediate level 1 handling transform skip.\n\nWhen the speed feature dc_blk_pred_level is set to 1, ‘best_rd_stats-\u003eskip_txfm’ flag is set based on residual mean and variance which is used only to skip the transform type search during mode evaluation stage. During the final encode, transform and quantization take place and skip is not forced.\n\nFor AVIF still-image encode with tune\u003dpsnr,\n                 Encode Time      BD-Rate Loss(%)\n    cpu-used     Reduction(%)    psnr      ssim   \n       6           1.012         0.0827    0.0936\n       7           1.416         0.1188    0.1666\n       8           0.428         0.0181    0.0223     \n\nFor AVIF still image encode with tune\u003dssim,\n                 Encode Time      BD-Rate Loss(%)\n    cpu-used     Reduction(%)    psnr      ssim   \n       6           1.285         0.0706    0.1106 \n       7           1.304         0.0870    0.1554\t\n       8           0.753         0.0048    0.0032  \n\n\nFollowing are the instruction count reduction results when libaom allintra frame encoding (50 frames) was tested for a borg setup. \n               Instruction Count        BD-Rate Loss(%)      \n     cpu-used    Reduction(%)    avg.psnr  ovr.psnr  ssim\n        6          1.469         0.0561    0.0527    0.0808\n        7          1.576         0.0866    0.0838    0.1316\n        8\t   1.358         0.0282    0.0276    0.0405  \n\nFor libaom AV1 video encode, bit-match is verified (w.r.t. parent commit) for \u0027GOOD\u0027 and \u0027RT\u0027 encoding modes for a few contents with different encoding configurations. It is verified that the CL is bit-exact for allintra encode, speed\u003d5,9 with no speed impact.\n\nIn the commit message, BD rate impact column:\n[+] sign is for BD-Rate drop\n[-] sign is for BD-Rate improvement\nThe instruction count reduction specified has been measured using the command:\n$ perf stat -e instructions:u ./aomenc …\n\nPlease review.\n\nRegards,\nMudassir.\n",
       "revId": "15b52aa64e19a6e89739479b259eb1a32cbb2757",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1fa42fa4_a370c975",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2022-08-03T15:24:27Z",
+      "side": 1,
+      "message": "Hi Wan-Teh, Frank,\n\nPlease review this patch.\n\nRegards,\nMudassir",
+      "revId": "15b52aa64e19a6e89739479b259eb1a32cbb2757",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
