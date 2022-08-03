@@ -81,7 +81,8 @@ class DuckyEncode {
   std::vector<EncodeFrameResult> EncodeVideo(
       const GopStructList &gop_list,
       const GopEncodeInfoList &gop_encode_info_list);
-  EncodeFrameResult EncodeFrame(const EncodeFrameDecision &decision);
+  EncodeFrameResult EncodeFrame(const EncodeFrameDecision &decision,
+                                const bool write_temp_delimiter);
   void EndEncode();
 
  private:

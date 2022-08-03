@@ -428,6 +428,7 @@ std::vector<TplGopStats> DuckyEncode::ComputeTplStats(
     const GopStructList &gop_list) {
   std::vector<TplGopStats> tpl_gop_stats_list;
   AV1_PRIMARY *ppi = impl_ptr_->enc_resource.ppi;
+  bool write_temp_delimiter = true;
 
   // Go through each gop and encode each frame in the gop
   for (size_t i = 0; i < gop_list.size(); ++i) {
@@ -441,7 +442,8 @@ std::vector<TplGopStats> DuckyEncode::ComputeTplStats(
                                                   aom::EncodeGopMode::kGopRcl,
                                                   { 128, -1 } };
       (void)frame;
-      EncodeFrame(frame_decision);
+      EncodeFrame(frame_decision, write_temp_delimiter);
+      write_temp_delimiter = ppi->cpi->common.show_frame;
     }
     tpl_gop_stats = ObtainTplStats(gop_struct);
     // TODO(jingning): Set the tpl stats file format and populate the stats.
@@ -457,6 +459,7 @@ std::vector<EncodeFrameResult> DuckyEncode::EncodeVideo(
     const GopEncodeInfoList &gop_encode_info_list) {
   AV1_PRIMARY *ppi = impl_ptr_->enc_resource.ppi;
   std::vector<EncodeFrameResult> encoded_frame_list;
+  bool write_temp_delimiter = true;
   // Go through each gop and encode each frame in the gop
   for (size_t i = 0; i < gop_list.size(); ++i) {
     const aom::GopStruct &gop_struct = gop_list[i];
@@ -467,7 +470,9 @@ std::vector<EncodeFrameResult> DuckyEncode::EncodeVideo(
       aom::EncodeFrameDecision frame_decision = { aom::EncodeFrameMode::kQindex,
                                                   aom::EncodeGopMode::kGopRcl,
                                                   frame_param };
-      encoded_frame_list.push_back(EncodeFrame(frame_decision));
+      encoded_frame_list.push_back(
+          EncodeFrame(frame_decision, write_temp_delimiter));
+      write_temp_delimiter = ppi->cpi->common.show_frame;
     }
   }
 
@@ -475,7 +480,7 @@ std::vector<EncodeFrameResult> DuckyEncode::EncodeVideo(
 }
 
 EncodeFrameResult DuckyEncode::EncodeFrame(
-    const EncodeFrameDecision &decision) {
+    const EncodeFrameDecision &decision, bool write_temp_delimiter) {
   EncodeFrameResult encode_frame_result = {};
   const VideoInfo &video_info = impl_ptr_->video_info;
   // Set bitstream_buf size to a conservatve upperbound.
@@ -521,7 +526,7 @@ EncodeFrameResult DuckyEncode::EncodeFrame(
   DuckyEncodeInfoSetEncodeFrameDecision(&cpi->ducky_encode_info, decision);
   const int status = av1_get_compressed_data(cpi, &cpi_data);
 
-  if (cpi->common.show_frame) WriteObu(ppi, &cpi_data);
+  if (write_temp_delimiter) WriteObu(ppi, &cpi_data);
   (void)status;
   assert(status == static_cast<int>(AOM_CODEC_OK));
   encode_frame_result.bitstream_buf.resize(cpi_data.frame_size);
