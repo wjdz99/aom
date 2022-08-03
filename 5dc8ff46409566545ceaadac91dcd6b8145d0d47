@@ -18,6 +18,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "1a4aadd3_cf566829",
+        "filename": "test/mv_cost_test.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 30842
+      },
+      "writtenOn": "2022-08-03T19:30:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7f9c24f2_9c5300c8",
+      "revId": "5dc8ff46409566545ceaadac91dcd6b8145d0d47",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "50022335_8d39d8e0",
@@ -31,6 +49,24 @@
       "writtenOn": "2022-08-03T16:54:21Z",
       "side": 1,
       "message": "variable names are written in lowercase separated by _s:\n\nhttps://google.github.io/styleguide/cppguide.html#Variable_Names",
+      "revId": "5dc8ff46409566545ceaadac91dcd6b8145d0d47",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1595e05c_4e19a294",
+        "filename": "test/mv_cost_test.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 30842
+      },
+      "writtenOn": "2022-08-03T19:30:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "50022335_8d39d8e0",
       "revId": "5dc8ff46409566545ceaadac91dcd6b8145d0d47",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
