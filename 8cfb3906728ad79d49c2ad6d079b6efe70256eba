@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "981e9cf9_166fa64c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-08-04T14:37:52Z",
+      "side": 1,
+      "message": "It may be a good idea to have range check on them so if something is not compatible it\u0027ll fail in a graceful way instead of just crashing....\n\nBut it can be done on the user side",
+      "revId": "8cfb3906728ad79d49c2ad6d079b6efe70256eba",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "51077e4f_b0186d89",
+        "filename": "av1/ratectrl_qmode_interface.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-08-04T14:37:52Z",
+      "side": 1,
+      "message": "extra line",
+      "revId": "8cfb3906728ad79d49c2ad6d079b6efe70256eba",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
