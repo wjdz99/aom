@@ -18,6 +18,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "09475862_104e89b8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-08-04T15:00:06Z",
+      "side": 1,
+      "message": "Yeah, I\u0027m going to add that in a follow-up CL. If I had it now, then we won\u0027t be able to cherry-pick into google3 without it failing.\n\n(The alternative would be to include default values in the struct definition, but since we haven\u0027t been doing that so far, it seemed odd to start now.)",
+      "parentUuid": "981e9cf9_166fa64c",
+      "revId": "8cfb3906728ad79d49c2ad6d079b6efe70256eba",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "51077e4f_b0186d89",
@@ -31,6 +49,24 @@
       "writtenOn": "2022-08-04T14:37:52Z",
       "side": 1,
       "message": "extra line",
+      "revId": "8cfb3906728ad79d49c2ad6d079b6efe70256eba",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "dcf655d8_9a9dbf51",
+        "filename": "av1/ratectrl_qmode_interface.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-08-04T15:00:06Z",
+      "side": 1,
+      "message": "That was intentional. I\u0027m grouping related fields.",
+      "parentUuid": "51077e4f_b0186d89",
       "revId": "8cfb3906728ad79d49c2ad6d079b6efe70256eba",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
