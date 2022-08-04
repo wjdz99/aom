@@ -297,7 +297,23 @@ void TestArfInterval(const GopStruct &gop_struct) {
   }
 }
 
-TEST(RateControlQModeTest, ConstructGopARF) {
+class RateControlQModeTest : public ::testing::Test {
+ protected:
+  RateControlQModeTest() {
+    rc_param_.max_gop_show_frame_count = 32;
+    rc_param_.min_gop_show_frame_count = 4;
+    rc_param_.ref_frame_table_size = 7;
+    rc_param_.max_ref_frames = 7;
+    rc_param_.max_depth = 5;
+    rc_param_.base_q_index = 128;
+    rc_param_.frame_height = 288;
+    rc_param_.frame_width = 352;
+  }
+
+  RateControlParam rc_param_;
+};
+
+TEST_F(RateControlQModeTest, ConstructGopARF) {
   int show_frame_count = 16;
   const bool has_key_frame = false;
   const int global_coding_idx_offset = 5;
@@ -317,7 +333,7 @@ TEST(RateControlQModeTest, ConstructGopARF) {
   TestArfInterval(gop_struct);
 }
 
-TEST(RateControlQModeTest, ConstructGopKey) {
+TEST_F(RateControlQModeTest, ConstructGopKey) {
   const int show_frame_count = 16;
   const bool has_key_frame = true;
   const int global_coding_idx_offset = 10;
@@ -337,7 +353,7 @@ TEST(RateControlQModeTest, ConstructGopKey) {
   TestArfInterval(gop_struct);
 }
 
-TEST(RateControlQModeTest, ConstructShortGop) {
+TEST_F(RateControlQModeTest, ConstructShortGop) {
   int show_frame_count = 2;
   const bool has_key_frame = false;
   const int global_coding_idx_offset = 5;
@@ -437,7 +453,7 @@ double TplFrameStatsAccumulateIntraCost(const TplFrameStats &frame_stats) {
   return sum;
 }
 
-TEST(RateControlQModeTest, CreateTplFrameDepStats) {
+TEST_F(RateControlQModeTest, CreateTplFrameDepStats) {
   TplFrameStats frame_stats = CreateToyTplFrameStatsWithDiffSizes(8, 16);
   StatusOr<TplFrameDepStats> frame_dep_stats =
       CreateTplFrameDepStatsWithoutPropagation(frame_stats);
@@ -455,7 +471,7 @@ TEST(RateControlQModeTest, CreateTplFrameDepStats) {
   EXPECT_NEAR(intra_cost_sum, expected_intra_cost_sum, kErrorEpsilon);
 }
 
-TEST(RateControlQModeTest, BlockRowNotAMultipleOfMinBlockSizeError) {
+TEST_F(RateControlQModeTest, BlockRowNotAMultipleOfMinBlockSizeError) {
   TplFrameStats frame_stats = CreateToyTplFrameStatsWithDiffSizes(8, 16);
   frame_stats.block_stats_list.back().row = 1;
   auto result = CreateTplFrameDepStatsWithoutPropagation(frame_stats);
@@ -463,7 +479,7 @@ TEST(RateControlQModeTest, BlockRowNotAMultipleOfMinBlockSizeError) {
   EXPECT_THAT(result.status().message, HasSubstr("must be a multiple of 8"));
 }
 
-TEST(RateControlQModeTest, BlockPositionOutOfRangeError) {
+TEST_F(RateControlQModeTest, BlockPositionOutOfRangeError) {
   TplFrameStats frame_stats = CreateToyTplFrameStatsWithDiffSizes(8, 16);
   frame_stats.block_stats_list.back().row += 8;
   auto result = CreateTplFrameDepStatsWithoutPropagation(frame_stats);
@@ -471,7 +487,7 @@ TEST(RateControlQModeTest, BlockPositionOutOfRangeError) {
   EXPECT_THAT(result.status().message, HasSubstr("out of range"));
 }
 
-TEST(RateControlQModeTest, GetBlockOverlapArea) {
+TEST_F(RateControlQModeTest, GetBlockOverlapArea) {
   const int size = 8;
   const int r0 = 8;
   const int c0 = 9;
@@ -486,7 +502,7 @@ TEST(RateControlQModeTest, GetBlockOverlapArea) {
   }
 }
 
-TEST(RateControlQModeTest, TplBlockStatsToDepStats) {
+TEST_F(RateControlQModeTest, TplBlockStatsToDepStats) {
   const int intra_cost = 100;
   const int inter_cost = 120;
   const int unit_count = 2;
@@ -500,7 +516,7 @@ TEST(RateControlQModeTest, TplBlockStatsToDepStats) {
   EXPECT_LE(unit_stats.inter_cost, unit_stats.intra_cost);
 }
 
-TEST(RateControlQModeTest, TplFrameDepStatsPropagateSingleZeroMotion) {
+TEST_F(RateControlQModeTest, TplFrameDepStatsPropagateSingleZeroMotion) {
   // cur frame with coding_idx 1 use ref frame with coding_idx 0
   const std::array<int, kBlockRefCount> ref_frame_index = { 0, -1 };
   TplFrameStats frame_stats = CreateToyTplFrameStatsWithDiffSizes(8, 16);
@@ -537,7 +553,7 @@ TEST(RateControlQModeTest, TplFrameDepStatsPropagateSingleZeroMotion) {
   EXPECT_NEAR(propagation_sum, expected_propagation_sum, kErrorEpsilon);
 }
 
-TEST(RateControlQModeTest, TplFrameDepStatsPropagateCompoundZeroMotion) {
+TEST_F(RateControlQModeTest, TplFrameDepStatsPropagateCompoundZeroMotion) {
   // cur frame with coding_idx 2 use two ref frames with coding_idx 0 and 1
   const std::array<int, kBlockRefCount> ref_frame_index = { 0, 1 };
   TplFrameStats frame_stats = CreateToyTplFrameStatsWithDiffSizes(8, 16);
@@ -580,7 +596,7 @@ TEST(RateControlQModeTest, TplFrameDepStatsPropagateCompoundZeroMotion) {
   EXPECT_NEAR(cost_sum1, expected_ref_sum * 0.5, kErrorEpsilon);
 }
 
-TEST(RateControlQModeTest, TplFrameDepStatsPropagateSingleWithMotion) {
+TEST_F(RateControlQModeTest, TplFrameDepStatsPropagateSingleWithMotion) {
   // cur frame with coding_idx 1 use ref frame with coding_idx 0
   const std::array<int, kBlockRefCount> ref_frame_index = { 0, -1 };
   const int min_block_size = 8;
@@ -640,7 +656,7 @@ TEST(RateControlQModeTest, TplFrameDepStatsPropagateSingleWithMotion) {
   }
 }
 
-TEST(RateControlQModeTest, ComputeTplGopDepStats) {
+TEST_F(RateControlQModeTest, ComputeTplGopDepStats) {
   TplGopStats tpl_gop_stats;
   std::vector<RefFrameTable> ref_frame_table_list;
   GopStruct gop_struct;
@@ -893,7 +909,7 @@ TEST(RefFrameManagerTest, GetPrimaryRefFrame) {
   }
 }
 
-TEST(RateControlQModeTest, TestKeyframeDetection) {
+TEST_F(RateControlQModeTest, TestKeyframeDetection) {
   FirstpassInfo firstpass_info;
   const std::string kFirstpassStatsFile = "firstpass_stats";
   ASSERT_NO_FATAL_FAILURE(
@@ -934,27 +950,78 @@ MATCHER_P(GopFrameMatches, expected, "") {
 GopFrame GopFrameUpdateRefIdx(int index, GopFrameType gop_frame_type,
                               int update_ref_idx) {
   GopFrame frame =
-      GopFrameBasic(index, index, index, index, /*depth=*/0, 0, gop_frame_type);
+      GopFrameBasic(0, 0, index, index, /*depth=*/0, 0, gop_frame_type);
   frame.update_ref_idx = update_ref_idx;
   return frame;
 }
 
-TEST(RateControlQModeTest, TestSetRcParamErrorChecking) {
+TEST_F(RateControlQModeTest, TestInvalidRateControlParam) {
   // Default constructed RateControlParam should not be valid.
   RateControlParam rc_param = {};
   EXPECT_NE(AV1RateControlQMode().SetRcParam(rc_param).code, AOM_CODEC_OK);
 }
 
-TEST(RateControlQModeTest, TestGetRefFrameTableListFirstGop) {
+TEST_F(RateControlQModeTest, TestInvalidMaxGopShowFrameCount) {
+  rc_param_.min_gop_show_frame_count = 2;
+  rc_param_.max_gop_show_frame_count = 3;
+  Status status = AV1RateControlQMode().SetRcParam(rc_param_);
+  EXPECT_EQ(status.code, AOM_CODEC_INVALID_PARAM);
+  EXPECT_THAT(status.message,
+              HasSubstr("max_gop_show_frame_count (3) must be at least 4"));
+}
+
+TEST_F(RateControlQModeTest, TestInvalidMinGopShowFrameCount) {
+  rc_param_.min_gop_show_frame_count = 9;
+  rc_param_.max_gop_show_frame_count = 8;
+  Status status = AV1RateControlQMode().SetRcParam(rc_param_);
+  EXPECT_EQ(status.code, AOM_CODEC_INVALID_PARAM);
+  EXPECT_THAT(status.message,
+              HasSubstr("may not be less than min_gop_show_frame_count (9)"));
+}
+
+TEST_F(RateControlQModeTest, TestInvalidRefFrameTableSize) {
+  rc_param_.ref_frame_table_size = 9;
+  Status status = AV1RateControlQMode().SetRcParam(rc_param_);
+  EXPECT_EQ(status.code, AOM_CODEC_INVALID_PARAM);
+  EXPECT_THAT(status.message,
+              HasSubstr("ref_frame_table_size (9) must be in the range"));
+}
+
+TEST_F(RateControlQModeTest, TestInvalidMaxRefFrames) {
+  rc_param_.max_ref_frames = 8;
+  Status status = AV1RateControlQMode().SetRcParam(rc_param_);
+  EXPECT_EQ(status.code, AOM_CODEC_INVALID_PARAM);
+  EXPECT_THAT(status.message,
+              HasSubstr("max_ref_frames (8) must be in the range"));
+}
+
+TEST_F(RateControlQModeTest, TestInvalidMaxDepth) {
+  rc_param_.max_depth = 6;
+  Status status = AV1RateControlQMode().SetRcParam(rc_param_);
+  EXPECT_EQ(status.code, AOM_CODEC_INVALID_PARAM);
+  EXPECT_THAT(status.message, HasSubstr("max_depth (6) must be in the range"));
+}
+
+TEST_F(RateControlQModeTest, TestInvalidBaseQIndex) {
+  rc_param_.base_q_index = 256;
+  Status status = AV1RateControlQMode().SetRcParam(rc_param_);
+  EXPECT_EQ(status.code, AOM_CODEC_INVALID_PARAM);
+  EXPECT_THAT(status.message,
+              HasSubstr("base_q_index (256) must be in the range"));
+}
+
+TEST_F(RateControlQModeTest, TestInvalidFrameHeight) {
+  rc_param_.frame_height = 15;
+  Status status = AV1RateControlQMode().SetRcParam(rc_param_);
+  EXPECT_EQ(status.code, AOM_CODEC_INVALID_PARAM);
+  EXPECT_THAT(status.message,
+              HasSubstr("frame_height (15) must be in the range"));
+}
+
+TEST_F(RateControlQModeTest, TestGetRefFrameTableListFirstGop) {
   AV1RateControlQMode rc;
-  RateControlParam rc_param = {};
-  rc_param.max_gop_show_frame_count = 8;
-  rc_param.ref_frame_table_size = 3;
-  rc_param.max_ref_frames = 3;
-  rc_param.max_depth = 3;
-  rc_param.frame_width = 128;
-  rc_param.frame_height = 128;
-  ASSERT_THAT(rc.SetRcParam(rc_param), IsOkStatus());
+  rc_param_.ref_frame_table_size = 3;
+  ASSERT_THAT(rc.SetRcParam(rc_param_), IsOkStatus());
 
   const auto invalid = GopFrameInvalid();
   const auto frame0 = GopFrameUpdateRefIdx(0, GopFrameType::kRegularKey, -1);
@@ -981,16 +1048,10 @@ TEST(RateControlQModeTest, TestGetRefFrameTableListFirstGop) {
           ElementsAre(matches_frame2, matches_frame0, matches_frame1)));
 }
 
-TEST(RateControlQModeTest, TestGetRefFrameTableListNotFirstGop) {
+TEST_F(RateControlQModeTest, TestGetRefFrameTableListNotFirstGop) {
   AV1RateControlQMode rc;
-  RateControlParam rc_param = {};
-  rc_param.max_gop_show_frame_count = 8;
-  rc_param.ref_frame_table_size = 3;
-  rc_param.max_ref_frames = 3;
-  rc_param.max_depth = 3;
-  rc_param.frame_height = 128;
-  rc_param.frame_width = 128;
-  ASSERT_THAT(rc.SetRcParam(rc_param), IsOkStatus());
+  rc_param_.ref_frame_table_size = 3;
+  ASSERT_THAT(rc.SetRcParam(rc_param_), IsOkStatus());
 
   const auto previous = GopFrameUpdateRefIdx(0, GopFrameType::kRegularKey, -1);
   const auto frame0 = GopFrameUpdateRefIdx(5, GopFrameType::kRegularLeaf, 2);
@@ -1017,20 +1078,12 @@ TEST(RateControlQModeTest, TestGetRefFrameTableListNotFirstGop) {
           ElementsAre(matches_frame2, matches_previous, matches_frame0)));
 }
 
-TEST(RateControlQModeTest, TestGopIntervals) {
+TEST_F(RateControlQModeTest, TestGopIntervals) {
   FirstpassInfo firstpass_info;
   ASSERT_NO_FATAL_FAILURE(
       ReadFirstpassInfo("firstpass_stats", &firstpass_info));
   AV1RateControlQMode rc;
-  RateControlParam rc_param = {};
-  rc_param.frame_height = 288;
-  rc_param.frame_width = 352;
-  rc_param.max_gop_show_frame_count = 32;
-  rc_param.min_gop_show_frame_count = 4;
-  rc_param.ref_frame_table_size = 7;
-  rc_param.max_ref_frames = 7;
-  rc_param.max_depth = 5;
-  ASSERT_THAT(rc.SetRcParam(rc_param), IsOkStatus());
+  ASSERT_THAT(rc.SetRcParam(rc_param_), IsOkStatus());
 
   const auto gop_info = rc.DetermineGopInfo(firstpass_info);
   ASSERT_THAT(gop_info.status(), IsOkStatus());
@@ -1046,22 +1099,13 @@ TEST(RateControlQModeTest, TestGopIntervals) {
 // consistent with each other. With the existing files, the GOP structure
 // resulting from the first pass stats doesn't match the TPL stats, resulting
 // in an error from ValidateTplStats.
-TEST(RateControlQModeTest, DISABLED_TestGetGopEncodeInfo) {
+TEST_F(RateControlQModeTest, DISABLED_TestGetGopEncodeInfo) {
   FirstpassInfo firstpass_info;
   ASSERT_NO_FATAL_FAILURE(
       ReadFirstpassInfo("firstpass_stats", &firstpass_info));
   AV1RateControlQMode rc;
-  RateControlParam rc_param = {};
-  rc_param.frame_height = 288;
-  rc_param.frame_width = 352;
-  rc_param.max_gop_show_frame_count = 16;
-  rc_param.min_gop_show_frame_count = 4;
-  rc_param.ref_frame_table_size = 7;
-  rc_param.max_ref_frames = 7;
-  rc_param.max_depth = 5;
-  // Just an arbitrary base qp for the test.
-  rc_param.base_q_index = 128;
-  ASSERT_THAT(rc.SetRcParam(rc_param), IsOkStatus());
+  rc_param_.max_gop_show_frame_count = 16;
+  ASSERT_THAT(rc.SetRcParam(rc_param_), IsOkStatus());
   const auto gop_info = rc.DetermineGopInfo(firstpass_info);
   ASSERT_THAT(gop_info.status(), IsOkStatus());
   const GopStructList &gop_list = *gop_info;
@@ -1087,7 +1131,7 @@ TEST(RateControlQModeTest, DISABLED_TestGetGopEncodeInfo) {
   }
 }
 
-TEST(RateControlQModeTest, GetGopEncodeInfoWrongGopSize) {
+TEST_F(RateControlQModeTest, GetGopEncodeInfoWrongGopSize) {
   GopStruct gop_struct;
   gop_struct.gop_frame_list.assign(7, GopFrameInvalid());
   TplGopStats tpl_gop_stats;
@@ -1102,18 +1146,19 @@ TEST(RateControlQModeTest, GetGopEncodeInfoWrongGopSize) {
                         "count of TPL stats (5)"));
 }
 
-TEST(RateControlQModeTest, GetGopEncodeInfoRefFrameMissingBlockStats) {
+TEST_F(RateControlQModeTest, GetGopEncodeInfoRefFrameMissingBlockStats) {
   GopStruct gop_struct;
-  for (int i = 0; i < 4; ++i) {
-    gop_struct.gop_frame_list.push_back(
-        GopFrameBasic(0, 0, i, i, 0, i, GopFrameType::kRegularLeaf));
-  }
-  // Only frame 2 is a reference frame.
-  gop_struct.gop_frame_list[2].update_ref_idx = 1;
+  // Frames 0 and 2 are reference frames.
+  gop_struct.gop_frame_list = {
+    GopFrameUpdateRefIdx(0, GopFrameType::kRegularKey, 1),
+    GopFrameUpdateRefIdx(1, GopFrameType::kRegularLeaf, -1),
+    GopFrameUpdateRefIdx(2, GopFrameType::kRegularLeaf, 2),
+  };
 
-  // None of the frames have TPL block stats.
+  // Only frame 0 has TPL block stats.
   TplGopStats tpl_gop_stats;
-  tpl_gop_stats.frame_stats_list.assign(4, { 8, 176, 144, {} });
+  tpl_gop_stats.frame_stats_list.assign(3, { 8, 176, 144, {} });
+  tpl_gop_stats.frame_stats_list[0] = CreateToyTplFrameStatsWithDiffSizes(8, 8);
 
   AV1RateControlQMode rc;
   const Status status =
@@ -1128,7 +1173,7 @@ TEST(RateControlQModeTest, GetGopEncodeInfoRefFrameMissingBlockStats) {
 // not expected that it will be used in any real libaom tests.
 // This simple "toy" test exists solely to verify the integration of gmock into
 // the aom build.
-TEST(RateControlQModeTest, TestMock) {
+TEST_F(RateControlQModeTest, TestMock) {
   MockRateControlQMode mock_rc;
   EXPECT_CALL(mock_rc,
               DetermineGopInfo(Field(&FirstpassInfo::num_mbs_16x16, 1000)))
