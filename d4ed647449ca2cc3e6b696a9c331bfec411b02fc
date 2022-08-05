@@ -22,6 +22,30 @@
       },
       "revId": "d4ed647449ca2cc3e6b696a9c331bfec411b02fc",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4c44be9d_695a7f56",
+        "filename": "test/ratectrl_qmode_test.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 310,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-08-05T16:59:53Z",
+      "side": 1,
+      "message": "I don\u0027t understand your suggestion. \n\nThe reason I\u0027m defining them here is so that we don\u0027t have to repeat them in every test. By defining this test suite, all tests based on this class automatically have access to a RateControlParam with reasonable (i.e. valid) settings.\n\nInitializing rc_param_ in the ctor but allowing it to be modified by tests means that:\n- Every test can use the default settings automatically\n- Any test which wants to change any settings can just change the ones it wants to change.\n\nThis is particularly useful for testing the range checking in SetRcParam. The default settings here are all valid, but individual tests can just change a single field  to ensure that a particular range check is the one which fails.",
+      "parentUuid": "c081a6e3_bbc99f75",
+      "range": {
+        "startLine": 310,
+        "startChar": 28,
+        "endLine": 310,
+        "endChar": 31
+      },
+      "revId": "d4ed647449ca2cc3e6b696a9c331bfec411b02fc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
