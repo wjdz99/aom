@@ -118,6 +118,30 @@
       },
       "revId": "d4ed647449ca2cc3e6b696a9c331bfec411b02fc",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "eebc845e_89674fa0",
+        "filename": "test/ratectrl_qmode_test.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 310,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-08-05T18:30:57Z",
+      "side": 1,
+      "message": "Ah, I didn\u0027t see those. That\u0027s the problem with searching in gerrit when it\u0027s not showing all the rows. ¯\\_(ツ)_/¯\n\nDone, and also fixed mi_rows and mi_cols, which seem to have been defined incorrectly.",
+      "parentUuid": "1d715a96_ed24496a",
+      "range": {
+        "startLine": 310,
+        "startChar": 28,
+        "endLine": 310,
+        "endChar": 31
+      },
+      "revId": "d4ed647449ca2cc3e6b696a9c331bfec411b02fc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
