@@ -429,7 +429,11 @@ std::vector<TplGopStats> DuckyEncode::ComputeTplStats(
     const GopStructList &gop_list) {
   std::vector<TplGopStats> tpl_gop_stats_list;
   AV1_PRIMARY *ppi = impl_ptr_->enc_resource.ppi;
+  const VideoInfo &video_info = impl_ptr_->video_info;
   write_temp_delimiter_ = true;
+  pending_ctx_size_ = 0;
+  bitstream_buf_ = std::vector<uint8_t>(
+      video_info.frame_width * video_info.frame_height * 3 * 8, 0);
 
   // Go through each gop and encode each frame in the gop
   for (size_t i = 0; i < gop_list.size(); ++i) {
@@ -444,6 +448,7 @@ std::vector<TplGopStats> DuckyEncode::ComputeTplStats(
                                                   { 128, -1 } };
       (void)frame;
       EncodeFrame(frame_decision);
+      if (ppi->cpi->common.show_frame) pending_ctx_size_ = 0;
       write_temp_delimiter_ = ppi->cpi->common.show_frame;
     }
     tpl_gop_stats = ObtainTplStats(gop_struct);
@@ -460,7 +465,13 @@ std::vector<EncodeFrameResult> DuckyEncode::EncodeVideo(
     const GopEncodeInfoList &gop_encode_info_list) {
   AV1_PRIMARY *ppi = impl_ptr_->enc_resource.ppi;
   std::vector<EncodeFrameResult> encoded_frame_list;
+  const VideoInfo &video_info = impl_ptr_->video_info;
+
   write_temp_delimiter_ = true;
+  pending_ctx_size_ = 0;
+  bitstream_buf_ = std::vector<uint8_t>(
+      video_info.frame_width * video_info.frame_height * 3 * 8, 0);
+
   // Go through each gop and encode each frame in the gop
   for (size_t i = 0; i < gop_list.size(); ++i) {
     const aom::GopStruct &gop_struct = gop_list[i];
@@ -471,7 +482,17 @@ std::vector<EncodeFrameResult> DuckyEncode::EncodeVideo(
       aom::EncodeFrameDecision frame_decision = { aom::EncodeFrameMode::kQindex,
                                                   aom::EncodeGopMode::kGopRcl,
                                                   frame_param };
-      encoded_frame_list.push_back(EncodeFrame(frame_decision));
+      EncodeFrame(frame_decision);
+      if (ppi->cpi->common.show_frame) {
+        bitstream_buf_.resize(pending_ctx_size_);
+        EncodeFrameResult encode_frame_result = {};
+        encode_frame_result.bitstream_buf = bitstream_buf_;
+        encoded_frame_list.push_back(encode_frame_result);
+
+        pending_ctx_size_ = 0;
+        bitstream_buf_ = std::vector<uint8_t>(
+            video_info.frame_width * video_info.frame_height * 3 * 8, 0);
+      }
       write_temp_delimiter_ = ppi->cpi->common.show_frame;
     }
   }
@@ -482,11 +503,9 @@ std::vector<EncodeFrameResult> DuckyEncode::EncodeVideo(
 EncodeFrameResult DuckyEncode::EncodeFrame(
     const EncodeFrameDecision &decision) {
   EncodeFrameResult encode_frame_result = {};
-  const VideoInfo &video_info = impl_ptr_->video_info;
   // Set bitstream_buf size to a conservatve upperbound.
   // TODO(angiebird): Set bitstream_buf's size optimally.
-  encode_frame_result.bitstream_buf = std::vector<uint8_t>(
-      video_info.frame_width * video_info.frame_height * 3 * 8, 0);
+  encode_frame_result.bitstream_buf = bitstream_buf_;
   AV1_PRIMARY *ppi = impl_ptr_->enc_resource.ppi;
   aom_image_t *img = &impl_ptr_->enc_resource.img;
   AV1_COMP *const cpi = ppi->cpi;
@@ -508,8 +527,8 @@ EncodeFrameResult DuckyEncode::EncodeFrame(
   }
 
   AV1_COMP_DATA cpi_data = {};
-  cpi_data.cx_data = encode_frame_result.bitstream_buf.data();
-  cpi_data.cx_data_sz = encode_frame_result.bitstream_buf.size();
+  cpi_data.cx_data = bitstream_buf_.data() + pending_ctx_size_;
+  cpi_data.cx_data_sz = bitstream_buf_.size() - pending_ctx_size_;
   cpi_data.frame_size = 0;
   cpi_data.flush = 1;
   // ts_frame_start and ts_frame_end are not as important since we are focusing
@@ -529,7 +548,6 @@ EncodeFrameResult DuckyEncode::EncodeFrame(
   if (write_temp_delimiter_) WriteObu(ppi, &cpi_data);
   (void)status;
   assert(status == static_cast<int>(AOM_CODEC_OK));
-  encode_frame_result.bitstream_buf.resize(cpi_data.frame_size);
   DuckyEncodeInfoGetEncodeFrameResult(&cpi->ducky_encode_info,
                                       &encode_frame_result);
   av1_post_encode_updates(cpi, &cpi_data);
@@ -537,6 +555,8 @@ EncodeFrameResult DuckyEncode::EncodeFrame(
     // decrement frames_left counter
     ppi->frames_left = AOMMAX(0, ppi->frames_left - 1);
   }
+
+  pending_ctx_size_ += cpi_data.frame_size;
 
   fprintf(stderr, "frame %d, qp = %d, size %d, PSNR %f\n",
           encode_frame_result.global_order_idx, encode_frame_result.q_index,

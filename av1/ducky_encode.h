@@ -88,6 +88,8 @@ class DuckyEncode {
   class EncodeImpl;
   std::unique_ptr<EncodeImpl> impl_ptr_;
   bool write_temp_delimiter_;
+  std::vector<uint8_t> bitstream_buf_;
+  int pending_ctx_size_;
 };
 }  // namespace aom
 
