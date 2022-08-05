@@ -33,6 +33,24 @@
       "message": "Please post the unmodified revert first as a baseline and then upload a patch with the fix to make the difference more easily identified.",
       "revId": "de984f1ce06093cc90beb293b4abdc9dc1ee9270",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "32c3f2b3_3a279eec",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8893
+      },
+      "writtenOn": "2022-08-05T12:52:10Z",
+      "side": 1,
+      "message": "Please check the diff between patchset 2 (unmodified revert) and patchset 3 (fix along with revert).",
+      "parentUuid": "68843b34_99fd41bb",
+      "revId": "de984f1ce06093cc90beb293b4abdc9dc1ee9270",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
