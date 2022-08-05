@@ -20,6 +20,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "e9488f5c_f3aa9d46",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2022-08-05T17:15:38Z",
+      "side": 1,
+      "message": "\u003e Note that this comment does not mention transform skip. Should it?\nYes. We have modified the comment accordingly.\n\u003e 2. We also need to talk about existing level 2. So the last sentence should read something like \"The existing speed feature levels 1 and 2 are made as levels 2 and 3, respectively.\"\n\u003e Also, \"made as\" sounds a little strange here. Maybe \"become\"?\n\u003e The existing speed feature levels 1 and 2 become levels 2 and 3, respectively.\n\u003e UPDATE: I am wondering if this sentence is not talking about the speed feature dc_blk_pred_level (which has values 0..3) but rather about x-\u003etxfm_search_params.predict_dc_level (which has values 0..2).\nWe have corrected the commit message to distinguish the changes done to the existing levels of speed feature and ‘predict_dc_levels’.",
+      "parentUuid": "78799cb3_92a1e1d6",
+      "revId": "15b52aa64e19a6e89739479b259eb1a32cbb2757",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "4c7e65dc_48f57fd6",
         "filename": "/PATCHSET_LEVEL",
         "patchSetId": 3
@@ -87,6 +105,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "70231fdf_c152985a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2022-08-05T17:15:38Z",
+      "side": 1,
+      "message": "The function predict_dc_only_block() is invoked only when txfm_params-\u003epredict_dc_level\u003e\u003d1.",
+      "parentUuid": "6d1dbbc6_8cf866d4",
+      "revId": "15b52aa64e19a6e89739479b259eb1a32cbb2757",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ffb3bfc5_136a8946",
@@ -100,6 +136,24 @@
       "writtenOn": "2022-08-04T22:03:12Z",
       "side": 1,
       "message": "1. It is not clear what \"Index 0\", \"Index 1\", and \"Index 2\" are referring to. I believe they are referring to the possible values of second index. If so, it would be clearer to change \"Index 0\" to something like \"Second index \u003d 0 (DEFAULT_EVAL)\". If that is too long, change it to \"Second index \u003d 0\".\n\n2. The first index (0..3) is not documented. (It is the value of the dc_blk_pred_level speed feature.)",
+      "revId": "15b52aa64e19a6e89739479b259eb1a32cbb2757",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5278cea2_29c7e032",
+        "filename": "av1/encoder/speed_features.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2022-08-05T17:15:38Z",
+      "side": 1,
+      "message": "We have modified the documentation to make it clear that first and second indices are correspond to speed feature and mode evaluation types respectively.",
+      "parentUuid": "ffb3bfc5_136a8946",
       "revId": "15b52aa64e19a6e89739479b259eb1a32cbb2757",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -121,6 +175,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e17ddb66_428a3318",
+        "filename": "av1/encoder/speed_features.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2022-08-05T17:15:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "86bcbacd_f1499694",
+      "revId": "15b52aa64e19a6e89739479b259eb1a32cbb2757",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "29752850_2008691e",
@@ -134,6 +206,24 @@
       "writtenOn": "2022-08-04T22:03:12Z",
       "side": 1,
       "message": "Nit: capitalize \"DC\".",
+      "revId": "15b52aa64e19a6e89739479b259eb1a32cbb2757",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7f33d75c_46697ab2",
+        "filename": "av1/encoder/speed_features.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 128,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2022-08-05T17:15:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "29752850_2008691e",
       "revId": "15b52aa64e19a6e89739479b259eb1a32cbb2757",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -155,6 +245,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ed085e46_45e0d573",
+        "filename": "av1/encoder/tx_search.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1965,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2022-08-05T17:15:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6b751b99_b7fc22ae",
+      "revId": "15b52aa64e19a6e89739479b259eb1a32cbb2757",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b2968639_8889f861",
@@ -168,6 +276,24 @@
       "writtenOn": "2022-08-04T22:03:12Z",
       "side": 1,
       "message": "Nit/optional: The conditions for the `if` and `else if` below have a common expression `(block_var \u003c var_threshold)`. So we can have an early return and remove that common expression from the `if` and `else if`:\n\n```\n  if (block_var \u003e\u003d var_threshold)\n    return;\n\n  // Early prediction of skip block if residual mean and variance are less\n  // than qstep based threshold\n  if ((llabs(*per_px_mean) * dc_coeff_scale[tx_size]) \u003c (dc_qstep \u003c\u003c 12)) {\n    ...\n  } else if (dc_blk_pred_level \u003e 1) {\n    ...\n  }\n```",
+      "revId": "15b52aa64e19a6e89739479b259eb1a32cbb2757",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c562b25f_71dc1a3f",
+        "filename": "av1/encoder/tx_search.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1972,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2022-08-05T17:15:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b2968639_8889f861",
       "revId": "15b52aa64e19a6e89739479b259eb1a32cbb2757",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -189,6 +315,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "80256bab_9ef8d2d2",
+        "filename": "av1/encoder/tx_search.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 2007,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2022-08-05T17:15:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a52f5c2f_c83869b4",
+      "revId": "15b52aa64e19a6e89739479b259eb1a32cbb2757",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "6125d3b2_0aea29dd",
@@ -202,6 +346,24 @@
       "writtenOn": "2022-08-04T22:03:12Z",
       "side": 1,
       "message": "Nit/optional: It should be good to change `txfm_params-\u003epredict_dc_level` to `txfm_params-\u003epredict_dc_level \u003e\u003d 1`, because it is no longer a boolean flag.",
+      "revId": "15b52aa64e19a6e89739479b259eb1a32cbb2757",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ca5dd268_22332895",
+        "filename": "av1/encoder/tx_search.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 2059,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2022-08-05T17:15:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6125d3b2_0aea29dd",
       "revId": "15b52aa64e19a6e89739479b259eb1a32cbb2757",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
