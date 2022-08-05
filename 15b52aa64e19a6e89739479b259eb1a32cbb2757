@@ -123,6 +123,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "67f0855d_5fe4c699",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-08-05T20:46:50Z",
+      "side": 1,
+      "message": "But the code I quoted above may be executed when the speed feature dc_blk_pred_level is set to 1, 2, or 3. Your message says:\n\n\u003e When the speed feature dc_blk_pred_level is set to 1, ‘best_rd_stats-\u003eskip_txfm’ \u003e flag is set based on residual mean and variance which is used only to skip the\n\u003e transform type search during mode evaluation stage.\n\nwhich implies that this is not true when the speed feature dc_blk_pred_level is set to 2 or 3.\n\nIt seems that whether the speed feature dc_blk_pred_level is set to 1 (vs. 2 or 2) only affects the following code:\n\n```\n  } else if (predict_dc_level \u003e 1) {\n    // Predict DC only blocks based on residual variance.\n    // For chroma plane, this early prediction is disabled for intra blocks.\n    if ((plane \u003d\u003d 0) || (plane \u003e 0 \u0026\u0026 is_inter_block(mbmi))) *dc_only_blk \u003d 1;\n  }\n```",
+      "parentUuid": "70231fdf_c152985a",
+      "revId": "15b52aa64e19a6e89739479b259eb1a32cbb2757",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ffb3bfc5_136a8946",
