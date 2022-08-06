@@ -318,31 +318,65 @@ SECTION .text
 ;   3: If 0, then normal sad, else avg
 ;   4: If 0, then normal sad, else skip rows
 %macro SADNXN4D 2-4 0,0
+%define use_loop 1
+
 %if %4 == 1  ; skip rows
 %if ARCH_X86_64
+%if use_loop
+cglobal sad_skip_%1x%2x4d, 5, 9, 8, src, src_stride, ref1, ref_stride, \
+                                     res, ref2, ref3, ref4, cnt
+%else
 cglobal sad_skip_%1x%2x4d, 5, 8, 8, src, src_stride, ref1, ref_stride, \
-                              res, ref2, ref3, ref4
+                                     res, ref2, ref3, ref4
+%endif
+%else
+%if use_loop
+cglobal sad_skip_%1x%2x4d, 4, 7, 8, src, cnt, ref1, ref_stride, \
+                              ref2, ref3, ref4
+%define src_strideq r1mp
+%define src_strided r1mp
 %else
 cglobal sad_skip_%1x%2x4d, 4, 7, 8, src, src_stride, ref1, ref_stride, \
                               ref2, ref3, ref4
 %endif
+%endif
 %elif %3 == 0  ; normal sad
 %if ARCH_X86_64
+%if use_loop
+cglobal sad%1x%2x4d, 5, 9, 8, src, src_stride, ref1, ref_stride, \
+                              res, ref2, ref3, ref4, cnt
+%else
 cglobal sad%1x%2x4d, 5, 8, 8, src, src_stride, ref1, ref_stride, \
                               res, ref2, ref3, ref4
+%endif
+%else
+%if use_loop
+cglobal sad%1x%2x4d, 4, 7, 8, src, cnt, ref1, ref_stride, \
+                              ref2, ref3, ref4
+%define src_strideq r1mp
+%define src_strided r1mp
 %else
 cglobal sad%1x%2x4d, 4, 7, 8, src, src_stride, ref1, ref_stride, \
                               ref2, ref3, ref4
 %endif
+%endif
 %else ; avg
 %if ARCH_X86_64
+%if use_loop
+cglobal sad%1x%2x4d_avg, 6, 11, 8, src, src_stride, ref1, ref_stride, \
+                                   second_pred, res, ref2, ref3, ref4, cnt
+%else
 cglobal sad%1x%2x4d_avg, 6, 10, 8, src, src_stride, ref1, ref_stride, \
                                   second_pred, res, ref2, ref3, ref4
+%endif
 %else
 cglobal sad%1x%2x4d_avg, 5, 7, 8, src, ref4, ref1, ref_stride, \
                                   second_pred, ref2, ref3
   %define src_strideq r1mp
   %define src_strided r1mp
+%if use_loop
+  %define cnt r2m
+%endif
 %endif
 %endif
 
@@ -361,15 +395,24 @@ cglobal sad%1x%2x4d_avg, 5, 7, 8, src, ref4, ref1, ref_stride, \
 
   PROCESS_%1x2x4 1, 0, 0, 0, ref_strideq, %3, 0, 1, 2
 %if %4 == 1  ; downsample number of rows by 2
-%define num_rep (%2-8)/4
+%define num_rep (%2-8)/4 + 1
 %else
-%define num_rep (%2-4)/2
+%define num_rep (%2-4)/2 + 1
 %endif
+%if use_loop
+  mov                 cntd, num_rep
+.loop:
+  PROCESS_%1x2x4 0, 0, 0, 0, ref_strideq, %3, 0, 1, 2
+  dec                 cntd
+  jnz .loop
+%else
 %rep num_rep
   PROCESS_%1x2x4 0, 0, 0, 0, ref_strideq, %3, 0, 1, 2
 %endrep
+%endif
 %undef num_rep
-  PROCESS_%1x2x4 0, 0, 0, 0, ref_strideq, %3, 0, 1, 2
+%undef use_loop
+  ;PROCESS_%1x2x4 0, 0, 0, 0, ref_strideq, %3, 0, 1, 2
 
 %if %3 == 0
   %define resultq r4
