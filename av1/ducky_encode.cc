@@ -15,6 +15,7 @@
 #include <numeric>
 #include <vector>
 
+#include "av1/common/enums.h"
 #include "config/aom_config.h"
 
 #include "aom/aom_encoder.h"
@@ -310,6 +311,12 @@ static void DuckyEncodeInfoSetGopStruct(AV1_PRIMARY *ppi,
         AOMMAX(frame.layer_depth, gf_group->max_layer_depth);
     gf_group->refbuf_state[i] =
         frame.is_key_frame ? REFBUF_RESET : REFBUF_UPDATE;
+
+    for (int ref_idx = 0; ref_idx < REF_FRAMES; ++ref_idx) {
+      int ref_frame = static_cast<int>(frame.ref_frame_list[ref_idx].name);
+      gf_group->ref_frame_list[i][ref_frame] =
+          frame.ref_frame_list[ref_idx].index;
+    }
     ++i;
   }
   ppi->cpi->gf_frame_index = 0;
