@@ -24,6 +24,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "9b00582a_667c60f7",
+        "filename": "av1/ducky_encode.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 296,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2022-08-08T15:37:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "12878b90_1e9fb513",
+      "range": {
+        "startLine": 296,
+        "startChar": 7,
+        "endLine": 296,
+        "endChar": 11
+      },
+      "revId": "f6ec581006b28d901c8ba737601cb84975674c5c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b7d6447a_caed0f2b",
@@ -37,6 +61,30 @@
       "writtenOn": "2022-08-08T12:13:04Z",
       "side": 1,
       "message": "The size of ref_frame_list could vary. This should probably be frame.ref_frame_list.size(). \n\n(Due to the ridiculous compiler settings in some configurations, that would either mean static_casting it to int, or changing ref_idx to size_t.)",
+      "range": {
+        "startLine": 315,
+        "startChar": 36,
+        "endLine": 315,
+        "endChar": 46
+      },
+      "revId": "f6ec581006b28d901c8ba737601cb84975674c5c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "61f1be44_18f2097a",
+        "filename": "av1/ducky_encode.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 315,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2022-08-08T15:37:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b7d6447a_caed0f2b",
       "range": {
         "startLine": 315,
         "startChar": 36,
@@ -70,6 +118,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "4e7ee6e0_3e199e6f",
+        "filename": "av1/ducky_encode.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 317,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2022-08-08T15:37:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "dcffa789_495d62df",
+      "range": {
+        "startLine": 317,
+        "startChar": 16,
+        "endLine": 317,
+        "endChar": 44
+      },
+      "revId": "f6ec581006b28d901c8ba737601cb84975674c5c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "6478053a_7d35cbcb",
@@ -83,6 +155,30 @@
       "writtenOn": "2022-08-08T12:13:04Z",
       "side": 1,
       "message": "Is this only for use with DuckyEncode? How would the encoder know whether it\u0027s valid or not? Perhaps provide a little more detail in the comment here.",
+      "range": {
+        "startLine": 373,
+        "startChar": 0,
+        "endLine": 373,
+        "endChar": 25
+      },
+      "revId": "f6ec581006b28d901c8ba737601cb84975674c5c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "134499db_8e4c5e80",
+        "filename": "av1/encoder/firstpass.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 373,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2022-08-08T15:37:35Z",
+      "side": 1,
+      "message": "This is the first CL in a series of changes. These variables will be further propagated to libaom to control the reference frame selection there.",
+      "parentUuid": "6478053a_7d35cbcb",
       "range": {
         "startLine": 373,
         "startChar": 0,
