@@ -372,6 +372,8 @@ typedef struct GF_GROUP {
 
   // Reference frame list
   int ref_frame_list[MAX_STATIC_GF_GROUP_LENGTH][REF_FRAMES];
+  // Update frame index
+  int update_ref_idx[MAX_STATIC_GF_GROUP_LENGTH];
 
   // Indicates the level of parallelism in frame parallel encodes.
   // 0 : frame is independently encoded (not part of parallel encodes).
