@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ff6dddf9_3598e4d0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 6245
+      },
+      "writtenOn": "2022-08-08T19:33:19Z",
+      "side": 1,
+      "message": "Hi Marco, Yunqing,\n\nIn this CL, an issue with the access of source frame buffers, in rc_scene_detection_onepass_rt(), is fixed. In this function, the source buffers of current and last frames were accessed using cpi-\u003eunscaled_source and cpi-\u003eunscaled_last_source. These pointers are initialized in av1_encode() which is called after rc_scene_detection_onepass_rt(). Hence these pointers were corresponding to last frame when rc_scene_detection_onepass_rt() was called. However due to commutative property of absolute difference (used for SAD), the relevant metrics seemed to be correct for all frames except first inter frame. For first inter frame, these metrics were not calculated as the cpi-\u003eunscaled_last_source was NULL. Thus cpi-\u003erc.frame_source_sad is always zero for first inter frame. cpi-\u003eunscaled_last_source should have been set as first frame (i.e., intra frame) in this case. This CL fixes the issue by appropriately initializing pointers from frame_input.\n\nPlease check the borg results for rtc-screen testset (--tune-content\u003dscreen):\n```\n          Instruction Count        BD-Rate Loss(%)\ncpu-used    Reduction(%)    avg.psnr   ovr.psnr    ssim\n    7         -0.543        -0.2794     0.5159    0.7707\n    8          0.139         0.0810    -0.0130    0.1490\n    9          0.445        -0.4881    -0.1066   -0.0806\n    10         0.051        -0.0661     0.0410    0.0473\n```  \n\nOut of all the screen content clips tested, the impact is seen for the following clips (2 out of 8 clips) across presets. The inconsistent results across metrics for \u0027screenshare_static.1672_1162\u0027 content for speed\u003d7,8 presets seem to be present due to non-monotonic nature of R-D curve for the same (both in parent and modified versions).\n\n```\n          \t\t        \t\t\tBD-Rate Loss(%)\ncpu-used      \t\tContent    \t\tavg.psnr   ovr.psnr    ssim\n    7       screenshare_static.1672_1162  \t-1.9948     5.1126    6.9898\n    7       screen_recording_crd.1920_1080      -0.2403    -0.9850   -0.8245\n    8       screenshare_static.1672_1162  \t 0.3780    -0.6402    0.4566\n    8       screen_recording_crd.1920_1080       0.2698     0.5365    0.7351\n    9       screenshare_static.1672_1162  \t-4.8533    -0.4901   -1.3473\n    9       screen_recording_crd.1920_1080       0.9486    -0.3625    0.7024\n   10       screenshare_static.1672_1162  \t-1.8133    -1.1529   -1.2268\n   10       screen_recording_crd.1920_1080       1.2841     1.4808    1.6055\n```  \n\n\nPlease check the borg results for rtc/rtc-derf test-sets:\n```\n          Instruction Count        BD-Rate Loss(%)\ncpu-used    Reduction(%)    avg.psnr   ovr.psnr    ssim\nFor rtc test-set\n    7           0.019         0.0469     0.0460    0.1023\n    8          -0.002        -0.0974    -0.0919   -0.1558\n    9          -0.019         0.0217     0.0491    0.0366\n    10         -0.012         0.2033     0.2104    0.3026\nFor rtc-derf test-set\n    7          -0.011         0.0539     0.0516    0.0259\n    8          -0.087         0.0546     0.0343    0.0792\n    9           0.023         0.0836     0.0710    0.1114\n    10         -0.058         0.0733     0.0715    0.2745\n```    \n\nThe instruction count reduction specified has been measured using command:\n $ perf stat -e instructions:u ./aomenc …\n\nTo fix the unit-test failure with patchset3, we reduced the psnr threshold for the unit-test, AV1/RTEndToEndTest.EndtoEndPSNRTest/18.\n\nThough the results are mixed, we feel that this CL can be considered as it fixes an existing issue. Please let us know your thoughts on the CL.\n\nRegards,\nRanjit",
+      "revId": "d1432d0ab9647ed467aee65c571a3028005cd5ac",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
