@@ -16,6 +16,63 @@
       "message": "Hi Wan-Teh,\n\nWe have pushed the latest patch-set after taking care of your comments.\n\nPlease review.\n\nRegards,\nMudassir",
       "revId": "f90f4cd2dc408c18e7276a8c6521a9ee2ca7975a",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c8224029_80b3b728",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-08-08T18:04:44Z",
+      "side": 1,
+      "message": "LGTM. Just one typo in a comment and an optional suggestion.\n\nChi Yo: PTAL. Thanks.",
+      "revId": "f90f4cd2dc408c18e7276a8c6521a9ee2ca7975a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a5267271_4b996f5a",
+        "filename": "av1/encoder/speed_features.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 1299,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-08-08T18:04:44Z",
+      "side": 1,
+      "message": "Typo: speed_feature.c \u003d\u003e speed_features.c",
+      "revId": "f90f4cd2dc408c18e7276a8c6521a9ee2ca7975a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e5a0a813_c94abf24",
+        "filename": "av1/encoder/speed_features.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 1305,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-08-08T18:04:44Z",
+      "side": 1,
+      "message": "Nit/optional: It seems sufficient to refer to predict_dc_levels[][] in speed_features.c. We can consider omitting this table and just documenting that the values of this speed feature are 0 to 3. Your call.",
+      "range": {
+        "startLine": 1300,
+        "startChar": 38,
+        "endLine": 1305,
+        "endChar": 45
+      },
+      "revId": "f90f4cd2dc408c18e7276a8c6521a9ee2ca7975a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
