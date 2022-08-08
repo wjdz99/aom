@@ -35,6 +35,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a13be8e2_b3257f32",
+        "filename": "av1/encoder/encoder_utils.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 1011,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2022-08-08T22:21:44Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "8966ed28_6f6b993e",
+      "revId": "089b9b2926a371e944c00eaaae772c91175dd33f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "f92d4b3f_af435ab1",
@@ -48,6 +66,30 @@
       "writtenOn": "2022-08-03T18:51:42Z",
       "side": 1,
       "message": "This assert makes sure that slot 7 is not used by any frame except key frames and S-frames. As per your suggestion, we have also added a new flag \u0027rt_reduce_num_ref_buffers\u0027 in cpi structure to enable this feature. Please review.",
+      "range": {
+        "startLine": 1020,
+        "startChar": 3,
+        "endLine": 1021,
+        "endChar": 38
+      },
+      "revId": "089b9b2926a371e944c00eaaae772c91175dd33f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "587d5d29_20b648c8",
+        "filename": "av1/encoder/encoder_utils.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 1021,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2022-08-08T22:21:44Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "f92d4b3f_af435ab1",
       "range": {
         "startLine": 1020,
         "startChar": 3,
