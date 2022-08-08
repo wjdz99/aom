@@ -35,6 +35,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "71d6fa87_4e232bf8",
+        "filename": "av1/encoder/block.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 452,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2022-08-08T15:47:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b6531409_1c9ade19",
+      "revId": "a842dbe9e1a74596783739159732dfee26fe46a2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ee650255_c685dd6a",
@@ -48,6 +66,24 @@
       "writtenOn": "2022-08-05T20:46:50Z",
       "side": 1,
       "message": "This should be split into two sentences. For example,\n\n```\n// Predict DC block level used during transform type search. Is indexed using the\n// following:\n```",
+      "revId": "a842dbe9e1a74596783739159732dfee26fe46a2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bde4857c_28707e9e",
+        "filename": "av1/encoder/speed_features.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2022-08-08T15:47:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ee650255_c685dd6a",
       "revId": "a842dbe9e1a74596783739159732dfee26fe46a2",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -69,6 +105,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "9b1fbad6_4838fa5d",
+        "filename": "av1/encoder/speed_features.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2022-08-08T15:47:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e3ddf1b0_bfc77673",
+      "revId": "a842dbe9e1a74596783739159732dfee26fe46a2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "40624fa0_49ce5719",
@@ -86,6 +140,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "b92d2901_b178edb7",
+        "filename": "av1/encoder/speed_features.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 1296,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2022-08-08T15:47:55Z",
+      "side": 1,
+      "message": "We have modified the documentation to correct the usage, as using the term \u0027prediction\u0027 alone would suffice.",
+      "parentUuid": "40624fa0_49ce5719",
+      "revId": "a842dbe9e1a74596783739159732dfee26fe46a2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "3fa2b167_33b4d632",
@@ -99,6 +171,24 @@
       "writtenOn": "2022-08-05T20:46:50Z",
       "side": 1,
       "message": "Optional: The meaning of levels 1, 2, 3 should be documented. Since the original code doesn\u0027t document this either, you don\u0027t need to address this in this CL.",
+      "revId": "a842dbe9e1a74596783739159732dfee26fe46a2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b9807dca_f92e1211",
+        "filename": "av1/encoder/speed_features.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 1298,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2022-08-08T15:47:55Z",
+      "side": 1,
+      "message": "We have added the documentation for levels 1, 2 and 3. Please check.",
+      "parentUuid": "3fa2b167_33b4d632",
       "revId": "a842dbe9e1a74596783739159732dfee26fe46a2",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
