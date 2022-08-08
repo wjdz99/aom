@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "25088614_ba0e93ab",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2022-08-08T13:18:07Z",
+      "side": 1,
+      "message": "Hi James,\n\nAs you have pointed out in the patch (https://aomedia-review.googlesource.com/c/aom/+/155366), aom_process_hadamard_lp_8x16() function is specific to low-bd and need not be called for high-bd path. Hence, in this patch the function call is modified appropriately to avoid it in the high-bd path.\n\nWe observed ~2% encode time reduction (with speeds \u003e\u003d 7) for high-bd path as the function call is now avoided. We have also verified that the change is bit-match w.r.t. parent commit for both low and high bit depth paths. \n\nPlease review the patch.\n\nThanks \u0026 Regards,\nVenkata.",
+      "revId": "9aa4fe222bad780e90e8b57238087642b24d43da",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
