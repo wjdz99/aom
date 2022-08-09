@@ -176,6 +176,19 @@ static int choose_primary_ref_frame(
     return PRIMARY_REF_NONE;
   }
 
+#if !CONFIG_REALTIME_ONLY
+  if (cpi->use_ducky_encode) {
+    int primary_ref_frame = PRIMARY_REF_NONE;
+    int wanted_fb = cpi->ppi->gf_group.primary_ref_idx[cpi->gf_frame_index];
+    for (int ref_frame = LAST_FRAME; ref_frame <= ALTREF_FRAME; ref_frame++) {
+      if (get_ref_frame_map_idx(cm, ref_frame) == wanted_fb)
+        primary_ref_frame = ref_frame - LAST_FRAME;
+    }
+
+    return primary_ref_frame;
+  }
+#endif  // !CONFIG_REALTIME_ONLY
+
   // In large scale case, always use Last frame's frame contexts.
   // Note(yunqing): In other cases, primary_ref_frame is chosen based on
   // cpi->ppi->gf_group.layer_depth[cpi->gf_frame_index], which also controls
