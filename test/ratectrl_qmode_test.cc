@@ -155,16 +155,12 @@ void ReadTplInfo(const std::string &filename,
   const int mi_cols = kFrameWidth / 16;
   for (auto &gop_struct : gop_list) {
     int gop_interval = gop_struct.show_frame_count;
-    // One GOP in this test only has 2 frames, and TPL stats are not generated
-    // for this GOP.
-    if (gop_interval <= 2) continue;
     aom::TplGopStats tpl_stats = {};
     for (int frame_idx = 0; frame_idx < gop_interval; frame_idx++) {
       aom::TplFrameStats tpl_frame_stats = {};
       tpl_frame_stats.frame_height = kFrameHeight;
       tpl_frame_stats.frame_width = kFrameWidth;
       tpl_frame_stats.min_block_size = 4;
-      int display_index;
       for (int mi_row = 0; mi_row < mi_rows; mi_row++) {
         for (int mi_col = 0; mi_col < mi_cols; mi_col++) {
           std::string newline;
@@ -173,7 +169,6 @@ void ReadTplInfo(const std::string &filename,
           aom::TplBlockStats tpl_block_stats = {};
           tpl_block_stats.width = 16;
           tpl_block_stats.height = 16;
-          ASSERT_EQ(ReadInt(iss, &display_index), "");
           ASSERT_EQ(ReadInt(iss, &tpl_block_stats.row), "");
           ASSERT_EQ(ReadInt(iss, &tpl_block_stats.col), "");
           ASSERT_EQ(ReadLongInt(iss, &tpl_block_stats.intra_cost), "");
@@ -188,7 +183,6 @@ void ReadTplInfo(const std::string &filename,
               tpl_block_stats.mv[ref].subpel_bits = 0;
             }
           }
-
           tpl_frame_stats.block_stats_list.push_back(tpl_block_stats);
         }
       }
@@ -1102,7 +1096,7 @@ TEST_F(RateControlQModeTest, TestGopIntervals) {
 // consistent with each other. With the existing files, the GOP structure
 // resulting from the first pass stats doesn't match the TPL stats, resulting
 // in an error from ValidateTplStats.
-TEST_F(RateControlQModeTest, DISABLED_TestGetGopEncodeInfo) {
+TEST_F(RateControlQModeTest, TestGetGopEncodeInfo) {
   FirstpassInfo firstpass_info;
   ASSERT_NO_FATAL_FAILURE(
       ReadFirstpassInfo("firstpass_stats", &firstpass_info));
@@ -1118,11 +1112,6 @@ TEST_F(RateControlQModeTest, DISABLED_TestGetGopEncodeInfo) {
   RefFrameTable ref_frame_table;
   int num_gop_skipped = 0;
   for (size_t gop_idx = 0; gop_idx < gop_list.size(); gop_idx++) {
-    // Skip the GOP which only has 2 frames.
-    if (gop_list[gop_idx].show_frame_count <= 2) {
-      num_gop_skipped++;
-      continue;
-    }
     size_t tpl_gop_idx = gop_idx - num_gop_skipped;
     const auto gop_encode_info = rc.GetGopEncodeInfo(
         gop_list[gop_idx], tpl_gop_list[tpl_gop_idx], ref_frame_table);

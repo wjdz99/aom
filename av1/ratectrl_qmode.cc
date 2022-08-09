@@ -948,8 +948,8 @@ Status ValidateTplStats(const GopStruct &gop_struct,
   constexpr char kAdvice[] =
       "Do the current RateControlParam settings match those used to generate "
       "the TPL stats?";
-  if (gop_struct.gop_frame_list.size() !=
-      tpl_gop_stats.frame_stats_list.size()) {
+  if (gop_struct.show_frame_count !=
+      static_cast<int>(tpl_gop_stats.frame_stats_list.size())) {
     std::ostringstream error_message;
     error_message << "Frame count of GopStruct ("
                   << gop_struct.gop_frame_list.size()
@@ -957,10 +957,17 @@ Status ValidateTplStats(const GopStruct &gop_struct,
                   << tpl_gop_stats.frame_stats_list.size() << "). " << kAdvice;
     return { AOM_CODEC_INVALID_PARAM, error_message.str() };
   }
+  int no_show_frame_skipped = 0;
   for (int i = 0; i < static_cast<int>(gop_struct.gop_frame_list.size()); ++i) {
     const bool is_ref_frame = gop_struct.gop_frame_list[i].update_ref_idx >= 0;
+    const bool is_show_frame = gop_struct.gop_frame_list[i].is_show_frame;
+    if (!is_show_frame) {
+      no_show_frame_skipped++;
+      continue;
+    }
     const bool has_tpl_stats =
-        !tpl_gop_stats.frame_stats_list[i].block_stats_list.empty();
+        !tpl_gop_stats.frame_stats_list[i - no_show_frame_skipped]
+             .block_stats_list.empty();
     if (is_ref_frame && !has_tpl_stats) {
       std::ostringstream error_message;
       error_message << "The frame with global_coding_idx "
