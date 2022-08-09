@@ -16,6 +16,23 @@
       "message": "Hi James,\n\nWe have modified the patch as per suggestions. Bit-match is verified w.r.t. parent commit id. We have also rebased patchset to latest to avoid the Jenkins build failure.\n\nPlease review the patch.\n\nThanks \u0026 Regards,\nVenkata.",
       "revId": "cef37626c1b47e619fbd16633b7da6a762e67a29",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "52aadb23_6698e415",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 1021,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-08-09T19:05:57Z",
+      "side": 1,
+      "message": "if this not defined the tx_type \u003d\u003d IDTX check won\u0027t be applied to 8-bit now",
+      "revId": "cef37626c1b47e619fbd16633b7da6a762e67a29",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
