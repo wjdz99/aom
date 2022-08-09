@@ -609,6 +609,15 @@ int av1_get_refresh_frame_flags(
 
   int refresh_mask = 0;
 
+#if !CONFIG_REALTIME_ONLY
+  if (cpi->use_ducky_encode &&
+      cpi->ducky_encode_info.frame_info.gop_mode == DUCKY_ENCODE_GOP_MODE_RCL) {
+    int new_fb_map_idx = cpi->ppi->gf_group.update_ref_idx[gf_index];
+    refresh_mask = (1 << new_fb_map_idx);
+    return refresh_mask;
+  }
+#endif  // !CONFIG_REALTIME_ONLY
+
   if (ext_refresh_frame_flags->update_pending) {
     if (svc->set_ref_frame_config) {
       for (unsigned int i = 0; i < INTER_REFS_PER_FRAME; i++) {
@@ -952,6 +961,18 @@ void av1_get_ref_frames(RefFrameMapPair ref_frame_map_pairs[REF_FRAMES],
 
   // Initialize reference frame mappings.
   for (int i = 0; i < REF_FRAMES; ++i) remapped_ref_idx[i] = INVALID_IDX;
+
+#if CONFIG_REALTIME_ONLY
+  if (cpi->use_ducky_encode &&
+      cpi->ducky_encode_info.frame_info.gop_mode == DUCKY_ENCODE_GOP_MODE_RCL) {
+    for (int rf = LAST_FRAME; rf < REF_FRAMES; ++rf) {
+      if (cpi->ppi->gf_group.ref_frame_list[gf_index][rf] != INVALID_IDX) {
+        remapped_ref_idx[rf - LAST_FRAME] =
+            cpi->ppi->gf_group.ref_frame_list[gf_index][rf];
+      }
+    }
+  }
+#endif  // !CONFIG_REALTIME_ONLY
 
   RefBufMapData buffer_map[REF_FRAMES];
   int n_bufs = 0;
