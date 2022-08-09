@@ -34,6 +34,24 @@
       "parentUuid": "ff6dddf9_3598e4d0",
       "revId": "d1432d0ab9647ed467aee65c571a3028005cd5ac",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "86492136_7a6d9431",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 6245
+      },
+      "writtenOn": "2022-08-09T06:59:41Z",
+      "side": 1,
+      "message": "6 screen clips (out of 8) are bit-exact and clips mentioned above (remaining 2 clips) have BD-Rate change.\nWe validated that the fix is applicable only for first inter frame. However subsequent frames may be affected due to the behaviour of rate control. Though the 2 clips have static frames, we observed difference in pixel values for first inter frame w.r.t. intra frame.",
+      "parentUuid": "3ef53250_f33fc05c",
+      "revId": "d1432d0ab9647ed467aee65c571a3028005cd5ac",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
