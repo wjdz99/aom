@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d2244a42_4a17021f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2022-08-09T17:56:01Z",
+      "side": 1,
+      "message": "Thanks for adding the optimization.",
+      "revId": "37e4b559ff78efc281f44317521a16246d308434",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "55118489_ea59d211",
+        "filename": "av1/encoder/encodemv.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 223,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2022-08-09T17:56:01Z",
+      "side": 1,
+      "message": "This can be removed.",
+      "range": {
+        "startLine": 223,
+        "startChar": 4,
+        "endLine": 223,
+        "endChar": 51
+      },
+      "revId": "37e4b559ff78efc281f44317521a16246d308434",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
