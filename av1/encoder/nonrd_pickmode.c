@@ -2186,8 +2186,8 @@ static void estimate_intra_mode(
     if ((x->source_variance < AOMMAX(50, (spatial_var_thresh >> 1)) &&
          x->content_state_sb.source_sad_nonrd >= kHighSad) ||
         (cpi->oxcf.tune_cfg.content == AOM_CONTENT_SCREEN &&
-         x->source_variance == 0 &&
-         (x->color_sensitivity[0] == 1 || x->color_sensitivity[1] == 1)))
+         x->source_variance == 0 && (bsize >= BLOCK_32X32 ||
+         x->color_sensitivity[0] == 1 || x->color_sensitivity[1] == 1)))
       force_intra_check = 1;
     // For big blocks worth checking intra (since only DC will be checked),
     // even if best_early_term is set.
