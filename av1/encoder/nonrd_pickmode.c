@@ -1904,7 +1904,7 @@ static void search_motion_mode(AV1_COMP *cpi, MACROBLOCK *x, RD_STATS *this_rdc,
 }
 #endif  // !CONFIG_REALTIME_ONLY
 
-#define COLLECT_PICK_MODE_STAT 0
+#define COLLECT_PICK_MODE_STAT 1
 
 #if COLLECT_PICK_MODE_STAT
 #include "aom_ports/aom_timer.h"
@@ -3173,9 +3173,6 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
         pd->dst.stride = bw;
       }
     }
-#if COLLECT_PICK_MODE_STAT
-    ms_stat.num_nonskipped_searches[bsize][this_mode]++;
-#endif
 
     if (idx == 0 && !skip_pred_mv) {
       // Set color sensitivity on first tested mode only.
@@ -3302,6 +3299,10 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
       if (reuse_inter_pred) free_pred_buffer(this_mode_pred);
       continue;
     }
+
+#if COLLECT_PICK_MODE_STAT
+    ms_stat.num_nonskipped_searches[bsize][this_mode]++;
+#endif
 
     const int skip_ctx = av1_get_skip_txfm_context(xd);
     const int skip_txfm_cost = mode_costs->skip_txfm_cost[skip_ctx][1];
@@ -3683,11 +3684,15 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
                          ms_stat.num_nonskipped_searches[bss[i]][j]
                    : 0l);
         if (j >= INTER_MODE_START) {
+          const int64_t total_mode_time =
+              ms_stat.ms_time[bss[i]][j] + ms_stat.ifs_time[bss[i]][j] +
+              ms_stat.model_rd_time[bss[i]][j] + ms_stat.txfm_time[bss[i]][j];
           printf("    Motion Search Time: %ld\n", ms_stat.ms_time[bss[i]][j]);
           printf("    Filter Search Time: %ld\n", ms_stat.ifs_time[bss[i]][j]);
           printf("    Model    RD   Time: %ld\n",
                  ms_stat.model_rd_time[bss[i]][j]);
           printf("    Tranfm Search Time: %ld\n", ms_stat.txfm_time[bss[i]][j]);
+          printf("    Total  Search Time: %ld\n", total_mode_time);
         }
       }
       printf("\n");
