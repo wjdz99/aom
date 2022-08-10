@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d47f92cb_47085c00",
+        "filename": "av1/encoder/encode_strategy.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1473,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-08-10T19:17:33Z",
+      "side": 0,
+      "message": "Note that the ref_frames[] array is only used inside this for loop. So we can replace it with a non-array local variable inside this for loop.",
+      "revId": "0c702dcc8b83ca2535dd0dc99327015d5d99f229",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}

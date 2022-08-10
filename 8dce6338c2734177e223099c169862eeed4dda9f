@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1348a0b5_e7ee953a",
+        "filename": "av1/encoder/encode_strategy.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1469,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-08-10T19:17:33Z",
+      "side": 1,
+      "message": "Jingning: I chose to check reference frames here because we have just set up the cm-\u003eremapped_ref_idx[] array above (lines 1461-1467) and the next for loop has a comment that says \"Get the reference frames\". I hope this is the right place to do the check.",
+      "revId": "8dce6338c2734177e223099c169862eeed4dda9f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d582e007_c28a923c",
+        "filename": "av1/encoder/encode_strategy.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1535,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-08-10T19:17:33Z",
+      "side": 1,
+      "message": "Jingning: I first tried to check cm-\u003eremapped_ref_idx[] here to see if reference frames are available. But I found that every element of cm-\u003eremapped_ref_idx[] is \u003e\u003d 0 at this point. This is why I switched to the current fix.\n\nDo you think this is still the right place to do the check?",
+      "revId": "8dce6338c2734177e223099c169862eeed4dda9f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
