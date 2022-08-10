@@ -16,6 +16,23 @@
       "message": "Hi Marco, \n\nIn this CL, we have extended prefer_large_partition_blocks to speed 7. Additional details are sent by email.\n\nPlease review the CL. \n\nThanks,\nNeeraj",
       "revId": "0465bf9833122bb4f519d71280abda3d7b98f651",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6d6039b2_438d0728",
+        "filename": "av1/encoder/speed_features.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1300,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2022-08-10T17:30:57Z",
+      "side": 1,
+      "message": "This level (5) caused the bleeding artifact on the qvga clip, so to be safe I would prefer to avoid this also for mid-resoln. Why are the levels for mid-res (2/5 for speed 7/8) highest (higher than the low-resol and 720p case)? To be safe I would prefer to keep them at lower level (1/4 as in low-resoln).",
+      "revId": "0465bf9833122bb4f519d71280abda3d7b98f651",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
