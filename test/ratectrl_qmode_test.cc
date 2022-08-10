@@ -695,11 +695,12 @@ void TestRefFrameManagerPriority(const RefFrameManager &ref_manager,
   int ref_count = ref_manager.GetRefFrameCountByType(type);
   int prev_global_order_idx = ref_manager.CurGlobalOrderIdx();
   // The lower the priority is, the closer the gop_frame.global_order_idx should
-  // be with cur_global_order_idx_
+  // be with cur_global_order_idx_, with exception of a base layer ARF.
   for (int priority = 0; priority < ref_count; ++priority) {
     GopFrame gop_frame = ref_manager.GetRefFrameByPriority(type, priority);
     EXPECT_EQ(gop_frame.is_valid, true);
     if (type == RefUpdateType::kForward) {
+      if (priority == 0) continue;
       EXPECT_GE(gop_frame.global_order_idx, prev_global_order_idx);
     } else {
       EXPECT_LE(gop_frame.global_order_idx, prev_global_order_idx);
