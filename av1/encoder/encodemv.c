@@ -220,7 +220,8 @@ void av1_build_nmv_component_cost_table(int *mvcost,
         mvcost[-v] = cost + negate_sign;
       }
     }
-    // t = ((2 * MV_FP_SIZE) << MV_OFFSET_BITS) - 1
+    // At this point:
+    //  mantissa = ((2 * MV_FP_SIZE) << MV_OFFSET_BITS)
 
     // Manually calculate the final cost offset
     int cost_swap_hi =
