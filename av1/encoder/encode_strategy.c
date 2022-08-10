@@ -1469,9 +1469,15 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
     }
 
     // Get the reference frames
+    bool has_ref_frames = false;
     for (int i = 0; i < INTER_REFS_PER_FRAME; ++i) {
       ref_frames[i] = get_ref_frame_buf(cm, ref_frame_priority_order[i]);
       ref_frame_buf[i] = ref_frames[i] != NULL ? &ref_frames[i]->buf : NULL;
+      if (ref_frames[i] != NULL) has_ref_frames = true;
+    }
+    if (!has_ref_frames && (frame_params.frame_type == INTER_FRAME ||
+                            frame_params.frame_type == S_FRAME)) {
+      return AOM_CODEC_ERROR;
     }
 
     // Work out which reference frame slots may be used.
