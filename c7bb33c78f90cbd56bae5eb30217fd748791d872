@@ -70,6 +70,30 @@
       },
       "revId": "c7bb33c78f90cbd56bae5eb30217fd748791d872",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "75b2e506_09bce630",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 3672,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2022-08-10T18:14:27Z",
+      "side": 0,
+      "message": "Thanks for checking that this works for different cases! Nice speedup.",
+      "parentUuid": "9ad26745_50d13c7b",
+      "range": {
+        "startLine": 3672,
+        "startChar": 6,
+        "endLine": 3672,
+        "endChar": 39
+      },
+      "revId": "c7bb33c78f90cbd56bae5eb30217fd748791d872",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
