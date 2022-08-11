@@ -16,6 +16,24 @@
       "message": "Hi Ranjit,\n\nThanks for the fix. We noticed that this CL affected non-screen content performance. The worst one is in rtc set while encoding at speed 10.\n\nFile\tMatch\tProblem\tavg_psnr:\tovr_psnr:\tssim:\tvmaf:\tencoding_spdup:\ndesktop360p.y4m\t✔\tnone\t0.791\t0.668\t0.918\t-0.217\t-0.095\nkirlandvga.y4m\t✔\tnone\t1.109\t0.951\t1.592\t1.629\t-0.002\nthaloundeskmtgvga.y4m\t✔\tnone\t2.093\t2.675\t3.674\t3.799\t0.075\n\nIt may not be anything wrong, but is worth taking a look?\n",
       "revId": "d10be508e130d027f6e179d23896d84504ccc08e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0e5af89b_503cbd09",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2022-08-11T02:04:27Z",
+      "side": 1,
+      "message": "For the thalound clip: the difference in the metrics at certain bitrates seems due to the section of camera blur/focus early in the clip. Where the golden updates happens (before or during the blur section) can have big impact when camera focus comes back. This change affects the encoding at the beginning of the clip, and for certain bitrates can change where the gf update happens (due to QP change), and so can have some impact for this type of clip (i think similar for kirkland).\n\nSo I don\u0027t see any issue with this.",
+      "parentUuid": "ef9c3999_bb87e9ec",
+      "revId": "d10be508e130d027f6e179d23896d84504ccc08e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
