@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9e370642_bb7d78f2",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-08-12T17:11:22Z",
+      "side": 1,
+      "message": "Please review. This CL fixes a realtime-only config test failure in Jenkins nightly tests.",
+      "revId": "8a9fd63ca2e8ce90a26367cbc7d333dd0886fcb9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6cd353c9_aeefa784",
+        "filename": "test/encode_api_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-08-12T17:11:22Z",
+      "side": 1,
+      "message": "This is just a cosmetic change. I merely replaced usages 1 and 0 with their symbolic names.",
+      "revId": "8a9fd63ca2e8ce90a26367cbc7d333dd0886fcb9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
