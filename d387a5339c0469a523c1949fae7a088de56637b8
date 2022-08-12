@@ -16,6 +16,24 @@
       "message": "To my surprise, -Wc++11-compat doesn\u0027t do what I think it does. Apparently -Wc++11-compat warns about old code features that will become invalid in C++11.",
       "revId": "d387a5339c0469a523c1949fae7a088de56637b8",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a231edf6_67697eb6",
+        "filename": "build/cmake/aom_configure.cmake",
+        "patchSetId": 1
+      },
+      "lineNbr": 318,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-08-12T02:39:25Z",
+      "side": 1,
+      "message": "\u003e To my surprise, -Wc++11-compat doesn\u0027t do what I think it does. Apparently -Wc++11-compat warns about old code features that will become invalid in C++11.\n\nI imagine -Wc++14-compat is the same, but you could add -Wc++14-extensions for now too.",
+      "parentUuid": "5917e028_5f2370ac",
+      "revId": "d387a5339c0469a523c1949fae7a088de56637b8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
