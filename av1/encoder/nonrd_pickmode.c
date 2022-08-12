@@ -2955,7 +2955,7 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
     if (!use_ref_frame_mask[ref_frame]) continue;
 
     if (x->force_zeromv_skip &&
-        (this_mode != GLOBALMV || ref_frame != LAST_FRAME))
+        (this_mode != NEARESTMV || ref_frame != LAST_FRAME))
       continue;
 
     force_mv_inter_layer = 0;
