@@ -18,6 +18,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "9dd99a41_6dc1ab98",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2022-08-15T16:44:02Z",
+      "side": 1,
+      "message": "All clips got good gains except these 2:\nsc_web_browsing720p.y4m    ~1% worse\nscreen_recording_crd.1920_1080.y4m  ~0.7% worse\n\nFor all clips, speed changes are \u003c1%.",
+      "parentUuid": "0d54242b_dba081a8",
+      "revId": "01c11c171cf8b3ebe5ea200d585701a1098ab15e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "8193dcab_bbad48df",
@@ -48,6 +66,24 @@
       "writtenOn": "2022-08-15T16:10:38Z",
       "side": 1,
       "message": "can we check and exclude NEARESTMV if its non-zero motion vector, since we want to only use (0,0) under this skip?",
+      "revId": "01c11c171cf8b3ebe5ea200d585701a1098ab15e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "13f60e55_0fc33b1a",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 2958,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2022-08-15T16:44:02Z",
+      "side": 1,
+      "message": "With this change, we are pushing not to use GLOBALMV. I checked and (0,0) mv is used with NEARESTMV. Originally, I tried to use NEARESTMV exclusively:\n(this_mode !\u003d NEARESTMV || ref_frame !\u003d LAST_FRAME)\nBut the decoder failed. That is why GLOBALMV is still allowed here. Are you aware that anything prohibits removing GLOBALMV in non-rd path for screen contents?",
+      "parentUuid": "a7feca7d_c33914a4",
       "revId": "01c11c171cf8b3ebe5ea200d585701a1098ab15e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
