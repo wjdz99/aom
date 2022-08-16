@@ -3009,6 +3009,12 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
         continue;
     }
 
+    
+    // Skip GOLDEN for color on flat blocks.
+    if (ref_frame == GOLDEN_FRAME && x->source_variance < 500 &&
+        (x->color_sensitivity_sb_g[0] == 1 || x->color_sensitivity_sb_g[1] == 1))
+      continue;
+
     if (skip_mode_by_bsize_and_ref_frame(
             this_mode, ref_frame, bsize, x->nonrd_prune_ref_frame_search,
             sse_zeromv_norm, cpi->sf.rt_sf.nonrd_agressive_skip))
