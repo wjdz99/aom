@@ -94,6 +94,30 @@
       },
       "revId": "3263f83c6f5ac8e8a35b18ff3b8a9baac248a53a",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bdd092ec_c4326dcb",
+        "filename": "test/ratectrl_qmode_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 1044,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-08-16T19:30:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "608bb41d_511e9215",
+      "range": {
+        "startLine": 1044,
+        "startChar": 43,
+        "endLine": 1044,
+        "endChar": 44
+      },
+      "revId": "3263f83c6f5ac8e8a35b18ff3b8a9baac248a53a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
