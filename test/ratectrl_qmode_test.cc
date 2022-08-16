@@ -596,7 +596,7 @@ TEST_F(RateControlQModeTest, ComputeTplGopDepStats) {
     ref_frame_table_list.push_back(CreateToyRefFrameTable(i));
   }
   const StatusOr<TplGopDepStats> gop_dep_stats =
-      ComputeTplGopDepStats(tpl_gop_stats, ref_frame_table_list);
+      ComputeTplGopDepStats(tpl_gop_stats, NULL, ref_frame_table_list);
   ASSERT_THAT(gop_dep_stats.status(), IsOkStatus());
 
   double expected_sum = 0;
@@ -964,7 +964,7 @@ TEST_F(RateControlQModeTest, TestGetRefFrameTableListFirstGop) {
       // For the first GOP only, GetRefFrameTableList can be passed a
       // default-constructed RefFrameTable (because it's all going to be
       // replaced by the key frame anyway).
-      rc.GetRefFrameTableList(gop_struct, RefFrameTable()),
+      rc.GetRefFrameTableList(gop_struct, NULL, RefFrameTable()),
       ElementsAre(
           ElementsAre(matches_invalid, matches_invalid, matches_invalid),
           ElementsAre(matches_frame0, matches_frame0, matches_frame0),
@@ -994,7 +994,7 @@ TEST_F(RateControlQModeTest, TestGetRefFrameTableListNotFirstGop) {
   gop_struct.global_coding_idx_offset = 5;  // This is not the first GOP.
   gop_struct.gop_frame_list = { frame0, frame1, frame2 };
   ASSERT_THAT(
-      rc.GetRefFrameTableList(gop_struct, RefFrameTable(3, previous)),
+      rc.GetRefFrameTableList(gop_struct, NULL, RefFrameTable(3, previous)),
       ElementsAre(
           ElementsAre(matches_previous, matches_previous, matches_previous),
           ElementsAre(matches_previous, matches_previous, matches_frame0),
@@ -1045,8 +1045,9 @@ TEST_F(RateControlQModeTest, TestGetGopEncodeInfo) {
   int num_gop_skipped = 0;
   for (size_t gop_idx = 0; gop_idx < gop_list.size(); gop_idx++) {
     size_t tpl_gop_idx = gop_idx - num_gop_skipped;
-    const auto gop_encode_info = rc.GetGopEncodeInfo(
-        gop_list[gop_idx], tpl_gop_list[tpl_gop_idx], ref_frame_table);
+    const auto gop_encode_info =
+        rc.GetGopEncodeInfo(gop_list[gop_idx], NULL, tpl_gop_list[tpl_gop_idx],
+                            NULL, ref_frame_table);
     ASSERT_THAT(gop_encode_info.status(), IsOkStatus());
     for (auto &frame_param : gop_encode_info->param_list) {
       std::cout << frame_param.q_index << std::endl;
@@ -1062,8 +1063,9 @@ TEST_F(RateControlQModeTest, GetGopEncodeInfoWrongGopSize) {
   tpl_gop_stats.frame_stats_list.assign(
       5, CreateToyTplFrameStatsWithDiffSizes(8, 8));
   AV1RateControlQMode rc;
-  const Status status =
-      rc.GetGopEncodeInfo(gop_struct, tpl_gop_stats, RefFrameTable()).status();
+  const Status status = rc.GetGopEncodeInfo(gop_struct, NULL, tpl_gop_stats,
+                                            NULL, RefFrameTable())
+                            .status();
   EXPECT_EQ(status.code, AOM_CODEC_INVALID_PARAM);
   EXPECT_THAT(status.message,
               HasSubstr("Frame count of GopStruct (7) doesn't match frame "
@@ -1086,8 +1088,9 @@ TEST_F(RateControlQModeTest, GetGopEncodeInfoRefFrameMissingBlockStats) {
   tpl_gop_stats.frame_stats_list[0] = CreateToyTplFrameStatsWithDiffSizes(8, 8);
 
   AV1RateControlQMode rc;
-  const Status status =
-      rc.GetGopEncodeInfo(gop_struct, tpl_gop_stats, RefFrameTable()).status();
+  const Status status = rc.GetGopEncodeInfo(gop_struct, NULL, tpl_gop_stats,
+                                            NULL, RefFrameTable())
+                            .status();
   EXPECT_EQ(status.code, AOM_CODEC_INVALID_PARAM);
   EXPECT_THAT(status.message,
               HasSubstr("The frame with global_coding_idx 2 is a reference "

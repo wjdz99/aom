@@ -86,7 +86,7 @@ void TplFrameDepStatsPropagate(int coding_idx,
 int GetBlockOverlapArea(int r0, int c0, int r1, int c1, int size);
 
 StatusOr<TplGopDepStats> ComputeTplGopDepStats(
-    const TplGopStats &tpl_gop_stats,
+    const TplGopStats &tpl_gop_stats, const TplGopStats *next_tpl_gop_stats,
     const std::vector<RefFrameTable> &ref_frame_table_list);
 
 class AV1RateControlQMode : public AV1RateControlQModeInterface {
@@ -95,7 +95,10 @@ class AV1RateControlQMode : public AV1RateControlQModeInterface {
   StatusOr<GopStructList> DetermineGopInfo(
       const FirstpassInfo &firstpass_info) override;
   StatusOr<GopEncodeInfo> GetGopEncodeInfo(
-      const GopStruct &gop_struct, const TplGopStats &tpl_gop_stats,
+      const GopStruct &gop_struct, 
+      const GopStruct *next_gop_struct,
+      const TplGopStats &tpl_gop_stats,
+      const TplGopStats *next_tpl_gop_stats,
       const RefFrameTable &ref_frame_table_snapshot) override;
 
   // Public for testing only.
@@ -104,7 +107,8 @@ class AV1RateControlQMode : public AV1RateControlQModeInterface {
   // If this is first GOP, ref_frame_table is ignored and all refs are assumed
   // invalid; otherwise ref_frame_table is used as the initial state.
   std::vector<RefFrameTable> GetRefFrameTableList(
-      const GopStruct &gop_struct, RefFrameTable ref_frame_table);
+      const GopStruct &gop_struct, const GopStruct *next_gop_struct,
+      RefFrameTable ref_frame_table);
 
  private:
   RateControlParam rc_param_;

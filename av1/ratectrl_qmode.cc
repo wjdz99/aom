@@ -1153,7 +1153,8 @@ void TplFrameDepStatsPropagate(int coding_idx,
 }
 
 std::vector<RefFrameTable> AV1RateControlQMode::GetRefFrameTableList(
-    const GopStruct &gop_struct, RefFrameTable ref_frame_table) {
+    const GopStruct &gop_struct, const GopStruct *next_gop_struct,
+    RefFrameTable ref_frame_table) {
   if (gop_struct.global_coding_idx_offset == 0) {
     // For the first GOP, ref_frame_table need not be initialized. This is fine,
     // because the first frame (a key frame) will fully initialize it.
@@ -1180,11 +1181,26 @@ std::vector<RefFrameTable> AV1RateControlQMode::GetRefFrameTableList(
     }
     ref_frame_table_list.push_back(ref_frame_table);
   }
+
+  if (next_gop_struct != NULL) {
+    for (int idx = 0; idx < next_gop_struct->gop_frame_list.size(); ++idx) {
+      const GopFrame &gop_frame = next_gop_struct->gop_frame_list[idx];
+      if (gop_frame.is_key_frame) {
+        ref_frame_table.assign(rc_param_.ref_frame_table_size, gop_frame);
+      } else if (gop_frame.update_ref_idx != -1) {
+        assert(gop_frame.update_ref_idx <
+               static_cast<int>(ref_frame_table.size()));
+        ref_frame_table[gop_frame.update_ref_idx] = gop_frame;
+      }
+      ref_frame_table_list.push_back(ref_frame_table);
+    }
+  }
+
   return ref_frame_table_list;
 }
 
 StatusOr<TplGopDepStats> ComputeTplGopDepStats(
-    const TplGopStats &tpl_gop_stats,
+    const TplGopStats &tpl_gop_stats, const TplGopStats *next_tpl_gop_stats,
     const std::vector<RefFrameTable> &ref_frame_table_list) {
   const int frame_count =
       static_cast<int>(tpl_gop_stats.frame_stats_list.size());
@@ -1230,20 +1246,21 @@ static int GetRDMult(const GopFrame &gop_frame, int qindex) {
 }
 
 StatusOr<GopEncodeInfo> AV1RateControlQMode::GetGopEncodeInfo(
-    const GopStruct &gop_struct, const TplGopStats &tpl_gop_stats,
+    const GopStruct &gop_struct, const GopStruct *next_gop_struct,
+    const TplGopStats &tpl_gop_stats, const TplGopStats *next_tpl_gop_stats,
     const RefFrameTable &ref_frame_table_snapshot_init) {
   Status status = ValidateTplStats(gop_struct, tpl_gop_stats);
   if (!status.ok()) {
     return status;
   }
 
-  const std::vector<RefFrameTable> ref_frame_table_list =
-      GetRefFrameTableList(gop_struct, ref_frame_table_snapshot_init);
+  const std::vector<RefFrameTable> ref_frame_table_list = GetRefFrameTableList(
+      gop_struct, next_gop_struct, ref_frame_table_snapshot_init);
 
   GopEncodeInfo gop_encode_info;
   gop_encode_info.final_snapshot = ref_frame_table_list.back();
-  StatusOr<TplGopDepStats> gop_dep_stats =
-      ComputeTplGopDepStats(tpl_gop_stats, ref_frame_table_list);
+  StatusOr<TplGopDepStats> gop_dep_stats = ComputeTplGopDepStats(
+      tpl_gop_stats, next_tpl_gop_stats, ref_frame_table_list);
   if (!gop_dep_stats.ok()) {
     return gop_dep_stats.status();
   }
