@@ -16,6 +16,24 @@
       "message": "I prefer this condition (with the zero motion check on nearestmv), just to be safe.",
       "revId": "e823375207a5f3f515afe466ccf4e8091a263e87",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b1668f39_d9b90e1e",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 2959,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2022-08-16T00:24:19Z",
+      "side": 1,
+      "message": "The borg results for this patch and the previous patch are exactly the same.",
+      "parentUuid": "414f38f4_f2720a37",
+      "revId": "e823375207a5f3f515afe466ccf4e8091a263e87",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
