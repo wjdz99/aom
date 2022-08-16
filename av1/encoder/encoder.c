@@ -136,17 +136,16 @@ int av1_set_active_map(AV1_COMP *cpi, unsigned char *new_map_16x16, int rows,
                        int cols) {
   const CommonModeInfoParams *const mi_params = &cpi->common.mi_params;
   if (rows == mi_params->mb_rows && cols == mi_params->mb_cols) {
-    unsigned char *const active_map_8x8 = cpi->active_map.map;
+    unsigned char *const active_map_4x4 = cpi->active_map.map;
     const int mi_rows = mi_params->mi_rows;
     const int mi_cols = mi_params->mi_cols;
     const int row_scale = mi_size_high[BLOCK_16X16] == 2 ? 1 : 2;
     const int col_scale = mi_size_wide[BLOCK_16X16] == 2 ? 1 : 2;
     cpi->active_map.update = 1;
     if (new_map_16x16) {
-      int r, c;
-      for (r = 0; r < mi_rows; ++r) {
-        for (c = 0; c < mi_cols; ++c) {
-          active_map_8x8[r * mi_cols + c] =
+      for (int r = 0; r < mi_rows; ++r) {
+        for (int c = 0; c < mi_cols; ++c) {
+          active_map_4x4[r * mi_cols + c] =
               new_map_16x16[(r >> row_scale) * cols + (c >> col_scale)]
                   ? AM_SEGMENT_ID_ACTIVE
                   : AM_SEGMENT_ID_INACTIVE;
@@ -2448,8 +2447,8 @@ static int encode_without_recode(AV1_COMP *cpi) {
   if (q_cfg->aq_mode == CYCLIC_REFRESH_AQ) {
     suppress_active_map(cpi);
     av1_cyclic_refresh_setup(cpi);
-    av1_apply_active_map(cpi);
   }
+  av1_apply_active_map(cpi);
   if (cm->seg.enabled) {
     if (!cm->seg.update_data && cm->prev_frame) {
       segfeatures_copy(&cm->seg, &cm->prev_frame->seg);
