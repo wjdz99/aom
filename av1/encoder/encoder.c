@@ -2448,8 +2448,8 @@ static int encode_without_recode(AV1_COMP *cpi) {
   if (q_cfg->aq_mode == CYCLIC_REFRESH_AQ) {
     suppress_active_map(cpi);
     av1_cyclic_refresh_setup(cpi);
-    av1_apply_active_map(cpi);
   }
+  av1_apply_active_map(cpi);
   if (cm->seg.enabled) {
     if (!cm->seg.update_data && cm->prev_frame) {
       segfeatures_copy(&cm->seg, &cm->prev_frame->seg);
