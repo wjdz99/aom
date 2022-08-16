@@ -34,6 +34,24 @@
       "parentUuid": "0209a7a2_928bdd66",
       "revId": "a84e60609f8fbdae0ba2d3ab7f7065d6e6c8bae9",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2284f886_0d462ef8",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-08-16T22:14:25Z",
+      "side": 1,
+      "message": "\u003e It seems that the larger blocks are probably be a bit faster, but everything else seems to be in the margin of error.\n\u003e \n\u003e I suspect that some of the smaller blocks are slightly slower (1% ish at the high end) on the microbenchmarks. That being said, I don\u0027t really trust microbenchmarks to properly measure the real world impact of unrolling a bunch of loops.\n\u003e \n\nI agree, they\u0027re just one signal. Doing a overall encode (or decode) test can help when the performance is measurable at that level.\n\n\u003e I did take some measurements of the time svc_encoder_rtc took w/ and w/o changes. The latest run I did seemed to be maybe a tiny bit faster, but that could just as well be due to better branch prediction due to branches being put in slightly different places.\n\nCould you add a note to the commit message saying that performance is neutral?",
+      "parentUuid": "ba8c79ea_f5ce5ea7",
+      "revId": "a84e60609f8fbdae0ba2d3ab7f7065d6e6c8bae9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
