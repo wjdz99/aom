@@ -1,0 +1,280 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a7e34b7b_76d74555",
+        "filename": "av1/ratectrl_qmode.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 1156,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-08-17T20:15:22Z",
+      "side": 1,
+      "message": "same here",
+      "range": {
+        "startLine": 1156,
+        "startChar": 33,
+        "endLine": 1156,
+        "endChar": 50
+      },
+      "revId": "4a832dd5b6d3cf67780362b0d7757fef58540317",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "498f71dc_b652079d",
+        "filename": "av1/ratectrl_qmode.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 1213,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-08-17T20:15:22Z",
+      "side": 1,
+      "message": "once it\u0027s changed to use reference, this needs to be changed to tell if it\u0027s empty or not. maybe using size?",
+      "range": {
+        "startLine": 1213,
+        "startChar": 0,
+        "endLine": 1213,
+        "endChar": 33
+      },
+      "revId": "4a832dd5b6d3cf67780362b0d7757fef58540317",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8df31eb0_3df896c9",
+        "filename": "av1/ratectrl_qmode.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 1263,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-08-17T20:15:22Z",
+      "side": 1,
+      "message": "use reference here too",
+      "range": {
+        "startLine": 1263,
+        "startChar": 33,
+        "endLine": 1263,
+        "endChar": 50
+      },
+      "revId": "4a832dd5b6d3cf67780362b0d7757fef58540317",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f6ecc2f7_563680ba",
+        "filename": "av1/ratectrl_qmode.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 1264,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-08-17T20:15:22Z",
+      "side": 1,
+      "message": "same here",
+      "range": {
+        "startLine": 1264,
+        "startChar": 38,
+        "endLine": 1264,
+        "endChar": 57
+      },
+      "revId": "4a832dd5b6d3cf67780362b0d7757fef58540317",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5a0b823a_c0090324",
+        "filename": "av1/ratectrl_qmode.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-08-17T20:15:22Z",
+      "side": 1,
+      "message": "keep it consistent by using reference instead of pointer\n\nconst TplGopStats \u0026next_tpl_gop_stats",
+      "range": {
+        "startLine": 89,
+        "startChar": 38,
+        "endLine": 89,
+        "endChar": 57
+      },
+      "revId": "4a832dd5b6d3cf67780362b0d7757fef58540317",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "87285cd4_a642ed88",
+        "filename": "av1/ratectrl_qmode.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-08-17T20:15:22Z",
+      "side": 1,
+      "message": "same as above: use reference, not pointer",
+      "range": {
+        "startLine": 98,
+        "startChar": 35,
+        "endLine": 98,
+        "endChar": 52
+      },
+      "revId": "4a832dd5b6d3cf67780362b0d7757fef58540317",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "659ef6fc_f3ccb8d2",
+        "filename": "av1/ratectrl_qmode.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-08-17T20:15:22Z",
+      "side": 1,
+      "message": "same here",
+      "range": {
+        "startLine": 99,
+        "startChar": 40,
+        "endLine": 99,
+        "endChar": 59
+      },
+      "revId": "4a832dd5b6d3cf67780362b0d7757fef58540317",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fb1e9d8b_29f7d77d",
+        "filename": "av1/ratectrl_qmode.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-08-17T20:15:22Z",
+      "side": 1,
+      "message": "same here",
+      "range": {
+        "startLine": 108,
+        "startChar": 35,
+        "endLine": 108,
+        "endChar": 52
+      },
+      "revId": "4a832dd5b6d3cf67780362b0d7757fef58540317",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8d7c26e8_c047b9a4",
+        "filename": "av1/ratectrl_qmode_interface.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 266,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-08-17T20:15:22Z",
+      "side": 1,
+      "message": "same here",
+      "range": {
+        "startLine": 266,
+        "startChar": 35,
+        "endLine": 266,
+        "endChar": 52
+      },
+      "revId": "4a832dd5b6d3cf67780362b0d7757fef58540317",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "42d549f3_92aa306d",
+        "filename": "av1/ratectrl_qmode_interface.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 267,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-08-17T20:15:22Z",
+      "side": 1,
+      "message": "same here",
+      "range": {
+        "startLine": 267,
+        "startChar": 40,
+        "endLine": 267,
+        "endChar": 59
+      },
+      "revId": "4a832dd5b6d3cf67780362b0d7757fef58540317",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "31f9434b_9ad7750e",
+        "filename": "test/mock_ratectrl_qmode.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-08-17T20:15:22Z",
+      "side": 1,
+      "message": "these need to be changed too",
+      "range": {
+        "startLine": 27,
+        "startChar": 44,
+        "endLine": 27,
+        "endChar": 61
+      },
+      "revId": "4a832dd5b6d3cf67780362b0d7757fef58540317",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "17606991_31a0782f",
+        "filename": "test/ratectrl_qmode_test.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 599,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-08-17T20:15:22Z",
+      "side": 1,
+      "message": "For current test I guess we can pass in an empty structure",
+      "range": {
+        "startLine": 599,
+        "startChar": 43,
+        "endLine": 599,
+        "endChar": 47
+      },
+      "revId": "4a832dd5b6d3cf67780362b0d7757fef58540317",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
