@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "966df674_cca0fb2e",
+        "filename": "av1/encoder/var_based_part.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 954,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-08-17T20:45:14Z",
+      "side": 1,
+      "message": "maybe \"For last:\" to be consistent with the \"For golden:\"",
+      "range": {
+        "startLine": 954,
+        "startChar": 9,
+        "endLine": 954,
+        "endChar": 14
+      },
+      "revId": "ee8ff0ffd75ca338d25db7b3181487816afce8ca",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "edc0acb3_7aecc607",
+        "filename": "av1/encoder/var_based_part.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 995,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-08-17T20:45:14Z",
+      "side": 1,
+      "message": "this block can be:\n\nx-\u003ecolor_sensitivity_sb_g[i - 1] \u003d uv_sad_g \u003e y_sad_g / 6 ? 1 : 0;",
+      "range": {
+        "startLine": 995,
+        "startChar": 19,
+        "endLine": 995,
+        "endChar": 20
+      },
+      "revId": "ee8ff0ffd75ca338d25db7b3181487816afce8ca",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
