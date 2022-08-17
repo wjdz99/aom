@@ -1508,8 +1508,8 @@ typedef struct REAL_TIME_SPEED_FEATURES {
   // variance wrt LAST reference.
   int prune_inter_modes_using_temp_var;
 
-  // Force half_pel at block level.
-  int force_half_pel_block;
+  // Force half_pel at block level, takes values with increasing aggressiveness
+  int adjust_mv_pel_precision;
 
   // Prune intra mode evaluation in inter frames based on mv range.
   BLOCK_SIZE prune_intra_mode_based_on_mv_range;
