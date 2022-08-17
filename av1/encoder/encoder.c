@@ -2140,7 +2140,7 @@ static void cdef_restoration_frame(AV1_COMP *cpi, AV1_COMMON *cm,
                     cpi->svc.non_reference_frame);
 
     // Apply the filter
-    if (!cpi->svc.non_reference_frame) {
+    if (is_psnr_calc_enabled(cpi) || !cpi->svc.non_reference_frame) {
       if (num_workers > 1) {
         av1_cdef_frame_mt(cm, xd, cpi->mt_info.cdef_worker,
                           cpi->mt_info.workers, &cpi->mt_info.cdef_sync,
@@ -2236,7 +2236,7 @@ static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
   }
 
   if ((lf->filter_level[0] || lf->filter_level[1]) &&
-      !cpi->svc.non_reference_frame) {
+      (is_psnr_calc_enabled(cpi) || !cpi->svc.non_reference_frame)) {
     av1_loop_filter_frame_mt(&cm->cur_frame->buf, cm, xd, 0, num_planes, 0,
                              mt_info->workers, num_workers,
                              &mt_info->lf_row_sync, lpf_opt_level);

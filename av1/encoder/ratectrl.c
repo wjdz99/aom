@@ -2547,6 +2547,7 @@ void av1_adjust_gf_refresh_qp_one_pass_rt(AV1_COMP *cpi) {
     const int allow_gf_update =
         rc->frames_till_gf_update_due <= (p_rc->baseline_gf_interval - 10);
     int gf_update_changed = 0;
+    int lst_update_changed = 0;
     int thresh = 87;
     if (rc->frames_till_gf_update_due == 1 &&
         cm->quant_params.base_qindex > avg_qp) {
@@ -2563,9 +2564,26 @@ void av1_adjust_gf_refresh_qp_one_pass_rt(AV1_COMP *cpi) {
       gf_update_changed = 1;
       cpi->refresh_frame.golden_frame = 1;
     }
-    if (gf_update_changed) {
-      set_baseline_gf_interval(cpi, INTER_FRAME);
+
+    if (!svc->refresh[svc->lst_idx_1layer] &&
+        cm->quant_params.base_qindex <= avg_qp) {
+      svc->refresh[svc->lst_idx_1layer] = 1;
+      lst_update_changed = 1;
+    }
+
+    if (gf_update_changed || lst_update_changed) {
+      if (gf_update_changed) set_baseline_gf_interval(cpi, INTER_FRAME);
+
       int refresh_mask = 0;
+
+      svc->non_reference_frame = 1;
+      for (int i = 0; i < REF_FRAMES; i++) {
+        if (svc->refresh[i]) {
+          svc->non_reference_frame = 0;
+          break;
+        }
+      }
+
       for (unsigned int i = 0; i < INTER_REFS_PER_FRAME; i++) {
         int ref_frame_map_idx = svc->ref_idx[i];
         refresh_mask |= svc->refresh[ref_frame_map_idx] << ref_frame_map_idx;
@@ -2599,6 +2617,7 @@ void av1_set_reference_structure_one_pass_rt(AV1_COMP *cpi, int gf_update) {
   ExtRefreshFrameFlagsInfo *const ext_refresh_frame_flags =
       &ext_flags->refresh_frame;
   SVC *const svc = &cpi->svc;
+  const int sh = 6;
   unsigned int lag_alt = 4;
   int last_idx = 0;
   int last_idx_refresh = 0;
@@ -2629,6 +2648,22 @@ void av1_set_reference_structure_one_pass_rt(AV1_COMP *cpi, int gf_update) {
     else if (rc->avg_source_sad > th_frame_sad[th_idx][2])
       lag_alt = 5;
   }
+
+  // Check if the previous frame is a non reference frame.
+  int prev_non_reference_frame = 1;
+  for (int i = 0; i < REF_FRAMES; i++) {
+    if (svc->refresh[i]) {
+      prev_non_reference_frame = 0;
+      break;
+    }
+  }
+
+  int is_non_ref =  // 0;
+                    //(cpi->oxcf.tune_cfg.content == AOM_CONTENT_SCREEN) &&
+      !gf_update && cm->current_frame.frame_type != KEY_FRAME &&
+      !prev_non_reference_frame &&
+      (cpi->rc.frame_source_sad < 10000 && rc->frames_since_key > 100);
+
   for (int i = 0; i < INTER_REFS_PER_FRAME; ++i) svc->ref_idx[i] = 7;
   for (int i = 0; i < REF_FRAMES; ++i) svc->refresh[i] = 0;
   // Set the reference frame flags.
@@ -2637,7 +2672,7 @@ void av1_set_reference_structure_one_pass_rt(AV1_COMP *cpi, int gf_update) {
   ext_flags->ref_frame_flags ^= AOM_GOLD_FLAG;
   if (cpi->sf.rt_sf.ref_frame_comp_nonrd[1])
     ext_flags->ref_frame_flags ^= AOM_LAST2_FLAG;
-  const int sh = 6;
+
   // Moving index slot for last: 0 - (sh - 1).
   if (cm->current_frame.frame_number > 1)
     last_idx = ((cm->current_frame.frame_number - 1) % sh);
@@ -2661,14 +2696,29 @@ void av1_set_reference_structure_one_pass_rt(AV1_COMP *cpi, int gf_update) {
   }
   svc->ref_idx[3] = gld_idx;      // GOLDEN
   svc->ref_idx[6] = alt_ref_idx;  // ALT_REF
+
   // Refresh this slot, which will become LAST on next frame.
-  svc->refresh[last_idx_refresh] = 1;
+  if (is_non_ref) {
+    svc->refresh[last_idx_refresh] = 0;
+  } else {
+    svc->refresh[last_idx_refresh] = 1;
+  }
+  svc->lst_idx_1layer = last_idx_refresh;
   // Update GOLDEN on period for fixed slot case.
   if (gf_update && cm->current_frame.frame_type != KEY_FRAME) {
     ext_refresh_frame_flags->golden_frame = 1;
     svc->refresh[gld_idx] = 1;
   }
   svc->gld_idx_1layer = gld_idx;
+
+  svc->non_reference_frame = 1;
+  for (int i = 0; i < REF_FRAMES; i++) {
+    if (svc->refresh[i]) {
+      svc->non_reference_frame = 0;
+      break;
+    }
+  }
+
   // Set the flag to reduce the number of reference frame buffers used.
   // This assumes that slot 7 is never used.
   cpi->rt_reduce_num_ref_buffers = 1;
