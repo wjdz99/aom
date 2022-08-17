@@ -528,6 +528,8 @@ if(CONFIG_AV1_DECODER)
               "av1-1-b8-23-film_grain-50.ivf.md5"
               "av1-1-b8-24-monochrome.ivf"
               "av1-1-b8-24-monochrome.ivf.md5"
+              "av1-1-b8-16-intra_only-intrabc-extreme-dv.ivf"
+              "av1-1-b8-16-intra_only-intrabc-extreme-dv.ivf.md5"
               "invalid-bug-1814.ivf"
               "invalid-bug-1814.ivf.res"
               "invalid-chromium-906381.ivf"
