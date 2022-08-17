@@ -2620,6 +2620,28 @@ static int skip_comp_based_on_sad(AV1_COMP *cpi, MACROBLOCK *x,
   return 0;
 }
 
+// Prune compound mode if the single mode variance is lower than a fixed
+// percentage of the median value.
+static bool skip_comp_based_on_var(
+    const unsigned int (*single_vars)[REF_FRAMES], BLOCK_SIZE bsize) {
+  unsigned int best_var = UINT_MAX;
+  for (int cur_mode_idx = 0; cur_mode_idx < RTC_INTER_MODES; cur_mode_idx++) {
+    for (int ref_idx = 0; ref_idx < REF_FRAMES; ref_idx++) {
+      best_var = AOMMIN(best_var, single_vars[cur_mode_idx][ref_idx]);
+    }
+  }
+  const float median_64 = 8659.0f;
+  const float median_32 = 4280.8f;
+  const float mult_64 = 0.57356805f;
+  const float mult_32 = 0.23964763f;
+  if (bsize == BLOCK_64X64) {
+    return best_var < mult_64 * median_64;
+  } else if (bsize == BLOCK_32X32) {
+    return best_var < mult_32 * median_32;
+  }
+  return false;
+}
+
 static AOM_FORCE_INLINE void fill_single_inter_mode_costs(
     int (*single_inter_mode_costs)[REF_FRAMES], const int num_inter_modes,
     const REF_MODE *ref_mode_set, const ModeCosts *mode_costs,
@@ -2925,7 +2947,10 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
   }
 
   // Skip compound mode based on sad
-  if (tot_num_comp_modes && cpi->sf.rt_sf.sad_based_comp_prune &&
+  // Temporarily disable this with a 0 flag. Currently we cannot simply turn off
+  // cpi->sf.rt_sf.sad_based_comp_prune as it causes unexpected stats changed.
+  // TODO(chiyotsai@google.com): Figure remove the 0 from the conditional.
+  if (0 && tot_num_comp_modes && cpi->sf.rt_sf.sad_based_comp_prune &&
       bsize >= BLOCK_64X64 && cpi->src_sad_blk_64x64 &&
       skip_comp_based_on_sad(cpi, x, mi_row, mi_col, bsize)) {
     tot_num_comp_modes = 0;
@@ -2987,6 +3012,12 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
   MV_REFERENCE_FRAME last_comp_ref_frame = NONE_FRAME;
 
   for (int idx = 0; idx < num_inter_modes + tot_num_comp_modes; ++idx) {
+    // If we are at the first compound mode, and the single modes already
+    // perform well, then end the search.
+    if (idx == num_inter_modes && skip_comp_based_on_var(vars, bsize)) {
+      break;
+    }
+
     const struct segmentation *const seg = &cm->seg;
 
     int rate_mv = 0;
