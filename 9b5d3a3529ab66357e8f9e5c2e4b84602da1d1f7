@@ -16,6 +16,29 @@
       "message": "I realized using references instead of pointers was a big mistake (because that makes the struct non-copyable). Also renamed GopInfo to GopStructAndTplStats, since the former was a bit too vague.\n\nPTAL.",
       "revId": "9b5d3a3529ab66357e8f9e5c2e4b84602da1d1f7",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "68f8b37a_965e13d3",
+        "filename": "av1/ratectrl_qmode_interface.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 253,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2022-08-18T18:04:58Z",
+      "side": 1,
+      "message": "If we are reaching the last sub-gop, its next sub-gop info will be null. Hence these two can be nullptr in this case?",
+      "range": {
+        "startLine": 253,
+        "startChar": 51,
+        "endLine": 253,
+        "endChar": 70
+      },
+      "revId": "9b5d3a3529ab66357e8f9e5c2e4b84602da1d1f7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
