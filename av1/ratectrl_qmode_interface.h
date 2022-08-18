@@ -248,6 +248,12 @@ struct TplGopStats {
   std::vector<TplFrameStats> frame_stats_list;
 };
 
+// Structure and TPL stats for a single GOP.
+struct GopStructAndTplStats {
+  const GopStruct *gop_struct;       // Not owned, may not be nullptr.
+  const TplGopStats *tpl_gop_stats;  // Not owned, may not be nullptr.
+};
+
 class AV1RateControlQModeInterface {
  public:
   AV1RateControlQModeInterface();
@@ -256,15 +262,32 @@ class AV1RateControlQModeInterface {
   virtual Status SetRcParam(const RateControlParam &rc_param) = 0;
   virtual StatusOr<GopStructList> DetermineGopInfo(
       const FirstpassInfo &firstpass_info) = 0;
-  // Accept firstpass and TPL info from the encoder and return q index and
-  // rdmult. This needs to be called with consecutive GOPs as returned by
-  // DetermineGopInfo.
-  // For the first GOP, a default-constructed RefFrameTable may be passed in as
-  // ref_frame_table_snapshot_init; for subsequent GOPs, it should be the
-  // final_snapshot returned on the previous call.
+
+  // DEPRECATED. Call GetGopEncodeInfoWithLookahead instead.
+  // TODO(b/242892473): Remove when all references are gone.
   virtual StatusOr<GopEncodeInfo> GetGopEncodeInfo(
       const GopStruct &gop_struct, const TplGopStats &tpl_gop_stats,
       const RefFrameTable &ref_frame_table_snapshot_init) = 0;
+
+  // Uses TPL to determine q index and rdmult for each frame in a GOP.
+  // The gop_info argument provides information about one or more GOPs.
+  // Returned results are for the first GOP; additional GOPs provide lookahead.
+  // On the first call, a default-constructed RefFrameTable may be passed in as
+  // ref_frame_table_snapshot_init; for subsequent GOPs, it should be the
+  // final_snapshot returned on the previous call.
+  // TODO(b/242892473): Remove implementation and make pure virtual when
+  // implemented by all derived classes.
+  virtual StatusOr<GopEncodeInfo> GetGopEncodeInfoWithLookahead(
+      const std::vector<GopStructAndTplStats> gop_info,
+      const RefFrameTable &ref_frame_table_snapshot_init) {
+    if (gop_info.empty()) {
+      return { { AOM_CODEC_INVALID_PARAM,
+                 "gop_info must have at least one element" } };
+    }
+    return GetGopEncodeInfo(*gop_info.front().gop_struct,
+                            *gop_info.front().tpl_gop_stats,
+                            ref_frame_table_snapshot_init);
+  }
 };
 }  // namespace aom
 
