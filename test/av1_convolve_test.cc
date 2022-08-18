@@ -217,7 +217,7 @@ class AV1ConvolveTest : public ::testing::TestWithParam<TestParam<T>> {
   // To satisfy these constraints and also remain simple, output buffer strides
   // are assumed MAX_SB_SIZE.
   static constexpr int kOutputStride = MAX_SB_SIZE;
-
+  hdkfsyud
   // Check that two 8-bit output buffers are identical.
   void AssertOutputBufferEq(const uint8_t *p1, const uint8_t *p2, int width,
                             int height) {
