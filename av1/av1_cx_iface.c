@@ -188,6 +188,7 @@ struct av1_extracfg {
   // "--enable_diagonal_intra".
   int auto_intra_tools_off;
   int strict_level_conformance;
+  int kf_max_pyr_height;
 };
 
 #if CONFIG_REALTIME_ONLY
@@ -348,6 +349,7 @@ static const struct av1_extracfg default_extra_cfg = {
   NULL,            // second_pass_log
   0,               // auto_intra_tools_off
   0,               // strict_level_conformance
+  -1,              // kf_max_pyr_height
 };
 #else
 static const struct av1_extracfg default_extra_cfg = {
@@ -494,6 +496,7 @@ static const struct av1_extracfg default_extra_cfg = {
   NULL,            // second_pass_log
   0,               // auto_intra_tools_off
   0,               // strict_level_conformance
+  -1,              // kf_max_pyr_height
 };
 #endif
 
@@ -840,6 +843,14 @@ static aom_codec_err_t validate_config(aom_codec_alg_priv_t *ctx,
   RANGE_CHECK_BOOL(extra_cfg, auto_intra_tools_off);
   RANGE_CHECK_BOOL(extra_cfg, strict_level_conformance);
 
+  RANGE_CHECK(extra_cfg, kf_max_pyr_height, -1, 5);
+  if (extra_cfg->kf_max_pyr_height != -1 &&
+      extra_cfg->kf_max_pyr_height < (int)extra_cfg->gf_min_pyr_height) {
+    ERROR(
+        "The value of kf-max-pyr-height should not be smaller than "
+        "gf-min-pyr-height");
+  }
+
   return AOM_CODEC_OK;
 }
 
@@ -920,11 +931,10 @@ static void update_default_encoder_config(const cfg_options_t *cfg,
                                           struct av1_extracfg *extra_cfg) {
   extra_cfg->enable_cdef = (cfg->disable_cdef == 0) ? 1 : 0;
   extra_cfg->enable_restoration = (cfg->disable_lr == 0);
-  extra_cfg->superblock_size = (cfg->super_block_size == 64)
-                                   ? AOM_SUPERBLOCK_SIZE_64X64
-                                   : (cfg->super_block_size == 128)
-                                         ? AOM_SUPERBLOCK_SIZE_128X128
-                                         : AOM_SUPERBLOCK_SIZE_DYNAMIC;
+  extra_cfg->superblock_size =
+      (cfg->super_block_size == 64)    ? AOM_SUPERBLOCK_SIZE_64X64
+      : (cfg->super_block_size == 128) ? AOM_SUPERBLOCK_SIZE_128X128
+                                       : AOM_SUPERBLOCK_SIZE_DYNAMIC;
   extra_cfg->enable_warped_motion = (cfg->disable_warp_motion == 0);
   extra_cfg->enable_dist_wtd_comp = (cfg->disable_dist_wtd_comp == 0);
   extra_cfg->enable_diff_wtd_comp = (cfg->disable_diff_wtd_comp == 0);
@@ -1417,6 +1427,8 @@ static aom_codec_err_t set_encoder_config(AV1EncoderConfig *oxcf,
   oxcf->partition_info_path = extra_cfg->partition_info_path;
 
   oxcf->strict_level_conformance = extra_cfg->strict_level_conformance;
+
+  oxcf->kf_max_pyr_height = extra_cfg->kf_max_pyr_height;
 
   return AOM_CODEC_OK;
 }
@@ -3916,6 +3928,9 @@ static aom_codec_err_t encoder_set_option(aom_codec_alg_priv_t *ctx,
                               &g_av1_codec_arg_defs.strict_level_conformance,
                               argv, err_string)) {
     extra_cfg.strict_level_conformance = arg_parse_int_helper(&arg, err_string);
+  } else if (arg_match_helper(&arg, &g_av1_codec_arg_defs.kf_max_pyr_height,
+                              argv, err_string)) {
+    extra_cfg.kf_max_pyr_height = arg_parse_int_helper(&arg, err_string);
   } else {
     match = 0;
     snprintf(err_string, ARG_ERR_MSG_MAX_LEN, "Cannot find aom option %s",
