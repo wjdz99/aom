@@ -16,6 +16,24 @@
       "message": "Hi Marco, Yunqing, \n\nIn this CL, we adjust MV precision for relatively static (e.g. background) large blocks with low spatial complexity. This is enabled for speed 7, 8 HDRES only. We have renamed the existing sf: “force_half_pel_block” to “reduce_mv_pel_precision” to facilitate integration with function subpel_select() in nonrd_pickmode.c. \n\nThe following worst-case contents are visually tested:\nSpeed 7: mj1vc720p (600 kbps, 800 kbps), vidyo1 (800 kbps)\nSpeed 8: mj1vc720p (600 kbps, 800 kbps) \nThere are no noticeable differences as compared with the ref.\n\nWe have used a threshold to label a block has very low SAD. To do this, we have added an array element source_sad_nonrd[2]. If this is OK, that is already in the patchset. Alternatively, we can introduce and use a new level “kVerylowSad” in the existing enum table. However, this will need changes at several places to ensure bit-exactness. If you prefer that, we can do this in a separate CL.\n\nPlease review the CL.\n\nThanks,\nNeeraj",
       "revId": "3f4c05e8930cfcbd6777a045ae7ef59cdeba5bff",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "27e3338b_93f39df4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2022-08-18T16:36:59Z",
+      "side": 1,
+      "message": "Good speedup. The tradeoff looks good too. Using a new level sounds more clear than current implementation.\n\nAlso, what is the speedups for those best \u0026 worst clips? Does worst clips get more speedups?",
+      "parentUuid": "1ae4ebc1_01c076e2",
+      "revId": "3f4c05e8930cfcbd6777a045ae7ef59cdeba5bff",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
