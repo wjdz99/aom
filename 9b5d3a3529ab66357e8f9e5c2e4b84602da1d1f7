@@ -63,6 +63,30 @@
       },
       "revId": "9b5d3a3529ab66357e8f9e5c2e4b84602da1d1f7",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "54abf678_4539bc94",
+        "filename": "av1/ratectrl_qmode_interface.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 253,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2022-08-18T18:21:00Z",
+      "side": 1,
+      "message": "Yes, this version looks great imo, as it looks cleaner (clearly separate what we think shall definitely be there, and what is optional) and less error-prone when calling.",
+      "parentUuid": "001e2ca7_afca74b2",
+      "range": {
+        "startLine": 253,
+        "startChar": 51,
+        "endLine": 253,
+        "endChar": 70
+      },
+      "revId": "9b5d3a3529ab66357e8f9e5c2e4b84602da1d1f7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
