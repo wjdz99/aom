@@ -1,6 +1,23 @@
 {
   "comments": [
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "c8b98ca4_c237ceb5",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-08-18T01:15:25Z",
+      "side": 1,
+      "message": "Hi Jingning,\n\nThanks for getting started on this so quickly, but I think it will be difficult to make this change all at once in all three repos, which is why I suggested the plan in http://b/242892473#comment1.\n\nI had planned on changing the API in a non-breaking way by defining a new entry point, then migrating both callers and implementations independently to the new API. (Note that there are 3 different implementations: the mock and fake as well as the real implementation.)\n\nI just coded up cl/468335862 which does the 1st step. It passes all the tests in all 3 repos that I usually check, and I\u0027m running a google3 presubmit on it now. Assuming that passes, I can upload it to gerrit first thing tomorrow. (It\u0027s my bedtime now. 😀)\n\nThe API is a little more general than what you have here; it allows passing an arbitrary number of GOPs of lookahead. If you think it would be preferable to limit to one GOP of lookahead, let me know, and I can change it.\n\nMark\n\n",
+      "revId": "4a832dd5b6d3cf67780362b0d7757fef58540317",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a7e34b7b_76d74555",
