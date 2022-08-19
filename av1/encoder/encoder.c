@@ -220,6 +220,19 @@ double av1_get_compression_ratio(const AV1_COMMON *const cm,
   return uncompressed_frame_size / (double)encoded_frame_size;
 }
 
+static void auto_tile_size_balancing(AV1_COMMON *const cm,
+                                      int num_sbs,
+                                      int num_tiles_lg,
+                                     const TileConfig *const tile_cfg) {
+  const CommonModeInfoParams *const mi_params = &cm->mi_params;
+  const SequenceHeader *const seq_params = cm->seq_params;
+  CommonTileParams *const tiles = &cm->tiles;
+  int i, start_sb;
+
+  int size_sb = ROUND_POWER_OF_TWO(num_sbs, num_tiles_lg);
+  int res_sbs = num_sbs - (size_sb << num_tiles_lg);
+}
+
 static void set_tile_info(AV1_COMMON *const cm,
                           const TileConfig *const tile_cfg) {
   const CommonModeInfoParams *const mi_params = &cm->mi_params;
