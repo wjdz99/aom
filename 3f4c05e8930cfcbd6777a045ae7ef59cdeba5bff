@@ -124,6 +124,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "db820158_3c96f755",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 222,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2022-08-19T22:30:47Z",
+      "side": 1,
+      "message": "Ok, i will try to test visually on some noisy clips next week.",
+      "parentUuid": "8c439bbf_2e3127b5",
+      "revId": "3f4c05e8930cfcbd6777a045ae7ef59cdeba5bff",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "be025051_8cabd7f1",
@@ -155,6 +173,24 @@
       "side": 1,
       "message": "If we extend the existing reduce_mv_pel_precision \u003d\u003d 2  from speed 10 to speeds 9, 8, 7,  the results are: \n```\ncpu    Test set  Instr. Cnt     BD-Rate Loss (%)    trade   max-qty  max-drop-content\n                  Red (%) avg.psnr ovr.psnr  ssim   -off    -drop\n7    rtc         1.073     0.3751   0.3972  0.5439  0.3496  3.8443  thaloundeskmtgvga\n7    rtc_derf    1.616     0.5296   0.5548  0.5275  0.3278  1.7053  desktopqvga_320_240\n8    rtc         0.662     0.2617   0.2776  0.2799  0.3954  1.855   desktop360p\n8    rtc_derf    0.785     0.1222   0.1406  0.0773  0.1557  0.7328  desktop1_320_180\n9    rtc         0.779     0.1474   0.1693  0.1403  0.1893  1.1946  marcooffice720p\n9    rtc_derf    0.946     0.3168   0.3201  0.3054  0.335   1.014   capture_pixel_outdoor  \n```\nHere, for cpu 9 rtc, we see a small speed-up. For other speed/test sets, the trade-off is not good. We can try tuning this to make better along with reduce_mv_pel_precision \u003d\u003d 1, as mentioned in the main review message.",
       "parentUuid": "be025051_8cabd7f1",
+      "revId": "3f4c05e8930cfcbd6777a045ae7ef59cdeba5bff",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5083314b_4910d6d2",
+        "filename": "av1/encoder/speed_features.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1346,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2022-08-19T22:30:47Z",
+      "side": 1,
+      "message": "Are these numbers with enabling both existing subpel reduction speed features (as they are both used for speed 10): reduce_mv_pel_precision \u003d 2 and reduce_zeromv_mvres \u003d true? Since they are both on at speed 10 wondering if they should both be enabled at speed 9.\n\nThe reduce_zeromv_mres will reduce subpel if block is likely static, so the aim is similar to the new reduce_mv_pel_precision \u003d 1. Can you compare these two speed features and maybe consolidate them?",
+      "parentUuid": "2f6cb69a_74054386",
       "revId": "3f4c05e8930cfcbd6777a045ae7ef59cdeba5bff",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
