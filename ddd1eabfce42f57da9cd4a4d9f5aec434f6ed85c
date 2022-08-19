@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "61e6f06c_73bb0d82",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 9
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8893
+      },
+      "writtenOn": "2022-08-19T19:07:40Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nIn this patch we have tried to reduce the idle time of threads by reducing the top-right dependency wait time. \n\nIn row-mt multi-threading, a thread waits for the encoding of the above right superblock to be complete before encoding the current superblock. However, in case of non-rd rt, for frames other than intra only frames, intra mode evaluation requires that encoding of the above superblock is complete (there is no dependency on the above right superblock as only DC, H and V intra modes are enabled via speed feature intra_y_mode_bsize_mask_nrd). Inter mode evaluation requires the above right block information to populate the reference mv list. Thus, a thread has to wait for the encoding of the above right block (and not above right superblock) to be complete to begin encoding. \n\nIn this patch, we have added logic to keep track of the position of the block (in units of mi) whose encoding is complete in order to achieve the top-right dependency wait at block level. \n\nThe following changes are done in order to avoid thread sanitizer data race warnings \n-Update only the modified members of MB_MODE_INFO structure in direct_partition_merging() function\n-Minor refactoring of is_global_mv_block() function\n\nThe multi-thread encode time reduction for rt with row-mt\u003d1 is as follows:\n```\ncpu  Resolution     Tiles  Threads Encode time reduction (%)\n 7    180p           2x1     2        0.50\n 8    180p           2x1     2        0.50\n 9    360p           4x1     4        2.10\n 10   720p           4x1     4        2.40\n 10   1080p screen   4x1     4        1.30\n```\n\nPlease review.\n\nThanks",
+      "revId": "ddd1eabfce42f57da9cd4a4d9f5aec434f6ed85c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e840231a_650c3f15",
+        "filename": "av1/common/blockd.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 426,
+      "author": {
+        "id": 8893
+      },
+      "writtenOn": "2022-08-19T19:07:40Z",
+      "side": 1,
+      "message": "As global mv is disabled in rt, this change returns from the function before reading \u0027mbmi-\u003ebsize\u0027 preventing data race condition (as mbmi-\u003ebsize is updated in the function direct_partition_merging()).",
+      "range": {
+        "startLine": 426,
+        "startChar": 2,
+        "endLine": 426,
+        "endChar": 36
+      },
+      "revId": "ddd1eabfce42f57da9cd4a4d9f5aec434f6ed85c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}

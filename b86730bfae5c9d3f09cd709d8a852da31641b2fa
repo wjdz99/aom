@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6c862a9b_da1e9cca",
+        "filename": "av1/encoder/partition_search.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 2466,
+      "author": {
+        "id": 8893
+      },
+      "writtenOn": "2022-08-19T19:07:40Z",
+      "side": 0,
+      "message": "Copying complete MB_MODE_INFO structure results in data race as reference frame and mode information (which are not modified in this function) are read during reference mv list population (function add_ref_mv_candidate()). Thus, copy only the modified members of MB_MODE_INFO.",
+      "revId": "b86730bfae5c9d3f09cd709d8a852da31641b2fa",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
