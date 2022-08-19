@@ -267,7 +267,10 @@ class AV1RateControlQModeInterface {
   // TODO(b/242892473): Remove when all references are gone.
   virtual StatusOr<GopEncodeInfo> GetGopEncodeInfo(
       const GopStruct &gop_struct, const TplGopStats &tpl_gop_stats,
-      const RefFrameTable &ref_frame_table_snapshot_init) = 0;
+      const RefFrameTable &ref_frame_table_snapshot_init) {
+    return {{AOM_CODEC_UNSUP_FEATURE,
+             "GetGopEncodeInfo is deprecated and unimplemented"}};
+  }
 
   // Accepts GOP structure and TPL info from the encoder and returns q index and
   // rdmult for each frame. This should be called with consecutive GOPs as
