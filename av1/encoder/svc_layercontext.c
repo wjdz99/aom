@@ -33,6 +33,10 @@ void av1_init_layer_context(AV1_COMP *const cpi) {
   svc->num_encoded_top_layer = 0;
   svc->use_flexible_mode = 0;
 
+  CHECK_MEM_ERROR(cm, cpi->svc.layer_context,
+                  (LAYER_CONTEXT *)aom_calloc(AOM_MAX_LAYERS,
+                                              sizeof(*cpi->svc.layer_context)));
+
   for (int sl = 0; sl < svc->number_spatial_layers; ++sl) {
     for (int tl = 0; tl < svc->number_temporal_layers; ++tl) {
       int layer = LAYER_IDS_TO_IDX(sl, tl, svc->number_temporal_layers);
