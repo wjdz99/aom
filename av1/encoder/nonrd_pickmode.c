@@ -57,8 +57,10 @@ typedef struct {
   uint8_t best_mode_initial_skip_flag;
   int_interpfilters best_pred_filter;
   MOTION_MODE best_motion_mode;
+#if !CONFIG_REALTIME_ONLY
   WarpedMotionParams wm_params;
   int num_proj_ref;
+#endif
   uint8_t blk_skip[MAX_MIB_SIZE * MAX_MIB_SIZE / 4];
   PALETTE_MODE_INFO pmi;
   int64_t best_sse;
@@ -199,8 +201,10 @@ static INLINE void init_best_pickmode(BEST_PICKMODE *bp) {
   bp->best_mode_initial_skip_flag = 0;
   bp->best_pred = NULL;
   bp->best_motion_mode = SIMPLE_TRANSLATION;
+#if !CONFIG_REALTIME_ONLY
   bp->num_proj_ref = 0;
   memset(&bp->wm_params, 0, sizeof(bp->wm_params));
+#endif
   memset(&bp->blk_skip, 0, sizeof(bp->blk_skip));
   memset(&bp->pmi, 0, sizeof(bp->pmi));
 }
@@ -3471,8 +3475,10 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
       best_pickmode.best_sse = sse_y;
       best_pickmode.best_mode = this_best_mode;
       best_pickmode.best_motion_mode = mi->motion_mode;
+#if !CONFIG_REALTIME_ONLY
       best_pickmode.wm_params = mi->wm_params;
       best_pickmode.num_proj_ref = mi->num_proj_ref;
+#endif
       best_pickmode.best_pred_filter = mi->interp_filters;
       best_pickmode.best_tx_size = mi->tx_size;
       best_pickmode.best_ref_frame = ref_frame;
@@ -3508,8 +3514,10 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
 
   mi->mode = best_pickmode.best_mode;
   mi->motion_mode = best_pickmode.best_motion_mode;
+#if !CONFIG_REALTIME_ONLY
   mi->wm_params = best_pickmode.wm_params;
   mi->num_proj_ref = best_pickmode.num_proj_ref;
+#endif
   mi->interp_filters = best_pickmode.best_pred_filter;
   mi->tx_size = best_pickmode.best_tx_size;
   memset(mi->inter_tx_size, mi->tx_size, sizeof(mi->inter_tx_size));
