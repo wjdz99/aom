@@ -3369,6 +3369,12 @@ static aom_codec_err_t ctrl_set_svc_params(aom_codec_alg_priv_t *ctx,
   if (ppi->number_spatial_layers > 1 || ppi->number_temporal_layers > 1) {
     unsigned int sl, tl;
     ctx->ppi->use_svc = 1;
+    if (cm->current_frame.frame_number == 0) {
+      CHECK_MEM_ERROR(cm, cpi->svc.layer_context,
+                      (LAYER_CONTEXT *)aom_calloc(
+                          AOM_MAX_LAYERS, sizeof(*cpi->svc.layer_context)));
+    }
+
     for (sl = 0; sl < ppi->number_spatial_layers; ++sl) {
       for (tl = 0; tl < ppi->number_temporal_layers; ++tl) {
         const int layer = LAYER_IDS_TO_IDX(sl, tl, ppi->number_temporal_layers);
