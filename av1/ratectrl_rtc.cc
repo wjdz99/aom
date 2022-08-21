@@ -67,6 +67,15 @@ std::unique_ptr<AV1RateControlRTC> AV1RateControlRTC::Create(
   if (!rc_api->cpi_->ppi) return nullptr;
   rc_api->cpi_->common.seq_params = &rc_api->cpi_->ppi->seq_params;
   av1_zero(*rc_api->cpi_->common.seq_params);
+  const int num_layers = cfg.ss_number_layers * cfg.ts_number_layers;
+  if (rc_api->cpi_->svc.num_allocated_layers < num_layers) {
+    AV1_COMMON *const cm = &rc_api->cpi_->common;
+    aom_free(rc_api->cpi_->svc.layer_context);
+    CHECK_MEM_ERROR(cm, rc_api->cpi_->svc.layer_context,
+                    (LAYER_CONTEXT *)aom_calloc(
+                        num_layers, sizeof(*rc_api->cpi_->svc.layer_context)));
+    rc_api->cpi_->svc.num_allocated_layers = num_layers;
+  }
   rc_api->InitRateControl(cfg);
   if (cfg.aq_mode) {
     AV1_COMP *const cpi = rc_api->cpi_;
@@ -94,6 +103,8 @@ AV1RateControlRTC::~AV1RateControlRTC() {
         }
       }
     }
+    aom_free(cpi_->svc.layer_context);
+
     if (cpi_->oxcf.q_cfg.aq_mode == CYCLIC_REFRESH_AQ) {
       aom_free(cpi_->enc_seg.map);
       cpi_->enc_seg.map = nullptr;

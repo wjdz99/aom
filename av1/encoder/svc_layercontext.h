@@ -123,7 +123,12 @@ typedef struct SVC {
   /*!
    * Layer context used for rate control in CBR mode.
    */
-  LAYER_CONTEXT layer_context[AOM_MAX_LAYERS];
+  LAYER_CONTEXT *layer_context;
+
+  /*!
+   * Number of layers allocated for layer_context.
+   */
+  int num_allocated_layers;
 
   /*!
    * EIGHTTAP_SMOOTH or BILINEAR
