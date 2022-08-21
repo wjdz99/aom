@@ -80,8 +80,12 @@ static INLINE void find_predictors(
                   bsize);
     }
   }
-  av1_count_overlappable_neighbors(cm, xd);
-  mbmi->num_proj_ref = 1;
+#if !CONFIG_REALTIME_ONLY
+  if (cm->features.allow_warped_motion) {
+    av1_count_overlappable_neighbors(cm, xd);
+    mbmi->num_proj_ref = 1;
+  }
+#endif
 }
 
 #endif  // AOM_AV1_ENCODER_NONRD_OPT_H_
