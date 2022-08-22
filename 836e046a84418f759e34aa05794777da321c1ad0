@@ -20,6 +20,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "edd8b086_5a426f53",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 14
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2022-08-22T18:07:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d9965891_ae11737e",
+      "revId": "836e046a84418f759e34aa05794777da321c1ad0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "3b521f74_6f593236",
         "filename": "/PATCHSET_LEVEL",
         "patchSetId": 14
@@ -122,6 +140,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e5231965_b7303794",
+        "filename": "aom/aomcx.h",
+        "patchSetId": 14
+      },
+      "lineNbr": 620,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2022-08-22T18:07:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "70d3d67e_160e6271",
+      "revId": "836e046a84418f759e34aa05794777da321c1ad0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "92f27346_a3ad5fc6",
@@ -139,6 +175,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "261e9da1_ff707fc9",
+        "filename": "av1/common/tile_common.c",
+        "patchSetId": 14
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2022-08-22T18:07:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "92f27346_a3ad5fc6",
+      "revId": "836e046a84418f759e34aa05794777da321c1ad0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "110c48b5_5622f269",
@@ -152,6 +206,30 @@
       "writtenOn": "2022-06-14T21:02:44Z",
       "side": 1,
       "message": "Optional: We can use `\u003c SEQ_LEVELS` instead of `\u003c\u003d SEQ_LEVEL_8_3` here.",
+      "range": {
+        "startLine": 45,
+        "startChar": 37,
+        "endLine": 45,
+        "endChar": 53
+      },
+      "revId": "836e046a84418f759e34aa05794777da321c1ad0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4e8df374_c8181696",
+        "filename": "av1/common/tile_common.c",
+        "patchSetId": 14
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2022-08-22T18:07:05Z",
+      "side": 1,
+      "message": "ACK. But it feels to me here that marking \u003c\u003d 8.3 here makes the code easier to understand, and that it might be easier to maintain if we ever want to add even more levels. So leaving it as is for now.",
+      "parentUuid": "110c48b5_5622f269",
       "range": {
         "startLine": 45,
         "startChar": 37,
@@ -185,6 +263,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "b7713250_155ed5b1",
+        "filename": "av1/common/tile_common.c",
+        "patchSetId": 14
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2022-08-22T18:07:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f888a881_0859f267",
+      "range": {
+        "startLine": 46,
+        "startChar": 38,
+        "endLine": 46,
+        "endChar": 43
+      },
+      "revId": "836e046a84418f759e34aa05794777da321c1ad0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "8a5f7fda_acb37f2a",
@@ -198,6 +300,24 @@
       "writtenOn": "2022-06-14T21:02:44Z",
       "side": 1,
       "message": "Where did this assumption come from? It is not in CWG-C013-v3.pdf. Is this our own assumption?",
+      "revId": "836e046a84418f759e34aa05794777da321c1ad0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7d8bc345_3df5bd59",
+        "filename": "av1/common/tile_common.c",
+        "patchSetId": 14
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2022-08-22T18:07:05Z",
+      "side": 1,
+      "message": "It is now added in the C013 draft.",
+      "parentUuid": "8a5f7fda_acb37f2a",
       "revId": "836e046a84418f759e34aa05794777da321c1ad0",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -248,6 +368,54 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e686c897_21e83983",
+        "filename": "av1/common/tile_common.h",
+        "patchSetId": 14
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2022-08-22T18:07:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "faeaa2d3_01699dde",
+      "range": {
+        "startLine": 58,
+        "startChar": 8,
+        "endLine": 58,
+        "endChar": 33
+      },
+      "revId": "836e046a84418f759e34aa05794777da321c1ad0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ffae790f_16da894d",
+        "filename": "av1/common/tile_common.h",
+        "patchSetId": 14
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2022-08-22T18:07:05Z",
+      "side": 1,
+      "message": "Ack. In the newest draft it was written as 4096 * 4608. So keeping this.",
+      "parentUuid": "a79bbd74_b92348f6",
+      "range": {
+        "startLine": 58,
+        "startChar": 35,
+        "endLine": 58,
+        "endChar": 46
+      },
+      "revId": "836e046a84418f759e34aa05794777da321c1ad0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "7beda82c_f3e84512",
@@ -265,6 +433,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e0e48179_ee2fab25",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 14
+      },
+      "lineNbr": 369,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2022-08-22T18:07:05Z",
+      "side": 1,
+      "message": "Good catch! Fixed this.",
+      "parentUuid": "7beda82c_f3e84512",
+      "revId": "836e046a84418f759e34aa05794777da321c1ad0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "23edeb2a_26fe383b",
@@ -278,6 +464,24 @@
       "writtenOn": "2022-06-14T21:02:44Z",
       "side": 1,
       "message": "Nit: I suggest defining a local variable `max_tile_size` here:\n\n  const int max_tile_size \u003d\n      (level \u003e\u003d SEQ_LEVEL_7_0 \u0026\u0026 level \u003c\u003d SEQ_LEVEL_8_3)\n          ? MAX_TILE_AREA_7_AND_ABOVE\n          : MAX_TILE_AREA;\n  if (level_stats-\u003emax_tile_size \u003e max_tile_size) {",
+      "revId": "836e046a84418f759e34aa05794777da321c1ad0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0e2ae732_c62fd37a",
+        "filename": "av1/encoder/level.c",
+        "patchSetId": 14
+      },
+      "lineNbr": 1018,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2022-08-22T18:07:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "23edeb2a_26fe383b",
       "revId": "836e046a84418f759e34aa05794777da321c1ad0",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -305,6 +509,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "9fb3a5e7_e220e5ac",
+        "filename": "av1/encoder/level.c",
+        "patchSetId": 14
+      },
+      "lineNbr": 1020,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2022-08-22T18:07:05Z",
+      "side": 1,
+      "message": "Ack. Please see above comments.",
+      "parentUuid": "21c654e3_5ee1a255",
+      "range": {
+        "startLine": 1020,
+        "startChar": 36,
+        "endLine": 1020,
+        "endChar": 58
+      },
+      "revId": "836e046a84418f759e34aa05794777da321c1ad0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "0fde4513_beb7a703",
@@ -318,6 +546,24 @@
       "writtenOn": "2022-06-14T21:02:44Z",
       "side": 1,
       "message": "How is the expected result file updated? Just curious.",
+      "revId": "836e046a84418f759e34aa05794777da321c1ad0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d2b9cb30_cb888de8",
+        "filename": "test/invalid_file_test.cc",
+        "patchSetId": 14
+      },
+      "lineNbr": 149,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2022-08-22T18:07:05Z",
+      "side": 1,
+      "message": "I remember I needed to manually change the output error code in the result file.",
+      "parentUuid": "0fde4513_beb7a703",
       "revId": "836e046a84418f759e34aa05794777da321c1ad0",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -345,6 +591,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "3f6aad0c_c5d4f4a2",
+        "filename": "test/level_test.cc",
+        "patchSetId": 14
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2022-08-22T18:07:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b551753c_6c532172",
+      "range": {
+        "startLine": 87,
+        "startChar": 11,
+        "endLine": 87,
+        "endChar": 22
+      },
+      "revId": "836e046a84418f759e34aa05794777da321c1ad0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "0311c1c6_a7003c8a",
@@ -358,6 +628,30 @@
       "writtenOn": "2022-06-14T21:02:44Z",
       "side": 1,
       "message": "Nit: 32 \u003d\u003e kLevelKeepStats",
+      "range": {
+        "startLine": 89,
+        "startChar": 34,
+        "endLine": 89,
+        "endChar": 36
+      },
+      "revId": "836e046a84418f759e34aa05794777da321c1ad0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5f9896e0_b1acaeee",
+        "filename": "test/level_test.cc",
+        "patchSetId": 14
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2022-08-22T18:07:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0311c1c6_a7003c8a",
       "range": {
         "startLine": 89,
         "startChar": 34,
