@@ -210,6 +210,24 @@
       "parentUuid": "2f6cb69a_74054386",
       "revId": "3f4c05e8930cfcbd6777a045ae7ef59cdeba5bff",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a0467e6f_85b31582",
+        "filename": "av1/encoder/speed_features.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1346,
+      "author": {
+        "id": 29295
+      },
+      "writtenOn": "2022-08-22T14:16:46Z",
+      "side": 1,
+      "message": "These numbers are produced by only making reduce_mv_pel_precision \u003d 2. We are studying enabling both on speed 9: reduce_mv_pel_precision \u003d 2 and reduce_zeromv_mvres \u003d true.  \n\nSure, we will study these for consolidation: reduce_zeromv_mres and reduce_mv_pel_precision \u003d 1.",
+      "parentUuid": "5083314b_4910d6d2",
+      "revId": "3f4c05e8930cfcbd6777a045ae7ef59cdeba5bff",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ],
   "submitRequirementResults": [
