@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "90d07d4b_88a2158f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 6245
+      },
+      "writtenOn": "2022-08-22T09:06:16Z",
+      "side": 1,
+      "message": "Hi Marco, Yunqing,\nIn this CL, an issue with the population of the function pointer \u0027find_fractional_mv_step\u0027 is fixed. This function pointer \u0027find_fractional_mv_step\u0027 is populated correctly in av1_set_speed_features_framesize_independent(), but the same is not updated correctly if the speed feature changes its value in av1_set_speed_features_framesize_dependent(). This CL fixes the issue.\n\nPlease check the borg results for different test sets. The CL is bit-exact for other presets as the settings match with the parent version after the fix.\n\n```\n               \t\tInstruction Count        BD-Rate Loss(%)       \ncpu   \tTest-set   \t   Reduction(%)      avg.psnr   ovr.psnr    ssim        \n 8        rtc      \t     0.182            0.0777     0.0779    0.0631               \n 8    \trtc_derf      \t     1.023            0.0469     0.0592   -0.0629  \n \n               \t\tInstruction Count        BD-Rate Loss(%)       \ncpu \tTest-set           Reduction(%)    avg.psnr   ovr.psnr    ssim        \n 9       rtc-screen          0.307           -0.5283    -0.9420   -0.9020\n```\n\nPlease check the maximum BD-Rate impact for rtc/rtc-screen testset:\n\n```\n               \t\t\t\t\t\t\tBD-Rate Loss(%)       \ncpu   Test-set\t\tContent   \t\t\tavg.psnr   ovr.psnr    ssim        \n 8         rtc  \tdesktop360p    \t\t\t1.6132     1.5544    1.6878               \n 8    rtc_derf  \tcapture_pixel_office_320_240   \t0.5984     0.5765   -0.1818     \n 9  rtc-screen  \tscreenshare_static.1672_1162    2.7618    -0.2849   -0.3547\n```\n\nThe instruction count reduction specified has been measured using command:\n $ perf stat -e instructions:u ./aomenc …\n\nThough speed-quality trade-off data is slightly out of trade-off for few specific cases, we feel that this CL can be considered as it fixes an existing issue. \n\nPlease let us know your thoughts on the CL.\n\nRegards,\nRanjit\n",
+      "revId": "53f3e2f7e089eb58d7ba1c5d83fea02fde49a3b7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
