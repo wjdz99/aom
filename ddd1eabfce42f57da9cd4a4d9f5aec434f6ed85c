@@ -38,6 +38,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "c700113e_bfab384b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 9
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8893
+      },
+      "writtenOn": "2022-08-22T17:13:40Z",
+      "side": 1,
+      "message": "Ack. We have enabled this optimization for rt speed 9 and 10 only and when global mv is disabled.",
+      "parentUuid": "d36a1308_65937f8d",
+      "revId": "ddd1eabfce42f57da9cd4a4d9f5aec434f6ed85c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "e840231a_650c3f15",
         "filename": "av1/common/blockd.h",
         "patchSetId": 9
@@ -73,6 +91,30 @@
       "side": 1,
       "message": "This makes sense. Could you add this as a comment in the code, so if anything unexpected happens (e.g. people turns on global mv mistakenly), we know what is wrong?",
       "parentUuid": "e840231a_650c3f15",
+      "range": {
+        "startLine": 426,
+        "startChar": 2,
+        "endLine": 426,
+        "endChar": 36
+      },
+      "revId": "ddd1eabfce42f57da9cd4a4d9f5aec434f6ed85c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d8e4134d_82cf2c78",
+        "filename": "av1/common/blockd.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 426,
+      "author": {
+        "id": 8893
+      },
+      "writtenOn": "2022-08-22T17:13:40Z",
+      "side": 1,
+      "message": "Done. Also, enabled this optimization when global motion is disabled.",
+      "parentUuid": "b5ca06c6_81e8d6fa",
       "range": {
         "startLine": 426,
         "startChar": 2,
