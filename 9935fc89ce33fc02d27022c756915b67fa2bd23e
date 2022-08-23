@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "042e8148_2f0cce53",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-08-23T21:53:21Z",
+      "side": 1,
+      "message": "Please add \"Bug: aomedia:3316\".",
+      "revId": "9935fc89ce33fc02d27022c756915b67fa2bd23e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "13e46ad4_6bec5d25",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-08-23T21:53:21Z",
+      "side": 1,
+      "message": "I suggest two changes. Thanks.",
+      "revId": "9935fc89ce33fc02d27022c756915b67fa2bd23e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a001c613_2de8f2b2",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 5349,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-08-23T21:53:21Z",
+      "side": 1,
+      "message": "Nit: temporarily \u003d\u003e temporary",
+      "range": {
+        "startLine": 5349,
+        "startChar": 67,
+        "endLine": 5349,
+        "endChar": 78
+      },
+      "revId": "9935fc89ce33fc02d27022c756915b67fa2bd23e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
