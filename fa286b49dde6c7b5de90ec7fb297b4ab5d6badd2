@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ac8071b2_30331d3b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 30842
+      },
+      "writtenOn": "2022-08-23T19:39:05Z",
+      "side": 1,
+      "message": "Is this what you intended for me to do, or did you want me to revert the revert and put my patch on top of that?",
+      "revId": "fa286b49dde6c7b5de90ec7fb297b4ab5d6badd2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
