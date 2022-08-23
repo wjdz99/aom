@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "363ff92a_432b4a47",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 2652,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2022-08-23T18:31:17Z",
+      "side": 1,
+      "message": "how about bsize \u003d\u003d BLOCK_128X128?\n\n128 is the default for 1080p, but also user can select 128 (instead of default 64) at command line for say 720p.",
+      "revId": "a82b98f5379dc836a1d8aca4afc9300a515041bc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "80340f98_999efcde",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 2656,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2022-08-23T18:31:17Z",
+      "side": 1,
+      "message": "And 16x16? bsizes below 16x16 are disabled for compound at line 2954, but what if someone enables it to test, then no pruning here. Maybe add comment.",
+      "revId": "a82b98f5379dc836a1d8aca4afc9300a515041bc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
