@@ -16,6 +16,29 @@
       "message": "Hi Yunqing and Marco,\n\nAs per our understanding, setting the variable force_zeromv_skip to 1 enables pruning at different levels in the inter mode loop. Currently, source sad equal to kZeroSad is considered as one of the conditions to set this flag. This CL introduces a speed feature ‘set_zeromv_skip_based_on_source_sad’ to change the source sad condition for enabling force_zeromv_skip. \nThe speed feature is facilitated to take different levels, so that it can be extended to lower presets based on different conditions. Currently, this optimization is enabled only for speed 10 for rtc-screen. \n\nThe following is the borg result for rtc-screen.\n```\n               Instruction Count        BD-Rate Loss(%)\ncpu-used          Reduction(%)    avg.psnr   ovr.psnr    ssim\n    10              2.000         0.0524     0.0132     -0.0922\n```\n\nPlease check the worst and best BD-Rate drops for rtc-screen testset:\n              \t\t\t\t\t\t                 BD-Rate Loss(%)       \ncpu  Impact     Test-set\t\t     Content   \t\t    avg.psnr   ovr.psnr    ssim        \n 10   worst     rtc-screen  \tscreenshare_colorslides.1820_1320   0.5411     0.6012      0.1323\n 10   worst     rtc-screen  \tscreen_recording_crd.1920_1080      0.3082     1.0206      0.2355\n 10   best      rtc-screen  \tscreenshare_buganizer.1900_1306    -0.7033    -0.9515     -0.8948\n\nThis change does not have any impact for –tune-content\u003ddefault.\nPlease review the patch.\n\nThanks \u0026 Regards,\nVenkata.",
       "revId": "383052209809deddaade97b83f9903a67f63295a",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5ebb881b_28125d4d",
+        "filename": "av1/encoder/var_based_part.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1214,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2022-08-23T20:36:14Z",
+      "side": 1,
+      "message": "Screen content encoding use 128x128 SB. kLowSad probably is ok.",
+      "range": {
+        "startLine": 1214,
+        "startChar": 31,
+        "endLine": 1214,
+        "endChar": 38
+      },
+      "revId": "383052209809deddaade97b83f9903a67f63295a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
