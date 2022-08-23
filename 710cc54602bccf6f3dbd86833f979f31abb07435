@@ -164,6 +164,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "cf5fb216_47f868d4",
+        "filename": "av1/encoder/av1_temporal_denoiser.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 675,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2022-08-23T17:18:58Z",
+      "side": 1,
+      "message": "The function av1_scale_part_thresh() should only have effect when we enable denoiser (noise_sensitivity \u003e 0), but since we haven\u0027t enabled/tested denoiser much, we left it alone. We should enable it under CONFIG_AV1_TEMPORAL_DENOISING at some point.",
+      "parentUuid": "9605fdcc_8ad74a3f",
+      "range": {
+        "startLine": 674,
+        "startChar": 8,
+        "endLine": 675,
+        "endChar": 49
+      },
+      "revId": "710cc54602bccf6f3dbd86833f979f31abb07435",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "848e4a47_0f3cc4ba",
@@ -296,6 +320,30 @@
       "side": 1,
       "message": "Thanks for the study. No sure what causes the loss. \"source_sad_nonrd \u003d\u003d 0\" causes the difference?",
       "parentUuid": "bd790375_eac05231",
+      "range": {
+        "startLine": 461,
+        "startChar": 7,
+        "endLine": 461,
+        "endChar": 69
+      },
+      "revId": "710cc54602bccf6f3dbd86833f979f31abb07435",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "111c3222_585e70fe",
+        "filename": "av1/encoder/var_based_part.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 461,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2022-08-23T17:18:58Z",
+      "side": 1,
+      "message": "I think we should still make the change: low_blksad \u003c\u003d kLowSad, and same in above places, even if there is some small loss (maybe expected since now additional superblocks will get larger partition thresholds, more early exits, etc).\n\nThe change makes more sense and it was the intended behavior. For video mode I didn\u0027t expect much if any superblocks to get source_sad_nonrd \u003d kZeroSad, because of noise, for most clips.\n\nFor screen there should be more bdrate-speed change, but if its neutral is ok (expecting small speedup with small loss)",
+      "parentUuid": "05d525cb_2d46c39b",
       "range": {
         "startLine": 461,
         "startChar": 7,
