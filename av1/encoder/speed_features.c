@@ -2036,7 +2036,6 @@ static AOM_INLINE void init_rt_sf(REAL_TIME_SPEED_FEATURES *rt_sf) {
   rt_sf->sad_based_adp_altref_lag = 0;
   rt_sf->partition_direct_merging = 0;
   rt_sf->var_part_based_on_qidx = 0;
-  rt_sf->sad_based_comp_prune = 0;
   rt_sf->tx_size_level_based_on_qstep = 0;
   rt_sf->reduce_zeromv_mvres = false;
   rt_sf->vbp_prune_16x16_split_using_min_max_sub_blk_var = false;
