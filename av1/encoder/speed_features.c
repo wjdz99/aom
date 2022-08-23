@@ -1702,10 +1702,7 @@ static void set_rt_speed_features_framesize_independent(AV1_COMP *cpi,
     // For multi-thread use case with row_mt enabled, enable top right
     // dependency wait of threads at mi level.
     if ((cpi->oxcf.row_mt == 1) && (cpi->mt_info.num_workers > 1)) {
-      sf->rt_sf.top_right_sync_wait_in_mis =
-          frame_is_intra_only(cm) ? 0
-                                  : (!cpi->oxcf.tool_cfg.enable_global_motion &&
-                                     cpi->sf.rt_sf.use_nonrd_pick_mode);
+      sf->rt_sf.top_right_sync_wait_in_mis = 0;
     }
   }
   if (speed >= 10) {
