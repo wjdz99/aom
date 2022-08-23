@@ -340,7 +340,8 @@ cglobal sad%1x%2x4d_avg, 5, 7, 8, src, ref4, ref1, ref_stride, second_pred, ref2
   %define ref_strided r3mp
 %endif
 %if spill_cnt
-  %define cntd word [rsp-4]
+  sub                 rsp, 2
+  %define cntd word [rsp]
 %endif
 
 %if %4 == 1
