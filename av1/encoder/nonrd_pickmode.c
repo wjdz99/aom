@@ -2107,8 +2107,9 @@ static AOM_INLINE void get_ref_frame_use_mask(AV1_COMP *cpi, MACROBLOCK *x,
   }
 
   // Skip golden reference if color is set, on flat blocks with motion.
-  if (x->source_variance < 500 &&
-      x->content_state_sb.source_sad_nonrd > kLowSad &&
+  if ((cpi->oxcf.tune_cfg.content == AOM_CONTENT_SCREEN ||
+       (x->source_variance < 500 &&
+        x->content_state_sb.source_sad_nonrd > kLowSad)) &&
       (x->color_sensitivity_sb_g[0] == 1 || x->color_sensitivity_sb_g[1] == 1))
     use_golden_ref_frame = 0;
 
@@ -3541,7 +3542,9 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
                         &orig_dst, tmp, &this_mode_pred, &best_rdc,
                         &best_pickmode, ctx);
 
+  // Check for IDTX: based only on Y channel, so avoid when color_sen is set.
   if (cpi->oxcf.tune_cfg.content == AOM_CONTENT_SCREEN &&
+      x->color_sensitivity[0] == 0 && x->color_sensitivity[1] == 0 &&
       !cpi->oxcf.txfm_cfg.use_inter_dct_only && !x->force_zeromv_skip &&
       is_inter_mode(best_pickmode.best_mode) &&
       (!cpi->sf.rt_sf.prune_idtx_nonrd ||
