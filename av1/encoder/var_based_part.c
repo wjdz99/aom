@@ -993,7 +993,7 @@ static AOM_INLINE void chroma_check(AV1_COMP *cpi, MACROBLOCK *x,
     else
       x->color_sensitivity_sb[i - 1] = 2;
 
-    x->color_sensitivity_sb_g[i - 1] = uv_sad_g > y_sad_g / 6;
+    x->color_sensitivity_sb_g[i - 1] = uv_sad_g > (y_sad_g >> 3);
   }
 }
 
