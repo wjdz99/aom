@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "644e5da3_cf97fc1c",
+        "filename": "av1/encoder/intra_mode_search.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 200,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-08-23T21:13:51Z",
+      "side": 0,
+      "message": "Here the text for \\return simply says \"Returns nothing\", so I deleted the \\return.",
+      "revId": "6320cfb808c74f5b8f5bcea5d16bb7a64d69d291",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
