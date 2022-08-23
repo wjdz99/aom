@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "348c0e39_833ddc69",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2022-08-23T13:10:28Z",
+      "side": 1,
+      "message": "Hi Wan-Teh, Frank, James,\n\nThis CL adds a test vector \u0027av1-1-b8-16-intra_only-intrabc-extreme-dv.ivf\u0027 to kAV1TestVectors[]\nto validate single and row multithreaded decoding when intraBC dv points to a region beyond the default top-right region. \n\nAbove mentioned stream is generated using the recipe below by forcing intraBC dvs beyond default top-right region in the encoder: \n./aomenc wikipedia_420.y4m -o av1-1-b8-16-intra_only-intrabc-extreme-dv.ivf --allintra --cpu-used\u003d6 --sb-size\u003d64 --cq-level\u003d29 --limit\u003d2\n\nWe have locally validated that the thread sanitizer/mismatch issues are caught in the absence of the decoder fix (https://aomedia-review.googlesource.com/c/aom/+/159821) with this test vector in presence of the changes in the decoder library as per the CL (https://aomedia-review.googlesource.com/c/aom/+/159901).\n\nPlease review.\n\nRegards,\nMudassir\n",
+      "revId": "5eff92df6c42032fe0a5fb821487ed53435b0f61",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
