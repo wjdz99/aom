@@ -16,6 +16,46 @@
       "message": "Hi Yunqing,\n\nThe threshold/speed feature partition_search_breakout_dist_thr was introduced in the following commit:\nhttps://aomedia.googlesource.com/aom/+/c27fc14b02dd41f677290022b0de2d296f5e6dca\nAs this threshold was corresponding to a block of size 64x64, the same was multiplied by 4 in av1_set_speed_features_framesize_independent() to map to a maximum block size of 128x128. However, similar scaling was not present in av1_set_speed_features_framesize_dependent(). As these are threshold settings, the scaling code can be cleaned-up and thresholds can be left unmodified. However we generated the speed-quality trade off data for specific presets by scaling the thresholds by 4 (as intended during introduction) and the data is summarized below (for –good usage):\n\n```\n               \t\t  Instruction Count        BD-Rate Loss(%)       \ncpu Resolution   \t     Reduction(%)    avg.psnr   ovr.psnr    ssim  \n 3     LOWRES2      \t\t0.356         0.0957     0.0999    0.1081\n 3     MIDRES2      \t\t0.516         0.1141     0.1241    0.0933\n 3      HDRES2      \t\t0.550         0.0967     0.0934    0.0519\n\n 4     LOWRES2      \t\t0.415         0.0323     0.0420    0.0073\n 4     MIDRES2      \t\t0.417         0.0120     0.0024   -0.0319\n 4      HDRES2      \t\t0.257         0.0166     0.0339   -0.0103\n \n 5     LOWRES2      \t\t0.354         0.0320     0.0287    0.0322\n 5     MIDRES2      \t\t0.340         0.0421     0.0521    0.0278\n 5      HDRES2      \t\t0.272         0.0325     0.0279   -0.0093\n\n 6     LOWRES2      \t\t0.381         0.0196     0.0193    0.0174\n 6     MIDRES2      \t\t0.441         0.0223     0.0280   -0.0073\n 6      HDRES2      \t\t0.205         0.0214     0.0254   -0.0165\n```\n \nAs the data is in trade-off for all resolutions of speed\u003d6 and LOWRES2 of speed\u003d5, we cleaned-up the code related to scaling (multiplication by 4) and modified thresholds of above cases accordingly. Please check the data for the CL below:\n\n```\n               \t\t  Instruction Count        BD-Rate Loss(%)       \ncpu Resolution   \t     Reduction(%)    avg.psnr   ovr.psnr    ssim  \n 5     LOWRES2      \t\t0.354         0.0320     0.0287    0.0322\n 5     MIDRES2      \t\t0.026         0.0011     0.0013   -0.0008\n\n 6     LOWRES2      \t\t0.381         0.0196     0.0193    0.0174\n 6     MIDRES2      \t\t0.441         0.0223     0.0280   -0.0073\n 6      HDRES2      \t\t0.205         0.0214     0.0254   -0.0165\n```\n\nThe instruction count reduction specified has been measured using command:\n $ perf stat -e instructions:u ./aomenc …\n\nAs these thresholds are applicable for inter frames in rd_pick_partition() path, this CL does not have impact on –rt and –allintra usage. Please let us know your thoughts on our approach.\n\nRegards,\nRanjit\n",
       "revId": "0e6e4b3d39cc0e1cd1451b429d606fe1f2acb44f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1721889a_649334a6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2022-08-24T18:43:13Z",
+      "side": 1,
+      "message": "Thanks for the fix!",
+      "revId": "0e6e4b3d39cc0e1cd1451b429d606fe1f2acb44f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "29a36576_a7c7f82d",
+        "filename": "av1/encoder/speed_features.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 847,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2022-08-24T18:43:13Z",
+      "side": 1,
+      "message": "If sb_size selection changes later, then this needs to be modified again, right? Please see my comment below.",
+      "range": {
+        "startLine": 847,
+        "startChar": 6,
+        "endLine": 847,
+        "endChar": 65
+      },
+      "revId": "0e6e4b3d39cc0e1cd1451b429d606fe1f2acb44f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
