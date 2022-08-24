@@ -115,7 +115,7 @@ void av1_make_default_fullpel_ms_params(
   av1_set_mv_search_method(ms_params, search_sites, search_method);
 
   const int use_downsampled_sad =
-      mv_sf->use_downsampled_sad && block_size_high[bsize] >= 16;
+      block_size_high[bsize] >= mv_sf->use_downsampled_sad_threshold;
   if (use_downsampled_sad) {
     ms_params->sdf = ms_params->vfp->sdsf;
     ms_params->sdx4df = ms_params->vfp->sdsx4df;
