@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "45dc837c_0ed7c8b3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 30842
+      },
+      "writtenOn": "2022-08-24T20:13:23Z",
+      "side": 1,
+      "message": "This is a minor optimization. It\u0027s mostly a result of some experiments for making rd/nonrd pick mode functions less front end bound, and I decided that I might create a commit.",
+      "revId": "16d5e9efcf1d0d5946140dbde07199388412cce1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
