@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cf1287b7_26abb93a",
+        "filename": "av1/encoder/palette.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-08-24T01:38:07Z",
+      "side": 1,
+      "message": "this could be \\a indices. It seems some of the documentation uses \\c, but I think \\a might be slightly more correct given the doxygen documentation.",
+      "range": {
+        "startLine": 52,
+        "startChar": 67,
+        "endLine": 52,
+        "endChar": 74
+      },
+      "revId": "0defff8c34036d9817ebf2d5a2e2c0ae980de0a6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3559a813_43158acf",
+        "filename": "av1/encoder/palette.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-08-24T01:38:07Z",
+      "side": 1,
+      "message": "same thing here for indices. there are likely other examples of this throughout.",
+      "range": {
+        "startLine": 83,
+        "startChar": 32,
+        "endLine": 83,
+        "endChar": 39
+      },
+      "revId": "0defff8c34036d9817ebf2d5a2e2c0ae980de0a6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ace897a7_4578bc0d",
+        "filename": "av1/encoder/pass2_strategy.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-08-24T01:38:07Z",
+      "side": 1,
+      "message": "analyzes?",
+      "range": {
+        "startLine": 85,
+        "startChar": 25,
+        "endLine": 85,
+        "endChar": 33
+      },
+      "revId": "0defff8c34036d9817ebf2d5a2e2c0ae980de0a6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fb9133b4_1c0dc8c2",
+        "filename": "av1/encoder/ratectrl.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 776,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-08-24T01:38:07Z",
+      "side": 1,
+      "message": "function",
+      "range": {
+        "startLine": 776,
+        "startChar": 3,
+        "endLine": 776,
+        "endChar": 10
+      },
+      "revId": "0defff8c34036d9817ebf2d5a2e2c0ae980de0a6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
