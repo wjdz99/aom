@@ -39,6 +39,30 @@
       },
       "revId": "383052209809deddaade97b83f9903a67f63295a",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c56b1d0d_f767245a",
+        "filename": "av1/encoder/var_based_part.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1214,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2022-08-24T16:26:25Z",
+      "side": 1,
+      "message": "force_zeromv_skip is aggressive exit so to be safe/conservative we kept it only for kZeroSad. Concerned setting it kLowSad can lead to some visual regression, that vp9 does not show. Without testing all the screen clips I can\u0027t be sure.\n\nWhy not set it to kVeryLowSad?",
+      "parentUuid": "5ebb881b_28125d4d",
+      "range": {
+        "startLine": 1214,
+        "startChar": 31,
+        "endLine": 1214,
+        "endChar": 38
+      },
+      "revId": "383052209809deddaade97b83f9903a67f63295a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
