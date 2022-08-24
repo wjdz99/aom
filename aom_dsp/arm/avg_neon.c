@@ -187,10 +187,10 @@ int aom_vector_var_neon(const int16_t *ref, const int16_t *src, const int bwl) {
     v_sse = vmlal_s16(v_sse, v_high, v_high);
 #endif
   }
-  int mean = horizontal_add_s32x4(v_mean);
-  int sse = horizontal_add_s32x4(v_sse);
+  const unsigned int mean = horizontal_add_s32x4(v_mean);
+  const int sse = horizontal_add_s32x4(v_sse);
   // (mean * mean): dynamic range 31 bits.
-  int var = sse - ((mean * mean) >> (bwl + 2));
+  const int var = sse - ((mean * mean) >> (bwl + 2));
   return var;
 }
 
