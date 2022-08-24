@@ -3,6 +3,23 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "cf69635f_22f91426",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-08-24T01:40:52Z",
+      "side": 1,
+      "message": "James: Thanks for the review. I will make the changes you suggested separately.",
+      "revId": "0defff8c34036d9817ebf2d5a2e2c0ae980de0a6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "cf1287b7_26abb93a",
         "filename": "av1/encoder/palette.h",
         "patchSetId": 2
