@@ -1349,6 +1349,10 @@ void av1_source_content_sb(AV1_COMP *cpi, MACROBLOCK *x, int mi_row,
   else if (tmp_sse > avg_source_sse_threshold_high)
     x->content_state_sb.source_sad_nonrd = kHighSad;
 
+  //printf("    tmp_sse:%d; %ld;        ",   tmp_sse, avg_source_sse_threshold_high);
+  //if(x->content_state_sb.source_sad_nonrd == kLowSad) printf("   !!!!!!!!!!!!!!!!!!!!!!\n");
+
+
   // Detect large lighting change.
   // Note: tmp_sse - tmp_variance = ((sum * sum) >> 12)
   if (tmp_sse > 0) {
