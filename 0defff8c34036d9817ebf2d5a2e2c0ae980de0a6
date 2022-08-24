@@ -130,6 +130,30 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "4cedbe03_5df5fd49",
+        "filename": "av1/encoder/pass2_strategy.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-08-24T05:18:34Z",
+      "side": 1,
+      "message": "\u003e \"Analyse\" (verb) is the UK spelling of \"analyze\". Paul Wilkins wrote this comment in https://aomedia-review.googlesource.com/c/aom/+/115621.\n\nThanks, I read it as the plural of analysis.",
+      "parentUuid": "77349cb1_a1319581",
+      "range": {
+        "startLine": 85,
+        "startChar": 25,
+        "endLine": 85,
+        "endChar": 33
+      },
+      "revId": "0defff8c34036d9817ebf2d5a2e2c0ae980de0a6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "fb9133b4_1c0dc8c2",
         "filename": "av1/encoder/ratectrl.h",
         "patchSetId": 2
