@@ -22,6 +22,30 @@
       },
       "revId": "4da142e6d03ae9f823c41fe96c99749e759d2cef",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "10351835_4e7eca5f",
+        "filename": "av1/encoder/speed_features.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2170,
+      "author": {
+        "id": 6245
+      },
+      "writtenOn": "2022-08-24T19:30:33Z",
+      "side": 0,
+      "message": "In this CL, the threshold is always set for 128x128 block size and the threshold is modified based on the partition size during consumption. Thus, there is no change in threshold needed even if SB size changes.\n\nAs per our understanding, setting thresholds at 64x64 level might have come from VP9 encoder.\n\nIf this change is moved to av1_set_speed_features_framesize_dependent(), all the threshold settings in above function get multiplied by 4 which was not the case in parent version (leading to bit mismatch). Thus the thresholds might have to be adjusted accordingly (for bit-exactness). Hence we feel that removal is cleaner as there is no dependency on SB size.",
+      "parentUuid": "19749d5a_ed2a0c6d",
+      "range": {
+        "startLine": 2165,
+        "startChar": 0,
+        "endLine": 2170,
+        "endChar": 3
+      },
+      "revId": "4da142e6d03ae9f823c41fe96c99749e759d2cef",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
