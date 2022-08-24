@@ -206,7 +206,7 @@ static void set_allintra_speed_feature_framesize_dependent(
   if (is_720p_or_larger) {
     // TODO(chiyotsai@google.com): make this speed feature adaptive based on
     // current block's vertical texture instead of hardcoded with resolution
-    sf->mv_sf.use_downsampled_sad = 1;
+    sf->mv_sf.use_downsampled_sad_threshold = 1;
   }
 
   if (speed >= 1) {
@@ -611,7 +611,7 @@ static void set_good_speed_feature_framesize_dependent(
   if (is_720p_or_larger) {
     // TODO(chiyotsai@google.com): make this speed feature adaptive based on
     // current block's vertical texture instead of hardcoded with resolution
-    sf->mv_sf.use_downsampled_sad = 1;
+    sf->mv_sf.use_downsampled_sad_threshold = 16;
   }
 
   if (!is_720p_or_larger) {
@@ -1256,6 +1256,14 @@ static void set_rt_speed_feature_framesize_dependent(const AV1_COMP *const cpi,
   const int is_480p_or_larger = AOMMIN(cm->width, cm->height) >= 480;
   const int is_360p_or_larger = AOMMIN(cm->width, cm->height) >= 360;
 
+  if (speed >= 7) {
+    if (is_720p_or_larger) {
+      sf->mv_sf.use_downsampled_sad_threshold = 16;
+    } else if (is_480p_or_larger) {
+      sf->mv_sf.use_downsampled_sad_threshold = 32;
+    }
+  }
+
   if (!is_360p_or_larger) {
     sf->rt_sf.prune_intra_mode_based_on_mv_range = 1;
     sf->rt_sf.prune_inter_modes_wrt_gf_arf_based_on_sad = 1;
@@ -1819,7 +1827,7 @@ static AOM_INLINE void init_mv_sf(MV_SPEED_FEATURES *mv_sf) {
   mv_sf->use_accurate_subpel_search = USE_8_TAPS;
   mv_sf->use_bsize_dependent_search_method = 0;
   mv_sf->use_fullpel_costlist = 0;
-  mv_sf->use_downsampled_sad = 0;
+  mv_sf->use_downsampled_sad_threshold = INT_MAX;
   mv_sf->disable_extensive_joint_motion_search = 0;
   mv_sf->disable_second_mv = 0;
   mv_sf->skip_fullpel_search_using_startmv = 0;
