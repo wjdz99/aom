@@ -16,6 +16,24 @@
       "message": "Hi Marco, \n\nWe have changed the low blksad condition per your suggestion from this CL:\nhttps://aomedia-review.googlesource.com/c/aom/+/161524. \nAs expected, the overall quality impact is small. \n\nThe worst-case drops for rt:\n```\ncpu       content           avg.psnr  ovr.psnr   ssim       \n 7      jimred_320_240       0.8883    1.0199    1.1123\n 8      fourpeople720p       0.1517    0.1306    0.2060\n 9      jimred_320_240       0.1976    0.2853    0.3576\n10   room_scene_cut_180p     0.0784    0.0814    0.0935\n```\nFor rt-screen:\n```\ncpu       content                        avg.psnr  ovr.psnr   ssim       \n 7   screenshare_colorslides.1820_1320    0.8061    0.8742    0.7351\n 8   screenshare_slidechanges.1850_1110   3.4167   -1.1141    0.9748\n 9   screenshare_slidechanges.1850_1110   1.0990    5.0836    4.9674\n10   screenshare_slidechanges.1850_1110   0.2531    5.4475    4.4725\n```\n\nThe instruction count reduction specified has been measured using command:\n```\n$ perf stat -e instructions:u ./aomenc …\n```\nPlease review the CL.\n\nThanks,\nNeeraj",
       "revId": "0699bdc882b8b3d17bcf3c4c135afa0e9a1c9f4a",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ee68f27a_8cea18e0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2022-08-24T17:33:19Z",
+      "side": 1,
+      "message": "Seems good to me. The screenshare_slidechanges clip has some weird behavior (decreases/dips in a few places as bitrate increases). This started recently in another change, and has to do with the very hard scene change and RC changes. So the large ovr/ssim regression at speed 9/10 doesn\u0027t mean too much.",
+      "parentUuid": "1041cfca_a5b01864",
+      "revId": "0699bdc882b8b3d17bcf3c4c135afa0e9a1c9f4a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
