@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9a348118_897b8df3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2022-08-24T11:42:24Z",
+      "side": 1,
+      "message": "Hi Yunqing and Marco,\n\nWe have rebased the current CL to latest to avoid merge conflicts. Please review the patch.\n\nThanks \u0026 Regards,\nVenkata",
+      "revId": "ca95e829d5b59fe0b781018b4e0be72f40617454",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
