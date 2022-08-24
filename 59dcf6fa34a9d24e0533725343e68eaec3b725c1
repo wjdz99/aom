@@ -16,6 +16,23 @@
       "message": "It\u0027s up to you if you want to keep the double revert message, but it would be good to include the original commit message body. My preference is to use the original commit message and mention the delta as you do.",
       "revId": "59dcf6fa34a9d24e0533725343e68eaec3b725c1",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b58bfe4c_ebb76258",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-08-24T01:21:16Z",
+      "side": 1,
+      "message": "\u003e Patch Set 6: Verified-1 -Code-Review\n\u003e \n\u003e Build Failed \n\u003e \n\u003e https://build.aomedia.org/jenkins/job/libaom__commit_trigger/68813/ : FAILURE\n\u003e \n\u003e In the list of tests click on the number next to the failed (red) test.\n\u003e If the test has multiple configurations, click on one of the failed (red)\n\u003e configurations. Look at the console log to see the relevant commands (like\n\u003e cmake, test_libaom etc) and the failure.\n\u003e Note: for some static analysis / sanitizer warnings, Jenkins parses the warning\n\u003e from the console log and directly provides a link like \"one new warning\".\n\u003e \n\u003e By removing the Code-Review vote the following files are no longer code-owner approved by \u003cGERRIT_ACCOUNT_5155\u003e:\n\u003e * aom_dsp/x86/sad4d_sse2.asm\n\u003e \n\nThis will need to be rebased past:\nhttps://aomedia-review.googlesource.com/c/aom/+/161622",
+      "revId": "59dcf6fa34a9d24e0533725343e68eaec3b725c1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
