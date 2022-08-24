@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "463f4a3e_06aac829",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2022-08-24T22:16:28Z",
+      "side": 1,
+      "message": "looks good, a few comments",
+      "revId": "c8a18a8f5162aa8960c1f191bd5a90c5436d00fc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4e2dae31_06027283",
+        "filename": "av1/encoder/aq_cyclicrefresh.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 415,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2022-08-24T22:16:28Z",
+      "side": 1,
+      "message": "Remove (cpi-\u003esvc.number_temporal_layers \u003e 2)",
+      "revId": "c8a18a8f5162aa8960c1f191bd5a90c5436d00fc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8048a5e4_2fae3f5a",
+        "filename": "av1/encoder/aq_cyclicrefresh.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 418,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2022-08-24T22:16:28Z",
+      "side": 1,
+      "message": "should this reset for rate_ratio_ be 0.0?",
+      "revId": "c8a18a8f5162aa8960c1f191bd5a90c5436d00fc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8145bb00_56d693c0",
+        "filename": "av1/encoder/aq_cyclicrefresh.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 613,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2022-08-24T22:16:28Z",
+      "side": 1,
+      "message": "Should reset here too the parameters ?\n  -cr-\u003epercent_refresh_adjustment\n  -cr-\u003erate_ratio_qdelta_adjustment",
+      "revId": "c8a18a8f5162aa8960c1f191bd5a90c5436d00fc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f085640e_a17c0e53",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 714,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2022-08-24T22:16:28Z",
+      "side": 1,
+      "message": "to avoid this for svc for now, we can just add: \u0026\u0026 !cpi-\u003eppi-\u003euse_svc",
+      "revId": "c8a18a8f5162aa8960c1f191bd5a90c5436d00fc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
