@@ -753,6 +753,41 @@ static AOM_INLINE void encode_rd_sb(AV1_COMP *cpi, ThreadData *td,
   }
 }
 
+/*!\brief Determine whether grading content can be skipped based on sad stat
+ *
+ * \ingroup partition_search
+ * \callgraph
+ * \callergraph
+ */
+static AOM_INLINE int is_calc_src_content_needed(AV1_COMP *cpi,
+                                                 MACROBLOCK *const x,
+                                                 int mi_row, int mi_col) {
+  AV1_COMMON *const cm = &cpi->common;
+  int do_calc_src_content = 1;
+
+  // TODO(yunqing): extend this to other speeds.
+  if (cpi->oxcf.speed >= 9) return do_calc_src_content;
+
+  if (cpi->src_sad_blk_64x64 != NULL && AOMMIN(cm->width, cm->height) < 360) {
+    const int num_mi_cols = cm->mi_params.mi_cols;
+    const int sb_size_by_mb = (cm->seq_params->sb_size == BLOCK_128X128)
+                                  ? (cm->seq_params->mib_size >> 1)
+                                  : cm->seq_params->mib_size;
+    const int sb_cols = (num_mi_cols + sb_size_by_mb - 1) / sb_size_by_mb;
+    const int sbi_col = mi_col / 16;
+    const int sbi_row = mi_row / 16;
+    // The threshold is determined based on kHighSad threshold and test results.
+    const uint64_t thresh = 50000;
+
+    if (cpi->src_sad_blk_64x64[sbi_col + sbi_row * sb_cols] > thresh) {
+      x->content_state_sb.source_sad_nonrd = kHighSad;
+      do_calc_src_content = 0;
+    }
+  }
+
+  return do_calc_src_content;
+}
+
 /*!\brief Determine whether grading content is needed based on sf and frame stat
  *
  * \ingroup partition_search
@@ -770,7 +805,9 @@ static AOM_INLINE void grade_source_content_sb(AV1_COMP *cpi,
       cpi->svc.number_spatial_layers <= 1 &&
       cm->current_frame.frame_type != KEY_FRAME) {
     if (!cpi->sf.rt_sf.check_scene_detection || cpi->rc.frame_source_sad > 0) {
-      calc_src_content = true;
+      const int do_calc_src_content =
+          is_calc_src_content_needed(cpi, x, mi_row, mi_col);
+      if (do_calc_src_content) calc_src_content = true;
     } else {
       x->content_state_sb.source_sad_nonrd = kZeroSad;
     }
