@@ -16,6 +16,41 @@
       "message": "Hi Marco, Yunqing, \n\nThis CL disables the existing sf: reduce_zeromv_mvres for the\nrtc testset as the speed-quality trade-off is poor. \n\nWe plan to study further to improve this logic and integrate \nwith the sf reduce_mv_pel_precision \u003d 1.\n\nIn terms of BD Rate (avg.psnr) impact, 25 clips are improving \nand 3 are losing quality. The worst and best clips are:\n```\nCase      Content       avg.psnr  glb.psnr  aom.ssim   speed-up\n\n       jimredvga_25fps   1.8423    1.6837    1.9613     -0.09\nWorst  marcooffice720p   0.3164    0.3396    0.3485     -0.37    \n       bridge360p        0.0387    0.0551    0.2038     -0.12 \n\t   \n       tacomanarrowsvga -3.8193   -2.6417   -5.3303     -3.88\nBest   desktop360p      -3.2687   -2.9765   -4.0677     -1.98\n       mj1vc720p        -2.9938   -2.6585   -4.3736     -1.82\n```\n\nFor the rtc-derf testset, this sf currently remains enabled. \nIf we disable it, the results are out-of trade-off:\n```\ncpu Test set    Instr count      BD-Rate Loss (%)    \n              Reduction(%)   avg.psnr   ovr.psnr    ssim          \n10  rtc_derf   -0.418        -0.0051    -0.0162    0.0413\n```\n\nPlease review the CL and let us know suggestions.\n\nThanks,\nNeeraj",
       "revId": "fc96f81d520b4de5f0f4a4755b586a134c65cc37",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "09d7afc8_e04dba60",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 29295
+      },
+      "writtenOn": "2022-08-25T12:25:18Z",
+      "side": 1,
+      "message": "This sf currently remains enabled for speed 9 and 10 screen-content. \nIf we disable it, the results are out-of trade-off:\n```\ncpu Test set    Instr count          BD-Rate Loss (%)    \n                 Reduction(%)    avg.psnr   ovr.psnr    ssim          \n9   rtc-screen     -0.263        -0.0149     0.0891    0.0271\n10  rtc-screen     -0.122        -0.0482     0.1266   -0.0154\n```",
+      "parentUuid": "2e0ae9ea_8a833c3b",
+      "revId": "fc96f81d520b4de5f0f4a4755b586a134c65cc37",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8d2c0e99_2b787dad",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 29295
+      },
+      "writtenOn": "2022-08-25T12:25:18Z",
+      "side": 1,
+      "message": "In summary, here is the status of the sf: reduce_zeromv_mvres\n```\ncpu   Test set     Current setting  Proposed in CL\n9     rtc-derf        Disabled        Disabled\n9     rtc             Disabled        Disabled\n9     rtc-screen       Active          Active\n10    rtc-derf         Active          Active\n10    rtc              Active         Disabled\n10    rtc-screen       Active          Active\n```",
+      "revId": "fc96f81d520b4de5f0f4a4755b586a134c65cc37",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
