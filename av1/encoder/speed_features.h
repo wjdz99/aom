@@ -1616,6 +1616,10 @@ typedef struct REAL_TIME_SPEED_FEATURES {
   // In multi-threaded encoding, enable top right dependency wait of threads at
   // mi level.
   bool top_right_sync_wait_in_mis;
+
+  // Downgrades the subpel search to av1_find_best_sub_pixel_tree_pruned_more
+  // when either the fullpel search performed well, or when zeromv has low sad.
+  bool use_adaptive_subpel_search;
 } REAL_TIME_SPEED_FEATURES;
 
 /*!\endcond */
