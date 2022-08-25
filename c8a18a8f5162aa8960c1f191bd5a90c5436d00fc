@@ -37,6 +37,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "6b3b9bad_30e199fb",
+        "filename": "av1/encoder/aq_cyclicrefresh.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 415,
+      "author": {
+        "id": 5610
+      },
+      "writtenOn": "2022-08-25T12:20:06Z",
+      "side": 1,
+      "message": "The inclusion here just insures that the refresh % is as it was for the svc \u003e 2 case as previously this was set to a hard wired 15% but will change in line with the other change below.",
+      "parentUuid": "4e2dae31_06027283",
+      "revId": "c8a18a8f5162aa8960c1f191bd5a90c5436d00fc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "8048a5e4_2fae3f5a",
         "filename": "av1/encoder/aq_cyclicrefresh.c",
         "patchSetId": 6
@@ -48,6 +66,24 @@
       "writtenOn": "2022-08-24T22:16:28Z",
       "side": 1,
       "message": "should this reset for rate_ratio_ be 0.0?",
+      "revId": "c8a18a8f5162aa8960c1f191bd5a90c5436d00fc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d6cd3b7b_aa14b751",
+        "filename": "av1/encoder/aq_cyclicrefresh.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 418,
+      "author": {
+        "id": 5610
+      },
+      "writtenOn": "2022-08-25T12:20:06Z",
+      "side": 1,
+      "message": "This is intended and the result of testing that showed that starting after a scene change with a slightly higher ratio was beneficial as per the slightly higher refresh %.  It may need tweaking further, however, to balance subsequent patches.",
+      "parentUuid": "8048a5e4_2fae3f5a",
       "revId": "c8a18a8f5162aa8960c1f191bd5a90c5436d00fc",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -71,6 +107,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "4df545c5_b28ca881",
+        "filename": "av1/encoder/aq_cyclicrefresh.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 613,
+      "author": {
+        "id": 5610
+      },
+      "writtenOn": "2022-08-25T12:20:06Z",
+      "side": 1,
+      "message": "I will do but wont this trigger an intra only frame anyway which is already detected?",
+      "parentUuid": "8145bb00_56d693c0",
+      "revId": "c8a18a8f5162aa8960c1f191bd5a90c5436d00fc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "f085640e_a17c0e53",
         "filename": "av1/encoder/ratectrl.c",
         "patchSetId": 6
@@ -82,6 +136,24 @@
       "writtenOn": "2022-08-24T22:16:28Z",
       "side": 1,
       "message": "to avoid this for svc for now, we can just add: \u0026\u0026 !cpi-\u003eppi-\u003euse_svc",
+      "revId": "c8a18a8f5162aa8960c1f191bd5a90c5436d00fc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d1d63fd9_14eca58c",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 714,
+      "author": {
+        "id": 5610
+      },
+      "writtenOn": "2022-08-25T12:20:06Z",
+      "side": 1,
+      "message": "OK",
+      "parentUuid": "f085640e_a17c0e53",
       "revId": "c8a18a8f5162aa8960c1f191bd5a90c5436d00fc",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
