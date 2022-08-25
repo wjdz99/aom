@@ -16,6 +16,40 @@
       "message": "This patch fixes the oss-fuzz test assertion failure.",
       "revId": "780b3d5628bf89e03dcd4ee5230f8d0e05bb14a9",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "972a067e_cf7be533",
+        "filename": "av1/common/tile_common.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-08-25T20:21:02Z",
+      "side": 1,
+      "message": "Should we update this comment to mention the maximum parameters level?",
+      "revId": "780b3d5628bf89e03dcd4ee5230f8d0e05bb14a9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5efe3c6d_7b5a3b41",
+        "filename": "av1/common/tile_common.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-08-25T20:21:02Z",
+      "side": 1,
+      "message": "It seems that one can still construct a bitstream that makes this assertion fail, right? If so, we have to reject such a bitstream by returning an error status or calling aom_internal_error().",
+      "revId": "780b3d5628bf89e03dcd4ee5230f8d0e05bb14a9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
