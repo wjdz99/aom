@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3a7958b8_2703e676",
+        "filename": "aom/aomcx.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 197,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-08-25T23:27:01Z",
+      "side": 1,
+      "message": "Here is the sequence of calls:\n\n`aom_codec_control(AOME_SET_SCALEMODE)` calls `ctrl_set_scale_mode()`.\n\n`ctrl_set_scale_mode()` calls `av1_set_internal_size()`, which sets `resize_pending_params-\u003ewidth` and `resize_pending_params-\u003eheight` based on the scaling mode.\n\nWhen we encode the next frame, we call `av1_setup_frame_size()`, which calls `calculate_next_size_params()`.\n\n`calculate_next_size_params()` consumes and resets `resize_pending_params-\u003ewidth` and `resize_pending_params-\u003eheight`:\n\n```\n// Calculates resize and superres params for next frame\nstatic size_params_type calculate_next_size_params(AV1_COMP *cpi) {\n  ...\n  if (resize_pending_params-\u003ewidth \u0026\u0026 resize_pending_params-\u003eheight) {\n    rsz.resize_width \u003d resize_pending_params-\u003ewidth;\n    rsz.resize_height \u003d resize_pending_params-\u003eheight;\n    resize_pending_params-\u003ewidth \u003d resize_pending_params-\u003eheight \u003d 0;\n    ...\n```",
+      "revId": "9ed2bcbccd2d571c3b623fb488b0eff4c13354e0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
