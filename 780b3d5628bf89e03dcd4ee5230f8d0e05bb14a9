@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2b9b5257_1c09ef3e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2022-08-25T19:50:13Z",
+      "side": 1,
+      "message": "This patch fixes the oss-fuzz test assertion failure.",
+      "revId": "780b3d5628bf89e03dcd4ee5230f8d0e05bb14a9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
