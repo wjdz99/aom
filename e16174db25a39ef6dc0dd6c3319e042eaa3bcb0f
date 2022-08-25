@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "55479166_acf30441",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 14729
+      },
+      "writtenOn": "2022-08-25T18:15:57Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nWhen we reproduced the bug aomedia:3317, TSAN logs showed that write to \u0027 mi_sb[0]-\u003ecdef_strength\u0027 by thread 1 and read from \u0027mbmi-\u003euse_intrabc\u0027 by thread 2 caused data race. \n\nWhen encoding a block at mi postition (x, y) within a superblock, \u0027cdef_strength\u0027 of the mi block at (0, 0) is updated (line 2356 of partition_search.c). This shouldn\u0027t cause data race issues as there is no dependency on \u0027cdef_strength\u0027 of the top right superblock. However, \u0027mbmi-\u003euse_intrabc\u0027 of the top right block is read during reference mv list population. We noticed that \u0027cdef_strength\u0027 and \u0027use_intrabc\u0027 are bit-field members of the MB_MODE_INFO structure. TSAN did not report data race when the bit-field members of MB_MODE_INFO structure are converted to non bit-field members. \n\nFurther study revealed that when accessing a bit-field, a thread may inadvertently access a separate bit-field in adjacent memory as compilers are required to store multiple adjacent bit-fields in one storage unit whenever they fit. Consequently, data races may exist not just on a bit-field accessed by multiple threads but also on other bit-fields sharing the same byte or word (Please refer https://wiki.sei.cmu.edu/confluence/display/c/CON32-C.+Prevent+data+races+when+accessing+bit-fields+from+multiple+threads).\n\nThe code prior to https://aomedia-review.googlesource.com/c/aom/+/161541 did not result in TSAN data race as \u0027mi_sb[0]-\u003eskip_cdef_curr_sb\u0027 which is a non bit-field member was updated in pick_sb_modes_nonrd().  \n\nThus, in this patch we have converted \u0027cdef_strength\u0027 as a non bit-field member of MB_MODE_INFO structure and enabled top_right_sync_wait_in_mis. We verified that there is no change in the size of MB_MODE_INFO structure (due to structure padding).\n\nAs discussed, we also tested larger resolutions by enabling \u0027top_right_sync_wait_in_mis\u0027 for speed 7 and 8 (earlier we reported only 180p encode time reduction for speed 7, 8 which was ~0.5%). Please find the results below:\n```\ncpu  Resolution     Tiles  Threads Encode time reduction (%)\n 7    360p           4x1     4        2.50\n 7    720p           4x1     4        1.50\n 7    1080p screen   4x1     4        1.60\n \n 8    360p           4x1     4        3.10\n 8    720p           4x1     4        1.20\n 8    1080p screen   4x1     4        1.60\n```\n\nPlease review. \n\nThanks",
+      "revId": "e16174db25a39ef6dc0dd6c3319e042eaa3bcb0f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
