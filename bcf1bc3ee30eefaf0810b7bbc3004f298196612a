@@ -24,6 +24,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "2bff2190_faf58d3b",
+        "filename": "av1/ratectrl_qmode.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 1186,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-08-25T15:11:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1e9502b0_3bf445f4",
+      "range": {
+        "startLine": 1186,
+        "startChar": 2,
+        "endLine": 1186,
+        "endChar": 5
+      },
+      "revId": "bcf1bc3ee30eefaf0810b7bbc3004f298196612a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "8c5da6c0_05bea215",
@@ -37,6 +61,30 @@
       "writtenOn": "2022-08-25T13:59:53Z",
       "side": 1,
       "message": "const auto",
+      "range": {
+        "startLine": 1188,
+        "startChar": 7,
+        "endLine": 1188,
+        "endChar": 11
+      },
+      "revId": "bcf1bc3ee30eefaf0810b7bbc3004f298196612a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "28afeb3c_cad6405b",
+        "filename": "av1/ratectrl_qmode.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 1188,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-08-25T15:11:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8c5da6c0_05bea215",
       "range": {
         "startLine": 1188,
         "startChar": 7,
@@ -70,6 +118,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "8e97c7a6_9e8b6c86",
+        "filename": "av1/ratectrl_qmode.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 1193,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-08-25T15:11:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bbb4e481_749e7e06",
+      "range": {
+        "startLine": 1189,
+        "startChar": 4,
+        "endLine": 1193,
+        "endChar": 40
+      },
+      "revId": "bcf1bc3ee30eefaf0810b7bbc3004f298196612a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ce059ae0_2b97d4a8",
@@ -83,6 +155,30 @@
       "writtenOn": "2022-08-25T13:59:53Z",
       "side": 1,
       "message": "Is the intent here to have a coding index which is relative to the start of the GOP being processed? If so, this will not be correct if there are multiple lookahead GOPs. I\u0027d rename cur_gop_size to frame_offset or something like that, and then bump it by the gop size at the end of each iteration of the outer loop.",
+      "range": {
+        "startLine": 1199,
+        "startChar": 0,
+        "endLine": 1199,
+        "endChar": 49
+      },
+      "revId": "bcf1bc3ee30eefaf0810b7bbc3004f298196612a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c9ead85a_de8582b0",
+        "filename": "av1/ratectrl_qmode.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 1199,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-08-25T15:11:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ce059ae0_2b97d4a8",
       "range": {
         "startLine": 1199,
         "startChar": 0,
@@ -116,6 +212,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "0c9e6005_af8216c7",
+        "filename": "av1/ratectrl_qmode.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 1220,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-08-25T15:11:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "38c2aeef_1650f515",
+      "range": {
+        "startLine": 1215,
+        "startChar": 0,
+        "endLine": 1220,
+        "endChar": 3
+      },
+      "revId": "bcf1bc3ee30eefaf0810b7bbc3004f298196612a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "91a1fcda_f2d99682",
@@ -129,6 +249,30 @@
       "writtenOn": "2022-08-25T13:59:53Z",
       "side": 1,
       "message": "Maybe add a TODO to add tests with non-empty lookahead stats.",
+      "range": {
+        "startLine": 605,
+        "startChar": 0,
+        "endLine": 605,
+        "endChar": 69
+      },
+      "revId": "bcf1bc3ee30eefaf0810b7bbc3004f298196612a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "093c84a7_b1d61443",
+        "filename": "test/ratectrl_qmode_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 605,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-08-25T15:11:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "91a1fcda_f2d99682",
       "range": {
         "startLine": 605,
         "startChar": 0,
