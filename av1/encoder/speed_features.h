@@ -1616,6 +1616,10 @@ typedef struct REAL_TIME_SPEED_FEATURES {
   // In multi-threaded encoding, enable top right dependency wait of threads at
   // mi level.
   bool top_right_sync_wait_in_mis;
+
+  // In multi-threaded encoding, enable top right dependency wait of threads at
+  // mi level.
+  bool use_adaptive_subpel_search_type;
 } REAL_TIME_SPEED_FEATURES;
 
 /*!\endcond */

@@ -1676,6 +1676,7 @@ static void set_rt_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->rt_sf.prune_compoundmode_with_singlecompound_var = true;
     sf->rt_sf.prune_compoundmode_with_singlemode_var = true;
     sf->rt_sf.skip_compound_based_on_var = true;
+    sf->rt_sf.use_adaptive_subpel_search_type = true;
   }
 
   if (speed >= 8) {
@@ -1706,6 +1707,7 @@ static void set_rt_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->rt_sf.frame_level_mode_cost_update = true;
     sf->rt_sf.check_only_zero_zeromv_on_large_blocks = true;
     sf->rt_sf.reduce_mv_pel_precision = 0;
+    sf->rt_sf.use_adaptive_subpel_search_type = false;
     // For multi-thread use case with row_mt enabled, enable top right
     // dependency wait of threads at mi level.
     if ((cpi->oxcf.row_mt == 1) && (cpi->mt_info.num_workers > 1)) {
@@ -2057,6 +2059,7 @@ static AOM_INLINE void init_rt_sf(REAL_TIME_SPEED_FEATURES *rt_sf) {
   rt_sf->prune_compoundmode_with_singlemode_var = false;
   rt_sf->skip_compound_based_on_var = false;
   rt_sf->top_right_sync_wait_in_mis = false;
+  rt_sf->use_adaptive_subpel_search_type = false;
 }
 
 // Populate appropriate sub-pel search method based on speed feature and user
