@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ac4da96b_28a61e6c",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-08-25T22:01:34Z",
+      "side": 0,
+      "message": "FYI, `AOM_SCALING_MODE` is defined with the same values in \"aom/aomcx.h\":\n\n```\ntypedef enum aom_scaling_mode_1d {\n  AOME_NORMAL \u003d 0,\n  AOME_FOURFIVE \u003d 1,\n  AOME_THREEFIVE \u003d 2,\n  AOME_THREEFOUR \u003d 3,\n  AOME_ONEFOUR \u003d 4,\n  AOME_ONEEIGHT \u003d 5,\n  AOME_ONETWO \u003d 6\n} AOM_SCALING_MODE;\n```",
+      "revId": "3659be9558c08dc8db360bc6824f6f70a311cc79",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
