@@ -1392,8 +1392,8 @@ int av1_choose_var_based_partitioning(AV1_COMP *cpi, const TileInfo *const tile,
       cpi->cyclic_refresh->apply_cyclic_refresh &&
       segment_id == CR_SEGMENT_ID_BASE && is_set_force_zeromv_skip &&
       ref_frame_partition == LAST_FRAME && xd->mi[0]->mv[0].as_int == 0 &&
-      y_sad < thresh_exit_part && uv_sad[0]<(3 * thresh_exit_part)>> 2 &&
-      uv_sad[1]<(3 * thresh_exit_part)>> 2) {
+      y_sad < thresh_exit_part && uv_sad[0] < (3 * thresh_exit_part) >> 2 &&
+      uv_sad[1] < (3 * thresh_exit_part) >> 2) {
     const int block_width = mi_size_wide[cm->seq_params->sb_size];
     const int block_height = mi_size_high[cm->seq_params->sb_size];
     if (mi_col + block_width <= tile->mi_col_end &&
