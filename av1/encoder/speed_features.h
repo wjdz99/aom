@@ -1614,7 +1614,25 @@ typedef struct REAL_TIME_SPEED_FEATURES {
   bool skip_compound_based_on_var;
 
   // In multi-threaded encoding, enable top right dependency wait of threads at
-  // mi level.
+  // mi level. Enabling this speed feature has the following assumptions :
+  // 1. Intra modes which use the top right block pixels are disabled.
+  // 2. After the final encoding of the bottom left block in a superblock is
+  //    complete, the following members of the structure MB_MODE_INFO of the
+  //    already encoded bottom left block are not changed.
+  //    i.    mode                       vi.   segment_id
+  //    ii.   mv[2]                      vii.  seg_id_predicted
+  //    iii.  ref_frame[2]               viii. ref_mv_idx
+  //    iv.   use_intrabc                ix.   skip_mode
+  //    v.    bsize                      x.    comp_group_idx
+  //    vi.   segment_id                 xi.   compound_idx
+  //    vii.  seg_id_predicted           xii.   use_wedge_interintra
+  //    Variables (i) to (v) of the top-right block are required for reference
+  //    mv list population. As 'use_intrabc' is a bit-field member and when
+  //    accessing it a thread may inadvertently access adjacent bit-fields
+  //    it is required that variables (vi) to (xii) are also not updated
+  //    after encoding of the bottom left block within a superblock is complete.
+  // Breaking any of the above assumptions may result in thread sanitizer data
+  // race.
   bool top_right_sync_wait_in_mis;
 
   // Sets force_zeromv_skip based on the source sad available. Aggressiveness
