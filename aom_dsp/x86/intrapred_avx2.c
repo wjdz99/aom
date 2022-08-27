@@ -3537,7 +3537,7 @@ static AOM_FORCE_INLINE void dr_prediction_z1_HxW_internal_avx2(
   __m128i a_mbase_x;
 
   a16 = _mm256_set1_epi16(16);
-  a_mbase_x = _mm_set1_epi8(above[max_base_x]);
+  a_mbase_x = _mm_set1_epi8((char)above[max_base_x]);
   c3f = _mm256_set1_epi16(0x3f);
 
   int x = dx;
