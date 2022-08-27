@@ -361,7 +361,7 @@ void aom_dc_128_predictor_32x32_avx2(uint8_t *dst, ptrdiff_t stride,
                                      const uint8_t *left) {
   (void)above;
   (void)left;
-  const __m256i row = _mm256_set1_epi8((uint8_t)0x80);
+  const __m256i row = _mm256_set1_epi8((int8_t)0x80);
   row_store_32xh(&row, 32, dst, stride);
 }
 
@@ -628,7 +628,7 @@ void aom_dc_128_predictor_32x16_avx2(uint8_t *dst, ptrdiff_t stride,
                                      const uint8_t *left) {
   (void)above;
   (void)left;
-  const __m256i row = _mm256_set1_epi8((uint8_t)0x80);
+  const __m256i row = _mm256_set1_epi8((int8_t)0x80);
   row_store_32xh(&row, 16, dst, stride);
 }
 
@@ -637,7 +637,7 @@ void aom_dc_128_predictor_32x64_avx2(uint8_t *dst, ptrdiff_t stride,
                                      const uint8_t *left) {
   (void)above;
   (void)left;
-  const __m256i row = _mm256_set1_epi8((uint8_t)0x80);
+  const __m256i row = _mm256_set1_epi8((int8_t)0x80);
   row_store_32xh(&row, 64, dst, stride);
 }
 
@@ -646,7 +646,7 @@ void aom_dc_128_predictor_64x64_avx2(uint8_t *dst, ptrdiff_t stride,
                                      const uint8_t *left) {
   (void)above;
   (void)left;
-  const __m256i row = _mm256_set1_epi8((uint8_t)0x80);
+  const __m256i row = _mm256_set1_epi8((int8_t)0x80);
   row_store_64xh(&row, 64, dst, stride);
 }
 
@@ -655,7 +655,7 @@ void aom_dc_128_predictor_64x32_avx2(uint8_t *dst, ptrdiff_t stride,
                                      const uint8_t *left) {
   (void)above;
   (void)left;
-  const __m256i row = _mm256_set1_epi8((uint8_t)0x80);
+  const __m256i row = _mm256_set1_epi8((int8_t)0x80);
   row_store_64xh(&row, 32, dst, stride);
 }
 
@@ -664,7 +664,7 @@ void aom_dc_128_predictor_64x16_avx2(uint8_t *dst, ptrdiff_t stride,
                                      const uint8_t *left) {
   (void)above;
   (void)left;
-  const __m256i row = _mm256_set1_epi8((uint8_t)0x80);
+  const __m256i row = _mm256_set1_epi8((int8_t)0x80);
   row_store_64xh(&row, 16, dst, stride);
 }
 
@@ -3537,7 +3537,7 @@ static AOM_FORCE_INLINE void dr_prediction_z1_HxW_internal_avx2(
   __m128i a_mbase_x;
 
   a16 = _mm256_set1_epi16(16);
-  a_mbase_x = _mm_set1_epi8(above[max_base_x]);
+  a_mbase_x = _mm_set1_epi8((int8_t)above[max_base_x]);
   c3f = _mm256_set1_epi16(0x3f);
 
   int x = dx;
@@ -3640,7 +3640,7 @@ static AOM_FORCE_INLINE void dr_prediction_z1_32xN_internal_avx2(
   __m256i a_mbase_x, diff, c3f;
 
   a16 = _mm256_set1_epi16(16);
-  a_mbase_x = _mm256_set1_epi8(above[max_base_x]);
+  a_mbase_x = _mm256_set1_epi8((int8_t)above[max_base_x]);
   c3f = _mm256_set1_epi16(0x3f);
 
   int x = dx;
@@ -3722,7 +3722,7 @@ static void dr_prediction_z1_64xN_avx2(int N, uint8_t *dst, ptrdiff_t stride,
   __m128i max_base_x128, base_inc128, mask128;
 
   a16 = _mm256_set1_epi16(16);
-  a_mbase_x = _mm256_set1_epi8(above[max_base_x]);
+  a_mbase_x = _mm256_set1_epi8((int8_t)above[max_base_x]);
   max_base_x128 = _mm_set1_epi8(max_base_x);
   c3f = _mm256_set1_epi16(0x3f);
 

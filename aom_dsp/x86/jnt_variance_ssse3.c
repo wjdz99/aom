@@ -49,8 +49,8 @@ void aom_dist_wtd_comp_avg_pred_ssse3(uint8_t *comp_pred, const uint8_t *pred,
                                       int ref_stride,
                                       const DIST_WTD_COMP_PARAMS *jcp_param) {
   int i;
-  const uint8_t w0 = (uint8_t)jcp_param->fwd_offset;
-  const uint8_t w1 = (uint8_t)jcp_param->bck_offset;
+  const int8_t w0 = (int8_t)jcp_param->fwd_offset;
+  const int8_t w1 = (int8_t)jcp_param->bck_offset;
   const __m128i w = _mm_set_epi8(w1, w0, w1, w0, w1, w0, w1, w0, w1, w0, w1, w0,
                                  w1, w0, w1, w0);
   const uint16_t round = ((1 << DIST_PRECISION_BITS) >> 1);
