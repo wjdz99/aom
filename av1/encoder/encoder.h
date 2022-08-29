@@ -3411,6 +3411,11 @@ typedef struct AV1_COMP {
    * Struct for the reference structure for RTC.
    */
   RTC_REF rtc_ref;
+
+  /*!
+   * Flag to apply loop filtering on recon when required.
+   */
+  int apply_lpf_when_ref_queried;
 } AV1_COMP;
 
 /*!
