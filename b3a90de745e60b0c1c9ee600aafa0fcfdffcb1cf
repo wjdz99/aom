@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d0b4d386_471f5025",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-08-29T17:18:30Z",
+      "side": 1,
+      "message": "LGTM.",
+      "revId": "b3a90de745e60b0c1c9ee600aafa0fcfdffcb1cf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4988f792_2b67de7f",
+        "filename": "CMakeLists.txt",
+        "patchSetId": 2
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-08-29T17:18:30Z",
+      "side": 1,
+      "message": "The codec control `AV1E_GET_NUM_OPERATING_POINTS` was added to the public interface in this release. So these are incremented correctly.",
+      "revId": "b3a90de745e60b0c1c9ee600aafa0fcfdffcb1cf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
