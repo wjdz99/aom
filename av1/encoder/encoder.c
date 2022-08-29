@@ -1335,6 +1335,7 @@ AV1_COMP *av1_create_compressor(AV1_PRIMARY *ppi, const AV1EncoderConfig *oxcf,
 #endif  // CONFIG_SPEED_STATS
 
   cpi->time_stamps.first_ts_start = INT64_MAX;
+  cpi->apply_loop_filter_when_ref_queried = 0;
 
 #ifdef OUTPUT_YUV_REC
   yuv_rec_file = fopen("rec.yuv", "wb");
@@ -2244,25 +2245,35 @@ static void cdef_restoration_frame(AV1_COMP *cpi, AV1_COMMON *cm,
 #endif  // !CONFIG_REALTIME_ONLY
 }
 
-/*!\brief Select and apply in-loop deblocking filters, cdef filters, and
- * restoration filters
- *
- * \ingroup high_level_algo
- */
-static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
+// Checks if deblocking filters need to be applied.
+int should_apply_loop_filtering(AV1_COMP *cpi) {
+  AV1_COMMON *cm = &cpi->common;
+  struct loopfilter *lf = &cm->lf;
+
+  int apply_loop_filtering = (lf->filter_level[0] || lf->filter_level[1]) &&
+                             !cpi->rtc_ref.non_reference_frame;
+  if (cpi->oxcf.mode != ALLINTRA) return apply_loop_filtering;
+
+  const int use_cdef = cm->seq_params->enable_cdef &&
+                       !cm->features.coded_lossless && !cm->tiles.large_scale;
+
+  // In case of ALLINTRA encoding, deblocking filters are not applied on the
+  // reconstructed frame as they are never used as reference frames. Inorder to
+  // ensure encoder/decoder match, apply deblocking filters whenever a reference
+  // frame is queried.
+  cpi->apply_loop_filter_when_ref_queried =
+      apply_loop_filtering && !use_cdef && !av1_superres_scaled(cm) &&
+      !is_restoration_used(cm) && !cpi->ppi->b_calculate_psnr;
+  return (!cpi->apply_loop_filter_when_ref_queried);
+}
+
+void av1_apply_loop_filtering(AV1_COMP *cpi) {
+  AV1_COMMON *cm = &cpi->common;
   MultiThreadInfo *const mt_info = &cpi->mt_info;
   const int num_workers = mt_info->num_mod_workers[MOD_LPF];
   const int num_planes = av1_num_planes(cm);
   MACROBLOCKD *xd = &cpi->td.mb.e_mbd;
 
-  assert(IMPLIES(is_lossless_requested(&cpi->oxcf.rc_cfg),
-                 cm->features.coded_lossless && cm->features.all_lossless));
-
-  const int use_loopfilter =
-      !cm->features.coded_lossless && !cm->tiles.large_scale;
-  const int use_cdef = cm->seq_params->enable_cdef &&
-                       !cm->features.coded_lossless && !cm->tiles.large_scale;
-  const int use_restoration = is_restoration_used(cm);
   // lpf_opt_level = 1 : Enables dual/quad loop-filtering.
   // lpf_opt_level is set to 1 if transform size search depth in inter blocks
   // is limited to one as quad loop filtering assumes that all the transform
@@ -2274,30 +2285,38 @@ static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
   if (is_inter_tx_size_search_level_one(&cpi->sf.tx_sf)) {
     lpf_opt_level = (cpi->sf.lpf_sf.lpf_pick == LPF_PICK_FROM_Q) ? 2 : 1;
   }
+  av1_loop_filter_frame_mt(&cm->cur_frame->buf, cm, xd, 0, num_planes, 0,
+                           mt_info->workers, num_workers, &mt_info->lf_row_sync,
+                           lpf_opt_level);
+}
 
-  struct loopfilter *lf = &cm->lf;
+/*!\brief Select and apply in-loop deblocking filters, cdef filters, and
+ * restoration filters
+ *
+ * \ingroup high_level_algo
+ */
+static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
+  assert(IMPLIES(is_lossless_requested(&cpi->oxcf.rc_cfg),
+                 cm->features.coded_lossless && cm->features.all_lossless));
+
+  const int use_loopfilter =
+      !cm->features.coded_lossless && !cm->tiles.large_scale;
+  const int use_cdef = cm->seq_params->enable_cdef &&
+                       !cm->features.coded_lossless && !cm->tiles.large_scale;
+  const int use_restoration = is_restoration_used(cm);
 
 #if CONFIG_COLLECT_COMPONENT_TIMING
   start_timing(cpi, loop_filter_time);
 #endif
-  if (use_loopfilter) {
+  if (use_loopfilter)
     av1_pick_filter_level(cpi->source, cpi, cpi->sf.lpf_sf.lpf_pick);
-  } else {
-    lf->filter_level[0] = 0;
-    lf->filter_level[1] = 0;
-  }
 
-  if ((lf->filter_level[0] || lf->filter_level[1]) &&
-      !cpi->rtc_ref.non_reference_frame) {
-    av1_loop_filter_frame_mt(&cm->cur_frame->buf, cm, xd, 0, num_planes, 0,
-                             mt_info->workers, num_workers,
-                             &mt_info->lf_row_sync, lpf_opt_level);
-  }
+  if (should_apply_loop_filtering(cpi)) av1_apply_loop_filtering(cpi);
 #if CONFIG_COLLECT_COMPONENT_TIMING
   end_timing(cpi, loop_filter_time);
 #endif
 
-  cdef_restoration_frame(cpi, cm, xd, use_restoration, use_cdef);
+  cdef_restoration_frame(cpi, cm, &cpi->td.mb.e_mbd, use_restoration, use_cdef);
 }
 
 static void update_motion_stat(AV1_COMP *const cpi) {
@@ -3088,7 +3107,8 @@ static int encode_with_recode_loop_and_filter(AV1_COMP *cpi, size_t *size,
 
   // TODO(debargha): Fix mv search range on encoder side
   // aom_extend_frame_inner_borders(&cm->cur_frame->buf, av1_num_planes(cm));
-  aom_extend_frame_borders(&cm->cur_frame->buf, av1_num_planes(cm));
+  if (!cpi->apply_loop_filter_when_ref_queried)
+    aom_extend_frame_borders(&cm->cur_frame->buf, av1_num_planes(cm));
 
 #ifdef OUTPUT_YUV_REC
   aom_write_one_yuv_frame(cm, &cm->cur_frame->buf);
@@ -4907,6 +4927,8 @@ int av1_get_preview_raw_frame(AV1_COMP *cpi, YV12_BUFFER_CONFIG *dest) {
   } else {
     int ret;
     if (cm->cur_frame != NULL) {
+      if (cpi->apply_loop_filter_when_ref_queried)
+        av1_apply_loop_filtering(cpi);
       *dest = cm->cur_frame->buf;
       dest->y_width = cm->width;
       dest->y_height = cm->height;
@@ -4922,7 +4944,7 @@ int av1_get_preview_raw_frame(AV1_COMP *cpi, YV12_BUFFER_CONFIG *dest) {
 
 int av1_get_last_show_frame(AV1_COMP *cpi, YV12_BUFFER_CONFIG *frame) {
   if (cpi->last_show_frame_buf == NULL) return -1;
-
+  if (cpi->apply_loop_filter_when_ref_queried) av1_apply_loop_filtering(cpi);
   *frame = cpi->last_show_frame_buf->buf;
   return 0;
 }
