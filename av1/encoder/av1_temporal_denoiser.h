@@ -88,7 +88,7 @@ void av1_denoiser_update_frame_stats(MB_MODE_INFO *mi, int64_t sse,
                                      PICK_MODE_CONTEXT *ctx);
 
 int av1_denoiser_realloc_svc(AV1_COMMON *cm, AV1_DENOISER *denoiser,
-                             struct SVC *svc, int svc_buf_shift,
+                             struct RTC_REF *rtc_ref, int svc_buf_shift,
                              int refresh_alt, int refresh_gld, int refresh_lst,
                              int alt_fb_idx, int gld_fb_idx, int lst_fb_idx);
 
