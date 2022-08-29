@@ -2592,7 +2592,7 @@ void av1_adjust_gf_refresh_qp_one_pass_rt(AV1_COMP *cpi) {
  * (for each of 7 references) and refresh flags (for each of the 8 slots)
  * are set in \c cpi->svc.ref_idx[] and \c cpi->svc.refresh[].
  */
-void av1_set_reference_structure_one_pass_rt(AV1_COMP *cpi, int gf_update) {
+void av1_set_rtc_reference_structure_one_layer(AV1_COMP *cpi, int gf_update) {
   AV1_COMMON *const cm = &cpi->common;
   ExternalFlags *const ext_flags = &cpi->ext_flags;
   RATE_CONTROL *const rc = &cpi->rc;
@@ -2606,7 +2606,6 @@ void av1_set_reference_structure_one_pass_rt(AV1_COMP *cpi, int gf_update) {
   int alt_ref_idx = 0;
   int last2_idx = 0;
   ext_refresh_frame_flags->update_pending = 1;
-  svc->set_ref_frame_config = 1;
   ext_flags->ref_frame_flags = 0;
   ext_refresh_frame_flags->last_frame = 1;
   ext_refresh_frame_flags->golden_frame = 0;
@@ -2678,6 +2677,8 @@ void av1_set_reference_structure_one_pass_rt(AV1_COMP *cpi, int gf_update) {
   cpi->rt_reduce_num_ref_buffers &= (svc->ref_idx[6] < 7);
   if (cpi->sf.rt_sf.ref_frame_comp_nonrd[1])
     cpi->rt_reduce_num_ref_buffers &= (svc->ref_idx[2] < 7);
+  for (unsigned int i = 0; i < INTER_REFS_PER_FRAME; i++)
+    cm->remapped_ref_idx[i] = cpi->svc.ref_idx[i];
 }
 
 /*!\brief Check for scene detection, for 1 pass real-time mode.
