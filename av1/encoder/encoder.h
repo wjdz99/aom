@@ -3416,6 +3416,11 @@ typedef struct AV1_COMP {
    * Block level thresholds to force zeromv-skip at partition level.
    */
   unsigned int zeromv_skip_thresh_exit_part[BLOCK_SIZES_ALL];
+
+  /*!
+   * Flag to apply loop filtering on recon when required.
+   */
+  int apply_loop_filter_when_ref_queried;
 } AV1_COMP;
 
 /*!
