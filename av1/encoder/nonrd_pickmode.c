@@ -2957,7 +2957,7 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
   // TODO(marpan): Look into reducing these conditions. For now constrain
   // it to avoid significant bdrate loss.
   if (cpi->sf.rt_sf.use_modeled_non_rd_cost) {
-    if (cpi->svc.non_reference_frame)
+    if (cpi->rtc_ref.non_reference_frame)
       use_modeled_non_rd_cost = 1;
     else if (cpi->svc.number_temporal_layers > 1 &&
              cpi->svc.temporal_layer_id == 0)

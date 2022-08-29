@@ -1355,6 +1355,7 @@ static void set_rt_speed_feature_framesize_dependent(const AV1_COMP *const cpi,
     }
   }
   if (cpi->ppi->use_svc) {
+     RTC_REF *const rtc_ref = &cpi->rtc_ref;
     // For SVC: for greater than 2 temporal layers, use better mv search on
     // base temporal layers, and only on base spatial layer if highest
     // resolution is above 640x360.
@@ -1375,16 +1376,18 @@ static void set_rt_speed_feature_framesize_dependent(const AV1_COMP *const cpi,
         sf->rt_sf.nonrd_agressive_skip = 1;
         sf->mv_sf.subpel_search_method = SUBPEL_TREE_PRUNED_MORE;
       }
+      if (rtc_ref->non_reference_frame)
+        sf->rt_sf.nonrd_agressive_skip = 1;
     }
-    if (cpi->svc.ref_frame_comp[0] || cpi->svc.ref_frame_comp[1] ||
-        cpi->svc.ref_frame_comp[2]) {
+    if (rtc_ref->ref_frame_comp[0] || rtc_ref->ref_frame_comp[1] ||
+        rtc_ref->ref_frame_comp[2]) {
       sf->rt_sf.use_comp_ref_nonrd = 1;
       sf->rt_sf.ref_frame_comp_nonrd[0] =
-          cpi->svc.ref_frame_comp[0] && cpi->svc.reference[GOLDEN_FRAME - 1];
+          rtc_ref->ref_frame_comp[0] && rtc_ref->reference[GOLDEN_FRAME - 1];
       sf->rt_sf.ref_frame_comp_nonrd[1] =
-          cpi->svc.ref_frame_comp[1] && cpi->svc.reference[LAST2_FRAME - 1];
+          rtc_ref->ref_frame_comp[1] && rtc_ref->reference[LAST2_FRAME - 1];
       sf->rt_sf.ref_frame_comp_nonrd[2] =
-          cpi->svc.ref_frame_comp[2] && cpi->svc.reference[ALTREF_FRAME - 1];
+          rtc_ref->ref_frame_comp[2] && rtc_ref->reference[ALTREF_FRAME - 1];
     } else {
       sf->rt_sf.use_comp_ref_nonrd = 0;
     }

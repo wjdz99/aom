@@ -72,8 +72,8 @@ class DatarateTestSVC
     }
     memset(&layer_id_, 0, sizeof(aom_svc_layer_id_t));
     memset(&svc_params_, 0, sizeof(aom_svc_params_t));
-    memset(&ref_frame_config_, 0, sizeof(aom_svc_ref_frame_config_t));
-    memset(&ref_frame_comp_pred_, 0, sizeof(aom_svc_ref_frame_comp_pred_t));
+    memset(&ref_frame_config_, 0, sizeof(aom_rtc_ref_frame_config_t));
+    memset(&ref_frame_comp_pred_, 0, sizeof(aom_rtc_ref_frame_comp_pred_t));
     drop_frames_ = 0;
     for (int i = 0; i < 1000; i++) drop_frames_list_[i] = 1000;
     decoded_nframes_ = 0;
@@ -154,11 +154,11 @@ class DatarateTestSVC
         ref_frame_config_.reference[i] = 0;
     }
     encoder->Control(AV1E_SET_SVC_LAYER_ID, &layer_id_);
-    // The SET_SVC_REF_FRAME_CONFIG and AV1E_SET_SVC_REF_FRAME_COMP_PRED api is
+    // The SET_RTC_REF_FRAME_CONFIG and AV1E_SET_RTC_REF_FRAME_COMP_PRED api is
     // for the flexible SVC mode (i.e., use_fixed_mode_svc == 0).
     if (!use_fixed_mode_svc_) {
-      encoder->Control(AV1E_SET_SVC_REF_FRAME_CONFIG, &ref_frame_config_);
-      encoder->Control(AV1E_SET_SVC_REF_FRAME_COMP_PRED, &ref_frame_comp_pred_);
+      encoder->Control(AV1E_SET_RTC_REF_FRAME_CONFIG, &ref_frame_config_);
+      encoder->Control(AV1E_SET_RTC_REF_FRAME_COMP_PRED, &ref_frame_comp_pred_);
     }
     if (set_frame_level_er_) {
       int mode =
@@ -252,8 +252,8 @@ class DatarateTestSVC
   // Layer pattern configuration.
   virtual int set_layer_pattern(
       int frame_cnt, aom_svc_layer_id_t *layer_id,
-      aom_svc_ref_frame_config_t *ref_frame_config,
-      aom_svc_ref_frame_comp_pred_t *ref_frame_comp_pred, int spatial_layer,
+      aom_rtc_ref_frame_config_t *ref_frame_config,
+      aom_rtc_ref_frame_comp_pred_t *ref_frame_comp_pred, int spatial_layer,
       int multi_ref, int comp_pred, int is_key_frame,
       int dynamic_enable_disable_mode) {
     int lag_index = 0;
@@ -1701,8 +1701,8 @@ class DatarateTestSVC
   // Allow for up to 3 temporal layers.
   int target_layer_bitrate_[AOM_MAX_LAYERS];
   aom_svc_params_t svc_params_;
-  aom_svc_ref_frame_config_t ref_frame_config_;
-  aom_svc_ref_frame_comp_pred_t ref_frame_comp_pred_;
+  aom_rtc_ref_frame_config_t ref_frame_config_;
+  aom_rtc_ref_frame_comp_pred_t ref_frame_comp_pred_;
   aom_svc_layer_id_t layer_id_;
   double effective_datarate_tl[AOM_MAX_LAYERS];
   unsigned int drop_frames_;
