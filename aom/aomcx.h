@@ -1281,7 +1281,7 @@ enum aome_enc_control_id {
    * the ref_idx and the refresh flags for each buffer slot.
    * aom_svc_ref_frame_config_t* parameter
    */
-  AV1E_SET_SVC_REF_FRAME_CONFIG = 133,
+  AV1E_SET_RTC_REF_FRAME_CONFIG = 133,
 
   /*!\brief Codec control function to set the path to the VMAF model used when
    * tuning the encoder for VMAF, const char* parameter
@@ -1384,9 +1384,9 @@ enum aome_enc_control_id {
   AV1E_SET_ENABLE_TX_SIZE_SEARCH = 146,
 
   /*!\brief Codec control function to set reference frame compound prediction.
-   * aom_svc_ref_frame_comp_pred_t* parameter
+   * aom_rtc_ref_frame_comp_pred_t* parameter
    */
-  AV1E_SET_SVC_REF_FRAME_COMP_PRED = 147,
+  AV1E_SET_RTC_REF_FRAME_COMP_PRED = 147,
 
   /*!\brief Set --deltaq-mode strength.
    *
@@ -1598,21 +1598,21 @@ typedef struct aom_svc_params {
 } aom_svc_params_t;
 
 /*!brief Parameters for setting ref frame config */
-typedef struct aom_svc_ref_frame_config {
+typedef struct aom_rtc_ref_frame_config {
   // 7 references: LAST_FRAME (0), LAST2_FRAME(1), LAST3_FRAME(2),
   // GOLDEN_FRAME(3), BWDREF_FRAME(4), ALTREF2_FRAME(5), ALTREF_FRAME(6).
   int reference[7]; /**< Reference flag for each of the 7 references. */
   /*! Buffer slot index for each of 7 references. */
   int ref_idx[7];
   int refresh[8]; /**< Refresh flag for each of the 8 slots. */
-} aom_svc_ref_frame_config_t;
+} aom_rtc_ref_frame_config_t;
 
 /*!brief Parameters for setting ref frame compound prediction */
-typedef struct aom_svc_ref_frame_comp_pred {
+typedef struct aom_rtc_ref_frame_comp_pred {
   // Use compound prediction for the ref_frame pairs GOLDEN_LAST (0),
   // LAST2_LAST (1), and ALTREF_LAST (2).
   int use_comp_pred[3]; /**<Compound reference flag. */
-} aom_svc_ref_frame_comp_pred_t;
+} aom_rtc_ref_frame_comp_pred_t;
 
 /*!\cond */
 /*!\brief Encoder control function parameter type
@@ -1995,10 +1995,10 @@ AOM_CTRL_USE_TYPE(AV1E_SET_SVC_PARAMS, aom_svc_params_t *)
 // TODO(aomedia:3231): Deprecated. Remove it.
 #define AOME_CTRL_AV1E_SET_SVC_PARAMS
 
-AOM_CTRL_USE_TYPE(AV1E_SET_SVC_REF_FRAME_CONFIG, aom_svc_ref_frame_config_t *)
-#define AOM_CTRL_AV1E_SET_SVC_REF_FRAME_CONFIG
+AOM_CTRL_USE_TYPE(AV1E_SET_RTC_REF_FRAME_CONFIG, aom_rtc_ref_frame_config_t *)
+#define AOM_CTRL_AV1E_SET_RTC_REF_FRAME_CONFIG
 // TODO(aomedia:3231): Deprecated. Remove it.
-#define AOME_CTRL_AV1E_SET_SVC_REF_FRAME_CONFIG
+#define AOME_CTRL_AV1E_SET_RTC_REF_FRAME_CONFIG
 
 AOM_CTRL_USE_TYPE(AV1E_SET_VMAF_MODEL_PATH, const char *)
 #define AOM_CTRL_AV1E_SET_VMAF_MODEL_PATH
@@ -2039,11 +2039,11 @@ AOM_CTRL_USE_TYPE(AV1E_SET_ENABLE_DIRECTIONAL_INTRA, int)
 AOM_CTRL_USE_TYPE(AV1E_SET_ENABLE_TX_SIZE_SEARCH, int)
 #define AOM_CTRL_AV1E_SET_ENABLE_TX_SIZE_SEARCH
 
-AOM_CTRL_USE_TYPE(AV1E_SET_SVC_REF_FRAME_COMP_PRED,
-                  aom_svc_ref_frame_comp_pred_t *)
-#define AOM_CTRL_AV1E_SET_SVC_REF_FRAME_COMP_PRED
+AOM_CTRL_USE_TYPE(AV1E_SET_RTC_REF_FRAME_COMP_PRED,
+                  aom_rtc_ref_frame_comp_pred_t *)
+#define AOM_CTRL_AV1E_SET_RTC_REF_FRAME_COMP_PRED
 // TODO(aomedia:3231): Deprecated. Remove it.
-#define AOME_CTRL_AV1E_SET_SVC_REF_FRAME_COMP_PRED
+#define AOME_CTRL_AV1E_SET_RTC_REF_FRAME_COMP_PRED
 
 AOM_CTRL_USE_TYPE(AV1E_SET_DELTAQ_STRENGTH, unsigned int)
 #define AOM_CTRL_AV1E_SET_DELTAQ_STRENGTH
