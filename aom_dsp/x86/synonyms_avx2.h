@@ -50,7 +50,7 @@ static INLINE __m256i yy_set1_64_from_32i(int32_t a) {
 #if defined(_MSC_VER) && defined(_M_IX86) && _MSC_VER < 1900
   return _mm256_set_epi32(0, a, 0, a, 0, a, 0, a);
 #else
-  return _mm256_set1_epi64x((uint32_t)a);
+  return _mm256_set1_epi64x(a);
 #endif
 }
 
