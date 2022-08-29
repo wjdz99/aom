@@ -395,7 +395,7 @@ static void swap_frame_buffer(YV12_BUFFER_CONFIG *const dest,
 }
 
 void av1_denoiser_update_frame_info(
-    AV1_DENOISER *denoiser, YV12_BUFFER_CONFIG src, struct SVC *svc,
+    AV1_DENOISER *denoiser, YV12_BUFFER_CONFIG src, struct SVC *rtc_ref,
     FRAME_TYPE frame_type, int refresh_alt_ref_frame, int refresh_golden_frame,
     int refresh_last_frame, int alt_fb_idx, int gld_fb_idx, int lst_fb_idx,
     int resized, int svc_refresh_denoiser_buffers, int second_spatial_layer) {
@@ -415,10 +415,10 @@ void av1_denoiser_update_frame_info(
     return;
   }
 
-  if (svc->set_ref_frame_config) {
+  if (rtc_ref->set_ref_frame_config) {
     int i;
     for (i = 0; i < REF_FRAMES; i++) {
-      if (svc->refresh[svc->spatial_layer_id] & (1 << i))
+      if (rtc_ref->refresh[svc->spatial_layer_id] & (1 << i))
         copy_frame(&denoiser->running_avg_y[i + 1 + shift],
                    &denoiser->running_avg_y[INTRA_FRAME + shift]);
     }
@@ -497,15 +497,15 @@ static int av1_denoiser_realloc_svc_helper(AV1_COMMON *cm,
 }
 
 int av1_denoiser_realloc_svc(AV1_COMMON *cm, AV1_DENOISER *denoiser,
-                             struct SVC *svc, int svc_buf_shift,
+                             struct RTC_REF *rtc_ref, int svc_buf_shift,
                              int refresh_alt, int refresh_gld, int refresh_lst,
                              int alt_fb_idx, int gld_fb_idx, int lst_fb_idx) {
   int fail = 0;
-  if (svc->set_ref_frame_config) {
+  if (rtc_ref->set_ref_frame_config) {
     int i;
     for (i = 0; i < REF_FRAMES; i++) {
       if (cm->current_frame.frame_type == KEY_FRAME ||
-          svc->refresh[svc->spatial_layer_id] & (1 << i)) {
+          rtc_ref->refresh[svc->spatial_layer_id] & (1 << i)) {
         fail = av1_denoiser_realloc_svc_helper(cm, denoiser,
                                                i + 1 + svc_buf_shift);
       }
@@ -710,7 +710,7 @@ void av1_denoiser_reset_on_first_frame(AV1_COMP *const cpi) {
 
 void av1_denoiser_update_ref_frame(AV1_COMP *const cpi) {
   AV1_COMMON *const cm = &cpi->common;
-  SVC *const svc = &cpi->svc;
+  RTC_REF *const rtc_ref = &cpi->rtc_ref;
 
   if (cpi->oxcf.noise_sensitivity > 0 && denoise_svc(cpi) &&
       cpi->denoiser.denoising_level > kDenLowLow) {
@@ -749,10 +749,10 @@ void av1_denoiser_update_ref_frame(AV1_COMP *const cpi) {
 #endif
     }
     av1_denoiser_update_frame_info(
-        &cpi->denoiser, *cpi->source, svc, frame_type,
+        &cpi->denoiser, *cpi->source, rtc_ref, frame_type,
         cpi->refresh_frame.alt_ref_frame, cpi->refresh_frame.golden_frame, 1,
-        svc->ref_idx[6], svc->ref_idx[3], svc->ref_idx[0], resize_pending,
-        svc_refresh_denoiser_buffers, denoise_svc_second_layer);
+        rtc_ref->ref_idx[6], rtc_ref->ref_idx[3], rtc_ref->ref_idx[0],
+        resize_pending, svc_refresh_denoiser_buffers, denoise_svc_second_layer);
   }
 }
 
