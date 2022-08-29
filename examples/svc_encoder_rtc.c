@@ -586,8 +586,8 @@ static void printout_rate_control_summary(struct RateControlMetrics *rc,
 // Layer pattern configuration.
 static void set_layer_pattern(
     int layering_mode, int superframe_cnt, aom_svc_layer_id_t *layer_id,
-    aom_svc_ref_frame_config_t *ref_frame_config,
-    aom_svc_ref_frame_comp_pred_t *ref_frame_comp_pred, int *use_svc_control,
+    aom_rtc_ref_frame_config_t *ref_frame_config,
+    aom_rtc_ref_frame_comp_pred_t *ref_frame_comp_pred, int *use_svc_control,
     int spatial_layer_id, int is_key_frame, int ksvc_mode, int speed) {
   int i;
   int enable_longterm_temporal_ref = 1;
@@ -890,7 +890,7 @@ static void set_layer_pattern(
       // 3 spatial and 3 temporal layer.
       // No overlap in buffer updates between TL2 and TL1.
       // TL2 updates slot 3 and 4, TL1 updates 5, 6, 7.
-      // Set the references via the svc_ref_frame_config control.
+      // Set the references via the rtc_ref_frame_config control.
       // Always reference LAST.
       ref_frame_config->reference[SVC_LAST_FRAME] = 1;
       if (superframe_cnt % 4 == 0) {
@@ -1112,8 +1112,8 @@ int main(int argc, const char **argv) {
   int frame_duration = 1;  // 1 timebase tick per frame.
   aom_svc_layer_id_t layer_id;
   aom_svc_params_t svc_params;
-  aom_svc_ref_frame_config_t ref_frame_config;
-  aom_svc_ref_frame_comp_pred_t ref_frame_comp_pred;
+  aom_rtc_ref_frame_config_t ref_frame_config;
+  aom_rtc_ref_frame_comp_pred_t ref_frame_comp_pred;
 
 #if CONFIG_INTERNAL_STATS
   FILE *stats_file = fopen("opsnr.stt", "a");
@@ -1357,9 +1357,9 @@ int main(int argc, const char **argv) {
                           (app_input.layering_mode == 10), app_input.speed);
         aom_codec_control(&codec, AV1E_SET_SVC_LAYER_ID, &layer_id);
         if (use_svc_control) {
-          aom_codec_control(&codec, AV1E_SET_SVC_REF_FRAME_CONFIG,
+          aom_codec_control(&codec, AV1E_SET_RTC_REF_FRAME_CONFIG,
                             &ref_frame_config);
-          aom_codec_control(&codec, AV1E_SET_SVC_REF_FRAME_COMP_PRED,
+          aom_codec_control(&codec, AV1E_SET_RTC_REF_FRAME_COMP_PRED,
                             &ref_frame_comp_pred);
         }
       } else {
