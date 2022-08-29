@@ -16,6 +16,46 @@
       "message": "Hi Yunqing,\n\nIn this patch we have optimized the function set_block_thresholds() by initializing \u0027rd-\u003ethreshes\u0027 only for the modes evaluated in rt. \n\nThe multi-thread encode time reduction for rt with row-mt\u003d1 is as follows:\n```\ncpu  Resolution   Tiles  Threads Encode time reduction (%)\n 7    180p          2x1     2        0.8\n 8    180p          2x1     2        1.6\n 9    360p          4x1     4        1.3\n 10   720p          4x1     4        0.8\n 10   1080p screen  4x1     4        0.4\n ```\nThe single thread instruction count reduction (Borg test suite) for rt is as below:\n```\n                  Instruction count \ncpu  Resolution      Reduction(%)\n 7     rtc             0.187\n 7     rtc-derf        1.046\n\t\t\t\t\t   \n 8     rtc             0.240\n 8     rtc-derf        1.420\n\t\t\t\t\t   \n 9     rtc             0.324\n 9     rtc-derf        2.052\n\t\t\t\t\t   \n10     rtc             0.371\n10     rtc-derf        2.242\n```\nPlease review.\n\nThanks",
       "revId": "2f192959fc0c4b4e83922a6cfab3a921eee9cd46",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1ad081e9_c59e78a1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2022-08-29T16:26:18Z",
+      "side": 1,
+      "message": "Very good speedup for rtc_derf set!",
+      "revId": "2f192959fc0c4b4e83922a6cfab3a921eee9cd46",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c5d1a6ed_490ed74b",
+        "filename": "av1/encoder/rd.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 529,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2022-08-29T16:26:18Z",
+      "side": 1,
+      "message": "If the following calculation isn\u0027t for use_nonrd_pick_mode\u003d1 case, can it return here?",
+      "range": {
+        "startLine": 529,
+        "startChar": 3,
+        "endLine": 529,
+        "endChar": 5
+      },
+      "revId": "2f192959fc0c4b4e83922a6cfab3a921eee9cd46",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
