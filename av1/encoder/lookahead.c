@@ -154,7 +154,6 @@ int av1_lookahead_push(struct lookahead_ctx *ctx, const YV12_BUFFER_CONFIG *src,
   buf->display_idx = ctx->push_frame_count;
   buf->flags = flags;
   ++ctx->push_frame_count;
-  aom_remove_metadata_from_frame_buffer(&buf->img);
   aom_copy_metadata_to_frame_buffer(&buf->img, src->metadata);
   return 0;
 }
