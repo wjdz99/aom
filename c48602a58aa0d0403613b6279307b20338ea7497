@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "806a5da0_83448945",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 787,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2022-08-30T17:12:37Z",
+      "side": 1,
+      "message": "Would be good to set this here (it\u0027s set as initialization in encode_sb_row() but good to reset it here):\nx-\u003econtent_state_sb.source_sad_nonrd \u003d kMedSad;\nx-\u003econtent_state_sb.source_sad_rd \u003d kMedSad;",
+      "revId": "c48602a58aa0d0403613b6279307b20338ea7497",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
