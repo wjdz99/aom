@@ -1364,6 +1364,10 @@ void av1_source_content_sb(AV1_COMP *cpi, MACROBLOCK *x, int mi_row,
     return;
   if (!cpi->sf.rt_sf.use_rtc_tf || tmp_sse == 0) return;
 
+  if (cpi->sf.rt_sf.use_rtc_tf == 2 &&
+      (cpi->rc.high_source_sad || cpi->rc.frame_source_sad > 20000))
+    return;
+
   // In-place temporal filter. If psnr calculation is enabled, we store the
   // source for that.
   AV1_COMMON *const cm = &cpi->common;
@@ -1371,10 +1375,46 @@ void av1_source_content_sb(AV1_COMP *cpi, MACROBLOCK *x, int mi_row,
   const unsigned int nmean2 = tmp_sse - tmp_variance;
   const int ac_q_step = av1_ac_quant_QTX(cm->quant_params.base_qindex, 0,
                                          cm->seq_params->bit_depth);
-  const unsigned int threshold = 3 * ac_q_step * ac_q_step / 2;
+  const unsigned int threshold = (cpi->sf.rt_sf.use_rtc_tf == 1)
+                                     ? ((3 * ac_q_step * ac_q_step) >> 1)
+                                     : 250 * ac_q_step;
 
   // TODO(yunqing): use a weighted sum instead of averaging in filtering.
   if (tmp_variance <= threshold && nmean2 <= 15) {
+    if (cpi->sf.rt_sf.use_rtc_tf == 2) {
+      // Only consider 64x64 SB for now.
+      const uint8_t *const search_pos[4] = {
+        last_src_y - last_src_ystride,
+        last_src_y - 1,
+        last_src_y + 1,
+        last_src_y + last_src_ystride,
+      };
+      unsigned int sad_arr[4];
+      cpi->ppi->fn_ptr[bsize].sdx4df(src_y, src_ystride, search_pos,
+                                     last_src_ystride, sad_arr);
+
+      unsigned int blk_sad = INT_MAX;
+      if (cpi->src_sad_blk_64x64 != NULL) {
+        const int sb_size_by_mb = (cm->seq_params->sb_size == BLOCK_128X128)
+                                      ? (cm->seq_params->mib_size >> 1)
+                                      : cm->seq_params->mib_size;
+        const int sb_cols =
+            (cm->mi_params.mi_cols + sb_size_by_mb - 1) / sb_size_by_mb;
+        const int sbi_col = mi_col / sb_size_by_mb;
+        const int sbi_row = mi_row / sb_size_by_mb;
+        blk_sad =
+            (unsigned int)cpi->src_sad_blk_64x64[sbi_col + sbi_row * sb_cols];
+      } else {
+        blk_sad = cpi->ppi->fn_ptr[bsize].sdf(src_y, src_ystride, last_src_y,
+                                              last_src_ystride);
+      }
+
+      blk_sad = (blk_sad * 3) >> 2;
+      if (blk_sad > sad_arr[0] || blk_sad > sad_arr[1] ||
+          blk_sad > sad_arr[2] || blk_sad > sad_arr[3])
+        return;
+    }
+
     const int shift_x[2] = { 0, cpi->source->subsampling_x };
     const int shift_y[2] = { 0, cpi->source->subsampling_y };
     const uint8_t h = block_size_high[bsize];
