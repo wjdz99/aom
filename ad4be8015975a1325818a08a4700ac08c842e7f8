@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9a6377b0_aa5698f9",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-08-30T20:10:38Z",
+      "side": 1,
+      "message": "add chromium:1338114 too?",
+      "revId": "ad4be8015975a1325818a08a4700ac08c842e7f8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fc4753f3_a13c4a31",
+        "filename": "av1/common/resize.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1388,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-08-30T20:10:38Z",
+      "side": 1,
+      "message": "given the duplication, maybe the check should be moved to a common function",
+      "revId": "ad4be8015975a1325818a08a4700ac08c842e7f8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
