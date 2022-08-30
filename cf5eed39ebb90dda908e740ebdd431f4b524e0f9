@@ -34,6 +34,24 @@
       "parentUuid": "2bf9c898_24e18231",
       "revId": "cf5eed39ebb90dda908e740ebdd431f4b524e0f9",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6003c76a_b217ffef",
+        "filename": "av1/encoder/lookahead.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 157,
+      "author": {
+        "id": 14148
+      },
+      "writtenOn": "2022-08-30T22:37:05Z",
+      "side": 1,
+      "message": "Hi! This is done like this so operations are atomic, the aom_remove_metadata_from_frame_buffer() will remove metadata from the frame_buffer to ensure its metadata is empty before proceeding (might carry metadata from previous frame if I remember correctly) and the aom_copy_metadata_to_frame_buffer() will add metadata for this frame_buffer, the copy_metadata() will still call the remove_metadata() internally for safety as we can\u0027t be sure the caller has removed it before, but we are also not sure there will be metadata to copy into this frame_buffer, so the copy_metadata() function ends and returns 0 to let you know nothing was copied on its input.",
+      "parentUuid": "f66d4ed2_1f19f584",
+      "revId": "cf5eed39ebb90dda908e740ebdd431f4b524e0f9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ],
   "submitRequirementResults": [
