@@ -16,6 +16,24 @@
       "message": "Here is the `aom_copy_metadata_to_frame_buffer()` source code:\n\n```\nint aom_copy_metadata_to_frame_buffer(YV12_BUFFER_CONFIG *ybf,\n                                      const aom_metadata_array_t *arr) {\n  if (!ybf || !arr || !arr-\u003emetadata_array) return -1;\n  if (ybf-\u003emetadata \u003d\u003d arr) return 0;\n  aom_remove_metadata_from_frame_buffer(ybf);\n  ybf-\u003emetadata \u003d aom_img_metadata_array_alloc(arr-\u003esz);\n  ...\n}\n```\n\nNote the `aom_remove_metadata_from_frame_buffer(ybf)` call.",
       "revId": "cf5eed39ebb90dda908e740ebdd431f4b524e0f9",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f66d4ed2_1f19f584",
+        "filename": "av1/encoder/lookahead.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 157,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-08-30T20:25:33Z",
+      "side": 1,
+      "message": "Looking at this closer, I found that the new code behaves differently from the original code under one condition: if `src-\u003emetadata` is a null pointer. In this case, the original code will remove metadata from \u0026buf-\u003eimg but the new code won\u0027t.\n\nSince I am not familiar with this code, I don\u0027t know whether `src-\u003emetadata` can be a null pointer here, so it is better to not touch this code.",
+      "parentUuid": "2bf9c898_24e18231",
+      "revId": "cf5eed39ebb90dda908e740ebdd431f4b524e0f9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
