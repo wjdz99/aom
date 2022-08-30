@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "65482c2e_3ee7edca",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 31022
+      },
+      "writtenOn": "2022-08-30T12:13:58Z",
+      "side": 1,
+      "message": "\nHi Yunqing,\n\nThe buffer \u0027tf_buf_second_arf\u0027 is used to store the temporal filtered data corresponding to second arf frames. Currently, the memory allocation is happening irrespective of the buffer usage. In this CL, we have made changes such that the memory allocation happens on a need basis (i.e., allocate only when it is required). \n\nThe following shows the memory reduction achieved through this optimization.\n```\n              \tPeak memory reduction(%)\nResolution      Single thread(good speed 6)\n640x360                  1.06\n854x480                  1.02\n832x480                  1.02\n1280x720                 1.10\n1920x1080                1.09\n```\n\nHEAP memory reduction was measured using the following command.\n$valgrind --tool\u003dmassif ./aomenc …\n\nPlease review the patch.\n\nThanks \u0026 Regards,\nAnupam\n",
+      "revId": "072b53ae5f3d983a3107f9dd4866ce40b6ad14f4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
