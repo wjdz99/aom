@@ -52,6 +52,24 @@
       "parentUuid": "f66d4ed2_1f19f584",
       "revId": "cf5eed39ebb90dda908e740ebdd431f4b524e0f9",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ff4fc7ae_1df07b36",
+        "filename": "av1/encoder/lookahead.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 157,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-08-30T22:52:22Z",
+      "side": 1,
+      "message": "Hi Daniel,\n\nThank you for your reply. Before I saw your reply, I studied the code and wrote an alternative CL:\nhttps://aomedia-review.googlesource.com/c/aom/+/161982\n\nLet\u0027s continue the discusssion in that CL.",
+      "parentUuid": "6003c76a_b217ffef",
+      "revId": "cf5eed39ebb90dda908e740ebdd431f4b524e0f9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ],
   "submitRequirementResults": [
