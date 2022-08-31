@@ -34,6 +34,7 @@ class ACMRandom {
   uint16_t Rand16() {
     const uint32_t value =
         random_.Generate(testing::internal::Random::kMaxRange);
+    // There's a bit more entropy in the upper bits of this implementation.
     return (value >> 15) & 0xffff;
   }
 
