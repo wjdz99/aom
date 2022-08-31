@@ -18,6 +18,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "687c8adc_8d2ab3fd",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-08-31T18:42:02Z",
+      "side": 1,
+      "message": "\u003e Jenkins will probably need a new build config as the dot-product instructions aren\u0027t available with Armv8.0-A. These instructions are available on any Neoverse-N or Neoverse-V core; as well as all Arm Cortex CPUs since the Cortex-A75.\n\u003e \n\u003e Again, minimal performance uplift for this patch but every little helps.\n\nI reran this with an aarch64 -march\u003darmv8.4-linux-gcc configuration, similar to what we setup in libvpx.",
+      "parentUuid": "da855823_b6431c63",
+      "revId": "d0171a5dfd8aa08fa1a3823d9d7e508728f6b892",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b75bdc08_bb51343e",
