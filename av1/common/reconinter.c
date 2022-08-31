@@ -97,11 +97,12 @@ void av1_init_comp_mode(InterPredParams *inter_pred_params) {
 
 void av1_init_warp_params(InterPredParams *inter_pred_params,
                           const WarpTypesAllowed *warp_types, int ref,
-                          const MACROBLOCKD *xd, const MB_MODE_INFO *mi) {
+                          const MACROBLOCKD *xd, const MB_MODE_INFO *mi,
+                          int force_integer_mv) {
   if (inter_pred_params->block_height < 8 || inter_pred_params->block_width < 8)
     return;
 
-  if (xd->cur_frame_force_integer_mv) return;
+  if (force_integer_mv) return;
 
   if (av1_allow_warp(mi, warp_types, &xd->global_motion[mi->ref_frame[ref]], 0,
                      inter_pred_params->scale_factors,
@@ -919,8 +920,10 @@ static void build_inter_predictors_8x8_and_bigger(
         &inter_pred_params.conv_params.bck_offset,
         &inter_pred_params.conv_params.use_dist_wtd_comp_avg, is_compound);
 
-    if (!build_for_obmc)
-      av1_init_warp_params(&inter_pred_params, &warp_types, ref, xd, mi);
+    if (!build_for_obmc) {
+      av1_init_warp_params(&inter_pred_params, &warp_types, ref, xd, mi,
+                           cm->features.cur_frame_force_integer_mv);
+    }
 
     if (is_masked_compound_type(mi->interinter_comp.type)) {
       inter_pred_params.sb_type = mi->bsize;

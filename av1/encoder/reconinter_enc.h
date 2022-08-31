@@ -63,8 +63,8 @@ void av1_build_obmc_inter_predictors_sb(const AV1_COMMON *cm, MACROBLOCKD *xd);
 
 // |ext_dst*| are indexed from |plane_from| to |plane_to| inclusive.
 void av1_build_inter_predictors_for_planes_single_buf(
-    MACROBLOCKD *xd, BLOCK_SIZE bsize, int plane_from, int plane_to, int ref,
-    uint8_t *ext_dst[], int ext_dst_stride[]);
+    MACROBLOCKD *xd, BLOCK_SIZE bsize, int force_integer_mv, int plane_from,
+    int plane_to, int ref, uint8_t *ext_dst[], int ext_dst_stride[]);
 
 // |ext_dst*| are indexed from |plane_from| to |plane_to| inclusive.
 void av1_build_wedge_inter_predictor_from_buf(MACROBLOCKD *xd, BLOCK_SIZE bsize,

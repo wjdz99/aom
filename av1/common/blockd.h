@@ -838,11 +838,6 @@ typedef struct macroblockd {
   int current_base_qindex;
 
   /*!
-   * Same as cm->features.cur_frame_force_integer_mv.
-   */
-  int cur_frame_force_integer_mv;
-
-  /*!
    * Pointer to cm->error.
    */
   struct aom_internal_error_info *error_info;
@@ -1479,11 +1474,11 @@ static INLINE int check_num_overlappable_neighbors(const MB_MODE_INFO *mbmi) {
   return mbmi->overlappable_neighbors != 0;
 }
 
-static INLINE MOTION_MODE
-motion_mode_allowed(const WarpedMotionParams *gm_params, const MACROBLOCKD *xd,
-                    const MB_MODE_INFO *mbmi, int allow_warped_motion) {
+static INLINE MOTION_MODE motion_mode_allowed(
+    const WarpedMotionParams *gm_params, const MACROBLOCKD *xd,
+    const MB_MODE_INFO *mbmi, int allow_warped_motion, int force_integer_mv) {
   if (!check_num_overlappable_neighbors(mbmi)) return SIMPLE_TRANSLATION;
-  if (xd->cur_frame_force_integer_mv == 0) {
+  if (force_integer_mv == 0) {
     const TransformationType gm_type = gm_params[mbmi->ref_frame[0]].wmtype;
     if (is_global_mv_block(mbmi, gm_type)) return SIMPLE_TRANSLATION;
   }
@@ -1491,8 +1486,7 @@ motion_mode_allowed(const WarpedMotionParams *gm_params, const MACROBLOCKD *xd,
       is_inter_mode(mbmi->mode) && mbmi->ref_frame[1] != INTRA_FRAME &&
       is_motion_variation_allowed_compound(mbmi)) {
     assert(!has_second_ref(mbmi));
-    if (mbmi->num_proj_ref >= 1 && allow_warped_motion &&
-        !xd->cur_frame_force_integer_mv &&
+    if (mbmi->num_proj_ref >= 1 && allow_warped_motion && !force_integer_mv &&
         !av1_is_scaled(xd->block_ref_scale_factors[0])) {
       return WARPED_CAUSAL;
     }

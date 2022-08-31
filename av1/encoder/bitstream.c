@@ -276,7 +276,8 @@ static AOM_INLINE void write_motion_mode(const AV1_COMMON *cm, MACROBLOCKD *xd,
   MOTION_MODE last_motion_mode_allowed =
       cm->features.switchable_motion_mode
           ? motion_mode_allowed(cm->global_motion, xd, mbmi,
-                                cm->features.allow_warped_motion)
+                                cm->features.allow_warped_motion,
+                                cm->features.cur_frame_force_integer_mv)
           : SIMPLE_TRANSLATION;
   assert(mbmi->motion_mode <= last_motion_mode_allowed);
   switch (last_motion_mode_allowed) {

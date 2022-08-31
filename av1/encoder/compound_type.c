@@ -429,16 +429,17 @@ static int64_t pick_interintra_wedge(const AV1_COMP *const cpi,
 }
 
 static AOM_INLINE void get_inter_predictors_masked_compound(
-    MACROBLOCK *x, const BLOCK_SIZE bsize, uint8_t **preds0, uint8_t **preds1,
-    int16_t *residual1, int16_t *diff10, int *strides) {
+    MACROBLOCK *x, const BLOCK_SIZE bsize, int force_integer_mv,
+    uint8_t **preds0, uint8_t **preds1, int16_t *residual1, int16_t *diff10,
+    int *strides) {
   MACROBLOCKD *xd = &x->e_mbd;
   const int bw = block_size_wide[bsize];
   const int bh = block_size_high[bsize];
   // get inter predictors to use for masked compound modes
-  av1_build_inter_predictors_for_planes_single_buf(xd, bsize, 0, 0, 0, preds0,
-                                                   strides);
-  av1_build_inter_predictors_for_planes_single_buf(xd, bsize, 0, 0, 1, preds1,
-                                                   strides);
+  av1_build_inter_predictors_for_planes_single_buf(xd, bsize, force_integer_mv,
+                                                   0, 0, 0, preds0, strides);
+  av1_build_inter_predictors_for_planes_single_buf(xd, bsize, force_integer_mv,
+                                                   0, 0, 1, preds1, strides);
   const struct buf_2d *const src = &x->plane[0].src;
 #if CONFIG_AV1_HIGHBITDEPTH
   if (is_cur_buf_hbd(xd)) {
@@ -1060,8 +1061,9 @@ static int64_t masked_compound_type_rd(
   // this may increase memory requirements as compound segment mask needs to be
   // stored in each record.
   if (*calc_pred_masked_compound) {
-    get_inter_predictors_masked_compound(x, bsize, preds0, preds1, residual1,
-                                         diff10, strides);
+    get_inter_predictors_masked_compound(
+        x, bsize, cm->features.cur_frame_force_integer_mv, preds0, preds1,
+        residual1, diff10, strides);
     *calc_pred_masked_compound = 0;
   }
   if (compound_type == COMPOUND_WEDGE) {
@@ -1391,10 +1393,12 @@ int av1_compound_type_rd(const AV1_COMP *const cpi, MACROBLOCK *x,
 
       if (need_mask_search && !wedge_newmv_search) {
         // short cut repeated single reference block build
-        av1_build_inter_predictors_for_planes_single_buf(xd, bsize, 0, 0, 0,
-                                                         preds0, strides);
-        av1_build_inter_predictors_for_planes_single_buf(xd, bsize, 0, 0, 1,
-                                                         preds1, strides);
+        av1_build_inter_predictors_for_planes_single_buf(
+            xd, bsize, cm->features.cur_frame_force_integer_mv, 0, 0, 0, preds0,
+            strides);
+        av1_build_inter_predictors_for_planes_single_buf(
+            xd, bsize, cm->features.cur_frame_force_integer_mv, 0, 0, 1, preds1,
+            strides);
       }
 
       for (int wedge_mask = 0; wedge_mask < wedge_mask_size && need_mask_search;

@@ -1704,7 +1704,8 @@ static AOM_INLINE int is_warped_mode_allowed(const AV1_COMP *cpi,
     // Determine which motion modes to search if more than SIMPLE_TRANSLATION
     // is allowed.
     last_motion_mode_allowed = motion_mode_allowed(
-        xd->global_motion, xd, mbmi, features->allow_warped_motion);
+        xd->global_motion, xd, mbmi, features->allow_warped_motion,
+        cpi->common.features.cur_frame_force_integer_mv);
   }
 
   if (last_motion_mode_allowed == WARPED_CAUSAL) {
@@ -1730,7 +1731,8 @@ static void calc_num_proj_ref(AV1_COMP *cpi, MACROBLOCK *x, MB_MODE_INFO *mi) {
     // Determine which motion modes to search if more than SIMPLE_TRANSLATION
     // is allowed.
     last_motion_mode_allowed = motion_mode_allowed(
-        xd->global_motion, xd, mi, features->allow_warped_motion);
+        xd->global_motion, xd, mi, features->allow_warped_motion,
+        cpi->common.features.cur_frame_force_integer_mv);
   }
 
   if (last_motion_mode_allowed == WARPED_CAUSAL) {

@@ -5028,8 +5028,6 @@ static int read_uncompressed_header(AV1Decoder *pbi,
     }
   }
 
-  xd->cur_frame_force_integer_mv = features->cur_frame_force_integer_mv;
-
   for (int i = 0; i < MAX_SEGMENTS; ++i) {
     const int qindex = av1_get_qindex(&cm->seg, i, quant_params->base_qindex);
     xd->lossless[i] =
