@@ -1013,13 +1013,13 @@ static void fill_variance_tree_leaves(
     AV1_COMP *cpi, MACROBLOCK *x, VP128x128 *vt, VP16x16 *vt2,
     PART_EVAL_STATUS *force_split, int avg_16x16[][4], int maxvar_16x16[][4],
     int minvar_16x16[][4], int *variance4x4downsample, int64_t *thresholds,
-    uint8_t *src, int src_stride, const uint8_t *dst, int dst_stride) {
+    uint8_t *src, int src_stride, const uint8_t *dst, int dst_stride,
+    int use_4x4avg) {
   AV1_COMMON *cm = &cpi->common;
   MACROBLOCKD *xd = &x->e_mbd;
   const int is_key_frame = frame_is_intra_only(cm);
   const int is_small_sb = (cm->seq_params->sb_size == BLOCK_64X64);
   const int num_64x64_blocks = is_small_sb ? 1 : 4;
-  // TODO(kyslov) Bring back compute_minmax_variance with content type detection
   const int compute_minmax_variance = 0;
   const int segment_id = xd->mi[0]->segment_id;
   int pixels_wide = 128, pixels_high = 128;
@@ -1079,7 +1079,8 @@ static void fill_variance_tree_leaves(
             maxvar_16x16[m][i] =
                 vt->split[m].split[i].split[j].part_variances.none.variance;
           if (vt->split[m].split[i].split[j].part_variances.none.variance >
-              thresholds[3]) {
+                  thresholds[3] &&
+              !use_4x4avg) {
             // 16X16 variance is above threshold for split, so force split to
             // 8x8 for this 16x16 block (this also forces splits for upper
             // levels).
@@ -1111,7 +1112,10 @@ static void fill_variance_tree_leaves(
             }
           }
         }
-        if (is_key_frame) {
+        if (is_key_frame ||
+            (use_4x4avg &&
+             vt->split[m].split[i].split[j].part_variances.none.variance >
+                 (thresholds[2] << 1))) {
           force_split[split_index] = PART_EVAL_ALL;
           // Go down to 4x4 down-sampling for variance.
           variance4x4downsample[i2 + j] = 1;
@@ -1211,8 +1215,9 @@ static void setup_planes(AV1_COMP *cpi, MACROBLOCK *x, unsigned int *y_sad,
 // Decides whether to split or merge a 16x16 partition block in variance based
 // partitioning based on the 8x8 sub-block variances.
 static AOM_INLINE PART_EVAL_STATUS get_part_eval_based_on_sub_blk_var(
-    VP16x16 *var_16x16_info, int64_t threshold16) {
+    VP16x16 *var_16x16_info, int64_t threshold16, int is_key_frame) {
   int max_8x8_var = 0, min_8x8_var = INT_MAX;
+  int fac_shift = 2;
   for (int k = 0; k < 4; k++) {
     get_variance(&var_16x16_info->split[k].part_variances.none);
     int this_8x8_var = var_16x16_info->split[k].part_variances.none.variance;
@@ -1222,8 +1227,11 @@ static AOM_INLINE PART_EVAL_STATUS get_part_eval_based_on_sub_blk_var(
   // If the difference between maximum and minimum sub-block variances is high,
   // then only evaluate PARTITION_SPLIT for the 16x16 block. Otherwise, evaluate
   // only PARTITION_NONE. The shift factor for threshold16 has been derived
-  // empirically.
-  return ((max_8x8_var - min_8x8_var) > (threshold16 << 2))
+  // empirically. For delta frames: add condition that min_8x8_var is small,
+  // this is to target moving boundary withing 16x16 block, so some area should
+  // be small variance/stationary.
+  return ((max_8x8_var - min_8x8_var) > (threshold16 << fac_shift) &&
+          (is_key_frame || (min_8x8_var < AOMMAX(400, (threshold16 >> 3)))))
              ? PART_EVAL_ONLY_SPLIT
              : PART_EVAL_ONLY_NONE;
 }
@@ -1264,7 +1272,7 @@ int av1_choose_var_based_partitioning(AV1_COMP *cpi, const TileInfo *const tile,
   int avg_16x16[4][4];
   int maxvar_16x16[4][4];
   int minvar_16x16[4][4];
-  int64_t threshold_4x4avg;
+  int use_4x4avg;
   uint8_t *s;
   const uint8_t *d;
   int sp;
@@ -1299,7 +1307,7 @@ int av1_choose_var_based_partitioning(AV1_COMP *cpi, const TileInfo *const tile,
                             vbp_thresholds[2], vbp_thresholds[3],
                             vbp_thresholds[4] };
 
-  const int low_res = (cm->width <= 352 && cm->height <= 288);
+  const int low_res = cm->width * cm->height <= 352 * 288;
   int variance4x4downsample[64];
   const int segment_id = xd->mi[0]->segment_id;
   uint64_t blk_sad = 0;
@@ -1329,9 +1337,6 @@ int av1_choose_var_based_partitioning(AV1_COMP *cpi, const TileInfo *const tile,
                        x->content_state_sb.source_sad_rd, 0, blk_sad,
                        x->content_state_sb.lighting_change);
   }
-
-  // For non keyframes, disable 4x4 average for low resolution when speed = 8
-  threshold_4x4avg = INT64_MAX;
 
   s = x->plane[0].src.buf;
   sp = x->plane[0].src.stride;
@@ -1421,13 +1426,19 @@ int av1_choose_var_based_partitioning(AV1_COMP *cpi, const TileInfo *const tile,
   if (cpi->noise_estimate.enabled)
     noise_level = av1_noise_estimate_extract_level(&cpi->noise_estimate);
 
-  if (low_res && threshold_4x4avg < INT64_MAX)
-    CHECK_MEM_ERROR(cm, vt2, aom_malloc(sizeof(*vt2)));
+  if (cpi->sf.rt_sf.prefer_large_partition_blocks >= 3 && low_res &&
+      thresholds[3] < INT64_MAX) {
+    use_4x4avg = 1;
+    CHECK_MEM_ERROR(cm, vt2, aom_calloc(16, sizeof(*vt2)));
+  } else {
+    use_4x4avg = 0;
+  }
+
   // Fill in the entire tree of 8x8 (or 4x4 under some conditions) variances
   // for splits.
   fill_variance_tree_leaves(cpi, x, vt, vt2, force_split, avg_16x16,
                             maxvar_16x16, minvar_16x16, variance4x4downsample,
-                            thresholds, s, sp, d, dp);
+                            thresholds, s, sp, d, dp, use_4x4avg);
 
   avg_64x64 = 0;
   for (m = 0; m < num_64x64_blocks; ++m) {
@@ -1449,8 +1460,10 @@ int av1_choose_var_based_partitioning(AV1_COMP *cpi, const TileInfo *const tile,
           get_variance(&vtemp->part_variances.none);
           if (vtemp->part_variances.none.variance > thresholds[3]) {
             force_split[split_index] =
-                cpi->sf.rt_sf.vbp_prune_16x16_split_using_min_max_sub_blk_var
-                    ? get_part_eval_based_on_sub_blk_var(vtemp, thresholds[3])
+                cpi->sf.rt_sf.vbp_prune_16x16_split_using_min_max_sub_blk_var ||
+                        (!is_key_frame && use_4x4avg)
+                    ? get_part_eval_based_on_sub_blk_var(vtemp, thresholds[3],
+                                                         is_key_frame)
                     : PART_EVAL_ONLY_SPLIT;
             force_split[5 + m2 + i] = PART_EVAL_ONLY_SPLIT;
             force_split[m + 1] = PART_EVAL_ONLY_SPLIT;
