@@ -39,12 +39,6 @@ class ACMRandom {
 
   int16_t Rand16Signed() { return static_cast<int16_t>(Rand16()); }
 
-  int16_t Rand15Signed() {
-    const uint32_t value =
-        random_.Generate(testing::internal::Random::kMaxRange);
-    return (value >> 17) & 0xffff;
-  }
-
   uint16_t Rand12() {
     const uint32_t value =
         random_.Generate(testing::internal::Random::kMaxRange);
