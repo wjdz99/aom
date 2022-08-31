@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "59d72f76_ad22e44d",
+        "filename": "CHANGELOG",
+        "patchSetId": 2
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-08-31T21:02:56Z",
+      "side": 1,
+      "message": "This is the same as the first item (6-7). Merge these two items.",
+      "revId": "5d5d3d7a6549939acebaab55f1122181e248c51e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4845cc39_e3ac6c29",
+        "filename": "CHANGELOG",
+        "patchSetId": 2
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-08-31T21:02:56Z",
+      "side": 1,
+      "message": "This item refers to the following change:\n\n```\ndiff --git a/av1/arg_defs.c b/av1/arg_defs.c\nindex c51781875..58e6f4e23 100644\n--- a/av1/arg_defs.c\n+++ b/av1/arg_defs.c\n@@ -643,7 +641,8 @@ const av1_codec_arg_definitions_t g_av1_codec_arg_defs \u003d {\n       NULL, \"enable-tx-size-search\", 1,\n       \"Enable transform size search to find the best size for each block. \"\n       \"If false, transforms always have the largest possible size \"\n-      \"(0: false, 1: true (default))\"),\n+      \"(0: false, 1: true (default)). Ignored in non rd pick mode in \"\n+      \"real-time coding.\"),\n \n   .loopfilter_control \u003d ARG_DEF(\n       NULL, \"loopfilter-control\", 1,\n```\n\nThis may be simply an improvement to the help message, i.e., it may merely document the current behavior. If that\u0027s the case, then we don\u0027t need to mention it in CHANGELOG. If this describes a change in behavior, then this should not be documented in the \"New Features\" section.",
+      "revId": "5d5d3d7a6549939acebaab55f1122181e248c51e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
