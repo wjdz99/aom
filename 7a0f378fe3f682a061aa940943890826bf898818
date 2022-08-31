@@ -16,6 +16,24 @@
       "message": "looks like you ended up with 2 Change-Id\u0027s. Moving this above the first one should prevent the insertion of a new one by the hook.",
       "revId": "7a0f378fe3f682a061aa940943890826bf898818",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c2fabfe8_70ed66bf",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-08-31T15:10:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e853e2d8_02ece3b4",
+      "revId": "7a0f378fe3f682a061aa940943890826bf898818",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
