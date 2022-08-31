@@ -1306,7 +1306,8 @@ static void update_stats(const AV1_COMMON *const cm, ThreadData *td) {
       const MOTION_MODE motion_allowed =
           cm->features.switchable_motion_mode
               ? motion_mode_allowed(xd->global_motion, xd, mbmi,
-                                    cm->features.allow_warped_motion)
+                                    cm->features.allow_warped_motion,
+                                    cm->features.cur_frame_force_integer_mv)
               : SIMPLE_TRANSLATION;
       if (mbmi->ref_frame[1] != INTRA_FRAME) {
         if (motion_allowed == WARPED_CAUSAL) {
@@ -1586,7 +1587,8 @@ static void encode_b(const AV1_COMP *const cpi, TileDataEnc *tile_data,
         const MOTION_MODE motion_allowed =
             cm->features.switchable_motion_mode
                 ? motion_mode_allowed(xd->global_motion, xd, mbmi,
-                                      cm->features.allow_warped_motion)
+                                      cm->features.allow_warped_motion,
+                                      cm->features.cur_frame_force_integer_mv)
                 : SIMPLE_TRANSLATION;
 
         if (mbmi->ref_frame[1] != INTRA_FRAME) {

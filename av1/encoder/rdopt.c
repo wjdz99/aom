@@ -1290,7 +1290,8 @@ static int64_t motion_mode_rd(
     // Determine which motion modes to search if more than SIMPLE_TRANSLATION
     // is allowed.
     last_motion_mode_allowed = motion_mode_allowed(
-        xd->global_motion, xd, mbmi, features->allow_warped_motion);
+        xd->global_motion, xd, mbmi, features->allow_warped_motion,
+        features->cur_frame_force_integer_mv);
   }
 
   if (last_motion_mode_allowed == WARPED_CAUSAL) {

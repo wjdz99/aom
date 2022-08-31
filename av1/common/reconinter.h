@@ -135,7 +135,8 @@ void av1_init_comp_mode(InterPredParams *inter_pred_params);
 
 void av1_init_warp_params(InterPredParams *inter_pred_params,
                           const WarpTypesAllowed *warp_types, int ref,
-                          const MACROBLOCKD *xd, const MB_MODE_INFO *mi);
+                          const MACROBLOCKD *xd, const MB_MODE_INFO *mi,
+                          int force_integer_mv);
 
 static INLINE int has_scale(int xs, int ys) {
   return xs != SCALE_SUBPEL_SHIFTS || ys != SCALE_SUBPEL_SHIFTS;

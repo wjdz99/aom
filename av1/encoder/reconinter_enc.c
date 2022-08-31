@@ -274,8 +274,8 @@ void av1_build_obmc_inter_predictors_sb(const AV1_COMMON *cm, MACROBLOCKD *xd) {
 }
 
 void av1_build_inter_predictors_for_planes_single_buf(
-    MACROBLOCKD *xd, BLOCK_SIZE bsize, int plane_from, int plane_to, int ref,
-    uint8_t *ext_dst[], int ext_dst_stride[]) {
+    MACROBLOCKD *xd, BLOCK_SIZE bsize, int force_integer_mv, int plane_from,
+    int plane_to, int ref, uint8_t *ext_dst[], int ext_dst_stride[]) {
   assert(bsize < BLOCK_SIZES_ALL);
   const MB_MODE_INFO *mi = xd->mi[0];
   const int mi_row = xd->mi_row;
@@ -302,7 +302,8 @@ void av1_build_inter_predictors_for_planes_single_buf(
                           xd->block_ref_scale_factors[ref], &pd->pre[ref],
                           mi->interp_filters);
     inter_pred_params.conv_params = get_conv_params(0, plane, xd->bd);
-    av1_init_warp_params(&inter_pred_params, &warp_types, ref, xd, mi);
+    av1_init_warp_params(&inter_pred_params, &warp_types, ref, xd, mi,
+                         force_integer_mv);
 
     uint8_t *const dst = get_buf_by_bd(xd, ext_dst[plane]);
     const MV mv = mi->mv[ref].as_mv;
