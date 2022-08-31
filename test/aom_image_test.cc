@@ -10,6 +10,9 @@
  */
 
 #include "aom/aom_image.h"
+
+#include <climits>
+
 #include "third_party/googletest/src/googletest/include/gtest/gtest.h"
 
 TEST(AomImageTest, AomImgWrapInvalidAlign) {
@@ -41,8 +44,7 @@ TEST(AomImageTest, AomImgSetRectOverflow) {
   EXPECT_EQ(aom_img_wrap(&img, format, kWidth, kHeight, align, buf), &img);
 
   EXPECT_EQ(aom_img_set_rect(&img, 0, 0, kWidth, kHeight, 0), 0);
-  // This would result in overflow because -1 is cast to UINT_MAX.
-  EXPECT_NE(aom_img_set_rect(&img, -1, -1, kWidth, kHeight, 0), 0);
+  EXPECT_NE(aom_img_set_rect(&img, UINT_MAX, UINT_MAX, kWidth, kHeight, 0), 0);
 }
 
 TEST(AomImageTest, AomImgAllocNv12) {
