@@ -92,8 +92,8 @@ void PixelProjErrorTest::RunPixelProjErrorTest(int32_t run_times) {
     for (int i = 0; i < MAX_DATA_BLOCK * MAX_DATA_BLOCK; ++i) {
       dgd_[i] = rng_.Rand8();
       src_[i] = rng_.Rand8();
-      flt0_[i] = rng_.Rand15Signed();
-      flt1_[i] = rng_.Rand15Signed();
+      flt0_[i] = rng_.Rand16Signed();
+      flt1_[i] = rng_.Rand16Signed();
     }
     xq[0] = rng_.Rand8() % (1 << SGRPROJ_PRJ_BITS);
     xq[1] = rng_.Rand8() % (1 << SGRPROJ_PRJ_BITS);
@@ -146,8 +146,8 @@ void PixelProjErrorTest::RunPixelProjErrorTest_ExtremeValues() {
     for (int i = 0; i < MAX_DATA_BLOCK * MAX_DATA_BLOCK; ++i) {
       dgd_[i] = 0;
       src_[i] = 255;
-      flt0_[i] = rng_.Rand15Signed();
-      flt1_[i] = rng_.Rand15Signed();
+      flt0_[i] = rng_.Rand16Signed();
+      flt1_[i] = rng_.Rand16Signed();
     }
     xq[0] = rng_.Rand8() % (1 << SGRPROJ_PRJ_BITS);
     xq[1] = rng_.Rand8() % (1 << SGRPROJ_PRJ_BITS);
@@ -264,8 +264,8 @@ void PixelProjHighbdErrorTest::RunPixelProjErrorTest(int32_t run_times) {
     for (int i = 0; i < MAX_DATA_BLOCK * MAX_DATA_BLOCK; ++i) {
       dgd_[i] = rng_.Rand16() % (1 << 12);
       src_[i] = rng_.Rand16() % (1 << 12);
-      flt0_[i] = rng_.Rand15Signed();
-      flt1_[i] = rng_.Rand15Signed();
+      flt0_[i] = rng_.Rand16Signed();
+      flt1_[i] = rng_.Rand16Signed();
     }
     xq[0] = rng_.Rand8() % (1 << SGRPROJ_PRJ_BITS);
     xq[1] = rng_.Rand8() % (1 << SGRPROJ_PRJ_BITS);
@@ -318,8 +318,8 @@ void PixelProjHighbdErrorTest::RunPixelProjErrorTest_ExtremeValues() {
     for (int i = 0; i < MAX_DATA_BLOCK * MAX_DATA_BLOCK; ++i) {
       dgd_[i] = 0;
       src_[i] = (1 << 12) - 1;
-      flt0_[i] = rng_.Rand15Signed();
-      flt1_[i] = rng_.Rand15Signed();
+      flt0_[i] = rng_.Rand16Signed();
+      flt1_[i] = rng_.Rand16Signed();
     }
     xq[0] = rng_.Rand8() % (1 << SGRPROJ_PRJ_BITS);
     xq[1] = rng_.Rand8() % (1 << SGRPROJ_PRJ_BITS);
@@ -440,8 +440,8 @@ void GetProjSubspaceTest::RunGetProjSubspaceTest(int32_t run_times) {
     for (int i = 0; i < MAX_DATA_BLOCK * MAX_DATA_BLOCK; ++i) {
       dgd_[i] = rng_.Rand8();
       src_[i] = rng_.Rand8();
-      flt0_[i] = rng_.Rand15Signed();
-      flt1_[i] = rng_.Rand15Signed();
+      flt0_[i] = rng_.Rand16Signed();
+      flt1_[i] = rng_.Rand16Signed();
     }
 
     params.r[0] = run_times == 1 ? (rng_.Rand8() % MAX_RADIUS) : 1;
@@ -499,8 +499,8 @@ void GetProjSubspaceTest::RunGetProjSubspaceTest_ExtremeValues() {
     for (int i = 0; i < MAX_DATA_BLOCK * MAX_DATA_BLOCK; ++i) {
       dgd_[i] = 0;
       src_[i] = 255;
-      flt0_[i] = rng_.Rand15Signed();
-      flt1_[i] = rng_.Rand15Signed();
+      flt0_[i] = rng_.Rand16Signed();
+      flt1_[i] = rng_.Rand16Signed();
     }
     params.r[0] = 1;
     params.r[1] = 1;
@@ -619,8 +619,8 @@ void GetProjSubspaceTestHBD::RunGetProjSubspaceTestHBD(int32_t run_times) {
     for (int i = 0; i < MAX_DATA_BLOCK * MAX_DATA_BLOCK; ++i) {
       dgd_[i] = rng_.Rand16() % 4095;
       src_[i] = rng_.Rand16() % 4095;
-      flt0_[i] = rng_.Rand15Signed();
-      flt1_[i] = rng_.Rand15Signed();
+      flt0_[i] = rng_.Rand16Signed();
+      flt1_[i] = rng_.Rand16Signed();
     }
 
     params.r[0] = run_times == 1 ? (rng_.Rand8() % MAX_RADIUS) : 1;
@@ -678,8 +678,8 @@ void GetProjSubspaceTestHBD::RunGetProjSubspaceTestHBD_ExtremeValues() {
     for (int i = 0; i < MAX_DATA_BLOCK * MAX_DATA_BLOCK; ++i) {
       dgd_[i] = 0;
       src_[i] = 4095;
-      flt0_[i] = rng_.Rand15Signed();
-      flt1_[i] = rng_.Rand15Signed();
+      flt0_[i] = rng_.Rand16Signed();
+      flt1_[i] = rng_.Rand16Signed();
     }
     params.r[0] = 1;
     params.r[1] = 1;
