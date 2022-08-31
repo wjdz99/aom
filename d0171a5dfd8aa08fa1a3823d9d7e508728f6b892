@@ -16,6 +16,29 @@
       "message": "Jenkins will probably need a new build config as the dot-product instructions aren\u0027t available with Armv8.0-A. These instructions are available on any Neoverse-N or Neoverse-V core; as well as all Arm Cortex CPUs since the Cortex-A75.\n\nAgain, minimal performance uplift for this patch but every little helps.",
       "revId": "d0171a5dfd8aa08fa1a3823d9d7e508728f6b892",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b75bdc08_bb51343e",
+        "filename": "aom_dsp/arm/sad_neon.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 8471
+      },
+      "writtenOn": "2022-08-31T14:56:43Z",
+      "side": 1,
+      "message": "error: incompatible type for argument 1 of ‘horizontal_add_u16x8’",
+      "range": {
+        "startLine": 99,
+        "startChar": 2,
+        "endLine": 99,
+        "endChar": 57
+      },
+      "revId": "d0171a5dfd8aa08fa1a3823d9d7e508728f6b892",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
