@@ -918,7 +918,7 @@ void av1_set_variance_partition_thresholds(AV1_COMP *cpi, int q,
     set_vbp_thresholds(cpi, cpi->vbp_info.thresholds, q, content_lowsumdiff, 0,
                        0, 0);
     // The threshold below is not changed locally.
-    cpi->vbp_info.threshold_minmax = 15 + (q >> 3);
+    cpi->vbp_info.threshold_minmax = 50 + (q >> 3);
   }
 }
 
@@ -1000,16 +1000,15 @@ static void fill_variance_tree_leaves(
     AV1_COMP *cpi, MACROBLOCK *x, VP128x128 *vt, VP16x16 *vt2,
     PART_EVAL_STATUS *force_split, int avg_16x16[][4], int maxvar_16x16[][4],
     int minvar_16x16[][4], int *variance4x4downsample, int64_t *thresholds,
-    uint8_t *src, int src_stride, const uint8_t *dst, int dst_stride) {
+    uint8_t *src, int src_stride, const uint8_t *dst, int dst_stride,
+    int mi_col, int mi_row) {
   AV1_COMMON *cm = &cpi->common;
   MACROBLOCKD *xd = &x->e_mbd;
   const int is_key_frame = frame_is_intra_only(cm);
   const int is_small_sb = (cm->seq_params->sb_size == BLOCK_64X64);
   const int num_64x64_blocks = is_small_sb ? 1 : 4;
-  // TODO(kyslov) Bring back compute_minmax_variance with content type detection
-  const int compute_minmax_variance = 0;
-  const int segment_id = xd->mi[0]->segment_id;
   int pixels_wide = 128, pixels_high = 128;
+  int low_res = (cm->width * cm->height) <= (352 * 288);
 
   if (is_small_sb) {
     pixels_wide = 64;
@@ -1017,6 +1016,19 @@ static void fill_variance_tree_leaves(
   }
   if (xd->mb_to_right_edge < 0) pixels_wide += (xd->mb_to_right_edge >> 3);
   if (xd->mb_to_bottom_edge < 0) pixels_high += (xd->mb_to_bottom_edge >> 3);
+
+  uint64_t blk_sad = 0;
+  if (cpi->src_sad_blk_64x64 != NULL) {
+    const int sb_size_by_mb = (cm->seq_params->sb_size == BLOCK_128X128)
+                                  ? (cm->seq_params->mib_size >> 1)
+                                  : cm->seq_params->mib_size;
+    const int sb_cols =
+        (cm->mi_params.mi_cols + sb_size_by_mb - 1) / sb_size_by_mb;
+    const int sbi_col = mi_col / sb_size_by_mb;
+    const int sbi_row = mi_row / sb_size_by_mb;
+    blk_sad = cpi->src_sad_blk_64x64[sbi_col + sbi_row * sb_cols];
+  }
+
   for (int m = 0; m < num_64x64_blocks; m++) {
     const int x64_idx = ((m & 1) << 6);
     const int y64_idx = ((m >> 1) << 6);
@@ -1055,24 +1067,31 @@ static void fill_variance_tree_leaves(
               maxvar_16x16[m][i])
             maxvar_16x16[m][i] =
                 vt->split[m].split[i].split[j].part_variances.none.variance;
+          // If 16X16 variance is above threshold for split, force split to
+          // 8x8 for this 16x16 block (this also forces splits for upper
+          // levels)
           if (vt->split[m].split[i].split[j].part_variances.none.variance >
-              thresholds[3]) {
-            // 16X16 variance is above threshold for split, so force split to
-            // 8x8 for this 16x16 block (this also forces splits for upper
-            // levels).
+              thresholds[3]) {         
             force_split[split_index] = PART_EVAL_ONLY_SPLIT;
             force_split[5 + m2 + i] = PART_EVAL_ONLY_SPLIT;
             force_split[m + 1] = PART_EVAL_ONLY_SPLIT;
-            force_split[0] = PART_EVAL_ONLY_SPLIT;
-          } else if (!cyclic_refresh_segment_id_boosted(segment_id) &&
-                     compute_minmax_variance &&
+            force_split[0] = PART_EVAL_ONLY_SPLIT;     
+            // Check for split to 8x8 if superblock sad is high,
+            // and overall frame content is not large. Only for low-resoln
+            // and prefer_large_partition_blocks >= 3.
+          } else if (low_res && thresholds[3] == INT32_MAX &&
+                     cpi->sf.rt_sf.prefer_large_partition_blocks >= 3 &&
+                     blk_sad > 15000 &&
+                     cpi->rc.frame_source_sad < 15000 &&
                      vt->split[m]
                              .split[i]
                              .split[j]
-                             .part_variances.none.variance > thresholds[2]) {
+                             .part_variances.none.variance > thresholds[2] << 1) {
             // We have some nominal amount of 16x16 variance (based on average),
             // compute the minmax over the 8x8 sub-blocks, and if above
-            // threshold, force split to 8x8 block for this 16x16 block.
+            // threshold, force split to 8x8 block for this 16x16 block. 
+            // TODO(marpan): Check if computing 8x8 variance based on
+            // 4x4 downsampling is better than minmax.
             int minmax = compute_minmax_8x8(src, src_stride, dst, dst_stride,
                                             x16_idx, y16_idx,
 #if CONFIG_AV1_HIGHBITDEPTH
@@ -1104,7 +1123,7 @@ static void fill_variance_tree_leaves(
                                  pixels_wide, pixels_high, is_key_frame);
           }
         }
-      }
+      }      
     }
   }
 }
@@ -1387,7 +1406,7 @@ int av1_choose_var_based_partitioning(AV1_COMP *cpi, const TileInfo *const tile,
   // for splits.
   fill_variance_tree_leaves(cpi, x, vt, vt2, force_split, avg_16x16,
                             maxvar_16x16, minvar_16x16, variance4x4downsample,
-                            thresholds, s, sp, d, dp);
+                            thresholds, s, sp, d, dp, mi_col, mi_row);
 
   avg_64x64 = 0;
   for (m = 0; m < num_64x64_blocks; ++m) {
