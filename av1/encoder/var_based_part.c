@@ -1000,7 +1000,8 @@ static void fill_variance_tree_leaves(
     AV1_COMP *cpi, MACROBLOCK *x, VP128x128 *vt, VP16x16 *vt2,
     PART_EVAL_STATUS *force_split, int avg_16x16[][4], int maxvar_16x16[][4],
     int minvar_16x16[][4], int *variance4x4downsample, int64_t *thresholds,
-    uint8_t *src, int src_stride, const uint8_t *dst, int dst_stride) {
+    uint8_t *src, int src_stride, const uint8_t *dst, int dst_stride,
+    int mi_col, int mi_row) {
   AV1_COMMON *cm = &cpi->common;
   MACROBLOCKD *xd = &x->e_mbd;
   const int is_key_frame = frame_is_intra_only(cm);
@@ -1010,6 +1011,7 @@ static void fill_variance_tree_leaves(
   const int compute_minmax_variance = 0;
   const int segment_id = xd->mi[0]->segment_id;
   int pixels_wide = 128, pixels_high = 128;
+  int low_res = (cm->width * cm->height) <= (352 * 288);
 
   if (is_small_sb) {
     pixels_wide = 64;
@@ -1017,6 +1019,22 @@ static void fill_variance_tree_leaves(
   }
   if (xd->mb_to_right_edge < 0) pixels_wide += (xd->mb_to_right_edge >> 3);
   if (xd->mb_to_bottom_edge < 0) pixels_high += (xd->mb_to_bottom_edge >> 3);
+
+  uint64_t blk_sad = 0;
+  if (cpi->src_sad_blk_64x64 != NULL) {
+    const int sb_size_by_mb = (cm->seq_params->sb_size == BLOCK_128X128)
+                                  ? (cm->seq_params->mib_size >> 1)
+                                  : cm->seq_params->mib_size;
+    const int sb_cols =
+        (cm->mi_params.mi_cols + sb_size_by_mb - 1) / sb_size_by_mb;
+    const int sbi_col = mi_col / sb_size_by_mb;
+    const int sbi_row = mi_row / sb_size_by_mb;
+    blk_sad = cpi->src_sad_blk_64x64[sbi_col + sbi_row * sb_cols];
+  }
+
+  //printf("%d %d %d ** %d %d %d ** %d \n", cm->current_frame.frame_number, mi_col, mi_row,
+   //    x->content_state_sb.source_sad_nonrd, cpi->rc.frame_source_sad, blk_sad, 64*64);
+
   for (int m = 0; m < num_64x64_blocks; m++) {
     const int x64_idx = ((m & 1) << 6);
     const int y64_idx = ((m >> 1) << 6);
@@ -1055,15 +1073,20 @@ static void fill_variance_tree_leaves(
               maxvar_16x16[m][i])
             maxvar_16x16[m][i] =
                 vt->split[m].split[i].split[j].part_variances.none.variance;
+          
+          //printf("16x16 var: %d %d %d ** %d %d %d \n", m, i, j, 
+           // vt->split[m].split[i].split[j].part_variances.none.variance, thresholds[3], thresholds[2]);
+
+          // If 16X16 variance is above threshold for split, force split to
+          // 8x8 for this 16x16 block (this also forces splits for upper
+          // levels)
           if (vt->split[m].split[i].split[j].part_variances.none.variance >
-              thresholds[3]) {
-            // 16X16 variance is above threshold for split, so force split to
-            // 8x8 for this 16x16 block (this also forces splits for upper
-            // levels).
+              thresholds[3]) {         
             force_split[split_index] = PART_EVAL_ONLY_SPLIT;
             force_split[5 + m2 + i] = PART_EVAL_ONLY_SPLIT;
             force_split[m + 1] = PART_EVAL_ONLY_SPLIT;
-            force_split[0] = PART_EVAL_ONLY_SPLIT;
+            force_split[0] = PART_EVAL_ONLY_SPLIT;     
+          // TODO(marpan): Check usage of the code blow.
           } else if (!cyclic_refresh_segment_id_boosted(segment_id) &&
                      compute_minmax_variance &&
                      vt->split[m]
@@ -1072,7 +1095,7 @@ static void fill_variance_tree_leaves(
                              .part_variances.none.variance > thresholds[2]) {
             // We have some nominal amount of 16x16 variance (based on average),
             // compute the minmax over the 8x8 sub-blocks, and if above
-            // threshold, force split to 8x8 block for this 16x16 block.
+            // threshold, force split to 8x8 block for this 16x16 block.         
             int minmax = compute_minmax_8x8(src, src_stride, dst, dst_stride,
                                             x16_idx, y16_idx,
 #if CONFIG_AV1_HIGHBITDEPTH
@@ -1102,6 +1125,31 @@ static void fill_variance_tree_leaves(
                                  xd->cur_buf->flags,
 #endif
                                  pixels_wide, pixels_high, is_key_frame);
+          }
+        }
+      }      
+      if (!is_key_frame && low_res && thresholds[3] == INT32_MAX &&
+          cpi->sf.rt_sf.prefer_large_partition_blocks >= 3 &&
+          blk_sad > 20000 && cpi->rc.frame_source_sad < 30000) {
+        // Loop again over 4 16 subblocks.
+        for (int j = 0; j < 4; j++) {
+          const int split_index = 21 + i2 + j;     
+          if (force_split[split_index] == PART_EVAL_ALL &&
+              maxvar_16x16[m][i] > thresholds[2] << 2 &&
+              minvar_16x16[m][i] < thresholds[2]) {
+            get_variance(&vt->split[m].split[i].split[j].part_variances.none);
+          
+           //printf("%d %d %d %d %d \n", i, j, maxvar_16x16[m][i], minvar_16x16[m][i], 
+           // vt->split[m].split[i].split[j].part_variances.none.variance);
+          
+            if (vt->split[m].split[i].split[j].part_variances.none.variance >
+                thresholds[2] << 1) {
+             // printf("NEW SPLIT \n");
+              force_split[split_index] = PART_EVAL_ONLY_SPLIT;
+              force_split[5 + m2 + i] = PART_EVAL_ONLY_SPLIT;
+              force_split[m + 1] = PART_EVAL_ONLY_SPLIT;
+              force_split[0] = PART_EVAL_ONLY_SPLIT;
+            }
           }
         }
       }
@@ -1387,7 +1435,7 @@ int av1_choose_var_based_partitioning(AV1_COMP *cpi, const TileInfo *const tile,
   // for splits.
   fill_variance_tree_leaves(cpi, x, vt, vt2, force_split, avg_16x16,
                             maxvar_16x16, minvar_16x16, variance4x4downsample,
-                            thresholds, s, sp, d, dp);
+                            thresholds, s, sp, d, dp, mi_col, mi_row);
 
   avg_64x64 = 0;
   for (m = 0; m < num_64x64_blocks; ++m) {
