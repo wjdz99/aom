@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4574503d_387a94ce",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-08-31T20:18:00Z",
+      "side": 1,
+      "message": "LGTM.",
+      "revId": "a5fd48ec1ce0ee46641b3fe41bba2732a4762a6b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c113f2ec_c0b11dc8",
+        "filename": "test/acm_random.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-08-31T20:18:00Z",
+      "side": 1,
+      "message": "Nit: It would be good to copy the comment \"There\u0027s a bit more entropy in the upper bits of this implementation.\" here. I wondered about the shifts until I saw the comment at line 51.",
+      "revId": "a5fd48ec1ce0ee46641b3fe41bba2732a4762a6b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7080a0e5_154f8bb2",
+        "filename": "test/acm_random.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-08-31T20:18:00Z",
+      "side": 1,
+      "message": "This is unrelated to this bug. I don\u0027t understand this function. This function doesn\u0027t do sign extension. It returns 0..2^14-1, all nonnegative.",
+      "revId": "a5fd48ec1ce0ee46641b3fe41bba2732a4762a6b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
