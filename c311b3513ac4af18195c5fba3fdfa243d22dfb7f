@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cb60870a_6d31daee",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-09-01T00:49:18Z",
+      "side": 1,
+      "message": "Yunqing, can you take a look at the changelog, specifically\n\n```\n  - New Features\n    * Support for frame parallel encode for larger number of threads. --fp-mt\n      flag is available for all build configurations.\n```\n\nThanks.",
+      "revId": "c311b3513ac4af18195c5fba3fdfa243d22dfb7f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
