@@ -1,0 +1,95 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fb8d0aa7_49d67462",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-09-01T00:43:03Z",
+      "side": 1,
+      "message": "I suggest some changes. Overall this looks good.",
+      "revId": "696f9a3889c4800d34d42b9dcb01842cefeadaa8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "39bb2387_4e9d9dda",
+        "filename": "CHANGELOG",
+        "patchSetId": 3
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-09-01T00:43:03Z",
+      "side": 1,
+      "message": "Nit: will be \u003d\u003e is\n\nWould be good to have Yunqing proofread this item.",
+      "revId": "696f9a3889c4800d34d42b9dcb01842cefeadaa8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "60aad094_16e1e47f",
+        "filename": "CHANGELOG",
+        "patchSetId": 3
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-09-01T00:43:03Z",
+      "side": 1,
+      "message": "Nit: includes \u003d\u003e including",
+      "revId": "696f9a3889c4800d34d42b9dcb01842cefeadaa8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c9008fa3_9f961022",
+        "filename": "CHANGELOG",
+        "patchSetId": 3
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-09-01T00:43:03Z",
+      "side": 1,
+      "message": "Nit: what is \"segm\"? This is okay if this is the actual git commit message\u0027s subject line (which is limited to 50 chars).",
+      "revId": "696f9a3889c4800d34d42b9dcb01842cefeadaa8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3d7349af_b009fe93",
+        "filename": "CHANGELOG",
+        "patchSetId": 3
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-09-01T00:43:03Z",
+      "side": 1,
+      "message": "If this item comes from Ittiam, it is referring to aomedia:3278 (line 49) and should be omitted (or merged into line 49).",
+      "range": {
+        "startLine": 71,
+        "startChar": 0,
+        "endLine": 72,
+        "endChar": 13
+      },
+      "revId": "696f9a3889c4800d34d42b9dcb01842cefeadaa8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
