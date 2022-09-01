@@ -39,6 +39,30 @@
       },
       "revId": "7940f93467f155f3b0593f4eb96fa84d3fb03993",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2b7fac70_c3040db1",
+        "filename": "av1/encoder/arm/neon/wedge_utils_neon.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 31042
+      },
+      "writtenOn": "2022-09-01T13:38:50Z",
+      "side": 1,
+      "message": "For my own understanding - having seen rather a lot of \"const\" around libvpx and libaom and thinking \"why?\" - is this suggestion because we\u0027re loading data that is const (as per the parameter type) or an attempt at something else... e.g. making the compiler\u0027s life easier in some way?",
+      "parentUuid": "40f30ffe_5b718fc5",
+      "range": {
+        "startLine": 36,
+        "startChar": 4,
+        "endLine": 36,
+        "endChar": 18
+      },
+      "revId": "7940f93467f155f3b0593f4eb96fa84d3fb03993",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
