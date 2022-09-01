@@ -111,6 +111,30 @@
       },
       "revId": "7940f93467f155f3b0593f4eb96fa84d3fb03993",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "33885836_233fc3aa",
+        "filename": "av1/encoder/arm/neon/wedge_utils_neon.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 31042
+      },
+      "writtenOn": "2022-09-01T19:46:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7d447be9_558fd88b",
+      "range": {
+        "startLine": 36,
+        "startChar": 4,
+        "endLine": 36,
+        "endChar": 18
+      },
+      "revId": "7940f93467f155f3b0593f4eb96fa84d3fb03993",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
