@@ -2794,6 +2794,7 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
   const CommonQuantParams *quant_params = &cm->quant_params;
   const TxfmSearchParams *txfm_params = &x->txfm_search_params;
   TxfmSearchInfo *txfm_info = &x->txfm_search_info;
+  int force_noskip_color = 0;
 #if COLLECT_PICK_MODE_STAT
   aom_usec_timer_start(&ms_stat.bsize_timer);
 #endif
@@ -3169,6 +3170,12 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
         y_sad = x->pred_mv1_sad[LAST_FRAME];
       set_color_sensitivity(cpi, x, bsize, y_sad, x->source_variance,
                             yv12_mb[LAST_FRAME]);
+      // For screen: if color is set and y_sad is small, don't set
+      // the skip_txfm or blk_skip.
+      if (cpi->oxcf.tune_cfg.content == AOM_CONTENT_SCREEN &&
+          (x->color_sensitivity[0] || x->color_sensitivity[1]) &&
+          (y_sad >> (bw + bh)) < 5)
+        force_noskip_color = 1;
     }
     mi->motion_mode = SIMPLE_TRANSLATION;
 #if !CONFIG_REALTIME_ONLY
@@ -3411,10 +3418,12 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
       best_pickmode.best_tx_size = mi->tx_size;
       best_pickmode.best_ref_frame = ref_frame;
       best_pickmode.best_second_ref_frame = ref_frame2;
-      best_pickmode.best_mode_skip_txfm = this_rdc.skip_txfm;
+      best_pickmode.best_mode_skip_txfm =
+          force_noskip_color ? 0 : this_rdc.skip_txfm;
       best_pickmode.best_mode_initial_skip_flag =
-          (nonskip_rdc.rate == INT_MAX && this_rdc.skip_txfm);
-      if (!best_pickmode.best_mode_skip_txfm) {
+          (!force_noskip_color && nonskip_rdc.rate == INT_MAX &&
+            this_rdc.skip_txfm);
+      if (!force_noskip_color && !best_pickmode.best_mode_skip_txfm) {
         memcpy(best_pickmode.blk_skip, txfm_info->blk_skip,
                sizeof(txfm_info->blk_skip[0]) * num_8x8_blocks);
       }
@@ -3434,7 +3443,8 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
     } else {
       if (reuse_inter_pred) free_pred_buffer(this_mode_pred);
     }
-    if (best_early_term && (idx > 0 || cpi->sf.rt_sf.nonrd_agressive_skip)) {
+    if (best_early_term && !force_noskip_color &&
+        (idx > 0 || cpi->sf.rt_sf.nonrd_agressive_skip)) {
       txfm_info->skip_txfm = 1;
       break;
     }
