@@ -2151,6 +2151,18 @@ static AOM_INLINE void get_ref_frame_use_mask(AV1_COMP *cpi, MACROBLOCK *x,
   assert(use_last_ref_frame || use_golden_ref_frame || use_alt_ref_frame);
 }
 
+// Early exit for intra mode evaluation based on RD cost calcuated using header
+// rate.
+static INLINE int is_intra_mode_early_exit(RD_STATS *this_rdc, int rdmult,
+                                           int64_t best_rd_cost,
+                                           int header_rate) {
+  const int64_t header_rd =
+      RDCOST(rdmult, header_rate + this_rdc->rate, this_rdc->dist);
+
+  // Conservative way of calculating rdcost for early exit
+  return ((7 * header_rd) >> 3 > best_rd_cost);
+}
+
 /*!\brief Estimates best intra mode for inter mode search
  *
  * \ingroup nonrd_mode_search
@@ -2274,6 +2286,13 @@ static void estimate_intra_mode(
     return;
   }
 
+  // Early exit based on RD cost calculated using header rate
+  av1_init_rd_stats(&this_rdc);
+  const int header_rate = ref_cost_intra + intra_cost_penalty;
+  if (is_intra_mode_early_exit(&this_rdc, x->rdmult, best_rdc->rdcost,
+                               header_rate))
+    return;
+
   struct estimate_block_intra_args args = { cpi, x, DC_PRED, 1, 0 };
   TX_SIZE intra_tx_size = AOMMIN(
       AOMMIN(max_txsize_lookup[bsize],
@@ -2343,14 +2362,24 @@ static void estimate_intra_mode(
     // Look into selecting tx_size here, based on prediction residual.
     av1_block_yrd(cpi, x, mi_row, mi_col, &this_rdc, &args.skippable, bsize,
                   mi->tx_size, DCT_DCT, 0);
+
+    // Early exit based on RD cost calculated using header rate
+    if (is_intra_mode_early_exit(&this_rdc, x->rdmult, best_rdc->rdcost,
+                                 header_rate))
+      continue;
+
     // TODO(kyslov@) Need to account for skippable
     if (x->color_sensitivity[0]) {
       av1_foreach_transformed_block_in_plane(xd, uv_bsize, 1,
                                              estimate_block_intra, &args);
     }
     if (x->color_sensitivity[1]) {
+      // Early exit based on RD cost calculated using header rate
+      if (is_intra_mode_early_exit(&this_rdc, x->rdmult, best_rdc->rdcost,
+                                   header_rate))
+        continue;
       av1_foreach_transformed_block_in_plane(xd, uv_bsize, 2,
-                                             estimate_block_intra, &args);
+                                            estimate_block_intra, &args);
     }
 
     int mode_cost = 0;
