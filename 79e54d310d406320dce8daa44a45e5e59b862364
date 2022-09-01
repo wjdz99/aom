@@ -16,6 +16,24 @@
       "message": "in mem_neon.h there\u0027s load_unaligned_u8_4x2(). Is dup expected to be faster than setting a single lane?",
       "revId": "79e54d310d406320dce8daa44a45e5e59b862364",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2ae7143a_98e2ab56",
+        "filename": "aom_dsp/arm/sad4d_neon.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 253,
+      "author": {
+        "id": 31042
+      },
+      "writtenOn": "2022-09-01T23:57:58Z",
+      "side": 1,
+      "message": "It depends on whether the compiler is smart enough to work out that load_unaligned_u8_4x2() - as a whole - is totally destructive.\n\nIf you set a single lane (twice), you have a constructive operation that depends on the rest of the vector already being initialized somehow. If the compiler makes a mess of things (and recent-ish compilers do), the false dependency on the initial value of the vector means you end up with two merges instead of one.\n\nDup is an explicit dependency breaker and also avoids some awkward source code initializing the vector - before we set the lanes individually.",
+      "parentUuid": "748fb270_9054b0ec",
+      "revId": "79e54d310d406320dce8daa44a45e5e59b862364",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
