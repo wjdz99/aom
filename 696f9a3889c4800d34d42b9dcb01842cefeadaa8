@@ -35,6 +35,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ed76d0f6_155a5bf7",
+        "filename": "CHANGELOG",
+        "patchSetId": 3
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-09-01T00:48:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "39bb2387_4e9d9dda",
+      "revId": "696f9a3889c4800d34d42b9dcb01842cefeadaa8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "60aad094_16e1e47f",
@@ -48,6 +66,24 @@
       "writtenOn": "2022-09-01T00:43:03Z",
       "side": 1,
       "message": "Nit: includes \u003d\u003e including",
+      "revId": "696f9a3889c4800d34d42b9dcb01842cefeadaa8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "63dc0960_6e029509",
+        "filename": "CHANGELOG",
+        "patchSetId": 3
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-09-01T00:48:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "60aad094_16e1e47f",
       "revId": "696f9a3889c4800d34d42b9dcb01842cefeadaa8",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -69,6 +105,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "691e27b0_5c01702a",
+        "filename": "CHANGELOG",
+        "patchSetId": 3
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-09-01T00:48:39Z",
+      "side": 1,
+      "message": "should be \"segmentation\". This comes from the subject line of the actual commit message.",
+      "parentUuid": "c9008fa3_9f961022",
+      "revId": "696f9a3889c4800d34d42b9dcb01842cefeadaa8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "3d7349af_b009fe93",
@@ -82,6 +136,30 @@
       "writtenOn": "2022-09-01T00:43:03Z",
       "side": 1,
       "message": "If this item comes from Ittiam, it is referring to aomedia:3278 (line 49) and should be omitted (or merged into line 49).",
+      "range": {
+        "startLine": 71,
+        "startChar": 0,
+        "endLine": 72,
+        "endChar": 13
+      },
+      "revId": "696f9a3889c4800d34d42b9dcb01842cefeadaa8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "72179698_c24cf703",
+        "filename": "CHANGELOG",
+        "patchSetId": 3
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-09-01T00:48:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3d7349af_b009fe93",
       "range": {
         "startLine": 71,
         "startChar": 0,
