@@ -18,6 +18,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "28bd4aa6_a90f47f4",
+        "filename": "CHANGELOG",
+        "patchSetId": 2
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-09-01T00:21:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "59d72f76_ad22e44d",
+      "revId": "5d5d3d7a6549939acebaab55f1122181e248c51e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "4845cc39_e3ac6c29",
@@ -53,6 +71,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "45bc61c6_5cef4e5a",
+        "filename": "CHANGELOG",
+        "patchSetId": 2
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-09-01T00:21:18Z",
+      "side": 1,
+      "message": "I added this change explicitly in the bug fix section.",
+      "parentUuid": "a9ec0b63_ce3b107a",
+      "revId": "5d5d3d7a6549939acebaab55f1122181e248c51e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "863f5fc1_f4527f29",
@@ -66,6 +102,30 @@
       "writtenOn": "2022-08-31T22:44:37Z",
       "side": 1,
       "message": "limited",
+      "range": {
+        "startLine": 49,
+        "startChar": 31,
+        "endLine": 49,
+        "endChar": 39
+      },
+      "revId": "5d5d3d7a6549939acebaab55f1122181e248c51e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7b833d86_facddafb",
+        "filename": "CHANGELOG",
+        "patchSetId": 2
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-09-01T00:21:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "863f5fc1_f4527f29",
       "range": {
         "startLine": 49,
         "startChar": 31,
