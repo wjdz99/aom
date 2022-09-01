@@ -16,6 +16,23 @@
       "message": "An alternative solution is to apply the following patch to av1/encoder/encoder.c. But i believe the current CL is cleaner and fixes the underlying problem altogether.\n\ndiff --git a/av1/encoder/encoder.c b/av1/encoder/encoder.c\nindex 1cdc67065..e322a4d3e 100644\n--- a/av1/encoder/encoder.c\n+++ b/av1/encoder/encoder.c\n@@ -3541,6 +3541,11 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,\n     cpi-\u003ecommon.features.cur_frame_force_integer_mv \u003d 0;\n   }\n \n+  // This is used by av1_pack_bitstream. So this needs to be set in case of\n+  // row-mt where the encoding code will use a temporary structure.\n+  cpi-\u003etd.mb.e_mbd.cur_frame_force_integer_mv \u003d\n+      cpi-\u003ecommon.features.cur_frame_force_integer_mv;\n+\n   // Set default state for segment based loop filter update flags.\n   cm-\u003elf.mode_ref_delta_update \u003d 0;\n \n-- \n",
       "revId": "35c1f8dfc6bc62b8997604195fa63dcb352524bf",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "71f4ad49_d89f6690",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-09-01T22:38:39Z",
+      "side": 1,
+      "message": "This looks ok to me. I\u0027ll let Yunqing have a look.",
+      "revId": "35c1f8dfc6bc62b8997604195fa63dcb352524bf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
