@@ -179,7 +179,8 @@ std::vector<ReferenceFrame> RefFrameManager::GetRefFrameListByPriority() const {
   int ref_frame_count = 0;
   int round_robin_idx = 0;
   std::set<ReferenceName> used_name_set;
-  while (ref_frame_count < available_ref_frames) {
+  while (ref_frame_count < available_ref_frames &&
+         ref_frame_count < max_ref_frames_) {
     const RefUpdateType ref_update_type = round_robin_list[round_robin_idx];
     int priority_idx = priority_idx_list[round_robin_idx];
     int ref_idx = GetRefFrameIdxByPriority(ref_update_type, priority_idx);
