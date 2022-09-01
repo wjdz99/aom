@@ -16,6 +16,23 @@
       "message": "Hi Yunqing and Marco,\n\nThis patch optimizes the heap memory  of TplDepStats structure. The structure holds the statistics related to TPL at 16x16 block level.\nTheoretically the precision of few variables in the structure (related to cost and rate) do not exceed beyond 32-bit as the values are obtained from a function whose return type is 32-bit integer. Hence, precision of the variables can be reduced to 32-bit by delaying the left shift operation at the time of consumption.\nIn this patch, the data type of above variables are reduced to 32-bit to reduce heap memory usage of TplDepStats structure.\n\nPlease check the heap memory savings of this patch.\n```\n                  Peak Memory Reduction(%)\nResolution      Single Thread(good Speed 6)\n640x360                   1.66\n854x480                   1.94\n832x480                   1.99\n1280x720                  1.88\n1920x1080                 2.23\n``` \nSimilar memory reductions are obtained for other speeds as well.\n \nHEAP memory reduction was measured using the following command.\n$valgrind --tool\u003dmassif ./aomenc ...\n",
       "revId": "26f1dec9988ce6632f8692ee3a3ff43707f3b4cd",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b0905d1c_7de0d73f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2022-09-01T23:01:18Z",
+      "side": 1,
+      "message": "Why treat the distortion and rate differently?",
+      "revId": "26f1dec9988ce6632f8692ee3a3ff43707f3b4cd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
