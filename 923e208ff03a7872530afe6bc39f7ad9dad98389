@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4d8ee7a2_315e321f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 9
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8893
+      },
+      "writtenOn": "2022-09-01T10:06:32Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nFor non-svc use case, this patch allocates memory for only one instance of layer_context (i.e., number_spatial_layers\u003d1 and number_temporal_layers\u003d1). For svc use case, the memory usage is unchanged.\n\nThe peak memory reduction achieved for rt preset are as follows:\n```\n                   Peak Memory Reduction (%)\nResolution    cpu 6   cpu 7  cpu 8   cpu 9   cpu 10\n320x180       5.41    5.16   5.16    5.16    5.16\n320x240       4.47    4.70   4.88    4.64    4.64\n640x360       2.44    2.49   2.49    2.49    2.49\n640x480       2.03    2.06   2.06    2.06    2.06\n1280x720      0.83    0.84   0.84    0.84    0.84\n```\nMemory is measured using the command\n valgrind --tool\u003dmassif ./aomenc ...\n \nPlease review.\nThank you.\n\n",
+      "revId": "923e208ff03a7872530afe6bc39f7ad9dad98389",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
