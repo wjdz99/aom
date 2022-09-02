@@ -50,6 +50,24 @@
       "message": "Copying values into xd is a general practice for easy accessing them during block encoding. In MT, they should be copied correctly for each thread.\n\nI looked up the code. This value is copied into xd in encode_sb_row(), which is called by both single \u0026 multiple thread cases. So, not sure why it doesn\u0027t work? Maybe better to figure out the cause and make it work in your testing case?",
       "revId": "35c1f8dfc6bc62b8997604195fa63dcb352524bf",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "305c9a75_3b2037db",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 7025
+      },
+      "writtenOn": "2022-09-02T18:13:20Z",
+      "side": 1,
+      "message": "\u003e Copying values into xd is a general practice for easy accessing them during block encoding. In MT, they should be copied correctly for each thread.\n\u003e \n\nYeah i understand this is being done for convenience. But in this case it is a bit inconsistent (some of the code uses the value from xd while some of the others use it from the cm-\u003efeatures struct). So it seems a bit cleaner to just remove it since there are only two functions that use it from xd.\n\nPlease see the reply below for further explanation about why this is causing the bug.\n\n\u003e I looked up the code. This value is copied into xd in encode_sb_row(), which is called by both single \u0026 multiple thread cases. So, not sure why it doesn\u0027t work? Maybe better to figure out the cause and make it work in your testing case?\n\nYes the value is copied in encode_sb_row() during the encoding process. In case of row-mt, the \"xd\" instance in encode_sb_row() is not the same as the \"xd\" instance in write_tile_obu().\n\nWhile the \"xd\" instance in encode_sb_row() get the correct value of cur_frame_force_integer_mv, the \"xd\" instance in write_tile_obu() does not. So an alternative fix is to set the correct value in that instance as well.\n\nBut my overall point is that, such complexity should not be necessary for the sake of convenience of accessing the value. :)\n\nAnyways, i will leave the decision up to you. The alternative CL that i propose to fix this bug is here: https://aomedia-review.googlesource.com/c/aom/+/162321\n\nPlease let me know which one you prefer.",
+      "parentUuid": "02fc738c_9a1365ac",
+      "revId": "35c1f8dfc6bc62b8997604195fa63dcb352524bf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
