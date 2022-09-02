@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "02115585_ed834bfb",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 7025
+      },
+      "writtenOn": "2022-09-02T19:10:30Z",
+      "side": 1,
+      "message": "An alternative solution that was discussed was to remove the cur_frame_force_integer_mv variable from the MACROBLOCKD structure and simply use the frame level flag in all the code.\n\nThis CL implements that: https://aomedia-review.googlesource.com/c/aom/+/162101\n\nHowever, we decided to go with the solution on this CL.",
+      "revId": "0b94bab1e17b7c7f7762154bda9518281ec0fe05",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
