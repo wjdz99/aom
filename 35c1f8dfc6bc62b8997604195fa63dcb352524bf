@@ -33,6 +33,23 @@
       "message": "This looks ok to me. I\u0027ll let Yunqing have a look.",
       "revId": "35c1f8dfc6bc62b8997604195fa63dcb352524bf",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "02fc738c_9a1365ac",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2022-09-02T00:37:39Z",
+      "side": 1,
+      "message": "Copying values into xd is a general practice for easy accessing them during block encoding. In MT, they should be copied correctly for each thread.\n\nI looked up the code. This value is copied into xd in encode_sb_row(), which is called by both single \u0026 multiple thread cases. So, not sure why it doesn\u0027t work? Maybe better to figure out the cause and make it work in your testing case?",
+      "revId": "35c1f8dfc6bc62b8997604195fa63dcb352524bf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
