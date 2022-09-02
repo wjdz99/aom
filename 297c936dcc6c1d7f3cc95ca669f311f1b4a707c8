@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "51550a3f_55ede025",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-09-02T18:37:21Z",
+      "side": 1,
+      "message": "Please review. Thanks!",
+      "revId": "297c936dcc6c1d7f3cc95ca669f311f1b4a707c8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ad4331c3_8c420493",
+        "filename": "av1/encoder/encode_strategy.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 309,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-09-02T18:37:21Z",
+      "side": 1,
+      "message": "This comment \"temporal_filtered, flush, and frame_update_type are outputs.\" seems out of date. I didn\u0027t try to update it.",
+      "revId": "297c936dcc6c1d7f3cc95ca669f311f1b4a707c8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
