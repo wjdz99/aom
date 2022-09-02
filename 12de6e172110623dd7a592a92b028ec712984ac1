@@ -51,6 +51,42 @@
       "parentUuid": "acad638c_228565a7",
       "revId": "12de6e172110623dd7a592a92b028ec712984ac1",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f27bca51_6b3af729",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-09-02T18:54:09Z",
+      "side": 1,
+      "message": "\u003e LGTM. I didn\u0027t check whether it\u0027s okay to change the ranges of random numbers for the three tests.\n\nRight now the tests are in agreement, but I think some of the code may have been built on incorrect assumptions. The coeff range should be fine, and pickrst is guarded by an assert for the range (-32767, 32767). CFL should probably work with 12-bit values, so 4095 \u003c\u003c 3 for 444 I think.",
+      "parentUuid": "d91d5d7d_b946d163",
+      "revId": "12de6e172110623dd7a592a92b028ec712984ac1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "610139fa_a2daba89",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-09-02T18:54:09Z",
+      "side": 1,
+      "message": "\u003e If by \"behavior\" you meant the range of the random numbers, then this CL changes the behavior in all three tests.\n\u003e \n\u003e The original `Rand15Signed()` is really `Rand14()` with an `int16_t` return type.\n\nThat\u0027s true. When I was commenting about CFL I just meant using the new full range, positive and negative, will fail.",
+      "parentUuid": "68d5a1cf_76e6b906",
+      "revId": "12de6e172110623dd7a592a92b028ec712984ac1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
