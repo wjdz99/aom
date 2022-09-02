@@ -910,7 +910,7 @@ static AOM_INLINE void encode_sb_row(AV1_COMP *cpi, ThreadData *td,
     x->content_state_sb.source_sad_rd = kMedSad;
     x->content_state_sb.lighting_change = 0;
     x->content_state_sb.low_sumdiff = 0;
-    x->force_zeromv_skip = 0;
+    x->force_zeromv_skip_for_sb = 0;
 
     if (cpi->oxcf.mode == ALLINTRA) {
       x->intra_sb_rdmult_modifier = 128;
@@ -1385,6 +1385,30 @@ static int allow_deltaq_mode(AV1_COMP *cpi) {
 #endif  // !CONFIG_REALTIME_ONLY
 }
 
+#define FORCE_ZMV_SKIP_128X128_BLK_DIFF 10000
+#define FORCE_ZMV_SKIP_MAX_PER_PIXEL_DIFF 4
+
+static void populate_exit_thresh_to_force_zeromv_skip(AV1_COMP *cpi) {
+  if (cpi->sf.rt_sf.part_early_exit_zeromv == 0) return;
+
+  const AV1_COMMON *const cm = &cpi->common;
+  const unsigned int thresh_exit_128x128_part = FORCE_ZMV_SKIP_128X128_BLK_DIFF;
+  const int num_128x128_pix =
+      block_size_wide[BLOCK_128X128] * block_size_high[BLOCK_128X128];
+
+  for (BLOCK_SIZE bsize = BLOCK_4X4; bsize < BLOCK_SIZES_ALL; bsize++) {
+    const int num_block_pix = block_size_wide[bsize] * block_size_high[bsize];
+    unsigned int thresh_exit_part_blk =
+        (unsigned int)(thresh_exit_128x128_part *
+                           sqrt((double)num_block_pix / num_128x128_pix) +
+                       0.5);
+    thresh_exit_part_blk = AOMMIN(
+        thresh_exit_part_blk,
+        (unsigned int)(FORCE_ZMV_SKIP_MAX_PER_PIXEL_DIFF * num_block_pix));
+    cpi->zeromv_skip_thresh_exit_part[bsize] = thresh_exit_part_blk;
+  }
+}
+
 /*!\brief Encoder setup(only for the current frame), encoding, and recontruction
  * for a single frame
  *
@@ -1648,6 +1672,7 @@ static AOM_INLINE void encode_frame_internal(AV1_COMP *cpi) {
   // has to be called after 'skip_mode_flag' is initialized.
   av1_initialize_rd_consts(cpi);
   av1_set_sad_per_bit(cpi, &x->sadperbit, quant_params->base_qindex);
+  populate_exit_thresh_to_force_zeromv_skip(cpi);
 
   enc_row_mt->sync_read_ptr = av1_row_mt_sync_read_dummy;
   enc_row_mt->sync_write_ptr = av1_row_mt_sync_write_dummy;

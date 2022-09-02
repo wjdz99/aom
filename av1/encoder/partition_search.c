@@ -2223,6 +2223,43 @@ static void encode_b_nonrd(const AV1_COMP *const cpi, TileDataEnc *tile_data,
                            cm->seq_params->sb_size, bsize, mi_row, mi_col);
 }
 
+static int get_force_zeromv_skip_flag_for_blk(const AV1_COMP *cpi,
+                                              const MACROBLOCK *x,
+                                              BLOCK_SIZE bsize) {
+  // Force zero MV skip based on SB level decision
+  if (x->force_zeromv_skip_for_sb < 2) return x->force_zeromv_skip_for_sb;
+
+  const AV1_COMMON *const cm = &cpi->common;
+  if (bsize == cm->seq_params->sb_size) return 0;
+
+  const int num_planes = av1_num_planes(cm);
+  const MACROBLOCKD *const xd = &x->e_mbd;
+  const unsigned int thresh_exit_part =
+      cpi->zeromv_skip_thresh_exit_part[bsize];
+  const YV12_BUFFER_CONFIG *const yv12 = get_ref_frame_yv12_buf(cm, LAST_FRAME);
+  const struct scale_factors *const sf =
+      get_ref_scale_factors_const(cm, LAST_FRAME);
+
+  struct buf_2d yv12_mb[MAX_MB_PLANE];
+  av1_setup_pred_block(xd, yv12_mb, yv12, sf, sf, num_planes);
+
+  for (int plane = 0; plane < num_planes; ++plane) {
+    const struct macroblock_plane *const p = &x->plane[plane];
+    const struct macroblockd_plane *const pd = &xd->plane[plane];
+    const BLOCK_SIZE bs =
+        get_plane_block_size(bsize, pd->subsampling_x, pd->subsampling_y);
+    const unsigned int plane_sad = cpi->ppi->fn_ptr[bs].sdf(
+        p->src.buf, p->src.stride, yv12_mb[plane].buf, yv12_mb[plane].stride);
+
+    if (plane == 0) {
+      if (plane_sad >= thresh_exit_part) return 0;
+    } else {
+      if (plane_sad >= (3 * thresh_exit_part) >> 2) return 0;
+    }
+  }
+  return 1;
+}
+
 /*!\brief Top level function to pick block mode for non-RD optimized case
  *
  * \ingroup partition_search
@@ -2291,7 +2328,7 @@ static void pick_sb_modes_nonrd(AV1_COMP *const cpi, TileDataEnc *tile_data,
     p[i].txb_entropy_ctx = ctx->txb_entropy_ctx[i];
   }
   for (i = 0; i < 2; ++i) pd[i].color_index_map = ctx->color_index_map[i];
-  if (!x->force_zeromv_skip) {
+  if (x->force_zeromv_skip_for_sb != 1) {
     x->source_variance = av1_get_perpixel_variance_facade(
         cpi, xd, &x->plane[0].src, bsize, AOM_PLANE_Y);
   }
@@ -2331,6 +2368,8 @@ static void pick_sb_modes_nonrd(AV1_COMP *const cpi, TileDataEnc *tile_data,
                                          rd_cost, bsize, ctx,
                                          invalid_rd.rdcost);
     } else {
+      x->force_zeromv_skip_for_blk =
+          get_force_zeromv_skip_flag_for_blk(cpi, x, bsize);
       av1_nonrd_pick_inter_mode_sb(cpi, tile_data, x, rd_cost, bsize, ctx);
     }
 #if CONFIG_COLLECT_COMPONENT_TIMING

@@ -618,7 +618,7 @@ static void model_skip_for_sb_y_large(AV1_COMP *cpi, BLOCK_SIZE bsize,
   TX_SIZE tx_size;
   int k;
 
-  if (x->force_zeromv_skip) {
+  if (x->force_zeromv_skip_for_blk) {
     *early_term = 1;
     rd_stats->rate = 0;
     rd_stats->dist = 0;
@@ -2084,7 +2084,7 @@ static AOM_INLINE void get_ref_frame_use_mask(AV1_COMP *cpi, MACROBLOCK *x,
   }
 
   if (use_last_ref_frame &&
-      (x->nonrd_prune_ref_frame_search > 2 || x->force_zeromv_skip ||
+      (x->nonrd_prune_ref_frame_search > 2 || x->force_zeromv_skip_for_blk ||
        (x->nonrd_prune_ref_frame_search > 1 && bsize > BLOCK_64X64))) {
     use_golden_ref_frame = 0;
     use_alt_ref_frame = 0;
@@ -2773,7 +2773,7 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
   int use_zeromv =
       cpi->oxcf.tune_cfg.content == AOM_CONTENT_SCREEN ||
       ((cpi->oxcf.speed >= 9 && cpi->rc.avg_frame_low_motion > 70) ||
-       cpi->sf.rt_sf.nonrd_agressive_skip || x->force_zeromv_skip);
+       cpi->sf.rt_sf.nonrd_agressive_skip || x->force_zeromv_skip_for_blk);
   int skip_pred_mv = 0;
   const int num_inter_modes =
       use_zeromv ? NUM_INTER_MODES_REDUCED : NUM_INTER_MODES_RT;
@@ -2880,7 +2880,7 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
   get_ref_frame_use_mask(cpi, x, mi, mi_row, mi_col, bsize, gf_temporal_ref,
                          use_ref_frame_mask, &force_skip_low_temp_var);
 
-  skip_pred_mv = x->force_zeromv_skip ||
+  skip_pred_mv = x->force_zeromv_skip_for_blk ||
                  (x->nonrd_prune_ref_frame_search > 2 &&
                   x->color_sensitivity[0] != 2 && x->color_sensitivity[1] != 2);
 
@@ -2987,7 +2987,7 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
 
     if (!use_ref_frame_mask[ref_frame]) continue;
 
-    if (x->force_zeromv_skip &&
+    if (x->force_zeromv_skip_for_blk &&
         ((!(this_mode == NEARESTMV &&
             frame_mv[this_mode][ref_frame].as_int == 0) &&
           this_mode != GLOBALMV) ||
@@ -3246,7 +3246,14 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
                                   &this_early_term, 0, best_pickmode.best_sse,
                                   &var, var_threshold);
       } else {
-        model_rd_for_sb_y(cpi, bsize, x, xd, &this_rdc, &var, 0);
+        if (x->force_zeromv_skip_for_blk) {
+          this_early_term = 1;
+          this_rdc.rate = 0;
+          this_rdc.dist = 0;
+          this_rdc.sse = 0;
+        } else {
+          model_rd_for_sb_y(cpi, bsize, x, xd, &this_rdc, &var, 0);
+        }
       }
       if (!comp_pred) {
         vars[INTER_OFFSET(this_mode)][ref_frame] = var;
@@ -3469,7 +3476,7 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
   ms_stat.num_nonskipped_searches[bsize][DC_PRED]++;
 #endif
 
-  if (!x->force_zeromv_skip)
+  if (!x->force_zeromv_skip_for_blk)
     estimate_intra_mode(cpi, x, bsize, best_early_term,
                         ref_costs_single[INTRA_FRAME], reuse_inter_pred,
                         &orig_dst, tmp, &this_mode_pred, &best_rdc,
@@ -3482,7 +3489,7 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
 
   // Check for IDTX: based only on Y channel, so avoid when color_sen is set.
   if (cpi->oxcf.tune_cfg.content == AOM_CONTENT_SCREEN && !skip_idtx_palette &&
-      !cpi->oxcf.txfm_cfg.use_inter_dct_only && !x->force_zeromv_skip &&
+      !cpi->oxcf.txfm_cfg.use_inter_dct_only && !x->force_zeromv_skip_for_blk &&
       is_inter_mode(best_pickmode.best_mode) &&
       (!cpi->sf.rt_sf.prune_idtx_nonrd ||
        (cpi->sf.rt_sf.prune_idtx_nonrd && bsize <= BLOCK_32X32 &&
@@ -3520,7 +3527,7 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
       av1_allow_palette(cpi->common.features.allow_screen_content_tools,
                         mi->bsize);
   try_palette = try_palette && is_mode_intra(best_pickmode.best_mode) &&
-                x->source_variance > 0 && !x->force_zeromv_skip &&
+                x->source_variance > 0 && !x->force_zeromv_skip_for_blk &&
                 (cpi->rc.high_source_sad || x->source_variance > 500);
 
   if (try_palette) {
