@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "da28d2d0_1ca0e08d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 29295
+      },
+      "writtenOn": "2022-09-02T13:17:56Z",
+      "side": 1,
+      "message": "Hi Yunqing/Marco,\n\nPlease review this refactor CL. \n\nNote that the two sfs reduce_mv_pel_precision_highmotion and reduce_mv_pel_precision_lowcomplex cannot be combined into 1 sf, because they both are needed for the screen-content case.\n\nWe plan to do experiments and submit a small speed-up CL later.\n\nThanks,\nNeeraj",
+      "revId": "f8ece37172afa31b7c40c63f91e5ba7af1f20fb8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
