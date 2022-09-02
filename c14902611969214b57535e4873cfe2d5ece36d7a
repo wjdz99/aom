@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "889819be_8433c044",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2022-09-02T13:40:44Z",
+      "side": 1,
+      "message": "Hi Yunqing and Marco,\n\nThe sf ‘screen_content_cdef_filter_qindex_thresh’ is used to decide qindex based CDEF filter strength estimation for screen contents and it was introduced in https://aomedia-review.googlesource.com/c/aom/+/158542.\n\nWe benchmarked the performance of the speed feature by disabling it. Please check the Borg test results for the rtc-screen test set.\n```\ncpu      Test set      Instruction count           BD-Rate Loss (%)\n                         Reduction(%)       avg.psnr  ovr.psnr   ssim\n9        rtc-screen        0.714           -4.8792   -2.4861    -2.7659\n10       rtc-screen       -2.445           -8.9942   -3.8213    -5.5718\n```\nAs per our understanding this change was targeted to improve quality with encode time increase. But according to the above data for the latest code, this sf is not in trade-off for speed 9.  Hence, this CL disables the same for speed 9. Maximum BD-Rate drop observed for this change is \u003c 0.1% for speed 9.\n\nWe also ensured that no change in encoder stats for –tune-content\u003ddefault configuration.\n\nPlease review the patch.\n\nThanks \u0026 Regards,\nVenkata.",
+      "revId": "c14902611969214b57535e4873cfe2d5ece36d7a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
