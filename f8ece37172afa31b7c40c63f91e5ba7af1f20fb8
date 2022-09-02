@@ -18,6 +18,23 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "7fdfd386_43875613",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 29295
+      },
+      "writtenOn": "2022-09-02T17:55:34Z",
+      "side": 1,
+      "message": "Thanks for reviewing.",
+      "revId": "f8ece37172afa31b7c40c63f91e5ba7af1f20fb8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "07d73709_1d183ec2",
@@ -31,6 +48,24 @@
       "writtenOn": "2022-09-02T15:57:00Z",
       "side": 1,
       "message": "Since this enabled at speed 7/8, wondering if it should also be enabled at 9/10 (lowcomplex\u003d2, as in speed \u003e\u003d 7), can check what the tradeoff is there?",
+      "revId": "f8ece37172afa31b7c40c63f91e5ba7af1f20fb8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "71922032_3d409e5f",
+        "filename": "av1/encoder/speed_features.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1350,
+      "author": {
+        "id": 29295
+      },
+      "writtenOn": "2022-09-02T17:55:34Z",
+      "side": 1,
+      "message": "Hi Marco, \n\nThe results with lowcomplex \u003d 2 for speed 9/10 seem out of trade-off:\n```\n                 Instr Count        BD-Rate Loss(%)       \ncpu Resolution   Reduction(%)    avg.psnr ovr.psnr  ssim  \n 9    HDRES        0.847          0.4810  0.4570   0.4754  \n10    HDRES        0.650          0.7308  0.7216   0.6680    \t       \n```\nThe worst-case drops are also \u003e 1%: \n```\ncpu 9 : vidyo1_1280x720_60: 1.32% (avg.psnr)\ncpu 10: vidyo1_1280x720_60: 2.20% (avg.psnr)\n```\n\nWe can potentially tune a less-aggressive setting. If it shows good trade-off and no artifacts, we can submit as a separate CL. \n\nThanks,\nNeeraj",
+      "parentUuid": "07d73709_1d183ec2",
       "revId": "f8ece37172afa31b7c40c63f91e5ba7af1f20fb8",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
