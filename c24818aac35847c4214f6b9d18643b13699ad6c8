@@ -51,6 +51,24 @@
       "parentUuid": "dd1db033_0a2eabd6",
       "revId": "c24818aac35847c4214f6b9d18643b13699ad6c8",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "754b23d0_ae3d4ef9",
+        "filename": "aom_dsp/arm/sad4d_neon.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 31042
+      },
+      "writtenOn": "2022-09-02T18:36:41Z",
+      "side": 1,
+      "message": "The ACLE is the source of truth here: https://arm-software.github.io/acle/main/acle.html",
+      "parentUuid": "da2578c2_3eb7cc5b",
+      "revId": "c24818aac35847c4214f6b9d18643b13699ad6c8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
