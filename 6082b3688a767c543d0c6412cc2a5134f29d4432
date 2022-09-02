@@ -54,6 +54,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "f9b0aff6_ee0d48b6",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 2916,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2022-09-02T02:56:26Z",
+      "side": 1,
+      "message": "Not relevant to this patch, but some minor variable naming style enforcement might help us to avoid situations like the ones that lead to this patch. I know this is just C code, but cpi/ppi are, imo, indefensibly awful variable names.",
+      "parentUuid": "68bf8f99_592ca1f8",
+      "revId": "6082b3688a767c543d0c6412cc2a5134f29d4432",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "1bccf458_89e30f50",
         "filename": "av1/encoder/encoder.c",
         "patchSetId": 1
