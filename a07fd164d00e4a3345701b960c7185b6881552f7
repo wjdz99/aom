@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7f4384d6_b81c4bbf",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-09-03T02:08:15Z",
+      "side": 1,
+      "message": "Bug: b/240412144",
+      "revId": "a07fd164d00e4a3345701b960c7185b6881552f7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "67c2953b_a9eab1d0",
+        "filename": "av1/encoder/encode_strategy.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1002,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-09-03T02:08:15Z",
+      "side": 1,
+      "message": "it seems like this condition is not satisfied on the first few frames, so valid_rf_idx will still be -1 and then remapped_ref_idx will be all -1",
+      "range": {
+        "startLine": 1002,
+        "startChar": 10,
+        "endLine": 1002,
+        "endChar": 72
+      },
+      "revId": "a07fd164d00e4a3345701b960c7185b6881552f7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
