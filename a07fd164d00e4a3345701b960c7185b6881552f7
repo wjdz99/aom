@@ -39,6 +39,30 @@
       },
       "revId": "a07fd164d00e4a3345701b960c7185b6881552f7",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "dbfc6697_7ecb9d87",
+        "filename": "av1/encoder/encode_strategy.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1002,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2022-09-03T04:52:58Z",
+      "side": 1,
+      "message": "Done\n\nChanged line 1000 to be initialized with 0. In case where the reference frame list is empty, the remapped table will be set to all 0.",
+      "parentUuid": "67c2953b_a9eab1d0",
+      "range": {
+        "startLine": 1002,
+        "startChar": 10,
+        "endLine": 1002,
+        "endChar": 72
+      },
+      "revId": "a07fd164d00e4a3345701b960c7185b6881552f7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
