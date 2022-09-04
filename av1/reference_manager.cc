@@ -81,10 +81,14 @@ int RefFrameManager::GetRefFrameIdxByPriority(RefUpdateType ref_update_type,
   if (ref_update_type == RefUpdateType::kForward) {
     int size = static_cast<int>(forward_stack_.size());
     if (priority_idx < size) {
-      if (priority_idx == 0)
-        return forward_stack_[priority_idx];
-      else
-        return forward_stack_[size - priority_idx];
+      if (allow_two_fwd_frames_) {
+        if (priority_idx == 0)
+          return forward_stack_[0];
+        else
+          return forward_stack_[size - priority_idx];
+      } else {
+        return forward_stack_[size - 1 - priority_idx];
+      }
     }
   } else if (ref_update_type == RefUpdateType::kBackward) {
     int size = static_cast<int>(backward_queue_.size());
@@ -178,6 +182,7 @@ std::vector<ReferenceFrame> RefFrameManager::GetRefFrameListByPriority() const {
   std::vector<ReferenceFrame> ref_frame_list;
   int ref_frame_count = 0;
   int round_robin_idx = 0;
+
   std::set<ReferenceName> used_name_set;
   while (ref_frame_count < available_ref_frames &&
          ref_frame_count < max_ref_frames_) {
@@ -299,6 +304,9 @@ ReferenceFrame RefFrameManager::GetPrimaryRefFrame(
 }
 
 void RefFrameManager::UpdateRefFrameTable(GopFrame *gop_frame) {
+  allow_two_fwd_frames_ =
+      (max_ref_frames_ - !!GetRefFrameCountByType(RefUpdateType::kBackward) -
+       !!GetRefFrameCountByType(RefUpdateType::kLast)) > 1;
   gop_frame->ref_frame_list = GetRefFrameListByPriority();
   gop_frame->primary_ref_frame = GetPrimaryRefFrame(*gop_frame);
   gop_frame->colocated_ref_idx = ColocatedRefIdx(gop_frame->global_order_idx);
