@@ -16,6 +16,46 @@
       "message": "We need to check the coding performance due to this change in v2, as whether it provides benefit or damage depends on the codec behavior to a large extent.",
       "revId": "650dc2600d0212214f2f3feccbe1b7c5da7c5501",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "97d1632d_60b2b558",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-09-05T17:17:04Z",
+      "side": 1,
+      "message": "does this only work for max 3 ref frames or can be generalized to max N ref frames where N \u003c 7?",
+      "revId": "650dc2600d0212214f2f3feccbe1b7c5da7c5501",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "86a8e6a0_9c81e9c9",
+        "filename": "av1/reference_manager.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 308,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-09-05T17:17:04Z",
+      "side": 1,
+      "message": "is this typo?",
+      "range": {
+        "startLine": 308,
+        "startChar": 25,
+        "endLine": 308,
+        "endChar": 27
+      },
+      "revId": "650dc2600d0212214f2f3feccbe1b7c5da7c5501",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
