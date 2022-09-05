@@ -55,6 +55,29 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "df7e8ac4_fcc4a2c4",
+        "filename": "av1/reference_manager.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-09-05T20:23:02Z",
+      "side": 1,
+      "message": "I\u0027m not sure I understand the reasoning behind this logic.\n\nIn the allow_two_fwd_frames_ case, there\u0027s a special case to make the first forward reference – which should be kAltrefFrame –  the highest priority.\n\nWhy isn\u0027t that appropriate when there are only 3 refs?",
+      "range": {
+        "startLine": 90,
+        "startChar": 0,
+        "endLine": 90,
+        "endChar": 55
+      },
+      "revId": "650dc2600d0212214f2f3feccbe1b7c5da7c5501",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "86a8e6a0_9c81e9c9",
         "filename": "av1/reference_manager.cc",
         "patchSetId": 1
