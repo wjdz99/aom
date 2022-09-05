@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fcd6b1b2_fca4d579",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 10
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8893
+      },
+      "writtenOn": "2022-09-05T08:05:53Z",
+      "side": 1,
+      "message": "Hi Yunqing, Marco,\n\nPlease merge this patch. \n\nThanks. ",
+      "revId": "79d4c30e0f7ea59dbe5ddcacf167de8523882166",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
