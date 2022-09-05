@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "da368b9c_b945635e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 6245
+      },
+      "writtenOn": "2022-09-05T18:41:22Z",
+      "side": 1,
+      "message": "Hi Marco, Yunqing,\nIn this CL, zeromv-skip decision is extended to block level. In the parent version, the superblocks with lower SAD wrt recon LAST_FRAME were allowed to be marked as zeromv-skip.  In this CL, the decision is improved by recalculating SAD w.r.t recon frame at block level. \n\nPlease check the borg results for rtc-screen test-set below. The CL is verified to be bit-exact for –rt speed\u003d7 to 10 and rtc-screen speed\u003d7,8.\n```\n     Instruction Count             BD-Rate Loss(%)\ncpu    Reduction(%)         avg.psnr   ovr.psnr    ssim\n 9        1.294             -1.5024    -0.1591   -0.8699\n10        1.622             -1.4131    -0.7806   -1.5506\n```\nPlease check the maximum BD-Rate impact for rtc-screen testset below. Out of 8 contents, 6 contents have shown BD-Rate improvement for speed\u003d9 and 7 contents have shown BD-Rate improvement for speed\u003d10 (for Avg. PSNR metric). \n```\n                                                     \tBD-Rate Loss(%)\ncpu             content               \t\tavg.psnr   ovr.psnr    ssim\n 9      screen_recording_crd.1920_1080   \t 0.9543     0.3305    0.7650\n10      slides_webplot.1920_1080   \t         0.6407     0.5413    0.0061\n```\n\nThe instruction count reduction specified has been measured using command:\n $ perf stat -e instructions:u ./aomenc …\n\nThough there are maximum drops as quoted above, we feel that the current CL tries to save the bits for static blocks with good reconstruction quality. Hence there seem to be BD-Rate savings.\n\nPlease let us know your thoughts on the CL.\n\nRegards,\nRanjit\n",
+      "revId": "aa54c06f2fdf4472a372e7b74757930fbb90f785",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d2027a48_6dfc4e08",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1404,
+      "author": {
+        "id": 6245
+      },
+      "writtenOn": "2022-09-05T18:41:22Z",
+      "side": 1,
+      "message": "The thresholds of 5000 and 10000 are taken from the parent version. Refer to\nhttps://aomedia-review.googlesource.com/c/aom/+/162381/3/av1/encoder/var_based_part.c#:~:text\u003dconst%20unsigned%20int,5000%20%3A%2010000\n\nThe code below ensures that thresholds hold good for 64x64 and 128x128 blocks/superblocks.",
+      "range": {
+        "startLine": 1394,
+        "startChar": 0,
+        "endLine": 1404,
+        "endChar": 44
+      },
+      "revId": "aa54c06f2fdf4472a372e7b74757930fbb90f785",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
