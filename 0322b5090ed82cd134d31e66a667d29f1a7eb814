@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6c69b46e_3e8caaf4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 9
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8893
+      },
+      "writtenOn": "2022-09-05T18:46:24Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nIn this patch, the function \u0027aom_extend_frame_borders\u0027 is multi-threaded along with CDEF/loop-restoration. Currently, when cdef and loop-restoration are disabled, frame border extension is not multi-threaded along with loop filter (loop-filtering of a superblock row modifies the pixels of the above superblock row and logic to wait for above superblock row to complete needs to be implemented). \n  \nThe multi-thread encode time reduction for rt with row-mt\u003d1 is as follows:\n```\ncpu  Resolution   Tiles  Threads Encode time reduction (%)\n 7    180p          2x1     2        1.7\n 8    180p          2x1     2        1.2\n 9    360p          4x1     4        4.0\n 10   720p          4x1     4        1.5\n 10   1080p screen  4x1     4        1.5\n```\nAlso, we have verified the patch to be bit-exact in good preset with no change in encode time. \n\nPlease review.\n\nThanks",
+      "revId": "0322b5090ed82cd134d31e66a667d29f1a7eb814",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
