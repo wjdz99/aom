@@ -16,6 +16,24 @@
       "message": "It\u0027ll be good to add this bug fix to CHANGELOG",
       "revId": "9a64d05397890fef19b6460502740d80358a9a58",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9a897c3b_6f33672d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-09-06T20:25:07Z",
+      "side": 1,
+      "message": "\u003e It\u0027ll be good to add this bug fix to CHANGELOG\n\nThanks for the reminder. I\u0027ll do that in a followup:\nhttps://aomedia-review.googlesource.com/c/aom/+/162441",
+      "parentUuid": "e1fe80cd_d31e7b38",
+      "revId": "9a64d05397890fef19b6460502740d80358a9a58",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ],
   "submitRequirementResults": [
