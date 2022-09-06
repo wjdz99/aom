@@ -1196,8 +1196,10 @@ void av1_first_pass_row(AV1_COMP *cpi, ThreadData *td, TileDataEnc *tile_data,
 
     // Adjust to the next column of MBs.
     x->plane[0].src.buf += fp_block_size_width;
-    x->plane[1].src.buf += uv_mb_height;
-    x->plane[2].src.buf += uv_mb_height;
+    if (num_planes > 1) {
+      x->plane[1].src.buf += uv_mb_height;
+      x->plane[2].src.buf += uv_mb_height;
+    }
 
     recon_yoffset += fp_block_size_width;
     src_yoffset += fp_block_size_width;
