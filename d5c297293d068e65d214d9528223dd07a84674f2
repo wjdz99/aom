@@ -33,6 +33,24 @@
       "message": "Just curious, if only using commit 48d8e6f, would it cause the same failures?\nAlso is there any doc on how we test against the test vectors? It would be helpful to be able to reproduce these failures locally.",
       "revId": "d5c297293d068e65d214d9528223dd07a84674f2",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b73fc0e3_d922b360",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-09-06T18:46:47Z",
+      "side": 1,
+      "message": "\u003e Just curious, if only using commit 48d8e6f, would it cause the same failures?\n\nI can test that, but it wouldn\u0027t be safe to revert only the follow up due to the assertion failure.\n\nGiven the bisection I did I\u0027m assuming it passed at 48d8e6f.\n\n\u003e Also is there any doc on how we test against the test vectors? It would be helpful to be able to reproduce these failures locally.\n\nI can provide you some details offline.",
+      "parentUuid": "f9ce9977_f6aafa05",
+      "revId": "d5c297293d068e65d214d9528223dd07a84674f2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
