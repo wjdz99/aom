@@ -16,6 +16,23 @@
       "message": "Gives us another ~0.3%.",
       "revId": "bb190712d9e73edf0fc96e0065ce3920aed2aea4",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e612e30c_61cf40d9",
+        "filename": "aom_dsp/arm/variance_neon.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 452,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-09-06T23:01:03Z",
+      "side": 1,
+      "message": "any difference if you return *sse here rather than duplicating the horizontal_add?",
+      "revId": "bb190712d9e73edf0fc96e0065ce3920aed2aea4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
