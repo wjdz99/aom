@@ -16,6 +16,24 @@
       "message": "I guess it\u0027s the `seq_params-\u003eseq_level_idx[i] \u003d\u003d SEQ_LEVEL_MAX` check that\u0027s causing problems.",
       "revId": "34f2a6eaf5d0c49bd55dddfe8be62789043fb396",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9e93dc8a_c87d964f",
+        "filename": "av1/common/tile_common.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2022-09-06T17:58:31Z",
+      "side": 0,
+      "message": "That is indeed very possible. Let me discuss with In-Suk and see if we can only use this for 7.x and 8.x, but not SEQ_LEVEL_MAX.",
+      "parentUuid": "b49b22e2_e2867329",
+      "revId": "34f2a6eaf5d0c49bd55dddfe8be62789043fb396",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
