@@ -105,6 +105,24 @@
       "parentUuid": "89053d09_64d28686",
       "revId": "eca07d597c573f3be9f69b5bc01a6f79d220d9ed",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fab568af_1434cf11",
+        "filename": "aom_dsp/simd/v64_intrinsics_x86.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 185,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-09-07T20:35:45Z",
+      "side": 1,
+      "message": "\u003e \u003e I found more expressions like this in aom_dsp/simd/v64_intrinsics_c.h, e.g.,\n\u003e \u003e \n\u003e \u003e ```\n\u003e \u003e SIMD_INLINE c_v64 c_v64_sadd_s16(c_v64 a, c_v64 b) {\n\u003e \u003e   c_v64 t;\n\u003e \u003e   int c;\n\u003e \u003e   for (c \u003d 0; c \u003c 4; c++)\n\u003e \u003e     t.s16[c] \u003d (int32_t)a.s16[c] + (int32_t)b.s16[c] \u003e 32767\n\u003e \u003e                    ? 32767\n\u003e \u003e                    : (int32_t)a.s16[c] + (int32_t)b.s16[c] \u003c -32768\n\u003e \u003e                          ? -32768\n\u003e \u003e                          : (int32_t)a.s16[c] + (int32_t)b.s16[c];\n\u003e \u003e   return t;\n\u003e \u003e }\n\u003e \u003e \n\u003e \u003e ...\n\u003e \u003e \n\u003e \u003e SIMD_INLINE c_v64 c_v64_pack_s32_u16(c_v64 a, c_v64 b) {\n\u003e \u003e   c_v64 t;\n\u003e \u003e   if (CONFIG_BIG_ENDIAN) {\n\u003e \u003e     c_v64 u \u003d a;\n\u003e \u003e     a \u003d b;\n\u003e \u003e     b \u003d u;\n\u003e \u003e   }\n\u003e \u003e   t.u16[3] \u003d a.s32[1] \u003e 65535 ? 65535 : a.s32[1] \u003c 0 ? 0 : a.s32[1];\n\u003e \u003e   t.u16[2] \u003d a.s32[0] \u003e 65535 ? 65535 : a.s32[0] \u003c 0 ? 0 : a.s32[0];\n\u003e \u003e   t.u16[1] \u003d b.s32[1] \u003e 65535 ? 65535 : b.s32[1] \u003c 0 ? 0 : b.s32[1];\n\u003e \u003e   t.u16[0] \u003d b.s32[0] \u003e 65535 ? 65535 : b.s32[0] \u003c 0 ? 0 : b.s32[0];\n\u003e \u003e   return t;\n\u003e \u003e }\n\u003e \u003e ```\n\u003e \u003e \n\u003e \u003e I suggest we define a SIMD_CLAMP macro in either aom_dsp/aom_simd.h or aom_dsp/aom_simd_inline.h and use SIMD_CLAMP in these files.\n\u003e \u003e \n\u003e \u003e We can also report this example to the maintainers of clang-format and ask for their suggestions. Although the expression `ah \u003e 65535 ? 65535 : ah \u003c 0 ? 0 : ah` looks complicated at first, it is equivalent to the familiar if-else-if-else structure, so it\u0027s easy to learn to parse it without any parentheses or formatting aid. Maybe there is a configuration setting we can set in our clang-format style file.\n\u003e \n\u003e The only one that mentions ternaries is: BreakBeforeTernaryOperators:\n\u003e \n\u003e ```\n\u003e return v64_from_16(ah \u003e 65535 ? 65535 :\n\u003e                    ah \u003c 0     ? 0 :\n\u003e                                 ah,\n\u003e                    al \u003e 65535 ? 65535 :\n\u003e                    al \u003c 0     ? 0 :\n\u003e                                 al,\n\u003e                    bh \u003e 65535 ? 65535 :\n\u003e                    bh \u003c 0     ? 0 :\n\u003e                                 bh,\n\u003e                    bl \u003e 65535 ? 65535 :\n\u003e                    bl \u003c 0     ? 0 :\n\u003e                                 bl);\n\u003e ```\n\nI added SIMD_CLAMP",
+      "parentUuid": "da261554_1b54c44c",
+      "revId": "eca07d597c573f3be9f69b5bc01a6f79d220d9ed",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
