@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f92c6e03_5f63d47f",
+        "filename": "av1/encoder/encodeframe_utils.c",
+        "patchSetId": 17
+      },
+      "lineNbr": 1320,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2022-09-07T17:33:18Z",
+      "side": 1,
+      "message": "since the top/left superblock may be partitioned, is this the coding block corresponding to the top/left corner of the current superblock?",
+      "revId": "f6469bc66376fa947aefc5c9ec32399929c4d56a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "02ed4ca0_bec04db4",
+        "filename": "av1/encoder/encodeframe_utils.c",
+        "patchSetId": 17
+      },
+      "lineNbr": 1449,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2022-09-07T17:33:18Z",
+      "side": 1,
+      "message": "is the threshold for cpi-\u003esf.rt_sf.use_rtc_tf \u003d\u003d 2 generally higher/lower than level 1 case?",
+      "revId": "f6469bc66376fa947aefc5c9ec32399929c4d56a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c10a9c39_0b1fb8ee",
+        "filename": "av1/encoder/speed_features.c",
+        "patchSetId": 17
+      },
+      "lineNbr": 1282,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2022-09-07T17:33:18Z",
+      "side": 1,
+      "message": "good to document the difference between level 2 and 1 (in speed_features.h)?",
+      "revId": "f6469bc66376fa947aefc5c9ec32399929c4d56a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
