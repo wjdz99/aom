@@ -92,6 +92,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "2a8c91b1_e1496883",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2022-09-07T23:11:47Z",
+      "side": 1,
+      "message": "Looks good to me. Thanks for checking the visual quality. Will let Marco take a look.",
+      "parentUuid": "6438c253_244d37a3",
+      "revId": "aa54c06f2fdf4472a372e7b74757930fbb90f785",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "fef681c3_13ffc697",
         "filename": "av1/encoder/block.h",
         "patchSetId": 4
@@ -127,6 +145,30 @@
       "side": 1,
       "message": "force_zeromv_skip_for_sb captures SB level flag which needs to be maintained until all the coding blocks in SB are coded. Hence force_zeromv_skip_for_sb and force_zeromv_skip_for_blk need to be stored separately. However it is possible to combine these 2 variables using bit-fields which may not be cleaner.\nPlease let us know if you see any issues with our understanding.",
       "parentUuid": "fef681c3_13ffc697",
+      "range": {
+        "startLine": 1025,
+        "startChar": 1,
+        "endLine": 1029,
+        "endChar": 32
+      },
+      "revId": "aa54c06f2fdf4472a372e7b74757930fbb90f785",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fdb23fc1_3d2b6aa2",
+        "filename": "av1/encoder/block.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 1029,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2022-09-07T23:11:47Z",
+      "side": 1,
+      "message": "I see. Question: are these 2 values exclusive? Namely, when it gets to use force_zeromv_skip_for_blk, is force_zeromv_skip_for_sb still needed? Anyway, we can think about it later.",
+      "parentUuid": "595cdb6b_5bd988c9",
       "range": {
         "startLine": 1025,
         "startChar": 1,
