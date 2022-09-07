@@ -16,6 +16,29 @@
       "message": "This patch provides a 5% boost, and should be an easy backport to libvpx. (I intend to do the backport once all libaom patches are merged.)",
       "revId": "9575886dac03c21ce5252a965286c6bc583fca1f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "02dda5d2_b618e26a",
+        "filename": "aom_dsp/arm/subpel_variance_neon.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 249,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-09-07T19:01:33Z",
+      "side": 1,
+      "message": "the macro is defined as SPECIALIZED_*",
+      "range": {
+        "startLine": 249,
+        "startChar": 7,
+        "endLine": 249,
+        "endChar": 18
+      },
+      "revId": "9575886dac03c21ce5252a965286c6bc583fca1f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
