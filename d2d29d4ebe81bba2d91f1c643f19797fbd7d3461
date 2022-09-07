@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "55cc5db8_a083b5ea",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-09-07T19:30:35Z",
+      "side": 1,
+      "message": "Jingning, Marco: Please review. Thanks.\n\nI need to encode an AV1 bitstream that contains frames of increasing sizes. Some buffers that are allocated based on the size of the first (smaller) frame (the initial cfg.g_w and cfg.g_h) will be too small when we encode the second (larger) frame. I propose that we allocate these buffers based on the maximum frame size (cfg.g_forced_max_frame_width and cfg.g_forced_max_frame_height).",
+      "revId": "d2d29d4ebe81bba2d91f1c643f19797fbd7d3461",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
