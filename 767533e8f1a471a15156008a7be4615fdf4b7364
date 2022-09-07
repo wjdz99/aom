@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "53978a84_7d23c188",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 31042
+      },
+      "writtenOn": "2022-09-07T21:30:14Z",
+      "side": 1,
+      "message": "This one gives us an extra ~1% over the basic Neon implementation in the previous patch.",
+      "revId": "767533e8f1a471a15156008a7be4615fdf4b7364",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
