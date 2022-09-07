@@ -18,6 +18,7 @@
 #include "config/aom_config.h"
 
 #include "aom/aom_integer.h"
+#include "aom_dsp/x86/synonyms.h"
 
 static INLINE int16_t loadu_int16(const void *src) {
   int16_t v;
@@ -41,7 +42,7 @@ static INLINE void _mm_storeh_epi64(__m128i *const d, const __m128i s) {
   _mm_storeh_pi((__m64 *)d, _mm_castsi128_ps(s));
 }
 
-static INLINE __m128i loadh_epi64(const void *const src, const __m128i s) {
+static INLINE __m128i _mm_loadh_epi64(const void *const src, const __m128i s) {
   return _mm_castps_si128(
       _mm_loadh_pi(_mm_castsi128_ps(s), (const __m64 *)src));
 }
@@ -58,7 +59,7 @@ static INLINE __m128i load_8bit_8x2_to_1_reg_sse2(const void *const src,
                                                   const int byte_stride) {
   __m128i dst;
   dst = _mm_loadl_epi64((__m128i *)((int8_t *)src + 0 * byte_stride));
-  dst = loadh_epi64((int8_t *)src + 1 * byte_stride, dst);
+  dst = _mm_loadh_epi64((int8_t *)src + 1 * byte_stride, dst);
   return dst;
 }
 
@@ -162,6 +163,19 @@ static INLINE void storeu_8bit_16x4(const __m128i *const s, uint8_t *const d,
   _mm_storeu_si128((__m128i *)(d + 1 * stride), s[1]);
   _mm_storeu_si128((__m128i *)(d + 2 * stride), s[2]);
   _mm_storeu_si128((__m128i *)(d + 3 * stride), s[3]);
+}
+
+static INLINE __m128i load_u8_8x2_sse2(const uint8_t *const src,
+                                       const ptrdiff_t stride) {
+  return load_8bit_8x2_to_1_reg_sse2(src, (int)sizeof(*src) * stride);
+}
+
+static AOM_FORCE_INLINE void store_u8_4x2_sse2(const __m128i src,
+                                               uint8_t *const dst,
+                                               const ptrdiff_t stride) {
+  xx_storel_32(dst, src);
+  *(int32_t *)(dst + stride) =
+      (_mm_extract_epi16(src, 3) << 16) | _mm_extract_epi16(src, 2);
 }
 
 #endif  // AOM_AOM_DSP_X86_MEM_SSE2_H_
