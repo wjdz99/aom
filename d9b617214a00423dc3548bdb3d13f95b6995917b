@@ -16,6 +16,24 @@
       "message": "This change is performance neutral but removes quite a lot of code, while also laying the ground work for optimization in the next patch.\n\nThis pair of patches optimizing subpel variance ought to be backported to libvpx - potentially just a copy-and-paste job. (I intend to do this once all the libaom patches are merged.) ",
       "revId": "d9b617214a00423dc3548bdb3d13f95b6995917b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "dab3e0f2_314253cc",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-09-07T19:02:36Z",
+      "side": 1,
+      "message": "\u003e This change is performance neutral but removes quite a lot of code, while also laying the ground work for optimization in the next patch.\n\u003e \n\u003e This pair of patches optimizing subpel variance ought to be backported to libvpx - potentially just a copy-and-paste job. (I intend to do this once all the libaom patches are merged.) \n\nThank you for your attention to this.",
+      "parentUuid": "4687f4e3_11691aac",
+      "revId": "d9b617214a00423dc3548bdb3d13f95b6995917b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
