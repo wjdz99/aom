@@ -20,6 +20,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "62bf466b_21fc6ac3",
+        "filename": "av1/encoder/encodeframe_utils.c",
+        "patchSetId": 17
+      },
+      "lineNbr": 1320,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2022-09-07T17:55:16Z",
+      "side": 1,
+      "message": "Yes. I am trying to use the information from the nearest neighbor blocks.",
+      "parentUuid": "f92c6e03_5f63d47f",
+      "revId": "f6469bc66376fa947aefc5c9ec32399929c4d56a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "02ed4ca0_bec04db4",
         "filename": "av1/encoder/encodeframe_utils.c",
         "patchSetId": 17
@@ -37,6 +55,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "bb932468_30f90ee3",
+        "filename": "av1/encoder/encodeframe_utils.c",
+        "patchSetId": 17
+      },
+      "lineNbr": 1449,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2022-09-07T17:55:16Z",
+      "side": 1,
+      "message": "cpi-\u003esf.rt_sf.use_rtc_tf \u003d\u003d 2 is more conservative than level 1.",
+      "parentUuid": "02ed4ca0_bec04db4",
+      "revId": "f6469bc66376fa947aefc5c9ec32399929c4d56a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "c10a9c39_0b1fb8ee",
         "filename": "av1/encoder/speed_features.c",
         "patchSetId": 17
@@ -48,6 +84,24 @@
       "writtenOn": "2022-09-07T17:33:18Z",
       "side": 1,
       "message": "good to document the difference between level 2 and 1 (in speed_features.h)?",
+      "revId": "f6469bc66376fa947aefc5c9ec32399929c4d56a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "dab3c4c6_587d9274",
+        "filename": "av1/encoder/speed_features.c",
+        "patchSetId": 17
+      },
+      "lineNbr": 1282,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2022-09-07T17:55:16Z",
+      "side": 1,
+      "message": "Will do.",
+      "parentUuid": "c10a9c39_0b1fb8ee",
       "revId": "f6469bc66376fa947aefc5c9ec32399929c4d56a",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
