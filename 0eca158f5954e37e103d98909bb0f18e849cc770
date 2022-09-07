@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "14db18e6_896144a9",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-09-07T01:39:55Z",
+      "side": 1,
+      "message": "LGTM.",
+      "revId": "0eca158f5954e37e103d98909bb0f18e849cc770",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "522278e1_beabaca4",
+        "filename": "av1/encoder/firstpass.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1177,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-09-07T01:39:55Z",
+      "side": 1,
+      "message": "Optional: Inside `firstpass_intra_prediction()` and `firstpass_inter_prediction()` (line 1182) there is code that probably should receive the same treatment.\n\nFor example, in `firstpass_intra_prediction()` we have:\n\n```\n  xd-\u003eplane[0].dst.buf \u003d this_frame-\u003ey_buffer + y_offset;\n  xd-\u003eplane[1].dst.buf \u003d this_frame-\u003eu_buffer + uv_offset;\n  xd-\u003eplane[2].dst.buf \u003d this_frame-\u003ev_buffer + uv_offset;\n```",
+      "revId": "0eca158f5954e37e103d98909bb0f18e849cc770",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
