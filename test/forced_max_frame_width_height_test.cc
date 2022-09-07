@@ -23,6 +23,168 @@
 
 namespace {
 
+// cfg.g_lag_in_frames must be set to 0 or 1 to allow the frame size to change,
+// as required by the following check in encoder_set_config() in
+// av1/av1_cx_iface.c:
+//
+//   if (cfg->g_w != ctx->cfg.g_w || cfg->g_h != ctx->cfg.g_h) {
+//     if (cfg->g_lag_in_frames > 1 || cfg->g_pass != AOM_RC_ONE_PASS)
+//       ERROR("Cannot change width or height after initialization");
+//     ...
+//   }
+
+#if !CONFIG_REALTIME_ONLY
+
+TEST(EncodeForcedMaxFrameWidthHeight, DISABLED_GoodQualityLag0TunePSNR) {
+  // A buffer of gray samples. Large enough for 128x128 and 256x256, YUV 4:2:0.
+  constexpr size_t kImageDataSize = 256 * 256 + 2 * 128 * 128;
+  std::unique_ptr<unsigned char[]> img_data(new unsigned char[kImageDataSize]);
+  ASSERT_NE(img_data, nullptr);
+  memset(img_data.get(), 128, kImageDataSize);
+
+  aom_codec_iface_t *iface = aom_codec_av1_cx();
+  aom_codec_enc_cfg_t cfg;
+  EXPECT_EQ(AOM_CODEC_OK,
+            aom_codec_enc_config_default(iface, &cfg, AOM_USAGE_GOOD_QUALITY));
+  cfg.g_w = 128;
+  cfg.g_h = 128;
+  cfg.g_forced_max_frame_width = 256;
+  cfg.g_forced_max_frame_height = 256;
+  cfg.g_lag_in_frames = 0;
+  aom_codec_ctx_t enc;
+  EXPECT_EQ(AOM_CODEC_OK, aom_codec_enc_init(&enc, iface, &cfg, 0));
+  EXPECT_EQ(AOM_CODEC_OK, aom_codec_set_option(&enc, "tune", "psnr"));
+
+  aom_image_t img;
+  EXPECT_EQ(&img,
+            aom_img_wrap(&img, AOM_IMG_FMT_I420, 128, 128, 1, img_data.get()));
+  EXPECT_EQ(AOM_CODEC_OK, aom_codec_encode(&enc, &img, 0, 1, 0));
+
+  cfg.g_w = 256;
+  cfg.g_h = 256;
+  EXPECT_EQ(AOM_CODEC_OK, aom_codec_enc_config_set(&enc, &cfg));
+
+  EXPECT_EQ(&img,
+            aom_img_wrap(&img, AOM_IMG_FMT_I420, 256, 256, 1, img_data.get()));
+  EXPECT_EQ(AOM_CODEC_OK, aom_codec_encode(&enc, &img, 0, 1, 0));
+
+  EXPECT_EQ(AOM_CODEC_OK, aom_codec_encode(&enc, nullptr, 0, 0, 0));
+  EXPECT_EQ(AOM_CODEC_OK, aom_codec_destroy(&enc));
+}
+
+TEST(EncodeForcedMaxFrameWidthHeight, DISABLED_GoodQualityLag0TuneSSIM) {
+  // A buffer of gray samples. Large enough for 128x128 and 256x256, YUV 4:2:0.
+  constexpr size_t kImageDataSize = 256 * 256 + 2 * 128 * 128;
+  std::unique_ptr<unsigned char[]> img_data(new unsigned char[kImageDataSize]);
+  ASSERT_NE(img_data, nullptr);
+  memset(img_data.get(), 128, kImageDataSize);
+
+  aom_codec_iface_t *iface = aom_codec_av1_cx();
+  aom_codec_enc_cfg_t cfg;
+  EXPECT_EQ(AOM_CODEC_OK,
+            aom_codec_enc_config_default(iface, &cfg, AOM_USAGE_GOOD_QUALITY));
+  cfg.g_w = 128;
+  cfg.g_h = 128;
+  cfg.g_forced_max_frame_width = 256;
+  cfg.g_forced_max_frame_height = 256;
+  cfg.g_lag_in_frames = 0;
+  aom_codec_ctx_t enc;
+  EXPECT_EQ(AOM_CODEC_OK, aom_codec_enc_init(&enc, iface, &cfg, 0));
+  EXPECT_EQ(AOM_CODEC_OK, aom_codec_set_option(&enc, "tune", "ssim"));
+
+  aom_image_t img;
+  EXPECT_EQ(&img,
+            aom_img_wrap(&img, AOM_IMG_FMT_I420, 128, 128, 1, img_data.get()));
+  EXPECT_EQ(AOM_CODEC_OK, aom_codec_encode(&enc, &img, 0, 1, 0));
+
+  cfg.g_w = 256;
+  cfg.g_h = 256;
+  EXPECT_EQ(AOM_CODEC_OK, aom_codec_enc_config_set(&enc, &cfg));
+
+  EXPECT_EQ(&img,
+            aom_img_wrap(&img, AOM_IMG_FMT_I420, 256, 256, 1, img_data.get()));
+  EXPECT_EQ(AOM_CODEC_OK, aom_codec_encode(&enc, &img, 0, 1, 0));
+
+  EXPECT_EQ(AOM_CODEC_OK, aom_codec_encode(&enc, nullptr, 0, 0, 0));
+  EXPECT_EQ(AOM_CODEC_OK, aom_codec_destroy(&enc));
+}
+
+TEST(EncodeForcedMaxFrameWidthHeight, DISABLED_GoodQualityLag1TunePSNR) {
+  // A buffer of gray samples. Large enough for 128x128 and 256x256, YUV 4:2:0.
+  constexpr size_t kImageDataSize = 256 * 256 + 2 * 128 * 128;
+  std::unique_ptr<unsigned char[]> img_data(new unsigned char[kImageDataSize]);
+  ASSERT_NE(img_data, nullptr);
+  memset(img_data.get(), 128, kImageDataSize);
+
+  aom_codec_iface_t *iface = aom_codec_av1_cx();
+  aom_codec_enc_cfg_t cfg;
+  EXPECT_EQ(AOM_CODEC_OK,
+            aom_codec_enc_config_default(iface, &cfg, AOM_USAGE_GOOD_QUALITY));
+  cfg.g_w = 128;
+  cfg.g_h = 128;
+  cfg.g_forced_max_frame_width = 256;
+  cfg.g_forced_max_frame_height = 256;
+  cfg.g_lag_in_frames = 1;
+  aom_codec_ctx_t enc;
+  EXPECT_EQ(AOM_CODEC_OK, aom_codec_enc_init(&enc, iface, &cfg, 0));
+  EXPECT_EQ(AOM_CODEC_OK, aom_codec_set_option(&enc, "tune", "psnr"));
+
+  aom_image_t img;
+  EXPECT_EQ(&img,
+            aom_img_wrap(&img, AOM_IMG_FMT_I420, 128, 128, 1, img_data.get()));
+  EXPECT_EQ(AOM_CODEC_OK, aom_codec_encode(&enc, &img, 0, 1, 0));
+
+  cfg.g_w = 256;
+  cfg.g_h = 256;
+  EXPECT_EQ(AOM_CODEC_OK, aom_codec_enc_config_set(&enc, &cfg));
+
+  EXPECT_EQ(&img,
+            aom_img_wrap(&img, AOM_IMG_FMT_I420, 256, 256, 1, img_data.get()));
+  EXPECT_EQ(AOM_CODEC_OK, aom_codec_encode(&enc, &img, 0, 1, 0));
+
+  EXPECT_EQ(AOM_CODEC_OK, aom_codec_encode(&enc, nullptr, 0, 0, 0));
+  EXPECT_EQ(AOM_CODEC_OK, aom_codec_destroy(&enc));
+}
+
+TEST(EncodeForcedMaxFrameWidthHeight, DISABLED_GoodQualityLag1TuneSSIM) {
+  // A buffer of gray samples. Large enough for 128x128 and 256x256, YUV 4:2:0.
+  constexpr size_t kImageDataSize = 256 * 256 + 2 * 128 * 128;
+  std::unique_ptr<unsigned char[]> img_data(new unsigned char[kImageDataSize]);
+  ASSERT_NE(img_data, nullptr);
+  memset(img_data.get(), 128, kImageDataSize);
+
+  aom_codec_iface_t *iface = aom_codec_av1_cx();
+  aom_codec_enc_cfg_t cfg;
+  EXPECT_EQ(AOM_CODEC_OK,
+            aom_codec_enc_config_default(iface, &cfg, AOM_USAGE_GOOD_QUALITY));
+  cfg.g_w = 128;
+  cfg.g_h = 128;
+  cfg.g_forced_max_frame_width = 256;
+  cfg.g_forced_max_frame_height = 256;
+  cfg.g_lag_in_frames = 1;
+  aom_codec_ctx_t enc;
+  EXPECT_EQ(AOM_CODEC_OK, aom_codec_enc_init(&enc, iface, &cfg, 0));
+  EXPECT_EQ(AOM_CODEC_OK, aom_codec_set_option(&enc, "tune", "ssim"));
+
+  aom_image_t img;
+  EXPECT_EQ(&img,
+            aom_img_wrap(&img, AOM_IMG_FMT_I420, 128, 128, 1, img_data.get()));
+  EXPECT_EQ(AOM_CODEC_OK, aom_codec_encode(&enc, &img, 0, 1, 0));
+
+  cfg.g_w = 256;
+  cfg.g_h = 256;
+  EXPECT_EQ(AOM_CODEC_OK, aom_codec_enc_config_set(&enc, &cfg));
+
+  EXPECT_EQ(&img,
+            aom_img_wrap(&img, AOM_IMG_FMT_I420, 256, 256, 1, img_data.get()));
+  EXPECT_EQ(AOM_CODEC_OK, aom_codec_encode(&enc, &img, 0, 1, 0));
+
+  EXPECT_EQ(AOM_CODEC_OK, aom_codec_encode(&enc, nullptr, 0, 0, 0));
+  EXPECT_EQ(AOM_CODEC_OK, aom_codec_destroy(&enc));
+}
+
+#endif  // !CONFIG_REALTIME_ONLY
+
 TEST(EncodeForcedMaxFrameWidthHeight, RealtimeTunePSNR) {
   // A buffer of gray samples. Large enough for 128x128 and 256x256, YUV 4:2:0.
   constexpr size_t kImageDataSize = 256 * 256 + 2 * 128 * 128;
