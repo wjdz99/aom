@@ -33,6 +33,24 @@
       "message": "Optional: Inside `firstpass_intra_prediction()` and `firstpass_inter_prediction()` (line 1182) there is code that probably should receive the same treatment.\n\nFor example, in `firstpass_intra_prediction()` we have:\n\n```\n  xd-\u003eplane[0].dst.buf \u003d this_frame-\u003ey_buffer + y_offset;\n  xd-\u003eplane[1].dst.buf \u003d this_frame-\u003eu_buffer + uv_offset;\n  xd-\u003eplane[2].dst.buf \u003d this_frame-\u003ev_buffer + uv_offset;\n```",
       "revId": "0eca158f5954e37e103d98909bb0f18e849cc770",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "22fef697_16015072",
+        "filename": "av1/encoder/firstpass.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1177,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-09-07T01:56:38Z",
+      "side": 1,
+      "message": "\u003e Optional: Inside `firstpass_intra_prediction()` and `firstpass_inter_prediction()` (line 1182) there is code that probably should receive the same treatment.\n\u003e \n\u003e For example, in `firstpass_intra_prediction()` we have:\n\u003e \n\u003e ```\n\u003e   xd-\u003eplane[0].dst.buf \u003d this_frame-\u003ey_buffer + y_offset;\n\u003e   xd-\u003eplane[1].dst.buf \u003d this_frame-\u003eu_buffer + uv_offset;\n\u003e   xd-\u003eplane[2].dst.buf \u003d this_frame-\u003ev_buffer + uv_offset;\n\u003e ```\n\nGood point. I didn\u0027t look around and was only going by the MonochromeTest results.",
+      "parentUuid": "522278e1_beabaca4",
+      "revId": "0eca158f5954e37e103d98909bb0f18e849cc770",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
