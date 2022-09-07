@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5b3e97c6_f9d07105",
+        "filename": "third_party/googletest/src/googlemock/include/gmock/internal/gmock-internal-utils.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 302,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-09-07T20:38:01Z",
+      "side": 0,
+      "message": "Here is the warning message:\n\n```\nIn file included from aom/third_party/googletest/src/googlemock/include/gmock/gmock-actions.h:145,\n                 from aom/third_party/googletest/src/googlemock/include/gmock/gmock.h:59,\n                 from aom/test/mock_ratectrl_qmode.h:16,\n                 from aom/test/ratectrl_qmode_test.cc:26:\naom/third_party/googletest/src/googlemock/include/gmock/internal/gmock-internal-utils.h: In function ‘T testing::internal::Invalid() [with T \u003d aom::StatusOr\u003caom::GopEncodeInfo\u003e]’:\naom/third_party/googletest/src/googlemock/include/gmock/internal/gmock-internal-utils.h:296:10: warning: infinite recursion detected [-Winfinite-recursion]\n  296 | inline T Invalid() {\n      |          ^~~~~~~\naom/third_party/googletest/src/googlemock/include/gmock/internal/gmock-internal-utils.h:301:21: note: recursive call\n  301 |   return Invalid\u003cT\u003e();\n      |                     ^\naom/third_party/googletest/src/googlemock/include/gmock/internal/gmock-internal-utils.h: In function ‘T testing::internal::Invalid() [with T \u003d aom::StatusOr\u003cstd::vector\u003caom::GopStruct\u003e \u003e]’:\naom/third_party/googletest/src/googlemock/include/gmock/internal/gmock-internal-utils.h:296:10: warning: infinite recursion detected [-Winfinite-recursion]\n  296 | inline T Invalid() {\n      |          ^~~~~~~\naom/third_party/googletest/src/googlemock/include/gmock/internal/gmock-internal-utils.h:301:21: note: recursive call\n  301 |   return Invalid\u003cT\u003e();\n      |                     ^\n```",
+      "revId": "c99499a53bd5795d3351d26e7863578b96149acf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
