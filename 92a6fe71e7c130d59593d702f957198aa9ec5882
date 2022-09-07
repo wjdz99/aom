@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8b8cb5b7_25c909a1",
+        "filename": "av1/common/x86/av1_convolve_scale_sse4.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 429,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-09-07T02:23:35Z",
+      "side": 1,
+      "message": "Nit: We can also replace `subbed` with `result`. Alternatively, declare a `subbed` variable in line 417 and use it in lines 417-418. The goal is to make lines 417-423 and lines 429-433 almost the same.",
+      "revId": "92a6fe71e7c130d59593d702f957198aa9ec5882",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
