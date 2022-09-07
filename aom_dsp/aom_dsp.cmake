@@ -91,7 +91,8 @@ list(APPEND AOM_DSP_COMMON_INTRIN_SSE4_1
             "${AOM_ROOT}/aom_dsp/x86/blend_a64_mask_sse4.c"
             "${AOM_ROOT}/aom_dsp/x86/blend_a64_vmask_sse4.c"
             "${AOM_ROOT}/aom_dsp/x86/intrapred_sse4.c"
-            "${AOM_ROOT}/aom_dsp/x86/intrapred_utils.h")
+            "${AOM_ROOT}/aom_dsp/x86/intrapred_utils.h"
+            "${AOM_ROOT}/aom_dsp/x86/mem_sse4_1.h")
 
 list(APPEND AOM_DSP_COMMON_INTRIN_AVX2
             "${AOM_ROOT}/aom_dsp/x86/aom_convolve_copy_avx2.c"
@@ -103,7 +104,8 @@ list(APPEND AOM_DSP_COMMON_INTRIN_AVX2
             "${AOM_ROOT}/aom_dsp/x86/intrapred_avx2.c"
             "${AOM_ROOT}/aom_dsp/x86/loopfilter_avx2.c"
             "${AOM_ROOT}/aom_dsp/x86/blend_a64_mask_avx2.c"
-            "${AOM_ROOT}/aom_dsp/x86/bitdepth_conversion_avx2.h")
+            "${AOM_ROOT}/aom_dsp/x86/bitdepth_conversion_avx2.h"
+            "${AOM_ROOT}/aom_dsp/x86/mem_avx2.h")
 
 list(APPEND AOM_DSP_COMMON_INTRIN_NEON
             "${AOM_ROOT}/aom_dsp/arm/aom_convolve_copy_neon.c"
