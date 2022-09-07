@@ -567,6 +567,8 @@ static void init_config(struct AV1_COMP *cpi, const AV1EncoderConfig *oxcf) {
   cpi->oxcf = *oxcf;
   cpi->framerate = oxcf->input_cfg.init_framerate;
 
+  assert(cm->width == 0);
+  assert(cm->height == 0);
   cm->width = oxcf->frm_dim_cfg.width;
   cm->height = oxcf->frm_dim_cfg.height;
   cpi->is_dropped_frame = false;
@@ -592,6 +594,8 @@ static void init_config(struct AV1_COMP *cpi, const AV1EncoderConfig *oxcf) {
 
   // change includes all joint functionality
   av1_change_config(cpi, oxcf, false);
+  assert(cm->width == oxcf->frm_dim_cfg.width);
+  assert(cm->height == oxcf->frm_dim_cfg.height);
 
   cpi->ref_frame_flags = 0;
 
@@ -817,6 +821,8 @@ void av1_change_config(struct AV1_COMP *cpi, const AV1EncoderConfig *oxcf,
   }
   cm->width = frm_dim_cfg->width;
   cm->height = frm_dim_cfg->height;
+  cm->superres_upscaled_width = frm_dim_cfg->width;
+  cm->superres_upscaled_height = frm_dim_cfg->height;
 
   if (initial_dimensions->width || is_sb_size_changed) {
     if (cm->width > initial_dimensions->width ||
@@ -1443,8 +1449,8 @@ AV1_COMP *av1_create_compressor(AV1_PRIMARY *ppi, const AV1EncoderConfig *oxcf,
 
   av1_loop_filter_init(cm);
   cm->superres_scale_denominator = SCALE_NUMERATOR;
-  cm->superres_upscaled_width = oxcf->frm_dim_cfg.width;
-  cm->superres_upscaled_height = oxcf->frm_dim_cfg.height;
+  assert(cm->superres_upscaled_width == oxcf->frm_dim_cfg.width);
+  assert(cm->superres_upscaled_height == oxcf->frm_dim_cfg.height);
 #if !CONFIG_REALTIME_ONLY
   av1_loop_restoration_precal();
 #endif
