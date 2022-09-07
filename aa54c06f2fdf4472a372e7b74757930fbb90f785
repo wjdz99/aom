@@ -72,6 +72,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "6438c253_244d37a3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 6245
+      },
+      "writtenOn": "2022-09-07T20:13:21Z",
+      "side": 1,
+      "message": "Done. As suggested, we have introduced sf level 2 and enabled the same for speed\u003d9. sf level 1 is used for speed\u003d10. Hence the CL impacts only speed\u003d9.\nWe shall try to enable the sf for speed\u003d10 once the artifact issues of speed\u003d10 are resolved.\n\nWe verified the visual quality for CRD clip (screen_recording_crd.1920_1080) at high bit-rates and found that it is looking similar to that of parent version. We feel that this is expected as tx skipping is forced for coding blocks that have lesser difference with relevant recon. \nHowever it can be explored to improve the quality by adjusting threshold based on quantizer (i.e., smaller threshold at high bit-rates, vice versa), for part_early_exit_zeromv\u003d1 as well.",
+      "parentUuid": "51cefc50_12030e61",
+      "revId": "aa54c06f2fdf4472a372e7b74757930fbb90f785",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "fef681c3_13ffc697",
@@ -85,6 +103,30 @@
       "writtenOn": "2022-09-07T17:51:27Z",
       "side": 1,
       "message": "Combine these 2 to 1 feature? This can be done in a separate cl.",
+      "range": {
+        "startLine": 1025,
+        "startChar": 1,
+        "endLine": 1029,
+        "endChar": 32
+      },
+      "revId": "aa54c06f2fdf4472a372e7b74757930fbb90f785",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "595cdb6b_5bd988c9",
+        "filename": "av1/encoder/block.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 1029,
+      "author": {
+        "id": 6245
+      },
+      "writtenOn": "2022-09-07T20:13:21Z",
+      "side": 1,
+      "message": "force_zeromv_skip_for_sb captures SB level flag which needs to be maintained until all the coding blocks in SB are coded. Hence force_zeromv_skip_for_sb and force_zeromv_skip_for_blk need to be stored separately. However it is possible to combine these 2 variables using bit-fields which may not be cleaner.\nPlease let us know if you see any issues with our understanding.",
+      "parentUuid": "fef681c3_13ffc697",
       "range": {
         "startLine": 1025,
         "startChar": 1,
