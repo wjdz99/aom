@@ -18,6 +18,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "06190e4f_459ec08a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2022-09-07T17:42:50Z",
+      "side": 1,
+      "message": "Can you wrap the change around the speed feature, something like:\npart_early_exit_zeromv \u003d 0 (off) 1 (at sb level only), 2 (at coding block level).\n\nAnd only enable it for speed 9, let\u0027s keep if off for speed 10 for now (until further visual testing, since we have artifact issue we\u0027re currently dealing with for usage at speed 10).",
+      "parentUuid": "da368b9c_b945635e",
+      "revId": "aa54c06f2fdf4472a372e7b74757930fbb90f785",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d2027a48_6dfc4e08",
