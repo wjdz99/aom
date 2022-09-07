@@ -24,6 +24,9 @@
 
 #define SIMD_CHECK 1  // Sanity checks in C equivalents
 
+#define SIMD_CLAMP(value, min, max) \
+  ((value) > (max) ? (max) : (value) < (min) ? (min) : (value))
+
 #if HAVE_NEON
 #include "simd/v256_intrinsics_arm.h"
 // VS compiling for 32 bit targets does not support vector types in
