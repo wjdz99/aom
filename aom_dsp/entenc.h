@@ -30,10 +30,6 @@ struct od_ec_enc {
   unsigned char *buf;
   /*The size of the buffer.*/
   uint32_t storage;
-  /*A buffer for output bytes with their associated carry flags.*/
-  uint16_t *precarry_buf;
-  /*The size of the pre-carry buffer.*/
-  uint32_t precarry_storage;
   /*The offset at which the next entropy-coded byte will be written.*/
   uint32_t offs;
   /*The low end of the current range.*/

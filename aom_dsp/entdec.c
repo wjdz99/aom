@@ -77,7 +77,7 @@
    call.*/
 static void od_ec_dec_refill(od_ec_dec *dec) {
   int s;
-  od_ec_window dif;
+  dec_od_ec_window dif;
   int16_t cnt;
   const unsigned char *bptr;
   const unsigned char *end;
@@ -85,13 +85,13 @@ static void od_ec_dec_refill(od_ec_dec *dec) {
   cnt = dec->cnt;
   bptr = dec->bptr;
   end = dec->end;
-  s = OD_EC_WINDOW_SIZE - 9 - (cnt + 15);
+  s = DEC_OD_EC_WINDOW_SIZE - 9 - (cnt + 15);
   for (; s >= 0 && bptr < end; s -= 8, bptr++) {
     /*Each time a byte is inserted into the window (dif), bptr advances and cnt
        is incremented by 8, so the total number of consumed bits (the return
        value of od_ec_dec_tell) does not change.*/
-    assert(s <= OD_EC_WINDOW_SIZE - 8);
-    dif ^= (od_ec_window)bptr[0] << s;
+    assert(s <= DEC_OD_EC_WINDOW_SIZE - 8);
+    dif ^= (dec_od_ec_window)bptr[0] << s;
     cnt += 8;
   }
   if (bptr >= end) {
@@ -122,8 +122,8 @@ static void od_ec_dec_refill(od_ec_dec *dec) {
   ret: The value to return.
   Return: ret.
           This allows the compiler to jump to this function via a tail-call.*/
-static int od_ec_dec_normalize(od_ec_dec *dec, od_ec_window dif, unsigned rng,
-                               int ret) {
+static int od_ec_dec_normalize(od_ec_dec *dec, dec_od_ec_window dif,
+                               unsigned rng, int ret) {
   int d;
   assert(rng <= 65535U);
   /*The number of leading zeros in the 16-bit binary representation of rng.*/
@@ -143,10 +143,10 @@ static int od_ec_dec_normalize(od_ec_dec *dec, od_ec_window dif, unsigned rng,
 void od_ec_dec_init(od_ec_dec *dec, const unsigned char *buf,
                     uint32_t storage) {
   dec->buf = buf;
-  dec->tell_offs = 10 - (OD_EC_WINDOW_SIZE - 8);
+  dec->tell_offs = 10 - (DEC_OD_EC_WINDOW_SIZE - 8);
   dec->end = buf + storage;
   dec->bptr = buf;
-  dec->dif = ((od_ec_window)1 << (OD_EC_WINDOW_SIZE - 1)) - 1;
+  dec->dif = ((dec_od_ec_window)1 << (DEC_OD_EC_WINDOW_SIZE - 1)) - 1;
   dec->rng = 0x8000;
   dec->cnt = -15;
   od_ec_dec_refill(dec);
@@ -156,8 +156,8 @@ void od_ec_dec_init(od_ec_dec *dec, const unsigned char *buf,
   f: The probability that the bit is one, scaled by 32768.
   Return: The value decoded (0 or 1).*/
 int od_ec_decode_bool_q15(od_ec_dec *dec, unsigned f) {
-  od_ec_window dif;
-  od_ec_window vw;
+  dec_od_ec_window dif;
+  dec_od_ec_window vw;
   unsigned r;
   unsigned r_new;
   unsigned v;
@@ -166,11 +166,11 @@ int od_ec_decode_bool_q15(od_ec_dec *dec, unsigned f) {
   assert(f < 32768U);
   dif = dec->dif;
   r = dec->rng;
-  assert(dif >> (OD_EC_WINDOW_SIZE - 16) < r);
+  assert(dif >> (DEC_OD_EC_WINDOW_SIZE - 16) < r);
   assert(32768U <= r);
   v = ((r >> 8) * (uint32_t)(f >> EC_PROB_SHIFT) >> (7 - EC_PROB_SHIFT));
   v += EC_MIN_PROB;
-  vw = (od_ec_window)v << (OD_EC_WINDOW_SIZE - 16);
+  vw = (dec_od_ec_window)v << (DEC_OD_EC_WINDOW_SIZE - 16);
   ret = 1;
   r_new = v;
   if (dif >= vw) {
@@ -191,7 +191,7 @@ int od_ec_decode_bool_q15(od_ec_dec *dec, unsigned f) {
          This should be at most 16.
   Return: The decoded symbol s.*/
 int od_ec_decode_cdf_q15(od_ec_dec *dec, const uint16_t *icdf, int nsyms) {
-  od_ec_window dif;
+  dec_od_ec_window dif;
   unsigned r;
   unsigned c;
   unsigned u;
@@ -202,11 +202,11 @@ int od_ec_decode_cdf_q15(od_ec_dec *dec, const uint16_t *icdf, int nsyms) {
   r = dec->rng;
   const int N = nsyms - 1;
 
-  assert(dif >> (OD_EC_WINDOW_SIZE - 16) < r);
+  assert(dif >> (DEC_OD_EC_WINDOW_SIZE - 16) < r);
   assert(icdf[nsyms - 1] == OD_ICDF(CDF_PROB_TOP));
   assert(32768U <= r);
   assert(7 - EC_PROB_SHIFT - CDF_SHIFT >= 0);
-  c = (unsigned)(dif >> (OD_EC_WINDOW_SIZE - 16));
+  c = (unsigned)(dif >> (DEC_OD_EC_WINDOW_SIZE - 16));
   v = r;
   ret = -1;
   do {
@@ -218,7 +218,7 @@ int od_ec_decode_cdf_q15(od_ec_dec *dec, const uint16_t *icdf, int nsyms) {
   assert(v < u);
   assert(u <= r);
   r = u - v;
-  dif -= (od_ec_window)v << (OD_EC_WINDOW_SIZE - 16);
+  dif -= (dec_od_ec_window)v << (DEC_OD_EC_WINDOW_SIZE - 16);
   return od_ec_dec_normalize(dec, dif, r, ret);
 }
 
