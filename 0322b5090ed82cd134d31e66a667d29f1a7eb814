@@ -16,6 +16,75 @@
       "message": "Hi Yunqing,\n\nIn this patch, the function \u0027aom_extend_frame_borders\u0027 is multi-threaded along with CDEF/loop-restoration. Currently, when cdef and loop-restoration are disabled, frame border extension is not multi-threaded along with loop filter (loop-filtering of a superblock row modifies the pixels of the above superblock row and logic to wait for above superblock row to complete needs to be implemented). \n  \nThe multi-thread encode time reduction for rt with row-mt\u003d1 is as follows:\n```\ncpu  Resolution   Tiles  Threads Encode time reduction (%)\n 7    180p          2x1     2        1.7\n 8    180p          2x1     2        1.2\n 9    360p          4x1     4        4.0\n 10   720p          4x1     4        1.5\n 10   1080p screen  4x1     4        1.5\n```\nAlso, we have verified the patch to be bit-exact in good preset with no change in encode time. \n\nPlease review.\n\nThanks",
       "revId": "0322b5090ed82cd134d31e66a667d29f1a7eb814",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "88fe58be_8efd7d4b",
+        "filename": "av1/common/thread_common.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 1022,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2022-09-08T00:47:03Z",
+      "side": 1,
+      "message": "Can do_extend_borders_with_cdef_mt() be used here directly instead of introducing extend_border_mt in cm? extend_border_mt is for enc optimization, and should not be added in cm?",
+      "range": {
+        "startLine": 1022,
+        "startChar": 14,
+        "endLine": 1022,
+        "endChar": 30
+      },
+      "revId": "0322b5090ed82cd134d31e66a667d29f1a7eb814",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3bbded15_087b58c0",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 2243,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2022-09-08T00:47:03Z",
+      "side": 1,
+      "message": "Since this always happens for loop_restoration mt, can we remove passing in do_extend_border to loop_restoration function and make it the default in mt case? Hopefully, this will make the change simpler.",
+      "range": {
+        "startLine": 2243,
+        "startChar": 18,
+        "endLine": 2243,
+        "endChar": 34
+      },
+      "revId": "0322b5090ed82cd134d31e66a667d29f1a7eb814",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3d534edf_69ef1c00",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 3116,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2022-09-08T00:47:03Z",
+      "side": 1,
+      "message": "Maybe check st or mt, filters used to set the condition instead of using extend_border_mt?",
+      "range": {
+        "startLine": 3116,
+        "startChar": 8,
+        "endLine": 3116,
+        "endChar": 40
+      },
+      "revId": "0322b5090ed82cd134d31e66a667d29f1a7eb814",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
