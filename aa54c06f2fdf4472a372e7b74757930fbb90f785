@@ -179,6 +179,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "0fb00893_2ce01c00",
+        "filename": "av1/encoder/block.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 1029,
+      "author": {
+        "id": 6245
+      },
+      "writtenOn": "2022-09-08T03:29:54Z",
+      "side": 1,
+      "message": "force_zeromv_skip_for_sb \u003d 0 implies force_zeromv_skip_for_blk \u003d 0 for all blocks in SB.\nforce_zeromv_skip_for_sb \u003d 1 implies force_zeromv_skip_for_blk \u003d 1 (block size will be 128x128 in this case).\nIf force_zeromv_skip_for_sb \u003d 2, decision is done at coding block level. In this case force_zeromv_skip_for_blk is populated as 0 or 1 in get_force_zeromv_skip_flag_for_blk().",
+      "parentUuid": "fdb23fc1_3d2b6aa2",
+      "range": {
+        "startLine": 1025,
+        "startChar": 1,
+        "endLine": 1029,
+        "endChar": 32
+      },
+      "revId": "aa54c06f2fdf4472a372e7b74757930fbb90f785",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d2027a48_6dfc4e08",
