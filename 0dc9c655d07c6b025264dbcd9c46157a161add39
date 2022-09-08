@@ -50,6 +50,24 @@
       "message": "Optional: Another option is the following:\n\n```\n  if (noise_level \u003e\u003d kDenLow \u0026\u0026 abs_sumdiff \u003c 5)\n    threshold *\u003d (noise_level \u003d\u003d kDenLow)   ? 2\n                 : (temporal_layer_id \u003d\u003d 2) ? 10\n                                            : 6;\n  return threshold;\n```\n\nThis form has the advantage that the `*\u003d` is a more obvious barrier from the nested ternary expression.\n\nWe could also store the result of the ternary expression in a local variable `scale_factor` for clarity.",
       "revId": "0dc9c655d07c6b025264dbcd9c46157a161add39",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ad0ea1a2_f97fbcc6",
+        "filename": "av1/encoder/av1_temporal_denoiser.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 699,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-09-08T20:32:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c5996d38_131edfe2",
+      "revId": "0dc9c655d07c6b025264dbcd9c46157a161add39",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
