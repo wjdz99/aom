@@ -18,6 +18,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "a73eddc7_3fec3b98",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2022-09-08T06:39:55Z",
+      "side": 1,
+      "message": "For screen it\u0027s fine to only show speed 10. Good gains on screen.",
+      "parentUuid": "bdb1fa00_d7bc62bf",
+      "revId": "9381afc30f6d83da9b6c13acd6dcf43b81478249",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "50f77fb8_2f1771e8",
