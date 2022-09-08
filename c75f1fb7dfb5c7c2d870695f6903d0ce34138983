@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "23d78d10_4e3410e5",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 6245
+      },
+      "writtenOn": "2022-09-08T03:38:19Z",
+      "side": 1,
+      "message": "Hi Marco, Yunqing,\n\nIn this CL, we avoided the code related to signaling motion mode by populating features-\u003eswitchable_motion_mode appropriately. After this change, the motion mode is inferred as SIMPLE_TRANSLATION when warp and OBMC tools are disabled. Hence the call to av1_count_overlappable_neighbors() function is avoided. This CL also seems to help in speed-up of the bit-stream preparation stage as motion mode is not signaled/modeled (during entropy coding) and inferred to be SIMPLE_TRANSLATION. \n\nPlease check the borg results for rtc and rtc-screen test-sets below.\n \n```\n                   \tInstruction Count            BD-Rate Loss(%)\n    cpu Resolution   \t   Reduction(%)    \tavg.psnr   ovr.psnr    ssim\n     7         rtc      \t0.251         \t0.0073     0.0061   -0.0386\n     7    rtc_derf      \t0.323         \t0.0341     0.0289    0.0290\n     7  rtc_screen      \t0.146          -0.0253    -0.0208    0.0603\n     8         rtc     \t\t0.310          -0.0733    -0.0693   -0.0154\n     8    rtc_derf      \t0.418         \t0.1480     0.1469    0.1906\n     8  rtc_screen      \t0.028          -0.7676    -0.1882   -0.3181\n     9         rtc     \t\t0.287         \t0.0795     0.0564    0.0400\n     9    rtc_derf              0.339         \t0.0226     0.0127    0.0457\n     9  rtc_screen     \t\t0.311          -0.1215     0.0792    0.1363\n    10         rtc      \t0.263          -0.0532    -0.1052   -0.1043\n    10    rtc_derf      \t0.271          -0.1469    -0.1696   -0.2264\n    10  rtc_screen      \t0.148          -0.2022    -0.3691   -0.2984\n```\n\nPlease check the maximum BD-Rate impact cases below(for Avg. PSNR metric). \n\nFor rtc,\n```\n                          \t\tBD-Rate Loss(%)\ncpu  \tcontent        \t\tavg.psnr   ovr.psnr    ssim\n 7     jimred_320_240   \t1.0150     0.8626    1.0375\n 8     jimred_320_240   \t2.2388     2.2645    2.3623\n 9         kirlandvga   \t1.3424     0.7388    1.4618\n10        dark720p   \t\t0.7788     0.7563    0.8011\n```\n\nFor rtc-screen\n```\n                                               \t\tBD-Rate Loss(%)\ncpu               content                \tavg.psnr   ovr.psnr    ssim\n 7    screenshare_colorslides.1820_1320   \t0.2365     0.2201    0.4012\n 8         screenshare_static.1672_1162   \t0.3856     0.3591    0.1341\n 9    screenshare_colorslides.1820_1320   \t0.3357     0.3687    0.2872\n10         screenshare_static.1672_1162   \t0.5306     0.4311    0.6764\n```\n\nThe instruction count reduction specified has been measured using command:\n $ perf stat -e instructions:u ./aomenc …\n\nThough there are maximum drops as quoted above and CL is out of trade-off for a few cases (rtc-derf speed\u003d7,8; rtc speed\u003d9), we feel that the current CL tries to save the bits as motion mode is not signaled. Hence there seem to be BD-Rate savings overall.\n\nWe see that call to av1_count_overlappable_neighbors() can be avoided from set_params_rd_pick_inter_mode() and av1_rd_pick_inter_mode_sb_seg_skip() as well. We shall explore and plan the same in a separate CL.\n\nPlease let us know your thoughts on the CL.\n\nRegards,\nRanjit\n",
+      "revId": "c75f1fb7dfb5c7c2d870695f6903d0ce34138983",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
