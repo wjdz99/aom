@@ -3,6 +3,23 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "14e16978_923ee13c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 31107
+      },
+      "writtenOn": "2022-09-08T20:31:57Z",
+      "side": 1,
+      "message": "Comment removed by: James Zern; Reason: spam",
+      "revId": "5bd38c95006adc1b3b9523a6980207c5576fd8a5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "1dfa11bd_68aaaf34",
         "filename": "av1/common/resize.h",
         "patchSetId": 1
