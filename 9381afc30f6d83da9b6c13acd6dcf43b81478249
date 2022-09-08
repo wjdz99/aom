@@ -71,6 +71,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "46a0bebf_f73f2d68",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5610
+      },
+      "writtenOn": "2022-09-08T18:41:39Z",
+      "side": 1,
+      "message": "Except part of the reason for this change was to reduce rate spikes in non screen content such as the one you identified in tacomanvga. This change cuts the worst case rate spike on that clip by about half.",
+      "tag": "mailMessageId\u003d\u003cCALRks\u003dTog-C8wh6Tc+ZvV9DU3CXZYr\u003dANNVLe3aDXMo0Ux2b1w@mail.gmail.com\u003e",
+      "revId": "9381afc30f6d83da9b6c13acd6dcf43b81478249",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "80d4f19e_2fb9cb67",
