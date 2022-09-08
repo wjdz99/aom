@@ -1219,7 +1219,7 @@ static AOM_INLINE PART_EVAL_STATUS get_part_eval_based_on_sub_blk_var(
   // this is to target moving boundary withing 16x16 block, so some area should
   // be small variance/stationary.
   return ((max_8x8_var - min_8x8_var) > (threshold16 << fac_shift) &&
-          (!is_key_frame && min_8x8_var < AOMMAX(400, (threshold16 >> 3))))
+          (is_key_frame || (min_8x8_var < AOMMAX(400, (threshold16 >> 3)))))
              ? PART_EVAL_ONLY_SPLIT
              : PART_EVAL_ONLY_NONE;
 }
