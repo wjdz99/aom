@@ -16,6 +16,23 @@
       "message": "\u003e Change message removed by: \u003cGERRIT_ACCOUNT_5020\u003e\n\nI inadvertently removed the link to the (unrelated) test failures:\nhttps://build.aomedia.org/jenkins/job/libaom__commit_trigger/69196/",
       "revId": "c6cc51696a6a9f43bf8388f818b22e8623533066",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bd19d67b_8c917a22",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-09-08T21:00:16Z",
+      "side": 1,
+      "message": "LGTM.",
+      "revId": "c6cc51696a6a9f43bf8388f818b22e8623533066",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
