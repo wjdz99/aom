@@ -34,4 +34,18 @@
 #ifndef GOOGLETEST_INCLUDE_GTEST_INTERNAL_CUSTOM_GTEST_PORT_H_
 #define GOOGLETEST_INCLUDE_GTEST_INTERNAL_CUSTOM_GTEST_PORT_H_
 
+#define GTEST_HAS_NOTIFICATION_ 1
+namespace testing {
+namespace internal {
+class Notification {
+ public:
+  Notification() = delete;
+  Notification(const Notification&) = delete;
+  Notification& operator=(const Notification&) = delete;
+  //void Notify() {}
+  void WaitForNotification() {}
+};
+}  // namespace internal
+}  // namespace testing
+
 #endif  // GOOGLETEST_INCLUDE_GTEST_INTERNAL_CUSTOM_GTEST_PORT_H_
