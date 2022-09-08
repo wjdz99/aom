@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bf3c3a89_fad643a1",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 592,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-09-08T00:47:44Z",
+      "side": 1,
+      "message": "init_config() calls av1_change_config() here.",
+      "revId": "faa2202becbd1ac5b1c5f94fc7bb826d897b84e0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "725a3c2e_b01d8f54",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 710,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-09-08T00:47:44Z",
+      "side": 1,
+      "message": "av1_change_config() calls av1_update_film_grain_parameters() here.",
+      "revId": "faa2202becbd1ac5b1c5f94fc7bb826d897b84e0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
