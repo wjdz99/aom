@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9be0e9f9_90d15259",
+        "filename": "aom_dsp/arm/mem_neon.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-09-09T18:34:52Z",
+      "side": 1,
+      "message": "If clang-cl uses the same headers, I\u0027d expect this to fail, but we can deal with that when someone tries it. The last build I did with clang-cl had some issues with linking the examples, which I haven\u0027t filed a bug for yet.",
+      "range": {
+        "startLine": 19,
+        "startChar": 26,
+        "endLine": 19,
+        "endChar": 45
+      },
+      "revId": "88ec7d53b0790b1783788d85996d488c57b55255",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "dd4b9c10_e132f58e",
+        "filename": "av1/encoder/arm/neon/temporal_filter_neon.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-09-09T18:34:52Z",
+      "side": 1,
+      "message": "some more do/while candidates I think, but those can be handled in a follow up",
+      "revId": "88ec7d53b0790b1783788d85996d488c57b55255",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
