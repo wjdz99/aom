@@ -16,6 +16,24 @@
       "message": "Do you want to add a note about this to the README? This avoids the need for std::mutex I guess?",
       "revId": "4045d5502f5a5d29c5c54f324ebb4df9c3864211",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b7c76ea4_6a7c4977",
+        "filename": "third_party/googletest/src/googletest/include/gtest/internal/custom/gtest-port.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-09-09T18:02:37Z",
+      "side": 1,
+      "message": "\u003e Do you want to add a note about this to the README? This avoids the need for std::mutex I guess?\n\nI didn\u0027t see https://bugs.chromium.org/p/aomedia/issues/detail?id\u003d3332#c1 before making the comment. Adding a note to the README would still be good.",
+      "parentUuid": "d3aeea42_b604dbea",
+      "revId": "4045d5502f5a5d29c5c54f324ebb4df9c3864211",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
