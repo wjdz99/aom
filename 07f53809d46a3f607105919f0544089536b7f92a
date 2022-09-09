@@ -16,6 +16,24 @@
       "message": "anything from an external project should be placed under third_party with a copy of the LICENSE and in separate files so we can preserve the copyright.",
       "revId": "07f53809d46a3f607105919f0544089536b7f92a",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c54fba33_21d00c11",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2022-09-09T21:56:48Z",
+      "side": 1,
+      "message": "I think this is a bit of a weird case where the code from SVT-AV1 is a modification of our own code with the same AOMedia license.\nDo we still need to put it under third_party in this scenario?",
+      "parentUuid": "f0aa6f86_c899c7e1",
+      "revId": "07f53809d46a3f607105919f0544089536b7f92a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
