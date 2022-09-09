@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "62f26abe_70b57e2a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-09-09T20:19:24Z",
+      "side": 1,
+      "message": "Please review the new patchset. I edited the comments slightly. Thanks.",
+      "revId": "fbf5096a830883112c54014b2e65fbbcddfd0f87",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "37421640_7290daf9",
+        "filename": "third_party/googletest/README.libaom",
+        "patchSetId": 7
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-09-09T20:19:24Z",
+      "side": 1,
+      "message": "I removed the leading `src/` directory from this pathname because it is not used with the file pathnames above.",
+      "revId": "fbf5096a830883112c54014b2e65fbbcddfd0f87",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b17e8106_c23b192d",
+        "filename": "third_party/googletest/README.libaom",
+        "patchSetId": 7
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-09-09T20:19:24Z",
+      "side": 1,
+      "message": "I changed \"error\" to \"errors\".",
+      "revId": "fbf5096a830883112c54014b2e65fbbcddfd0f87",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a3e98abf_1ed2b26e",
+        "filename": "third_party/googletest/src/googletest/include/gtest/internal/custom/gtest-port.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-09-09T20:19:24Z",
+      "side": 1,
+      "message": "To help review this change, search for `#define GTEST_HAS_NOTIFICATION_ 1` in the copy of this file in Google\u0027s internal repository. There they import `absl::Notification`.",
+      "revId": "fbf5096a830883112c54014b2e65fbbcddfd0f87",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
