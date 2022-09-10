@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3e147d2d_29abf6ad",
+        "filename": "CHANGELOG",
+        "patchSetId": 1
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-09-10T04:52:25Z",
+      "side": 1,
+      "message": "no description because these aren\u0027t public yet",
+      "revId": "bcfe6fbfed315f83ee8a95465c654ee8078dbff9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
