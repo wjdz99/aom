@@ -69,6 +69,24 @@
       "message": "Hi Venkat, thank you for testing this speed feature.\n\nI made a mistake in the speed feature description in my original cl, specifically: \" Set to zero to turn off this speed feature.\"\nThe statement is wrong.\nSetting the threshold to 0, actually allows more frames to be filtered by CDEF.\n\nThat said, the coding gain reported in this cl actually validates that the original CL is very effective in improving coding performance.\n\nIn my original CL, we are aware that applying CDEF filtering on more frames have a net gain on metrics.\n\nThe current thresholds are carefully chosen at that time such that we could avoid significant encoding slowdown.\n\nImportant: I ran borg test for speed 9 and 10. The result I got is different from what you report here.\n\nSpeed 9:\nFile\t\t\t\tavg_psnr:    ovr_psnr:  ssim:\tvmaf:\nsc_web_browsing720p.y4m\t\t\t0\t0\t0\t0\nscreen_crd_colwinscroll.1920_1128.y4m\t-0.006\t0.013\t-0.003\t0.019\nscreen_recording_crd.1920_1080.y4m\t-1.035\t-0.614\t-0.933\t-0.174\nscreenshare_buganizer.1900_1306.y4m\t-1.028\t-0.645\t-0.758\t-1.174\nscreenshare_colorslides.1820_1320.y4m\t-0.001\t0\t0\t0\nscreenshare_slidechanges.1850_1110.y4m\t-0.566\t3.354\t3.375\t2.379\nscreenshare_static.1672_1162.y4m\t-10.335\t-14.474\t-10.76\t-11.125\nscreenshare_youtube.1680_1178.y4m\t0.224\t0.254\t0.159\t0.103\nslides_webplot.1920_1080.y4m\t\t-1.289\t-0.317\t-0.504\t-0.285\n{OVERALL}\t\t\t\t-1.56\t-1.381\t-1.047\t-1.14\n\nWe can see that one clip has a huge coding gain while others are much less.\n\nSpeed 10:\nFile\t\t\t\tavg_psnr:    ovr_psnr:\tssim:\tvmaf:\nsc_web_browsing720p.y4m\t                 0.069\t0.110\t-0.032\t-0.067\nscreen_crd_colwinscroll.1920_1128.y4m\t-0.778\t-0.624\t-0.517\t-0.096\nscreen_recording_crd.1920_1080.y4m\t-1.938\t-0.800\t-1.619\t-0.348\nscreenshare_buganizer.1900_1306.y4m\t-3.930\t-0.961\t-2.903\t-1.115\nscreenshare_colorslides.1820_1320.y4m\t-0.060\t-0.108\t-0.042\t0.213\nscreenshare_slidechanges.1850_1110.y4m\t-3.463\t-2.880\t-3.045\t-2.280\nscreenshare_static.1672_1162.y4m\t-26.366\t-10.351\t-14.907\t-3.304\nscreenshare_youtube.1680_1178.y4m\t-0.738\t-0.989\t-0.926\t-0.859\nslides_webplot.1920_1080.y4m\t\t-3.685\t-0.337\t-1.668\t0.127\n{OVERALL}\t\t\t\t-4.543\t-1.882\t-2.851\t-0.859\n\nThe same clip still has a huge gain while others also get good gains.\n\nI recommend you to modify the cl in the following ways:\n(1). Rephrase the description, states it is modifying the threshold.\n(2). Test again and focus on the speed and quality change.\n(3). Report all results, instead of overall.\n(4). Fix the description of the speed feature.\n",
       "revId": "c14902611969214b57535e4873cfe2d5ece36d7a",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1cd8a302_fa1a10c4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2022-09-10T01:23:04Z",
+      "side": 1,
+      "message": "Hi Cheng Chen,\n\nThanks for sharing the details. As you highlighted, the model used for screen content prefers/allows more frames to go through cdef filtering as threshold reduces. Hence, we have modified the description of the speed feature as suggested.\n\nAlso, we tried experiments with various thresholds and observed that the threshold\u003d0 performs better w.r.t. speed and quality for speed 9. We also have rebased the current CL to the latest to avoid merge conflict. \n\nOther details regarding content level results to be shared through email. Please review the patch.\n\nThanks \u0026 Regards,\nVenkata",
+      "parentUuid": "b1ac44c8_dbfe3acb",
+      "revId": "c14902611969214b57535e4873cfe2d5ece36d7a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
