@@ -25,6 +25,8 @@ typedef struct EncWorkerData {
   struct ThreadData *original_td;
   int start;
   int thread_id;
+  AV1LfSync *lf_sync;
+  LFWorkerData *lf_data;
 } EncWorkerData;
 
 void av1_row_mt_sync_read(AV1EncRowMultiThreadSync *row_mt_sync, int r, int c);
@@ -82,6 +84,8 @@ int av1_get_max_num_workers(const AV1_COMP *cpi);
 void av1_create_workers(AV1_PRIMARY *ppi, int num_workers);
 
 void av1_init_frame_mt(AV1_PRIMARY *ppi, AV1_COMP *cpi);
+
+void av1_loop_filter_mt_opt_init(AV1_COMP *cpi);
 
 void av1_init_cdef_worker(AV1_COMP *cpi);
 
