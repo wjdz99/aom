@@ -202,17 +202,8 @@ void av1_pick_filter_level(const YV12_BUFFER_CONFIG *sd, AV1_COMP *cpi,
   (void)sd;
 
   lf->sharpness_level = 0;
-  cpi->td.mb.rdmult = cpi->rd.RDMULT;
 
-  if (cpi->oxcf.tune_cfg.content == AOM_CONTENT_SCREEN &&
-      cpi->oxcf.q_cfg.aq_mode == CYCLIC_REFRESH_AQ &&
-      cpi->sf.rt_sf.skip_lf_screen)
-    disable_filter_rt_screen = av1_cyclic_refresh_disable_lf_cdef(cpi);
-
-  if (disable_filter_rt_screen ||
-      cpi->oxcf.algo_cfg.loopfilter_control == LOOPFILTER_NONE ||
-      (cpi->oxcf.algo_cfg.loopfilter_control == LOOPFILTER_REFERENCE &&
-       cpi->rtc_ref.non_reference_frame)) {
+  if (disable_lf(cpi)) {
     lf->filter_level[0] = 0;
     lf->filter_level[1] = 0;
     return;
@@ -222,71 +213,7 @@ void av1_pick_filter_level(const YV12_BUFFER_CONFIG *sd, AV1_COMP *cpi,
     lf->filter_level[0] = 0;
     lf->filter_level[1] = 0;
   } else if (method >= LPF_PICK_FROM_Q) {
-    const int min_filter_level = 0;
-    const int max_filter_level = av1_get_max_filter_level(cpi);
-    const int q = av1_ac_quant_QTX(cm->quant_params.base_qindex, 0,
-                                   seq_params->bit_depth);
-    // based on tests result for rtc test set
-    // 0.04590 boosted or 0.02295 non-booseted in 18-bit fixed point
-    const int strength_boost_q_treshold = 0;
-    int inter_frame_multiplier =
-        (q > strength_boost_q_treshold ||
-         (cpi->sf.rt_sf.use_nonrd_pick_mode &&
-          cpi->common.width * cpi->common.height > 352 * 288))
-            ? 12034
-            : 6017;
-    // These values were determined by linear fitting the result of the
-    // searched level for 8 bit depth:
-    // Keyframes: filt_guess = q * 0.06699 - 1.60817
-    // Other frames: filt_guess = q * inter_frame_multiplier + 2.48225
-    //
-    // And high bit depth separately:
-    // filt_guess = q * 0.316206 + 3.87252
-    int filt_guess;
-    switch (seq_params->bit_depth) {
-      case AOM_BITS_8:
-        filt_guess =
-            (cm->current_frame.frame_type == KEY_FRAME)
-                ? ROUND_POWER_OF_TWO(q * 17563 - 421574, 18)
-                : ROUND_POWER_OF_TWO(q * inter_frame_multiplier + 650707, 18);
-        break;
-      case AOM_BITS_10:
-        filt_guess = ROUND_POWER_OF_TWO(q * 20723 + 4060632, 20);
-        break;
-      case AOM_BITS_12:
-        filt_guess = ROUND_POWER_OF_TWO(q * 20723 + 16242526, 22);
-        break;
-      default:
-        assert(0 &&
-               "bit_depth should be AOM_BITS_8, AOM_BITS_10 "
-               "or AOM_BITS_12");
-        return;
-    }
-    if (seq_params->bit_depth != AOM_BITS_8 &&
-        cm->current_frame.frame_type == KEY_FRAME)
-      filt_guess -= 4;
-    // TODO(chengchen): retrain the model for Y, U, V filter levels
-    lf->filter_level[0] = clamp(filt_guess, min_filter_level, max_filter_level);
-    lf->filter_level[1] = clamp(filt_guess, min_filter_level, max_filter_level);
-    lf->filter_level_u = clamp(filt_guess, min_filter_level, max_filter_level);
-    lf->filter_level_v = clamp(filt_guess, min_filter_level, max_filter_level);
-    if (cpi->oxcf.algo_cfg.loopfilter_control == LOOPFILTER_SELECTIVELY &&
-        !frame_is_intra_only(cm) && !cpi->rc.high_source_sad) {
-      if (cpi->oxcf.tune_cfg.content == AOM_CONTENT_SCREEN) {
-        lf->filter_level[0] = 0;
-        lf->filter_level[1] = 0;
-      } else {
-        const int num4x4 = (cm->width >> 2) * (cm->height >> 2);
-        const int newmv_thresh = 7;
-        const int distance_since_key_thresh = 5;
-        if ((cpi->td.rd_counts.newmv_or_intra_blocks * 100 / num4x4) <
-                newmv_thresh &&
-            cpi->rc.frames_since_key > distance_since_key_thresh) {
-          lf->filter_level[0] = 0;
-          lf->filter_level[1] = 0;
-        }
-      }
-    }
+    pick_lf_level_from_q(cpi);
   } else {
     int last_frame_filter_level[4] = { 0 };
     if (!frame_is_intra_only(cm)) {

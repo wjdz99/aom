@@ -1490,11 +1490,27 @@ typedef struct {
    */
   int thread_id_to_tile_id[MAX_NUM_THREADS];
 
+  /*!
+   * num_tile_cols_done[i] indicates the number of tile columns whose encoding
+   * is complete in the ith superblock row.
+   */
+  int *num_tile_cols_done;
+
+  /*!
+   * Number of superblock rows in a frame for which 'num_tile_cols_done' is
+   * allocated.
+   */
+  int allocated_sb_rows;
+
 #if CONFIG_MULTITHREAD
   /*!
    * Mutex lock used while dispatching jobs.
    */
   pthread_mutex_t *mutex_;
+  /*!
+   *  Condition variable used to dispatch loopfilter jobs.
+   */
+  pthread_cond_t *cond_;
 #endif
 
   /**
@@ -4090,6 +4106,13 @@ static INLINE int is_inter_tx_size_search_level_one(
     const TX_SPEED_FEATURES *tx_sf) {
   return (tx_sf->inter_tx_size_search_init_depth_rect >= 1 &&
           tx_sf->inter_tx_size_search_init_depth_sqr >= 1);
+}
+
+static INLINE int get_lpf_opt_level(const SPEED_FEATURES *sf) {
+  int lpf_opt_level = 0;
+  if (is_inter_tx_size_search_level_one(&sf->tx_sf))
+    lpf_opt_level = (sf->lpf_sf.lpf_pick == LPF_PICK_FROM_Q) ? 2 : 1;
+  return lpf_opt_level;
 }
 
 // Enable switchable motion mode only if warp and OBMC tools are allowed
