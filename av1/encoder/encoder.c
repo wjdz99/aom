@@ -2322,8 +2322,7 @@ static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
   assert(IMPLIES(is_lossless_requested(&cpi->oxcf.rc_cfg),
                  cm->features.coded_lossless && cm->features.all_lossless));
 
-  const int use_loopfilter =
-      !cm->features.coded_lossless && !cm->tiles.large_scale;
+  const int use_loopfilter = is_loopfilter_used(cm);
   const int use_cdef = is_cdef_used(cm);
   const int use_restoration = is_restoration_used(cm);
   // lpf_opt_level = 1 : Enables dual/quad loop-filtering.
@@ -2333,10 +2332,7 @@ static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
   // lpf_opt_level = 2 : Filters both chroma planes together, in addition to
   // enabling dual/quad loop-filtering. This is enabled when lpf pick method
   // is LPF_PICK_FROM_Q as u and v plane filter levels are equal.
-  int lpf_opt_level = 0;
-  if (is_inter_tx_size_search_level_one(&cpi->sf.tx_sf)) {
-    lpf_opt_level = (cpi->sf.lpf_sf.lpf_pick == LPF_PICK_FROM_Q) ? 2 : 1;
-  }
+  int lpf_opt_level = get_lpf_opt_level(&cpi->sf);
 
   struct loopfilter *lf = &cm->lf;
 
