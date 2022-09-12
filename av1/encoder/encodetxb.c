@@ -352,7 +352,7 @@ void av1_write_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCK *const x,
   const SCAN_ORDER *const scan_order = get_scan(tx_size, tx_type);
   const int16_t *const scan = scan_order->scan;
   DECLARE_ALIGNED(16, int8_t, coeff_contexts[MAX_TX_SQUARE]);
-  av1_get_nz_map_contexts(levels, scan, eob, tx_size, tx_class, coeff_contexts);
+  av1_get_nz_map_contexts_c(levels, scan, eob, tx_size, tx_class, coeff_contexts);
 
   const int bwl = get_txb_bwl(tx_size);
   for (int c = eob - 1; c >= 0; --c) {

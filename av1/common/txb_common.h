@@ -157,26 +157,51 @@ static const uint8_t clip_max3[256] = {
 
 static AOM_FORCE_INLINE int get_nz_mag(const uint8_t *const levels,
                                        const int bwl, const TX_CLASS tx_class) {
-  int mag;
+  int mag = 0;
 
   // Note: AOMMIN(level, 3) is useless for decoder since level < 3.
+  /*
   mag = clip_max3[levels[1]];                         // { 0, 1 }
   mag += clip_max3[levels[(1 << bwl) + TX_PAD_HOR]];  // { 1, 0 }
+  */
 
   if (tx_class == TX_CLASS_2D) {
+    /*
     mag += clip_max3[levels[(1 << bwl) + TX_PAD_HOR + 1]];          // { 1, 1 }
     mag += clip_max3[levels[2]];                                    // { 0, 2 }
     mag += clip_max3[levels[(2 << bwl) + (2 << TX_PAD_HOR_LOG2)]];  // { 2, 0 }
+    */
+    mag = !!(levels[1]);
+    mag += !!(levels[(1 << bwl) + TX_PAD_HOR]);
+    mag += (!!levels[1]) && (!!levels[2]);
+    mag += (!!levels[(1 << bwl) + TX_PAD_HOR]) &&
+           (!!levels[(2 << bwl) + (2 << TX_PAD_HOR_LOG2)]);
+    mag += (!!levels[(1 << bwl) + TX_PAD_HOR + 1]) &&
+           ((!!levels[1]) || (!!levels[(1 << bwl) + TX_PAD_HOR]));
   } else if (tx_class == TX_CLASS_VERT) {
+    /*
     mag += clip_max3[levels[(2 << bwl) + (2 << TX_PAD_HOR_LOG2)]];  // { 2, 0 }
     mag += clip_max3[levels[(3 << bwl) + (3 << TX_PAD_HOR_LOG2)]];  // { 3, 0 }
     mag += clip_max3[levels[(4 << bwl) + (4 << TX_PAD_HOR_LOG2)]];  // { 4, 0 }
+    */
+    mag = !!(levels[1]);
+    mag += !!(levels[(1 << bwl) + TX_PAD_HOR]);
+    mag += (!!levels[(1 << bwl) + TX_PAD_HOR]) &&
+           (!!levels[(2 << bwl) + (2 << TX_PAD_HOR_LOG2)]);
+    mag += (!!levels[(1 << bwl) + TX_PAD_HOR]) &&
+           (!!levels[(2 << bwl) + (2 << TX_PAD_HOR_LOG2)]) &&
+           (!!levels[(3 << bwl) + (3 << TX_PAD_HOR_LOG2)]);
   } else {
+    /*
     mag += clip_max3[levels[2]];  // { 0, 2 }
     mag += clip_max3[levels[3]];  // { 0, 3 }
     mag += clip_max3[levels[4]];  // { 0, 4 }
+    */
+    mag = !!(levels[1]);
+    mag += !!(levels[(1 << bwl) + TX_PAD_HOR]);
+    mag += (!!levels[1]) && (!!levels[2]);
+    mag += (!!levels[1]) && (!!levels[2]) && (!!levels[3]);
   }
-
   return mag;
 }
 
@@ -200,7 +225,8 @@ static AOM_FORCE_INLINE int get_nz_map_ctx_from_stats(
     const int bwl, const TX_SIZE tx_size, const TX_CLASS tx_class) {
   // tx_class == 0(TX_CLASS_2D)
   if ((tx_class | coeff_idx) == 0) return 0;
-  int ctx = (stats + 1) >> 1;
+  // int ctx = (stats + 1) >> 1;
+  int ctx = stats;
   ctx = AOMMIN(ctx, 4);
   switch (tx_class) {
     case TX_CLASS_2D: {
@@ -247,13 +273,23 @@ static INLINE int get_lower_levels_ctx_2d(const uint8_t *levels, int coeff_idx,
   int mag;
   // Note: AOMMIN(level, 3) is useless for decoder since level < 3.
   levels = levels + get_padded_idx(coeff_idx, bwl);
+  /*
   mag = AOMMIN(levels[1], 3);                                     // { 0, 1 }
   mag += AOMMIN(levels[(1 << bwl) + TX_PAD_HOR], 3);              // { 1, 0 }
   mag += AOMMIN(levels[(1 << bwl) + TX_PAD_HOR + 1], 3);          // { 1, 1 }
   mag += AOMMIN(levels[2], 3);                                    // { 0, 2 }
   mag += AOMMIN(levels[(2 << bwl) + (2 << TX_PAD_HOR_LOG2)], 3);  // { 2, 0 }
+  */
 
-  const int ctx = AOMMIN((mag + 1) >> 1, 4);
+  mag = !!(levels[1]);
+  mag += !!(levels[(1 << bwl) + TX_PAD_HOR]);
+  mag += (!!levels[1]) && (!!levels[2]);
+  mag += (!!levels[(1 << bwl) + TX_PAD_HOR]) &&
+         (!!levels[(2 << bwl) + (2 << TX_PAD_HOR_LOG2)]);
+  mag += (!!levels[(1 << bwl) + TX_PAD_HOR + 1]) &&
+         ((!!levels[1]) || (!!levels[(1 << bwl) + TX_PAD_HOR]));
+
+  int ctx = AOMMIN(mag, 4);
   return ctx + av1_nz_map_ctx_offset[tx_size][coeff_idx];
 }
 static AOM_FORCE_INLINE int get_lower_levels_ctx(const uint8_t *levels,
