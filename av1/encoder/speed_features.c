@@ -1694,6 +1694,9 @@ static void set_rt_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->rt_sf.prune_compoundmode_with_singlemode_var = true;
     sf->rt_sf.skip_compound_based_on_var = true;
     sf->rt_sf.use_adaptive_subpel_search = true;
+    sf->rt_sf.lpf_mt_after_encode =
+        (sf->lpf_sf.lpf_pick = LPF_PICK_FROM_Q) &&
+        (cpi->oxcf.algo_cfg.loopfilter_control != LOOPFILTER_SELECTIVELY);
   }
 
   if (speed >= 8) {
@@ -2072,6 +2075,7 @@ static AOM_INLINE void init_rt_sf(REAL_TIME_SPEED_FEATURES *rt_sf) {
   rt_sf->prune_compoundmode_with_singlemode_var = false;
   rt_sf->skip_compound_based_on_var = false;
   rt_sf->top_right_sync_wait_in_mis = false;
+  rt_sf->lpf_mt_after_encode = false;
   rt_sf->set_zeromv_skip_based_on_source_sad = 1;
   rt_sf->use_adaptive_subpel_search = false;
   rt_sf->screen_content_cdef_filter_qindex_thresh = 0;
