@@ -1490,11 +1490,25 @@ typedef struct {
    */
   int thread_id_to_tile_id[MAX_NUM_THREADS];
 
+  /*!
+   * num_tile_cols_done indicates the.
+   */
+  int *num_tile_cols_done;
+
+  /*!
+   * num_tile_cols_done indicates the.
+   */
+  int allocated_sb_rows;
+
 #if CONFIG_MULTITHREAD
   /*!
    * Mutex lock used while dispatching jobs.
    */
   pthread_mutex_t *mutex_;
+  /*!
+   *  Cond used while dispatching loopfilter jobs.
+   */
+  pthread_cond_t *cond_;
 #endif
 
   /**
