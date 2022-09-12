@@ -173,6 +173,37 @@ void av1_loop_restoration_alloc(AV1LrSync *lr_sync, AV1_COMMON *cm,
                                 int num_planes, int width);
 int av1_get_intrabc_extra_top_right_sb_delay(const AV1_COMMON *cm);
 
+void av1_loop_filter_data_reset(LFWorkerData *lf_data,
+                                YV12_BUFFER_CONFIG *frame_buffer,
+                                struct AV1Common *cm, MACROBLOCKD *xd);
+
+void av1_lf_mt_init(AV1_COMMON *cm, AV1LfSync *lf_sync, int *planes_to_lf,
+                    int num_workers, int lpf_opt_level);
+
+AV1LfMTInfo *av1_get_lf_job_info(AV1LfSync *lf_sync);
+
+void av1_thread_loop_filter_rows(
+    const YV12_BUFFER_CONFIG *const frame_buffer, AV1_COMMON *const cm,
+    struct macroblockd_plane *planes, MACROBLOCKD *xd, int mi_row, int plane,
+    int dir, int lpf_opt_level, AV1LfSync *const lf_sync,
+    AV1_DEBLOCKING_PARAMETERS *params_buf, TX_SIZE *tx_buf, int mib_size_log2);
+
+static AOM_INLINE int planes_to_loop_filter(struct loopfilter *lf,
+                                            int *planes_to_lf, int plane_start,
+                                            int plane_end) {
+  // For each luma and chroma plane, whether to filter it or not.
+  planes_to_lf[0] = (lf->filter_level[0] || lf->filter_level[1]) &&
+                    plane_start <= 0 && 0 < plane_end;
+  planes_to_lf[1] = lf->filter_level_u && plane_start <= 1 && 1 < plane_end;
+  planes_to_lf[2] = lf->filter_level_v && plane_start <= 2 && 2 < plane_end;
+  // If the luma plane is purposely not filtered, neither are the chroma
+  // planes.
+  if (!planes_to_lf[0] && plane_start <= 0 && 0 < plane_end) return 0;
+  // Early exit.
+  if (!planes_to_lf[0] && !planes_to_lf[1] && !planes_to_lf[2]) return 0;
+  return 1;
+}
+
 #ifdef __cplusplus
 }  // extern "C"
 #endif

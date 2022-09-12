@@ -1647,6 +1647,8 @@ typedef struct REAL_TIME_SPEED_FEATURES {
   // race.
   bool top_right_sync_wait_in_mis;
 
+  bool lpf_mt_after_encode;
+
   // Sets force_zeromv_skip based on the source sad available. Aggressiveness
   // increases with increase in the level set for speed feature.
   // 0: No setting
