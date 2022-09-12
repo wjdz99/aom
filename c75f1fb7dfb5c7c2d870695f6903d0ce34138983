@@ -34,6 +34,41 @@
       "parentUuid": "23d78d10_4e3410e5",
       "revId": "c75f1fb7dfb5c7c2d870695f6903d0ce34138983",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "12f874f6_935fca6f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 6245
+      },
+      "writtenOn": "2022-09-12T09:50:41Z",
+      "side": 1,
+      "message": "We analyzed the BD-Rate loss for jimred_320_240 content and found that loss is primarily contributed by the behavior at 100 kbps. Please find the relevant data below \nParent version            100.3kbps - 36.07db\nModified version        100.2kbps - 35.74db\nWhen we analyzed the above case, we found that the content has one static frame every 5 frames. It looks like content is obtained via frame rate conversion (through replication) from 20fps to 25fps. \nThe static frames seem to be quite sensitive to quantizer fluctuations,  segment mapping which made bit consumption, rate correction factors quite different in parent and modified versions after coding static frames. \nWe did a quick 20 fps encoding test (by skipping static frames) and observed that parent and modified versions produce close output as given below. \nParent version (20 fps)            100.2kbps - 35.80db\nModified version (20 fps)        100.2kbps - 35.96db\nHence we feel that the static frames could have caused the above behavior due to rate control modeling (rate correction factors).",
+      "parentUuid": "7d0328c2_5d8b6187",
+      "revId": "c75f1fb7dfb5c7c2d870695f6903d0ce34138983",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "16da9b14_4d6416d1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 6245
+      },
+      "writtenOn": "2022-09-12T09:50:41Z",
+      "side": 1,
+      "message": "Hi Yunqing, Marco,\nPlease let us know your thoughts on our observations. \nRegards,\nRanjit\n",
+      "revId": "c75f1fb7dfb5c7c2d870695f6903d0ce34138983",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
