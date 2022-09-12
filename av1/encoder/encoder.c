@@ -1593,11 +1593,16 @@ void av1_remove_compressor(AV1_COMP *cpi) {
   MultiThreadInfo *const mt_info = &cpi->mt_info;
 #if CONFIG_MULTITHREAD
   pthread_mutex_t *const enc_row_mt_mutex_ = mt_info->enc_row_mt.mutex_;
+  pthread_cond_t *const enc_row_mt_cond_ = mt_info->enc_row_mt.cond_;
   pthread_mutex_t *const gm_mt_mutex_ = mt_info->gm_sync.mutex_;
   pthread_mutex_t *const pack_bs_mt_mutex_ = mt_info->pack_bs_sync.mutex_;
   if (enc_row_mt_mutex_ != NULL) {
     pthread_mutex_destroy(enc_row_mt_mutex_);
     aom_free(enc_row_mt_mutex_);
+  }
+  if (enc_row_mt_cond_ != NULL) {
+    pthread_cond_destroy(enc_row_mt_cond_);
+    aom_free(enc_row_mt_cond_);
   }
   if (gm_mt_mutex_ != NULL) {
     pthread_mutex_destroy(gm_mt_mutex_);
@@ -2288,23 +2293,26 @@ static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
   assert(IMPLIES(is_lossless_requested(&cpi->oxcf.rc_cfg),
                  cm->features.coded_lossless && cm->features.all_lossless));
 
-  const int use_loopfilter =
-      !cm->features.coded_lossless && !cm->tiles.large_scale;
   const int use_cdef = is_cdef_used(cm);
   const int use_restoration = is_restoration_used(cm);
-  // lpf_opt_level = 1 : Enables dual/quad loop-filtering.
-  // lpf_opt_level is set to 1 if transform size search depth in inter blocks
-  // is limited to one as quad loop filtering assumes that all the transform
-  // blocks within a 16x8/8x16/16x16 prediction block are of the same size.
-  // lpf_opt_level = 2 : Filters both chroma planes together, in addition to
-  // enabling dual/quad loop-filtering. This is enabled when lpf pick method
-  // is LPF_PICK_FROM_Q as u and v plane filter levels are equal.
-  int lpf_opt_level = 0;
-  if (is_inter_tx_size_search_level_one(&cpi->sf.tx_sf)) {
-    lpf_opt_level = (cpi->sf.lpf_sf.lpf_pick == LPF_PICK_FROM_Q) ? 2 : 1;
-  }
+  cpi->td.mb.rdmult = cpi->rd.RDMULT;
 
-  struct loopfilter *lf = &cm->lf;
+  if (!cpi->sf.rt_sf.lpf_mt_after_encode) {
+    const int use_loopfilter =
+        !cm->features.coded_lossless && !cm->tiles.large_scale;
+    // lpf_opt_level = 1 : Enables dual/quad loop-filtering.
+    // lpf_opt_level is set to 1 if transform size search depth in inter blocks
+    // is limited to one as quad loop filtering assumes that all the transform
+    // blocks within a 16x8/8x16/16x16 prediction block are of the same size.
+    // lpf_opt_level = 2 : Filters both chroma planes together, in addition to
+    // enabling dual/quad loop-filtering. This is enabled when lpf pick method
+    // is LPF_PICK_FROM_Q as u and v plane filter levels are equal.
+    int lpf_opt_level = 0;
+    if (is_inter_tx_size_search_level_one(&cpi->sf.tx_sf)) {
+      lpf_opt_level = (cpi->sf.lpf_sf.lpf_pick == LPF_PICK_FROM_Q) ? 2 : 1;
+    }
+
+    struct loopfilter *lf = &cm->lf;
 
 #if CONFIG_COLLECT_COMPONENT_TIMING
   start_timing(cpi, loop_filter_time);
@@ -2325,6 +2333,7 @@ static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
 #if CONFIG_COLLECT_COMPONENT_TIMING
   end_timing(cpi, loop_filter_time);
 #endif
+  }
 
   cdef_restoration_frame(cpi, cm, xd, use_restoration, use_cdef);
 }

@@ -1697,6 +1697,7 @@ static AOM_INLINE void encode_frame_internal(AV1_COMP *cpi) {
 
   if (oxcf->row_mt && (mt_info->num_workers > 1)) {
     mt_info->row_mt_enabled = 1;
+    if (cpi->sf.rt_sf.lpf_mt_after_encode) av1_loop_filter_mt_init(cpi);
     enc_row_mt->sync_read_ptr = av1_row_mt_sync_read;
     enc_row_mt->sync_write_ptr = av1_row_mt_sync_write;
     av1_encode_tiles_row_mt(cpi);
