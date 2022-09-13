@@ -16,6 +16,46 @@
       "message": "Hi Yunqing and Marco,\n\nThis CL introduces an early exit for intra-mode evaluation in inter frames based on rdcost calculated using known rate (i.e., rate used here to calculate actual rdcost for comparison with best_rd). Currently, early exit is introduced before luma plane evaluation. The same can be introduced after evaluation of each plane with updated rate. However, we did not pursue the same as it introduces code duplication and the scope seems to be very less.\n\nThis change is a bit-exact and following are the Borg test results.\n```\n                    Instruction Count\n    cpu  Resolution    Reduction(%)\n     7    rtc_derf       0.142\n     8    rtc_derf       0.137\n     9   rtc_screen      0.491\n    10   rtc_screen      0.478\n```\nThe gains seen for other cases are negligible. Please review the patch.\n\nThanks \u0026 Regards,\nVenkata\n",
       "revId": "4692119a7304f2359cd8be933eb7b94dcc68c110",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fc7140d3_d6f7f6b9",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2022-09-13T15:52:04Z",
+      "side": 1,
+      "message": "Good optimization.",
+      "revId": "4692119a7304f2359cd8be933eb7b94dcc68c110",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "27e90969_ded8015b",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 2284,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2022-09-13T15:52:04Z",
+      "side": 1,
+      "message": "Question: how would this make it bias to intra modes in screen content case? Final RD calculation is different from the one here?",
+      "range": {
+        "startLine": 2284,
+        "startChar": 26,
+        "endLine": 2284,
+        "endChar": 54
+      },
+      "revId": "4692119a7304f2359cd8be933eb7b94dcc68c110",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
