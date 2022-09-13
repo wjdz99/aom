@@ -56,6 +56,30 @@
       },
       "revId": "4692119a7304f2359cd8be933eb7b94dcc68c110",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bd8cc8c8_84a91a30",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 2284,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2022-09-13T17:21:45Z",
+      "side": 1,
+      "message": "Yes Yunqing, for screen content encoding in order to favor intra modes the final RDcost calculated below is reduced (please see line no: 2384) before comparing with best RDcost. The same factor is considered here for early exit in screen contents. \n\nNote that the conditions which decide bias towards/against intra modes can be derived here and use appropriate thresholds/factors for early exit. However, we did not pursue the same as the scope is negligible.\n\nThanks \u0026 Regards,\nVenkata.",
+      "parentUuid": "27e90969_ded8015b",
+      "range": {
+        "startLine": 2284,
+        "startChar": 26,
+        "endLine": 2284,
+        "endChar": 54
+      },
+      "revId": "4692119a7304f2359cd8be933eb7b94dcc68c110",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
