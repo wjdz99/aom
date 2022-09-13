@@ -87,6 +87,24 @@
       "parentUuid": "b1ac44c8_dbfe3acb",
       "revId": "c14902611969214b57535e4873cfe2d5ece36d7a",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bc213931_462a1ebe",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2022-09-13T15:39:38Z",
+      "side": 1,
+      "message": "Questions are addressed in the email. LGTM",
+      "parentUuid": "1cd8a302_fa1a10c4",
+      "revId": "c14902611969214b57535e4873cfe2d5ece36d7a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
