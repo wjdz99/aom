@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8f902e24_225e6ce0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8893
+      },
+      "writtenOn": "2022-09-13T12:43:00Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nIn this patch we have disabled the speed feature \u0027top_right_sync_wait_in_mis\u0027 and also reverted a change in direct_partition_merging() done in https://aomedia-review.googlesource.com/c/aom/+/161361. This fixes the encode/decode mismatch on the RTC 1080P set. We shall plan to debug the issue and re-enable the sf.\n\nPlease review.\n\nThanks",
+      "revId": "d6ad26c3113762c82aee3fffb83ad9f46ed5d100",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
