@@ -75,7 +75,7 @@ DuckyEncode::~DuckyEncode() {}
 static AV1EncoderConfig GetEncoderConfig(const VideoInfo &video_info,
                                          int g_usage, aom_enc_pass pass) {
   const aom_codec_iface *codec = aom_codec_av1_cx();
-  aom_codec_enc_cfg_t cfg;
+  aom_codec_enc_cfg_t cfg = {};
   aom_codec_enc_config_default(codec, &cfg, g_usage);
   cfg.g_w = video_info.frame_width;
   cfg.g_h = video_info.frame_height;
@@ -83,6 +83,10 @@ static AV1EncoderConfig GetEncoderConfig(const VideoInfo &video_info,
   // g_timebase is the inverse of frame_rate
   cfg.g_timebase.num = video_info.frame_rate.den;
   cfg.g_timebase.den = video_info.frame_rate.num;
+  if (pass == AOM_RC_SECOND_PASS) {
+    cfg.rc_twopass_stats_in.sz =
+        (video_info.frame_count + 1) * sizeof(FIRSTPASS_STATS);
+  }
   AV1EncoderConfig oxcf = av1_get_encoder_config(&cfg);
   // TODO(angiebird): Why didn't we init use_highbitdepth in
   // av1_get_encoder_config()?
