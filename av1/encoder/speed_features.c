@@ -2073,7 +2073,6 @@ static AOM_INLINE void init_rt_sf(REAL_TIME_SPEED_FEATURES *rt_sf) {
   rt_sf->top_right_sync_wait_in_mis = false;
   rt_sf->set_zeromv_skip_based_on_source_sad = 1;
   rt_sf->use_adaptive_subpel_search = false;
-  rt_sf->screen_content_cdef_filter_qindex_thresh = 0;
 }
 
 // Populate appropriate sub-pel search method based on speed feature and user
