@@ -2274,6 +2274,44 @@ static void cdef_restoration_frame(AV1_COMP *cpi, AV1_COMMON *cm,
 #endif  // !CONFIG_REALTIME_ONLY
 }
 
+static AOM_INLINE void extend_frame_borders(AV1_COMP *cpi) {
+  AV1_COMMON *cm = &cpi->common;
+  // TODO(debargha): Fix mv search range on encoder side
+  for (int plane = 0; plane < av1_num_planes(cm); ++plane) {
+    const int extend_border_done = extend_borders_mt(cpi, MOD_CDEF, plane) ||
+                                   extend_borders_mt(cpi, MOD_LR, plane);
+    if (extend_border_done == 0) {
+      const YV12_BUFFER_CONFIG *ybf = &cm->cur_frame->buf;
+      aom_extend_frame_borders_plane_row(ybf, plane, 0,
+                                         ybf->crop_heights[plane > 0]);
+    }
+  }
+}
+
+static AOM_INLINE void set_default_params(AV1_COMMON *cm) {
+  cm->cdef_info.cdef_bits = 0;
+  cm->cdef_info.cdef_strengths[0] = 0;
+  cm->cdef_info.nb_cdef_strengths = 1;
+  cm->cdef_info.cdef_uv_strengths[0] = 0;
+  cm->rst_info[0].frame_restoration_type = RESTORE_NONE;
+  cm->rst_info[1].frame_restoration_type = RESTORE_NONE;
+  cm->rst_info[2].frame_restoration_type = RESTORE_NONE;
+}
+
+// Checks if in-loop filters need to be applied. Currently checking only for
+// deblocking filters.
+static AOM_INLINE int skip_applying_inloop_filters(AV1_COMP *cpi, int use_cdef,
+                                                   int use_restoration) {
+  assert(cpi->oxcf.mode == ALLINTRA);
+  if (cpi->ppi->b_calculate_psnr) return 0;
+  AV1_COMMON *cm = &cpi->common;
+
+  // In case of ALLINTRA encoding, if there are no further in-loop
+  // filtering stages, deblocking filters need not be applied on the
+  // reconstructed frame as it is not used as reference frame.
+  return (!use_cdef && !av1_superres_scaled(cm) && !use_restoration);
+}
+
 /*!\brief Select and apply in-loop deblocking filters, cdef filters, and
  * restoration filters
  *
@@ -2316,6 +2354,15 @@ static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
     lf->filter_level[1] = 0;
   }
 
+  if (!cpi->oxcf.algo_cfg.apply_loopfilter) {
+    int skip_inloop_filters =
+        skip_applying_inloop_filters(cpi, use_cdef, use_restoration);
+    if (skip_inloop_filters) {
+      set_default_params(cm);
+      return;
+    }
+  }
+
   if ((lf->filter_level[0] || lf->filter_level[1]) &&
       !cpi->rtc_ref.non_reference_frame) {
     av1_loop_filter_frame_mt(&cm->cur_frame->buf, cm, xd, 0, num_planes, 0,
@@ -2327,6 +2374,8 @@ static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
 #endif
 
   cdef_restoration_frame(cpi, cm, xd, use_restoration, use_cdef);
+
+  extend_frame_borders(cpi);
 }
 
 static void update_motion_stat(AV1_COMP *const cpi) {
@@ -3113,19 +3162,8 @@ static int encode_with_recode_loop_and_filter(AV1_COMP *cpi, size_t *size,
     cm->rst_info[0].frame_restoration_type = RESTORE_NONE;
     cm->rst_info[1].frame_restoration_type = RESTORE_NONE;
     cm->rst_info[2].frame_restoration_type = RESTORE_NONE;
+    extend_frame_borders(cpi);
   }
-
-  // TODO(debargha): Fix mv search range on encoder side
-  for (int plane = 0; plane < av1_num_planes(cm); ++plane) {
-    const int extend_border_done = extend_borders_mt(cpi, MOD_CDEF, plane) ||
-                                   extend_borders_mt(cpi, MOD_LR, plane);
-    if (extend_border_done == 0) {
-      const YV12_BUFFER_CONFIG *ybf = &cm->cur_frame->buf;
-      aom_extend_frame_borders_plane_row(ybf, plane, 0,
-                                         ybf->crop_heights[plane > 0]);
-    }
-  }
-
 #ifdef OUTPUT_YUV_REC
   aom_write_one_yuv_frame(cm, &cm->cur_frame->buf);
 #endif
@@ -4951,7 +4989,7 @@ int av1_get_preview_raw_frame(AV1_COMP *cpi, YV12_BUFFER_CONFIG *dest) {
     return -1;
   } else {
     int ret;
-    if (cm->cur_frame != NULL) {
+    if (cm->cur_frame != NULL && cpi->oxcf.algo_cfg.apply_loopfilter) {
       *dest = cm->cur_frame->buf;
       dest->y_width = cm->width;
       dest->y_height = cm->height;
@@ -4966,7 +5004,8 @@ int av1_get_preview_raw_frame(AV1_COMP *cpi, YV12_BUFFER_CONFIG *dest) {
 }
 
 int av1_get_last_show_frame(AV1_COMP *cpi, YV12_BUFFER_CONFIG *frame) {
-  if (cpi->last_show_frame_buf == NULL) return -1;
+  if (cpi->last_show_frame_buf == NULL || !cpi->oxcf.algo_cfg.apply_loopfilter)
+    return -1;
 
   *frame = cpi->last_show_frame_buf->buf;
   return 0;
