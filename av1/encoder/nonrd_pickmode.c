@@ -2946,8 +2946,8 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
 
   int single_inter_mode_costs[RTC_INTER_MODES][REF_FRAMES];
   fill_single_inter_mode_costs(single_inter_mode_costs, num_inter_modes,
-                                 ref_mode_set, mode_costs,
-                                 mbmi_ext->mode_context);
+                               ref_mode_set, mode_costs,
+                               mbmi_ext->mode_context);
 
   MV_REFERENCE_FRAME last_comp_ref_frame = NONE_FRAME;
 
