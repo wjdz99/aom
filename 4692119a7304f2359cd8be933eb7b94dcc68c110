@@ -106,6 +106,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "2e1d3e5f_83bcf9d7",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 2284,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2022-09-14T16:22:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "73cf5d69_8768ffac",
+      "range": {
+        "startLine": 2284,
+        "startChar": 26,
+        "endLine": 2284,
+        "endChar": 54
+      },
+      "revId": "4692119a7304f2359cd8be933eb7b94dcc68c110",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "7ede584c_db13315f",
@@ -137,6 +161,24 @@
       "side": 1,
       "message": "And this condition (line 2285) is similar/same to the condition already at line 2275, except for the 7/8 factor?",
       "parentUuid": "7ede584c_db13315f",
+      "revId": "4692119a7304f2359cd8be933eb7b94dcc68c110",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "19030f2c_8f6d9cc7",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 2285,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2022-09-14T16:22:35Z",
+      "side": 1,
+      "message": "Hi Marco,\n\nThis early exit is based on the partial rdcost calculated using known rate and it does not affect the mode decision. i.e., if this condition (line no: 2285) is true, intra mode can not be the winner (for any value of force_intra_check).\n\nThe early exit present at line no:2275 might not happen even when  inter_mode_thresh \u003e best_rdcost, as it is combined with few other conditions. Hence, it is different from the newly added condition (which is line no:2285). Also, the condition at line 2275 is became redundant now due to newly added early exit. Hence, we have removed the same from line 2275.\n\nThanks \u0026 Regards,\nVenkata.",
+      "parentUuid": "f8d0dc46_0419b0c1",
       "revId": "4692119a7304f2359cd8be933eb7b94dcc68c110",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
