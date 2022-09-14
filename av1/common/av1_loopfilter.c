@@ -661,6 +661,7 @@ static AOM_FORCE_INLINE void set_one_param_for_line_luma(
   const MB_MODE_INFO *mbmi = mi[0];
   assert(mbmi);
 
+  const BLOCK_SIZE bsize = mbmi->bsize;
   const TX_SIZE ts =
       get_transform_size(xd, mi[0], mi_row, mi_col, AOM_PLANE_Y, 0, 0);
 
@@ -695,13 +696,14 @@ static AOM_FORCE_INLINE void set_one_param_for_line_luma(
                                    mi_prev);
     }
 
-    const int32_t pu_edge = mi_prev != mbmi;
+    const int prediction_masks =
+        is_vert ? block_size_wide[bsize] - 1 : block_size_high[bsize] - 1;
+    const int32_t pu_edge = ((coord * MI_SIZE) & prediction_masks) ? (0) : (1);
 
     // The quad loop filter assumes that all the transform blocks within a
     // 8x16/16x8/16x16 prediction block are of the same size.
-    assert(IMPLIES(
-        !pu_edge && (mbmi->bsize >= BLOCK_8X16 && mbmi->bsize <= BLOCK_16X16),
-        pv_ts == ts));
+    assert(IMPLIES(!pu_edge && (bsize >= BLOCK_8X16 && bsize <= BLOCK_16X16),
+                   pv_ts == ts));
 
     if (!pu_edge) {
       curr_skipped = mbmi->skip_txfm && is_inter_block(mbmi);
@@ -716,7 +718,7 @@ static AOM_FORCE_INLINE void set_one_param_for_line_luma(
     }
   }
   const int block_dim =
-      is_vert ? block_size_high[mbmi->bsize] : block_size_wide[mbmi->bsize];
+      is_vert ? block_size_high[bsize] : block_size_wide[bsize];
   *min_dim = AOMMIN(*min_dim, block_dim);
 
   *tx_size = ts;
@@ -771,8 +773,8 @@ static AOM_FORCE_INLINE void set_one_param_for_line_chroma(
     const EDGE_DIR edge_dir, uint32_t mi_col, uint32_t mi_row, int coord,
     bool is_first_block, TX_SIZE prev_tx_size,
     const struct macroblockd_plane *const plane_ptr, const ptrdiff_t mode_step,
-    const int scale_horz, const int scale_vert, int *min_dim, int plane,
-    int joint_filter_chroma) {
+    const int scale_horz, const int scale_vert, int scale, int *min_dim,
+    int plane, int joint_filter_chroma) {
   const int is_vert = edge_dir == VERT_EDGE;
   (void)plane_ptr;
   assert((mi_col << MI_SIZE_LOG2) <
@@ -840,7 +842,12 @@ static AOM_FORCE_INLINE void set_one_param_for_line_chroma(
 #else
     (void)joint_filter_chroma;
 #endif  // NDEBUG
-    const int32_t pu_edge = mi_prev != mbmi;
+    BLOCK_SIZE bsize = ss_size_lookup[mbmi->bsize][plane_ptr->subsampling_x]
+                                     [plane_ptr->subsampling_y];
+    const int prediction_masks =
+        is_vert ? block_size_wide[bsize] - 1 : block_size_high[bsize] - 1;
+    const int32_t pu_edge =
+        ((coord * (MI_SIZE >> scale)) & prediction_masks) ? (0) : (1);
 
     if (!pu_edge) {
       curr_skipped = mbmi->skip_txfm && is_inter_block(mbmi);
@@ -877,7 +884,7 @@ static AOM_FORCE_INLINE void set_lpf_parameters_for_line_chroma(
   set_one_param_for_line_chroma(params, tx_size, cm, xd, edge_dir, mi_col,
                                 mi_row, *counter_ptr, true, prev_tx_size,
                                 plane_ptr, mode_step, scale_horz, scale_vert,
-                                min_dim, plane, joint_filter_chroma);
+                                scale, min_dim, plane, joint_filter_chroma);
 
   // Advance
   int advance_units =
@@ -891,7 +898,7 @@ static AOM_FORCE_INLINE void set_lpf_parameters_for_line_chroma(
     set_one_param_for_line_chroma(params, tx_size, cm, xd, edge_dir, mi_col,
                                   mi_row, *counter_ptr, false, prev_tx_size,
                                   plane_ptr, mode_step, scale_horz, scale_vert,
-                                  min_dim, plane, joint_filter_chroma);
+                                  scale, min_dim, plane, joint_filter_chroma);
 
     // Advance
     advance_units =
