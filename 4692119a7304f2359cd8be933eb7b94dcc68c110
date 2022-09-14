@@ -181,6 +181,24 @@
       "parentUuid": "f8d0dc46_0419b0c1",
       "revId": "4692119a7304f2359cd8be933eb7b94dcc68c110",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "16269655_8c8f9be0",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 2285,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2022-09-14T19:09:23Z",
+      "side": 1,
+      "message": "OK with removing the redundant line 2275, given line 2285.\n\nRegarding the force_intra_check: if the intra_cost_penalty() term is changed, increased by some amount, does that still guarantee \"if this condition (line no: 2285) is true, intra mode can not be the winner (for any value of force_intra_check\".",
+      "parentUuid": "19030f2c_8f6d9cc7",
+      "revId": "4692119a7304f2359cd8be933eb7b94dcc68c110",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
