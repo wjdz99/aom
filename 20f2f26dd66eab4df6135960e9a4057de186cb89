@@ -20,6 +20,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "14c46f5b_e74389a4",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 31132
+      },
+      "writtenOn": "2022-09-14T19:22:23Z",
+      "side": 1,
+      "message": "Got it and edited the commit message following the guideline. Thanks James.",
+      "parentUuid": "fc2e6d97_4a5c4b37",
+      "revId": "20f2f26dd66eab4df6135960e9a4057de186cb89",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "9e3b03fb_38d12fb6",
         "filename": "av1/encoder/nonrd_pickmode.c",
         "patchSetId": 2
