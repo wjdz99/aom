@@ -3,6 +3,23 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "fc2e6d97_4a5c4b37",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-09-14T18:57:29Z",
+      "side": 1,
+      "message": "generally it\u0027s best to try to keep the lines in the commit message to be \u003c\u003d 72 characters to improve readability when logging in a console or reading the messages in email:\n\nhttps://www.git-scm.com/book/en/v2/Distributed-Git-Contributing-to-a-Project#_commit_guidelines",
+      "revId": "20f2f26dd66eab4df6135960e9a4057de186cb89",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "9e3b03fb_38d12fb6",
         "filename": "av1/encoder/nonrd_pickmode.c",
         "patchSetId": 2
