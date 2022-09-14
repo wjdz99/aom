@@ -1455,6 +1455,14 @@ enum aome_enc_control_id {
    */
   AV1E_GET_NUM_OPERATING_POINTS = 156,
 
+  /*!\brief Codec control function to apply loop-filtering on reconstructed
+   * frame, unsigned int parameter
+   *
+   * - 1 = enable (default)
+   * - 0 = disable
+   */
+  AV1E_SET_APPLY_LOOPFILTER = 157,
+
   // Any new encoder control IDs should be added above.
   // Maximum allowed encoder control ID is 229.
   // No encoder control ID should be added below.
@@ -2070,6 +2078,9 @@ AOM_CTRL_USE_TYPE(AV1E_GET_TARGET_SEQ_LEVEL_IDX, int *)
 
 AOM_CTRL_USE_TYPE(AV1E_GET_NUM_OPERATING_POINTS, int *)
 #define AOM_CTRL_AV1E_GET_NUM_OPERATING_POINTS
+
+AOM_CTRL_USE_TYPE(AV1E_SET_APPLY_LOOPFILTER, unsigned int)
+#define AOM_CTRL_AV1E_SET_APPLY_LOOPFILTER
 
 /*!\endcond */
 /*! @} - end defgroup aom_encoder */
