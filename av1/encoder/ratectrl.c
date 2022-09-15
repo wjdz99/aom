@@ -2063,6 +2063,8 @@ void av1_rc_postencode_update(AV1_COMP *cpi, uint64_t bytes_used) {
   // Update rate control heuristics
   rc->projected_frame_size = (int)(bytes_used << 3);
 
+  printf("%d %d %d %d \n", cm->current_frame.frame_number, qindex, rc->projected_frame_size, rc->high_source_sad);
+
   // Post encode loop adjustment of Q prediction.
   av1_rc_update_rate_correction_factors(cpi, 0, cm->width, cm->height);
 

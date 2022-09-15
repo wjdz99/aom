@@ -1382,6 +1382,8 @@ int av1_choose_var_based_partitioning(AV1_COMP *cpi, const TileInfo *const tile,
   // can still continue cleaning/ramping up the quality).
   // Condition on color uv_sad is also added.
   if (!is_key_frame && cpi->sf.rt_sf.part_early_exit_zeromv &&
+      //cpi->oxcf.q_cfg.aq_mode == CYCLIC_REFRESH_AQ &&
+     //cpi->cyclic_refresh->apply_cyclic_refresh &&
       cpi->rc.frames_since_key > 30 && segment_id == CR_SEGMENT_ID_BASE &&
       is_set_force_zeromv_skip && ref_frame_partition == LAST_FRAME &&
       xd->mi[0]->mv[0].as_int == 0) {
