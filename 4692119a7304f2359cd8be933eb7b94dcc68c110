@@ -217,6 +217,24 @@
       "parentUuid": "16269655_8c8f9be0",
       "revId": "4692119a7304f2359cd8be933eb7b94dcc68c110",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "806d7373_08d7ae3d",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 2285,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2022-09-15T18:39:27Z",
+      "side": 1,
+      "message": "Thanks, i see, missed the line 2375 below. Seems safe then.",
+      "parentUuid": "4dc18889_ea102023",
+      "revId": "4692119a7304f2359cd8be933eb7b94dcc68c110",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
