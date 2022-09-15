@@ -18,6 +18,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "799fbaec_ec970993",
+        "filename": "common/obudec.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 319,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-09-15T23:51:08Z",
+      "side": 1,
+      "message": "\u003e James, do you know when this function should call `rewind(f)` before returning 0?\n\nIn this case it may not matter since we\u0027ve already identified it as an OBU, but for consistency we can add it in another change.",
+      "parentUuid": "2605fd11_768ffe9e",
+      "revId": "c2272b1fecacb29067e9bb38514a44f8bedde935",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "6d7dd0e9_1a47d47e",
@@ -35,6 +53,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "c4f69b0d_480e0792",
+        "filename": "common/obudec.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 489,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-09-15T23:51:08Z",
+      "side": 1,
+      "message": "\u003e This change is not needed to fix this leak. This is change is fine if it is the convention in libaom for the free/destroy functions to allow a null input.\n\nMy feeling is that any example code or semi-public function should check its parameters unless they\u0027re validated elsewhere. You\u0027re right though it isn\u0027t necessary in this particular change.",
+      "parentUuid": "6d7dd0e9_1a47d47e",
+      "revId": "c2272b1fecacb29067e9bb38514a44f8bedde935",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "431987df_5bbf037f",
@@ -48,6 +84,24 @@
       "writtenOn": "2022-09-14T21:49:06Z",
       "side": 1,
       "message": "Is this defensive programming?\n\nIn general setting `obu_ctx-\u003ebuffer` to NULL (and setting `obu_ctx-\u003ebuffer_capacity` and `obu_ctx-\u003ebytes_buffered` to 0) to undo the buffer allocation should be enough. Zeroing the whole `obu_ctx` struct requires the code reviewer to inspect the callers of `file_is_obu()`.",
+      "revId": "c2272b1fecacb29067e9bb38514a44f8bedde935",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7964338f_2951b38f",
+        "filename": "common/obudec.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 491,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-09-15T23:51:08Z",
+      "side": 1,
+      "message": "\u003e Is this defensive programming?\n\u003e \n\nYes, in a way. I recognized the same thing as you for the members. I do those explicitly.\n\n\u003e In general setting `obu_ctx-\u003ebuffer` to NULL (and setting `obu_ctx-\u003ebuffer_capacity` and `obu_ctx-\u003ebytes_buffered` to 0) to undo the buffer allocation should be enough. Zeroing the whole `obu_ctx` struct requires the code reviewer to inspect the callers of `file_is_obu()`.",
+      "parentUuid": "431987df_5bbf037f",
       "revId": "c2272b1fecacb29067e9bb38514a44f8bedde935",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
