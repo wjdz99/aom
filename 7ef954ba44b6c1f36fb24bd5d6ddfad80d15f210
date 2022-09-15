@@ -16,6 +16,24 @@
       "message": "Feedback on this change:\nWe need to think about if it is worth to have this change. Is it possible to add unit test to test failures beforehand?",
       "revId": "7ef954ba44b6c1f36fb24bd5d6ddfad80d15f210",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5241e50a_20a66e98",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8893
+      },
+      "writtenOn": "2022-09-15T17:26:25Z",
+      "side": 1,
+      "message": "Ack. The speed feature can be disabled for the time being. However, we have investigated the issue further and have found that the encode/decode mismatch was caused by copying members of MB_MODE_INFO for all the mi\u0027s in a block instead of copying the pointer in the function direct_partition_merging() (line number 2600 - This avoids a thread sanitizer data race when the sf \u0027top_right_sync_wait_in_mis\u0027 is enabled). This change resulted in incorrect detection of prediction unit edges in loop filter functions, because of \"pu_edge\" calculation as \"pu_edge \u003d mi_prev !\u003d mbmi\" causing encode/decode mismatch.",
+      "parentUuid": "f49a4a6f_a1b307e5",
+      "revId": "7ef954ba44b6c1f36fb24bd5d6ddfad80d15f210",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
