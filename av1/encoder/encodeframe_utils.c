@@ -1444,11 +1444,16 @@ void av1_source_content_sb(AV1_COMP *cpi, MACROBLOCK *x, TileDataEnc *tile_data,
   const unsigned int nmean2 = tmp_sse - tmp_variance;
   const int ac_q_step = av1_ac_quant_QTX(cm->quant_params.base_qindex, 0,
                                          cm->seq_params->bit_depth);
+  const PRIMARY_RATE_CONTROL *const p_rc = &cpi->ppi->p_rc;
+  const int avg_q_step = av1_ac_quant_QTX(p_rc->avg_frame_qindex[INTER_FRAME],
+                                          0, cm->seq_params->bit_depth);
+
   // Keep the threshold for >= 360p unchanged. It will be tested and modified
   // later when needed.
-  const unsigned int threshold = (cpi->sf.rt_sf.use_rtc_tf == 1)
-                                     ? ((3 * ac_q_step * ac_q_step) >> 1)
-                                     : 250 * ac_q_step;
+  const unsigned int threshold =
+      (cpi->sf.rt_sf.use_rtc_tf == 1)
+          ? ((3 * ac_q_step * ac_q_step) >> 1)
+          : (clamp(avg_q_step, 250, 1000)) * ac_q_step;
 
   // TODO(yunqing): use a weighted sum instead of averaging in filtering.
   if (tmp_variance <= threshold && nmean2 <= 15) {
