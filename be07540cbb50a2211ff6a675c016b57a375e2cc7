@@ -34,6 +34,24 @@
       "parentUuid": "6a856f17_c5468eb5",
       "revId": "be07540cbb50a2211ff6a675c016b57a375e2cc7",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2db6f9a2_248bdbcf",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8893
+      },
+      "writtenOn": "2022-09-16T17:49:34Z",
+      "side": 1,
+      "message": "In the earlier implementation allocation and freeing of memory of all the threads is done by a single main thread. In this patch, alloc/free happens concurrently in the thread level hook functions resulting in speed-up.",
+      "parentUuid": "4c2d7eb9_b1013821",
+      "revId": "be07540cbb50a2211ff6a675c016b57a375e2cc7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
