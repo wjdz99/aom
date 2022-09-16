@@ -49,6 +49,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "0bc3d15f_f82d9de2",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 6
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 31132
+      },
+      "writtenOn": "2022-09-16T19:15:40Z",
+      "side": 1,
+      "message": "I was also wondering about it. The results I report here are after rebasing to the latest baseline and re-running Borg tests, which seems slightly different from what I saw earlier this week. The previous gains at speed 10 are 0.152 and 0.167 on two older baselines. The gain on speed 9 is not degraded though.\n\nI printed the number of frames that have short_signaling enabled, and I didn\u0027t notice significant lower numbers on speed 10 comparing with speed 9. I don\u0027t think it\u0027s caused by less number of frames getting triggered.\n\nThe difference might be related some recent code changes on origin/main, which could be either because the gain on \"--enable_order_hint\u003d0\" was enlarged by some reason, or just from slightly different rate control reaction. Not quite sure.",
+      "parentUuid": "640a9425_5490e1a9",
+      "range": {
+        "startLine": 26,
+        "startChar": 8,
+        "endLine": 26,
+        "endChar": 14
+      },
+      "revId": "e2dce3a04b8d7ce23c958816fa36619907398f5b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "c4ea7ed7_76df1611",
         "filename": "av1/encoder/bitstream.c",
         "patchSetId": 6
