@@ -39,6 +39,30 @@
       },
       "revId": "10a95c358682b6558d1859f7fea2b25ea9d0e2bf",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bfde8ffd_de556c73",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 618,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-09-16T22:10:50Z",
+      "side": 1,
+      "message": "This number comes from the AV1 spec. The `sequence_header_obu()` function has the following syntax elements:\n\n```\n    frame_width_bits_minus_1                 f(4)\n    frame_height_bits_minus_1                f(4)\n    n \u003d frame_width_bits_minus_1 + 1\n    max_frame_width_minus_1                  f(n)\n    n \u003d frame_height_bits_minus_1 + 1\n    max_frame_height_minus_1                 f(n)\n```\n\nNote that all these syntax elements are \"minus 1\". `frame_width_bits_minus_1` is represented in 4 bits, so it is in the range 0..15. Therefore frame width bits is in the range 1..16. The maximum frame width bits is 16.\n\nThen, `max_frame_width_minus_1` is represented in at most 16 bits, so its range is 0..65535, and max frame width is in the range 1..65536.",
+      "parentUuid": "5fced368_85d5ecd5",
+      "range": {
+        "startLine": 618,
+        "startChar": 27,
+        "endLine": 618,
+        "endChar": 32
+      },
+      "revId": "10a95c358682b6558d1859f7fea2b25ea9d0e2bf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
