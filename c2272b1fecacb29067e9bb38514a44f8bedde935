@@ -36,6 +36,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "b083c7f6_6481e9e7",
+        "filename": "common/obudec.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 319,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-09-16T16:40:10Z",
+      "side": 1,
+      "message": "\u003e \u003e James, do you know when this function should call `rewind(f)` before returning 0?\n\u003e \n\u003e In this case it may not matter since we\u0027ve already identified it as an OBU, but for consistency we can add it in another change.\n\nhttps://aomedia-review.googlesource.com/c/aom/+/163042",
+      "parentUuid": "799fbaec_ec970993",
+      "revId": "c2272b1fecacb29067e9bb38514a44f8bedde935",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "6d7dd0e9_1a47d47e",
