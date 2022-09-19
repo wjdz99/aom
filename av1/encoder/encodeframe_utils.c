@@ -1349,7 +1349,7 @@ static int fast_detect_non_zero_motion(AV1_COMP *cpi, const uint8_t *src_y,
                                        int mi_col) {
   AV1_COMMON *const cm = &cpi->common;
   const BLOCK_SIZE bsize = cm->seq_params->sb_size;
-  unsigned int blk_sad = INT_MAX;
+  unsigned int blk_sad = UINT32_MAX;
   if (cpi->src_sad_blk_64x64 != NULL) {
     const int sb_size_by_mb = (bsize == BLOCK_128X128)
                                   ? (cm->seq_params->mib_size >> 1)
@@ -1359,7 +1359,8 @@ static int fast_detect_non_zero_motion(AV1_COMP *cpi, const uint8_t *src_y,
     const int sbi_col = mi_col / sb_size_by_mb;
     const int sbi_row = mi_row / sb_size_by_mb;
     blk_sad = (unsigned int)cpi->src_sad_blk_64x64[sbi_col + sbi_row * sb_cols];
-  } else {
+  }
+  if (blk_sad == UINT32_MAX) {
     blk_sad = cpi->ppi->fn_ptr[bsize].sdf(src_y, src_ystride, last_src_y,
                                           last_src_ystride);
   }

@@ -2800,6 +2800,8 @@ static void rc_scene_detection_onepass_rt(AV1_COMP *cpi,
     }
     for (int sbi_row = 0; sbi_row < sb_rows; ++sbi_row) {
       for (int sbi_col = 0; sbi_col < sb_cols; ++sbi_col) {
+        if (cpi->src_sad_blk_64x64 != NULL)
+          cpi->src_sad_blk_64x64[sbi_col + sbi_row * sb_cols] = UINT64_MAX;
         // Checker-board pattern, ignore boundary.
         if (full_sampling ||
             ((sbi_row > 0 && sbi_col > 0) &&
