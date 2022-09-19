@@ -2773,7 +2773,7 @@ static void rc_scene_detection_onepass_rt(AV1_COMP *cpi,
     int full_sampling = (cm->width * cm->height < 640 * 360) ? 1 : 0;
     // Loop over sub-sample of frame, compute average sad over 64x64 blocks.
     uint64_t avg_sad = 0;
-    uint64_t tmp_sad = 0;
+    int64_t tmp_sad = 0;
     int num_samples = 0;
     const int thresh = 6;
     // SAD is computed on 64x64 blocks
@@ -2792,14 +2792,15 @@ static void rc_scene_detection_onepass_rt(AV1_COMP *cpi,
         (cm->height == cm->render_height)) {
       full_sampling = 1;
       if (cpi->src_sad_blk_64x64 == NULL) {
-        CHECK_MEM_ERROR(
-            cm, cpi->src_sad_blk_64x64,
-            (uint64_t *)aom_calloc(sb_cols * sb_rows,
-                                   sizeof(*cpi->src_sad_blk_64x64)));
+        CHECK_MEM_ERROR(cm, cpi->src_sad_blk_64x64,
+                        (int64_t *)aom_calloc(sb_cols * sb_rows,
+                                              sizeof(*cpi->src_sad_blk_64x64)));
       }
     }
     for (int sbi_row = 0; sbi_row < sb_rows; ++sbi_row) {
       for (int sbi_col = 0; sbi_col < sb_cols; ++sbi_col) {
+        if (cpi->src_sad_blk_64x64 != NULL)
+          cpi->src_sad_blk_64x64[sbi_col + sbi_row * sb_cols] = -1;
         // Checker-board pattern, ignore boundary.
         if (full_sampling ||
             ((sbi_row > 0 && sbi_col > 0) &&
@@ -2820,7 +2821,7 @@ static void rc_scene_detection_onepass_rt(AV1_COMP *cpi,
               num_low_var_high_sumdiff++;
             }
           }
-          avg_sad += tmp_sad;
+          avg_sad += (uint64_t)tmp_sad;
           num_samples++;
           if (tmp_sad == 0) num_zero_temp_sad++;
         }
