@@ -753,6 +753,58 @@ static AOM_INLINE void encode_rd_sb(AV1_COMP *cpi, ThreadData *td,
   }
 }
 
+/*!\brief Calculate source SAD at superblock level using 64x64 block source SAD
+ *
+ * \ingroup partition_search
+ * \callgraph
+ * \callergraph
+ */
+static uint64_t get_sb_source_sad(const AV1_COMP *cpi, int mi_row, int mi_col) {
+  if (cpi->src_sad_blk_64x64 == NULL) return -1;
+
+  const AV1_COMMON *const cm = &cpi->common;
+  const int blk_64x64_in_mis = (cm->seq_params->sb_size == BLOCK_128X128)
+                                   ? (cm->seq_params->mib_size >> 1)
+                                   : cm->seq_params->mib_size;
+  const int num_blk_64x64_cols =
+      (cm->mi_params.mi_cols + blk_64x64_in_mis - 1) / blk_64x64_in_mis;
+  const int num_blk_64x64_rows =
+      (cm->mi_params.mi_rows + blk_64x64_in_mis - 1) / blk_64x64_in_mis;
+  const int blk_64x64_col_index = mi_col / blk_64x64_in_mis;
+  const int blk_64x64_row_index = mi_row / blk_64x64_in_mis;
+  uint64_t curr_sb_sad = UINT64_MAX;
+  const uint64_t *const src_sad_blk_64x64_data =
+      &cpi->src_sad_blk_64x64[blk_64x64_col_index +
+                              blk_64x64_row_index * num_blk_64x64_cols];
+  if (cm->seq_params->sb_size == BLOCK_128X128 &&
+      blk_64x64_col_index + 1 < num_blk_64x64_cols &&
+      blk_64x64_row_index + 1 < num_blk_64x64_rows) {
+    // Calculate source SAD if superblock size is 128x128 using 64x64 block
+    // source SAD
+    curr_sb_sad = 0;
+    for (int curr_blk_64x64_row = 0; curr_blk_64x64_row < 2;
+         curr_blk_64x64_row++) {
+      for (int curr_blk_64x64_col = 0; curr_blk_64x64_col < 2;
+           curr_blk_64x64_col++) {
+        uint64_t curr_blk_64x64_sad =
+            src_sad_blk_64x64_data[curr_blk_64x64_col +
+                                   curr_blk_64x64_row * num_blk_64x64_cols];
+        if (curr_blk_64x64_sad == UINT64_MAX) {
+          curr_sb_sad = UINT64_MAX;
+          break;
+        }
+        curr_sb_sad += curr_blk_64x64_sad;
+      }
+      if (curr_sb_sad == UINT64_MAX) break;
+    }
+  } else if (cm->seq_params->sb_size == BLOCK_64X64 &&
+             blk_64x64_col_index < num_blk_64x64_cols &&
+             blk_64x64_row_index < num_blk_64x64_rows) {
+    curr_sb_sad = src_sad_blk_64x64_data[0];
+  }
+  return curr_sb_sad;
+}
+
 /*!\brief Determine whether grading content can be skipped based on sad stat
  *
  * \ingroup partition_search
@@ -762,6 +814,11 @@ static AOM_INLINE void encode_rd_sb(AV1_COMP *cpi, ThreadData *td,
 static AOM_INLINE bool is_calc_src_content_needed(AV1_COMP *cpi,
                                                   MACROBLOCK *const x,
                                                   int mi_row, int mi_col) {
+  const uint64_t curr_sb_sad = get_sb_source_sad(cpi, mi_row, mi_col);
+  if (curr_sb_sad == 0) {
+    x->content_state_sb.source_sad_nonrd = kZeroSad;
+    return false;
+  }
   AV1_COMMON *const cm = &cpi->common;
   bool do_calc_src_content = true;
 
