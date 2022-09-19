@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9a31b043_262e9404",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 31012
+      },
+      "writtenOn": "2022-09-19T11:27:33Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nThe function ‘aom_mse_wxh_16bit() computes mse of 8x8/4x4 blocks in CDEF search. In order to utilize the AVX2 instructions in this patch, support is added to perform mse of two continuous 8x8 blocks and four continuous 4x4 blocks.\n\nWe also noticed that the existing AVX2 Intrinsic implementation is done at 32/64 bit level. But for the given input range, the precision at which computations happen can be reduced (verified with the maximum value possible for src buffer i.e., CDEF_VERY_LARGE). This patch has SIMD improvements of the above changes.\n\nFor this patch, module level scaling achieved is ~10X.\nPlease check the encoder speed-up measured using timer and instruction count as below.\n``` \n                                 Encode_time\n   cpu          Testset          Reduction(%)\n    7            rtc                0.765\n    8            rtc                0.803\n\n                              Instruction Count\n   cpu          Testset         Reduction(%)\n    7            rtc                0.957\n    8            rtc                1.137\n```\nPlease note timer based results are based on a limited set of test contents and instruction count is measured using Borg test.\nFor ‘Good’ encoding mode, speed-up observed is negligible (around ~0.15%)\n\nThis patch also adds relevant unit-test changes to test for the same. This optimization is applicable for rtc testset of speed 7, 8 only, since rtc-derf and speed 9, 10 uses ‘CDEF_PICK_FROM_Q’ method.\n\nPlease review the patch.\n\nThanks \u0026 Regards\nDiksha\n",
+      "revId": "7a0a8be256efb41a1be04ec1662802470015e825",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
