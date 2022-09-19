@@ -659,8 +659,8 @@ TEST(RefFrameManagerTest, GetRefFrameCount) {
   // After the first kShowExisting, the kIntermediateArf should be moved from
   // kForward to kLast due to the cur_global_order_idx_ update
   EXPECT_EQ(ref_manager.GetRefFrameCountByType(RefUpdateType::kForward), 1);
-  EXPECT_EQ(ref_manager.GetRefFrameCountByType(RefUpdateType::kBackward), 1);
-  EXPECT_EQ(ref_manager.GetRefFrameCountByType(RefUpdateType::kLast), 2);
+  EXPECT_EQ(ref_manager.GetRefFrameCountByType(RefUpdateType::kBackward), 2);
+  EXPECT_EQ(ref_manager.GetRefFrameCountByType(RefUpdateType::kLast), 1);
 
   const int second_leaf_idx = 5;
   EXPECT_EQ(type_list[second_leaf_idx], GopFrameType::kRegularLeaf);
@@ -751,9 +751,9 @@ TEST(RefFrameManagerTest, GetRefFrameByPriority) {
     ref_manager.UpdateRefFrameTable(&gop_frame);
   }
 
-  EXPECT_EQ(ref_manager.GetRefFrameCountByType(RefUpdateType::kBackward), 2);
+  EXPECT_EQ(ref_manager.GetRefFrameCountByType(RefUpdateType::kBackward), 3);
   TestRefFrameManagerPriority(ref_manager, RefUpdateType::kBackward);
-  EXPECT_EQ(ref_manager.GetRefFrameCountByType(RefUpdateType::kLast), 3);
+  EXPECT_EQ(ref_manager.GetRefFrameCountByType(RefUpdateType::kLast), 2);
   TestRefFrameManagerPriority(ref_manager, RefUpdateType::kLast);
 }
 
