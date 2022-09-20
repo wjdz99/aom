@@ -226,9 +226,6 @@ class HadamardTestBase
     ReferenceHadamard(a, bw_, b_ref, bw_, bh_);
     API_REGISTER_STATE_CHECK(h_func_(a, bw_, b));
 
-    // The order of the output is not important. Sort before checking.
-    std::sort(b, b + block_size_);
-    std::sort(b_ref, b_ref + block_size_);
     EXPECT_EQ(memcmp(b, b_ref, sizeof(b)), 0);
   }
 
@@ -249,9 +246,6 @@ class HadamardTestBase
       ReferenceHadamard(a, i, b_ref, bw_, bh_);
       API_REGISTER_STATE_CHECK(h_func_(a, i, b));
 
-      // The order of the output is not important. Sort before checking.
-      std::sort(b, b + block_size_);
-      std::sort(b_ref, b_ref + block_size_);
       EXPECT_EQ(0, memcmp(b, b_ref, sizeof(b)));
     }
   }

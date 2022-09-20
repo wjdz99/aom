@@ -191,7 +191,7 @@ void aom_hadamard_4x4_sse2(const int16_t *src_diff, ptrdiff_t src_stride,
   store_tran_low(_mm_unpacklo_epi64(src[2], src[3]), coeff);
 }
 
-static INLINE void hadamard_col8_sse2(__m128i *in, int iter) {
+static INLINE void hadamard_col8_sse2(__m128i *in) {
   __m128i a0 = in[0];
   __m128i a1 = in[1];
   __m128i a2 = in[2];
@@ -219,7 +219,6 @@ static INLINE void hadamard_col8_sse2(__m128i *in, int iter) {
   a6 = _mm_sub_epi16(b4, b6);
   a7 = _mm_sub_epi16(b5, b7);
 
-  if (iter == 0) {
     b0 = _mm_add_epi16(a0, a4);
     b7 = _mm_add_epi16(a1, a5);
     b3 = _mm_add_epi16(a2, a6);
@@ -255,16 +254,6 @@ static INLINE void hadamard_col8_sse2(__m128i *in, int iter) {
     in[5] = _mm_unpackhi_epi64(b4, b5);
     in[6] = _mm_unpacklo_epi64(b6, b7);
     in[7] = _mm_unpackhi_epi64(b6, b7);
-  } else {
-    in[0] = _mm_add_epi16(a0, a4);
-    in[7] = _mm_add_epi16(a1, a5);
-    in[3] = _mm_add_epi16(a2, a6);
-    in[4] = _mm_add_epi16(a3, a7);
-    in[2] = _mm_sub_epi16(a0, a4);
-    in[6] = _mm_sub_epi16(a1, a5);
-    in[1] = _mm_sub_epi16(a2, a6);
-    in[5] = _mm_sub_epi16(a3, a7);
-  }
 }
 
 static INLINE void hadamard_8x8_sse2(const int16_t *src_diff,
@@ -280,8 +269,8 @@ static INLINE void hadamard_8x8_sse2(const int16_t *src_diff,
   src[6] = _mm_load_si128((const __m128i *)(src_diff += src_stride));
   src[7] = _mm_load_si128((const __m128i *)(src_diff + src_stride));
 
-  hadamard_col8_sse2(src, 0);
-  hadamard_col8_sse2(src, 1);
+  hadamard_col8_sse2(src);
+  hadamard_col8_sse2(src);
 
   if (is_final) {
     store_tran_low(src[0], coeff);
@@ -386,8 +375,8 @@ static INLINE void hadamard_lp_8x8_sse2(const int16_t *src_diff,
   src[6] = _mm_load_si128((const __m128i *)(src_diff += src_stride));
   src[7] = _mm_load_si128((const __m128i *)(src_diff + src_stride));
 
-  hadamard_col8_sse2(src, 0);
-  hadamard_col8_sse2(src, 1);
+  hadamard_col8_sse2(src);
+  hadamard_col8_sse2(src);
 
   _mm_store_si128((__m128i *)coeff, src[0]);
   coeff += 8;

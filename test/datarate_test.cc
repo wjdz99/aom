@@ -397,6 +397,7 @@ class DatarateTestSpeedChangeRealtime
 
     ResetModel();
     ASSERT_NO_FATAL_FAILURE(RunLoop(&video));
+    // printf("Data %10.4f %d \n", effective_datarate_, cfg_.rc_target_bitrate);
     ASSERT_GE(effective_datarate_, cfg_.rc_target_bitrate * 0.83)
         << " The datarate for the file is lower than target by too much!";
     ASSERT_LE(effective_datarate_, cfg_.rc_target_bitrate * 1.25)
