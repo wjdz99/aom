@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "610314b1_1b684b0d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 6245
+      },
+      "writtenOn": "2022-09-20T11:54:18Z",
+      "side": 1,
+      "message": "Hi Marco, Yunqing,\n\nIn this CL, we optimized the population of x-\u003econtent_state_sb.source_sad_nonrd at SB level.  In parent version, x-\u003econtent_state_sb.source_sad_nonrd is populated based on cpi-\u003erc.frame_source_sad or residual source variance/SSE computed at superblock level assuming zero MV (when cpi-\u003erc.frame_source_sad is non-zero).  In this CL, cpi-\u003esrc_sad_blk_64x64 is used to identify the superblocks with zero source SAD and hence residual variance computation is avoided for these cases.  The CL is bit exact as zero source SAD implies zero residual source variance. Though the CL is applicable for non-screen contents as well, the CL is seen to give speed-up for screen contents only. The CL produces bit-exact output for rtc/rtc-derf test-sets with no speed impact.\n\nPlease check the borg results for rtc-screen test-set below. \n```\n            Instruction Count        \tBD-Rate Loss(%)\n    cpu       Reduction(%)      avg.psnr   ovr.psnr    ssim\n    9         \t0.294 \t\t 0.0000     0.0000    0.0000\n    10        \t0.316  \t\t0.0000     0.0000    0.0000\n```\n\nThe instruction count reduction specified has been measured using command:\n $ perf stat -e instructions:u ./aomenc …\n\nPlease let us know your thoughts on the CL.\n\nRegards,\nRanjit",
+      "revId": "b30b1a71a4afeaa553970b275b26a07ac55ad1c2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9160ebe6_2365ac67",
+        "filename": "av1/encoder/encodeframe_utils.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1367,
+      "author": {
+        "id": 6245
+      },
+      "writtenOn": "2022-09-20T11:54:18Z",
+      "side": 1,
+      "message": "In parent version - If cpi-\u003esrc_sad_blk_64x64[] is not populated, blk_sad would have been 0 (or from the previous frame) which is not correct.\nAfter the current CL (in the absence of above code change) - If cpi-\u003esrc_sad_blk_64x64[] is not populated, blk_sad will be UINT32_MAX which may skip temporal filtering.\nThough we are not sure of the cases where this scenario may occur, we modified the code to recalculate SAD in these cases to improve the decision on the application of temporal filtering.",
+      "range": {
+        "startLine": 1352,
+        "startChar": 0,
+        "endLine": 1367,
+        "endChar": 0
+      },
+      "revId": "b30b1a71a4afeaa553970b275b26a07ac55ad1c2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
