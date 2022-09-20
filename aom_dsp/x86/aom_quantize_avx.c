@@ -92,8 +92,8 @@ void aom_quantize_b_avx(const tran_low_t *coeff_ptr, intptr_t n_coeffs,
     qcoeff0 = _mm_and_si128(qcoeff0, cmp_mask0);
     qcoeff1 = _mm_and_si128(qcoeff1, cmp_mask1);
 
-    store_tran_low(qcoeff0, qcoeff_ptr);
-    store_tran_low(qcoeff1, qcoeff_ptr + 8);
+    store_tran_low(qcoeff0, qcoeff_ptr, 4);
+    store_tran_low(qcoeff1, qcoeff_ptr + 8, 4);
 
     calculate_dqcoeff_and_store(qcoeff0, dequant, dqcoeff_ptr);
     dequant = _mm_unpackhi_epi64(dequant, dequant);
@@ -132,8 +132,8 @@ void aom_quantize_b_avx(const tran_low_t *coeff_ptr, intptr_t n_coeffs,
     qcoeff0 = _mm_and_si128(qcoeff0, cmp_mask0);
     qcoeff1 = _mm_and_si128(qcoeff1, cmp_mask1);
 
-    store_tran_low(qcoeff0, qcoeff_ptr + index);
-    store_tran_low(qcoeff1, qcoeff_ptr + index + 8);
+    store_tran_low(qcoeff0, qcoeff_ptr + index, 4);
+    store_tran_low(qcoeff1, qcoeff_ptr + index + 8, 4);
 
     calculate_dqcoeff_and_store(qcoeff0, dequant, dqcoeff_ptr + index);
     calculate_dqcoeff_and_store(qcoeff1, dequant, dqcoeff_ptr + index + 8);
@@ -223,8 +223,8 @@ void aom_quantize_b_32x32_avx(const tran_low_t *coeff_ptr, intptr_t n_coeffs,
     qcoeff0 = _mm_and_si128(qcoeff0, cmp_mask0);
     qcoeff1 = _mm_and_si128(qcoeff1, cmp_mask1);
 
-    store_tran_low(qcoeff0, qcoeff_ptr);
-    store_tran_low(qcoeff1, qcoeff_ptr + 8);
+    store_tran_low(qcoeff0, qcoeff_ptr, 4);
+    store_tran_low(qcoeff1, qcoeff_ptr + 8, 4);
 
     calculate_dqcoeff_and_store_log_scale(qcoeff0, dequant, zero, dqcoeff_ptr,
                                           &log_scale);
@@ -265,8 +265,8 @@ void aom_quantize_b_32x32_avx(const tran_low_t *coeff_ptr, intptr_t n_coeffs,
     qcoeff0 = _mm_and_si128(qcoeff0, cmp_mask0);
     qcoeff1 = _mm_and_si128(qcoeff1, cmp_mask1);
 
-    store_tran_low(qcoeff0, qcoeff_ptr + index);
-    store_tran_low(qcoeff1, qcoeff_ptr + index + 8);
+    store_tran_low(qcoeff0, qcoeff_ptr + index, 4);
+    store_tran_low(qcoeff1, qcoeff_ptr + index + 8, 4);
 
     calculate_dqcoeff_and_store_log_scale(qcoeff0, dequant, zero,
                                           dqcoeff_ptr + index, &log_scale);

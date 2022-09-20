@@ -24,12 +24,12 @@ static INLINE __m128i load_tran_low(const tran_low_t *a) {
 
 // Store 8 16 bit values. If the destination is 32 bits then sign extend the
 // values by multiplying by 1.
-static INLINE void store_tran_low(__m128i a, tran_low_t *b) {
+static INLINE void store_tran_low(__m128i a, tran_low_t *b, int store_offset) {
   const __m128i one = _mm_set1_epi16(1);
   const __m128i a_hi = _mm_mulhi_epi16(a, one);
   const __m128i a_lo = _mm_mullo_epi16(a, one);
   const __m128i a_1 = _mm_unpacklo_epi16(a_lo, a_hi);
   const __m128i a_2 = _mm_unpackhi_epi16(a_lo, a_hi);
   _mm_store_si128((__m128i *)(b), a_1);
-  _mm_store_si128((__m128i *)(b + 4), a_2);
+  _mm_store_si128((__m128i *)(b + store_offset), a_2);
 }
