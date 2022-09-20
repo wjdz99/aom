@@ -92,7 +92,7 @@ void aom_hadamard_lp_8x8_neon(const int16_t *src_diff, ptrdiff_t src_stride,
 
   hadamard8x8_one_pass(&a0, &a1, &a2, &a3, &a4, &a5, &a6, &a7);
 
-  // Skip the second transpose because it is not required.
+  hadamard8x8_one_pass(&a0, &a1, &a2, &a3, &a4, &a5, &a6, &a7);
 
   vst1q_s16(coeff + 0, a0);
   vst1q_s16(coeff + 8, a1);
