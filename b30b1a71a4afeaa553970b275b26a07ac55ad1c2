@@ -63,6 +63,30 @@
       },
       "revId": "b30b1a71a4afeaa553970b275b26a07ac55ad1c2",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9e352dd7_9451cfb9",
+        "filename": "av1/encoder/encodeframe_utils.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1367,
+      "author": {
+        "id": 6245
+      },
+      "writtenOn": "2022-09-20T19:16:21Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nApologies for the confusion.\n\nWe went through rc_scene_detection_onepass_rt() function. From the code study, we understand that full_sampling\u003d1 if cpi-\u003esrc_sad_blk_64x64 !\u003d NULL. Thus SAD should be available if cpi-\u003esrc_sad_blk_64x64 !\u003d NULL, in the parent version.\n\nHowever above modification in current CL does not assume the availability of SAD even if cpi-\u003esrc_sad_blk_64x64 !\u003d NULL (i.e., computes SAD in case it is not available). This approach is slightly defensive to avoid issues with future changes. \n\nPlease let us know if you see any issues with our approach (or) if we should revert this change.\n\nRegards,\nRanjit",
+      "parentUuid": "531e1ca9_62226902",
+      "range": {
+        "startLine": 1352,
+        "startChar": 0,
+        "endLine": 1367,
+        "endChar": 0
+      },
+      "revId": "b30b1a71a4afeaa553970b275b26a07ac55ad1c2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
