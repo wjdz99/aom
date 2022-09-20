@@ -184,11 +184,12 @@ void ReferenceHadamard(const int16_t *a, int a_stride, OutputType *b, int bw,
 
 template <typename HadamardFuncType>
 struct FuncWithSize {
-  FuncWithSize(HadamardFuncType f, int bw, int bh)
-      : func(f), block_width(bw), block_height(bh) {}
+  FuncWithSize(HadamardFuncType f, int bw, int bh, bool so_out)
+      : func(f), block_width(bw), block_height(bh), sort_output(so_out) {}
   HadamardFuncType func;
   int block_width;
   int block_height;
+  bool sort_output;
 };
 
 using HadamardFuncWithSize = FuncWithSize<HadamardFunc>;
@@ -203,6 +204,7 @@ class HadamardTestBase
     h_func_ = func_param.func;
     bw_ = func_param.block_width;
     bh_ = func_param.block_height;
+    so_out_ = func_param.sort_output;
   }
 
   virtual void SetUp() { rnd_.Reset(ACMRandom::DeterministicSeed()); }
@@ -227,8 +229,10 @@ class HadamardTestBase
     API_REGISTER_STATE_CHECK(h_func_(a, bw_, b));
 
     // The order of the output is not important. Sort before checking.
-    std::sort(b, b + block_size_);
-    std::sort(b_ref, b_ref + block_size_);
+    if (so_out_) {
+      std::sort(b, b + block_size_);
+      std::sort(b_ref, b_ref + block_size_);
+    }
     EXPECT_EQ(memcmp(b, b_ref, sizeof(b)), 0);
   }
 
@@ -250,8 +254,10 @@ class HadamardTestBase
       API_REGISTER_STATE_CHECK(h_func_(a, i, b));
 
       // The order of the output is not important. Sort before checking.
-      std::sort(b, b + block_size_);
-      std::sort(b_ref, b_ref + block_size_);
+      if (so_out_) {
+        std::sort(b, b + block_size_);
+        std::sort(b_ref, b_ref + block_size_);
+      }
       EXPECT_EQ(0, memcmp(b, b_ref, sizeof(b)));
     }
   }
@@ -280,6 +286,7 @@ class HadamardTestBase
   HadamardFuncType h_func_;
   int bw_;
   int bh_;
+  bool so_out_;
 };
 
 class HadamardLowbdTest : public HadamardTestBase<tran_low_t, HadamardFunc> {
@@ -296,32 +303,35 @@ TEST_P(HadamardLowbdTest, DISABLED_SpeedTest) { SpeedTest(1000000); }
 
 INSTANTIATE_TEST_SUITE_P(
     C, HadamardLowbdTest,
-    ::testing::Values(HadamardFuncWithSize(&aom_hadamard_4x4_c, 4, 4),
-                      HadamardFuncWithSize(&aom_hadamard_8x8_c, 8, 8),
-                      HadamardFuncWithSize(&aom_hadamard_16x16_c, 16, 16),
-                      HadamardFuncWithSize(&aom_hadamard_32x32_c, 32, 32)));
+    ::testing::Values(HadamardFuncWithSize(&aom_hadamard_4x4_c, 4, 4, 1),
+                      HadamardFuncWithSize(&aom_hadamard_8x8_c, 8, 8, 1),
+                      HadamardFuncWithSize(&aom_hadamard_16x16_c, 16, 16, 1),
+                      HadamardFuncWithSize(&aom_hadamard_32x32_c, 32, 32, 1)));
 
 #if HAVE_SSE2
 INSTANTIATE_TEST_SUITE_P(
     SSE2, HadamardLowbdTest,
-    ::testing::Values(HadamardFuncWithSize(&aom_hadamard_4x4_sse2, 4, 4),
-                      HadamardFuncWithSize(&aom_hadamard_8x8_sse2, 8, 8),
-                      HadamardFuncWithSize(&aom_hadamard_16x16_sse2, 16, 16),
-                      HadamardFuncWithSize(&aom_hadamard_32x32_sse2, 32, 32)));
+    ::testing::Values(HadamardFuncWithSize(&aom_hadamard_4x4_sse2, 4, 4, 1),
+                      HadamardFuncWithSize(&aom_hadamard_8x8_sse2, 8, 8, 1),
+                      HadamardFuncWithSize(&aom_hadamard_16x16_sse2, 16, 16, 1),
+                      HadamardFuncWithSize(&aom_hadamard_32x32_sse2, 32, 32,
+                                           1)));
 #endif  // HAVE_SSE2
 
 #if HAVE_AVX2
 INSTANTIATE_TEST_SUITE_P(
     AVX2, HadamardLowbdTest,
-    ::testing::Values(HadamardFuncWithSize(&aom_hadamard_16x16_avx2, 16, 16),
-                      HadamardFuncWithSize(&aom_hadamard_32x32_avx2, 32, 32)));
+    ::testing::Values(HadamardFuncWithSize(&aom_hadamard_16x16_avx2, 16, 16, 1),
+                      HadamardFuncWithSize(&aom_hadamard_32x32_avx2, 32, 32,
+                                           1)));
 #endif  // HAVE_AVX2
 
 #if HAVE_NEON
 INSTANTIATE_TEST_SUITE_P(
     NEON, HadamardLowbdTest,
-    ::testing::Values(HadamardFuncWithSize(&aom_hadamard_8x8_neon, 8, 8),
-                      HadamardFuncWithSize(&aom_hadamard_16x16_neon, 16, 16)));
+    ::testing::Values(HadamardFuncWithSize(&aom_hadamard_8x8_neon, 8, 8, 1),
+                      HadamardFuncWithSize(&aom_hadamard_16x16_neon, 16, 16,
+                                           1)));
 #endif  // HAVE_NEON
 
 // Tests for low precision
@@ -341,30 +351,30 @@ TEST_P(HadamardLowbdLPTest, DISABLED_SpeedTest) { SpeedTest(1000000); }
 
 INSTANTIATE_TEST_SUITE_P(
     C, HadamardLowbdLPTest,
-    ::testing::Values(HadamardLPFuncWithSize(&aom_hadamard_lp_8x8_c, 8, 8),
-                      HadamardLPFuncWithSize(&aom_hadamard_lp_16x16_c, 16,
-                                             16)));
+    ::testing::Values(HadamardLPFuncWithSize(&aom_hadamard_lp_8x8_c, 8, 8, 0),
+                      HadamardLPFuncWithSize(&aom_hadamard_lp_16x16_c, 16, 16,
+                                             0)));
 
 #if HAVE_SSE2
 INSTANTIATE_TEST_SUITE_P(
     SSE2, HadamardLowbdLPTest,
-    ::testing::Values(HadamardLPFuncWithSize(&aom_hadamard_lp_8x8_sse2, 8, 8),
-                      HadamardLPFuncWithSize(&aom_hadamard_lp_16x16_sse2, 16,
-                                             16)));
+    ::testing::Values(
+        HadamardLPFuncWithSize(&aom_hadamard_lp_8x8_sse2, 8, 8, 0),
+        HadamardLPFuncWithSize(&aom_hadamard_lp_16x16_sse2, 16, 16, 0)));
 #endif  // HAVE_SSE2
 
 #if HAVE_AVX2
 INSTANTIATE_TEST_SUITE_P(AVX2, HadamardLowbdLPTest,
                          ::testing::Values(HadamardLPFuncWithSize(
-                             &aom_hadamard_lp_16x16_avx2, 16, 16)));
+                             &aom_hadamard_lp_16x16_avx2, 16, 16, 0)));
 #endif  // HAVE_AVX2
 
 #if HAVE_NEON
 INSTANTIATE_TEST_SUITE_P(
     NEON, HadamardLowbdLPTest,
-    ::testing::Values(HadamardLPFuncWithSize(&aom_hadamard_lp_8x8_neon, 8, 8),
-                      HadamardLPFuncWithSize(&aom_hadamard_lp_16x16_neon, 16,
-                                             16)));
+    ::testing::Values(
+        HadamardLPFuncWithSize(&aom_hadamard_lp_8x8_neon, 8, 8, 0),
+        HadamardLPFuncWithSize(&aom_hadamard_lp_16x16_neon, 16, 16, 0)));
 #endif  // HAVE_NEON
 
 // Tests for 8x8 dual low precision
@@ -385,24 +395,24 @@ TEST_P(HadamardLowbdLP8x8DualTest, DISABLED_SpeedTest) { SpeedTest(1000000); }
 
 INSTANTIATE_TEST_SUITE_P(C, HadamardLowbdLP8x8DualTest,
                          ::testing::Values(HadamardLP8x8DualFuncWithSize(
-                             &aom_hadamard_lp_8x8_dual_c, 8, 16)));
+                             &aom_hadamard_lp_8x8_dual_c, 8, 16, 0)));
 
 #if HAVE_SSE2
 INSTANTIATE_TEST_SUITE_P(SSE2, HadamardLowbdLP8x8DualTest,
                          ::testing::Values(HadamardLP8x8DualFuncWithSize(
-                             &aom_hadamard_lp_8x8_dual_sse2, 8, 16)));
+                             &aom_hadamard_lp_8x8_dual_sse2, 8, 16, 0)));
 #endif  // HAVE_SSE2
 
 #if HAVE_AVX2
 INSTANTIATE_TEST_SUITE_P(AVX2, HadamardLowbdLP8x8DualTest,
                          ::testing::Values(HadamardLP8x8DualFuncWithSize(
-                             &aom_hadamard_lp_8x8_dual_avx2, 8, 16)));
+                             &aom_hadamard_lp_8x8_dual_avx2, 8, 16, 0)));
 #endif  // HAVE_AVX2
 
 #if HAVE_NEON
 INSTANTIATE_TEST_SUITE_P(NEON, HadamardLowbdLP8x8DualTest,
                          ::testing::Values(HadamardLP8x8DualFuncWithSize(
-                             &aom_hadamard_lp_8x8_dual_neon, 8, 16)));
+                             &aom_hadamard_lp_8x8_dual_neon, 8, 16, 0)));
 #endif  // HAVE_NEON
 
 }  // namespace
