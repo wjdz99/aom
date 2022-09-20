@@ -20,6 +20,52 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "6462b704_4e157c1b",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 802,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2022-09-20T23:54:45Z",
+      "side": 1,
+      "message": "Is this checking necessary? Same question for 128x128 SB. Please double check. Please refer to line 830 - 842 part that does the same thing.",
+      "range": {
+        "startLine": 801,
+        "startChar": 13,
+        "endLine": 802,
+        "endChar": 53
+      },
+      "revId": "b30b1a71a4afeaa553970b275b26a07ac55ad1c2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d4818838_10a275b1",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 842,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2022-09-20T23:54:45Z",
+      "side": 1,
+      "message": "Could you please combine this part (line 830 - 842) to\ncurr_sb_sad \u003d get_sb_source_sad(cpi, mi_row, mi_col);\nSo we don\u0027t extract same data twice?",
+      "range": {
+        "startLine": 841,
+        "startChar": 0,
+        "endLine": 842,
+        "endChar": 60
+      },
+      "revId": "b30b1a71a4afeaa553970b275b26a07ac55ad1c2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "9160ebe6_2365ac67",
         "filename": "av1/encoder/encodeframe_utils.c",
         "patchSetId": 4
@@ -84,6 +130,53 @@
         "startChar": 0,
         "endLine": 1367,
         "endChar": 0
+      },
+      "revId": "b30b1a71a4afeaa553970b275b26a07ac55ad1c2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0d7e093c_78cfa829",
+        "filename": "av1/encoder/encodeframe_utils.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1367,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2022-09-20T23:54:45Z",
+      "side": 1,
+      "message": "I feel the original logic is more clear. If \"cpi-\u003esrc_sad_blk_64x64 !\u003d NULL\" is enough, we should use it confidently. Thanks.",
+      "parentUuid": "9e352dd7_9451cfb9",
+      "range": {
+        "startLine": 1352,
+        "startChar": 0,
+        "endLine": 1367,
+        "endChar": 0
+      },
+      "revId": "b30b1a71a4afeaa553970b275b26a07ac55ad1c2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fd3a5653_3b60d9c0",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 2806,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2022-09-20T23:54:45Z",
+      "side": 1,
+      "message": "Suggest to always calculate full sampling sad here to reduce the confusion, and it shouldn\u0027t increase encoder time much. What do you think? We can do this later.",
+      "range": {
+        "startLine": 2806,
+        "startChar": 12,
+        "endLine": 2806,
+        "endChar": 25
       },
       "revId": "b30b1a71a4afeaa553970b275b26a07ac55ad1c2",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
