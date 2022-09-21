@@ -16,6 +16,23 @@
       "message": "Bohan: If I change `cfg.g_lag_in_frames` to 1 in test/force_key_frame_test.cc (see the patch below) and build libaom with `-DSANITIZE\u003daddress -DCMAKE_BUILD_TYPE\u003dDebug`, AddressSanitizer reports a heap-use-after-free error at this line.\n\n```\ndiff --git a/test/force_key_frame_test.cc b/test/force_key_frame_test.cc\nindex 78662ed43..40cb64120 100644\n--- a/test/force_key_frame_test.cc\n+++ b/test/force_key_frame_test.cc\n@@ -39,7 +39,7 @@ TEST(ForceKeyFrameTest, OnePassMode) {\n   cfg.g_pass \u003d AOM_RC_ONE_PASS;\n   // TODO(crbug.com/aomedia/3327): Lower cfg.g_lag_in_frames to 1 or 0 to see\n   // the bug.\n-  cfg.g_lag_in_frames \u003d 2;\n+  cfg.g_lag_in_frames \u003d 1;\n   aom_codec_ctx_t enc;\n   EXPECT_EQ(AOM_CODEC_OK, aom_codec_enc_init(\u0026enc, iface, \u0026cfg, 0));\n \n```",
       "revId": "1d2c0d213b7351c0d50b70be245e400194a10d26",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cc6b1c6f_9fb6ed04",
+        "filename": "av1/encoder/pass2_strategy.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 4041,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-09-21T20:37:49Z",
+      "side": 1,
+      "message": "Bohan:\n\nI found that the heap-use-after-free error is confusing.\n\nWhat happens is that this decrement call makes cpi-\u003etwopass_frame.stats_in smaller than twopass-\u003estats_buf_ctx-\u003estats_in_start. I think that is the source of the error, not heap-use-after-free.",
+      "revId": "1d2c0d213b7351c0d50b70be245e400194a10d26",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
