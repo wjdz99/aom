@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bf72de6f_942f05d4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 31022
+      },
+      "writtenOn": "2022-09-21T07:35:17Z",
+      "side": 1,
+      "message": "Hi Marco, Yunqing, \n\nThis CL extends the sf: reduce_mv_pel_precision_highmotion to speed 8 and 7 HDRES set only. A new conservative level (\u003d 1) is introduced applicable for both speeds 7 \u0026 8. The existing levels 1, 2 are shifted to 2, 3 respectively. \n\nThe details of worst/best case drops are:\n```\ncpu     content           avg.psnr   glb.psnr  aom.ssim\nWorst case:\n 7            mj3vc720p    0.8353    0.8240    0.8521\n 7           niklas720p    0.6651    0.5691    0.7669\n 8       gipsrestat720p    0.6735    0.6300    0.9655\n 8            mj2vc720p    0.4964    0.5591    0.4146\nBest case:\n 7   vidyo3_1280x720_60   -0.6605   -0.6378   -0.8695\n 7        testnoise720p   -0.5697   -0.5686   -0.4356\n 8             dark720p   -0.7634   -0.6417   -0.3202\n 8        testnoise720p   -0.4058   -0.2533   -0.3753\n```\n\nThe instruction count reduction specified has been measured using command:\n$ perf stat -e instructions:u ./aomenc …\n\nWe performed visual tests of following worst case contents. We did not observe any artifacts.\n```\ncpu     content      bitrate (kbps)\n 7     mj3vc720p          1000\n 7     niklas720           800\n 7     fourpeople720p      800\n 8     gipsrestat720p      800\n 8     gipsrestat720p     1600\n 8     mj2vc720p          1600\n 8     niklas720p         1200\n```\n\nThis CL causes changes in screen-content for speed 7, 8. The results are the following:\n```\n -----------------------------------------------------------------\n|cpu | Testset    | Instr. Count |    BD-Rate Drop (%)            |\n|    |            | Reduction(%) | avg. psnr | ovr. psnr|  ssim   |\n| 7  | rtc_screen |     0.244    |  -1.1431  |  -3.5613 | -1.1976 |\n| 8  | rtc_screen |     0.193    |  -1.6060  |  -3.2723 | -1.3016 |\n -----------------------------------------------------------------\n```\n\nSpeed 9, 10 stats are unchanged for all test sets.\n\nIn summary, the sf-levels and cpu/testset mapping for the non-svc case is as follows:\n```\n ----------------------------\n| cpu| Testset    | sf-level |\n|    |            |          |\n|  7 | HDRES      |    1     |\n|  7 | rtc_screen |    1     |\n|  8 | HDRES      |    1     |\n|  8 | rtc_screen |    1     |\n|  9 | rtc        |    2     |\n|  9 | rtc-screen |    3     |\n| 10 | rtc-derf   |    2     |\n| 10 | rtc        |    3     |\n| 10 | rtc-screen |    3     |\n ----------------------------\n```\nFor other cpu/testset this sf is disabled. \n\nPlease review the CL.\n\nThanks,\nAnupam",
+      "revId": "b95fe60dc92e94a6f9c0e713e76c8cb43e994d27",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
