@@ -65,6 +65,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f73bd778_475f890e",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 802,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2022-09-21T15:36:49Z",
+      "side": 1,
+      "message": "Sounds good. Thanks for checking that. In line 830-842, I just enabled it for 64x64 SB. It is good that you consider both SB sizes here.",
+      "parentUuid": "240f24ac_4a702755",
+      "range": {
+        "startLine": 801,
+        "startChar": 13,
+        "endLine": 802,
+        "endChar": 53
+      },
+      "revId": "b30b1a71a4afeaa553970b275b26a07ac55ad1c2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d4818838_10a275b1",
