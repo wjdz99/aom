@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "147eaefb_b9889abf",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 31113
+      },
+      "writtenOn": "2022-09-21T07:18:43Z",
+      "side": 1,
+      "message": "Hello Jingning/Marco, we are backporting this to the 102 LTS branch, could you please review/submit it since we don\u0027t have the permissions?",
+      "revId": "6318378f833b2a0d8e67fb3d12bcdc4e1c26b0e6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
