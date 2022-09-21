@@ -1035,7 +1035,11 @@ TEST_F(RateControlQModeTest, TestGetGopEncodeInfo) {
   const aom::VideoInfo input_video = {
     kFrameWidth, kFrameHeight,
     frame_rate,  AOM_IMG_FMT_I420,
+<<<<<<< HEAD   (a7f472 rtc-screen:Populate source_sad_nonrd using src_sad_blk_64x64)
     50,          libaom_test::GetDataPath() + "/hantro_collage_w352h288.yuv"
+=======
+    250,         libaom_test::GetDataPath() + "/hantro_collage_w352h288.yuv"
+>>>>>>> BRANCH (bcfe6f CHANGELOG: add chromium:1338114 & chromium:1346938)
   };
   DuckyEncode ducky_encode(input_video, rc_param_.max_ref_frames, 3,
                            rc_param_.base_q_index);
