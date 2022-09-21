@@ -2127,6 +2127,7 @@ static AOM_INLINE void get_ref_frame_use_mask(AV1_COMP *cpi, MACROBLOCK *x,
   }
 
   // Skip golden reference if color is set, on flat blocks with motion.
+<<<<<<< HEAD   (a7f472 rtc-screen:Populate source_sad_nonrd using src_sad_blk_64x64)
   // For screen: always skip golden (if color_sensitivity_sb_g is set)
   // except when x->nonrd_prune_ref_frame_search = 0. This latter flag
   // may be set in the variance partition when golden is a much beter
@@ -2136,6 +2137,10 @@ static AOM_INLINE void get_ref_frame_use_mask(AV1_COMP *cpi, MACROBLOCK *x,
         x->nonrd_prune_ref_frame_search != 0) ||
        (x->source_variance < 500 &&
         x->content_state_sb.source_sad_nonrd > kLowSad)) &&
+=======
+  if (x->source_variance < 500 &&
+      x->content_state_sb.source_sad_nonrd > kLowSad &&
+>>>>>>> BRANCH (bcfe6f CHANGELOG: add chromium:1338114 & chromium:1346938)
       (x->color_sensitivity_sb_g[0] == 1 || x->color_sensitivity_sb_g[1] == 1))
     use_golden_ref_frame = 0;
 

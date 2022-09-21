@@ -328,7 +328,10 @@ else()
   add_compiler_flag_if_supported("-Wuninitialized")
   add_compiler_flag_if_supported("-Wunused")
   add_compiler_flag_if_supported("-Wvla")
+<<<<<<< HEAD   (a7f472 rtc-screen:Populate source_sad_nonrd using src_sad_blk_64x64)
   add_cxx_flag_if_supported("-Wc++14-extensions")
+=======
+>>>>>>> BRANCH (bcfe6f CHANGELOG: add chromium:1338114 & chromium:1346938)
   add_cxx_flag_if_supported("-Wc++17-extensions")
   add_cxx_flag_if_supported("-Wc++20-extensions")
 
