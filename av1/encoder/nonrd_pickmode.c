@@ -262,6 +262,9 @@ static int combined_motion_search(AV1_COMP *cpi, MACROBLOCK *x,
   int step_param = (sf->rt_sf.fullpel_search_step_param)
                        ? sf->rt_sf.fullpel_search_step_param
                        : cpi->mv_search_params.mv_step_param;
+  if (sf->rt_sf.sb_fullpel_search_step_param &&
+      x->content_state_sb.source_sad_nonrd > kLowSad)
+    step_param = 2;
   FULLPEL_MV start_mv;
   const int ref = mi->ref_frame[0];
   const MV ref_mv = av1_get_ref_mv(x, mi->ref_mv_idx).as_mv;

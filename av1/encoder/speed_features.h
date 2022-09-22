@@ -1468,6 +1468,10 @@ typedef struct REAL_TIME_SPEED_FEATURES {
   // logic in set_mv_search_params().
   int fullpel_search_step_param;
 
+  // Parameter indicating initial search window, used in full-pixel search
+  // for nonrd_pickmode, set per block based on superblock content metrics.
+  int sb_fullpel_search_step_param;
+
   // Bit mask to enable or disable intra modes for each prediction block size
   // separately, for nonrd pickmode.
   int intra_y_mode_bsize_mask_nrd[BLOCK_SIZES];

@@ -1443,9 +1443,9 @@ static void set_rt_speed_feature_framesize_dependent(const AV1_COMP *const cpi,
           sf->rt_sf.intra_y_mode_bsize_mask_nrd[i] = INTRA_DC_H_V;
       }
     }
-    if (cpi->rc.high_num_blocks_with_motion && speed >= 6) {
+    if (cpi->rc.frame_source_sad > 1000 && speed >= 6) {
       sf->mv_sf.search_method = NSTEP;
-      sf->rt_sf.fullpel_search_step_param = 2;
+      sf->rt_sf.sb_fullpel_search_step_param = 2;
     }
     sf->rt_sf.partition_direct_merging = 0;
   }
@@ -2082,6 +2082,7 @@ static AOM_INLINE void init_rt_sf(REAL_TIME_SPEED_FEATURES *rt_sf) {
   rt_sf->use_adaptive_subpel_search = false;
   rt_sf->screen_content_cdef_filter_qindex_thresh = 0;
   rt_sf->enable_ref_short_signaling = false;
+  rt_sf->sb_fullpel_search_step_param = 0;
 }
 
 // Populate appropriate sub-pel search method based on speed feature and user
