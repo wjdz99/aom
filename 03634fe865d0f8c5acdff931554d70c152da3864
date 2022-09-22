@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8ead1dcc_becbf57a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2022-09-22T16:40:10Z",
+      "side": 1,
+      "message": "Hi Yunqing, Marco,\n\nThe functions ‘aom_int_pro_row()’ and ‘aom_int_pro_col()’ are called from ‘av1_int_pro_motion_estimation()’ and used to do fast motion search in rtc encoding. Currently, these functions have only SSE2 implementation and processes width 16 at a time. This CL adds AVX2 implementation for the same to process more width when available. We also have refactored the existing code to make it AVX2 friendly and added unit-test changes for the same.\n\nModule level scaling numbers are as shown below\n```\n                      AVX2 scaling w.r.t. C (x)\nBlk_Size         aom_int_pro_row()     aom_int_pro_col()\n16x16                 11.65                3.57\n32x32                 26.47                9.55\n64x64                 30.15                16.05\n128x128               33.83                26.41\n```\n\nPlease check the encoder speed up results measured using timer and instruction count based as below. Please note timer based results are based on a limited set of test contents and instruction count is measured using Borg test.\n```\nTimer Based:\n                    Encode Time\nCpu    Test-set     Reduction(%)\n 7     rtc            1.307 \n 7     rtc_derf       0.941 \n 8     rtc            1.620\n 8     rtc_derf       0.854\n```\n```\nInstruction Count Based:\n                     Instruction Count\nCpu    Test-set         Reduction(%)\n7      rtc                1.852\n7      rtc_derf           1.602\n7      rtc-screen         2.539\n7      rtc                1.926\n7      rtc_derf           1.348\n8      rtc-screen         2.848\n```\n\nThe encode time reduction seen in speed 9 and 10 are negligible due to less scope. And also we took care of relevant changes in the NEON function (which are required due to refactoring of C code) and verified the bit-match.\n\nOnce this patch gets merged, based on the optimization scope we are planning to work on coding AVX2 for ‘vector_match()’ (which is currently in SSE4_1).\n\nPlease review the patch.\n\nThanks \u0026 Regards,\nVenkata.",
+      "revId": "03634fe865d0f8c5acdff931554d70c152da3864",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
