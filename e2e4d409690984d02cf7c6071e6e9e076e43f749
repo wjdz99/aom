@@ -50,6 +50,24 @@
       "message": "Daniel: Do you think we should change aom_copy_metadata_to_frame_buffer() to simply remove any existing metadata and then return 0 if its second parameter is a null pointer? I.e., change the first three lines of the function from:\n\n```\nint aom_copy_metadata_to_frame_buffer(YV12_BUFFER_CONFIG *ybf,\n                                      const aom_metadata_array_t *arr) {\n  if (!ybf || !arr || !arr-\u003emetadata_array) return -1;\n  if (ybf-\u003emetadata \u003d\u003d arr) return 0;\n  aom_remove_metadata_from_frame_buffer(ybf);\n```\n\nto:\n\n```\nint aom_copy_metadata_to_frame_buffer(YV12_BUFFER_CONFIG *ybf,\n                                      const aom_metadata_array_t *arr) {\n  if (!ybf || (arr \u0026\u0026 !arr-\u003emetadata_array)) return -1;\n  if (ybf-\u003emetadata \u003d\u003d arr) return 0;\n  aom_remove_metadata_from_frame_buffer(ybf);\n  if (!arr) return 0;\n```",
       "revId": "e2e4d409690984d02cf7c6071e6e9e076e43f749",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2da85e2a_11dc7c3f",
+        "filename": "av1/encoder/lookahead.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 161,
+      "author": {
+        "id": 14148
+      },
+      "writtenOn": "2022-09-23T21:36:29Z",
+      "side": 1,
+      "message": "Seems feasible, though I think the user calling aom_remove_metadata_from_frame_buffer() explicitly shows a clearer intent on the code, if we add this case to the copy function, we would need to document the behavior on the function description so it doesn\u0027t surprise a user who might expect a -1 return and no action on a NULL copy() call. For clarity I would leave it as is, though I understand that it can reduce code in here.",
+      "parentUuid": "ad2837c1_3231b7d1",
+      "revId": "e2e4d409690984d02cf7c6071e6e9e076e43f749",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ],
   "submitRequirementResults": [
