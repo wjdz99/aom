@@ -1593,11 +1593,16 @@ void av1_remove_compressor(AV1_COMP *cpi) {
   MultiThreadInfo *const mt_info = &cpi->mt_info;
 #if CONFIG_MULTITHREAD
   pthread_mutex_t *const enc_row_mt_mutex_ = mt_info->enc_row_mt.mutex_;
+  pthread_cond_t *const enc_row_mt_cond_ = mt_info->enc_row_mt.cond_;
   pthread_mutex_t *const gm_mt_mutex_ = mt_info->gm_sync.mutex_;
   pthread_mutex_t *const pack_bs_mt_mutex_ = mt_info->pack_bs_sync.mutex_;
   if (enc_row_mt_mutex_ != NULL) {
     pthread_mutex_destroy(enc_row_mt_mutex_);
     aom_free(enc_row_mt_mutex_);
+  }
+  if (enc_row_mt_cond_ != NULL) {
+    pthread_cond_destroy(enc_row_mt_cond_);
+    aom_free(enc_row_mt_cond_);
   }
   if (gm_mt_mutex_ != NULL) {
     pthread_mutex_destroy(gm_mt_mutex_);
@@ -2280,12 +2285,9 @@ static AOM_INLINE void extend_frame_borders(AV1_COMP *cpi) {
 }
 
 static AOM_INLINE void set_default_loopfilter_params(AV1_COMMON *cm) {
-  struct loopfilter *const lf = &cm->lf;
   CdefInfo *const cdef_info = &cm->cdef_info;
   RestorationInfo *const rst_info = cm->rst_info;
 
-  lf->filter_level[0] = 0;
-  lf->filter_level[1] = 0;
   cdef_info->cdef_bits = 0;
   cdef_info->cdef_strengths[0] = 0;
   cdef_info->nb_cdef_strengths = 1;
@@ -2322,45 +2324,49 @@ static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
   assert(IMPLIES(is_lossless_requested(&cpi->oxcf.rc_cfg),
                  cm->features.coded_lossless && cm->features.all_lossless));
 
-  const int use_loopfilter = is_loopfilter_used(cm);
   const int use_cdef = is_cdef_used(cm);
   const int use_restoration = is_restoration_used(cm);
-  // lpf_opt_level = 1 : Enables dual/quad loop-filtering.
-  // lpf_opt_level is set to 1 if transform size search depth in inter blocks
-  // is limited to one as quad loop filtering assumes that all the transform
-  // blocks within a 16x8/8x16/16x16 prediction block are of the same size.
-  // lpf_opt_level = 2 : Filters both chroma planes together, in addition to
-  // enabling dual/quad loop-filtering. This is enabled when lpf pick method
-  // is LPF_PICK_FROM_Q as u and v plane filter levels are equal.
-  int lpf_opt_level = get_lpf_opt_level(&cpi->sf);
+  cpi->td.mb.rdmult = cpi->rd.RDMULT;
 
-  struct loopfilter *lf = &cm->lf;
+  if (!cpi->sf.rt_sf.pipeline_lpf_mt_with_enc) {
+    const int use_loopfilter = is_loopfilter_used(cm);
+    // lpf_opt_level = 1 : Enables dual/quad loop-filtering.
+    // lpf_opt_level is set to 1 if transform size search depth in inter blocks
+    // is limited to one as quad loop filtering assumes that all the transform
+    // blocks within a 16x8/8x16/16x16 prediction block are of the same size.
+    // lpf_opt_level = 2 : Filters both chroma planes together, in addition to
+    // enabling dual/quad loop-filtering. This is enabled when lpf pick method
+    // is LPF_PICK_FROM_Q as u and v plane filter levels are equal.
+    int lpf_opt_level = get_lpf_opt_level(&cpi->sf);
+
+    struct loopfilter *lf = &cm->lf;
 
 #if CONFIG_COLLECT_COMPONENT_TIMING
-  start_timing(cpi, loop_filter_time);
+    start_timing(cpi, loop_filter_time);
 #endif
-  if (use_loopfilter) {
-    av1_pick_filter_level(cpi->source, cpi, cpi->sf.lpf_sf.lpf_pick);
-  } else {
-    lf->filter_level[0] = 0;
-    lf->filter_level[1] = 0;
-  }
+    if (use_loopfilter) {
+      av1_pick_filter_level(cpi->source, cpi, cpi->sf.lpf_sf.lpf_pick);
+    } else {
+      lf->filter_level[0] = 0;
+      lf->filter_level[1] = 0;
+    }
 
-  if (!cpi->oxcf.algo_cfg.apply_loopfilter) {
-    bool skip_loop_filtering =
-        should_skip_loop_filtering(cpi, use_cdef, use_restoration);
-    if (skip_loop_filtering) return;
-  }
+    if (!cpi->oxcf.algo_cfg.apply_loopfilter) {
+      bool skip_loop_filtering =
+          should_skip_loop_filtering(cpi, use_cdef, use_restoration);
+      if (skip_loop_filtering) return;
+    }
 
-  if ((lf->filter_level[0] || lf->filter_level[1]) &&
-      !cpi->rtc_ref.non_reference_frame) {
-    av1_loop_filter_frame_mt(&cm->cur_frame->buf, cm, xd, 0, num_planes, 0,
-                             mt_info->workers, num_workers,
-                             &mt_info->lf_row_sync, lpf_opt_level);
-  }
+    if ((lf->filter_level[0] || lf->filter_level[1]) &&
+        !cpi->rtc_ref.non_reference_frame) {
+      av1_loop_filter_frame_mt(&cm->cur_frame->buf, cm, xd, 0, num_planes, 0,
+                               mt_info->workers, num_workers,
+                               &mt_info->lf_row_sync, lpf_opt_level);
+    }
 #if CONFIG_COLLECT_COMPONENT_TIMING
-  end_timing(cpi, loop_filter_time);
+    end_timing(cpi, loop_filter_time);
 #endif
+  }
 
   cdef_restoration_frame(cpi, cm, xd, use_restoration, use_cdef);
 
