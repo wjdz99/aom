@@ -1636,6 +1636,9 @@ typedef struct REAL_TIME_SPEED_FEATURES {
   // sufficiently low.
   bool skip_compound_based_on_var;
 
+   // In multi-threaded encoding, pipeline loop-filtering after encoding.
+  bool pipeline_lpf_mt_with_enc;
+
   // Sets force_zeromv_skip based on the source sad available. Aggressiveness
   // increases with increase in the level set for speed feature.
   // 0: No setting
