@@ -16,6 +16,24 @@
       "message": "Ranjit: Could you clarify this comment?\n\nSince the commit message says \"The increment of the stats_in pointer is moved to\nav1_twopass_postencode_update\" and the only thing moved in this CL is the if-else statement at lines 3979-3983, I guess this comment is referring to that if-else statement. But that if-else statement does not look like an increment of the stats_in pointer. On the other hand, line 3978 decrements the stats_in pointer, so there is an apparent contradiction between this comment and line 3978.\n\nAlso, do you know why it is safe to decrement cpi-\u003etwopass_frame.stats_in? How do we know cpi-\u003etwopass_frame.stats_in \u003e twopass-\u003estats_buf_ctx-\u003estats_in_start before the decrement?",
       "revId": "6d4b7d7df7b450296fe4e4d962afa7fc931a863d",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cd918e75_b90dcc49",
+        "filename": "av1/encoder/pass2_strategy.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 3972,
+      "author": {
+        "id": 6245
+      },
+      "writtenOn": "2022-09-23T18:24:11Z",
+      "side": 1,
+      "message": "Hi Wan-Teh,\nRemya (added in cc) is looking into the query. We shall share our observations after the study. \nRegards,\nRanjit",
+      "parentUuid": "ab5cb412_c27a7590",
+      "revId": "6d4b7d7df7b450296fe4e4d962afa7fc931a863d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
