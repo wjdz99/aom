@@ -1761,6 +1761,18 @@ static void set_rt_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->rt_sf.var_part_split_threshold_shift = 10;
     sf->mv_sf.subpel_search_method = SUBPEL_TREE_PRUNED_MORE;
   }
+
+  if ((cpi->oxcf.row_mt == 1) && (cpi->mt_info.num_workers > 1) && speed >= 7) {
+    const int use_cdef = is_cdef_used(cm);
+    const int use_restoration = is_restoration_used(cm);
+    const int skip_postproc_filtering =
+        should_skip_postproc_filtering(cpi, use_cdef, use_restoration);
+    sf->rt_sf.pipeline_lpf_mt_with_enc =
+        (sf->lpf_sf.lpf_pick == LPF_PICK_FROM_Q) &&
+        (cpi->oxcf.algo_cfg.loopfilter_control != LOOPFILTER_SELECTIVELY) &&
+        !cpi->rtc_ref.non_reference_frame && !skip_postproc_filtering &&
+        !cm->features.allow_intrabc;
+  }
 }
 
 static AOM_INLINE void init_hl_sf(HIGH_LEVEL_SPEED_FEATURES *hl_sf) {
@@ -2093,6 +2105,7 @@ static AOM_INLINE void init_rt_sf(REAL_TIME_SPEED_FEATURES *rt_sf) {
   rt_sf->disable_cdf_update_non_reference_frame = false;
   rt_sf->prune_compoundmode_with_singlemode_var = false;
   rt_sf->skip_compound_based_on_var = false;
+  rt_sf->pipeline_lpf_mt_with_enc = false;
   rt_sf->set_zeromv_skip_based_on_source_sad = 1;
   rt_sf->use_adaptive_subpel_search = false;
   rt_sf->screen_content_cdef_filter_qindex_thresh = 0;
