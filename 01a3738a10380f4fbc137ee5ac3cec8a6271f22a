@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2e5a6cd0_22005b0b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8893
+      },
+      "writtenOn": "2022-09-25T18:15:41Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nIn this patch, in the multi-threaded encoding scenario with row-mt\u003d1, loop-filter stage is pipelined along with encoding stage, i.e., when no encode job is available for a thread, loop filtering job is picked. This optimization is added as a speed feature \u0027pipeline_lpf_mt_with_enc\u0027 and enabled for rt speed \u003e\u003d7.  \n\nIn this patch, when the speed feature \u0027pipeline_lpf_mt_with_enc\u0027 is enabled, the row height each thread processes in the loop-filter stage is changed from 128 pixels to superblock height in pixels. (Therefore, \u0027mib_size_log2\u0027 is added as a parameter to the function av1_thread_loop_filter_rows()). The reasoning for this change is as follows:\n\nLoop filtering of the ith superblock row requires encoding of the ith and (i+1)th superblock row to be complete (As (i+1)th superblock row requires the non-filtered reconstructed pixels of the ith superblock row for intra prediction). Consider a 320x180 resolution clip which has only 3 superblock rows. If a thread processes a row of height 128 pixels, filtering the 0th superblock row requires encoding of 0th, 1st and 2nd superblock rows to be complete. However, if loop filtering row height is changed to superblock row height, i.e., 64 pixels, filtering the 0th superblock row requires encoding of only 0th and 1st superblock rows to be complete. This reduces the idle time of threads thereby improving the multi-threading efficiency. \n\nThe multi-thread encode time reduction for rt with row-mt\u003d1 is as follows:\n```\ncpu  Resolution   Tiles  Threads Encode time reduction (%)\n 7    180p          2x1     2        2.0\n 8    180p          2x1     2        1.0\n 9    360p          4x1     4        3.0\n 10   720p          4x1     4        3.0\n 10   1080p screen  4x1     4        3.0\n```\nWe have verified the patch to be bit-exact in good preset with no change in encode time.\n\nPlease note that this patch is submitted as a dependent patch of \nhttps://aomedia-review.googlesource.com/c/aom/+/163261.\n\nPlease review.\n\nThanks",
+      "revId": "01a3738a10380f4fbc137ee5ac3cec8a6271f22a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
