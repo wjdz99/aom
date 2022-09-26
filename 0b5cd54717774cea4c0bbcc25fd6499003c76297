@@ -16,6 +16,46 @@
       "message": "Hi Yunqing,\n\nThis CL adds SSE2 support for aom_mse_16xh_16bit() (for which AVX2 was added by us in https://aomedia-review.googlesource.com/c/aom/+/162822). This patch also adds relevant unit-test changes to test for the same.\n\nPlease review this CL.\n\nThanks \u0026 Regards\nDiksha",
       "revId": "0b5cd54717774cea4c0bbcc25fd6499003c76297",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "73417451_7744c100",
+        "filename": "aom_dsp/x86/variance_sse2.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 768,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2022-09-26T19:47:43Z",
+      "side": 1,
+      "message": "If w \u003e 16, nothing is done here. Is w \u003c\u003d 16 always true?",
+      "range": {
+        "startLine": 768,
+        "startChar": 23,
+        "endLine": 768,
+        "endChar": 29
+      },
+      "revId": "0b5cd54717774cea4c0bbcc25fd6499003c76297",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6d963bb2_ebca4b5e",
+        "filename": "aom_dsp/x86/variance_sse2.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 771,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2022-09-26T19:47:43Z",
+      "side": 1,
+      "message": "Is it worth to write a new SIMD for this function instead of calling the existing one many times?",
+      "revId": "0b5cd54717774cea4c0bbcc25fd6499003c76297",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
