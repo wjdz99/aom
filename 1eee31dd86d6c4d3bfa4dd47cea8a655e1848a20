@@ -16,6 +16,24 @@
       "message": "This patch will probably require another builder to be added to the CI. If you\u0027d like real silicon to test on, these mixed-sign dot-product instructions are available on the AWS Graviton 3 and Apple M2.",
       "revId": "1eee31dd86d6c4d3bfa4dd47cea8a655e1848a20",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "15851e1d_4876b1a5",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-09-26T22:49:51Z",
+      "side": 1,
+      "message": "\u003e This patch will probably require another builder to be added to the CI. If you\u0027d like real silicon to test on, these mixed-sign dot-product instructions are available on the AWS Graviton 3 and Apple M2.\n\nThanks for the pointer to hardware that supports this. I added the build to the presubmit and testing to the nightly. I still need to see if I can bring some of that over to the presubmit.\n\nThe next run should include this configuration.",
+      "parentUuid": "d21ea096_332540af",
+      "revId": "1eee31dd86d6c4d3bfa4dd47cea8a655e1848a20",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
