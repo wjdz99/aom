@@ -85,6 +85,24 @@
       "message": "I analyzed the code related to the `AV1E_SET_LOOPFILTER_CONTROL` codec control that Marco mentioned. `AV1E_SET_LOOPFILTER_CONTROL` only affects the values of `lf-\u003efilter_level[0]` and `lf-\u003efilter_level[1]`, whereas this CL aims to turn off all post-processing filtering (i.e., also CDEF, loop restoration etc.) for the frames in all intra mode (because the frames in all intra mode are never used as reference frames).\n\nIs it common in libaom to use the term \"loop filter\" to broadly refer to all post-processing filtering?\n\nSince `AV1E_SET_LOOPFILTER_CONTROL` only controls the loop filter in the narrow sense, i.e., the deblock filter described in Section 7.14 \"Loop filter process\" of the AV1 spec, I think this CL needs to add a new codec control, but new codec control should probably use the term \"post-processing filtering\" or something similar to disambiguate.",
       "revId": "a17f0698979277c05144182f1c298fba36ed2cf6",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a1a37645_0556ba9c",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 2288,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2022-09-26T18:27:38Z",
+      "side": 1,
+      "message": "For disabling: the existing AV1E_SET_LOOPFILTER_CONTROL sets the values of lf-\u003efilter_level[0] and lf-\u003efilter_level[1] both to 0, which disables the loopfilter. And there are existing controls for disabling cdef and loop-restoration (AV1E_SET_ENABLE_CDEF and AV1E_SET_ENABLE_RESTORATION). So I think you can reuse the existing loopfilter control setting, can you check?\n\nAlso note that the loopfilter and cdef is already not applied on non_reference_frames, if this flag is set: cpi-\u003ertc_ref.non_reference_frame \u003d 1.\nSo you may be able to use this flag for the allintra use case as well, feel free to rename it (i.e., remove rtc_ref) if you do.",
+      "parentUuid": "5c50b4a2_861f5add",
+      "revId": "a17f0698979277c05144182f1c298fba36ed2cf6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
