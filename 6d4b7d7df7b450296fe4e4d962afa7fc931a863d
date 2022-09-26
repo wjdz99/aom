@@ -34,6 +34,24 @@
       "parentUuid": "ab5cb412_c27a7590",
       "revId": "6d4b7d7df7b450296fe4e4d962afa7fc931a863d",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "16d0abd9_4e87f470",
+        "filename": "av1/encoder/pass2_strategy.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 3972,
+      "author": {
+        "id": 9616
+      },
+      "writtenOn": "2022-09-26T14:20:44Z",
+      "side": 1,
+      "message": "Hi Wan-Teh,\nYes, the comment contradicts with the decrement of ‘stats_in’ pointer in line 3978. But in the if-else statement (lines 3979-3983),  the functions input_stats_lap() and input_stats() handle the update/increment of ‘stats_in’ pointer and hence this comment seems to refer to that change. The update of ‘stats_in’ pointer by these 2 functions in the parent commit and in this CL is as given below:\n\nParent commit:\nDuring one-pass encode with lap enabled (input_stats_lap()):\n1. Copies the first pass stats of the current frame from ‘stats_in’ to ‘this_frame’\n2. memmove operation moves the stats corresponding to next frame to ‘stats_in’ (\u0027stats_in\u0027 always points to ‘p-\u003eframe_stats_arr[0]\u0027)\n\nDuring two-pass encode (input_stats()):\n1. Copies the first pass stats of the current frame from ‘stats_in’ to ‘this_frame’\n2. Increments the ‘stats_in’ pointer such that it points to the stats corresponding to next frame\n\nIn this CL:\nFor one-pass encode with lap enabled and two-pass encode:\nBefore encoding the frame (lines 3434-3435):\n1. Copies the first pass stats of the current frame from ‘stats_in’ to ‘this_frame’\n2. Increments the ‘stats_in’ pointer such that it points to the stats corresponding to next frame\n\nDuring post encode updates:\n1. Decrements the ‘stats_in’ pointer (to cancel out the increment in line 3435)\n2. Invokes input_stats_lap()/input_stats() depending on cpi-\u003eppi-\u003elap_enabled\n\nSince the decrement of ‘stats_in’ pointer in line 3978 is to cancel out the increment in line 3435, it is assured that cpi-\u003etwopass_frame.stats_in \u003e twopass-\u003estats_buf_ctx-\u003estats_in_start. Hence, we feel that the assert you have added in https://aomedia-review.googlesource.com/c/aom/+/163581 holds good.\n\nThis CL aims at moving the increment of ‘stats_in’ pointer to twopass_postencode_update() to facilitate FPMT (as mentioned in the review message). Since the incremented state of ‘stats_in’ pointer is required during the processing of that frame, the increment and decrement of ‘stats_in’ pointer in line 3435 and 3978 are introduced. \n\nRegards,\nRemya",
+      "parentUuid": "cd918e75_b90dcc49",
+      "revId": "6d4b7d7df7b450296fe4e4d962afa7fc931a863d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
