@@ -143,6 +143,15 @@ void aom_hadamard_4x4_c(const int16_t *src_diff, ptrdiff_t src_stride,
   }
 
   for (idx = 0; idx < 16; ++idx) coeff[idx] = (tran_low_t)buffer2[idx];
+
+  // Extra transpose to match SSE2 behavior(i.e., aom_hadamard_4x4_sse2).
+  for (int i = 0; i < 4; i++) {
+    for (int j = i + 1; j < 4; j++) {
+      tran_low_t temp = coeff[j * 4 + i];
+      coeff[j * 4 + i] = coeff[i * 4 + j];
+      coeff[i * 4 + j] = temp;
+    }
+  }
 }
 
 // src_diff: first pass, 9 bit, dynamic range [-255, 255]
@@ -202,6 +211,15 @@ void aom_hadamard_8x8_c(const int16_t *src_diff, ptrdiff_t src_stride,
   }
 
   for (idx = 0; idx < 64; ++idx) coeff[idx] = (tran_low_t)buffer2[idx];
+
+  // Extra transpose to match SSE2 behavior(i.e., aom_hadamard_8x8_sse2).
+  for (int i = 0; i < 8; i++) {
+    for (int j = i + 1; j < 8; j++) {
+      tran_low_t temp = coeff[j * 8 + i];
+      coeff[j * 8 + i] = coeff[i * 8 + j];
+      coeff[i * 8 + j] = temp;
+    }
+  }
 }
 
 void aom_hadamard_lp_8x8_c(const int16_t *src_diff, ptrdiff_t src_stride,
@@ -226,6 +244,15 @@ void aom_hadamard_lp_8x8_c(const int16_t *src_diff, ptrdiff_t src_stride,
   }
 
   for (int idx = 0; idx < 64; ++idx) coeff[idx] = buffer2[idx];
+
+  // Extra transpose to match SSE2 behavior(i.e., aom_hadamard_lp_8x8_sse2).
+  for (int i = 0; i < 8; i++) {
+    for (int j = i + 1; j < 8; j++) {
+      int16_t temp = coeff[j * 8 + i];
+      coeff[j * 8 + i] = coeff[i * 8 + j];
+      coeff[i * 8 + j] = temp;
+    }
+  }
 }
 
 void aom_hadamard_lp_8x8_dual_c(const int16_t *src_diff, ptrdiff_t src_stride,
@@ -265,6 +292,17 @@ void aom_hadamard_16x16_c(const int16_t *src_diff, ptrdiff_t src_stride,
     coeff[192] = b1 - b3;
 
     ++coeff;
+  }
+
+  coeff -= 64;
+  // Extra shift to match AVX2 output (i.e., aom_hadamard_16x16_avx2).
+  // Note that to match SSE2 output, it does not need this step.
+  for (int i = 0; i < 16; i++) {
+    for (int j = 0; j < 4; j++) {
+      tran_low_t temp = coeff[i * 16 + 4 + j];
+      coeff[i * 16 + 4 + j] = coeff[i * 16 + 8 + j];
+      coeff[i * 16 + 8 + j] = temp;
+    }
   }
 }
 
