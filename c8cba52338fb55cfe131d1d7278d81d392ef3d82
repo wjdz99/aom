@@ -49,6 +49,40 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "7688599b_c67be9ad",
+        "filename": "aom_dsp/avg.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-09-27T21:42:28Z",
+      "side": 1,
+      "message": "We can transpose while copying from `buffer2` to `coeff` by replacing this for loop with the following:\n\n```\n  // Extra transpose to match SSE2 behavior(i.e., aom_hadamard_4x4_sse2).\n  for (int i \u003d 0; i \u003c 4; i++) {\n    for (int j \u003d 0; j \u003c 4; j++) {\n      coeff[i * 4 + j] \u003d (tran_low_t)buffer2[j * 4 + i];\n    }\n  }\n```",
+      "revId": "c8cba52338fb55cfe131d1d7278d81d392ef3d82",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d4118c2f_5fb49606",
+        "filename": "aom_dsp/avg.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 190,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-09-27T21:42:28Z",
+      "side": 1,
+      "message": "Delete this comment.",
+      "revId": "c8cba52338fb55cfe131d1d7278d81d392ef3d82",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "ec765064_5c447ef5",
         "filename": "av1/encoder/nonrd_pickmode.c",
         "patchSetId": 4
