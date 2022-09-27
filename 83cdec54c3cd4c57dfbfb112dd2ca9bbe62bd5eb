@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1da9d99e_f0ba879b",
+        "filename": "av1/encoder/encode_strategy.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 1470,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-09-27T17:51:13Z",
+      "side": 1,
+      "message": "It would be good for the comment to explain the `!use_one_pass_rt_params` test. Why is this entire if statement skipped if `use_one_pass_rt_params` is true?",
+      "revId": "83cdec54c3cd4c57dfbfb112dd2ca9bbe62bd5eb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
