@@ -41,6 +41,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "71b6e602_adbb0f66",
+        "filename": "av1/common/x86/jnt_convolve_avx2.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 801,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2022-09-27T17:09:04Z",
+      "side": 1,
+      "message": "No, _mm256_slli_epi16 requires a integer literal.\nIf we were using cpp, then we could use constexpr instead of a macro.",
+      "parentUuid": "710beb07_e11634ce",
+      "range": {
+        "startLine": 801,
+        "startChar": 8,
+        "endLine": 801,
+        "endChar": 18
+      },
+      "revId": "8a600385c86dbaac6f9abc6bd6120df0347c38d4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "dda34965_f4f41396",
@@ -64,6 +88,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "fd920120_9c2a145e",
+        "filename": "av1/common/x86/jnt_convolve_avx2.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 878,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2022-09-27T17:09:04Z",
+      "side": 1,
+      "message": "I have updated the code to use USE_DIST_WEIGHTED instead of use_dist_wtd_comp_avg.\nI didn\u0027t see a performance difference so it look like the compiler was able to do this optimization automatically.",
+      "parentUuid": "dda34965_f4f41396",
+      "range": {
+        "startLine": 878,
+        "startChar": 23,
+        "endLine": 878,
+        "endChar": 40
+      },
+      "revId": "8a600385c86dbaac6f9abc6bd6120df0347c38d4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "38f48306_a68278fb",
@@ -77,6 +125,30 @@
       "writtenOn": "2022-09-27T14:54:43Z",
       "side": 1,
       "message": "Is this still needed?",
+      "range": {
+        "startLine": 1045,
+        "startChar": 0,
+        "endLine": 1045,
+        "endChar": 44
+      },
+      "revId": "8a600385c86dbaac6f9abc6bd6120df0347c38d4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5a501107_a0296b88",
+        "filename": "av1/common/x86/jnt_convolve_avx2.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1045,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2022-09-27T17:09:04Z",
+      "side": 1,
+      "message": "This one is needed by DO_AVG_2D_COPY macro.\nI have consolidated the two left_shift variables to make it a bit cleaner.",
+      "parentUuid": "38f48306_a68278fb",
       "range": {
         "startLine": 1045,
         "startChar": 0,
