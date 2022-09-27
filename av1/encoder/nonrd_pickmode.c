@@ -200,9 +200,10 @@ static INLINE int subpel_select(AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bsize,
     if (frame_lowmotion > 0 && frame_lowmotion < 40)
       mv_thresh = 12;
     else
-      mv_thresh = (bsize >= BLOCK_32X32)   ? th_vals[th_idx][0]
-                  : (bsize >= BLOCK_16X16) ? th_vals[th_idx][1]
-                                           : th_vals[th_idx][2];
+      mv_thresh = (bsize >= BLOCK_32X32)
+                      ? th_vals[th_idx][0]
+                      : (bsize >= BLOCK_16X16) ? th_vals[th_idx][1]
+                                               : th_vals[th_idx][2];
     if (abs(mv->as_fullmv.row) >= (mv_thresh << 1) ||
         abs(mv->as_fullmv.col) >= (mv_thresh << 1))
       return FULL_PEL;
@@ -1910,7 +1911,7 @@ static void search_motion_mode(AV1_COMP *cpi, MACROBLOCK *x, RD_STATS *this_rdc,
 }
 #endif  // !CONFIG_REALTIME_ONLY
 
-#define COLLECT_PICK_MODE_STAT 0
+#define COLLECT_PICK_MODE_STAT 1
 #define COLLECT_NON_SQR_STAT 0
 
 #if COLLECT_PICK_MODE_STAT
