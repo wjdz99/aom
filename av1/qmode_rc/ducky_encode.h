@@ -20,7 +20,7 @@
 
 #include "aom/aom_encoder.h"
 #include "av1/encoder/firstpass.h"
-#include "av1/ratectrl_qmode_interface.h"
+#include "av1/qmode_rc/ratectrl_qmode_interface.h"
 
 namespace aom {
 struct VideoInfo {

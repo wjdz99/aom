@@ -16,8 +16,8 @@
 #include <queue>
 #include <vector>
 #include "av1/encoder/firstpass.h"
-#include "av1/ratectrl_qmode_interface.h"
-#include "av1/reference_manager.h"
+#include "av1/qmode_rc/ratectrl_qmode_interface.h"
+#include "av1/qmode_rc/reference_manager.h"
 
 namespace aom {
 
