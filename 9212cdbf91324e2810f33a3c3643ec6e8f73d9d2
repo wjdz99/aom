@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a2e3f772_684a9600",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-09-27T18:02:21Z",
+      "side": 1,
+      "message": "It might make integration into the two downstream repos easier if you left \"stub\" headers which include the new headers, e.g.\n\nav1/ducky_encode.h:\n-------------------------------\n// TODO(b/248273009): Remove when no longer used.\n#include \"av1/qmode_rc/ducky_encode.h\"\n-------------------------------\n\nThis would allow me to cherry pick into the other repos without having to change anything other than the BUILD files. Then, as a separate step, all the includes could be changed, and the old names removed from the BUILD files, before deleting the old files altogether.",
+      "revId": "9212cdbf91324e2810f33a3c3643ec6e8f73d9d2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
