@@ -97,6 +97,24 @@
       "parentUuid": "ddfa2e04_def27393",
       "revId": "c8cba52338fb55cfe131d1d7278d81d392ef3d82",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "990d9e52_62a984dd",
+        "filename": "test/hadamard_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2022-09-27T20:51:26Z",
+      "side": 1,
+      "message": "We could add a private member called tranposed_ to HadamardTestBase, then pass it to ReferenceHadamard to decide whether we want the additional transpose. Then in HadamardLowbdTest, we can set tranposed_ to true in the constructor.",
+      "parentUuid": "697faa3d_ca610f9f",
+      "revId": "c8cba52338fb55cfe131d1d7278d81d392ef3d82",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
