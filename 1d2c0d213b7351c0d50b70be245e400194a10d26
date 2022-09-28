@@ -18,6 +18,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "2c6eeade_74b2e59a",
+        "filename": "av1/encoder/pass2_strategy.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2022-09-28T18:01:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ee48a074_ad617c6c",
+      "revId": "1d2c0d213b7351c0d50b70be245e400194a10d26",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "cc6b1c6f_9fb6ed04",
@@ -31,6 +49,24 @@
       "writtenOn": "2022-09-21T20:37:49Z",
       "side": 1,
       "message": "Bohan:\n\nI found that the heap-use-after-free error is confusing.\n\nWhat happens is that this decrement call makes cpi-\u003etwopass_frame.stats_in smaller than twopass-\u003estats_buf_ctx-\u003estats_in_start. I think that is the source of the error, not heap-use-after-free.",
+      "revId": "1d2c0d213b7351c0d50b70be245e400194a10d26",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7772b302_81ca133c",
+        "filename": "av1/encoder/pass2_strategy.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 4041,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2022-09-28T18:01:57Z",
+      "side": 1,
+      "message": "Thanks for the report! This should be fixed now.",
+      "parentUuid": "cc6b1c6f_9fb6ed04",
       "revId": "1d2c0d213b7351c0d50b70be245e400194a10d26",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
