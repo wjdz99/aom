@@ -2295,6 +2295,21 @@ static AOM_INLINE void set_default_inloop_postproc_filter_params(
   rst_info[2].frame_restoration_type = RESTORE_NONE;
 }
 
+// Checks if in-loop post-processing filters need to be applied.
+static AOM_INLINE bool should_skip_inloop_postproc_filtering(
+    AV1_COMP *cpi, int use_cdef, int use_restoration) {
+  if (cpi->oxcf.algo_cfg.apply_inloop_postproc_filters ||
+      cpi->ppi->b_calculate_psnr)
+    return false;
+  assert(cpi->oxcf.mode == ALLINTRA);
+  const AV1_COMMON *const cm = &cpi->common;
+
+  // In case of ALLINTRA encoding, since a frame is not used as reference frame,
+  // deblocking filters need not be applied on the reconstructed frame if there
+  // are no further in-loop filtering stages.
+  return (!use_cdef && !av1_superres_scaled(cm) && !use_restoration);
+}
+
 /*!\brief Select and apply in-loop deblocking filters, cdef filters, and
  * restoration filters
  *
@@ -2317,8 +2332,13 @@ static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
 #if CONFIG_COLLECT_COMPONENT_TIMING
   start_timing(cpi, loop_filter_time);
 #endif
+
+  bool skip_inloop_postproc_filtering =
+      should_skip_inloop_postproc_filtering(cpi, use_cdef, use_restoration);
+
   if (use_loopfilter) {
     av1_pick_filter_level(cpi->source, cpi, cpi->sf.lpf_sf.lpf_pick);
+    if (skip_inloop_postproc_filtering) return;
     struct loopfilter *lf = &cm->lf;
     if ((lf->filter_level[0] || lf->filter_level[1]) &&
         !cpi->rtc_ref.non_reference_frame) {
@@ -4952,7 +4972,8 @@ int av1_get_preview_raw_frame(AV1_COMP *cpi, YV12_BUFFER_CONFIG *dest) {
     return -1;
   } else {
     int ret;
-    if (cm->cur_frame != NULL) {
+    if (cm->cur_frame != NULL &&
+        cpi->oxcf.algo_cfg.apply_inloop_postproc_filters) {
       *dest = cm->cur_frame->buf;
       dest->y_width = cm->width;
       dest->y_height = cm->height;
@@ -4967,7 +4988,9 @@ int av1_get_preview_raw_frame(AV1_COMP *cpi, YV12_BUFFER_CONFIG *dest) {
 }
 
 int av1_get_last_show_frame(AV1_COMP *cpi, YV12_BUFFER_CONFIG *frame) {
-  if (cpi->last_show_frame_buf == NULL) return -1;
+  if (cpi->last_show_frame_buf == NULL ||
+      !cpi->oxcf.algo_cfg.apply_inloop_postproc_filters)
+    return -1;
 
   *frame = cpi->last_show_frame_buf->buf;
   return 0;

@@ -172,6 +172,9 @@ struct av1_extracfg {
   int fwd_kf_dist;
 
   LOOPFILTER_CONTROL loopfilter_control;
+  // Indicates if in-loop post-processing filters should be applied on
+  // reconstructed frame.
+  unsigned int apply_inloop_postproc_filters;
   // the name of the second pass output file when passes > 2
   const char *two_pass_output;
   const char *second_pass_log;
@@ -345,6 +348,7 @@ static const struct av1_extracfg default_extra_cfg = {
   -1,              // passes
   -1,              // fwd_kf_dist
   LOOPFILTER_ALL,  // loopfilter_control
+  1,               // apply_inloop_postproc_filters
   NULL,            // two_pass_output
   NULL,            // second_pass_log
   0,               // auto_intra_tools_off
@@ -492,6 +496,7 @@ static const struct av1_extracfg default_extra_cfg = {
   -1,              // passes
   -1,              // fwd_kf_dist
   LOOPFILTER_ALL,  // loopfilter_control
+  1,               // apply_inloop_postproc_filters
   NULL,            // two_pass_output
   NULL,            // second_pass_log
   0,               // auto_intra_tools_off
@@ -847,6 +852,7 @@ static aom_codec_err_t validate_config(aom_codec_alg_priv_t *ctx,
 
   RANGE_CHECK(extra_cfg, deltaq_strength, 0, 1000);
   RANGE_CHECK_HI(extra_cfg, loopfilter_control, 3);
+  RANGE_CHECK_BOOL(extra_cfg, apply_inloop_postproc_filters);
   RANGE_CHECK_HI(extra_cfg, enable_cdef, 2);
   RANGE_CHECK_BOOL(extra_cfg, auto_intra_tools_off);
   RANGE_CHECK_BOOL(extra_cfg, strict_level_conformance);
@@ -1200,6 +1206,8 @@ static aom_codec_err_t set_encoder_config(AV1EncoderConfig *oxcf,
   algo_cfg->enable_tpl_model =
       resize_cfg->resize_mode ? 0 : extra_cfg->enable_tpl_model;
   algo_cfg->loopfilter_control = extra_cfg->loopfilter_control;
+  algo_cfg->apply_inloop_postproc_filters =
+      extra_cfg->apply_inloop_postproc_filters;
 
   // Set two-pass stats configuration.
   oxcf->twopass_stats_in = cfg->rc_twopass_stats_in;
@@ -2439,6 +2447,17 @@ static aom_codec_err_t ctrl_set_loopfilter_control(aom_codec_alg_priv_t *ctx,
   return update_extra_cfg(ctx, &extra_cfg);
 }
 
+static aom_codec_err_t ctrl_set_apply_inloop_postproc_filters(
+    aom_codec_alg_priv_t *ctx, va_list args) {
+  //  Disabling the application of in-loop post-processing filters is allowed
+  //  only for ALLINTRA mode.
+  if (ctx->cfg.g_usage != AOM_USAGE_ALL_INTRA) return AOM_CODEC_UNSUP_FEATURE;
+  struct av1_extracfg extra_cfg = ctx->extra_cfg;
+  extra_cfg.apply_inloop_postproc_filters =
+      CAST(AV1E_SET_APPLY_INLOOP_POSTPROC_FILTERS, args);
+  return update_extra_cfg(ctx, &extra_cfg);
+}
+
 static aom_codec_err_t ctrl_set_rtc_external_rc(aom_codec_alg_priv_t *ctx,
                                                 va_list args) {
   ctx->ppi->cpi->rc.rtc_external_ratectrl =
@@ -3200,6 +3219,8 @@ static aom_codec_err_t ctrl_set_reference(aom_codec_alg_priv_t *ctx,
 
 static aom_codec_err_t ctrl_copy_reference(aom_codec_alg_priv_t *ctx,
                                            va_list args) {
+  if (!ctx->ppi->cpi->oxcf.algo_cfg.apply_inloop_postproc_filters)
+    return AOM_CODEC_UNSUP_FEATURE;
   av1_ref_frame_t *const frame = va_arg(args, av1_ref_frame_t *);
 
   if (frame != NULL) {
@@ -3215,6 +3236,8 @@ static aom_codec_err_t ctrl_copy_reference(aom_codec_alg_priv_t *ctx,
 
 static aom_codec_err_t ctrl_get_reference(aom_codec_alg_priv_t *ctx,
                                           va_list args) {
+  if (!ctx->ppi->cpi->oxcf.algo_cfg.apply_inloop_postproc_filters)
+    return AOM_CODEC_UNSUP_FEATURE;
   av1_ref_frame_t *const frame = va_arg(args, av1_ref_frame_t *);
 
   if (frame != NULL) {
@@ -3230,6 +3253,8 @@ static aom_codec_err_t ctrl_get_reference(aom_codec_alg_priv_t *ctx,
 
 static aom_codec_err_t ctrl_get_new_frame_image(aom_codec_alg_priv_t *ctx,
                                                 va_list args) {
+  if (!ctx->ppi->cpi->oxcf.algo_cfg.apply_inloop_postproc_filters)
+    return AOM_CODEC_UNSUP_FEATURE;
   aom_image_t *const new_img = va_arg(args, aom_image_t *);
 
   if (new_img != NULL) {
@@ -3248,6 +3273,8 @@ static aom_codec_err_t ctrl_get_new_frame_image(aom_codec_alg_priv_t *ctx,
 
 static aom_codec_err_t ctrl_copy_new_frame_image(aom_codec_alg_priv_t *ctx,
                                                  va_list args) {
+  if (!ctx->ppi->cpi->oxcf.algo_cfg.apply_inloop_postproc_filters)
+    return AOM_CODEC_UNSUP_FEATURE;
   aom_image_t *const new_img = va_arg(args, aom_image_t *);
 
   if (new_img != NULL) {
@@ -4141,6 +4168,8 @@ static aom_codec_ctrl_fn_map_t encoder_ctrl_maps[] = {
   { AV1E_SET_EXTERNAL_PARTITION, ctrl_set_external_partition },
   { AV1E_SET_ENABLE_TX_SIZE_SEARCH, ctrl_set_enable_tx_size_search },
   { AV1E_SET_LOOPFILTER_CONTROL, ctrl_set_loopfilter_control },
+  { AV1E_SET_APPLY_INLOOP_POSTPROC_FILTERS,
+    ctrl_set_apply_inloop_postproc_filters },
   { AV1E_SET_AUTO_INTRA_TOOLS_OFF, ctrl_set_auto_intra_tools_off },
   { AV1E_SET_RTC_EXTERNAL_RC, ctrl_set_rtc_external_rc },
 
