@@ -359,8 +359,8 @@ The following are the main data structures referenced in this section
  \ref encode_with_recode_loop_and_filter(), which handles encoding before
  in-loop filters (with recode loops \ref encode_with_recode_loop(), or
  without any recode loop \ref encode_without_recode()), followed by in-loop
- filters (deblocking filters \ref loopfilter_frame(), CDEF filters and
- restoration filters \ref cdef_restoration_frame()).
+ filters (deblocking filters \ref loopfilter_frame_and_extend_frame_borders(),
+ CDEF filters and restoration filters \ref cdef_restoration_frame()).
 
  Except for rate/quality control, both \ref encode_with_recode_loop() and
  \ref encode_without_recode() call \ref av1_encode_frame() to manage the
