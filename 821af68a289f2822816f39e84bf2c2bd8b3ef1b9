@@ -1,0 +1,191 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "69c53fa1_07357f36",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 11
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-09-28T00:11:11Z",
+      "side": 1,
+      "message": "Hi Remya,\n\nI have some questions and suggested changes. Marco also gave me some suggestions, but I will forward his comments to you after this round when I understand the code better.",
+      "revId": "821af68a289f2822816f39e84bf2c2bd8b3ef1b9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "26f6999d_f94347f7",
+        "filename": "aom/aomcx.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 1464,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-09-28T00:11:11Z",
+      "side": 1,
+      "message": "1. Document that this codec control has no effect if the encoder\u0027s usage mode is not all intra.\n\n2. [Can address this later.] It would be helpful to reflect the above fact in the name of the codec control.",
+      "revId": "821af68a289f2822816f39e84bf2c2bd8b3ef1b9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "76215a13_7c590f14",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 175,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-09-28T00:11:11Z",
+      "side": 1,
+      "message": "Nit: Document this struct member.",
+      "revId": "821af68a289f2822816f39e84bf2c2bd8b3ef1b9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6f4ba637_28a5d899",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 2455,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-09-28T00:11:11Z",
+      "side": 1,
+      "message": "ALLINTRA \u003d\u003e AOM_USAGE_ALL_INTRA\n\nShould we return an error instead:\n\n```\n  if (ctx-\u003ecfg.g_usage !\u003d AOM_USAGE_ALL_INTRA)\n    return AOM_CODEC_UNSUP_FEATURE;\n```",
+      "revId": "821af68a289f2822816f39e84bf2c2bd8b3ef1b9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b0de14ec_32cf7292",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 3222,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-09-28T00:11:11Z",
+      "side": 1,
+      "message": "I found that the `AV1_COPY_REFERENCE` codec control is not used. Perhaps we should not bother modifying this function?",
+      "revId": "821af68a289f2822816f39e84bf2c2bd8b3ef1b9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "57e54dd5_e97fd81f",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 2307,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-09-28T00:11:11Z",
+      "side": 1,
+      "message": "IMPORTANT: Could you explain this check?\n\nThis means if `use_cdef`, `av1_superres_scaled(cm)`, or `use_restoration` is true, then we will still apply the post-processing filters to frames in all intra mode. Why?",
+      "revId": "821af68a289f2822816f39e84bf2c2bd8b3ef1b9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b0c4134b_4a504e88",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 2308,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-09-28T00:11:11Z",
+      "side": 1,
+      "message": "Nit/optional: The outer parentheses can be omitted. They are okay if you think they make the code clearer.",
+      "revId": "821af68a289f2822816f39e84bf2c2bd8b3ef1b9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a8e8fe21_9e08e13c",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 2371,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-09-28T00:11:11Z",
+      "side": 1,
+      "message": "We didn\u0027t do this in the original code. Why is this needed in the new code?",
+      "revId": "821af68a289f2822816f39e84bf2c2bd8b3ef1b9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5462c060_7a1fa3e7",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 3147,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-09-28T00:11:11Z",
+      "side": 1,
+      "message": "Nit: This comment should be moved into the `if` block, because the code picking the loop filter level (of 0) in the `else` block is gone.",
+      "revId": "821af68a289f2822816f39e84bf2c2bd8b3ef1b9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c4d49b40_aa3e0a3d",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 3151,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-09-28T00:11:11Z",
+      "side": 1,
+      "message": "In the original code, this is done unconditionally, after the if-else statement. Why is it inside the `else` block in the new code?",
+      "revId": "821af68a289f2822816f39e84bf2c2bd8b3ef1b9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5df08b46_28896a58",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 4996,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-09-28T00:11:11Z",
+      "side": 1,
+      "message": "Omit this change, because the two callers in av1/av1_cx_iface.c already check `cpi-\u003eoxcf.algo_cfg.apply_inloop_postproc_filters`.",
+      "revId": "821af68a289f2822816f39e84bf2c2bd8b3ef1b9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
