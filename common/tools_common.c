@@ -556,3 +556,66 @@ void aom_img_write_nv12(const aom_image_t *img, FILE *file) {
     vbuf += (stride - w * size);
   }
 }
+
+size_t read_from_input(struct AvxInputContext *input_ctx, size_t n,
+                       unsigned char *buf) {
+  const size_t buffered =
+      input_ctx->detect.buf_read - input_ctx->detect.position;
+  size_t read_n;
+  if (buffered == 0) {
+    read_n = fread(buf, 1, n, input_ctx->file);
+  } else if (n <= buffered) {
+    memcpy(buf, input_ctx->detect.buf + input_ctx->detect.position, n);
+    input_ctx->detect.position += n;
+    read_n = n;
+  } else {
+    memcpy(buf, input_ctx->detect.buf + input_ctx->detect.position, buffered);
+    input_ctx->detect.position += buffered;
+    read_n = buffered;
+    read_n += fread(buf + buffered, 1, n - buffered, input_ctx->file);
+  }
+  return read_n;
+}
+
+size_t input_to_detect_buf(struct AvxInputContext *input_ctx, size_t n) {
+  size_t buffered = input_ctx->detect.buf_read - input_ctx->detect.position;
+  size_t read_n;
+  if (buffered == 0) {
+    read_n = fread(input_ctx->detect.buf + input_ctx->detect.buf_read, 1, n,
+                   input_ctx->file);
+    input_ctx->detect.buf_read += read_n;
+  } else if (n <= buffered) {
+    // In this case, don't need to do anything as the data is already in
+    // the detect buffer
+    read_n = n;
+  } else {
+    read_n = fread(input_ctx->detect.buf + input_ctx->detect.buf_read, 1,
+                   n - buffered, input_ctx->file);
+    input_ctx->detect.buf_read += read_n;
+    read_n += buffered;
+  }
+  return read_n;
+}
+
+// Read from detect buffer to a buffer. If not enough, read from input and also
+// buffer them first.
+size_t buffer_input(struct AvxInputContext *input_ctx, size_t n,
+                    unsigned char *buf, int buffered) {
+  if (!buffered) {
+    return read_from_input(input_ctx, n, buf);
+  }
+  size_t buf_n = input_to_detect_buf(input_ctx, n);
+  if (buf_n < n) {
+    return buf_n;
+  }
+  return read_from_input(input_ctx, n, buf);
+}
+
+void rewind_detect(struct AvxInputContext *input_ctx) {
+  input_ctx->detect.position = 0;
+}
+
+bool input_eof(struct AvxInputContext *input_ctx) {
+  return feof(input_ctx->file) &&
+         input_ctx->detect.position == input_ctx->detect.buf_read;
+}
