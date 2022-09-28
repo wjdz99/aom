@@ -35,6 +35,42 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "61694136_b3bfc0b2",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 11
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9616
+      },
+      "writtenOn": "2022-09-28T19:36:57Z",
+      "side": 1,
+      "message": "Hi Wan-Teh,\n\nWe have taken your suggestions and pushed patchset 12. Please review.",
+      "parentUuid": "69c53fa1_07357f36",
+      "revId": "821af68a289f2822816f39e84bf2c2bd8b3ef1b9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "72ec233d_e4c94c93",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 11
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9616
+      },
+      "writtenOn": "2022-09-28T19:36:57Z",
+      "side": 1,
+      "message": "As suggested, we have submitted a separate CL (https://aomedia-review.googlesource.com/c/aom/+/163801). Please review.",
+      "parentUuid": "9fbff5f0_5bd73849",
+      "revId": "821af68a289f2822816f39e84bf2c2bd8b3ef1b9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "26f6999d_f94347f7",
@@ -48,6 +84,24 @@
       "writtenOn": "2022-09-28T00:11:11Z",
       "side": 1,
       "message": "1. Document that this codec control has no effect if the encoder\u0027s usage mode is not all intra.\n\n2. [Can address this later.] It would be helpful to reflect the above fact in the name of the codec control.",
+      "revId": "821af68a289f2822816f39e84bf2c2bd8b3ef1b9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a57a301e_c32e906b",
+        "filename": "aom/aomcx.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 1464,
+      "author": {
+        "id": 9616
+      },
+      "writtenOn": "2022-09-28T19:36:57Z",
+      "side": 1,
+      "message": "Done. We did not modify the name since we feel that this codec control can possibly be extended in future for other use-cases.",
+      "parentUuid": "26f6999d_f94347f7",
       "revId": "821af68a289f2822816f39e84bf2c2bd8b3ef1b9",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -69,6 +123,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "9be6fa4e_9f1f335a",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 175,
+      "author": {
+        "id": 9616
+      },
+      "writtenOn": "2022-09-28T19:36:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "76215a13_7c590f14",
+      "revId": "821af68a289f2822816f39e84bf2c2bd8b3ef1b9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "6f4ba637_28a5d899",
@@ -82,6 +154,24 @@
       "writtenOn": "2022-09-28T00:11:11Z",
       "side": 1,
       "message": "ALLINTRA \u003d\u003e AOM_USAGE_ALL_INTRA\n\nShould we return an error instead:\n\n```\n  if (ctx-\u003ecfg.g_usage !\u003d AOM_USAGE_ALL_INTRA)\n    return AOM_CODEC_UNSUP_FEATURE;\n```",
+      "revId": "821af68a289f2822816f39e84bf2c2bd8b3ef1b9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c50f1b77_d606de5b",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 2455,
+      "author": {
+        "id": 9616
+      },
+      "writtenOn": "2022-09-28T19:36:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6f4ba637_28a5d899",
       "revId": "821af68a289f2822816f39e84bf2c2bd8b3ef1b9",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -105,6 +195,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "e4a478a7_715171f8",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 3222,
+      "author": {
+        "id": 9616
+      },
+      "writtenOn": "2022-09-28T19:36:57Z",
+      "side": 1,
+      "message": "Even though the example applications are not demonstrating the usage of this control command, it is possible that users may make this call when libaom is integrated into their application. Hence we feel that it is recommended to handle this codec control.",
+      "parentUuid": "b0de14ec_32cf7292",
+      "revId": "821af68a289f2822816f39e84bf2c2bd8b3ef1b9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "57e54dd5_e97fd81f",
         "filename": "av1/encoder/encoder.c",
         "patchSetId": 11
@@ -116,6 +224,24 @@
       "writtenOn": "2022-09-28T00:11:11Z",
       "side": 1,
       "message": "IMPORTANT: Could you explain this check?\n\nThis means if `use_cdef`, `av1_superres_scaled(cm)`, or `use_restoration` is true, then we will still apply the post-processing filters to frames in all intra mode. Why?",
+      "revId": "821af68a289f2822816f39e84bf2c2bd8b3ef1b9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9b2688bf_ba1b71a8",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 2307,
+      "author": {
+        "id": 9616
+      },
+      "writtenOn": "2022-09-28T19:36:57Z",
+      "side": 1,
+      "message": "The existing in-loop post-processing stages happen one after the other in the following order:\n deblocking_filters -\u003e cdef -\u003e loop_restoration\nEach stage has a data dependency on the previous stage (depending on speed feature settings). Hence,  in-order to ensure a bit-exact change, we can disable the application of different post-processing filters provided subsequent stages do not require the filtered data.\n\nCurrently cdef is disabled in case of ALLINTRA encode and loop restoration is disabled for speed \u003e\u003d 5. Hence, this CL disables the application of deblocking filters that have an impact for ALLINTRA encode, speed \u003e\u003d 5. We can further extend this CL to disable the application of loop restoration filters (applicable for speed \u003c\u003d 4), but the speed-up may not be tangible as seen from the profile data (~0.05%).",
+      "parentUuid": "57e54dd5_e97fd81f",
       "revId": "821af68a289f2822816f39e84bf2c2bd8b3ef1b9",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -139,6 +265,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "98a335a9_af888eff",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 2308,
+      "author": {
+        "id": 9616
+      },
+      "writtenOn": "2022-09-28T19:36:57Z",
+      "side": 1,
+      "message": "We felt that the outer parenthesis makes the code more readable, hence retaining the same. Please let us know if otherwise.",
+      "parentUuid": "b0c4134b_4a504e88",
+      "revId": "821af68a289f2822816f39e84bf2c2bd8b3ef1b9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "e5de3fa6_fc27a764",
         "filename": "av1/encoder/encoder.c",
         "patchSetId": 11
@@ -150,6 +294,30 @@
       "writtenOn": "2022-09-28T01:27:26Z",
       "side": 1,
       "message": "Should these two lines be deleted? The caller has done these inside the `set_default_loopfilter_params()` call at line 3145.",
+      "range": {
+        "startLine": 2349,
+        "startChar": 0,
+        "endLine": 2350,
+        "endChar": 28
+      },
+      "revId": "821af68a289f2822816f39e84bf2c2bd8b3ef1b9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6bfa26fe_d5e330c8",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 2350,
+      "author": {
+        "id": 9616
+      },
+      "writtenOn": "2022-09-28T19:36:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e5de3fa6_fc27a764",
       "range": {
         "startLine": 2349,
         "startChar": 0,
@@ -183,6 +351,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e4229fa4_c0792b3e",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 2364,
+      "author": {
+        "id": 9616
+      },
+      "writtenOn": "2022-09-28T19:36:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7f333f62_c387391b",
+      "range": {
+        "startLine": 2359,
+        "startChar": 0,
+        "endLine": 2364,
+        "endChar": 3
+      },
+      "revId": "821af68a289f2822816f39e84bf2c2bd8b3ef1b9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a8e8fe21_9e08e13c",
@@ -196,6 +388,24 @@
       "writtenOn": "2022-09-28T00:11:11Z",
       "side": 1,
       "message": "We didn\u0027t do this in the original code. Why is this needed in the new code?",
+      "revId": "821af68a289f2822816f39e84bf2c2bd8b3ef1b9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "693ba88d_656cddca",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 2371,
+      "author": {
+        "id": 9616
+      },
+      "writtenOn": "2022-09-28T19:36:57Z",
+      "side": 1,
+      "message": "Please find the response along with the explanation to the query in line 3151.",
+      "parentUuid": "a8e8fe21_9e08e13c",
       "revId": "821af68a289f2822816f39e84bf2c2bd8b3ef1b9",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -235,6 +445,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "8fe60036_4f14a40a",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 3147,
+      "author": {
+        "id": 9616
+      },
+      "writtenOn": "2022-09-28T19:36:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "debe0d1f_4aa03957",
+      "revId": "821af68a289f2822816f39e84bf2c2bd8b3ef1b9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c4d49b40_aa3e0a3d",
@@ -254,6 +482,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "2e3c344c_88424fd9",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 3151,
+      "author": {
+        "id": 9616
+      },
+      "writtenOn": "2022-09-28T19:36:57Z",
+      "side": 1,
+      "message": "We have moved this function in both the if and else blocks so that in case of ALLINTRA encode, when post-processing is skipped, this function call can also be skipped as the frame is never referenced.",
+      "parentUuid": "c4d49b40_aa3e0a3d",
+      "revId": "821af68a289f2822816f39e84bf2c2bd8b3ef1b9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "5df08b46_28896a58",
         "filename": "av1/encoder/encoder.c",
         "patchSetId": 11
@@ -265,6 +511,24 @@
       "writtenOn": "2022-09-28T00:11:11Z",
       "side": 1,
       "message": "Omit this change, because the two callers in av1/av1_cx_iface.c already check `cpi-\u003eoxcf.algo_cfg.apply_inloop_postproc_filters`.",
+      "revId": "821af68a289f2822816f39e84bf2c2bd8b3ef1b9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "43bf72cd_86addcda",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 4996,
+      "author": {
+        "id": 9616
+      },
+      "writtenOn": "2022-09-28T19:36:57Z",
+      "side": 1,
+      "message": "We felt that keeping this check in av1_get_last_show_frame() would ensure that any possible calls to this function in the future will be taken care of. Hence we have not modified this code. Please let us know your opinion.",
+      "parentUuid": "5df08b46_28896a58",
       "revId": "821af68a289f2822816f39e84bf2c2bd8b3ef1b9",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
