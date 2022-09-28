@@ -33,6 +33,24 @@
       "message": "It may be a good idea for Jingning to check the change to this file again. You added this line and moved this block of new code here.\n\nIn the version that Jingning reviewed, this block of new code was added right before line 3707 (`if (rc-\u003eframes_to_key \u003c\u003d 0) {`).",
       "revId": "c46901617f1a8c3d5a0facccaa58315182750af2",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e8529187_aeaa5417",
+        "filename": "av1/encoder/pass2_strategy.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 3653,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2022-09-28T21:41:10Z",
+      "side": 1,
+      "message": "Yes, I think this was the reason why the previous patch had buffer underflow, since if it is a key frame, it should not read the frame stats in.",
+      "parentUuid": "38912771_c75bd371",
+      "revId": "c46901617f1a8c3d5a0facccaa58315182750af2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
