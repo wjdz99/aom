@@ -139,6 +139,52 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "e5de3fa6_fc27a764",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 2350,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-09-28T01:27:26Z",
+      "side": 1,
+      "message": "Should these two lines be deleted? The caller has done these inside the `set_default_loopfilter_params()` call at line 3145.",
+      "range": {
+        "startLine": 2349,
+        "startChar": 0,
+        "endLine": 2350,
+        "endChar": 28
+      },
+      "revId": "821af68a289f2822816f39e84bf2c2bd8b3ef1b9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7f333f62_c387391b",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 2364,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-09-28T01:27:26Z",
+      "side": 1,
+      "message": "It seems that this if statement (lines 2359-2364) can be moved into the `if (use_loopfilter)` block above, after the `av1_pick_filter_level()` call at line 2347.",
+      "range": {
+        "startLine": 2359,
+        "startChar": 0,
+        "endLine": 2364,
+        "endChar": 3
+      },
+      "revId": "821af68a289f2822816f39e84bf2c2bd8b3ef1b9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "a8e8fe21_9e08e13c",
         "filename": "av1/encoder/encoder.c",
         "patchSetId": 11
@@ -167,6 +213,24 @@
       "writtenOn": "2022-09-28T00:11:11Z",
       "side": 1,
       "message": "Nit: This comment should be moved into the `if` block, because the code picking the loop filter level (of 0) in the `else` block is gone.",
+      "revId": "821af68a289f2822816f39e84bf2c2bd8b3ef1b9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "debe0d1f_4aa03957",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 3147,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-09-28T01:27:26Z",
+      "side": 1,
+      "message": "Alternatively, just delete this comment?",
+      "parentUuid": "5462c060_7a1fa3e7",
       "revId": "821af68a289f2822816f39e84bf2c2bd8b3ef1b9",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
