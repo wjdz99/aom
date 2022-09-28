@@ -24,6 +24,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "5e8dd7a7_1b4e2281",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 31132
+      },
+      "writtenOn": "2022-09-28T14:02:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "227ff8fe_444ca620",
+      "range": {
+        "startLine": 23,
+        "startChar": 0,
+        "endLine": 23,
+        "endChar": 77
+      },
+      "revId": "c8cba52338fb55cfe131d1d7278d81d392ef3d82",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "9dad4b65_6a61d820",
@@ -37,6 +61,30 @@
       "writtenOn": "2022-09-27T20:25:05Z",
       "side": 1,
       "message": "Ditto here.",
+      "range": {
+        "startLine": 35,
+        "startChar": 0,
+        "endLine": 36,
+        "endChar": 75
+      },
+      "revId": "c8cba52338fb55cfe131d1d7278d81d392ef3d82",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e3af2de9_3bd41d99",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 31132
+      },
+      "writtenOn": "2022-09-28T14:02:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9dad4b65_6a61d820",
       "range": {
         "startLine": 35,
         "startChar": 0,
@@ -64,6 +112,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "43348bf4_7658f671",
+        "filename": "aom_dsp/avg.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 31132
+      },
+      "writtenOn": "2022-09-28T14:02:16Z",
+      "side": 1,
+      "message": "Good idea. Thanks and done.",
+      "parentUuid": "7688599b_c67be9ad",
+      "revId": "c8cba52338fb55cfe131d1d7278d81d392ef3d82",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d4118c2f_5fb49606",
@@ -81,6 +147,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "0b404f1f_c4e88560",
+        "filename": "aom_dsp/avg.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 190,
+      "author": {
+        "id": 31132
+      },
+      "writtenOn": "2022-09-28T14:02:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d4118c2f_5fb49606",
+      "revId": "c8cba52338fb55cfe131d1d7278d81d392ef3d82",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ec765064_5c447ef5",
@@ -94,6 +178,24 @@
       "writtenOn": "2022-09-27T20:25:05Z",
       "side": 1,
       "message": "Since this array isn\u0027t used when CONFIG_AV1_HIGHBITDEPTH \u003d\u003d 0, we can put it under an #if macro.",
+      "revId": "c8cba52338fb55cfe131d1d7278d81d392ef3d82",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0941cc49_d924bf15",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 189,
+      "author": {
+        "id": 31132
+      },
+      "writtenOn": "2022-09-28T14:02:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ec765064_5c447ef5",
       "revId": "c8cba52338fb55cfe131d1d7278d81d392ef3d82",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -147,6 +249,24 @@
       "side": 1,
       "message": "We could add a private member called tranposed_ to HadamardTestBase, then pass it to ReferenceHadamard to decide whether we want the additional transpose. Then in HadamardLowbdTest, we can set tranposed_ to true in the constructor.",
       "parentUuid": "697faa3d_ca610f9f",
+      "revId": "c8cba52338fb55cfe131d1d7278d81d392ef3d82",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "37e7f44b_008c6f99",
+        "filename": "test/hadamard_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 31132
+      },
+      "writtenOn": "2022-09-28T14:02:16Z",
+      "side": 1,
+      "message": "Good suggestion. Thanks.",
+      "parentUuid": "990d9e52_62a984dd",
       "revId": "c8cba52338fb55cfe131d1d7278d81d392ef3d82",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
