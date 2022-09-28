@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ab601e19_7b6d4913",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-09-28T18:07:27Z",
+      "side": 1,
+      "message": "LGTM.",
+      "revId": "c46901617f1a8c3d5a0facccaa58315182750af2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "38912771_c75bd371",
+        "filename": "av1/encoder/pass2_strategy.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 3653,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-09-28T18:07:27Z",
+      "side": 1,
+      "message": "It may be a good idea for Jingning to check the change to this file again. You added this line and moved this block of new code here.\n\nIn the version that Jingning reviewed, this block of new code was added right before line 3707 (`if (rc-\u003eframes_to_key \u003c\u003d 0) {`).",
+      "revId": "c46901617f1a8c3d5a0facccaa58315182750af2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
