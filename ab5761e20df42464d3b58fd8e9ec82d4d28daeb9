@@ -16,6 +16,91 @@
       "message": "Hi Wan-Teh, Frank,\n\nIn this CL, we have refactored the function loopfilter_frame().\n\nAs suggested in the CL(https://aomedia-review.googlesource.com/c/aom/+/162681), we have done the following changes:\n1. The default initialization of the in-loop post-processing filter parameters is abstracted to a function set_default_inloop_postproc_filter_params()\n2. The code to extend the frame borders is abstracted to a function extend_frame_borders() and function call to the same is moved \n\nThese changes facilitate the subsequent CL which skips the application of in-loop post-processing filters in case of ALLINTRA encode.\n\nRegards,\nRemya",
       "revId": "ab5761e20df42464d3b58fd8e9ec82d4d28daeb9",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "44c1189a_9ae40f93",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-09-29T01:19:01Z",
+      "side": 1,
+      "message": "LGTM. I suggest a few small changes.",
+      "revId": "ab5761e20df42464d3b58fd8e9ec82d4d28daeb9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ac08c3ca_9574a227",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2268,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-09-29T01:19:01Z",
+      "side": 1,
+      "message": "Nit: Omit `AOM_INLINE` here and at line 2282.",
+      "revId": "ab5761e20df42464d3b58fd8e9ec82d4d28daeb9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3417819b_2a8c2759",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2282,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-09-29T01:19:01Z",
+      "side": 1,
+      "message": "Nit: Rename this function \"set_inloop_postproc_filter_default_params\".",
+      "revId": "ab5761e20df42464d3b58fd8e9ec82d4d28daeb9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "10647a81_1b9f6438",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2288,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-09-29T01:19:01Z",
+      "side": 1,
+      "message": "Nit: Use the original code, which is more commonly used in libaom:\n\n```\n    lf-\u003efilter_level[0] \u003d 0;\n    lf-\u003efilter_level[1] \u003d 0;\n```",
+      "revId": "ab5761e20df42464d3b58fd8e9ec82d4d28daeb9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "baf2f5bf_f30692bd",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 3128,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-09-29T01:19:01Z",
+      "side": 1,
+      "message": "I understand why extend_frame_borders(cpi) needs to be called here and inside loopfilter_frame(cpi, cm) now. It\u0027s quite confusing, but I don\u0027t have a good solution without further refactoring of `loopfilter_frame()`.",
+      "revId": "ab5761e20df42464d3b58fd8e9ec82d4d28daeb9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
