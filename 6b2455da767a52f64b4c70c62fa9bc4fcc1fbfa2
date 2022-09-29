@@ -18,6 +18,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "08034410_4ef73834",
+        "filename": "test/hadamard_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 332,
+      "author": {
+        "id": 31132
+      },
+      "writtenOn": "2022-09-29T19:17:26Z",
+      "side": 1,
+      "message": "Yeah, you are right. Once moved out of the #if 0, it can be auto-formatted. Thanks.",
+      "parentUuid": "95d3ffdc_4a1c92e1",
+      "revId": "6b2455da767a52f64b4c70c62fa9bc4fcc1fbfa2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "75829ae1_c0feef79",
@@ -31,6 +49,30 @@
       "writtenOn": "2022-09-29T18:25:20Z",
       "side": 1,
       "message": "hadamard",
+      "range": {
+        "startLine": 350,
+        "startChar": 60,
+        "endLine": 350,
+        "endChar": 68
+      },
+      "revId": "6b2455da767a52f64b4c70c62fa9bc4fcc1fbfa2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "76d183e1_28e622c7",
+        "filename": "test/hadamard_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 350,
+      "author": {
+        "id": 31132
+      },
+      "writtenOn": "2022-09-29T19:17:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "75829ae1_c0feef79",
       "range": {
         "startLine": 350,
         "startChar": 60,
