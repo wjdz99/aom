@@ -18,6 +18,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a5492cfe_331aa31b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9616
+      },
+      "writtenOn": "2022-09-29T16:52:47Z",
+      "side": 1,
+      "message": "Hi Wan-Teh,\n\nAs suggested, we shall address your comments regarding the documentation and renaming of function loopfilter_frame() in a follow-up CL. Please review patchset 4.\n\nRegards,\nRemya",
+      "parentUuid": "dc0e01a2_64ec98ba",
+      "revId": "e77e34b13af34e8b84e23795fbf535744a77fbe4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a96586ed_b1bf0025",
@@ -31,6 +49,24 @@
       "writtenOn": "2022-09-29T16:07:21Z",
       "side": 1,
       "message": "Nit: We should document that this function also extend frame borders.\n\nQuestion: We only need to extend frame borders if the frame will be used as a reference frame, right? Could you explain why?",
+      "revId": "e77e34b13af34e8b84e23795fbf535744a77fbe4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4ae95b7d_cfe7bb53",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 2299,
+      "author": {
+        "id": 9616
+      },
+      "writtenOn": "2022-09-29T16:52:47Z",
+      "side": 1,
+      "message": "Yes, extending frame borders is required only in case of frames that would be referenced as subsequent frames may refer to extended region during motion compensation.",
+      "parentUuid": "a96586ed_b1bf0025",
       "revId": "e77e34b13af34e8b84e23795fbf535744a77fbe4",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
