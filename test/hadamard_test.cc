@@ -232,8 +232,8 @@ template <typename OutputType, typename HadamardFuncType>
 class HadamardTestBase
     : public ::testing::TestWithParam<FuncWithSize<HadamardFuncType>> {
  public:
-  explicit HadamardTestBase(const FuncWithSize<HadamardFuncType> &func_param,
-                            bool do_shift) {
+  HadamardTestBase(const FuncWithSize<HadamardFuncType> &func_param,
+                   bool do_shift) {
     h_func_ = func_param.func;
     bw_ = func_param.block_width;
     bh_ = func_param.block_height;
@@ -311,7 +311,7 @@ class HadamardTestBase
 
 class HadamardLowbdTest : public HadamardTestBase<tran_low_t, HadamardFunc> {
  public:
-  HadamardLowbdTest() : HadamardTestBase(GetParam(), true) {}
+  HadamardLowbdTest() : HadamardTestBase(GetParam(), /*do_shift=*/true) {}
   virtual int16_t Rand() { return rnd_.Rand9Signed(); }
 };
 
@@ -329,7 +329,8 @@ INSTANTIATE_TEST_SUITE_P(
                       HadamardFuncWithSize(&aom_hadamard_32x32_c, 32, 32)));
 
 #if 0   // HAVE_SSE2
-//Disable SSE2 unit test for now, since hadarmad 16x16 SSE2 need modification to match C/AVX2 bahavior.
+//TODO(aomedia:3314): Disable SSE2 unit test for now, since hadarmad 16x16 SSE2
+//need modifications to match C/AVX2 behavior.
 INSTANTIATE_TEST_SUITE_P(
     SSE2, HadamardLowbdTest,
     ::testing::Values(HadamardFuncWithSize(&aom_hadamard_4x4_sse2, 4, 4),
@@ -346,7 +347,8 @@ INSTANTIATE_TEST_SUITE_P(
 #endif  // HAVE_AVX2
 
 #if 0   // HAVE_NEON
-//Disable NEON unit test for now, since hadarmad 16x16 NEON need modification to match C/AVX2 bahavior.
+//TODO(aomedia:3314): Disable NEON unit test for now, since hadarmad 16x16 NEON
+//need modifications to match C/AVX2 behavior.
 INSTANTIATE_TEST_SUITE_P(
     NEON, HadamardLowbdTest,
     ::testing::Values(HadamardFuncWithSize(&aom_hadamard_8x8_neon, 8, 8),
@@ -356,7 +358,7 @@ INSTANTIATE_TEST_SUITE_P(
 // Tests for low precision
 class HadamardLowbdLPTest : public HadamardTestBase<int16_t, HadamardLPFunc> {
  public:
-  HadamardLowbdLPTest() : HadamardTestBase(GetParam(), false) {}
+  HadamardLowbdLPTest() : HadamardTestBase(GetParam(), /*do_shift=*/false) {}
   virtual int16_t Rand() { return rnd_.Rand9Signed(); }
 };
 
@@ -400,7 +402,8 @@ INSTANTIATE_TEST_SUITE_P(
 class HadamardLowbdLP8x8DualTest
     : public HadamardTestBase<int16_t, HadamardLP8x8DualFunc> {
  public:
-  HadamardLowbdLP8x8DualTest() : HadamardTestBase(GetParam(), false) {}
+  HadamardLowbdLP8x8DualTest()
+      : HadamardTestBase(GetParam(), /*do_shift=*/false) {}
   virtual int16_t Rand() { return rnd_.Rand9Signed(); }
 };
 
