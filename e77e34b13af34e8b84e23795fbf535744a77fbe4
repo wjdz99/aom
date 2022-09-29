@@ -36,6 +36,23 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "af3ad66e_157ec26e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-09-29T17:03:58Z",
+      "side": 1,
+      "message": "LGTM. Good cleanup.",
+      "revId": "e77e34b13af34e8b84e23795fbf535744a77fbe4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a96586ed_b1bf0025",
@@ -84,6 +101,23 @@
       "writtenOn": "2022-09-29T16:07:21Z",
       "side": 1,
       "message": "Nit/optional: This function probably should be renamed \"loopfilter_frame_and_extend_borders\" or \"loopfilter_frame_and_extend_frame_borders\".",
+      "revId": "e77e34b13af34e8b84e23795fbf535744a77fbe4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b1a32cdf_bf448327",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 2324,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-09-29T17:03:58Z",
+      "side": 1,
+      "message": "If the `extend_frame_borders()` call is only needed for reference frames, then it seems that it can also be skipped if `cpi-\u003ertc_ref.non_reference_frame` is false.",
       "revId": "e77e34b13af34e8b84e23795fbf535744a77fbe4",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
