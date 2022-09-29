@@ -24,6 +24,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "db5cb3dc_5f39652f",
+        "filename": "av1/qmode_rc/ratectrl_qmode.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 1291,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2022-09-29T16:10:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3ccd615b_96c38b5d",
+      "range": {
+        "startLine": 1291,
+        "startChar": 2,
+        "endLine": 1291,
+        "endChar": 5
+      },
+      "revId": "36efe342bacd68cd2a8e19529da8bb4b1c59a936",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "4e563b1c_e5677c81",
@@ -47,6 +71,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "aee6a523_f46d2b90",
+        "filename": "av1/qmode_rc/ratectrl_qmode.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 1322,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2022-09-29T16:10:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4e563b1c_e5677c81",
+      "range": {
+        "startLine": 1322,
+        "startChar": 8,
+        "endLine": 1322,
+        "endChar": 27
+      },
+      "revId": "36efe342bacd68cd2a8e19529da8bb4b1c59a936",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "6f34d6e7_7e38172d",
@@ -60,6 +108,30 @@
       "writtenOn": "2022-09-29T13:54:51Z",
       "side": 1,
       "message": "This loop always does gop_frame.layer_depth-1 iterations, which would be clearer as a for loop:\n\n  for (int i \u003d 0; i \u003c gop_frame.layer_depth - 1; ++i) {\n    active_best_quality \u003d\n            (active_best_quality + active_worst_quality + 1) / 2;\n  }",
+      "range": {
+        "startLine": 1320,
+        "startChar": 0,
+        "endLine": 1326,
+        "endChar": 0
+      },
+      "revId": "36efe342bacd68cd2a8e19529da8bb4b1c59a936",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2e3aaf8a_29488432",
+        "filename": "av1/qmode_rc/ratectrl_qmode.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 1326,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2022-09-29T16:10:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6f34d6e7_7e38172d",
       "range": {
         "startLine": 1320,
         "startChar": 0,
