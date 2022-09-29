@@ -108,6 +108,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "3b1f34d6_a997e14f",
+        "filename": "aom/aomcx.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 1464,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-09-29T01:10:58Z",
+      "side": 1,
+      "message": "Thanks. I have another suggestion: change this codec control and related struct fields to skip_inloop_postproc_filtering, so that the default value is 0. The advantage is that 0 (false) is a more common default value. What do you think?",
+      "parentUuid": "a57a301e_c32e906b",
+      "revId": "821af68a289f2822816f39e84bf2c2bd8b3ef1b9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "76215a13_7c590f14",
         "filename": "av1/av1_cx_iface.c",
         "patchSetId": 11
