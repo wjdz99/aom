@@ -361,6 +361,26 @@ static INLINE int subpel_select(AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bsize,
   return cpi->sf.mv_sf.subpel_force_stop;
 }
 
+bool adaptive_subpel_search_method(AV1_COMP* cpi, MACROBLOCK* x,
+    const bool fullpel_performed_well) {
+    const int qband = x->qindex >> (QINDEX_BITS - 2);
+    assert(qband < 4);
+    const SPEED_FEATURES* sf = &cpi->sf;
+    if (sf->rt_sf.use_adaptive_subpel_search == 2 &&
+        (fullpel_performed_well ||
+            x->content_state_sb.source_sad_nonrd <= kLowSad ||
+            x->source_variance < 220) &&
+        qband != 0) {
+        return true;
+    }
+    else if (sf->rt_sf.use_adaptive_subpel_search == 1 &&
+        (fullpel_performed_well ||
+            x->content_state_sb.source_sad_nonrd <= kLowSad)) {
+        return true;
+    }
+    return false;
+}
+
 /*!\brief Runs Motion Estimation for a specific block and specific ref frame.
  *
  * \ingroup nonrd_mode_search
@@ -463,16 +483,19 @@ static int combined_motion_search(AV1_COMP *cpi, MACROBLOCK *x,
                                             start_mv, fullpel_performed_well);
 
     MV subpel_start_mv = get_mv_from_fullmv(&tmp_mv->as_fullmv);
-    if (sf->rt_sf.use_adaptive_subpel_search &&
-        (fullpel_performed_well ||
-         x->content_state_sb.source_sad_nonrd <= kLowSad)) {
-      av1_find_best_sub_pixel_tree_pruned_more(xd, cm, &ms_params,
-                                               subpel_start_mv, &tmp_mv->as_mv,
-                                               &dis, &x->pred_sse[ref], NULL);
-    } else {
-      cpi->mv_search_params.find_fractional_mv_step(
-          xd, cm, &ms_params, subpel_start_mv, &tmp_mv->as_mv, &dis,
-          &x->pred_sse[ref], NULL);
+    if (sf->rt_sf.use_adaptive_subpel_search) {
+        bool isPruneMore =
+            adaptive_subpel_search_method(cpi, x, fullpel_performed_well);
+        if (isPruneMore) {
+            av1_find_best_sub_pixel_tree_pruned_more(
+                xd, cm, &ms_params, subpel_start_mv, &tmp_mv->as_mv, &dis,
+                &x->pred_sse[ref], NULL);
+        }
+        else {
+            cpi->mv_search_params.find_fractional_mv_step(
+                xd, cm, &ms_params, subpel_start_mv, &tmp_mv->as_mv, &dis,
+                &x->pred_sse[ref], NULL);
+        }
     }
 
     *rate_mv =
