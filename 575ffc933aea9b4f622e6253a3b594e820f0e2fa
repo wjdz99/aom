@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "add79831_89932e36",
+        "filename": "av1/encoder/pass2_strategy.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 3653,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-09-30T02:06:21Z",
+      "side": 1,
+      "message": "Bohan: I assume you added this line for a reason. But if I comment out this line, my unit tests still pass. Do you know why?",
+      "revId": "575ffc933aea9b4f622e6253a3b594e820f0e2fa",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
