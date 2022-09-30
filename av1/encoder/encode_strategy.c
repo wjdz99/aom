@@ -1480,7 +1480,7 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
     if (kf_requested && frame_update_type != OVERLAY_UPDATE &&
         frame_update_type != INTNL_OVERLAY_UPDATE) {
       frame_params.frame_type = KEY_FRAME;
-    } else {
+    } else if (is_stat_generation_stage(cpi)) {
       frame_params.frame_type = INTER_FRAME;
     }
   }
