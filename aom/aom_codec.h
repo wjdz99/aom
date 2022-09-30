@@ -14,7 +14,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 // There are two levels of interfaces used to access the AOM codec: the
-// the aom_codec_iface and the aom_codec_ctx.
+// aom_codec_iface and the aom_codec_ctx.
 //
 // 1. aom_codec_iface_t
 //    (Related files: aom/aom_codec.h, aom/src/aom_codec.c,
@@ -23,13 +23,13 @@
 //
 // Used to initialize the codec context, which contains the configuration for
 // for modifying the encoder/decoder during run-time. See the other
-// documentation in this header file for more details. For the most part,
-// users will call helper functions, such as aom_codec_iface_name,
+// documentation in this header file for more details. For the most part, users
+// will call helper functions, such as aom_codec_iface_name,
 // aom_codec_get_caps, etc., to interact with it.
 //
-// The main purpose of the aom_codec_iface_t is to provide a way to generate
-// a default codec config, find out what capabilities the implementation has,
-// and create an aom_codec_ctx_t (which is actually used to interact with the
+// The main purpose of the aom_codec_iface_t is to provide a way to generate a
+// default codec config, find out what capabilities the implementation has, and
+// create an aom_codec_ctx_t (which is actually used to interact with the
 // codec).
 //
 // Note that the implementations for the AV1 algorithm are located in
@@ -40,22 +40,22 @@
 //  (Related files: aom/aom_codec.h, av1/av1_cx_iface.c, av1/av1_dx_iface.c,
 //   aom/aomcx.h, aom/aomdx.h, aom/src/aom_encoder.c, aom/src/aom_decoder.c)
 //
-// The actual interface between user code and the codec. It stores the name
-// of the codec, a pointer back to the aom_codec_iface_t that initialized it,
+// The actual interface between user code and the codec. It stores the name of
+// the codec, a pointer back to the aom_codec_iface_t that initialized it,
 // initialization flags, a config for either encoder or the decoder, and a
 // pointer to internal data.
 //
-// The codec is configured / queried through calls to aom_codec_control,
-// which takes a control ID (listed in aomcx.h and aomdx.h) and a parameter.
-// In the case of "getter" control IDs, the parameter is modified to have
-// the requested value; in the case of "setter" control IDs, the codec's
+// The codec is configured / queried through calls to aom_codec_control, which
+// takes a control ID (listed in aomcx.h and aomdx.h) and a parameter. In the
+// case of "getter" control IDs, the parameter is modified to have the
+// requested value; in the case of "setter" control IDs, the codec's
 // configuration is changed based on the parameter. Note that a aom_codec_err_t
 // is returned, which indicates if the operation was successful or not.
 //
 // Note that for the encoder, the aom_codec_alg_priv_t points to the
-// the aom_codec_alg_priv structure in av1/av1_cx_iface.c, and for the decoder,
-// the struct in av1/av1_dx_iface.c. Variables such as AV1_COMP cpi are stored
-// here and also used in the core algorithm.
+// aom_codec_alg_priv structure in av1/av1_cx_iface.c, and for the decoder, the
+// struct in av1/av1_dx_iface.c. Variables such as AV1_COMP cpi are stored here
+// and also used in the core algorithm.
 //
 // At the end, aom_codec_destroy should be called for each initialized
 // aom_codec_ctx_t.
@@ -244,7 +244,7 @@ typedef int64_t aom_codec_pts_t;
  *   - aom_codec_get_caps(aom_codec_iface_t *iface): returns
  *     the capabilities of the codec
  *   - aom_codec_enc_config_default: generate the default config for
- *     initializing the encoder (see documention in aom_encoder.h)
+ *     initializing the encoder (see documentation in aom_encoder.h)
  *   - aom_codec_dec_init, aom_codec_enc_init: initialize the codec context
  *     structure (see documentation on aom_codec_ctx).
  *
@@ -365,7 +365,7 @@ int aom_codec_version(void);
  *
  * Returns a printable string containing the full library version number. This
  * may contain additional text following the three digit version number, as to
- * indicate release candidates, prerelease versions, etc.
+ * indicate release candidates, pre-release versions, etc.
  *
  */
 const char *aom_codec_version_str(void);
@@ -521,7 +521,7 @@ aom_codec_err_t aom_codec_set_option(aom_codec_ctx_t *ctx, const char *name,
 #define AOM_CODEC_CONTROL_TYPECHECKED(ctx, id, data) \
   aom_codec_control_typechecked_##id(ctx, id, data) /**<\hideinitializer*/
 
-/*!\brief Creates typechecking mechanisms for aom_codec_control
+/*!\brief Creates type checking mechanisms for aom_codec_control
  *
  * It defines a static function with the correctly typed arguments as a wrapper
  * to the type-unsafe aom_codec_control function. It also creates a typedef
