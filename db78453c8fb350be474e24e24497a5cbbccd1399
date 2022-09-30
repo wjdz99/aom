@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "58a008f5_59521589",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2022-09-30T18:13:07Z",
+      "side": 1,
+      "message": "Hi Yunqing, Chi Yo,\n\nThis CL adds AVX2 for aom_vector_match() function and relevant unit-test changes are done for the same. This patch also makes small improvements to the existing SSE4_1. \n\nModule level scaling numbers are as shown below\n```\n Width       AVX2 scaling w.r.t. C (x)\n  16                 2.82\n  32                 3.89\n  64                 5.52\n  128                6.75\n```\nPlease check the encoder speed up results measured using timer and instruction count based as below. Please note timer based results are based on a limited set of test contents and instruction count is measured using Borg test.\n\n```\nTimer Based:\n                    Encode Time\nCpu    Test-set     Reduction(%)\n 7     rtc            0.352\n 7     rtc_derf       0.278 \n 8     rtc            0.321\n 8     rtc_derf       0.208\n```\n\n```\nInstruction Count Based:\n                     Instruction Count\nCpu    Test-set         Reduction(%)\n7      rtc                0.477\n7      rtc_derf           0.481\n7      rtc-screen         0.383\n8      rtc                0.491\n8      rtc_derf           0.320\n8      rtc-screen         0.431\n```\n\nThe encode time reduction seen in speed 9 and 10 are negligible due to less scope. \n\nPlease review the patch.\n\nThanks \u0026 Regards,\nVenkata.",
+      "revId": "db78453c8fb350be474e24e24497a5cbbccd1399",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
