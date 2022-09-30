@@ -37,6 +37,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "87266b3c_b5aa09e8",
+        "filename": "aom/aomcx.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 1467,
+      "author": {
+        "id": 9616
+      },
+      "writtenOn": "2022-09-30T16:25:50Z",
+      "side": 1,
+      "message": "\u003e 1) Ideally we want to skip the application of post-processing filters in all intra mode by default. The idea is that AVIF encoders should benefit from this encoding speedup automatically. Only the tests and programs that need to apply post-processing filters in all intra mode should opt in.\n\nCould you think about how to make this happen?\n\nWe understand the importance of your recommendation. As highlighted, skipping the application of post-processing filters by default in case of ALLINTRA mode would require handling in the unit-tests and other example applications. Please find our observation on the same below:\n1. Modifying PreEncodeFrameHook() for each of the applicable unit-tests could possibly ensure the required handling (through control call in case of allintra). We might also have to add this function in other unit-tests if required. \n2. We see that there are example applications (similar to aomenc) that need modifications. We are yet to assess the sample applications that require changes (lossless_encoder() etc.). \n3. This approach might not be recommended in terms of code maintenance as every newly added unit-test/sample application will have to ensure the control call.\n\nGiven above, we feel that the current approach is better in terms of code maintainability and modifications required. Please let us know your opinion.\n\n\u003e Since we always want to apply post-processing filters in good-quality and real-time modes, this will require using skip_inloop_postproc_filtering only in all intra mode. And if we want a setting that is false by default, we will need to go back to apply_inloop_postproc_filters (and perhaps rename it apply_inloop_postproc_filters_in_all_intra for clarity).\n\nAck. We accept that the above can be considered if the alternate/suggested approach is chosen.\n\n\u003e 2) We should have tests that apply or skip the post-processing filters. Right now no tests skip the post-processing filters, so that code path is not tested.\n\nYes, we are working on adding a unit-test for testing the same (bit-match of output stream with codec control command ON vs OFF).\n\n\u003e Also, I think it is a little wordy to say both \"in-loop\" and \"post-processing\". Let\u0027s just pick one of them. I leave this to your discretion. (In the spec, the term \"in loop\" is used once and \"post processing\" or \"post-processing\" is used twice. Not sure which one is more commonly used.)\n\nDone. We have modified the API parameter, related struct fields, comments,  etc. accordingly.",
+      "parentUuid": "9fa3a92f_a582808f",
+      "revId": "abb2ff8d92f0df09504a200497e6c01bd7e909bf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "75c93ef7_d05f748b",
         "filename": "av1/encoder/encoder.c",
         "patchSetId": 13
@@ -48,6 +66,30 @@
       "writtenOn": "2022-09-30T03:24:24Z",
       "side": 1,
       "message": "We are skipping all the in-loop post-processing filters, not just the deblocking filters, right?",
+      "range": {
+        "startLine": 2312,
+        "startChar": 31,
+        "endLine": 2312,
+        "endChar": 49
+      },
+      "revId": "abb2ff8d92f0df09504a200497e6c01bd7e909bf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "175aab88_95457cdf",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 13
+      },
+      "lineNbr": 2312,
+      "author": {
+        "id": 9616
+      },
+      "writtenOn": "2022-09-30T16:25:50Z",
+      "side": 1,
+      "message": "Yes. As the handled case corresponds to all other post-processing filtering stages being disabled (as per case 2 in the modified comment), our logic disables the application of deblocking filters as well. We modified the comment accordingly.",
+      "parentUuid": "75c93ef7_d05f748b",
       "range": {
         "startLine": 2312,
         "startChar": 31,
