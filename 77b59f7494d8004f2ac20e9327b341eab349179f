@@ -1,6 +1,23 @@
 {
   "comments": [
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "f7dea744_16d1eefe",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 15
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-10-01T00:27:35Z",
+      "side": 1,
+      "message": "Nit: add \"subsequent\" to \"post-processing\", because deblocking is also a post-processing filter.",
+      "revId": "77b59f7494d8004f2ac20e9327b341eab349179f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "6c3c80d7_ede40872",
@@ -54,6 +71,74 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "87b42222_4a8b19c0",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 15
+      },
+      "lineNbr": 2215,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-10-01T00:27:35Z",
+      "side": 1,
+      "message": "If we follow the following principles:\n```\n  // ... the application of these filters can be skipped when\n  // 1. filter parameters of the subsequent stages are not dependent on the\n  // filtered output of the current stage or\n  // 2. subsequent filtering stages are disabled\n```\n\nshould we add something like the following here?\n\n```\n    if (cpi-\u003eoxcf.algo_cfg.skip_postproc_filtering \u0026\u0026\n        !cpi-\u003eppi-\u003eb_calculate_psnr \u0026\u0026\n        !av1_superres_scaled(cm) \u0026\u0026 !use_restoration) {\n      return;\n    }\n```",
+      "revId": "77b59f7494d8004f2ac20e9327b341eab349179f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1eccba12_c4b7a411",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 15
+      },
+      "lineNbr": 2235,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-10-01T00:27:35Z",
+      "side": 1,
+      "message": "Inside this function, it seems that we can also skip applying superres if `cpi-\u003eoxcf.algo_cfg.skip_postproc_filtering \u0026\u0026 !cpi-\u003eppi-\u003eb_calculate_psnr \u0026\u0026 !use_restoration` is true.",
+      "revId": "77b59f7494d8004f2ac20e9327b341eab349179f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "124ab66d_ef4f86e8",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 15
+      },
+      "lineNbr": 2245,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-10-01T00:27:35Z",
+      "side": 1,
+      "message": "Should we add something like the following after this line?\n\n```\n    if (cpi-\u003eoxcf.algo_cfg.skip_postproc_filtering \u0026\u0026\n        !cpi-\u003eppi-\u003eb_calculate_psnr) {\n      return;\n    }\n```",
+      "revId": "77b59f7494d8004f2ac20e9327b341eab349179f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "59b54ff2_b8f385be",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 15
+      },
+      "lineNbr": 2313,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-10-01T00:27:35Z",
+      "side": 1,
+      "message": "The name of the function is \"should skip post-processing filtering\", but this comment talks about skipping \"deblocking filters\". These do not seem to match.\n\nIf the comment is correct, should this function be renamed \"should_skip_deblocking_filters\"?",
+      "revId": "77b59f7494d8004f2ac20e9327b341eab349179f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "3ada1a66_ac2b7cb6",
         "filename": "av1/encoder/encoder.c",
         "patchSetId": 15
@@ -77,6 +162,23 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "f34b551a_38a831cf",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 15
+      },
+      "lineNbr": 2342,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-10-01T00:27:35Z",
+      "side": 1,
+      "message": "Move these two lines right before line 2346.",
+      "revId": "77b59f7494d8004f2ac20e9327b341eab349179f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "8cc7e0eb_28670bb4",
         "filename": "av1/encoder/encoder.c",
         "patchSetId": 15
@@ -94,6 +196,47 @@
         "endLine": 2346,
         "endChar": 40
       },
+      "revId": "77b59f7494d8004f2ac20e9327b341eab349179f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b9dc1c0a_e641eb26",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 15
+      },
+      "lineNbr": 2346,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-10-01T00:27:35Z",
+      "side": 1,
+      "message": "Cheng: I suggested the same thing before. Here is Remya\u0027s answer:\n\n     The [av1_pick_filter_level()] call cannot be skipped as the filter\n     levels that are signaled in the bitstream are calculated in\n     av1_pick_filter_level().\n\nRemya: Since both Cheng and I asked about this, it would be good to add your answer as a comment.",
+      "parentUuid": "8cc7e0eb_28670bb4",
+      "range": {
+        "startLine": 2346,
+        "startChar": 0,
+        "endLine": 2346,
+        "endChar": 40
+      },
+      "revId": "77b59f7494d8004f2ac20e9327b341eab349179f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4140d353_3475fc54",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 15
+      },
+      "lineNbr": 2374,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-10-01T00:27:35Z",
+      "side": 1,
+      "message": "I think we should find a way to skip this `extend_frame_borders(cpi)` call when `cpi-\u003ertc_ref.non_reference_frame` is true.\n\nOptional: I also think it\u0027s clearer if we move this `extend_frame_borders(cpi)` call out of this function so that this function only applies post-processing filters. This requires more thought.",
       "revId": "77b59f7494d8004f2ac20e9327b341eab349179f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
