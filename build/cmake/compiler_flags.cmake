@@ -55,6 +55,9 @@ function(add_c_flag_if_supported c_flag)
 
   is_flag_present(AOM_C_FLAGS "${c_flag}" flag_ok)
   is_flag_present(AOM_FAILED_C_FLAGS "${c_flag}" flag_failed)
+  if(${flag_ok})
+    append_c_flag("${c_flag}")
+  endif()
   if(${flag_ok} OR ${flag_failed})
     return()
   endif()
@@ -70,11 +73,9 @@ function(add_c_flag_if_supported c_flag)
   check_c_compiler_flag("${c_flag}" C_FLAG_SUPPORTED)
 
   if(${C_FLAG_SUPPORTED})
+    unset(C_FLAG_SUPPORTED)
     append_flag(AOM_C_FLAGS "${c_flag}")
-    foreach(config ${AOM_C_CONFIGS})
-      unset(C_FLAG_FOUND)
-      append_flag("${config}" "${c_flag}")
-    endforeach()
+    append_c_flag("${c_flag}")
   else()
     append_flag(AOM_FAILED_C_FLAGS "${c_flag}")
   endif()
@@ -91,6 +92,9 @@ function(add_cxx_flag_if_supported cxx_flag)
 
   is_flag_present(AOM_CXX_FLAGS "${cxx_flag}" flag_ok)
   is_flag_present(AOM_FAILED_CXX_FLAGS "${cxx_flag}" flag_failed)
+  if(${flag_ok})
+    append_cxx_flag("${cxx_flag}")
+  endif()
   if(${flag_ok} OR ${flag_failed})
     return()
   endif()
@@ -106,11 +110,8 @@ function(add_cxx_flag_if_supported cxx_flag)
   check_cxx_compiler_flag("${cxx_flag}" CXX_FLAG_SUPPORTED)
 
   if(${CXX_FLAG_SUPPORTED})
-    append_flag(AOM_CXX_FLAGS "${cxx_flag}")
-    foreach(config ${AOM_CXX_CONFIGS})
-      unset(CXX_FLAG_FOUND)
-      append_flag("${config}" "${cxx_flag}")
-    endforeach()
+    unset(CXX_FLAG_SUPPORTED)
+    append_cxx_flag("${cxx_flag}")
   else()
     append_flag(AOM_FAILED_CXX_FLAGS "${cxx_flag}")
   endif()
@@ -132,6 +133,9 @@ function(require_c_flag c_flag update_c_flags)
 
   is_flag_present(AOM_C_FLAGS "${c_flag}" flag_ok)
   if(${flag_ok})
+    if(update_c_flags)
+      append_c_flag("${c_flag}")
+    endif()
     return()
   endif()
 
@@ -153,9 +157,7 @@ function(require_c_flag c_flag update_c_flags)
 
   append_flag(AOM_C_FLAGS "${c_flag}")
   if(update_c_flags)
-    foreach(config ${AOM_C_CONFIGS})
-      set(${config} "${${config}} ${c_flag}" CACHE STRING "" FORCE)
-    endforeach()
+    append_c_flag("${c_flag}")
   endif()
 endfunction()
 
@@ -168,6 +170,9 @@ function(require_cxx_flag cxx_flag update_cxx_flags)
 
   is_flag_present(AOM_CXX_FLAGS "${cxx_flag}" flag_ok)
   if(${flag_ok})
+    if(update_cxx_flags)
+      append_cxx_flag("${cxx_flag}")
+    endif()
     return()
   endif()
 
@@ -189,9 +194,7 @@ function(require_cxx_flag cxx_flag update_cxx_flags)
 
   append_flag(AOM_CXX_FLAGS "${cxx_flag}")
   if(update_cxx_flags)
-    foreach(config ${AOM_CXX_CONFIGS})
-      set(${config} "${${config}} ${cxx_flag}" CACHE STRING "" FORCE)
-    endforeach()
+    append_cxx_flag("${cxx_flag}")
   endif()
 endfunction()
 
@@ -229,36 +232,19 @@ endfunction()
 # Adds $preproc_def to C compiler command line (as -D$preproc_def) if not
 # already present.
 function(add_c_preproc_definition preproc_def)
-  set(preproc_def "-D${preproc_def}")
-  is_flag_present(AOM_C_FLAGS "${preproc_def}" flag_cached)
-  if(${flag_cached})
-    return()
-  endif()
-
-  foreach(config ${AOM_C_CONFIGS})
-    set(${config} "${${config}} ${preproc_def}" CACHE STRING "" FORCE)
-  endforeach()
+  add_compile_definitions("$<$<COMPILE_LANGUAGE:C>:${preproc_def}>")
 endfunction()
 
 # Adds $preproc_def to CXX compiler command line (as -D$preproc_def) if not
 # already present.
 function(add_cxx_preproc_definition preproc_def)
-  set(preproc_def "-D${preproc_def}")
-  is_flag_present(AOM_CXX_FLAGS "${preproc_def}" flag_cached)
-  if(${flag_cached})
-    return()
-  endif()
-
-  foreach(config ${AOM_CXX_CONFIGS})
-    set(${config} "${${config}} ${preproc_def}" CACHE STRING "" FORCE)
-  endforeach()
+  add_compile_definitions("$<$<COMPILE_LANGUAGE:CXX>:${preproc_def}>")
 endfunction()
 
 # Adds $preproc_def to C and CXX compiler command line (as -D$preproc_def) if
 # not already present.
 function(add_preproc_definition preproc_def)
-  add_c_preproc_definition(${preproc_def})
-  add_cxx_preproc_definition(${preproc_def})
+  add_compile_definitions("$<$<COMPILE_LANGUAGE:C,CXX>:${preproc_def}>")
 endfunction()
 
 # Adds $flag to assembler command line.
@@ -272,45 +258,28 @@ endfunction()
 
 # Adds $flag to the C compiler command line.
 function(append_c_flag flag)
-  is_flag_present(AOM_C_FLAGS "${flag}" flag_cached)
-  if(${flag_cached})
-    return()
-  endif()
-
-  foreach(config ${AOM_C_CONFIGS})
-    append_flag(${config} "${flag}")
+  string(REPLACE " " ";" split_flag "${flag}")
+  foreach(x ${split_flag})
+    add_compile_options("$<$<COMPILE_LANGUAGE:C>:${x}>")
   endforeach()
 endfunction()
 
 # Adds $flag to the CXX compiler command line.
 function(append_cxx_flag flag)
-  is_flag_present(AOM_CXX_FLAGS "${flag}" flag_cached)
-  if(${flag_cached})
-    return()
-  endif()
-
-  foreach(config ${AOM_CXX_CONFIGS})
-    append_flag(${config} "${flag}")
+  string(REPLACE " " ";" split_flag "${flag}")
+  foreach(x ${split_flag})
+    add_compile_options("$<$<COMPILE_LANGUAGE:CXX>:${x}>")
   endforeach()
 endfunction()
 
 # Adds $flag to the C and CXX compiler command lines.
 function(append_compiler_flag flag)
-  append_c_flag(${flag})
-  append_cxx_flag(${flag})
+  add_compile_options($<$<COMPILE_LANGUAGE:C,CXX>:${flag}>)
 endfunction()
 
 # Adds $flag to the executable linker command line when not present.
 function(append_exe_linker_flag flag)
-  is_flag_present(AOM_EXE_LINKER_FLAGS "${flag}" flag_cached)
-  if(${flag_cached})
-    return()
-  endif()
-
-  append_flag(AOM_EXE_LINKER_FLAGS "${flag}")
-  foreach(config ${AOM_EXE_LINKER_CONFIGS})
-    append_flag(${config} "${flag}")
-  endforeach()
+  add_link_options(${flag})
 endfunction()
 
 # Adds $flag to the link flags for $target.
