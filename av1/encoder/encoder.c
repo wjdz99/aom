@@ -2345,8 +2345,6 @@ static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
 #endif
 
   cdef_restoration_frame(cpi, cm, xd, use_restoration, use_cdef);
-
-  extend_frame_borders(cpi);
 }
 
 static void update_motion_stat(AV1_COMP *const cpi) {
@@ -3124,7 +3122,9 @@ static int encode_with_recode_loop_and_filter(AV1_COMP *cpi, size_t *size,
 
   if (!cm->features.allow_intrabc) {
     loopfilter_frame(cpi, cm);
-  } else {
+  }
+
+  if (cpi->oxcf.mode != ALLINTRA) {
     extend_frame_borders(cpi);
   }
 
