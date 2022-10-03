@@ -1645,7 +1645,10 @@ typedef struct REAL_TIME_SPEED_FEATURES {
 
   // Downgrades the subpel search to av1_find_best_sub_pixel_tree_pruned_more
   // when either the fullpel search performed well, or when zeromv has low sad.
-  bool use_adaptive_subpel_search;
+  // 0: disable
+  // 1: for speed 7 and 8
+  // 2: for speed 9
+  int use_adaptive_subpel_search;
 
   // A flag used in RTC case to control frame_refs_short_signaling. Note that
   // the final decision is made in check_frame_refs_short_signaling(). The flag
