@@ -467,10 +467,10 @@ function(setup_aom_test_targets)
   target_link_libraries(test_libaom ${AOM_LIB_LINK_TYPE} aom aom_gtest)
 
   if(CONFIG_LIBYUV)
-    target_sources(test_libaom PRIVATE $<TARGET_OBJECTS:yuv>)
+    target_sources(test_libaom PRIVATE $<TARGET_OBJECTS:aom_yuv>)
   endif()
   if(CONFIG_WEBM_IO)
-    target_sources(test_libaom PRIVATE $<TARGET_OBJECTS:webm>)
+    target_sources(test_libaom PRIVATE $<TARGET_OBJECTS:aom_webm>)
   endif()
   if(HAVE_SSE2)
     add_intrinsics_source_to_target("-msse2" "test_libaom"
@@ -606,7 +606,7 @@ function(setup_aom_test_targets)
      AND NOT BUILD_SHARED_LIBS)
     add_executable(test_aom_rc_interface ${AOM_RC_INTERFACE_SOURCES})
     target_link_libraries(test_aom_rc_interface ${AOM_LIB_LINK_TYPE} aom
-                          aom_av1_rc aom_gtest webm)
+                          aom_av1_rc aom_gtest aom_webm)
     set_property(TARGET test_aom_rc_interface
                  PROPERTY FOLDER ${AOM_IDE_TEST_FOLDER})
     list(APPEND AOM_APP_TARGETS test_aom_rc_interface)

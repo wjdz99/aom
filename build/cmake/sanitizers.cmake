@@ -23,15 +23,20 @@ string(TOLOWER ${SANITIZE} SANITIZE)
 
 # Require the sanitizer requested. cfi sanitizer requires all the flags in order
 # for the compiler to accept it.
+cmake_push_check_state()
 if("${SANITIZE}" MATCHES "cfi" AND CMAKE_C_COMPILER_ID MATCHES "Clang")
   require_linker_flag("-fsanitize=${SANITIZE} -flto -fno-sanitize-trap=cfi \
     -fuse-ld=gold" YES)
+  list(APPEND CMAKE_REQUIRED_LINK_OPTIONS -fsanitize=${SANITIZE} -flto -fno-sanitize-trap=cfi
+    -fuse-ld=gold)
   require_compiler_flag("-fsanitize=${SANITIZE} -flto -fvisibility=hidden \
     -fno-sanitize-trap=cfi" YES)
 else()
   require_linker_flag("-fsanitize=${SANITIZE}")
+  list(APPEND CMAKE_REQUIRED_LINK_OPTIONS -fsanitize=${SANITIZE})
   require_compiler_flag("-fsanitize=${SANITIZE}" YES)
 endif()
+cmake_pop_check_state()
 
 # Make callstacks accurate.
 require_compiler_flag("-fno-omit-frame-pointer -fno-optimize-sibling-calls" YES)
