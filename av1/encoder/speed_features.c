@@ -1373,6 +1373,9 @@ static void set_rt_speed_feature_framesize_dependent(const AV1_COMP *const cpi,
     if (speed >= 7) sf->rt_sf.reduce_mv_pel_precision_highmotion = 0;
   }
 
+  // enable for some res?
+  //if (speed >= 10) sf->rt_sf.nonrd_aggressive_skip = 1;
+
   // Setting for SVC, or when the ref_frame_config control is
   // used to set the reference structure.
   if (cpi->ppi->use_svc || cpi->rtc_ref.set_ref_frame_config) {
@@ -1748,7 +1751,6 @@ static void set_rt_speed_features_framesize_independent(AV1_COMP *cpi,
   }
   if (speed >= 10) {
     sf->rt_sf.sse_early_term_inter_search = EARLY_TERM_IDX_4;
-    sf->rt_sf.nonrd_aggressive_skip = 1;
     sf->rt_sf.nonrd_prune_ref_frame_search = 3;
     sf->rt_sf.var_part_split_threshold_shift = 10;
     sf->mv_sf.subpel_search_method = SUBPEL_TREE_PRUNED_MORE;
