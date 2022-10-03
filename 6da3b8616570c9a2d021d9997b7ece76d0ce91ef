@@ -1,6 +1,29 @@
 {
   "comments": [
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "ce254ab8_66b718a4",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 16
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-10-03T23:32:39Z",
+      "side": 1,
+      "message": "Nit: an API parameter \u003d\u003e \"a config parameter\" or \"an encoder config parameter\"\n\n\u0027skip_postproc_filtering\u0027 isn\u0027t really an API parameter. It is defined in the internal header av1/encoder/encoder.h",
+      "range": {
+        "startLine": 9,
+        "startChar": 13,
+        "endLine": 9,
+        "endChar": 29
+      },
+      "revId": "6da3b8616570c9a2d021d9997b7ece76d0ce91ef",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "86fe38ab_4e492a89",
@@ -14,6 +37,125 @@
       "writtenOn": "2022-10-03T15:53:33Z",
       "side": 1,
       "message": "Hi Wan-Teh,\n\nWe have pushed the latest patchset after taking care of your comments. Please review.\n\nRegards,\nRemya",
+      "revId": "6da3b8616570c9a2d021d9997b7ece76d0ce91ef",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d353c331_c540eaec",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 16
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-10-03T23:32:39Z",
+      "side": 1,
+      "message": "Remya: I suggest we move the skipping of the extend_frame_borders() call to a separate CL. I marked the changes that should be reverted in this CL.",
+      "revId": "6da3b8616570c9a2d021d9997b7ece76d0ce91ef",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6d5b9cd3_c831a8a7",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 16
+      },
+      "lineNbr": 2453,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-10-03T23:32:39Z",
+      "side": 1,
+      "message": "Nit/optional: `AOM_CODEC_UNSUP_FEATURE` isn\u0027t the best error code based on the current definition of the error code. But I am not sure if `AOM_CODEC_INCAPABLE` or `AOM_CODEC_INVALID_PARAM` is better.\n\n(This comment also applies to line 3222 and line 3239.)",
+      "revId": "6da3b8616570c9a2d021d9997b7ece76d0ce91ef",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "dba73ae9_f3b582e4",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 16
+      },
+      "lineNbr": 2322,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-10-03T23:32:39Z",
+      "side": 1,
+      "message": "Remove \"and extend the frame borders\" from this comment.",
+      "revId": "6da3b8616570c9a2d021d9997b7ece76d0ce91ef",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b975ad9b_14ca6ffb",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 16
+      },
+      "lineNbr": 2326,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-10-03T23:32:39Z",
+      "side": 1,
+      "message": "Change the function name back to \"loopfilter_frame\".",
+      "revId": "6da3b8616570c9a2d021d9997b7ece76d0ce91ef",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "69230e94_863f1823",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 16
+      },
+      "lineNbr": 2378,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-10-03T23:32:39Z",
+      "side": 1,
+      "message": "Remove this `extend_frame_borders(cpi)` call.",
+      "revId": "6da3b8616570c9a2d021d9997b7ece76d0ce91ef",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9855d60a_4ddabe4a",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 16
+      },
+      "lineNbr": 3158,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-10-03T23:32:39Z",
+      "side": 1,
+      "message": "Change this if-else statement (lines 3154-3157) to the following:\n\n```\n  if (!cm-\u003efeatures.allow_intrabc) {\n    loopfilter_frame(cpi, cm);\n  }\n\n  extend_frame_borders(cpi);\n```",
+      "revId": "6da3b8616570c9a2d021d9997b7ece76d0ce91ef",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "839c0947_59ba71b8",
+        "filename": "doc/dev_guide/av1_encoder.dox",
+        "patchSetId": 16
+      },
+      "lineNbr": 363,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-10-03T23:32:39Z",
+      "side": 1,
+      "message": "Revert the change to this file.",
       "revId": "6da3b8616570c9a2d021d9997b7ece76d0ce91ef",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
