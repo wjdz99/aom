@@ -459,9 +459,9 @@ if(CONFIG_AV1_DECODER AND ENABLE_EXAMPLES)
 endif()
 
 if(CONFIG_LIBYUV OR CONFIG_TUNE_BUTTERAUGLI)
-  add_library(yuv OBJECT ${AOM_LIBYUV_SOURCES})
+  add_library(aom_yuv OBJECT ${AOM_LIBYUV_SOURCES})
   if(NOT MSVC)
-    target_compile_options(yuv PRIVATE -Wno-unused-parameter)
+    target_compile_options(aom_yuv PRIVATE -Wno-unused-parameter)
   endif()
   include_directories("${AOM_ROOT}/third_party/libyuv/include")
 endif()
@@ -581,10 +581,10 @@ if(CONFIG_AV1_ENCODER)
       set_target_properties(aom_static PROPERTIES LINKER_LANGUAGE CXX)
     endif()
 
-    list(APPEND AOM_LIB_TARGETS yuv)
-    target_sources(aom PRIVATE $<TARGET_OBJECTS:yuv>)
+    list(APPEND AOM_LIB_TARGETS aom_yuv)
+    target_sources(aom PRIVATE $<TARGET_OBJECTS:aom_yuv>)
     if(BUILD_SHARED_LIBS)
-      target_sources(aom_static PRIVATE $<TARGET_OBJECTS:yuv>)
+      target_sources(aom_static PRIVATE $<TARGET_OBJECTS:aom_yuv>)
     endif()
   endif()
 
@@ -734,19 +734,19 @@ if(ENABLE_EXAMPLES OR ENABLE_TESTS OR ENABLE_TOOLS)
   if(CONFIG_LIBYUV)
     # Add to existing targets.
     foreach(aom_app ${AOM_APP_TARGETS})
-      target_sources(${aom_app} PRIVATE $<TARGET_OBJECTS:yuv>)
+      target_sources(${aom_app} PRIVATE $<TARGET_OBJECTS:aom_yuv>)
       set_property(TARGET ${aom_app} PROPERTY LINKER_LANGUAGE CXX)
     endforeach()
   endif()
 
   if(CONFIG_WEBM_IO)
-    add_library(webm OBJECT ${AOM_LIBWEBM_SOURCES})
+    add_library(aom_webm OBJECT ${AOM_LIBWEBM_SOURCES})
     include_directories("${AOM_ROOT}/third_party/libwebm")
-    target_compile_definitions(webm PRIVATE __STDC_CONSTANT_MACROS)
-    target_compile_definitions(webm PRIVATE __STDC_LIMIT_MACROS)
+    target_compile_definitions(aom_webm PRIVATE __STDC_CONSTANT_MACROS)
+    target_compile_definitions(aom_webm PRIVATE __STDC_LIMIT_MACROS)
 
     if(NOT MSVC)
-      target_compile_options(webm PRIVATE -Wno-shadow)
+      target_compile_options(aom_webm PRIVATE -Wno-shadow)
     endif()
 
     # Add to existing targets.
@@ -759,7 +759,7 @@ if(ENABLE_EXAMPLES OR ENABLE_TESTS OR ENABLE_TOOLS)
     endif()
 
     foreach(aom_app ${AOM_APP_TARGETS})
-      target_sources(${aom_app} PRIVATE $<TARGET_OBJECTS:webm>)
+      target_sources(${aom_app} PRIVATE $<TARGET_OBJECTS:aom_webm>)
       set_property(TARGET ${aom_app} PROPERTY LINKER_LANGUAGE CXX)
     endforeach()
   endif()
@@ -911,7 +911,7 @@ if(NOT AOM_DIST_DIR)
   set(AOM_DIST_DIR "${AOM_CONFIG_DIR}/dist")
 endif()
 
-add_custom_target(dist
+add_custom_target(aom_dist
                   COMMAND ${CMAKE_COMMAND}
                           -DAOM_ROOT=${AOM_ROOT}
                           -DAOM_CONFIG_DIR=${AOM_CONFIG_DIR}
@@ -928,7 +928,7 @@ add_custom_target(dist
                           ${AOM_TOOL_TARGETS})
 
 if(ENABLE_DOCS)
-  add_dependencies(dist docs)
+  add_dependencies(aom_dist docs)
 endif()
 
 # Collect all variables containing libaom source files.
