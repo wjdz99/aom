@@ -1,0 +1,170 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fd0d3308_b9846d9d",
+        "filename": "apps/aomdec.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 605,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-10-04T23:49:46Z",
+      "side": 1,
+      "message": "this could be made into a bool",
+      "range": {
+        "startLine": 605,
+        "startChar": 2,
+        "endLine": 605,
+        "endChar": 5
+      },
+      "revId": "0ba2db5a763b2b592fdef3e586961392dbfd6a18",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7fdb1fd9_bd90f439",
+        "filename": "apps/aomdec.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 626,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-10-04T23:49:46Z",
+      "side": 1,
+      "message": "why not keep the order, and add {}s? then you shouldn\u0027t need the #else",
+      "revId": "0ba2db5a763b2b592fdef3e586961392dbfd6a18",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "eabef4ce_e6e416bb",
+        "filename": "common/obudec.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-10-04T23:49:46Z",
+      "side": 1,
+      "message": "this could be a bool in this project",
+      "range": {
+        "startLine": 43,
+        "startChar": 47,
+        "endLine": 43,
+        "endChar": 50
+      },
+      "revId": "0ba2db5a763b2b592fdef3e586961392dbfd6a18",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fec6b852_a1b47e6b",
+        "filename": "common/tools_common.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 562,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-10-04T23:49:46Z",
+      "side": 1,
+      "message": "this can be const",
+      "revId": "0ba2db5a763b2b592fdef3e586961392dbfd6a18",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f01327fa_cb833c2e",
+        "filename": "common/tools_common.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 609,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-10-04T23:49:46Z",
+      "side": 1,
+      "message": "this else isn\u0027t necessary:\n\nhttps://clang.llvm.org/extra/clang-tidy/checks/readability/else-after-return.html",
+      "revId": "0ba2db5a763b2b592fdef3e586961392dbfd6a18",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c78da40c_9845a0ab",
+        "filename": "common/tools_common.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 618,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-10-04T23:49:46Z",
+      "side": 1,
+      "message": "this can be a bool",
+      "range": {
+        "startLine": 618,
+        "startChar": 0,
+        "endLine": 618,
+        "endChar": 3
+      },
+      "revId": "0ba2db5a763b2b592fdef3e586961392dbfd6a18",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3c40c80a_7ea1f489",
+        "filename": "common/tools_common.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 196,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-10-04T23:49:46Z",
+      "side": 1,
+      "message": "the name of this function doesn\u0027t make the behavior very clear",
+      "range": {
+        "startLine": 196,
+        "startChar": 7,
+        "endLine": 196,
+        "endChar": 20
+      },
+      "revId": "0ba2db5a763b2b592fdef3e586961392dbfd6a18",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c9c4bf54_def16cd3",
+        "filename": "common/tools_common.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 197,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-10-04T23:49:46Z",
+      "side": 1,
+      "message": "should this just be named \u0027buffer_input\u0027?",
+      "range": {
+        "startLine": 197,
+        "startChar": 7,
+        "endLine": 197,
+        "endChar": 23
+      },
+      "revId": "0ba2db5a763b2b592fdef3e586961392dbfd6a18",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
