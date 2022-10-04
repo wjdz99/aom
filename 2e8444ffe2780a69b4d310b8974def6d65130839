@@ -46,6 +46,30 @@
       },
       "revId": "2e8444ffe2780a69b4d310b8974def6d65130839",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c921f67b_383d9658",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 3294,
+      "author": {
+        "id": 31132
+      },
+      "writtenOn": "2022-10-04T14:24:10Z",
+      "side": 1,
+      "message": "I updated the code and Borg testing results as well. The encoding speed shows slight improvement with the changes.",
+      "parentUuid": "3b088a51_7e1ecdd7",
+      "range": {
+        "startLine": 3294,
+        "startChar": 25,
+        "endLine": 3294,
+        "endChar": 67
+      },
+      "revId": "2e8444ffe2780a69b4d310b8974def6d65130839",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
