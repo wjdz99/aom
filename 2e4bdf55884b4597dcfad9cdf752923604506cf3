@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "95349b4a_bfae5f2e",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 3129,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-10-04T22:06:03Z",
+      "side": 1,
+      "message": "Ranjit, Remya: Please create a CL with this change. Add a comment to explain why we can skip the `extend_frame_borders()` call in `ALLINTRA` mode. Thanks.\n\nI will abandon this CL.",
+      "revId": "2e4bdf55884b4597dcfad9cdf752923604506cf3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
