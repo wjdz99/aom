@@ -1,6 +1,23 @@
 {
   "comments": [
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "8d1dc971_392c8efb",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2022-10-04T23:58:37Z",
+      "side": 1,
+      "message": "Thanks for the review! I made a comment re one of your comments. I\u0027ll address the others in a new patch.",
+      "revId": "0ba2db5a763b2b592fdef3e586961392dbfd6a18",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "fd0d3308_b9846d9d",
@@ -37,6 +54,24 @@
       "writtenOn": "2022-10-04T23:49:46Z",
       "side": 1,
       "message": "why not keep the order, and add {}s? then you shouldn\u0027t need the #else",
+      "revId": "0ba2db5a763b2b592fdef3e586961392dbfd6a18",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b288d76f_11bd2afc",
+        "filename": "apps/aomdec.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 626,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2022-10-04T23:58:37Z",
+      "side": 1,
+      "message": "With this patch, for ivf, raw and obu type, we will not rewind the file, but instead save the read bytes in a buffer and read from there first. But for webm it still reads directly from the current file pointer. Therefore after trying ivf, webm would not work correctly. That\u0027s why I changed the order here.",
+      "parentUuid": "7fdb1fd9_bd90f439",
       "revId": "0ba2db5a763b2b592fdef3e586961392dbfd6a18",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
