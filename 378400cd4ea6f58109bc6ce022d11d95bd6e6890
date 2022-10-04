@@ -16,6 +16,46 @@
       "message": "Hi Marco, Yunqing, \n\nThis CL extends the sf use_adaptive_subpel_search to cpu 9 to use a faster subpel search at block level. At frame-level, SUBPEL_TREE_PRUNED is used as the default method. While this sf uses SUBPEL_TREE_PRUNED_MORE at block-level based on some properties. The sf is renamed as adaptive_subpel_search_level, with a new level introduced for cpu 9. In this level, we additionally consider low source variance and block qp.\n\nNote that for cpu 5, 6 the method SUBPEL_TREE_PRUNED is always used. For speed 10 SUBPEL_TREE_PRUNED_MORE is always used. \t\t\t\t\n\nThe details of worst/best case drops are:\n```\ncpu        content       avg.psnr   glb.psnr  aom.ssim  Speed-up (%) \n    Worst case contents:           \n 9      gipsrestat720p    0.8038    0.8148    0.7542       1.37\n 9       tacomascmvvga    0.7340    0.6712    0.6026       1.22\n 9  vidyo1_1280x720_60    0.6615    0.6310    0.8119       1.40\n   \n   \n    Best case contents:\n 9     jimredvga_25fps   -1.7369   -1.6343   -1.6045       1.58\n 9         desktop360p   -1.3801   -1.1212   -0.8553       1.43\n 9            dark720p   -0.3432   -0.3429   -0.1399       0.95\n```\n\nThe instruction count reduction specified has been measured using command:\n$ perf stat -e instructions:u ./aomenc …\n\nWe performed visual tests of following worst case contents. We did not observe any artifacts.\n```\ncpu     content             bitrate (kbps)\n 9     gipsrestat720p           1000\n 9     gipsrestat720p           1600\n 9     tacomascmvvga            500\n 9     vidyo1_1280x720_60       800\n```\n\nThe results of 1080p are out of trade off: \n```\n --------------------------------------------------------------\n|cpu | Testset | Instr. Count |       BD-Rate Drop (%)         |\n|    |         | Reduction(%) | avg. psnr | ovr.psnr |  ssim   |\n|----|---------|--------------|-----------|----------|---------|\n|  9 |rtc_1080p|    1.119     |   0.2910  |  0.3321  | 0.3925  |\n --------------------------------------------------------------\n\n```\nThus, currently it is disabled for 1080p.\n\nCpu 7, 8, 10 and testsets rtc_derf, rtc_screen and 1080p are not affected.\n\nPlease review the CL.\n\nThanks,\nAnupam",
       "revId": "378400cd4ea6f58109bc6ce022d11d95bd6e6890",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "69dfad6b_4e74e0e9",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 364,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2022-10-04T21:12:54Z",
+      "side": 1,
+      "message": "Since this function returns a bool instead of a subpel search function, maybe rename this to something like use_aggressive_subpel_search_method.",
+      "revId": "378400cd4ea6f58109bc6ce022d11d95bd6e6890",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4e4909b0_96711076",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 372,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2022-10-04T21:12:54Z",
+      "side": 1,
+      "message": "The numbers look good, but it\u0027s a bit confusing that level 2 isn\u0027t a superset of level 1.\nWhat\u0027s the performance of level 2 without qband !\u003d 0 condition? And what\u0027s the performance of level 1 with qband !\u003d 0 condition? If they are not too difference, I would prefer consolidating them.",
+      "range": {
+        "startLine": 372,
+        "startChar": 43,
+        "endLine": 372,
+        "endChar": 53
+      },
+      "revId": "378400cd4ea6f58109bc6ce022d11d95bd6e6890",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
