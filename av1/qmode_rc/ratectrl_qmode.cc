@@ -1044,7 +1044,7 @@ double TplFrameDepStatsAccumulateIntraCost(
   auto getIntraCost = [](double sum, const TplUnitDepStats &unit) {
     return sum + unit.intra_cost;
   };
-  double sum = 0;
+  double sum = 1.0;
   for (const auto &row : frame_dep_stats.unit_stats) {
     sum = std::accumulate(row.begin(), row.end(), sum, getIntraCost);
   }
@@ -1055,7 +1055,7 @@ double TplFrameDepStatsAccumulate(const TplFrameDepStats &frame_dep_stats) {
   auto getOverallCost = [](double sum, const TplUnitDepStats &unit) {
     return sum + unit.propagation_cost + unit.intra_cost;
   };
-  double sum = 0;
+  double sum = 1.0;
   for (const auto &row : frame_dep_stats.unit_stats) {
     sum = std::accumulate(row.begin(), row.end(), sum, getOverallCost);
   }
