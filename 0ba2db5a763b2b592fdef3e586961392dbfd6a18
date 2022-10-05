@@ -41,6 +41,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "8f32fa93_560c6608",
+        "filename": "apps/aomdec.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 605,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2022-10-05T22:55:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fd0d3308_b9846d9d",
+      "range": {
+        "startLine": 605,
+        "startChar": 2,
+        "endLine": 605,
+        "endChar": 5
+      },
+      "revId": "0ba2db5a763b2b592fdef3e586961392dbfd6a18",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "7fdb1fd9_bd90f439",
@@ -94,6 +118,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "cff1fcaf_8551412b",
+        "filename": "apps/aomdec.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 626,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2022-10-05T22:55:21Z",
+      "side": 1,
+      "message": "That makes sense. Thanks for the suggestion. I used if (false) here to avoid the #else branch.",
+      "parentUuid": "56b56baf_3a1318fa",
+      "revId": "0ba2db5a763b2b592fdef3e586961392dbfd6a18",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "eabef4ce_e6e416bb",
@@ -107,6 +149,30 @@
       "writtenOn": "2022-10-04T23:49:46Z",
       "side": 1,
       "message": "this could be a bool in this project",
+      "range": {
+        "startLine": 43,
+        "startChar": 47,
+        "endLine": 43,
+        "endChar": 50
+      },
+      "revId": "0ba2db5a763b2b592fdef3e586961392dbfd6a18",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5966a0ea_611e3275",
+        "filename": "common/obudec.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2022-10-05T22:55:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "eabef4ce_e6e416bb",
       "range": {
         "startLine": 43,
         "startChar": 47,
@@ -134,6 +200,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "87c5a958_f2b6a29a",
+        "filename": "common/tools_common.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 562,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2022-10-05T22:55:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fec6b852_a1b47e6b",
+      "revId": "0ba2db5a763b2b592fdef3e586961392dbfd6a18",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "f01327fa_cb833c2e",
@@ -151,6 +235,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "da91df6b_512d1550",
+        "filename": "common/tools_common.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 609,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2022-10-05T22:55:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f01327fa_cb833c2e",
+      "revId": "0ba2db5a763b2b592fdef3e586961392dbfd6a18",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c78da40c_9845a0ab",
@@ -164,6 +266,30 @@
       "writtenOn": "2022-10-04T23:49:46Z",
       "side": 1,
       "message": "this can be a bool",
+      "range": {
+        "startLine": 618,
+        "startChar": 0,
+        "endLine": 618,
+        "endChar": 3
+      },
+      "revId": "0ba2db5a763b2b592fdef3e586961392dbfd6a18",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f3237fc8_3c5f6b38",
+        "filename": "common/tools_common.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 618,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2022-10-05T22:55:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c78da40c_9845a0ab",
       "range": {
         "startLine": 618,
         "startChar": 0,
@@ -197,6 +323,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "7c611f1d_32795963",
+        "filename": "common/tools_common.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 196,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2022-10-05T22:55:21Z",
+      "side": 1,
+      "message": "Done. Changed to input_to_detect_buf for better clarity.",
+      "parentUuid": "3c40c80a_7ea1f489",
+      "range": {
+        "startLine": 196,
+        "startChar": 7,
+        "endLine": 196,
+        "endChar": 20
+      },
+      "revId": "0ba2db5a763b2b592fdef3e586961392dbfd6a18",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c9c4bf54_def16cd3",
@@ -210,6 +360,30 @@
       "writtenOn": "2022-10-04T23:49:46Z",
       "side": 1,
       "message": "should this just be named \u0027buffer_input\u0027?",
+      "range": {
+        "startLine": 197,
+        "startChar": 7,
+        "endLine": 197,
+        "endChar": 23
+      },
+      "revId": "0ba2db5a763b2b592fdef3e586961392dbfd6a18",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "596e1960_a531377f",
+        "filename": "common/tools_common.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 197,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2022-10-05T22:55:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c9c4bf54_def16cd3",
       "range": {
         "startLine": 197,
         "startChar": 7,
