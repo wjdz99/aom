@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d1298232_325f536c",
+        "filename": "apps/aomdec.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 633,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-10-06T20:27:52Z",
+      "side": 1,
+      "message": "this can be simplified to avoid the misplaced {}s:\n\n```\n  // Webm type does not support reading from stdin.\n  if (false) {\n#if CONFIG_WEBM_IO\n  } else if (using_file \u0026\u0026 file_is_webm(input.webm_ctx, input.aom_input_ctx)) {\n    input.aom_input_ctx-\u003efile_type \u003d FILE_TYPE_WEBM;\n#endif\n  } else if (file_is_ivf(input.aom_input_ctx)) {\n    input.aom_input_ctx-\u003efile_type \u003d FILE_TYPE_IVF;\n    is_ivf \u003d 1;\n\n```",
+      "range": {
+        "startLine": 625,
+        "startChar": 0,
+        "endLine": 633,
+        "endChar": 46
+      },
+      "revId": "cf323e3a21f916f40c81dbb4d353a8f777f6fdb1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a70c2920_88b9978c",
+        "filename": "apps/aomdec.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 644,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-10-06T20:27:52Z",
+      "side": 1,
+      "message": "maybe \"aomdec does not support WebM input via a pipe.\" or \"...piped WebM input.\"",
+      "range": {
+        "startLine": 644,
+        "startChar": 23,
+        "endLine": 644,
+        "endChar": 74
+      },
+      "revId": "cf323e3a21f916f40c81dbb4d353a8f777f6fdb1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cfe291d6_26861563",
+        "filename": "common/tools_common.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 607,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-10-06T20:27:52Z",
+      "side": 1,
+      "message": "make this a const",
+      "revId": "cf323e3a21f916f40c81dbb4d353a8f777f6fdb1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "27809c4e_71931506",
+        "filename": "common/tools_common.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 198,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-10-06T20:27:52Z",
+      "side": 1,
+      "message": "this can be a bool too",
+      "range": {
+        "startLine": 198,
+        "startChar": 40,
+        "endLine": 198,
+        "endChar": 43
+      },
+      "revId": "cf323e3a21f916f40c81dbb4d353a8f777f6fdb1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
