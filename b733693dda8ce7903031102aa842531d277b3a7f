@@ -16,6 +16,24 @@
       "message": "the switch here is not needed anymore?",
       "revId": "b733693dda8ce7903031102aa842531d277b3a7f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "02535342_52b9dc2d",
+        "filename": "av1/encoder/aq_cyclicrefresh.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 250,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2022-10-06T18:12:15Z",
+      "side": 0,
+      "message": "The else branch assigns to the map at every other entry for speed up. The skipped entries should not be used.\nBy using memset, it\u0027s actually faster than skipping the entries horizontally as the compiler do some vectorization magic.\nThis also makes the code slightly cleaner.\n\nIf we are using the skipped entries when skip_over4x4 is on, then it\u0027s probably a bug elsewhere.",
+      "parentUuid": "bb0dd93a_10885904",
+      "revId": "b733693dda8ce7903031102aa842531d277b3a7f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
