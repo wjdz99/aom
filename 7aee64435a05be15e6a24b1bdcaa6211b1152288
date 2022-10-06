@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5996b814_5f15620c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 31287
+      },
+      "writtenOn": "2022-10-06T18:01:14Z",
+      "side": 1,
+      "message": "sex",
+      "revId": "7aee64435a05be15e6a24b1bdcaa6211b1152288",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
