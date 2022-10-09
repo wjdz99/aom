@@ -35,7 +35,8 @@ static int is_8x8_block_skip(MB_MODE_INFO **grid, int mi_row, int mi_col,
 
 int av1_cdef_compute_sb_list(const CommonModeInfoParams *const mi_params,
                              int mi_row, int mi_col, cdef_list *dlist,
-                             BLOCK_SIZE bs) {
+                             int *tot_count, BLOCK_SIZE bs) {
+  if (tot_count) *tot_count = 0;
   MB_MODE_INFO **grid = mi_params->mi_grid_base;
   int maxc = mi_params->mi_cols - mi_col;
   int maxr = mi_params->mi_rows - mi_row;
@@ -56,6 +57,7 @@ int av1_cdef_compute_sb_list(const CommonModeInfoParams *const mi_params,
   int count = 0;
   for (int r = 0; r < maxr; r += r_step) {
     for (int c = 0; c < maxc; c += c_step) {
+      if (tot_count) (*tot_count)++;
       if (!is_8x8_block_skip(grid, mi_row + r, mi_col + c,
                              mi_params->mi_stride)) {
         dlist[count].by = r >> r_shift;
@@ -329,9 +331,9 @@ static void cdef_fb_col(const AV1_COMMON *const cm, const MACROBLOCKD *const xd,
     return;
   }
 
-  fb_info->cdef_count = av1_cdef_compute_sb_list(mi_params, fbr * MI_SIZE_64X64,
-                                                 fbc * MI_SIZE_64X64,
-                                                 fb_info->dlist, BLOCK_64X64);
+  fb_info->cdef_count = av1_cdef_compute_sb_list(
+      mi_params, fbr * MI_SIZE_64X64, fbc * MI_SIZE_64X64, fb_info->dlist, NULL,
+      BLOCK_64X64);
   if (!fb_info->cdef_count) {
     av1_zero_array(cdef_left, num_planes);
     return;
