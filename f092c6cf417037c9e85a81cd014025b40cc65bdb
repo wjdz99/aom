@@ -34,6 +34,24 @@
       "parentUuid": "1a54b9f8_a8407cfa",
       "revId": "f092c6cf417037c9e85a81cd014025b40cc65bdb",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2d518fc7_1ff260a8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2022-10-10T22:09:38Z",
+      "side": 1,
+      "message": "There is no correct dimension for yuv - it is just raw data. If I understand correctly, we need to add a 352x288 test in order to reveal the issue reported in AVM. Is this right?",
+      "parentUuid": "d12639b8_2120273c",
+      "revId": "f092c6cf417037c9e85a81cd014025b40cc65bdb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
