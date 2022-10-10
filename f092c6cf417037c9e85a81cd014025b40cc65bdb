@@ -70,6 +70,24 @@
       "parentUuid": "2d518fc7_1ff260a8",
       "revId": "f092c6cf417037c9e85a81cd014025b40cc65bdb",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cdb1ff5e_a1707118",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2022-10-10T23:07:50Z",
+      "side": 1,
+      "message": "There are other places that we use a defined w/h implicitly. This is intended.\nThe current unit tests should be fine. We could add more testing for different resolutions later if Jenkins nightly has resource for it. Thanks for looking at this.",
+      "parentUuid": "d2fa8843_2204a01d",
+      "revId": "f092c6cf417037c9e85a81cd014025b40cc65bdb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
