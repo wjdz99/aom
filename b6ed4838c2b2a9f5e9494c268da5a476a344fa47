@@ -16,6 +16,23 @@
       "message": "Hi Wan-Teh, Frank, Cheng,\n\nThis CL adds a new unit-test PostProcFiltersTest to validate the correct behaviour of the encoder with control flag AV1E_SET_SKIP_POSTPROC_FILTERING. This unit-test bit matches the 2 encoded streams, one with control flag \"AV1E_SET_SKIP_POSTPROC_FILTERING\" set to zero for all frames and the other by toggling values of the same control flag (between 0 and 1) at different indices. This CL also adds asserts in the PostEncodeFrameHook() for the second encode instance to ensure that the recon frame will be null if control flag “AV1E_SET_SKIP_POSTPROC_FILTERING” is set to 1 and vice versa. \n\nCurrently we have added 2 tests, PostProcFiltersTest for cpu-used 9 and PostProcFiltersTestLarge for cpu-used 3,6 respectively.\n\nPlease review the CL. \n\nRegards,\nMudassir",
       "revId": "b6ed4838c2b2a9f5e9494c268da5a476a344fa47",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "67680092_afd01d35",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2022-10-10T07:09:57Z",
+      "side": 1,
+      "message": "Why do the two encoding have the same MD5? One is always with filtering, one is with filtering on and off.\n\nAm I missing something?",
+      "revId": "b6ed4838c2b2a9f5e9494c268da5a476a344fa47",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
