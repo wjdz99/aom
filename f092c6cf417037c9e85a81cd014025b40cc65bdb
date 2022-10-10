@@ -52,6 +52,24 @@
       "parentUuid": "d12639b8_2120273c",
       "revId": "f092c6cf417037c9e85a81cd014025b40cc65bdb",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d2fa8843_2204a01d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2022-10-10T22:39:51Z",
+      "side": 1,
+      "message": "Yes, for AVM, using 352x288 size was required to reveal the issue.\nNote that the issue was relevant to AVM, and may not be related to libaom. \n\nI found it odd though, as all other unit tests intepret this YUV file as 352x288 data (except these 2)\n\nAnyway, I\u0027ll leave it to you if you want to keep current behavior. Let me know what you think.",
+      "parentUuid": "2d518fc7_1ff260a8",
+      "revId": "f092c6cf417037c9e85a81cd014025b40cc65bdb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
