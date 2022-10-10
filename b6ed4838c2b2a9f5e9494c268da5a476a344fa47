@@ -33,6 +33,24 @@
       "message": "Why do the two encoding have the same MD5? One is always with filtering, one is with filtering on and off.\n\nAm I missing something?",
       "revId": "b6ed4838c2b2a9f5e9494c268da5a476a344fa47",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "be84d2cd_e23d8f3c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2022-10-10T12:40:58Z",
+      "side": 1,
+      "message": "Hi Cheng,\n\nThe codec control flag AV1E_SET_SKIP_POSTPROC_FILTERING when enabled, skips the application of post-processing filters on the reconstructed frames though loop filter levels are signaled in the bit-stream. Therefore the bit-stream is expected to match with this control flag enabled or disabled, but the reconstructed frames would not match which is tested in PostEncodeFrameHook, accordingly.",
+      "parentUuid": "67680092_afd01d35",
+      "revId": "b6ed4838c2b2a9f5e9494c268da5a476a344fa47",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
