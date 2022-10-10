@@ -76,6 +76,8 @@ class DuckyEncode {
   explicit DuckyEncode(const VideoInfo &video_info, int max_ref_frames,
                        int speed, int base_qindex);
   ~DuckyEncode();
+  void InitEncoder(aom_enc_pass pass,
+                   const std::vector<FIRSTPASS_STATS> *stats_list);
   std::vector<FIRSTPASS_STATS> ComputeFirstPassStats();
   void StartEncode(const std::vector<FIRSTPASS_STATS> &stats_list);
   TplGopStats ObtainTplStats(const GopStruct gop_struct);
@@ -85,6 +87,7 @@ class DuckyEncode {
       const GopEncodeInfoList &gop_encode_info_list);
   EncodeFrameResult EncodeFrame(const EncodeFrameDecision &decision);
   void EndEncode();
+  void FreeEncoder();
   void AllocateBitstreamBuffer(const VideoInfo &video_info);
 
  private:
