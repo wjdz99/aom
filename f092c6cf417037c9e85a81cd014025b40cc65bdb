@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1a54b9f8_a8407cfa",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2022-10-10T21:53:17Z",
+      "side": 1,
+      "message": "I don\u0027t think this fix is needed. The input is yuv, so we can use any height and width. Also, testing a large resolution encoder is preferred since more tiles can be tested and thus it likely reveals more issues.",
+      "revId": "f092c6cf417037c9e85a81cd014025b40cc65bdb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
