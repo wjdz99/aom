@@ -1243,7 +1243,8 @@ StatusOr<TplGopDepStats> ComputeTplGopDepStats(
   return tpl_gop_dep_stats;
 }
 
-static int GetRDMult(const GopFrame &gop_frame, int qindex) {
+int AV1RateControlQMode::GetRDMult(const GopFrame &gop_frame,
+                                   int qindex) const {
   // TODO(angiebird):
   // 1) Check if these rdmult rules are good in our use case.
   // 2) Support high-bit-depth mode
