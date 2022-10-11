@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2a5a335d_7a6f7d2f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-10-11T21:41:47Z",
+      "side": 1,
+      "message": "To help code review, here is the diffs against the last attempt (which was reverted):\n\nhttps://aomedia-review.googlesource.com/c/aom/+/164461/1..2",
+      "revId": "135e21b983ea93ad0ee266fff363cbde8b19190a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
