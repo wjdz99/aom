@@ -31,6 +31,21 @@ struct MotionVector {
   int subpel_bits;  // number of fractional bits used by row/col
 };
 
+enum class MaxDistinctValuesType {
+  // There are no constraints on the BlockEncodeParameters in a frame.
+  kUnconstrained,
+  // A frame may have no more than max_distinct_values distinct
+  // BlockEncodeParameters values (where the frame level q_index with
+  // lambda_scale == 64 is implicitly included in this count).
+  kMaxBlockEncodeParameters,
+  // A frame may have no more than max_distinct_values distinct q_index values
+  // (including the frame level q_index)
+  // AND
+  // may have no more than max_distinct_values distinct lambda_scale values
+  // (including 64, which is implicitly always included).
+  kIndependentQIndexAndLambda,
+};
+
 struct RateControlParam {
   // Range of allowed GOP sizes (number of displayed frames).
   int max_gop_show_frame_count;
@@ -41,6 +56,11 @@ struct RateControlParam {
   int max_ref_frames;
 
   int base_q_index;
+
+  // These two fields allow constraints to be placed on the number of distinct
+  // q_index and lambda_scale values which may be used per frame.
+  MaxDistinctValuesType max_distinct_values_type;
+  int max_distinct_values;
 
   int frame_width;
   int frame_height;
@@ -156,6 +176,14 @@ struct ReferenceFrame {
   ReferenceName name;
 };
 
+enum class QuantizationScope {
+  // A single q_index and rdmult are used for the entire frame.
+  kPerFrame,
+  // Each superblock may have different q_index and rdmult values (subject to
+  // constraints imposed by max_distinct_values and max_distinct_values_type).
+  kPerSuperblock,
+};
+
 struct GopFrame {
   // basic info
   bool is_valid;
@@ -198,6 +226,11 @@ struct GopFrame {
   ReferenceFrame primary_ref_frame;  // We will use the primary reference frame
                                      // to update current frame's initial
                                      // probability model
+
+  // Determines whether GetGopEncodeInfo returns per-superblock q_index and
+  // lambda values. Clients of this API may modify this value before calling
+  // GetGopEncodeInfo; they need not respect the value set by DetermineGopInfo.
+  QuantizationScope quantization_scope;
 };
 
 struct GopStruct {
@@ -212,9 +245,24 @@ struct GopStruct {
 
 using GopStructList = std::vector<GopStruct>;
 
+struct BlockEncodeParameters {
+  uint8_t q_index;
+  // Scaling factor for lambda, with two integer bits and six fractional bits
+  // (i.e., 64 == unity)
+  uint8_t lambda_scale;
+};
+
 struct FrameEncodeParameters {
+  // Base q_index for the frame.
   int q_index;
+  // RD mult value to be used if block_encode_parameters is empty (or for
+  // superblocks with lambda_scale == 64).
   int rdmult;
+  // Empty if quantization_scope is kPerFrame.
+  // Otherwise, one entry per 64x64 superblock, in row-major order.
+  // The values must respect the constraints imposed by max_distinct_values and
+  // max_distinct_values_type.
+  std::vector<BlockEncodeParameters> block_encode_parameters;
 };
 
 struct FirstpassInfo {
