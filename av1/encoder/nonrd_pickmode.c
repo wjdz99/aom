@@ -2287,6 +2287,20 @@ static AOM_INLINE void get_ref_frame_use_mask(AV1_COMP *cpi, MACROBLOCK *x,
       (x->color_sensitivity_sb_g[0] == 1 || x->color_sensitivity_sb_g[1] == 1))
     use_golden_ref_frame = 0;
 
+  // If GOLDEN is not being selected as a referene (use_golden_ref_frame = 0)
+  // check to allow it based on sad of nearest/near of LAST reference.
+  // If that block sad is very large, keep golden as reference.
+  if ((cpi->ref_frame_flags & AOM_LAST_FLAG) && !use_golden_ref_frame &&
+      x->pred_mv0_sad[LAST_FRAME] != INT_MAX && bsize <= BLOCK_32X32) {
+    int thr = 300;
+    int pred0 =  x->pred_mv0_sad[LAST_FRAME] >> (b_width_log2_lookup[bsize] +
+                                                 b_height_log2_lookup[bsize]);
+    int pred1 =  x->pred_mv1_sad[LAST_FRAME] >> (b_width_log2_lookup[bsize] +
+                                                 b_height_log2_lookup[bsize]);
+    if (pred0 > thr && pred1 > thr)
+      use_golden_ref_frame = 1;
+  }
+
   use_alt_ref_frame =
       cpi->ref_frame_flags & AOM_ALT_FLAG ? use_alt_ref_frame : 0;
   use_golden_ref_frame =
@@ -3050,8 +3064,13 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
     svc_mv_row = -4;
   }
 
+  if (cpi->ref_frame_flags & AOM_LAST_FLAG)
+    find_predictors(cpi, x, LAST_FRAME, frame_mv, tile_data, yv12_mb, bsize,
+                    force_skip_low_temp_var, x->force_zeromv_skip_for_blk);
+
   get_ref_frame_use_mask(cpi, x, mi, mi_row, mi_col, bsize, gf_temporal_ref,
                          use_ref_frame_mask, &force_skip_low_temp_var);
+
 
   skip_pred_mv = x->force_zeromv_skip_for_blk ||
                  (x->nonrd_prune_ref_frame_search > 2 &&
@@ -3077,10 +3096,12 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
     }
   }
 
+  if (x->pred_mv_sad[LAST_FRAME] != INT_MAX) {
   thresh_sad_pred = ((int64_t)x->pred_mv_sad[LAST_FRAME]) << 1;
-  // Increase threshold for less aggressive pruning.
-  if (cpi->sf.rt_sf.nonrd_prune_ref_frame_search == 1)
-    thresh_sad_pred += (x->pred_mv_sad[LAST_FRAME] >> 2);
+    // Increase threshold for less aggressive pruning.
+    if (cpi->sf.rt_sf.nonrd_prune_ref_frame_search == 1)
+      thresh_sad_pred += (x->pred_mv_sad[LAST_FRAME] >> 2);
+  }
 
   const int large_block = bsize >= BLOCK_32X32;
   const int use_model_yrd_large =
