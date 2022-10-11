@@ -41,6 +41,9 @@ struct RateControlParam {
   int max_ref_frames;
 
   int base_q_index;
+  // Maximum number of unique (q_index, lambda_scale) pairs which may be used in
+  // a frame.
+  int max_distinct_block_parameters_per_frame;
 
   int frame_width;
   int frame_height;
@@ -156,6 +159,14 @@ struct ReferenceFrame {
   ReferenceName name;
 };
 
+enum class QuantizationScope {
+  // A single q_index and rdmult are used for the entire frame.
+  kPerFrame,
+  // Each superblock may have different q_index and rdmult values (subject to
+  // the limitation of max_distinct_block_parameters_per_frame).
+  kPerSuperblock,
+};
+
 struct GopFrame {
   // basic info
   bool is_valid;
@@ -198,6 +209,11 @@ struct GopFrame {
   ReferenceFrame primary_ref_frame;  // We will use the primary reference frame
                                      // to update current frame's initial
                                      // probability model
+
+  // Determines whether GetGopEncodeInfo returns per-superblock q_index and
+  // lambda values. Clients of this API may modify this value before calling
+  // GetGopEncodeInfo; they need not respect the value set by DetermineGopInfo.
+  QuantizationScope quantization_scope;
 };
 
 struct GopStruct {
@@ -212,9 +228,25 @@ struct GopStruct {
 
 using GopStructList = std::vector<GopStruct>;
 
+struct BlockEncodeParameters {
+  uint8_t q_index;
+  // Scaling factor for lambda, with two integer bits and six fractional bits
+  // (i.e., 64 == unity)
+  uint8_t lambda_scale;
+};
+
 struct FrameEncodeParameters {
+  // Base q_index for the frame.
   int q_index;
+  // RD mult value to be used if block_encode_parameters is empty (or for
+  // superblocks with lambda_scale == 64).
   int rdmult;
+  // Empty if quantization_scope is kPerFrame.
+  // Otherwise, one entry per 64x64 superblock, in row-major order.
+  // The number of unique (q_index, lambda_scale) pairs may not exceed
+  // max_distinct_block_parameters_per_frame. Note that the frame level
+  // q_index (with lambda_scale == 64) is implicitly included in this count.
+  std::vector<BlockEncodeParameters> block_encode_parameters;
 };
 
 struct FirstpassInfo {
