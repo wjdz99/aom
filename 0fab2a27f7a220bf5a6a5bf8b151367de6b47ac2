@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b39e5009_d23563a4",
+        "filename": "av1/qmode_rc/ducky_encode.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-10-11T14:47:00Z",
+      "side": 1,
+      "message": "(optional) This could return bool, and just do this:\n\nreturn memcmp(detect, \"YUV4\", 4) \u003d\u003d 0;\n\nunless you prefer to leave it unchanged because it\u0027s copied from aomenc.c.",
+      "range": {
+        "startLine": 144,
+        "startChar": 0,
+        "endLine": 148,
+        "endChar": 0
+      },
+      "revId": "0fab2a27f7a220bf5a6a5bf8b151367de6b47ac2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6109e26f_39468f8a",
+        "filename": "av1/qmode_rc/ducky_encode.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-10-11T14:47:00Z",
+      "side": 1,
+      "message": "Why is this public? It seems like implementation details, which should be private.",
+      "range": {
+        "startLine": 79,
+        "startChar": 0,
+        "endLine": 81,
+        "endChar": 0
+      },
+      "revId": "0fab2a27f7a220bf5a6a5bf8b151367de6b47ac2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6b6a8f4a_432ce622",
+        "filename": "av1/qmode_rc/ducky_encode.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-10-11T14:47:00Z",
+      "side": 1,
+      "message": "These could be private too.",
+      "range": {
+        "startLine": 90,
+        "startChar": 0,
+        "endLine": 92,
+        "endChar": 0
+      },
+      "revId": "0fab2a27f7a220bf5a6a5bf8b151367de6b47ac2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
