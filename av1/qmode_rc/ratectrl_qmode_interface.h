@@ -42,6 +42,12 @@ struct RateControlParam {
 
   int base_q_index;
 
+  // These two fields constrain the number of distinct q_index and lambda_scale
+  // values which may be used per frame.
+  // They must be positive when QuantizationScope::kPerSuperblock is used.
+  int max_distinct_q_indices_per_frame;
+  int max_distinct_lambda_scales_per_frame;
+
   int frame_width;
   int frame_height;
 };
@@ -156,6 +162,14 @@ struct ReferenceFrame {
   ReferenceName name;
 };
 
+enum class QuantizationScope {
+  // A single q_index is used for the entire frame.
+  kPerFrame,
+  // Each superblock may have different q_index values (constrained by
+  // max_distinct_q_indices_per_frame).
+  kPerSuperblock,
+};
+
 struct GopFrame {
   // basic info
   bool is_valid;
@@ -198,6 +212,11 @@ struct GopFrame {
   ReferenceFrame primary_ref_frame;  // We will use the primary reference frame
                                      // to update current frame's initial
                                      // probability model
+
+  // Determines whether GetGopEncodeInfo returns per-superblock q_index and
+  // lambda_scale. Clients of this API may modify this value before calling
+  // GetGopEncodeInfo; they need not respect the value set by DetermineGopInfo.
+  QuantizationScope quantization_scope;
 };
 
 struct GopStruct {
@@ -213,8 +232,16 @@ struct GopStruct {
 using GopStructList = std::vector<GopStruct>;
 
 struct FrameEncodeParameters {
+  // Base q_index for the frame.
   int q_index;
+  // TODO(b/242918889): Remove rdmult once it's no longer used.
   int rdmult;
+  // The following vectors will be empty if quantization_scope is kPerFrame.
+  // Otherwise, each has one entry per 64x64 superblock, in row-major order.
+  // The values must respect the constraints of max_distinct_q_indices_per_frame
+  // and max_distinct_lambda_scales_per_frame.
+  std::vector<uint8_t> superblock_q_indices;
+  std::vector<float> superblock_lambda_scales;
 };
 
 struct FirstpassInfo {
@@ -275,6 +302,13 @@ class AV1RateControlQModeInterface {
       const GopStruct &gop_struct, const TplGopStats &tpl_gop_stats,
       const std::vector<LookaheadStats> &lookahead_stats,
       const RefFrameTable &ref_frame_table_snapshot_init) = 0;
+
+  // Returns the rdmult (lambda) value for the specified frame and q_index.
+  // TODO(b/242918889): Make pure virtual once all derived classes implement it.
+  virtual int GetRDMult(const GopFrame &gop_frame AOM_UNUSED,
+                        int q_index AOM_UNUSED) const {
+    return 0;
+  }
 };
 }  // namespace aom
 
