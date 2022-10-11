@@ -140,6 +140,30 @@
       },
       "revId": "0fab2a27f7a220bf5a6a5bf8b151367de6b47ac2",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "aa35bf10_8c27944b",
+        "filename": "av1/qmode_rc/ducky_encode.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-10-11T15:17:22Z",
+      "side": 1,
+      "message": "Ah, I hadn\u0027t noticed that. Not a big deal.",
+      "parentUuid": "713d0389_fef014c7",
+      "range": {
+        "startLine": 90,
+        "startChar": 0,
+        "endLine": 92,
+        "endChar": 0
+      },
+      "revId": "0fab2a27f7a220bf5a6a5bf8b151367de6b47ac2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
