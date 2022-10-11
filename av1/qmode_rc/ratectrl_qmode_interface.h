@@ -41,6 +41,8 @@ struct RateControlParam {
   int max_ref_frames;
 
   int base_q_index;
+  // Maximum number of unique q_index values which may appear in per_sb_q_index.
+  int max_distinct_q_indices_per_frame;
 
   int frame_width;
   int frame_height;
@@ -156,6 +158,11 @@ struct ReferenceFrame {
   ReferenceName name;
 };
 
+enum class QuantizationScope {
+  kPerFrame,
+  kPerSuperblock,
+};
+
 struct GopFrame {
   // basic info
   bool is_valid;
@@ -198,6 +205,11 @@ struct GopFrame {
   ReferenceFrame primary_ref_frame;  // We will use the primary reference frame
                                      // to update current frame's initial
                                      // probability model
+
+  // Determines whether GetGopEncodeInfo returns per-superblock q_index values.
+  // Clients of this API may modify this value before calling GetGopEncodeInfo;
+  // they need not respect the value set by DetermineGopInfo.
+  QuantizationScope quantization_scope;
 };
 
 struct GopStruct {
@@ -213,8 +225,16 @@ struct GopStruct {
 using GopStructList = std::vector<GopStruct>;
 
 struct FrameEncodeParameters {
+  // Base q_index for the frame.
   int q_index;
+  // RD mult value to be used if per_sb_rdmult is empty.
   int rdmult;
+  // These vectors will be empty if quantization_scope is kPerFrame.
+  // If populated, each vector has one entry per 64x64 superblock, in row-major
+  // order. The number of unique q_index values (including the frame-level
+  // q_index) will not exceed max_distinct_q_indices_per_frame.
+  std::vector<uint8_t> per_sb_q_index;
+  std::vector<int> per_sb_rdmult;
 };
 
 struct FirstpassInfo {
