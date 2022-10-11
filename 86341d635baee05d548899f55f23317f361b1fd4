@@ -16,6 +16,24 @@
       "message": "Hi Marco, Yunqing,\n\nIn av1_cdef_search(), CDEF strengths that would be used at block level are found through R-D optimization. CDEF strengths that would be used at block level are signaled using at most 3 bits. However the number of joint strength combinations (across luma and chroma) can be limited based on cdef_pick_method. When cdef_pick_method\u003dCDEF_FAST_SEARCH_LVL5, the number of joint strength combinations is limited to 4 which can be represented using 2 bits. In this CL, the redundant RD evaluation is avoided for the case of 3 bits. \n\nPlease check the borg results for rtc test-set below. \n```\n                Instruction Count            BD-Rate Loss(%)\ncpu Resolution   Reduction(%)         avg.psnr ovr.psnr   ssim\n 7         rtc       0.383             0.0000   0.0000   0.0000\n 7   rtc_1080p       0.368             0.0000   0.0000   0.0000\n 8         rtc       0.518             0.0000   0.0000   0.0000\n 8   rtc_1080p       0.523             0.0000   0.0000   0.0000\n 9   rtc_1080p       0.593             0.0000   0.0000   0.0000\n10   rtc_1080p       0.605             0.0000   0.0000   0.0000\n```\n\nThe instruction count reduction specified has been measured using command:\n $ perf stat -e instructions:u ./aomenc …\n\nWe also verified for a few contents and speed settings that CL produces bit-exact output for --good usage.\n\nPlease review the CL. \n\nRegards,\nRanjit",
       "revId": "86341d635baee05d548899f55f23317f361b1fd4",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6b2a6e1c_2867fb85",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2022-10-11T15:56:16Z",
+      "side": 1,
+      "message": "Looks good to me. Thanks.",
+      "parentUuid": "8dfd581b_1fbbf5a7",
+      "revId": "86341d635baee05d548899f55f23317f361b1fd4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
