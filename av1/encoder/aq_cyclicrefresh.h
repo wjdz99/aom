@@ -259,18 +259,6 @@ void av1_init_cyclic_refresh_counters(MACROBLOCK *const x);
 void av1_accumulate_cyclic_refresh_counters(
     CYCLIC_REFRESH *const cyclic_refresh, const MACROBLOCK *const x);
 
-/*!\brief Set golden frame update interval nased on cyclic refresh.
- *
- * \ingroup cyclic_refresh
- * \callgraph
- * \callergraph
- *
- * \param[in]   cpi       Top level encoder structure
- *
- * \remark Returns the interval in \c cpi->rc.baseline_gf_interval.
- */
-void av1_cyclic_refresh_set_golden_update(struct AV1_COMP *const cpi);
-
 /*!\brief Set the global/frame level parameters for cyclic refresh.
  *
  * First call to the cyclic refresh, before encoding the frame.

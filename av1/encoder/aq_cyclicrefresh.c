@@ -270,25 +270,6 @@ void av1_accumulate_cyclic_refresh_counters(
   cyclic_refresh->actual_num_seg2_blocks += x->actual_num_seg2_blocks;
 }
 
-void av1_cyclic_refresh_set_golden_update(AV1_COMP *const cpi) {
-  RATE_CONTROL *const rc = &cpi->rc;
-  PRIMARY_RATE_CONTROL *const p_rc = &cpi->ppi->p_rc;
-  CYCLIC_REFRESH *const cr = cpi->cyclic_refresh;
-  // Set minimum gf_interval for GF update to a multiple of the refresh period,
-  // with some max limit. Depending on past encoding stats, GF flag may be
-  // reset and update may not occur until next baseline_gf_interval.
-  const int gf_length_mult[2] = { 8, 4 };
-  if (cr->percent_refresh > 0)
-    p_rc->baseline_gf_interval =
-        AOMMIN(gf_length_mult[cpi->sf.rt_sf.gf_length_lvl] *
-                   (100 / cr->percent_refresh),
-               MAX_GF_INTERVAL_RT);
-  else
-    p_rc->baseline_gf_interval = FIXED_GF_INTERVAL_RT;
-  if (rc->avg_frame_low_motion && rc->avg_frame_low_motion < 40)
-    p_rc->baseline_gf_interval = 16;
-}
-
 // Update the segmentation map, and related quantities: cyclic refresh map,
 // refresh sb_index, and target number of blocks to be refreshed.
 // The map is set to either 0/CR_SEGMENT_ID_BASE (no refresh) or to
