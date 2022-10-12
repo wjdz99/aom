@@ -907,10 +907,6 @@ but should not change other settings (since it is in essence a trial). This
 special case is indicated by the setting parameter <b>is_final_pass</b> for to
 zero.
 
-For single pass encodes where look-ahead processing is disabled
-(\ref AV1_PRIMARY.lap_enabled = 0), \ref define_gf_group_pass0() is used
-instead of \ref define_gf_group().
-
 \subsection architecture_enc_kf_groups Key Frame Groups
 
 A special constraint for GF group length is the location of the next keyframe

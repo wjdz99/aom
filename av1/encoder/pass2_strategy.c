@@ -2132,77 +2132,6 @@ static void correct_frames_to_key(AV1_COMP *cpi) {
   }
 }
 
-/*!\brief Define a GF group in one pass mode when no look ahead stats are
- * available.
- *
- * \ingroup gf_group_algo
- * This function defines the structure of a GF group, along with various
- * parameters regarding bit-allocation and quality setup in the special
- * case of one pass encoding where no lookahead stats are avialable.
- *
- * \param[in]    cpi             Top-level encoder structure
- *
- * \remark Nothing is returned. Instead, cpi->ppi->gf_group is changed.
- */
-static void define_gf_group_pass0(AV1_COMP *cpi) {
-  RATE_CONTROL *const rc = &cpi->rc;
-  PRIMARY_RATE_CONTROL *const p_rc = &cpi->ppi->p_rc;
-  GF_GROUP *const gf_group = &cpi->ppi->gf_group;
-  const AV1EncoderConfig *const oxcf = &cpi->oxcf;
-  const GFConfig *const gf_cfg = &oxcf->gf_cfg;
-  int target;
-
-  if (oxcf->q_cfg.aq_mode == CYCLIC_REFRESH_AQ) {
-    av1_cyclic_refresh_set_golden_update(cpi);
-  } else {
-    p_rc->baseline_gf_interval = p_rc->gf_intervals[p_rc->cur_gf_index];
-    rc->intervals_till_gf_calculate_due--;
-    p_rc->cur_gf_index++;
-  }
-
-  // correct frames_to_key when lookahead queue is flushing
-  correct_frames_to_key(cpi);
-
-  if (p_rc->baseline_gf_interval > rc->frames_to_key)
-    p_rc->baseline_gf_interval = rc->frames_to_key;
-
-  p_rc->gfu_boost = DEFAULT_GF_BOOST;
-  p_rc->constrained_gf_group =
-      (p_rc->baseline_gf_interval >= rc->frames_to_key) ? 1 : 0;
-
-  gf_group->max_layer_depth_allowed = oxcf->gf_cfg.gf_max_pyr_height;
-
-  // Rare case when the look-ahead is less than the target GOP length, can't
-  // generate ARF frame.
-  if (p_rc->baseline_gf_interval > gf_cfg->lag_in_frames ||
-      !is_altref_enabled(gf_cfg->lag_in_frames, gf_cfg->enable_auto_arf) ||
-      p_rc->baseline_gf_interval < rc->min_gf_interval)
-    gf_group->max_layer_depth_allowed = 0;
-
-  // Set up the structure of this Group-Of-Pictures (same as GF_GROUP)
-  av1_gop_setup_structure(cpi);
-
-  // Allocate bits to each of the frames in the GF group.
-  // TODO(sarahparker) Extend this to work with pyramid structure.
-  for (int cur_index = 0; cur_index < gf_group->size; ++cur_index) {
-    const FRAME_UPDATE_TYPE cur_update_type = gf_group->update_type[cur_index];
-    if (oxcf->rc_cfg.mode == AOM_CBR) {
-      if (cur_update_type == KF_UPDATE) {
-        target = av1_calc_iframe_target_size_one_pass_cbr(cpi);
-      } else {
-        target = av1_calc_pframe_target_size_one_pass_cbr(cpi, cur_update_type);
-      }
-    } else {
-      if (cur_update_type == KF_UPDATE) {
-        target = av1_calc_iframe_target_size_one_pass_vbr(cpi);
-      } else {
-        target = av1_calc_pframe_target_size_one_pass_vbr(cpi, cur_update_type);
-      }
-    }
-    gf_group->bit_allocation[cur_index] = target;
-  }
-}
-
 static INLINE void set_baseline_gf_interval(PRIMARY_RATE_CONTROL *p_rc,
                                             int arf_position) {
   p_rc->baseline_gf_interval = arf_position;
@@ -2457,11 +2386,6 @@ static void define_gf_group(AV1_COMP *cpi, EncodeFrameParams *frame_params,
   if (!is_intra_only) {
     av1_zero(cpi->ppi->gf_group);
     cpi->gf_frame_index = 0;
-  }
-
-  if (has_no_stats_stage(cpi)) {
-    define_gf_group_pass0(cpi);
-    return;
   }
 
   if (cpi->third_pass_ctx && oxcf->pass == AOM_RC_THIRD_PASS) {
