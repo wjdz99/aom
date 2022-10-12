@@ -16,6 +16,24 @@
       "message": "this should check to prevent overreads or if this is already enforced add an assert about the offset and buffer size.",
       "revId": "36da5b9255d7435260eb4c01ea669f40e3c3cf17",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b15c0e9f_f0ec9665",
+        "filename": "common/tools_common.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 587,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2022-10-12T17:09:12Z",
+      "side": 1,
+      "message": "Makes sense! Done.",
+      "parentUuid": "343e44f0_fa8b09fd",
+      "revId": "36da5b9255d7435260eb4c01ea669f40e3c3cf17",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
