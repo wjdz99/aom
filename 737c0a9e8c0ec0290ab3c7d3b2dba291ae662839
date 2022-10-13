@@ -33,6 +33,24 @@
       "message": "I\u0027m okay with this, but I would consider adding qband !\u003d 0 to level 1 as well to make the speed feature more consistent.\n\n@yunqingwang@google.com\n@marpan@google.com\nThere\u0027s a pretty big slow down on speed 7 1080p. Is this going to be an issue?",
       "revId": "737c0a9e8c0ec0290ab3c7d3b2dba291ae662839",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6f443e61_6f3afbe7",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2022-10-13T00:37:29Z",
+      "side": 1,
+      "message": "The speed/quality tradeoff at speed 7 1080p looks fine. This is okey to me.",
+      "parentUuid": "145d213e_aee797ac",
+      "revId": "737c0a9e8c0ec0290ab3c7d3b2dba291ae662839",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
