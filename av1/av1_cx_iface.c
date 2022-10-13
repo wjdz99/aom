@@ -2645,6 +2645,14 @@ static aom_codec_err_t encoder_init(aom_codec_ctx_t *ctx) {
             priv->ppi, &priv->ppi->cpi_lap, &priv->buffer_pool_lap, &priv->oxcf,
             LAP_STAGE, clamp(lap_lag_in_frames, 0, MAX_LAG_BUFFERS));
       }
+
+      priv->ppi->cpi->delta_q_file =
+          fopen("/usr/local/google/home/jianj/kmeans_delta_q_stats", "r");
+
+      if (priv->ppi->cpi->delta_q_file == NULL) {
+        aom_internal_error(priv->ppi->cpi->common.error, AOM_CODEC_MEM_ERROR,
+                           "Can't open kmeans delta q file.");
+      }
     }
   }
 

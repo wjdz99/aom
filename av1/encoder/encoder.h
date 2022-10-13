@@ -3416,6 +3416,8 @@ typedef struct AV1_COMP {
    * Block level thresholds to force zeromv-skip at partition level.
    */
   unsigned int zeromv_skip_thresh_exit_part[BLOCK_SIZES_ALL];
+
+  FILE *delta_q_file;
 } AV1_COMP;
 
 /*!

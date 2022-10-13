@@ -129,8 +129,8 @@ int av1_get_cb_rdmult(const AV1_COMP *const cpi, MACROBLOCK *const x,
 
   if (cbcmp_base == 0) return deltaq_rdmult;
 
-  double rk = exp((intra_cost_base - mc_dep_cost_base) / cbcmp_base);
-  deltaq_rdmult = (int)(deltaq_rdmult * (rk / x->rb));
+  // double rk = exp((intra_cost_base - mc_dep_cost_base) / cbcmp_base);
+  // deltaq_rdmult = (int)(deltaq_rdmult * (rk / x->rb));
 
   return AOMMAX(deltaq_rdmult, 1);
 }

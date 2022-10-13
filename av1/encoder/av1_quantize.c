@@ -751,8 +751,8 @@ void av1_init_plane_quantizers(const AV1_COMP *cpi, MACROBLOCK *x,
                                    ? quant_params->base_qindex + x->delta_qindex
                                    : quant_params->base_qindex));
   const int qindex = av1_get_qindex(&cm->seg, segment_id, current_qindex);
-  const int rdmult =
-      av1_compute_rd_mult(cpi, qindex + quant_params->y_dc_delta_q);
+  const int rdmult = av1_compute_rd_mult(
+      cpi, quant_params->base_qindex + quant_params->y_dc_delta_q);
   const int qindex_change = x->qindex != qindex;
   if (qindex_change || do_update) {
     av1_set_q_index(&cpi->enc_quant_dequant_params, qindex, x);
