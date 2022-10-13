@@ -2710,7 +2710,7 @@ static int encode_with_recode_loop(AV1_COMP *cpi, size_t *size, uint8_t *dest) {
 
 #if !CONFIG_RD_COMMAND
   // Determine whether to use screen content tools using two fast encoding.
-  if (!cpi->sf.hl_sf.disable_extra_sc_testing)
+  if (0 && !cpi->sf.hl_sf.disable_extra_sc_testing)
     av1_determine_sc_tools_with_encoding(cpi, q);
 #endif  // !CONFIG_RD_COMMAND
 
