@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9bbcbc7c_65851b2b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2022-10-13T10:18:49Z",
+      "side": 1,
+      "message": "Hi Chi-Yo and Yunqing,\n\nWhile building libaom on older GCC versions (verified using GCC 7.4.0), we observed a build error related to undefined function. This is due to the usage of instruction _mm_storeu_si64() in cdef_copy_rect8_8bit_to_16bit_avx2(). This change was introduced in https://aomedia-review.googlesource.com/c/aom/+/164242.\n \nAs per our understanding the instruction _mm_storeu_si64() is available from GCC 9.0.0 onwards (https://gcc.gnu.org/bugzilla/show_bug.cgi?id\u003d87558). Hence, to avoid this build error we have replaced _mm_storeu_si64() with _mm_storel_epi64 (which is the same in functionality). For this CL, build is verified using GCC 7.4.0.\n\nWe have also created a bug (BUG\u003daomedia:3343) reporting the same and updated the bug with CL details.\n\nPlease review the patch.\n\nThanks \u0026 Regards,\nVenkata.",
+      "revId": "064f4e6c0eff03ab66ad1a20196432475a921e74",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
