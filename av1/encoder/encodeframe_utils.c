@@ -971,7 +971,7 @@ void av1_get_tpl_stats_sb(AV1_COMP *cpi, BLOCK_SIZE bsize, int mi_row,
 //                  predictor chosen
 int av1_get_q_for_deltaq_objective(AV1_COMP *const cpi, ThreadData *td,
                                    int64_t *delta_dist, BLOCK_SIZE bsize,
-                                   int mi_row, int mi_col) {
+                                   int mi_row, int mi_col, int printout) {
   AV1_COMMON *const cm = &cpi->common;
   assert(IMPLIES(cpi->ppi->gf_group.size > 0,
                  cpi->gf_frame_index < cpi->ppi->gf_group.size));
@@ -1052,6 +1052,10 @@ int av1_get_q_for_deltaq_objective(AV1_COMP *const cpi, ThreadData *td,
   int qindex = cm->quant_params.base_qindex + offset;
   qindex = AOMMIN(qindex, MAXQ);
   qindex = AOMMAX(qindex, MINQ);
+
+  if (printout)
+    printf("%d %d %d %d\n", cm->cur_frame->display_order_hint, mi_row, mi_col,
+           qindex - cm->quant_params.base_qindex);
 
   int frm_qstep = av1_dc_quant_QTX(base_qindex, 0, cm->seq_params->bit_depth);
   int sbs_qstep =

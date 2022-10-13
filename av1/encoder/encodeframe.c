@@ -230,7 +230,8 @@ void av1_setup_src_planes(MACROBLOCK *x, const YV12_BUFFER_CONFIG *src,
 static AOM_INLINE void setup_delta_q(AV1_COMP *const cpi, ThreadData *td,
                                      MACROBLOCK *const x,
                                      const TileInfo *const tile_info,
-                                     int mi_row, int mi_col, int num_planes) {
+                                     int mi_row, int mi_col, int num_planes,
+                                     int k_means_delta_q) {
   AV1_COMMON *const cm = &cpi->common;
   const CommonModeInfoParams *const mi_params = &cm->mi_params;
   const DeltaQInfo *const delta_q_info = &cm->delta_q_info;
@@ -242,32 +243,33 @@ static AOM_INLINE void setup_delta_q(AV1_COMP *const cpi, ThreadData *td,
 
   const int delta_q_res = delta_q_info->delta_q_res;
   int current_qindex = cm->quant_params.base_qindex;
-  if (cpi->oxcf.q_cfg.deltaq_mode == DELTA_Q_PERCEPTUAL) {
-    if (DELTA_Q_PERCEPTUAL_MODULATION == 1) {
-      const int block_wavelet_energy_level =
-          av1_block_wavelet_energy_level(cpi, x, sb_size);
-      x->sb_energy_level = block_wavelet_energy_level;
-      current_qindex = av1_compute_q_from_energy_level_deltaq_mode(
-          cpi, block_wavelet_energy_level);
-    } else {
-      const int block_var_level = av1_log_block_var(cpi, x, sb_size);
-      x->sb_energy_level = block_var_level;
-      current_qindex =
-          av1_compute_q_from_energy_level_deltaq_mode(cpi, block_var_level);
-    }
-  } else if (cpi->oxcf.q_cfg.deltaq_mode == DELTA_Q_OBJECTIVE &&
-             cpi->oxcf.algo_cfg.enable_tpl_model) {
-    // Setup deltaq based on tpl stats
-    current_qindex =
-        av1_get_q_for_deltaq_objective(cpi, td, NULL, sb_size, mi_row, mi_col);
-  } else if (cpi->oxcf.q_cfg.deltaq_mode == DELTA_Q_PERCEPTUAL_AI) {
-    current_qindex = av1_get_sbq_perceptual_ai(cpi, sb_size, mi_row, mi_col);
-  } else if (cpi->oxcf.q_cfg.deltaq_mode == DELTA_Q_USER_RATING_BASED) {
-    current_qindex = av1_get_sbq_user_rating_based(cpi, mi_row, mi_col);
-  } else if (cpi->oxcf.q_cfg.enable_hdr_deltaq) {
-    current_qindex = av1_get_q_for_hdr(cpi, x, sb_size, mi_row, mi_col);
-  }
+  // if (cpi->oxcf.q_cfg.deltaq_mode == DELTA_Q_PERCEPTUAL) {
+  //   if (DELTA_Q_PERCEPTUAL_MODULATION == 1) {
+  //     const int block_wavelet_energy_level =
+  //         av1_block_wavelet_energy_level(cpi, x, sb_size);
+  //     x->sb_energy_level = block_wavelet_energy_level;
+  //     current_qindex = av1_compute_q_from_energy_level_deltaq_mode(
+  //         cpi, block_wavelet_energy_level);
+  //   } else {
+  //     const int block_var_level = av1_log_block_var(cpi, x, sb_size);
+  //     x->sb_energy_level = block_var_level;
+  //     current_qindex =
+  //         av1_compute_q_from_energy_level_deltaq_mode(cpi, block_var_level);
+  //   }
+  // } else if (cpi->oxcf.q_cfg.deltaq_mode == DELTA_Q_OBJECTIVE &&
+  //            cpi->oxcf.algo_cfg.enable_tpl_model) {
+  //   // Setup deltaq based on tpl stats
+  //   current_qindex = av1_get_q_for_deltaq_objective(cpi, td, NULL, sb_size,
+  //                                                   mi_row, mi_col, 1);
+  // } else if (cpi->oxcf.q_cfg.deltaq_mode == DELTA_Q_PERCEPTUAL_AI) {
+  //   current_qindex = av1_get_sbq_perceptual_ai(cpi, sb_size, mi_row, mi_col);
+  // } else if (cpi->oxcf.q_cfg.deltaq_mode == DELTA_Q_USER_RATING_BASED) {
+  //   current_qindex = av1_get_sbq_user_rating_based(cpi, mi_row, mi_col);
+  // } else if (cpi->oxcf.q_cfg.enable_hdr_deltaq) {
+  //   current_qindex = av1_get_q_for_hdr(cpi, x, sb_size, mi_row, mi_col);
+  // }
 
+  current_qindex += k_means_delta_q;
   MACROBLOCKD *const xd = &x->e_mbd;
   current_qindex = av1_adjust_q_from_delta_q_res(
       delta_q_res, xd->current_base_qindex, current_qindex);
@@ -591,7 +593,13 @@ static INLINE void init_encode_rd_sb(AV1_COMP *cpi, ThreadData *td,
       if (cm->delta_q_info.delta_q_present_flag) {
         const int num_planes = av1_num_planes(cm);
         const BLOCK_SIZE sb_size = cm->seq_params->sb_size;
-        setup_delta_q(cpi, td, x, tile_info, mi_row, mi_col, num_planes);
+        int delta_q_mi_row, delta_q_mi_col, delta_q_display_order;
+        int k_means_delta_q;
+
+        fscanf(cpi->delta_q_file, "%d %d %d %d\n", &delta_q_display_order,
+               &delta_q_mi_row, &delta_q_mi_col, &k_means_delta_q);
+        setup_delta_q(cpi, td, x, tile_info, mi_row, mi_col, num_planes,
+                      k_means_delta_q);
         av1_tpl_rdmult_setup_sb(cpi, x, sb_size, mi_row, mi_col);
       }
 
@@ -1443,7 +1451,7 @@ static int allow_deltaq_mode(AV1_COMP *cpi) {
     for (int mi_col = 0; mi_col < cm->mi_params.mi_cols; mi_col += sbs_wide) {
       int64_t this_delta_rdcost = 0;
       av1_get_q_for_deltaq_objective(cpi, &cpi->td, &this_delta_rdcost, sb_size,
-                                     mi_row, mi_col);
+                                     mi_row, mi_col, 0);
       delta_rdcost += this_delta_rdcost;
     }
   }
@@ -2053,6 +2061,14 @@ void av1_encode_frame(AV1_COMP *cpi) {
   // Indicates whether or not to use a default reduced set for ext-tx
   // rather than the potential full set of 16 transforms
   features->reduced_tx_set_used = oxcf->txfm_cfg.reduced_tx_type_set;
+
+  cpi->delta_q_file =
+      fopen("/usr/local/google/home/jianj/kmeans_delta_q_stats", "r");
+
+  if (cpi->delta_q_file == NULL) {
+    aom_internal_error(cm->error, AOM_CODEC_MEM_ERROR,
+                       "Can't open kmeans delta q file.");
+  }
 
   // Make sure segment_id is no larger than last_active_segid.
   if (cm->seg.enabled && cm->seg.update_map) {
