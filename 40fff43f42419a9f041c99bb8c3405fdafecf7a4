@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bbe9ba90_2e3c00bd",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 29295
+      },
+      "writtenOn": "2022-10-13T14:03:19Z",
+      "side": 1,
+      "message": "Hi Yunqing, Marco,\n\nWe have been doing some study on interpolation filter search and it turns out that the sf cb_pred_filter_search is not performing well for RT cpu 8-10. A basic study indicates that this logic may not be effective for smaller blocks since they are likely to have a higher variation and the need to accurately pick regular vs smooth subpel filter. It may also depend on properties such as the source variance and block SAD. \n\nBased on this and the below results, we have disabled the sf for now. We plan to study this further. Please let me know if this approach sounds good to you.\n\nOut of 28 rtc clips,\n```\ncpu 8,  27 clips gaining quality, 1 losing\ncpu 9,  26 clips gaining quality, 2 losing\ncpu 10, 26 clips gaining quality, 2 losing.\n```\n\nThe worst/best cases are:\n```\ncpu     Case    Content            BD-Rate Drop (%)             Instr. Count  \n                               avg. psnr    ovr.psnr     ssim   Reduction(%)\n -----\t\t\t\t\t\t\t   \n 8    Worst    mmstionaryvga      0.5475     0.5212     0.7792    -2.00\n 9    Worst     gipsrestat720p    0.3035     0.3101     0.0011    -2.72\n 10   Worst     jimredvga_25fps   0.3149     0.3237    -0.0923    -1.76\n -----\n 8    Best     street360p        -1.4731    -1.4732    -1.1496    -3.57\n 9    Best     kirlandvga        -2.2318    -1.9905    -4.5588    -1.19\n 10   Best     street360p        -1.9529    -1.9164    -1.7295    -3.84\n```\n\nThe instruction count reduction specified has been measured using command:\n```\n$ perf stat -e instructions:u ./aomenc …\n```\n\nRegards,\nNeeraj",
+      "revId": "40fff43f42419a9f041c99bb8c3405fdafecf7a4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
