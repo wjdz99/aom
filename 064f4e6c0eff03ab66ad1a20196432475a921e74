@@ -33,6 +33,24 @@
       "message": "We could consider adding a #ifdef statement to alias _mm_storeu_epi64 to _mm_storel_epi64 if this pops up again in the future.",
       "revId": "064f4e6c0eff03ab66ad1a20196432475a921e74",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "270f399c_2afc5e0d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2022-10-14T10:19:07Z",
+      "side": 1,
+      "message": "Sure Chi-Yo, thanks for the suggestion. We will make a note of it.",
+      "parentUuid": "20067687_33cc2d69",
+      "revId": "064f4e6c0eff03ab66ad1a20196432475a921e74",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ],
   "submitRequirementResults": [
