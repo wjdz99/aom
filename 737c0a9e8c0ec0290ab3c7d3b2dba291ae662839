@@ -18,6 +18,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "c3da36ad_1d98413d",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 6
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 31022
+      },
+      "writtenOn": "2022-10-14T11:54:46Z",
+      "side": 1,
+      "message": "Yes, that is correct. As per your suggestion, we have submitted a separate CL https://aomedia-review.googlesource.com/c/aom/+/164603 to take care of this.",
+      "parentUuid": "2a740ccd_aae65f19",
+      "revId": "737c0a9e8c0ec0290ab3c7d3b2dba291ae662839",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "0c101c12_824e9cf6",
@@ -70,6 +88,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "01a729ac_229d48f5",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 31022
+      },
+      "writtenOn": "2022-10-14T11:54:46Z",
+      "side": 1,
+      "message": "Thanks. We have made the sf more consistent as per your suggestion.",
+      "parentUuid": "6f443e61_6f3afbe7",
+      "revId": "737c0a9e8c0ec0290ab3c7d3b2dba291ae662839",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "744ac37b_cecf9769",
@@ -83,6 +119,24 @@
       "writtenOn": "2022-10-13T06:58:07Z",
       "side": 1,
       "message": "Similar to above comment: it\u0027s seems that level 2 will apply for low source variance, regardless of whether level 1 is allowed (with addition of QP condition). What is the reason behind the low source variance condition, and why not apply that to level 1 too?",
+      "revId": "737c0a9e8c0ec0290ab3c7d3b2dba291ae662839",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "46668280_8336ff7b",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 364,
+      "author": {
+        "id": 31022
+      },
+      "writtenOn": "2022-10-14T11:54:46Z",
+      "side": 1,
+      "message": "The low source variance condition allows aggressive subpel search to blocks with generally homogeneous content. In such blocks, a more accurate subpel does not improve prediction error significantly.\n\nThanks for the suggestion. We applied it to level 1 as well \u0026 consolidated this sf as a single level for cpu 7, 8, 9 in this dependent CL: https://aomedia-review.googlesource.com/c/aom/+/164602.",
+      "parentUuid": "744ac37b_cecf9769",
       "revId": "737c0a9e8c0ec0290ab3c7d3b2dba291ae662839",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
