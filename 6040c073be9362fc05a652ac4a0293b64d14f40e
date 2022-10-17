@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "df4c93fa_a627fc5a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 31012
+      },
+      "writtenOn": "2022-10-17T12:09:14Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nThis CL adds NEON support for aom_mse_wxh_16 bit () function. The patch also adds the relevant unit-test changes to test the functionality.\n\nFollowing shows the module level scaling seen for different block sizes.\n```\nBlock_Size    Scaling w.r.t. C (x)\n     8x8                  4.06\n     8x4                  3.41\n     4x8                  2.51\n     4x4                  2.40\n```\nWe also verified the bit-match for few contents and the following shows the encoded time reduction seen for the same.\n\nFor rtc speed 8,\n```\nContent                                        Encode time reduction(%)\ndark720p.y4m                                            0.68\nmmmovingvga.y4m                                         0.41\nBasketballDrill_832x480_50.y4m                          0.76\n```\nPlease review this CL.\n\nThanks \u0026 Regards,\nDiksha",
+      "revId": "6040c073be9362fc05a652ac4a0293b64d14f40e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
