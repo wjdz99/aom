@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "638779eb_edf4b1c6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9101
+      },
+      "writtenOn": "2022-10-17T13:30:04Z",
+      "side": 1,
+      "message": "Hi Yunqing, Marco\nWe have rebased the patch, please review.\n\nWe tested the speed numbers for patchset 8, please check.\n```\ncpu  Resolution   Tiles  Threads Encode Time Reduction (%)\n 7     180p        2x1     2           1.5\n 8     180p        2x1     2           1.0\n 9     360p        4x1     4           3.0\n10     720p        4x1     4           3.0\n10   1080p screen  4x1     4           2.5\n```\nWe also ensured that output is bitexact for all the RT presets.",
+      "revId": "e649ca0ff7d8189fb2a8e7554e5231bfd8acb942",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
