@@ -232,6 +232,17 @@ typedef enum {
       3, /*!< Disable loopfilter on frames with low motion. */
 } LOOPFILTER_CONTROL;
 
+/*!\enum SKIP_POSTPROC_FILTER_APPL
+ * \brief This enum controls the application of post-processing filters on a
+ * reconstructed frame.
+ */
+typedef enum {
+  SKIP_APPL_LRF,  /*!< Skip application of LRF.*/
+  SKIP_APPL_SR,   /*!< Skip application of SR. */
+  SKIP_APPL_CDEF, /*!< Skip application of CDEF. */
+  SKIP_APPL_LPF,  /*!< Skip application of LPF. */
+} SKIP_POSTPROC_FILTER_APPL;
+
 /*!
  * \brief Encoder config related to resize.
  */
@@ -4118,12 +4129,12 @@ static INLINE int is_restoration_used(const AV1_COMMON *const cm) {
 // filters on the reconstructed frame can be skipped at the encoder side.
 // However the computation of different filter parameters that are signaled in
 // the bitstream is still required.
-static INLINE bool should_skip_postproc_filtering(AV1_COMP *cpi, int use_cdef,
-                                                  int use_restoration) {
+static INLINE unsigned int derive_skip_apply_postproc_filters(
+    const AV1_COMP *cpi, int use_loopfilter, int use_cdef, int use_superres,
+    int use_restoration) {
   if (!cpi->oxcf.algo_cfg.skip_postproc_filtering || cpi->ppi->b_calculate_psnr)
-    return false;
+    return 0;
   assert(cpi->oxcf.mode == ALLINTRA);
-  const AV1_COMMON *const cm = &cpi->common;
 
   // The post-processing filters are applied one after the other. In case of
   // ALLINTRA encoding, the reconstructed frame is not used as a reference
@@ -4131,11 +4142,20 @@ static INLINE bool should_skip_postproc_filtering(AV1_COMP *cpi, int use_cdef,
   // 1. filter parameters of the subsequent stages are not dependent on the
   // filtered output of the current stage or
   // 2. subsequent filtering stages are disabled
-  // In case of ALLINTRA encode, CDEF is disabled by default and loop
-  // restoration is disabled for speed >= 5. Hence, the application of
-  // deblocking filters is skipped currently if there are no further filtering
-  // stages.
-  return (!use_cdef && !av1_superres_scaled(cm) && !use_restoration);
+  if (use_restoration) {
+    return 1 << SKIP_APPL_LRF;
+  } else if (use_superres) {
+    return 1 << SKIP_APPL_SR;
+  } else if (use_cdef) {
+    return (cpi->sf.lpf_sf.cdef_pick_method == CDEF_PICK_FROM_Q &&
+            use_loopfilter)
+               ? (1 << SKIP_APPL_LPF) | (1 << SKIP_APPL_CDEF)
+               : 1 << SKIP_APPL_CDEF;
+  } else if (use_loopfilter) {
+    return 1 << SKIP_APPL_LPF;
+  }
+
+  return 0;  // All post-processing stages disabled.
 }
 
 static INLINE void set_postproc_filter_default_params(AV1_COMMON *cm) {
