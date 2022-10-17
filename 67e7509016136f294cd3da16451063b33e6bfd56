@@ -16,6 +16,24 @@
       "message": "Hi Yunqing,\n\nThe function aom_mse_wxh_16bit_sse2() is used in the CDEF module to calculate the MSE. The existing implementation is done at 32/64 bit level. But for the given input range, the precision at which computations happen can be reduced (verified with the maximum value possible for src buffer i.e., CDEF_VERY_LARGE). This CL, improves the SSE2 implementation with reduced precision. With these improvements, module level scaling is improved by 40% w.r.t. previous SSE2.\n\nPlease note that, these improvements for AVX2 were already taken care in https://aomedia-review.googlesource.com/c/aom/+/162822\n\nPlease review this CL.\n\nThanks \u0026 Regards,\nDiksha",
       "revId": "67e7509016136f294cd3da16451063b33e6bfd56",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7b844159_cd647c70",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2022-10-17T16:57:31Z",
+      "side": 1,
+      "message": "Looks good. Thanks.",
+      "parentUuid": "18b2dd39_3168dc9c",
+      "revId": "67e7509016136f294cd3da16451063b33e6bfd56",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
