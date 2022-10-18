@@ -54,11 +54,11 @@ void PrintUsage() {
 }
 
 VideoFileType GetFileType(InputContext *ctx) {
-  if (file_is_ivf(ctx->avx_ctx)) return FILE_TYPE_IVF;
-  if (file_is_obu(ctx->obu_ctx)) return FILE_TYPE_OBU;
 #if CONFIG_WEBM_IO
   if (file_is_webm(ctx->webm_ctx, ctx->avx_ctx)) return FILE_TYPE_WEBM;
 #endif
+  if (file_is_ivf(ctx->avx_ctx)) return FILE_TYPE_IVF;
+  if (file_is_obu(ctx->obu_ctx)) return FILE_TYPE_OBU;
   return FILE_TYPE_RAW;
 }
 
