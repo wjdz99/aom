@@ -259,7 +259,7 @@ static AOM_INLINE void setup_delta_q(AV1_COMP *const cpi, ThreadData *td,
              cpi->oxcf.algo_cfg.enable_tpl_model) {
     // Setup deltaq based on tpl stats
     current_qindex =
-        av1_get_q_for_deltaq_objective(cpi, td, NULL, sb_size, mi_row, mi_col);
+        av1_get_q_for_deltaq_objective(cpi, td, NULL, sb_size, mi_row, mi_col, 1);
   } else if (cpi->oxcf.q_cfg.deltaq_mode == DELTA_Q_PERCEPTUAL_AI) {
     current_qindex = av1_get_sbq_perceptual_ai(cpi, sb_size, mi_row, mi_col);
   } else if (cpi->oxcf.q_cfg.deltaq_mode == DELTA_Q_USER_RATING_BASED) {
@@ -1443,7 +1443,7 @@ static int allow_deltaq_mode(AV1_COMP *cpi) {
     for (int mi_col = 0; mi_col < cm->mi_params.mi_cols; mi_col += sbs_wide) {
       int64_t this_delta_rdcost = 0;
       av1_get_q_for_deltaq_objective(cpi, &cpi->td, &this_delta_rdcost, sb_size,
-                                     mi_row, mi_col);
+                                     mi_row, mi_col, 0);
       delta_rdcost += this_delta_rdcost;
     }
   }
