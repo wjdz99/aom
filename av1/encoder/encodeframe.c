@@ -260,6 +260,8 @@ static AOM_INLINE void setup_delta_q(AV1_COMP *const cpi, ThreadData *td,
     // Setup deltaq based on tpl stats
     current_qindex =
         av1_get_q_for_deltaq_objective(cpi, td, NULL, sb_size, mi_row, mi_col);
+    printf("%d %d %d %d\n", cm->cur_frame->display_order_hint, mi_row, mi_col,
+           current_qindex);
   } else if (cpi->oxcf.q_cfg.deltaq_mode == DELTA_Q_PERCEPTUAL_AI) {
     current_qindex = av1_get_sbq_perceptual_ai(cpi, sb_size, mi_row, mi_col);
   } else if (cpi->oxcf.q_cfg.deltaq_mode == DELTA_Q_USER_RATING_BASED) {
