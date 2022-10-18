@@ -16,6 +16,23 @@
       "message": "Hi Marco, \n\nThe details of RT worst/best case drops for non-SCC contents after this change:\n```\ncpu   Case       Content            BD-Rate Drop (%)         Instr. Count         \n                               avg. psnr  ovr.psnr   ssim    Reduction(%)\n 7    Worst      dark720p       1.8347    1.7378    1.6958      0.198\n 7    Best       mj3vc720p     -0.7496   -0.679    -1.2613     -0.336\n --------------------------------------------------------\n 8    Worst      mmmovingvga    1.0905    1.1901    0.9904      0.376\n 8    Best       kirlandvga    -3.024    -1.9594   -1.1293     -1.609\n```\n \nPlease review the CL.\n\nNeeraj",
       "revId": "05a3b78006b29f5192537ffcaa42c0a3f4b1436c",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2362bdbd_6467da3f",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 363,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2022-10-18T18:07:00Z",
+      "side": 1,
+      "message": "just concerned how well these additonal conditions on QP and source_variance help visually, and how well they generalize outside our test set. But it\u0027s hard to say, so i\u0027m fine with +2.",
+      "revId": "05a3b78006b29f5192537ffcaa42c0a3f4b1436c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
