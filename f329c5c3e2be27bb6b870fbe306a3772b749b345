@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ee270535_a6917cad",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 31322
+      },
+      "writtenOn": "2022-10-18T13:56:59Z",
+      "side": 1,
+      "message": "Hi Wan-Teh, Frank,\n\nIn case of ALLINTRA encoding, since reconstructed frames are not referenced, extension of frame borders is not required. This CL implements the same by skipping extend_frame_borders() for ALLINTRA encode. This CL also improves the documentation of the function should_skip_postproc_filtering() and adds some cosmetic changes around the call to loopfilter_frame() as per the suggestions in the CL (https://aomedia-review.googlesource.com/c/aom/+/162681 ) . This is a bit-exact change.\n\nFor ‘-s 9 –depth 10’, this CL gives ~0.27% encode time reduction for specific clips at cq-level\u003d18.\n\nFor libaom AV1 video encode, bit-match is verified (w.r.t. parent commit) for \u0027GOOD\u0027, \u0027RT\u0027 and \u0027ALLINTRA\u0027 encoding modes for a few contents with different encoding configurations. It is verified that the CL is bit-exact for AVIF still-image encode for a typical image dataset.\n\nPlease review.\n\nRegards,\nApurve",
+      "revId": "f329c5c3e2be27bb6b870fbe306a3772b749b345",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
