@@ -2703,13 +2703,14 @@ void set_color_sensitivity(AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bsize,
   // is low, then y-channel is likely good for mode estimation, so keep
   // color_sensitivity off. For low noise content for now, since there is
   // some bdrate regression for noisy color clip.
-  if (cpi->noise_estimate.enabled)
+  if (cpi->noise_estimate.enabled) {
     noise_level = av1_noise_estimate_extract_level(&cpi->noise_estimate);
-  if (noise_level == kLow && source_variance > thresh_spatial &&
-      norm_sad < 50) {
-    x->color_sensitivity[0] = 0;
-    x->color_sensitivity[1] = 0;
-    return;
+    if (noise_level == kLow && source_variance > thresh_spatial &&
+        norm_sad < 50) {
+      x->color_sensitivity[0] = 0;
+      x->color_sensitivity[1] = 0;
+      return;
+    }
   }
   for (int i = 1; i <= 2; ++i) {
     if (x->color_sensitivity[i - 1] == 2 || source_variance < 50) {
