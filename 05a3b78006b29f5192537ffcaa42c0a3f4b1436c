@@ -33,6 +33,24 @@
       "message": "just concerned how well these additonal conditions on QP and source_variance help visually, and how well they generalize outside our test set. But it\u0027s hard to say, so i\u0027m fine with +2.",
       "revId": "05a3b78006b29f5192537ffcaa42c0a3f4b1436c",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "06be4620_97993b47",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 363,
+      "author": {
+        "id": 29295
+      },
+      "writtenOn": "2022-10-19T08:37:00Z",
+      "side": 1,
+      "message": "Thanks for the suggestion. Please share us any specific clips that we can include in the visual tests to validate similar CLs in future. Meanwhile, we shall also conduct visual tests on our test data and update here in the coming days.",
+      "parentUuid": "2362bdbd_6467da3f",
+      "revId": "05a3b78006b29f5192537ffcaa42c0a3f4b1436c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
