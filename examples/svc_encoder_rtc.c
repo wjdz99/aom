@@ -38,6 +38,7 @@ typedef struct {
   int layering_mode;
   int output_obu;
   int decode;
+  int frame_to_drop;
 } AppInput;
 
 typedef enum {
@@ -91,6 +92,8 @@ static const arg_def_t output_obu_arg =
 static const arg_def_t test_decode_arg =
     ARG_DEF(NULL, "test-decode", 1,
             "Attempt to test decoding the output when set to 1. Default is 1.");
+static const arg_def_t frame_to_drop_arg =
+    ARG_DEF("df", "frame-to-drop", -1, "The compressed frame to drop");
 
 #if CONFIG_AV1_HIGHBITDEPTH
 static const struct arg_enum_list bitdepth_enum[] = {
@@ -125,6 +128,7 @@ static const arg_def_t *svc_args[] = { &frames_arg,
                                        &error_resilient_arg,
                                        &output_obu_arg,
                                        &test_decode_arg,
+                                       &frame_to_drop_arg,
                                        NULL };
 
 #define zero(Dest) memset(&(Dest), 0, sizeof(Dest))
@@ -365,6 +369,8 @@ static void parse_command_line(int argc, const char **argv_,
       if (app_input->decode != 0 && app_input->decode != 1)
         die("Invalid value for test decode flag (0, 1): %d.",
             app_input->decode);
+    } else if (arg_match(&arg, &frame_to_drop_arg, argi)) {
+      app_input->frame_to_drop = arg_parse_int(&arg);
     } else {
       ++argj;
     }
@@ -719,6 +725,11 @@ static void set_layer_pattern(
         ref_frame_config->ref_idx[SVC_LAST2_FRAME] = 0;
         ref_frame_config->reference[SVC_LAST_FRAME] = 1;
       }
+      // To test corruption lets updated GOLDEN on TL2
+      // and reference it every frane. Then we'll drop a TL frame
+      // to cause a mismatch.
+      ref_frame_config->reference[SVC_GOLDEN_FRAME] = 1;
+      if (layer_id->temporal_layer_id == 2) ref_frame_config->refresh[3] = 1;
       break;
     case 3:
       // 3 TL, same as above, except allow for predicting
@@ -1207,6 +1218,7 @@ int main(int argc, const char **argv) {
   app_input.input_ctx.only_i420 = 1;
   app_input.input_ctx.bit_depth = 0;
   app_input.speed = 7;
+  app_input.frame_to_drop = 0;
   exec_name = argv[0];
 
   // start with default encoder configuration
@@ -1394,7 +1406,7 @@ int main(int argc, const char **argv) {
   }
 
   frame_avail = 1;
-  while (frame_avail || got_data) {
+  while ((frame_avail || got_data) && frame_cnt < 300) {
     struct aom_usec_timer timer;
     frame_avail = read_frame(&(app_input.input_ctx), &raw);
     // Loop over spatial layers.
@@ -1445,6 +1457,10 @@ int main(int argc, const char **argv) {
                           err_resil_mode);
       }
 
+      // Force error resilience for 1 layer corruption test.
+      if (ts_number_layers  == 1)
+        aom_codec_control(&codec, AV1E_SET_ERROR_RESILIENT_MODE, 1);
+
       layer = slx * ts_number_layers + layer_id.temporal_layer_id;
       if (frame_avail && slx == 0) ++rc.layer_input_frames[layer];
 
@@ -1459,7 +1475,8 @@ int main(int argc, const char **argv) {
           aom_codec_control(&codec, AOME_SET_SCALEMODE, &mode);
         }
       }
-
+ 
+      printf("encode frame: %d %d \n", frame_cnt, layer_id.temporal_layer_id);
       // Do the layer encode.
       aom_usec_timer_start(&timer);
       if (aom_codec_encode(&codec, frame_avail ? &raw : NULL, pts, 1, flags))
@@ -1492,12 +1509,22 @@ int main(int argc, const char **argv) {
             }
             // Write everything into the top layer.
             if (app_input.output_obu) {
-              fwrite(pkt->data.frame.buf, 1, pkt->data.frame.sz,
+              if (frame_cnt == 0 || (frame_cnt != app_input.frame_to_drop)) {
+                printf("writing obu frame %d (%zu)\n", frame_cnt, pkt->data.frame.sz);
+                fwrite(pkt->data.frame.buf, 1, pkt->data.frame.sz,
                      total_layer_obu_file);
+              } else {
+                printf("dropping frame %d \n", frame_cnt);
+              }
             } else {
-              aom_video_writer_write_frame(total_layer_file,
-                                           pkt->data.frame.buf,
-                                           pkt->data.frame.sz, pts);
+              if (frame_cnt == 0 || (frame_cnt != app_input.frame_to_drop)) {
+                printf("writing frame %d (%zu)\n", frame_cnt, pkt->data.frame.sz);
+                aom_video_writer_write_frame(total_layer_file,
+                                             pkt->data.frame.buf,
+                                             pkt->data.frame.sz, pts);
+              } else {
+                printf("dropping frame %d \n", frame_cnt);
+              }
             }
             // Keep count of rate control stats per layer (for non-key).
             if (!(pkt->data.frame.flags & AOM_FRAME_IS_KEY)) {
