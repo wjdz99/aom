@@ -34,6 +34,24 @@
       "parentUuid": "a37f0e3b_a4fcfce6",
       "revId": "493603c768d4b48980a883d092aff571014177a4",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "99b93c31_c9072f00",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8893
+      },
+      "writtenOn": "2022-10-20T10:53:23Z",
+      "side": 1,
+      "message": "We have measured the speedup considering the encode time reported at the end of encoding. For 180p resolution, the encode time reduction of speed 6 over speed 5 is ~32%. Loop filter module percentage w.r.t total encode time is ~1% and ~2% for speed 5 and 6 respectively. Hence ~1% speedup is seen for speed 6.",
+      "parentUuid": "82ab6962_6be5f068",
+      "revId": "493603c768d4b48980a883d092aff571014177a4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ],
   "submitRequirementResults": [
