@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2b9842cf_5bc85d07",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 6245
+      },
+      "writtenOn": "2022-10-20T13:58:19Z",
+      "side": 1,
+      "message": "Hi Marco, Yunqing,\n\nIn the parent version (for 8-bit encoding), the error after CDEF filtering was calculated using 16-bit intermediate data and the filtering functions were called even for zero filter strength. In this CL, we tried improving both of the above cases when all the 8x8 blocks in a 64x64/128x128/128x64/64x128 CDEF block need to be filtered. When few 8x8 blocks of the CDEF block (64x64/128x128/128x64/64x128) needs to be filtered, the filtering and error calculation are the same as that of the parent version.\n\nPlease check the borg results for real-time encoding mode below. \n```\n              Instruction Count        BD-Rate Loss(%)\ncpu Resolution   Reduction(%)    avg.psnr   ovr.psnr   ssim\n  7        rtc      0.415         0.0000    0.0000    0.0000\n  7  rtc_1080p      0.942         0.0000    0.0000    0.0000\n  7 rtc_screen      2.364         0.0000    0.0000    0.0000\n  8        rtc      0.457         0.0000    0.0000    0.0000\n  8  rtc_1080p      0.633         0.0000    0.0000    0.0000\n  8 rtc_screen      2.555         0.0000    0.0000    0.0000\n  9  rtc_1080p      1.532         0.0000    0.0000    0.0000\n 10  rtc_1080p      1.560         0.0000    0.0000    0.0000\n\n```\nPlease check the borg results for good encoding mode below. \n```\n                Instruction Count          BD-Rate Loss(%)\ncpu    Testset    Reduction(%)    avg.psnr   ovr.psnr    ssim\n 5     LOWRES2      0.018          0.0000     0.0000    0.0000\n 5     MIDRES2      0.044          0.0000     0.0000    0.0000\n 5      HDRES2      0.071          0.0000     0.0000    0.0000\n 6     LOWRES2      0.014          0.0000     0.0000    0.0000\n 6     MIDRES2      0.033          0.0000     0.0000    0.0000\n 6      HDRES2      0.054          0.0000     0.0000    0.0000\n\n```\n\nThe instruction count reduction specified has been measured using command:\n $ perf stat -e instructions:u ./aomenc …\n\nWe also verified that CL produces bit-exact output for other test-set/speed setting combinations in case of --rt usage.\n\nPlease review the CL. \n\nRegards,\nRanjit",
+      "revId": "7fb463b8aaf1917298e1de3c89dd9c439a4d33ff",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
