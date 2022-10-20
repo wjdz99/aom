@@ -943,6 +943,8 @@ typedef struct macroblock {
    */
   int delta_qindex;
 
+  int rdmult_qindex;
+
   /*! \brief Rate-distortion multiplier.
    *
    * The rd multiplier used to determine the rate-distortion trade-off. This is

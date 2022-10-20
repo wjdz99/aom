@@ -741,6 +741,24 @@ void av1_set_qmatrix(const CommonQuantParams *quant_params, int segment_id,
   }
 }
 
+#ifdef AQ_SWEEP
+void init_quantizers(const AV1_COMP *cpi, MACROBLOCK *x, int segment_id,
+                     int sweep_delta_qp) {
+  const AV1_COMMON *const cm = &cpi->common;
+  const CommonQuantParams *const quant_params = &cm->quant_params;
+  const int current_qindex = AOMMAX(
+      0,
+      AOMMIN(QINDEX_RANGE - 1,
+             cm->delta_q_info.delta_q_present_flag
+                 ? quant_params->base_qindex + x->delta_qindex + sweep_delta_qp
+                 : quant_params->base_qindex + sweep_delta_qp));
+  const int qindex = av1_get_qindex(&cm->seg, segment_id, current_qindex);
+
+  av1_set_q_index(&cpi->enc_quant_dequant_params, qindex, x);
+  av1_set_sad_per_bit(cpi, &x->sadperbit, qindex);
+}
+#endif
+
 void av1_init_plane_quantizers(const AV1_COMP *cpi, MACROBLOCK *x,
                                int segment_id, const int do_update) {
   const AV1_COMMON *const cm = &cpi->common;

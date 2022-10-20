@@ -96,6 +96,8 @@ extern "C" {
 #define QP_SCALE_FACTOR 2.0
 #define DISABLE_HDR_LUMA_DELTAQ 1
 
+#define AQ_SWEEP
+
 // Rational number with an int64 numerator
 // This structure holds a fractional value
 typedef struct aom_rational64 {

@@ -105,6 +105,11 @@ void av1_init_quantizer(EncQuantDequantParams *const enc_quant_dequant_params,
                         const CommonQuantParams *quant_params,
                         aom_bit_depth_t bit_depth);
 
+#ifdef AQ_SWEEP
+void init_quantizers(const AV1_COMP *cpi, MACROBLOCK *x, int segment_id,
+                     int sweep_delta_qp);
+#endif
+
 void av1_set_quantizer(struct AV1Common *const cm, int min_qmlevel,
                        int max_qmlevel, int q, int enable_chroma_deltaq,
                        int enable_hdr_deltaq);
