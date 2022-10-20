@@ -27,6 +27,7 @@ using libaom_test::ACMRandom;
 using libaom_test::bd;
 using libaom_test::compute_avg_abs_error;
 using libaom_test::input_base;
+using libaom_test::tx_type_name;
 using libaom_test::TYPE_TXFM;
 
 using std::vector;
@@ -99,7 +100,8 @@ class AV1FwdTxfm2d : public ::testing::TestWithParam<AV1FwdTxfm2dParam> {
         actual_max_error = AOMMAX(actual_max_error, this_error);
       }
       EXPECT_GE(max_error_, actual_max_error)
-          << "tx_size = " << tx_size_ << ", tx_type = " << tx_type_;
+          << "tx_w: " << tx_width_ << " tx_h: " << tx_height_
+          << ", tx_type = " << (int)tx_type_;
       if (actual_max_error > max_error_) {  // exit early.
         break;
       }
@@ -260,8 +262,8 @@ void AV1FwdTxfm2dMatchTest(TX_SIZE tx_size, lowbd_fwd_txfm_func target_func) {
       ACMRandom rnd(ACMRandom::DeterministicSeed());
       for (int cnt = 0; cnt < 500; ++cnt) {
         if (cnt == 0) {
-          for (int r = 0; r < rows; ++r) {
-            for (int c = 0; c < cols; ++c) {
+          for (int c = 0; c < cols; ++c) {
+            for (int r = 0; r < rows; ++r) {
               input[r * input_stride + c] = (1 << bd) - 1;
             }
           }
@@ -278,14 +280,15 @@ void AV1FwdTxfm2dMatchTest(TX_SIZE tx_size, lowbd_fwd_txfm_func target_func) {
         param.bd = bd;
         ref_func(input, ref_output, input_stride, (TX_TYPE)tx_type, bd);
         target_func(input, output, input_stride, &param);
-        const int check_rows = AOMMIN(32, rows);
-        const int check_cols = AOMMIN(32, rows * cols / check_rows);
+        const int check_cols = AOMMIN(32, cols);
+        const int check_rows = AOMMIN(32, rows * cols / check_cols);
         for (int r = 0; r < check_rows; ++r) {
           for (int c = 0; c < check_cols; ++c) {
             ASSERT_EQ(ref_output[r * check_cols + c],
                       output[r * check_cols + c])
                 << "[" << r << "," << c << "] cnt:" << cnt
-                << " tx_size: " << tx_size << " tx_type: " << tx_type;
+                << " tx_size: " << cols << "x" << rows
+                << " tx_type: " << tx_type_name[tx_type];
           }
         }
       }
@@ -555,14 +558,15 @@ void AV1HighbdFwdTxfm2dMatchTest(TX_SIZE tx_size,
 
           ref_func(input, ref_output, input_stride, (TX_TYPE)tx_type, bd);
           target_func(input, output, input_stride, &param);
-          const int check_rows = AOMMIN(32, rows);
-          const int check_cols = AOMMIN(32, rows * cols / check_rows);
+          const int check_cols = AOMMIN(32, cols);
+          const int check_rows = AOMMIN(32, rows * cols / check_cols);
           for (int r = 0; r < check_rows; ++r) {
             for (int c = 0; c < check_cols; ++c) {
-              ASSERT_EQ(ref_output[r * check_cols + c],
-                        output[r * check_cols + c])
+              ASSERT_EQ(ref_output[c * check_rows + r],
+                        output[c * check_rows + r])
                   << "[" << r << "," << c << "] cnt:" << cnt
-                  << " tx_size: " << tx_size << " tx_type: " << tx_type;
+                  << " tx_size: " << cols << "x" << rows
+                  << " tx_type: " << tx_type;
             }
           }
         }
