@@ -1323,7 +1323,10 @@ static void set_rt_speed_feature_framesize_dependent(const AV1_COMP *const cpi,
       sf->rt_sf.short_circuit_low_temp_var = 0;
       sf->rt_sf.use_nonrd_altref_frame = 1;
     }
-    if (speed >= 8) sf->rt_sf.tx_size_level_based_on_qstep = 2;
+    if (speed >= 8) {
+      sf->rt_sf.tx_size_level_based_on_qstep = 2;
+      sf->interp_sf.cb_pred_filter_search = 1;
+    }
     if (speed >= 9) {
       sf->rt_sf.gf_length_lvl = 1;
       sf->rt_sf.skip_cdef_sb = 1;
@@ -1337,6 +1340,7 @@ static void set_rt_speed_feature_framesize_dependent(const AV1_COMP *const cpi,
       sf->rt_sf.tx_size_level_based_on_qstep = 0;
       sf->rt_sf.reduce_mv_pel_precision_highmotion = 3;
       sf->rt_sf.use_adaptive_subpel_search = false;
+      sf->interp_sf.cb_pred_filter_search = 2;
     }
   }
   if (!is_480p_or_larger) {
@@ -1377,6 +1381,7 @@ static void set_rt_speed_feature_framesize_dependent(const AV1_COMP *const cpi,
       sf->rt_sf.reduce_mv_pel_precision_highmotion = 0;
       sf->rt_sf.use_adaptive_subpel_search = 0;
     }
+    if (speed >= 8) sf->interp_sf.cb_pred_filter_search = 0;
   } else {
     if (speed >= 9) sf->lpf_sf.cdef_pick_method = CDEF_PICK_FROM_Q;
     if (speed >= 10) sf->rt_sf.nonrd_aggressive_skip = 1;
@@ -1435,6 +1440,7 @@ static void set_rt_speed_feature_framesize_dependent(const AV1_COMP *const cpi,
     if (speed >= 8) {
       sf->rt_sf.nonrd_check_partition_merge_mode = 3;
       sf->rt_sf.nonrd_prune_ref_frame_search = 1;
+      sf->interp_sf.cb_pred_filter_search = 0;
     }
     if (speed >= 9) {
       sf->rt_sf.prune_idtx_nonrd = 1;
