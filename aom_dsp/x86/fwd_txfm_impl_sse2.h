@@ -18,17 +18,8 @@
 #include "aom_dsp/x86/txfm_common_sse2.h"
 #include "aom_ports/mem.h"
 
-// TODO(jingning) The high bit-depth functions need rework for performance.
-// After we properly fix the high bit-depth function implementations, this
-// file's dependency should be substantially simplified.
-#if DCT_HIGH_BIT_DEPTH
-#define ADD_EPI16 _mm_adds_epi16
-#define SUB_EPI16 _mm_subs_epi16
-
-#else
 #define ADD_EPI16 _mm_add_epi16
 #define SUB_EPI16 _mm_sub_epi16
-#endif
 
 static void FDCT4x4_2D_HELPER(const int16_t *input, int stride, __m128i *in0,
                               __m128i *in1) {
@@ -180,25 +171,8 @@ static void FDCT4x4_2D_HELPER(const int16_t *input, int stride, __m128i *in0,
       const __m128i w1 = _mm_srai_epi32(v1, DCT_CONST_BITS2);
       const __m128i w2 = _mm_srai_epi32(v2, DCT_CONST_BITS2);
       const __m128i w3 = _mm_srai_epi32(v3, DCT_CONST_BITS2);
-      // w0 = [o0 o4 o8 oC]
-      // w1 = [o2 o6 oA oE]
-      // w2 = [o1 o5 o9 oD]
-      // w3 = [o3 o7 oB oF]
-      // remember the o's are numbered according to the correct output location
-      const __m128i x0 = _mm_packs_epi32(w0, w1);
-      const __m128i x1 = _mm_packs_epi32(w2, w3);
-      {
-        // x0 = [o0 o4 o8 oC o2 o6 oA oE]
-        // x1 = [o1 o5 o9 oD o3 o7 oB oF]
-        const __m128i y0 = _mm_unpacklo_epi16(x0, x1);
-        const __m128i y1 = _mm_unpackhi_epi16(x0, x1);
-        // y0 = [o0 o1 o4 o5 o8 o9 oC oD]
-        // y1 = [o2 o3 o6 o7 oA oB oE oF]
-        *in0 = _mm_unpacklo_epi32(y0, y1);
-        // in0 = [o0 o1 o2 o3 o4 o5 o6 o7]
-        *in1 = _mm_unpackhi_epi32(y0, y1);
-        // in1 = [o8 o9 oA oB oC oD oE oF]
-      }
+      *in0 = _mm_packs_epi32(w0, w2);
+      *in1 = _mm_packs_epi32(w1, w3);
     }
   }
 }
