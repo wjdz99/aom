@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "90a8dd4f_ac33e595",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 15
+      },
+      "lineNbr": 2307,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2022-10-21T02:46:31Z",
+      "side": 1,
+      "message": "Not sure if your change can be consolidated here?",
+      "range": {
+        "startLine": 2304,
+        "startChar": 3,
+        "endLine": 2307,
+        "endChar": 31
+      },
+      "revId": "471dd8a6ac2c89dfee621d022949f0e016cb0127",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "faef8939_fe21b471",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 15
+      },
+      "lineNbr": 3135,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2022-10-21T02:46:31Z",
+      "side": 1,
+      "message": "Can this part be moved above as well, so find_predictors is called at 1 place?",
+      "range": {
+        "startLine": 3129,
+        "startChar": 0,
+        "endLine": 3135,
+        "endChar": 3
+      },
+      "revId": "471dd8a6ac2c89dfee621d022949f0e016cb0127",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
