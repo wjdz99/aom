@@ -20,6 +20,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "62426967_847ef1de",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 7
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 6245
+      },
+      "writtenOn": "2022-10-21T12:53:38Z",
+      "side": 1,
+      "message": "The optimization is specific to cdef_pick_method \u003c\u003d CDEF_FAST_SEARCH_LVL5 and cdef_pick_method \u003d CDEF_PICK_FROM_Q for speed\u003d10 screen. \nHence this optimization is not applicable for speed\u003d10 screen.",
+      "parentUuid": "5fd00be1_242dc506",
+      "revId": "7fb463b8aaf1917298e1de3c89dd9c439a4d33ff",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "2b9842cf_5bc85d07",
         "filename": "/PATCHSET_LEVEL",
         "patchSetId": 7
@@ -75,6 +93,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "5186faf6_64fb303c",
+        "filename": "av1/encoder/pickcdef.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 391,
+      "author": {
+        "id": 6245
+      },
+      "writtenOn": "2022-10-21T12:53:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ce944d08_10f85db5",
+      "range": {
+        "startLine": 391,
+        "startChar": 8,
+        "endLine": 391,
+        "endChar": 46
+      },
+      "revId": "7fb463b8aaf1917298e1de3c89dd9c439a4d33ff",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "1d03967f_339e9759",
@@ -88,6 +130,30 @@
       "writtenOn": "2022-10-20T16:06:44Z",
       "side": 1,
       "message": "Looks like you passed cpi in for get_filt_error(). Maybe it is better to follow the design of CdefSearchCtx, and only pass in what is needed in CdefSearchCtx (e.g. vf function pointer, etc)?",
+      "range": {
+        "startLine": 609,
+        "startChar": 19,
+        "endLine": 609,
+        "endChar": 22
+      },
+      "revId": "7fb463b8aaf1917298e1de3c89dd9c439a4d33ff",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d7eb9c4a_086833ca",
+        "filename": "av1/encoder/pickcdef.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 609,
+      "author": {
+        "id": 6245
+      },
+      "writtenOn": "2022-10-21T12:53:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1d03967f_339e9759",
       "range": {
         "startLine": 609,
         "startChar": 19,
