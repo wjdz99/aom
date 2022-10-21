@@ -330,7 +330,7 @@ INSTANTIATE_TEST_SUITE_P(
 
 // TODO(aomedia:3314): Disable SSE2 unit test for now, since hadamard 16x16 SSE2
 // need modifications to match C/AVX2 behavior.
-#if 0   // HAVE_SSE2
+#if 0  // HAVE_SSE2
 INSTANTIATE_TEST_SUITE_P(
     SSE2, HadamardLowbdTest,
     ::testing::Values(HadamardFuncWithSize(&aom_hadamard_4x4_sse2, 4, 4),
