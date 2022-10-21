@@ -1206,6 +1206,9 @@ static void setup_planes(AV1_COMP *cpi, MACROBLOCK *x, unsigned int *y_sad,
           xd->plane[0].pre[0].stride);
     }
     *y_sad_last = *y_sad;
+
+    //    if (mi_row == 0 && mi_col == 0)
+    //        printf("\n 222pre: %p; \n", xd->plane[0].pre[0].buf);
   }
 
   // Pick the ref frame for partitioning, use golden or altref frame only if
