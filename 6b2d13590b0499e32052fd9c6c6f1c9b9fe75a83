@@ -16,6 +16,23 @@
       "message": "Marco: Please review patchset 4. Thanks.",
       "revId": "6b2d13590b0499e32052fd9c6c6f1c9b9fe75a83",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9f166787_7c230a1e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-10-21T17:50:47Z",
+      "side": 1,
+      "message": "LGTM.",
+      "revId": "6b2d13590b0499e32052fd9c6c6f1c9b9fe75a83",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
