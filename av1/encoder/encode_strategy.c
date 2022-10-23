@@ -1388,6 +1388,11 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
   // Source may be changed if temporal filtered later.
   frame_input.source = &source->img;
   frame_input.last_source = last_source != NULL ? &last_source->img : NULL;
+  if (cm->current_frame.frame_number > 0 &&
+      cpi->svc.number_temporal_layers > 1 &&
+      cpi->svc.spatial_layer_id == 0 &&
+      cpi->svc.temporal_layer_id < cpi->svc.number_temporal_layers - 1)
+    frame_input.last_source = &cpi->svc.source_base_tl0;
   frame_input.ts_duration = source->ts_end - source->ts_start;
   // Save unfiltered source. It is used in av1_get_second_pass_params().
   cpi->unfiltered_source = frame_input.source;
