@@ -2418,6 +2418,18 @@ static int encode_without_recode(AV1_COMP *cpi) {
   av1_set_size_dependent_vars(cpi, &q, &bottom_index, &top_index);
   av1_set_mv_search_params(cpi);
 
+  if (cm->current_frame.frame_number == 0 && svc->number_temporal_layers > 1) {
+    const SequenceHeader *seq_params = cm->seq_params;
+    if (aom_alloc_frame_buffer(
+            &cpi->svc.source_last_ref, cm->width, cm->height,
+            seq_params->subsampling_x, seq_params->subsampling_y,
+            seq_params->use_highbitdepth, cpi->oxcf.border_in_pixels,
+            cm->features.byte_alignment, 0)) {
+      aom_internal_error(cm->error, AOM_CODEC_MEM_ERROR,
+                         "Failed to allocate scaled buffer");
+    }
+  }
+
   if (!cpi->ppi->use_svc) {
     phase_scaler = 8;
     // 2:1 scaling.
@@ -2616,6 +2628,17 @@ static int encode_without_recode(AV1_COMP *cpi) {
       svc->number_temporal_layers == 1 && !cpi->rc.rtc_external_ratectrl &&
       sf->rt_sf.gf_refresh_based_on_qp)
     av1_adjust_gf_refresh_qp_one_pass_rt(cpi);
+
+  // For temporal_layers: keep track of source corresponding the refresh of
+  // LAST reference (index 0). Note if temporal filter or denoising is on, source
+  // will be modified during encodiing, but for now keep this as is.
+  if (cpi->svc.number_temporal_layers > 1 && cpi->svc.spatial_layer_id == 0 &&
+      cpi->ppi->rtc_ref.refresh[cpi->ppi->rtc_ref.ref_idx[0]]) {
+    aom_yv12_copy_y(cpi->source, &cpi->svc.source_last_ref);
+    aom_yv12_copy_u(cpi->source, &cpi->svc.source_last_ref);
+    aom_yv12_copy_v(cpi->source, &cpi->svc.source_last_ref);
+  }
+  av1_svc_update_frame_number_buffslot(cpi);
 
 #if CONFIG_COLLECT_COMPONENT_TIMING
   end_timing(cpi, av1_encode_frame_time);
