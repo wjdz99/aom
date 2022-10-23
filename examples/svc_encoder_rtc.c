@@ -1388,6 +1388,13 @@ int main(int argc, const char **argv) {
                       max_intra_size_pct);
   }
 
+  // Screen settings.
+  /*
+  aom_codec_control(&codec, AV1E_SET_TUNE_CONTENT, 1);
+  aom_codec_control(&codec, AV1E_SET_ENABLE_PALETTE, 1);
+  aom_codec_control(&codec, AV1E_SET_ENABLE_CFL_INTRA, 1);
+  */
+
   for (unsigned int lx = 0; lx < ts_number_layers * ss_number_layers; lx++) {
     cx_time_layer[lx] = 0;
     frame_cnt_layer[lx] = 0;
