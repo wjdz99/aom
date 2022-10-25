@@ -48,6 +48,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "bcde82c9_7a63ab05",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 15
+      },
+      "lineNbr": 2307,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2022-10-25T22:23:30Z",
+      "side": 1,
+      "message": "sg",
+      "parentUuid": "71c91ffe_0de63220",
+      "range": {
+        "startLine": 2304,
+        "startChar": 3,
+        "endLine": 2307,
+        "endChar": 31
+      },
+      "revId": "471dd8a6ac2c89dfee621d022949f0e016cb0127",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "faef8939_fe21b471",
@@ -85,6 +109,30 @@
       "side": 1,
       "message": "Having this after the get_ref_frame_mask() (line 3109) is better since in get_ref_frame_mask we set the use_ref_frame_mask[] for the golden/altref, and often there are skipped so we can avoid calling find_predictors() for those references.",
       "parentUuid": "faef8939_fe21b471",
+      "range": {
+        "startLine": 3129,
+        "startChar": 0,
+        "endLine": 3135,
+        "endChar": 3
+      },
+      "revId": "471dd8a6ac2c89dfee621d022949f0e016cb0127",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b9a52e16_868f3e0d",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 15
+      },
+      "lineNbr": 3135,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2022-10-25T22:23:30Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "77871855_bbfdf244",
       "range": {
         "startLine": 3129,
         "startChar": 0,
