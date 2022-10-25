@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c6ead7ff_cce75635",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8893
+      },
+      "writtenOn": "2022-10-25T12:56:49Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nThis patch renames the variable \u0027mib_size_log2\u0027 used in loop-filter functions as \u0027num_mis_in_lpf_unit_height_log2 and also adds comments. \n\nPlease review. \n\nThanks.",
+      "revId": "ad4295f87be3ab6d46e1d29342e1493c9236b93d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
