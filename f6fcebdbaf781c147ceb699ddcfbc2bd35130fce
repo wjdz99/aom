@@ -16,6 +16,24 @@
       "message": "```\nCMake Error at /mnt/hd2/local/home/jzern/external/aom/test/test_data_util.cmake:659 (file):\n  file DOWNLOAD HASH mismatch\n\n    for file: [/mnt/hd2/local/home/jzern/external/aom-test-data/desktopqvga2.320_240.yuv]\n      expected hash: [9f935d391fdf4a6f7c320355d45770d2e7d6095c]\n        actual hash: [da39a3ee5e6b4b0d3255bfef95601890afd80709]\n             status: [22;\"HTTP response code said error\"]\n```",
       "revId": "f6fcebdbaf781c147ceb699ddcfbc2bd35130fce",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "425f1169_0cdaf1cd",
+        "filename": "test/test-data.sha1",
+        "patchSetId": 4
+      },
+      "lineNbr": 571,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-10-26T19:16:14Z",
+      "side": 1,
+      "message": "\u003e ```\n\u003e CMake Error at /mnt/hd2/local/home/jzern/external/aom/test/test_data_util.cmake:659 (file):\n\u003e   file DOWNLOAD HASH mismatch\n\u003e \n\u003e     for file: [/mnt/hd2/local/home/jzern/external/aom-test-data/desktopqvga2.320_240.yuv]\n\u003e       expected hash: [9f935d391fdf4a6f7c320355d45770d2e7d6095c]\n\u003e         actual hash: [da39a3ee5e6b4b0d3255bfef95601890afd80709]\n\u003e              status: [22;\"HTTP response code said error\"]\n\u003e ```\n\nI think that\u0027s the checksum when the download fails:\n\n```\nwget https://storage.googleapis.com/aom-test-data/desktopqvga2.320_240.yuv\n...\nHTTP request sent, awaiting response... 403 Forbidden\n```",
+      "parentUuid": "36526875_1cb169a1",
+      "revId": "f6fcebdbaf781c147ceb699ddcfbc2bd35130fce",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
