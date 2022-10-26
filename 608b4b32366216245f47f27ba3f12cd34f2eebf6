@@ -16,6 +16,115 @@
       "message": "Hi Yunqing,\n\nThis CL adds the AVX2 variant for av1_lowbd_fwd_txfm2d_8x8() function. The core algorithm of 1-D transform is kept in SSE2 itself, as adding AVX2 for transform does not benefit much (due to width size 8). AVX2 is applied mainly for the transpose and store which happens after the row_txfm() and a few condition checks related to shift bit are avoided by adding appropriate asserts.\n\nAt module level, AVX2 improves the scaling gains (i.e., ~11x w.r.t. C) by 25% w.r.t. existing SSE2.\n\nPlease check the borg results for real-time encoding mode below.\n```\n                Instruction Count    \ncpu Resolution    Reduction(%)\n 7   rtc_1080p      0.357\n 7         rtc      0.511\n 7    rtc_derf      0.390\n 7  rtc_screen      0.250\n 8   rtc_1080p      0.343\n 8         rtc      0.431\n 8    rtc_derf      0.365\n 8  rtc_screen      0.228\n 9   rtc_1080p      0.386\n 9         rtc      0.504\n 9    rtc_derf      0.495\n 9  rtc_screen      0.358\n10   rtc_1080p      0.396\n10         rtc      0.561\n10    rtc_derf      0.520\n10  rtc_screen      0.325\n```\n\nPlease check the borg results for good encoding mode below.\n```\n               Instruction Count\ncpu    Testset    Reduction(%)\n 5     LOWRES2      0.309\n 5     MIDRES2      0.177\n 5      HDRES2      0.112\n 6     LOWRES2      0.261\n 6     MIDRES2      0.160\n 6      HDRES2      0.111\n```\nThe instruction count reduction specified has been measured using command:\n$ perf stat -e instructions:u ./aomenc …\n\nPlease review the CL.\n\nThanks \u0026 Regards,\nVenkata.",
       "revId": "608b4b32366216245f47f27ba3f12cd34f2eebf6",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "58ebd308_2b072115",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2022-10-26T20:27:19Z",
+      "side": 1,
+      "message": "Nice optimization.",
+      "revId": "608b4b32366216245f47f27ba3f12cd34f2eebf6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "85556bcd_411eda47",
+        "filename": "av1/encoder/x86/av1_fwd_txfm_sse2.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2022-10-26T20:27:19Z",
+      "side": 1,
+      "message": "should these all be const?",
+      "range": {
+        "startLine": 79,
+        "startChar": 2,
+        "endLine": 87,
+        "endChar": 64
+      },
+      "revId": "608b4b32366216245f47f27ba3f12cd34f2eebf6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a08fc527_e665af52",
+        "filename": "av1/encoder/x86/av1_fwd_txfm_sse2.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2022-10-26T20:27:19Z",
+      "side": 1,
+      "message": "Can x4 be removed and output is used directly to avoid this copying?\nRealized these are old code. Is it possible that you can take a look? Thanks.",
+      "range": {
+        "startLine": 129,
+        "startChar": 2,
+        "endLine": 129,
+        "endChar": 8
+      },
+      "revId": "608b4b32366216245f47f27ba3f12cd34f2eebf6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "84e5bd6d_35ce0cb8",
+        "filename": "av1/encoder/x86/av1_fwd_txfm_sse2.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 157,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2022-10-26T20:27:19Z",
+      "side": 1,
+      "message": "const?",
+      "range": {
+        "startLine": 145,
+        "startChar": 2,
+        "endLine": 157,
+        "endChar": 39
+      },
+      "revId": "608b4b32366216245f47f27ba3f12cd34f2eebf6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "debecce9_07164a76",
+        "filename": "av1/encoder/x86/av1_fwd_txfm_sse2.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 218,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2022-10-26T20:27:19Z",
+      "side": 1,
+      "message": "same here",
+      "range": {
+        "startLine": 218,
+        "startChar": 2,
+        "endLine": 218,
+        "endChar": 8
+      },
+      "revId": "608b4b32366216245f47f27ba3f12cd34f2eebf6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
