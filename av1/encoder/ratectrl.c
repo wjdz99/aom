@@ -480,7 +480,7 @@ static int adjust_q_cbr(const AV1_COMP *cpi, int q, int active_worst_quality) {
     }
     // Adjust Q base on source content change from scene detection.
     if (cpi->sf.rt_sf.check_scene_detection && rc->prev_avg_source_sad > 0 &&
-        rc->frames_since_key > 10 && rc->frame_source_sad > 0 &&
+        rc->frames_since_key > 1 && rc->frame_source_sad > 0 &&
         !cpi->ppi->use_svc) {
       const int bit_depth = cm->seq_params->bit_depth;
       double delta =
@@ -746,6 +746,10 @@ void av1_rc_update_rate_correction_factors(AV1_COMP *cpi, int is_encode_stage,
     // Keep rate_correction_factor within limits
     if (rate_correction_factor < MIN_BPB_FACTOR)
       rate_correction_factor = MIN_BPB_FACTOR;
+  }
+
+  if (cpi->rc.frames_since_key == 0) {
+    rate_correction_factor = 1.0;
   }
 
   set_rate_correction_factor(cpi, is_encode_stage, rate_correction_factor,

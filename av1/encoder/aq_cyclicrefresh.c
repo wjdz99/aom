@@ -404,6 +404,13 @@ void av1_cyclic_refresh_update_parameters(AV1_COMP *const cpi) {
 
   // Cases to reset the cyclic refresh adjustment parameters.
   if (frame_is_intra_only(cm) || scene_change_detected) {
+    // For real time rate allocation if there is a scene change we want
+    // to think of it as a key frame (even if it is not intra only)
+    // for the sake of rate control and cyclic refresh, as the Q is
+    // reset to maximum and in effect we start a new refresh cycle when
+    // a scene change is detected.
+    cpi->rc.frames_since_key = 0;
+
     // Reset adaptive elements for intra only frames and scene changes.
     cr->percent_refresh_adjustment = 5;
     cr->rate_ratio_qdelta_adjustment = 0.25;
