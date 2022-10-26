@@ -414,17 +414,19 @@ static AOM_INLINE void pack_txb_tokens(
 
 static INLINE void set_spatial_segment_id(
     const CommonModeInfoParams *const mi_params, uint8_t *segment_ids,
-    BLOCK_SIZE bsize, int mi_row, int mi_col, int segment_id) {
+    BLOCK_SIZE bsize, int mi_row, int mi_col, uint8_t segment_id) {
   const int mi_offset = mi_row * mi_params->mi_cols + mi_col;
   const int bw = mi_size_wide[bsize];
   const int bh = mi_size_high[bsize];
   const int xmis = AOMMIN(mi_params->mi_cols - mi_col, bw);
   const int ymis = AOMMIN(mi_params->mi_rows - mi_row, bh);
 
+  const int mi_stride = mi_params->mi_cols;
+
+  segment_ids += mi_offset;
   for (int y = 0; y < ymis; ++y) {
-    for (int x = 0; x < xmis; ++x) {
-      segment_ids[mi_offset + y * mi_params->mi_cols + x] = segment_id;
-    }
+    memset(&segment_ids[y * mi_stride], segment_id,
+           xmis * sizeof(segment_ids[0]));
   }
 }
 
