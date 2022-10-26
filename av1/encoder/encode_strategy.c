@@ -235,8 +235,6 @@ static void adjust_frame_rate(AV1_COMP *cpi, int64_t ts_start, int64_t ts_end) {
   int64_t this_duration;
   int step = 0;
 
-  // Clear down mmx registers
-
   if (cpi->ppi->use_svc && cpi->svc.spatial_layer_id > 0) {
     cpi->framerate = cpi->svc.base_framerate;
     av1_rc_update_framerate(cpi, cpi->common.width, cpi->common.height);
