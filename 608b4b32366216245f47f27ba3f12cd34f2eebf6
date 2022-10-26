@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "662fa05d_7d10c278",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2022-10-26T17:33:58Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nThis CL adds the AVX2 variant for av1_lowbd_fwd_txfm2d_8x8() function. The core algorithm of 1-D transform is kept in SSE2 itself, as adding AVX2 for transform does not benefit much (due to width size 8). AVX2 is applied mainly for the transpose and store which happens after the row_txfm() and a few condition checks related to shift bit are avoided by adding appropriate asserts.\n\nAt module level, AVX2 improves the scaling gains (i.e., ~11x w.r.t. C) by 25% w.r.t. existing SSE2.\n\nPlease check the borg results for real-time encoding mode below.\n```\n                Instruction Count    \ncpu Resolution    Reduction(%)\n 7   rtc_1080p      0.357\n 7         rtc      0.511\n 7    rtc_derf      0.390\n 7  rtc_screen      0.250\n 8   rtc_1080p      0.343\n 8         rtc      0.431\n 8    rtc_derf      0.365\n 8  rtc_screen      0.228\n 9   rtc_1080p      0.386\n 9         rtc      0.504\n 9    rtc_derf      0.495\n 9  rtc_screen      0.358\n10   rtc_1080p      0.396\n10         rtc      0.561\n10    rtc_derf      0.520\n10  rtc_screen      0.325\n```\n\nPlease check the borg results for good encoding mode below.\n```\n               Instruction Count\ncpu    Testset    Reduction(%)\n 5     LOWRES2      0.309\n 5     MIDRES2      0.177\n 5      HDRES2      0.112\n 6     LOWRES2      0.261\n 6     MIDRES2      0.160\n 6      HDRES2      0.111\n```\nThe instruction count reduction specified has been measured using command:\n$ perf stat -e instructions:u ./aomenc …\n\nPlease review the CL.\n\nThanks \u0026 Regards,\nVenkata.",
+      "revId": "608b4b32366216245f47f27ba3f12cd34f2eebf6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
