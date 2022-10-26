@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ba19bcd9_0cf0a0c5",
+        "filename": "test/datarate_test.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-10-26T17:47:40Z",
+      "side": 1,
+      "message": "does this still apply for the new clip?",
+      "range": {
+        "startLine": 106,
+        "startChar": 0,
+        "endLine": 106,
+        "endChar": 65
+      },
+      "revId": "2f104ed5d8c67d141f0db3f0ac5b6e1ffa396089",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f8e9707e_2375be59",
+        "filename": "test/datarate_test.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-10-26T17:47:40Z",
+      "side": 1,
+      "message": "remove this line",
+      "range": {
+        "startLine": 110,
+        "startChar": 0,
+        "endLine": 110,
+        "endChar": 54
+      },
+      "revId": "2f104ed5d8c67d141f0db3f0ac5b6e1ffa396089",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
