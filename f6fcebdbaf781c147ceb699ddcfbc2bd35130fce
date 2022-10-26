@@ -70,6 +70,24 @@
       "parentUuid": "db6c4301_22f65eff",
       "revId": "f6fcebdbaf781c147ceb699ddcfbc2bd35130fce",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "712122e6_900fe5d4",
+        "filename": "test/test-data.sha1",
+        "patchSetId": 4
+      },
+      "lineNbr": 571,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-10-26T20:13:53Z",
+      "side": 1,
+      "message": "\u003e I changed the permission to public so it should be good now.\n\nIt works for me now. We\u0027ll need to revert the sha1sum change.",
+      "parentUuid": "c0f61d27_42498990",
+      "revId": "f6fcebdbaf781c147ceb699ddcfbc2bd35130fce",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
