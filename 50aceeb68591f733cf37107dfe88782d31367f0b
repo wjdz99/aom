@@ -72,6 +72,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "b5e6dba4_c47d892f",
+        "filename": "av1/qmode_rc/ratectrl_qmode_interface.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 219,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-10-27T16:54:40Z",
+      "side": 1,
+      "message": "Okay, I got rid of that capability. May as well start with something simpler.",
+      "parentUuid": "89efcb34_dec8629f",
+      "range": {
+        "startLine": 219,
+        "startChar": 0,
+        "endLine": 219,
+        "endChar": 39
+      },
+      "revId": "50aceeb68591f733cf37107dfe88782d31367f0b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e4aee29e_988e7359",
