@@ -36,7 +36,7 @@ static INLINE int av1_cost_symbol(aom_cdf_prob p15) {
   p15 = (aom_cdf_prob)clamp(p15, 1, CDF_PROB_TOP - 1);
   assert(0 < p15 && p15 < CDF_PROB_TOP);
   const int shift = CDF_PROB_BITS - 1 - get_msb(p15);
-  const int prob = get_prob(p15 << shift, CDF_PROB_TOP);
+  const int prob = ((int)p15) << (shift + 8) >> CDF_PROB_BITS;
   assert(prob >= 128);
   return av1_prob_cost[prob - 128] + av1_cost_literal(shift);
 }
