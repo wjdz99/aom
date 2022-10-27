@@ -26,6 +26,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "83edeae5_5e55d615",
+        "filename": "av1/qmode_rc/ratectrl_qmode_interface.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 219,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-10-27T14:53:48Z",
+      "side": 1,
+      "message": "I figured this would allow us to turn it on or off per-frame from either side of the API. i.e., the Argos code could leave the field unmodified, allowing DetermineGopInfo to choose whether or not to enable it, or (as the comment says) it could modify the field to force it either on or off.\n\nDo you think this is overly clever/cute/complicated/confusing?",
+      "parentUuid": "c3831cfb_78315992",
+      "range": {
+        "startLine": 219,
+        "startChar": 0,
+        "endLine": 219,
+        "endChar": 39
+      },
+      "revId": "50aceeb68591f733cf37107dfe88782d31367f0b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "e4aee29e_988e7359",
         "filename": "av1/qmode_rc/ratectrl_qmode_interface.h",
         "patchSetId": 9
@@ -37,6 +61,30 @@
       "writtenOn": "2022-10-27T14:31:10Z",
       "side": 1,
       "message": "Does this refer to the adjustment to deltaq_rdmult here?\nhttps://aomedia.googlesource.com/aom/+/refs/heads/main/av1/encoder/encodeframe_utils.c#133\n\nThen the lambda scales can vary on coding block level. We will need to figure out a way to convert it from coding block level to superblock level if that\u0027s hardware encoder accepts.",
+      "range": {
+        "startLine": 244,
+        "startChar": 32,
+        "endLine": 244,
+        "endChar": 45
+      },
+      "revId": "50aceeb68591f733cf37107dfe88782d31367f0b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e4d0c1c2_af75fd51",
+        "filename": "av1/qmode_rc/ratectrl_qmode_interface.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 244,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-10-27T14:53:48Z",
+      "side": 1,
+      "message": "Yes. Currently BigWave only allows setting it per-SB, and it\u0027s not even clear what it would mean to set it per-CB, given that the rate control code doesn\u0027t know a priori how SB\u0027s will be partitioned. I can imagine we could provide it per 8x8 block, but then what would the hardware do for a 16x16 block? It could just use the value for the top-left, but it\u0027s not clear that\u0027s really the right thing to do.\n\nIn any case, unless it really looks like having finer-grained control would help enough to justify a significant change to the hardware, this is all we\u0027ll have for the foreseeable future.",
+      "parentUuid": "e4aee29e_988e7359",
       "range": {
         "startLine": 244,
         "startChar": 32,
