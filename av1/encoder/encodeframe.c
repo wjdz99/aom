@@ -216,13 +216,15 @@ void av1_setup_src_planes(MACROBLOCK *x, const YV12_BUFFER_CONFIG *src,
  *
  * \ingroup tpl_modelling
  *
- * \param[in]     cpi         Top level encoder instance structure
- * \param[in,out] td          Thread data structure
- * \param[in,out] x           Macro block level data for this block.
- * \param[in]     tile_info   Tile infromation / identification
- * \param[in]     mi_row      Block row (in "MI_SIZE" units) index
- * \param[in]     mi_col      Block column (in "MI_SIZE" units) index
- * \param[out]    num_planes  Number of image planes (e.g. Y,U,V)
+ * \param[in]     cpi            Top level encoder instance structure
+ * \param[in,out] td             Thread data structure
+ * \param[in,out] x              Macro block level data for this block.
+ * \param[in]     tile_info      Tile infromation / identification
+ * \param[in]     mi_row         Block row (in "MI_SIZE" units) index
+ * \param[in]     mi_col         Block column (in "MI_SIZE" units) index
+ * \param[in]     delta_qp_ofs   delta qp offset that needs to be added on top
+ * of current_qindex \param[out]    num_planes     Number of image planes (e.g.
+ * Y,U,V)
  *
  * \remark No return value but updates macroblock and thread data
  * related to the q / q delta to be used.
@@ -230,7 +232,8 @@ void av1_setup_src_planes(MACROBLOCK *x, const YV12_BUFFER_CONFIG *src,
 static AOM_INLINE void setup_delta_q(AV1_COMP *const cpi, ThreadData *td,
                                      MACROBLOCK *const x,
                                      const TileInfo *const tile_info,
-                                     int mi_row, int mi_col, int num_planes) {
+                                     int mi_row, int mi_col, int num_planes,
+                                     int delta_qp_ofs) {
   AV1_COMMON *const cm = &cpi->common;
   const CommonModeInfoParams *const mi_params = &cm->mi_params;
   const DeltaQInfo *const delta_q_info = &cm->delta_q_info;
@@ -267,12 +270,25 @@ static AOM_INLINE void setup_delta_q(AV1_COMP *const cpi, ThreadData *td,
   } else if (cpi->oxcf.q_cfg.enable_hdr_deltaq) {
     current_qindex = av1_get_q_for_hdr(cpi, x, sb_size, mi_row, mi_col);
   }
+#ifndef AQ_SWEEP
+  assert(delta_qp_ofs == 0);
+#endif
 
+  if (delta_qp_ofs == 0) {
+    x->rdmult_cur_qindex = current_qindex;
+  }
+
+  current_qindex += delta_qp_ofs;
   MACROBLOCKD *const xd = &x->e_mbd;
   current_qindex = av1_adjust_q_from_delta_q_res(
       delta_q_res, xd->current_base_qindex, current_qindex);
 
   x->delta_qindex = current_qindex - cm->quant_params.base_qindex;
+
+  if (delta_qp_ofs == 0) {
+    x->rdmult_delta_qindex = x->delta_qindex;
+  }
+
   av1_set_offsets(cpi, tile_info, x, mi_row, mi_col, sb_size);
   xd->mi[0]->current_qindex = current_qindex;
   av1_init_plane_quantizers(cpi, x, xd->mi[0]->segment_id, 0);
@@ -591,7 +607,7 @@ static INLINE void init_encode_rd_sb(AV1_COMP *cpi, ThreadData *td,
       if (cm->delta_q_info.delta_q_present_flag) {
         const int num_planes = av1_num_planes(cm);
         const BLOCK_SIZE sb_size = cm->seq_params->sb_size;
-        setup_delta_q(cpi, td, x, tile_info, mi_row, mi_col, num_planes);
+        setup_delta_q(cpi, td, x, tile_info, mi_row, mi_col, num_planes, 0);
         av1_tpl_rdmult_setup_sb(cpi, x, sb_size, mi_row, mi_col);
       }
 
@@ -614,6 +630,138 @@ static INLINE void init_encode_rd_sb(AV1_COMP *cpi, ThreadData *td,
   av1_zero(x->picked_ref_frames_mask);
   av1_invalid_rd_stats(rd_cost);
 }
+
+#if !CONFIG_REALTIME_ONLY
+#ifdef AQ_SWEEP
+void init_quantizers(AV1_COMP *cpi, ThreadData *td,
+                     const TileDataEnc *tile_data, RD_STATS *rd_cost,
+                     int mi_row, int mi_col, int delta_qp_ofs) {
+  AV1_COMMON *const cm = &cpi->common;
+  MACROBLOCK *const x = &td->mb;
+  const BLOCK_SIZE sb_size = cm->seq_params->sb_size;
+  const TileInfo *tile_info = &tile_data->tile_info;
+  const CommonModeInfoParams *const mi_params = &cm->mi_params;
+  const DeltaQInfo *const delta_q_info = &cm->delta_q_info;
+  assert(delta_q_info->delta_q_present_flag);
+  const int delta_q_res = delta_q_info->delta_q_res;
+
+  int current_qindex = x->rdmult_cur_qindex;
+
+  current_qindex += delta_qp_ofs;
+  MACROBLOCKD *const xd = &x->e_mbd;
+  current_qindex = av1_adjust_q_from_delta_q_res(
+      delta_q_res, xd->current_base_qindex, current_qindex);
+
+  x->delta_qindex = current_qindex - cm->quant_params.base_qindex;
+
+  av1_set_offsets(cpi, tile_info, x, mi_row, mi_col, sb_size);
+  xd->mi[0]->current_qindex = current_qindex;
+  av1_init_plane_quantizers(cpi, x, xd->mi[0]->segment_id, 0);
+
+  // keep track of any non-zero delta-q used
+  td->deltaq_used |= (x->delta_qindex != 0);
+
+  if (cpi->oxcf.tool_cfg.enable_deltalf_mode) {
+    const int delta_lf_res = delta_q_info->delta_lf_res;
+    const int lfmask = ~(delta_lf_res - 1);
+    const int delta_lf_from_base =
+        ((x->delta_qindex / 4 + delta_lf_res / 2) & lfmask);
+    const int8_t delta_lf =
+        (int8_t)clamp(delta_lf_from_base, -MAX_LOOP_FILTER, MAX_LOOP_FILTER);
+    const int frame_lf_count =
+        av1_num_planes(cm) > 1 ? FRAME_LF_COUNT : FRAME_LF_COUNT - 2;
+    const int mib_size = cm->seq_params->mib_size;
+
+    // pre-set the delta lf for loop filter. Note that this value is set
+    // before mi is assigned for each block in current superblock
+    for (int j = 0; j < AOMMIN(mib_size, mi_params->mi_rows - mi_row); j++) {
+      for (int k = 0; k < AOMMIN(mib_size, mi_params->mi_cols - mi_col); k++) {
+        const int grid_idx = get_mi_grid_idx(mi_params, mi_row + j, mi_col + k);
+        mi_params->mi_alloc[grid_idx].delta_lf_from_base = delta_lf;
+        for (int lf_id = 0; lf_id < frame_lf_count; ++lf_id) {
+          mi_params->mi_alloc[grid_idx].delta_lf[lf_id] = delta_lf;
+        }
+      }
+    }
+  }
+
+  x->reuse_inter_pred = false;
+  x->txfm_search_params.mode_eval_type = DEFAULT_EVAL;
+  reset_mb_rd_record(x->txfm_search_info.mb_rd_record);
+  av1_zero(x->picked_ref_frames_mask);
+  av1_invalid_rd_stats(rd_cost);
+}
+
+int sb_qp_sweep(AV1_COMP *const cpi, ThreadData *td, TileDataEnc *tile_data,
+                TokenExtra **tp, int mi_row, int mi_col, BLOCK_SIZE bsize,
+                SIMPLE_MOTION_DATA_TREE *sms_tree, FRAME_CONTEXT *org_tile_ctx,
+                SB_FIRST_PASS_STATS *sb_org_stats) {
+  AV1_COMMON *const cm = &cpi->common;
+  MACROBLOCK *const x = &td->mb;
+  RD_STATS rdc_winner, cur_rdc;
+  av1_invalid_rd_stats(&rdc_winner);
+
+#if 0  // For Debug
+  int sb_var = av1_log_block_var(cpi, x, bsize);
+  int best_delta_qindex = td->mb.delta_qindex;
+#endif
+
+  int best_qindex = td->mb.rdmult_delta_qindex;
+  int start = cm->current_frame.frame_type == KEY_FRAME ? -20 : -12;
+  int end = cm->current_frame.frame_type == KEY_FRAME ? 20 : 12;
+  int step = cm->delta_q_info.delta_q_res;
+
+  for (int sweep_qp_delta = start; sweep_qp_delta <= end;
+       sweep_qp_delta += step) {
+    init_quantizers(cpi, td, tile_data, &cur_rdc, mi_row, mi_col,
+                    sweep_qp_delta);
+    const int alloc_mi_idx = get_alloc_mi_idx(&cm->mi_params, mi_row, mi_col);
+    int backup_current_qindex =
+        cm->mi_params.mi_alloc[alloc_mi_idx].current_qindex;
+
+    av1_reset_mbmi(&cm->mi_params, bsize, mi_row, mi_col);
+    av1_restore_sb_state(sb_org_stats, cpi, td, tile_data, mi_row, mi_col);
+    cm->mi_params.mi_alloc[alloc_mi_idx].current_qindex = backup_current_qindex;
+
+    memcpy(&tile_data->tctx, org_tile_ctx, sizeof(FRAME_CONTEXT));
+
+    PC_TREE *const pc_root = av1_alloc_pc_tree_node(bsize);
+    av1_rd_pick_partition(cpi, td, tile_data, tp, mi_row, mi_col, bsize,
+                          &cur_rdc, cur_rdc, pc_root, sms_tree, NULL,
+                          SB_DRY_PASS, NULL);
+
+    if ((rdc_winner.rdcost > cur_rdc.rdcost) ||
+        (abs(sweep_qp_delta) < abs(best_qindex - x->rdmult_delta_qindex) &&
+         rdc_winner.rdcost == cur_rdc.rdcost)) {
+      rdc_winner = cur_rdc;
+      best_qindex = x->rdmult_delta_qindex + sweep_qp_delta;
+#if 0  // For Debug
+      best_delta_qindex = x->delta_qindex;
+#endif
+    }
+
+#if 0  // For Debug
+    if (sweep_qp_delta == end) {
+      printf(
+          "frame=%2d, update_type=%d, sb_var=%d, sb_pos=(%2d %2d), base_qindex "
+          "%4d, orig_qindex %4d, best_qindex %4d %4d rdcost %" PRId64
+          " r %2.2f %2.2f "
+          "beta %2.2f intra_cost %5.0f mc_dep_cost %5.0f cbcmp_base %6.0f\n",
+          cm->current_frame.display_order_hint,
+          cpi->ppi->gf_group.update_type[cpi->gf_frame_index], sb_var, mi_row,
+          mi_col, cm->quant_params.base_qindex, x->rdmult_delta_qindex,
+          best_qindex - x->rdmult_delta_qindex,
+          best_delta_qindex - x->rdmult_delta_qindex, rdc_winner.rdcost,
+          cpi->rd.r0, td->mb.rk, td->mb.beta, td->mb.intra_cost,
+          td->mb.mc_dep_cost, td->mb.cbcmp_base);
+    }
+#endif
+  }
+
+  return best_qindex;
+}
+#endif
+#endif
 
 /*!\brief Encode a superblock (RD-search-based)
  *
@@ -674,6 +822,14 @@ static AOM_INLINE void encode_rd_sb(AV1_COMP *cpi, ThreadData *td,
                          &dummy_rate, &dummy_dist, 1, pc_root);
     av1_free_pc_tree_recursive(pc_root, num_planes, 0, 0);
   } else {
+#ifdef AQ_SWEEP
+    SB_FIRST_PASS_STATS *sb_org_stats = &td->sb_org_stats;
+    assert(x->rdmult_delta_qindex == x->delta_qindex);
+    av1_backup_sb_state(sb_org_stats, cpi, td, tile_data, mi_row, mi_col);
+
+    FRAME_CONTEXT *org_tile_ctx = &td->org_tile_ctx;
+    memcpy(org_tile_ctx, &tile_data->tctx, sizeof(FRAME_CONTEXT));
+#endif
     // The most exhaustive recursive partition search
     SuperBlockEnc *sb_enc = &x->sb_enc;
     // No stats for overlay frames. Exclude key frame.
@@ -696,6 +852,31 @@ static AOM_INLINE void encode_rd_sb(AV1_COMP *cpi, ThreadData *td,
     const int num_passes =
         cpi->oxcf.unit_test_cfg.sb_multipass_unit_test ? 2 : 1;
 
+#ifdef AQ_SWEEP
+    if (!(has_no_stats_stage(cpi) && cpi->oxcf.mode == REALTIME &&
+          cpi->oxcf.gf_cfg.lag_in_frames == 0) &&
+        cm->delta_q_info.delta_q_present_flag) {
+      int best_qp_diff = 0;
+
+      best_qp_diff =
+          sb_qp_sweep(cpi, td, tile_data, tp, mi_row, mi_col, sb_size, sms_root,
+                      org_tile_ctx, sb_org_stats) -
+          x->rdmult_delta_qindex;
+
+      init_quantizers(cpi, td, tile_data, &dummy_rdc, mi_row, mi_col,
+                      best_qp_diff);
+      const int alloc_mi_idx = get_alloc_mi_idx(&cm->mi_params, mi_row, mi_col);
+      int backup_current_qindex =
+          cm->mi_params.mi_alloc[alloc_mi_idx].current_qindex;
+
+      av1_reset_mbmi(&cm->mi_params, sb_size, mi_row, mi_col);
+      av1_restore_sb_state(sb_org_stats, cpi, td, tile_data, mi_row, mi_col);
+
+      cm->mi_params.mi_alloc[alloc_mi_idx].current_qindex =
+          backup_current_qindex;
+      memcpy(&tile_data->tctx, org_tile_ctx, sizeof(FRAME_CONTEXT));
+    }
+#endif
     if (num_passes == 1) {
 #if CONFIG_PARTITION_SEARCH_ORDER
       if (cpi->ext_part_controller.ready && !frame_is_intra_only(cm)) {

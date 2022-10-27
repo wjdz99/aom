@@ -1416,6 +1416,35 @@ typedef struct RD_COUNTS {
   uint64_t seg_tmp_pred_cost[2];
 } RD_COUNTS;
 
+typedef struct {
+  ENTROPY_CONTEXT a[MAX_MIB_SIZE * MAX_MB_PLANE];
+  ENTROPY_CONTEXT l[MAX_MIB_SIZE * MAX_MB_PLANE];
+  PARTITION_CONTEXT sa[MAX_MIB_SIZE];
+  PARTITION_CONTEXT sl[MAX_MIB_SIZE];
+  TXFM_CONTEXT *p_ta;
+  TXFM_CONTEXT *p_tl;
+  TXFM_CONTEXT ta[MAX_MIB_SIZE];
+  TXFM_CONTEXT tl[MAX_MIB_SIZE];
+} RD_SEARCH_MACROBLOCK_CONTEXT;
+
+// This struct is used to store the statistics used by sb-level multi-pass
+// encoding. Currently, this is only used to make a copy of the state before we
+// perform the first pass
+typedef struct SB_FIRST_PASS_STATS {
+  RD_SEARCH_MACROBLOCK_CONTEXT x_ctx;
+  RD_COUNTS rd_count;
+
+  int split_count;
+  FRAME_COUNTS fc;
+  InterModeRdModel inter_mode_rd_models[BLOCK_SIZES_ALL];
+  int thresh_freq_fact[BLOCK_SIZES_ALL][MAX_MODES];
+  int current_qindex;
+
+#if CONFIG_INTERNAL_STATS
+  unsigned int mode_chosen_counts[MAX_MODES];
+#endif  // CONFIG_INTERNAL_STATS
+} SB_FIRST_PASS_STATS;
+
 typedef struct ThreadData {
   MACROBLOCK mb;
   RD_COUNTS rd_counts;
@@ -1452,6 +1481,8 @@ typedef struct ThreadData {
   Block4x4VarInfo *src_var_info_of_4x4_sub_blocks;
   // The pc tree root for RTC non-rd case.
   PC_TREE *rt_pc_root;
+  SB_FIRST_PASS_STATS sb_org_stats;
+  FRAME_CONTEXT org_tile_ctx;
 } ThreadData;
 
 struct EncWorkerData;
