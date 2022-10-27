@@ -60,6 +60,8 @@ static AOM_INLINE int set_deltaq_rdmult(const AV1_COMP *const cpi,
   const CommonQuantParams *quant_params = &cm->quant_params;
   return av1_compute_rd_mult(cpi, quant_params->base_qindex + x->delta_qindex +
                                       quant_params->y_dc_delta_q);
+  // return av1_compute_rd_mult(cpi, quant_params->base_qindex +
+  //                                     quant_params->y_dc_delta_q);
 }
 
 // Return the end column for the current superblock, in unit of TPL blocks.
@@ -129,8 +131,12 @@ int av1_get_cb_rdmult(const AV1_COMP *const cpi, MACROBLOCK *const x,
 
   if (cbcmp_base == 0) return deltaq_rdmult;
 
-  double rk = exp((intra_cost_base - mc_dep_cost_base) / cbcmp_base);
-  deltaq_rdmult = (int)(deltaq_rdmult * (rk / x->rb));
+  // double rk = exp((intra_cost_base - mc_dep_cost_base) / cbcmp_base);
+  // deltaq_rdmult = (int)(deltaq_rdmult * (rk / x->rb));
+
+  if (cm->cur_frame->display_order_hint == 11) {
+    printf("rdmult %d %d %d %d\n", cm->cur_frame->display_order_hint, mi_row, mi_col, AOMMAX(deltaq_rdmult, 1));
+  }
 
   return AOMMAX(deltaq_rdmult, 1);
 }

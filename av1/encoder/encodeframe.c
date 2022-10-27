@@ -269,7 +269,7 @@ static AOM_INLINE void setup_delta_q(AV1_COMP *const cpi, ThreadData *td,
   }
 
   MACROBLOCKD *const xd = &x->e_mbd;
-  current_qindex = av1_adjust_q_from_delta_q_res(
+  current_qindex = av1_adjust_q_from_delta_q_res(cm->quant_params.base_qindex,
       delta_q_res, xd->current_base_qindex, current_qindex);
 
   x->delta_qindex = current_qindex - cm->quant_params.base_qindex;

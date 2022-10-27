@@ -458,8 +458,10 @@ int av1_get_deltaq_offset(aom_bit_depth_t bit_depth, int qindex, double beta) {
   return qindex - orig_qindex;
 }
 
-int av1_adjust_q_from_delta_q_res(int delta_q_res, int prev_qindex,
+int av1_adjust_q_from_delta_q_res(int frame_qindex, int delta_q_res, int prev_qindex,
                                   int curr_qindex) {
+  curr_qindex = clamp(curr_qindex, frame_qindex - 3 * delta_q_res,
+                      frame_qindex + 4 * delta_q_res);
   curr_qindex = clamp(curr_qindex, delta_q_res, 256 - delta_q_res);
   const int sign_deltaq_index = curr_qindex - prev_qindex >= 0 ? 1 : -1;
   const int deltaq_deadzone = delta_q_res / 4;
