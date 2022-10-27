@@ -155,6 +155,8 @@ set_aom_config_var(CONFIG_TFLITE 0
                    "AV1 experiment: Enable tensorflow lite library.")
 set_aom_config_var(CONFIG_THREE_PASS 0
                    "AV1 experiment: Enable three-pass encoding.")
+set_aom_config_var(CONFIG_AQ_SWEEP 0
+                   "AV1 experiment: Enable superblock qindex sweep for a given rdmult to optimize rdcost.")                   
 
 #
 # Variables in this section control optional features of the build system.
