@@ -48,6 +48,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "89efcb34_dec8629f",
+        "filename": "av1/qmode_rc/ratectrl_qmode_interface.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 219,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-10-27T15:04:21Z",
+      "side": 1,
+      "message": "I imagined a simpler way to use delta-q : either on or off for the chunk. The confusing part is that the other data members in GopFrame are returned by the RC library, i.e. the client doesn\u0027t modify them.\n\nThe comment is enough to clarify that, I just wanted to verify the rational behind this. We could create a per-frame control down the road if we add more these kind of parameters.",
+      "parentUuid": "83edeae5_5e55d615",
+      "range": {
+        "startLine": 219,
+        "startChar": 0,
+        "endLine": 219,
+        "endChar": 39
+      },
+      "revId": "50aceeb68591f733cf37107dfe88782d31367f0b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e4aee29e_988e7359",
@@ -85,6 +109,30 @@
       "side": 1,
       "message": "Yes. Currently BigWave only allows setting it per-SB, and it\u0027s not even clear what it would mean to set it per-CB, given that the rate control code doesn\u0027t know a priori how SB\u0027s will be partitioned. I can imagine we could provide it per 8x8 block, but then what would the hardware do for a 16x16 block? It could just use the value for the top-left, but it\u0027s not clear that\u0027s really the right thing to do.\n\nIn any case, unless it really looks like having finer-grained control would help enough to justify a significant change to the hardware, this is all we\u0027ll have for the foreseeable future.",
       "parentUuid": "e4aee29e_988e7359",
+      "range": {
+        "startLine": 244,
+        "startChar": 32,
+        "endLine": 244,
+        "endChar": 45
+      },
+      "revId": "50aceeb68591f733cf37107dfe88782d31367f0b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8a1062a0_68bd9859",
+        "filename": "av1/qmode_rc/ratectrl_qmode_interface.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 244,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-10-27T15:04:21Z",
+      "side": 1,
+      "message": "I think this is fine. And it probably is enough for now. We need to figure out how to do that from per CB to SB - take the top left corner, or weighted average, or something else. But that can be discussed later.",
+      "parentUuid": "e4d0c1c2_af75fd51",
       "range": {
         "startLine": 244,
         "startChar": 32,
