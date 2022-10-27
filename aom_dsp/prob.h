@@ -630,16 +630,6 @@ typedef uint16_t aom_cdf_prob;
 
 #endif
 
-static INLINE uint8_t get_prob(unsigned int num, unsigned int den) {
-  assert(den != 0);
-  {
-    const int p = (int)(((uint64_t)num * 256 + (den >> 1)) / den);
-    // (p > 255) ? 255 : (p < 1) ? 1 : p;
-    const int clipped_prob = p | ((255 - p) >> 23) | (p == 0);
-    return (uint8_t)clipped_prob;
-  }
-}
-
 static INLINE void update_cdf(aom_cdf_prob *cdf, int8_t val, int nsymbs) {
   assert(nsymbs < 17);
   const int count = cdf[nsymbs];
