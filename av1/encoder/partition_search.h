@@ -54,6 +54,12 @@ bool av1_rd_pick_partition(AV1_COMP *const cpi, ThreadData *td,
                            SIMPLE_MOTION_DATA_TREE *sms_tree, int64_t *none_rd,
                            SB_MULTI_PASS_MODE multi_pass_mode,
                            RD_RECT_PART_WIN_INFO *rect_part_win_info);
+#ifdef AQ_SWEEP
+int sb_qp_sweep(AV1_COMP *const cpi, ThreadData *td, TileDataEnc *tile_data,
+                TokenExtra **tp, int mi_row, int mi_col, BLOCK_SIZE bsize,
+                SIMPLE_MOTION_DATA_TREE *sms_tree, FRAME_CONTEXT *org_tile_ctx,
+                SB_FIRST_PASS_STATS *sb_org_stats);
+#endif
 
 static AOM_INLINE void set_cb_offsets(uint16_t *cb_offset,
                                       const uint16_t cb_offset_y,
