@@ -33,6 +33,7 @@
 extern "C" {
 #endif
 
+#define AQ_SWEEP
 //! Minimum linear dimension of a tpl block
 #define MIN_TPL_BSIZE_1D 16
 //! Maximum number of tpl block in a super block
@@ -943,6 +944,16 @@ typedef struct macroblock {
    */
   int delta_qindex;
 
+  /*! \brief Difference between frame-level qindex and qindex that used to
+   * compute rdmult (lambda).
+   */
+  int rdmult_delta_qindex;
+
+  /*! \brief current qindex (before adjusted by delta_q_res) used to derive
+   * rdmult_delta_qindex.
+   */
+  int rdmult_cur_qindex;
+
   /*! \brief Rate-distortion multiplier.
    *
    * The rd multiplier used to determine the rate-distortion trade-off. This is
@@ -958,6 +969,14 @@ typedef struct macroblock {
 
   //! Superblock level distortion propagation factor.
   double rb;
+
+#ifdef AQ_SWEEP  // For debugging prints
+  double intra_cost;
+  double mc_dep_cost;
+  double cbcmp_base;
+  double rk;
+  double beta;
+#endif
 
   //! Energy in the current source coding block. Used to calculate \ref rdmult
   int mb_energy;
