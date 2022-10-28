@@ -518,10 +518,13 @@ std::vector<TplGopStats> DuckyEncode::ComputeTplStats(
     aom::TplGopStats tpl_gop_stats;
     for (auto &frame : gop_struct.gop_frame_list) {
       // encoding frame frame_number
+      double qstep_ratio = 1.0;
+      if (frame.layer_depth <= 1) qstep_ratio = 1 / 3.0;
+      int frame_qp = av1_get_q_index_from_qstep_ratio(impl_ptr_->base_qindex,
+                                                      qstep_ratio, AOM_BITS_8);
       aom::EncodeFrameDecision frame_decision = { aom::EncodeFrameMode::kQindex,
                                                   aom::EncodeGopMode::kGopRcl,
-                                                  { impl_ptr_->base_qindex,
-                                                    -1 } };
+                                                  { frame_qp, -1 } };
       (void)frame;
       EncodeFrame(frame_decision);
       if (ppi->cpi->common.show_frame) pending_ctx_size_ = 0;
