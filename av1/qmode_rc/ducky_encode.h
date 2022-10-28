@@ -55,13 +55,16 @@ enum class EncodeGopMode {
   kGopRcl,  // rate control lib decides GOP
 };
 
+struct FrameParameters {
+  int q_index;
+  int rdmult;
+};
+
 struct EncodeFrameDecision {
   EncodeFrameMode qp_mode;
   EncodeGopMode gop_mode;
-  FrameEncodeParameters parameters;
+  FrameParameters parameters;
 };
-
-using GopEncodeInfoList = std::vector<GopEncodeInfo>;
 
 // DuckyEncode is an experimental encoder c++ interface for two-pass mode.
 // This object can be used to do zero or more encode passes, where each encode
@@ -82,7 +85,7 @@ class DuckyEncode {
   std::vector<TplGopStats> ComputeTplStats(const GopStructList &gop_list);
   std::vector<EncodeFrameResult> EncodeVideo(
       const GopStructList &gop_list,
-      const GopEncodeInfoList &gop_encode_info_list);
+      const std::vector<std::vector<FrameParameters>> &gop_frame_parameters);
   EncodeFrameResult EncodeFrame(const EncodeFrameDecision &decision);
   void EndEncode();
   void AllocateBitstreamBuffer(const VideoInfo &video_info);
