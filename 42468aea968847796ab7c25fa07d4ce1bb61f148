@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3700f550_509035eb",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2022-10-28T18:55:41Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nThis is a follow-up CL, to take care of the suggestions provided in https://aomedia-review.googlesource.com/c/aom/+/165141 CL. This CL does the following changes in functions, fdct8x8_new_sse2() and fadst8x8_new_sse2()\n - Added constant qualifier for variables declared\n - Avoided intermediate variables used while storing the final\n output\n\nAlso, these changes does not have any impact on speed and quality.\n\nPlease review the patch.\n\nThanks \u0026 Regards,\nVenkata.",
+      "revId": "42468aea968847796ab7c25fa07d4ce1bb61f148",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
