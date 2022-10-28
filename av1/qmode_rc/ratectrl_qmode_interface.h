@@ -224,8 +224,6 @@ using GopStructList = std::vector<GopStruct>;
 struct FrameEncodeParameters {
   // Base q_index for the frame.
   int q_index;
-  // TODO(b/242918889): Remove rdmult once it's no longer used.
-  int rdmult;
 
   // If max_distinct_q_indices_per_frame <= 1, this will be empty.
   // Otherwise, it will have one q_index value per 64x64 superblock, in
@@ -302,11 +300,7 @@ class AV1RateControlQModeInterface {
       const RefFrameTable &ref_frame_table_snapshot_init) = 0;
 
   // Returns the rdmult (lambda) value for the specified frame and q_index.
-  // TODO(b/242918889): Make pure virtual once all derived classes implement it.
-  virtual int GetRDMult(const GopFrame &gop_frame AOM_UNUSED,
-                        int q_index AOM_UNUSED) const {
-    return 0;
-  }
+  virtual int GetRDMult(const GopFrame &gop_frame, int q_index) const = 0;
 };
 }  // namespace aom
 
