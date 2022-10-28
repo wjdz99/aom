@@ -58,6 +58,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ba6a138b_b5bdf49e",
+        "filename": "av1/encoder/x86/av1_fwd_txfm_sse2.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2022-10-28T18:55:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "85556bcd_411eda47",
+      "range": {
+        "startLine": 79,
+        "startChar": 2,
+        "endLine": 87,
+        "endChar": 64
+      },
+      "revId": "608b4b32366216245f47f27ba3f12cd34f2eebf6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a08fc527_e665af52",
@@ -71,6 +95,30 @@
       "writtenOn": "2022-10-26T20:27:19Z",
       "side": 1,
       "message": "Can x4 be removed and output is used directly to avoid this copying?\nRealized these are old code. Is it possible that you can take a look? Thanks.",
+      "range": {
+        "startLine": 129,
+        "startChar": 2,
+        "endLine": 129,
+        "endChar": 8
+      },
+      "revId": "608b4b32366216245f47f27ba3f12cd34f2eebf6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ea10804a_395d005a",
+        "filename": "av1/encoder/x86/av1_fwd_txfm_sse2.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2022-10-28T18:55:49Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nAs per suggestion, avoided the copy which happens during the final output store and submitted a patch for review.\n\nThanks \u0026 Regards,\nVenkata.",
+      "parentUuid": "a08fc527_e665af52",
       "range": {
         "startLine": 129,
         "startChar": 2,
@@ -104,6 +152,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "781e525d_7f6ee4c6",
+        "filename": "av1/encoder/x86/av1_fwd_txfm_sse2.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 157,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2022-10-28T18:55:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "84e5bd6d_35ce0cb8",
+      "range": {
+        "startLine": 145,
+        "startChar": 2,
+        "endLine": 157,
+        "endChar": 39
+      },
+      "revId": "608b4b32366216245f47f27ba3f12cd34f2eebf6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "debecce9_07164a76",
@@ -117,6 +189,30 @@
       "writtenOn": "2022-10-26T20:27:19Z",
       "side": 1,
       "message": "same here",
+      "range": {
+        "startLine": 218,
+        "startChar": 2,
+        "endLine": 218,
+        "endChar": 8
+      },
+      "revId": "608b4b32366216245f47f27ba3f12cd34f2eebf6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "146c3443_f85a82c4",
+        "filename": "av1/encoder/x86/av1_fwd_txfm_sse2.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 218,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2022-10-28T18:55:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "debecce9_07164a76",
       "range": {
         "startLine": 218,
         "startChar": 2,
