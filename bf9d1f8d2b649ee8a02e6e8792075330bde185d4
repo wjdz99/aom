@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1ed5ebc8_468176eb",
+        "filename": "test/monochrome_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 210,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-10-28T02:19:04Z",
+      "side": 1,
+      "message": "lossless is broken in realtime mode, though I don\u0027t think that\u0027s a common use case.",
+      "revId": "bf9d1f8d2b649ee8a02e6e8792075330bde185d4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
