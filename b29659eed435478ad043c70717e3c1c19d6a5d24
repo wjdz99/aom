@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ff41ceed_f08456d4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 29295
+      },
+      "writtenOn": "2022-10-28T19:30:17Z",
+      "side": 1,
+      "message": "Hi Marco, Yunqing,\n\nEarlier we had disabled the sf: cb_pred_filter_search: \nhttps://aomedia-review.googlesource.com/c/aom/+/164601\nPer Marco\u0027s suggestion, this CL provides some of the \nlost speed-up with much smaller quality impact. \n\nIn this CL, we improved the logic of this sf and enabled \nit for cpu 9, 10 rtc testsets. We ensured that there are \nno newly introduced or fine-tuned/hard-coded thresholds.\n\nThe details of worst/best case drops are below:\n```\n                           BD-Rate Loss(%)      Instr Cnt\ncpu  content          avg.psnr ovr.psnr  ssim    Red (%)\n--------------------------------------------------------\n    Worst case\n 9  testnoise720p     1.0821   0.8511   1.2412   0.271\n10  marcooffice720p   1.4193   1.4074   1.7969   1.365\n--------------------------------------------------------\n    Best case\n 9  jimredvga_25fps  -0.7612  -0.7933  -0.8396   1.040\n10  testnoise720p    -1.2944  -0.8001  -1.2688   0.278\n```\n\nWe performed visual tests for the following content: \n```\ncpu  content          bitrate/s \n                       (kbps)\n 9  testnoise720p       800\n 9  mj4vc720p          1800\n 9  desktop360p         400\n10  marcooffice720p     800\n10  marcooffice720p    1400\n10  desktop360p         300\n```\nThere are no noticeable artifacts.\n\nPlease review the CL. \n\nThanks,\nNeeraj",
+      "revId": "b29659eed435478ad043c70717e3c1c19d6a5d24",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
