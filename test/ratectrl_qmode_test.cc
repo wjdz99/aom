@@ -1039,10 +1039,18 @@ TEST_F(RateControlQModeTest, TestGetGopEncodeInfo) {
   };
   DuckyEncode ducky_encode(input_video, rc_param_.max_ref_frames, 3,
                            rc_param_.base_q_index);
+
+  std::vector<aom::GopEncodeInfo> gop_encode_info_list;
+  for (size_t i = 0; i < gop_list.size(); ++i) {
+    const aom::GopStruct &gop_struct = gop_list[i];
+    const auto gop_encode_info = rc.GetTplPassGopEncodeInfo(gop_struct);
+    gop_encode_info_list.push_back(gop_encode_info.value());
+  }
+
   ducky_encode.StartEncode(firstpass_info.stats_list);
   // Read TPL stats
   std::vector<TplGopStats> tpl_gop_list =
-      ducky_encode.ComputeTplStats(gop_list);
+      ducky_encode.ComputeTplStats(gop_list, gop_encode_info_list);
   ducky_encode.EndEncode();
   RefFrameTable ref_frame_table;
   int num_gop_skipped = 0;

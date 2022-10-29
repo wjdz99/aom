@@ -301,6 +301,11 @@ class AV1RateControlQModeInterface {
       const std::vector<LookaheadStats> &lookahead_stats,
       const RefFrameTable &ref_frame_table_snapshot_init) = 0;
 
+  // Takes GOP structure and returns qp index and rdmult for each frame in the
+  // TPL pass.
+  virtual StatusOr<GopEncodeInfo> GetTplPassGopEncodeInfo(
+      const GopStruct &gop_struct) = 0;
+
   // Returns the rdmult (lambda) value for the specified frame and q_index.
   // TODO(b/242918889): Make pure virtual once all derived classes implement it.
   virtual int GetRDMult(const GopFrame &gop_frame AOM_UNUSED,
