@@ -69,6 +69,24 @@
       "parentUuid": "5ab15ca8_23701171",
       "revId": "f695447e0b6f6def2d5b17b6a8550cef3d579f8f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b68783ff_fe1bae5c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 6245
+      },
+      "writtenOn": "2022-10-31T20:04:48Z",
+      "side": 1,
+      "message": "Hi Jerome,\nWhen superblock size is 128x128, the skip flag (in first mi block) is not obtained covering complete superblock in pick_sb_modes_nonrd(), but it is still used to overwrite the skip flags of all 64x64 blocks. Hence we feel that current CL fixes an algorithmic inconsistency as it is not correct to skip the CDEF filtering of complete superblock region based on first 64x64 region. \nPlease let us know if you see any issues with our understanding.\nRegards,\nRanjit",
+      "parentUuid": "5f6af52b_7b7efe4b",
+      "revId": "f695447e0b6f6def2d5b17b6a8550cef3d579f8f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
