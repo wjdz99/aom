@@ -1388,16 +1388,12 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
   // Source may be changed if temporal filtered later.
   frame_input.source = &source->img;
   frame_input.last_source = last_source != NULL ? &last_source->img : NULL;
-  // For temporal layers: if LAST reference is not the previous frame set the
+  // For svc: if LAST reference is not the previous (super)frame set the
   // last_source to the source frame corresponding to the LAST reference.
-  // TODO(marpan): For now only do this for single spatial layer: the case of
-  // number_spatial_layers > 1 will be handled in another change.
-  if (cm->current_frame.frame_number > 0 &&
-      cpi->svc.number_temporal_layers > 1 &&
-      cpi->svc.number_spatial_layers == 1) {
+  if (cm->current_frame.frame_number > 0 && cpi->ppi->use_svc) {
     const int buffslot_last = cpi->ppi->rtc_ref.ref_idx[0];  // index 0 is LAST
     if (cpi->svc.frame_number_buffslot[buffslot_last] <
-        cm->current_frame.frame_number - 1)
+        cpi->svc.current_superframe - 1)
       frame_input.last_source = &cpi->svc.source_last_ref;
   }
   frame_input.ts_duration = source->ts_end - source->ts_start;
@@ -1689,12 +1685,11 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
         is_frame_droppable(&cpi->ppi->rtc_ref, &ext_flags->refresh_frame);
   }
 
-  // For temporal layers: keep track of the source corresponding to the
-  // refresh of LAST reference (index 0). Note if temporal filter or denoising
-  // is on, the source will be modified during encodiing, but for now keep
-  // this as is.
-  if (cpi->svc.number_temporal_layers > 1 &&
-      cpi->svc.number_spatial_layers == 1 &&
+  // For svc: keep track of the source corresponding to the
+  // refresh of LAST reference (index 0) on base spatial layer.
+  //  Note if temporal filter or denoising is on, the source will be modified
+  // during encodiing, but for now keep this as is.
+  if (cpi->ppi->use_svc && cpi->svc.spatial_layer_id == 0 &&
       cpi->ppi->rtc_ref.refresh[cpi->ppi->rtc_ref.ref_idx[0]]) {
     aom_yv12_copy_y(cpi->source, &cpi->svc.source_last_ref);
     aom_yv12_copy_u(cpi->source, &cpi->svc.source_last_ref);

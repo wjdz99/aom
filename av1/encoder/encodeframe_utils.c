@@ -1398,6 +1398,9 @@ void av1_source_content_sb(AV1_COMP *cpi, MACROBLOCK *x, TileDataEnc *tile_data,
 
   uint64_t avg_source_sse_threshold_high = 1000000;  // ~15*15*(64*64)
   uint64_t sum_sq_thresh = 10000;  // sum = sqrt(thresh / 64*64)) ~1.5
+  if (cpi->last_source->y_width != cpi->source->y_width ||
+      cpi->last_source->y_height != cpi->source->y_height)
+    return;
 #if CONFIG_AV1_HIGHBITDEPTH
   MACROBLOCKD *xd = &x->e_mbd;
   if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) return;
@@ -1430,9 +1433,6 @@ void av1_source_content_sb(AV1_COMP *cpi, MACROBLOCK *x, TileDataEnc *tile_data,
       x->content_state_sb.low_sumdiff = 1;
   }
 
-  if (cpi->last_source->y_width != cpi->source->y_width ||
-      cpi->last_source->y_height != cpi->source->y_height)
-    return;
   if (!cpi->sf.rt_sf.use_rtc_tf || tmp_sse == 0 || cpi->rc.high_source_sad ||
       cpi->rc.frame_source_sad > 20000)
     return;
