@@ -209,6 +209,7 @@ void av1_restore_layer_context(AV1_COMP *const cpi) {
     cr->sb_index = lc->sb_index;
     cr->actual_num_seg1_blocks = lc->actual_num_seg1_blocks;
     cr->actual_num_seg2_blocks = lc->actual_num_seg2_blocks;
+    cr->counter_encode_maxq_scene_change = lc->counter_encode_maxq_scene_change;
   }
   svc->skip_mvsearch_last = 0;
   svc->skip_mvsearch_gf = 0;
@@ -251,6 +252,7 @@ void av1_save_layer_context(AV1_COMP *const cpi) {
     lc->sb_index = cr->sb_index;
     lc->actual_num_seg1_blocks = cr->actual_num_seg1_blocks;
     lc->actual_num_seg2_blocks = cr->actual_num_seg2_blocks;
+    lc->counter_encode_maxq_scene_change = cr->counter_encode_maxq_scene_change;
   }
   // For any buffer slot that is refreshed, update it with
   // the spatial_layer_id and the current_superframe.
@@ -367,7 +369,11 @@ void av1_one_pass_cbr_svc_start_layer(AV1_COMP *const cpi) {
   cpi->common.height = height;
   alloc_mb_mode_info_buffers(cpi);
   av1_update_frame_size(cpi);
-  if (svc->spatial_layer_id == 0) svc->high_source_sad_superframe = 0;
+  if (width != cpi->oxcf.frm_dim_cfg.width ||
+      height != cpi->oxcf.frm_dim_cfg.height)
+    cpi->svc.use_src_sad_blk = 0;
+  else
+    cpi->svc.use_src_sad_blk = 1;
 }
 
 enum {
@@ -546,6 +552,6 @@ void av1_svc_update_frame_number_buffslot(AV1_COMP *const cpi) {
   const RTC_REF *const rtc_ref = &cpi->ppi->rtc_ref;
   for (int i = 0; i < 8; i++) {
     if (current_frame->frame_type == KEY_FRAME || rtc_ref->refresh[i] == 1)
-      svc->frame_number_buffslot[i] = current_frame->frame_number;
+      svc->frame_number_buffslot[i] = svc->current_superframe;
   }
 }

@@ -789,7 +789,8 @@ static AOM_INLINE int delay_wait_for_top_right_sb(const AV1_COMP *const cpi) {
  */
 static AOM_INLINE uint64_t get_sb_source_sad(const AV1_COMP *cpi, int mi_row,
                                              int mi_col) {
-  if (cpi->src_sad_blk_64x64 == NULL) return UINT64_MAX;
+  if (cpi->src_sad_blk_64x64 == NULL || cpi->svc.use_src_sad_blk == 0)
+    return UINT64_MAX;
 
   const AV1_COMMON *const cm = &cpi->common;
   const int blk_64x64_in_mis = (cm->seq_params->sb_size == BLOCK_128X128)
@@ -876,8 +877,7 @@ static AOM_INLINE void grade_source_content_sb(AV1_COMP *cpi,
   AV1_COMMON *const cm = &cpi->common;
   bool calc_src_content = false;
 
-  if (cpi->sf.rt_sf.source_metrics_sb_nonrd &&
-      cpi->svc.number_spatial_layers <= 1 &&
+  if (cpi->sf.rt_sf.source_metrics_sb_nonrd && cpi->svc.spatial_layer_id == 0 &&
       cm->current_frame.frame_type != KEY_FRAME) {
     if (!cpi->sf.rt_sf.check_scene_detection || cpi->rc.frame_source_sad > 0) {
       calc_src_content = is_calc_src_content_needed(cpi, x, mi_row, mi_col);
