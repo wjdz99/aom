@@ -1436,7 +1436,7 @@ void av1_source_content_sb(AV1_COMP *cpi, MACROBLOCK *x, TileDataEnc *tile_data,
   }
 
   if (!cpi->sf.rt_sf.use_rtc_tf || tmp_sse == 0 || cpi->rc.high_source_sad ||
-      cpi->rc.frame_source_sad > 20000)
+      cpi->svc.number_spatial_layers > 1 || cpi->rc.frame_source_sad > 20000)
     return;
 
   // In-place temporal filter. If psnr calculation is enabled, we store the
