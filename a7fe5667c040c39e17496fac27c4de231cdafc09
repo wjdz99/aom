@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f2da751c_481deb29",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 31012
+      },
+      "writtenOn": "2022-10-31T13:45:30Z",
+      "side": 1,
+      "message": "Hi Yunqing, \n\nThe aom_get_sse_sum_8x8_quad_avx2() function computes the sum and sse at 8x8 level for four 8x8 blocks and variance computation is done outside the function at 8x8 level. In this patch we modified the function to compute the variance along with sum and sse. Hence we renamed the function appropriately as aom_get_var_sse_sum_8x8_quad_avx2().\n\nWe also have taken care of relevant changes in the other SIMD functions and unit-test. Currently, SSE2 and NEON intrinsic use C code for variance computation and the same can be improved by using respective instructions. We will take up this work once this patch gets merged.\n\nPlease check the encoder speed-up measured (for AVX2) using instruction count as below.\n```\n               Instruction Count    \ncpu Resolution    Reduction(%)\n 7   rtc_1080p      0.590\n 7         rtc      0.456\n 7    rtc_derf      0.307\n 7  rtc_screen      0.270\n 8   rtc_1080p      0.517\n 8         rtc      0.352\n 8    rtc_derf      0.125\n 8  rtc_screen      0.282\n 9   rtc_1080p      0.401\n 9         rtc      0.362\n 9    rtc_derf      0.171\n 9  rtc_screen      0.147\n10   rtc_1080p      0.410\n10         rtc      0.298\n10    rtc_derf      0.170\n10  rtc_screen      0.153\n```\nThe instruction count reduction specified has been measured using command:\n$ perf stat -e instructions:u ./aomenc …\n\nPlease review the CL.\n\nThanks \u0026 Regards,\nDiksha",
+      "revId": "a7fe5667c040c39e17496fac27c4de231cdafc09",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
