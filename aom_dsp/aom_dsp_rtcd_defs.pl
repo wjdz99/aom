@@ -478,7 +478,7 @@ add_proto qw/void aom_lpf_vertical_14_dual/, "uint8_t *s, int pitch, const uint8
 specialize qw/aom_lpf_vertical_14_dual sse2 neon/;
 
 add_proto qw/void aom_lpf_vertical_14_quad/, "uint8_t *s, int pitch, const uint8_t *blimit0, const uint8_t *limit0, const uint8_t *thresh0";
-specialize qw/aom_lpf_vertical_14_quad sse2 neon/;
+specialize qw/aom_lpf_vertical_14_quad avx2 sse2 neon/;
 
 add_proto qw/void aom_lpf_vertical_6/, "uint8_t *s, int pitch, const uint8_t *blimit, const uint8_t *limit, const uint8_t *thresh";
 specialize qw/aom_lpf_vertical_6 sse2 neon/;
@@ -1270,8 +1270,8 @@ if (aom_config("CONFIG_AV1_ENCODER") eq "yes") {
   specialize qw/aom_get16x16var                neon/;
   specialize qw/aom_get8x8var             sse2 neon/;
 
-  add_proto qw/void aom_get_sse_sum_8x8_quad/, "const uint8_t *src_ptr, int source_stride, const uint8_t *ref_ptr, int ref_stride, unsigned int *sse, int *sum";
-  specialize qw/aom_get_sse_sum_8x8_quad        avx2 sse2 neon/;
+  add_proto qw/void aom_get_var_sse_sum_8x8_quad/, "const uint8_t *src_ptr, int source_stride, const uint8_t *ref_ptr, int ref_stride, uint32_t *sse8x8, int *sum8x8, unsigned int *tot_sse, int *tot_sum, uint32_t *var8x8";
+  specialize qw/aom_get_var_sse_sum_8x8_quad        avx2 sse2 neon/;
 
   add_proto qw/unsigned int aom_mse16x16/, "const uint8_t *src_ptr, int  source_stride, const uint8_t *ref_ptr, int  recon_stride, unsigned int *sse";
   add_proto qw/unsigned int aom_mse16x8/, "const uint8_t *src_ptr, int  source_stride, const uint8_t *ref_ptr, int  recon_stride, unsigned int *sse";

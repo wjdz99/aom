@@ -3024,8 +3024,8 @@ static int64_t get_kf_group_bits(AV1_COMP *cpi, double kf_group_err,
       double vbr_corpus_complexity_lap =
           cpi->oxcf.rc_cfg.vbr_corpus_complexity_lap / 10.0;
       /* Get the average corpus complexity of the frame */
-      kf_group_bits = (int64_t)(
-          kf_group_bits * (kf_group_avg_error / vbr_corpus_complexity_lap));
+      kf_group_bits = (int64_t)(kf_group_bits * (kf_group_avg_error /
+                                                 vbr_corpus_complexity_lap));
     }
   } else {
     kf_group_bits = (int64_t)(twopass->bits_left *
@@ -3726,6 +3726,10 @@ void av1_get_second_pass_params(AV1_COMP *cpi,
             ? AOMMIN(MAX_GF_INTERVAL, oxcf->gf_cfg.lag_in_frames -
                                           oxcf->algo_cfg.arnr_max_frames / 2)
             : MAX_GF_LENGTH_LAP;
+
+    // Handle forward key frame when enabled.
+    if (oxcf->kf_cfg.fwd_kf_dist > 0)
+      max_gop_length = AOMMIN(rc->frames_to_fwd_kf + 1, max_gop_length);
 
     // Use the provided gop size in low delay setting
     if (oxcf->gf_cfg.lag_in_frames == 0) max_gop_length = rc->max_gf_interval;

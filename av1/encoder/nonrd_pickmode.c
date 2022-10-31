@@ -352,9 +352,9 @@ static INLINE int subpel_select(AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bsize,
   return cpi->sf.mv_sf.subpel_force_stop;
 }
 
-bool use_aggressive_subpel_search_method(MACROBLOCK *x,
-                                         bool use_adaptive_subpel_search,
-                                         const bool fullpel_performed_well) {
+static bool use_aggressive_subpel_search_method(
+    MACROBLOCK *x, bool use_adaptive_subpel_search,
+    const bool fullpel_performed_well) {
   if (!use_adaptive_subpel_search) return false;
   const int qband = x->qindex >> (QINDEX_BITS - 2);
   assert(qband < 4);
@@ -362,8 +362,7 @@ bool use_aggressive_subpel_search_method(MACROBLOCK *x,
                       (x->content_state_sb.source_sad_nonrd <= kLowSad) ||
                       (x->source_variance < 100)))
     return true;
-  else
-    return false;
+  return false;
 }
 
 /*!\brief Runs Motion Estimation for a specific block and specific ref frame.
@@ -682,26 +681,16 @@ static void block_variance(const uint8_t *src, int src_stride,
   *sum = 0;
 
   // This function is called for block sizes >= BLOCK_32x32. As per the design
-  // the aom_get_sse_sum_8x8_quad() processes four 8x8 blocks (in a 8x32) per
-  // call. Hence the width and height of the block need to be at least 8 and 32
-  // samples respectively.
+  // the aom_get_var_sse_sum_8x8_quad() processes four 8x8 blocks (in a 8x32)
+  // per call. Hence the width and height of the block need to be at least 8 and
+  // 32 samples respectively.
   assert(w >= 32);
   assert(h >= 8);
   for (int i = 0; i < h; i += block_size) {
     for (int j = 0; j < w; j += 32) {
-      aom_get_sse_sum_8x8_quad(src + src_stride * i + j, src_stride,
-                               ref + ref_stride * i + j, ref_stride, &sse8x8[k],
-                               &sum8x8[k]);
-
-      *sse += sse8x8[k] + sse8x8[k + 1] + sse8x8[k + 2] + sse8x8[k + 3];
-      *sum += sum8x8[k] + sum8x8[k + 1] + sum8x8[k + 2] + sum8x8[k + 3];
-      var8x8[k] = sse8x8[k] - (uint32_t)(((int64_t)sum8x8[k] * sum8x8[k]) >> 6);
-      var8x8[k + 1] = sse8x8[k + 1] -
-                      (uint32_t)(((int64_t)sum8x8[k + 1] * sum8x8[k + 1]) >> 6);
-      var8x8[k + 2] = sse8x8[k + 2] -
-                      (uint32_t)(((int64_t)sum8x8[k + 2] * sum8x8[k + 2]) >> 6);
-      var8x8[k + 3] = sse8x8[k + 3] -
-                      (uint32_t)(((int64_t)sum8x8[k + 3] * sum8x8[k + 3]) >> 6);
+      aom_get_var_sse_sum_8x8_quad(
+          src + src_stride * i + j, src_stride, ref + ref_stride * i + j,
+          ref_stride, &sse8x8[k], &sum8x8[k], sse, sum, &var8x8[k]);
       k += 4;
     }
   }
@@ -1802,6 +1791,7 @@ static void recheck_zeromv_after_denoising(
  * \param[in]    use_model_yrd_large  Flag, indicating special logic to handle
  *                                    large blocks
  * \param[in]    best_sse             Best sse so far.
+ * \param[in]    comp_pred            Flag, indicating compound mode.
  *
  * \remark Nothing is returned. Instead, calculated RD cost is placed to
  * \c this_rdc and best filter is placed to \c mi->interp_filters. In case
@@ -1814,7 +1804,8 @@ static void search_filter_ref(AV1_COMP *cpi, MACROBLOCK *x, RD_STATS *this_rdc,
                               BLOCK_SIZE bsize, int reuse_inter_pred,
                               PRED_BUFFER **this_mode_pred,
                               int *this_early_term, unsigned int *var,
-                              int use_model_yrd_large, int64_t best_sse) {
+                              int use_model_yrd_large, int64_t best_sse,
+                              int comp_pred) {
   AV1_COMMON *const cm = &cpi->common;
   MACROBLOCKD *const xd = &x->e_mbd;
   struct macroblockd_plane *const pd = &xd->plane[0];
@@ -1836,7 +1827,10 @@ static void search_filter_ref(AV1_COMP *cpi, MACROBLOCK *x, RD_STATS *this_rdc,
       continue;
     mi->interp_filters.as_filters.x_filter = filters_ref_set[i].filter_x;
     mi->interp_filters.as_filters.y_filter = filters_ref_set[i].filter_y;
-    av1_enc_build_inter_predictor_y(xd, mi_row, mi_col);
+    if (!comp_pred)
+      av1_enc_build_inter_predictor_y(xd, mi_row, mi_col);
+    else
+      av1_enc_build_inter_predictor(cm, xd, mi_row, mi_col, NULL, bsize, 0, 0);
     unsigned int curr_var = UINT_MAX;
     if (use_model_yrd_large)
       model_skip_for_sb_y_large(cpi, bsize, mi_row, mi_col, x, xd,
@@ -2661,25 +2655,44 @@ static void estimate_intra_mode(
   mi->tx_size = best_pickmode->best_tx_size;
 }
 
-static AOM_INLINE int is_filter_search_enabled(const AV1_COMP *cpi, int mi_row,
-                                               int mi_col, BLOCK_SIZE bsize,
-                                               int segment_id) {
+static AOM_INLINE int is_filter_search_enabled_blk(
+    AV1_COMP *cpi, MACROBLOCK *x, int mi_row, int mi_col, BLOCK_SIZE bsize,
+    int segment_id, int cb_pred_filter_search, InterpFilter *filt_select) {
   const AV1_COMMON *const cm = &cpi->common;
-  int enable_filter_search = 0;
-
-  if (cpi->sf.rt_sf.use_nonrd_filter_search) {
-    enable_filter_search = 1;
-    if (cpi->sf.interp_sf.cb_pred_filter_search) {
-      const int bsl = mi_size_wide_log2[bsize];
-      enable_filter_search =
-          (((mi_row + mi_col) >> bsl) +
-           get_chessboard_index(cm->current_frame.frame_number)) &
-          0x1;
-      if (cyclic_refresh_segment_id_boosted(segment_id))
-        enable_filter_search = 1;
-    }
+  // filt search disabled
+  if (!cpi->sf.rt_sf.use_nonrd_filter_search) return 0;
+  // filt search purely based on mode properties
+  if (!cb_pred_filter_search) return 1;
+  MACROBLOCKD *const xd = &x->e_mbd;
+  int enable_interp_search = 0;
+  if (!(xd->left_mbmi && xd->above_mbmi)) {
+    // neighbors info unavailable
+    enable_interp_search = 2;
+  } else if (!(is_inter_block(xd->left_mbmi) &&
+               is_inter_block(xd->above_mbmi))) {
+    // neighbor is INTRA
+    enable_interp_search = 2;
+  } else if (xd->left_mbmi->interp_filters.as_int !=
+             xd->above_mbmi->interp_filters.as_int) {
+    // filters are different
+    enable_interp_search = 2;
+  } else if ((cb_pred_filter_search == 1) &&
+             (xd->left_mbmi->interp_filters.as_filters.x_filter !=
+              EIGHTTAP_REGULAR)) {
+    // not regular
+    enable_interp_search = 2;
+  } else {
+    // enable prediction based on chessboard pattern
+    if (xd->left_mbmi->interp_filters.as_filters.x_filter == EIGHTTAP_SMOOTH)
+      *filt_select = EIGHTTAP_SMOOTH;
+    const int bsl = mi_size_wide_log2[bsize];
+    enable_interp_search =
+        (bool)((((mi_row + mi_col) >> bsl) +
+                get_chessboard_index(cm->current_frame.frame_number)) &
+               0x1);
+    if (cyclic_refresh_segment_id_boosted(segment_id)) enable_interp_search = 1;
   }
-  return enable_filter_search;
+  return enable_interp_search;
 }
 
 static AOM_INLINE int skip_mode_by_threshold(
@@ -2749,9 +2762,10 @@ static AOM_INLINE int skip_mode_by_bsize_and_ref_frame(
   return 0;
 }
 
-void set_color_sensitivity(AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bsize,
-                           int y_sad, unsigned int source_variance,
-                           struct buf_2d yv12_mb[MAX_MB_PLANE]) {
+static void set_color_sensitivity(AV1_COMP *cpi, MACROBLOCK *x,
+                                  BLOCK_SIZE bsize, int y_sad,
+                                  unsigned int source_variance,
+                                  struct buf_2d yv12_mb[MAX_MB_PLANE]) {
   const int subsampling_x = cpi->common.seq_params->subsampling_x;
   const int subsampling_y = cpi->common.seq_params->subsampling_y;
   int factor = (bsize >= BLOCK_32X32) ? 2 : 3;
@@ -2777,7 +2791,8 @@ void set_color_sensitivity(AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bsize,
     x->color_sensitivity[1] = 0;
     return;
   }
-  for (int i = 1; i <= 2; ++i) {
+  const int num_planes = av1_num_planes(&cpi->common);
+  for (int i = 1; i < num_planes; ++i) {
     if (x->color_sensitivity[i - 1] == 2 || source_variance < 50) {
       struct macroblock_plane *const p = &x->plane[i];
       const BLOCK_SIZE bs =
@@ -2796,10 +2811,11 @@ void set_color_sensitivity(AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bsize,
   }
 }
 
-void setup_compound_prediction(const AV1_COMMON *cm, MACROBLOCK *x,
-                               struct buf_2d yv12_mb[8][MAX_MB_PLANE],
-                               const int *use_ref_frame_mask,
-                               const MV_REFERENCE_FRAME *rf, int *ref_mv_idx) {
+static void setup_compound_prediction(const AV1_COMMON *cm, MACROBLOCK *x,
+                                      struct buf_2d yv12_mb[8][MAX_MB_PLANE],
+                                      const int *use_ref_frame_mask,
+                                      const MV_REFERENCE_FRAME *rf,
+                                      int *ref_mv_idx) {
   MACROBLOCKD *const xd = &x->e_mbd;
   MB_MODE_INFO *const mbmi = xd->mi[0];
   MB_MODE_INFO_EXT *const mbmi_ext = &x->mbmi_ext;
@@ -3197,8 +3213,20 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
       !cyclic_refresh_segment_id_boosted(xd->mi[0]->segment_id) &&
       quant_params->base_qindex && cm->seq_params->bit_depth == 8;
 
-  const int enable_filter_search =
-      is_filter_search_enabled(cpi, mi_row, mi_col, bsize, segment_id);
+  // decide block-level interp filter search flags:
+  // filter_search_enabled_blk:
+  // 0: disabled
+  // 1: filter search depends on mode properties
+  // 2: filter search forced since prediction is unreliable
+  // cb_pred_filter_search 0: disabled cb prediction
+  InterpFilter filt_select = EIGHTTAP_REGULAR;
+  const int cb_pred_filter_search =
+      x->content_state_sb.source_sad_nonrd > kVeryLowSad
+          ? cpi->sf.interp_sf.cb_pred_filter_search
+          : 0;
+  const int filter_search_enabled_blk =
+      is_filter_search_enabled_blk(cpi, x, mi_row, mi_col, bsize, segment_id,
+                                   cb_pred_filter_search, &filt_select);
 
 #if COLLECT_PICK_MODE_STAT
   ms_stat.num_blocks[bsize]++;
@@ -3467,17 +3495,34 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
       calc_num_proj_ref(cpi, x, mi);
     }
 #endif
-
-    if (enable_filter_search && !force_mv_inter_layer && !comp_pred &&
-        ((mi->mv[0].as_mv.row & 0x07) || (mi->mv[0].as_mv.col & 0x07)) &&
-        (ref_frame == LAST_FRAME || !x->nonrd_prune_ref_frame_search)) {
+    // set variance threshold for compound more pruning
+    unsigned int var_threshold = UINT_MAX;
+    if (cpi->sf.rt_sf.prune_compoundmode_with_singlecompound_var && comp_pred &&
+        use_model_yrd_large) {
+      const PREDICTION_MODE single_mode0 = compound_ref0_mode(this_mode);
+      const PREDICTION_MODE single_mode1 = compound_ref1_mode(this_mode);
+      var_threshold =
+          AOMMIN(var_threshold, vars[INTER_OFFSET(single_mode0)][ref_frame]);
+      var_threshold =
+          AOMMIN(var_threshold, vars[INTER_OFFSET(single_mode1)][ref_frame2]);
+    }
+    // decide interpolation filter, build prediction signal, get sse
+    const bool is_mv_subpel =
+        (mi->mv[0].as_mv.row & 0x07) || (mi->mv[0].as_mv.col & 0x07);
+    const bool enable_filt_search_this_mode =
+        (filter_search_enabled_blk == 2)
+            ? true
+            : (filter_search_enabled_blk && !force_mv_inter_layer &&
+               !comp_pred &&
+               (ref_frame == LAST_FRAME || !x->nonrd_prune_ref_frame_search));
+    if (is_mv_subpel && enable_filt_search_this_mode) {
 #if COLLECT_PICK_MODE_STAT
       aom_usec_timer_start(&ms_stat.timer2);
 #endif
       search_filter_ref(cpi, x, &this_rdc, mi_row, mi_col, tmp, bsize,
                         reuse_inter_pred, &this_mode_pred, &this_early_term,
-                        &vars[INTER_OFFSET(this_mode)][ref_frame],
-                        use_model_yrd_large, best_pickmode.best_sse);
+                        &var, use_model_yrd_large, best_pickmode.best_sse,
+                        comp_pred);
 #if COLLECT_PICK_MODE_STAT
       aom_usec_timer_mark(&ms_stat.timer2);
       ms_stat.ifs_time[bsize][this_mode] +=
@@ -3501,19 +3546,11 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
       if (force_mv_inter_layer)
         mi->interp_filters = av1_broadcast_interp_filter(EIGHTTAP_REGULAR);
 
-      // If it is sub-pel motion and best filter was not selected in
-      // search_filter_ref() for all blocks, then check top and left values and
-      // force smooth if both were selected to be smooth.
-      if (cpi->sf.interp_sf.cb_pred_filter_search &&
-          (mi->mv[0].as_mv.row & 0x07 || mi->mv[0].as_mv.col & 0x07)) {
-        if (xd->left_mbmi && xd->above_mbmi) {
-          if ((xd->left_mbmi->interp_filters.as_filters.x_filter ==
-                   EIGHTTAP_SMOOTH &&
-               xd->above_mbmi->interp_filters.as_filters.x_filter ==
-                   EIGHTTAP_SMOOTH))
-            mi->interp_filters = av1_broadcast_interp_filter(EIGHTTAP_SMOOTH);
-        }
-      }
+      // If it is sub-pel motion and cb_pred_filter_search is enabled, select
+      // the pre-decided filter
+      if (is_mv_subpel && cb_pred_filter_search)
+        mi->interp_filters = av1_broadcast_interp_filter(filt_select);
+
 #if COLLECT_PICK_MODE_STAT
       aom_usec_timer_start(&ms_stat.timer2);
 #endif
@@ -3523,16 +3560,6 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
         av1_enc_build_inter_predictor(cm, xd, mi_row, mi_col, NULL, bsize, 0,
                                       0);
 
-      unsigned int var_threshold = UINT_MAX;
-      if (cpi->sf.rt_sf.prune_compoundmode_with_singlecompound_var &&
-          comp_pred && use_model_yrd_large) {
-        const PREDICTION_MODE single_mode0 = compound_ref0_mode(this_mode);
-        const PREDICTION_MODE single_mode1 = compound_ref1_mode(this_mode);
-        var_threshold =
-            AOMMIN(var_threshold, vars[INTER_OFFSET(single_mode0)][ref_frame]);
-        var_threshold =
-            AOMMIN(var_threshold, vars[INTER_OFFSET(single_mode1)][ref_frame2]);
-      }
       if (use_model_yrd_large) {
         model_skip_for_sb_y_large(cpi, bsize, mi_row, mi_col, x, xd, &this_rdc,
                                   &this_early_term, 0, best_pickmode.best_sse,
@@ -3541,21 +3568,23 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
         model_rd_for_sb_y(cpi, bsize, x, xd, &this_rdc, &var, 0,
                           &this_early_term);
       }
-      if (!comp_pred) {
-        vars[INTER_OFFSET(this_mode)][ref_frame] = var;
-        if (frame_mv[this_mode][ref_frame].as_int == 0) {
-          vars[INTER_OFFSET(GLOBALMV)][ref_frame] = var;
-        }
-      }
-      if (comp_pred && var > var_threshold) {
-        if (reuse_inter_pred) free_pred_buffer(this_mode_pred);
-        continue;
-      }
 #if COLLECT_PICK_MODE_STAT
       aom_usec_timer_mark(&ms_stat.timer2);
       ms_stat.model_rd_time[bsize][this_mode] +=
           aom_usec_timer_elapsed(&ms_stat.timer2);
 #endif
+    }
+    // update variance for single mode
+    if (!comp_pred) {
+      vars[INTER_OFFSET(this_mode)][ref_frame] = var;
+      if (frame_mv[this_mode][ref_frame].as_int == 0) {
+        vars[INTER_OFFSET(GLOBALMV)][ref_frame] = var;
+      }
+    }
+    // prune compound mode based on single mode var threshold
+    if (comp_pred && var > var_threshold) {
+      if (reuse_inter_pred) free_pred_buffer(this_mode_pred);
+      continue;
     }
 
     if (ref_frame == LAST_FRAME && frame_mv[this_mode][ref_frame].as_int == 0) {
