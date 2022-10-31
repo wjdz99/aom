@@ -127,7 +127,7 @@ static void DestroyStatsBufferCtx(STATS_BUFFER_CTX **stats_buf_context,
   (*stats_buf_context)->total_left_stats = nullptr;
   delete *stats_buf_context;
   *stats_buf_context = nullptr;
-  delete[](*stats_buffer);
+  delete[] (*stats_buffer);
   *stats_buffer = nullptr;
 }
 

@@ -313,7 +313,11 @@ static AOM_INLINE int set_rdmult(const AV1_COMP *const cpi,
   if (segment_id >= 0) {
     qindex = av1_get_qindex(&cm->seg, segment_id, cm->quant_params.base_qindex);
   } else {
+<<<<<<< PATCH SET (b50e2c Superblock qp sweep experiment given fixed rdmult)
+    qindex = quant_params->base_qindex + x->rdmult_delta_qindex +
+=======
     qindex = quant_params->base_qindex + x->delta_qindex +
+>>>>>>> BASE      (74f1bd Refactor functions to calculate rdmult (lambda))
              quant_params->y_dc_delta_q;
   }
 
