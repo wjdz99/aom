@@ -1270,6 +1270,10 @@ typedef struct RD_CALC_SPEED_FEATURES {
 
   // Flag used to control the extent of coeff R-D optimization
   int perform_coeff_opt;
+
+  // Flag to control superblock level qp sweep for a given lambda enabled or
+  // not.
+  bool sb_qp_sweep;
 } RD_CALC_SPEED_FEATURES;
 
 typedef struct WINNER_MODE_SPEED_FEATURES {

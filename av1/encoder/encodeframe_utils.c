@@ -58,7 +58,8 @@ static AOM_INLINE int set_deltaq_rdmult(const AV1_COMP *const cpi,
                                         const MACROBLOCK *const x) {
   const AV1_COMMON *const cm = &cpi->common;
   const CommonQuantParams *quant_params = &cm->quant_params;
-  return av1_compute_rd_mult(cpi, quant_params->base_qindex + x->delta_qindex +
+  return av1_compute_rd_mult(cpi, quant_params->base_qindex +
+                                      x->rdmult_delta_qindex +
                                       quant_params->y_dc_delta_q);
 }
 
@@ -1041,6 +1042,15 @@ int av1_get_q_for_deltaq_objective(AV1_COMP *const cpi, ThreadData *td,
     td->mb.rb = exp((intra_cost - mc_dep_reg) / cbcmp_base);
     beta = (r0 / rk);
     assert(beta > 0.0);
+
+    if (cpi->sf.rd_sf.sb_qp_sweep) {  // Debug prints
+      td->mb.rk = rk;
+      td->mb.intra_cost = intra_cost;
+      td->mb.mc_dep_cost = mc_dep_cost;
+      td->mb.cbcmp_base = cbcmp_base;
+      td->mb.beta = beta;
+    }
+
   } else {
     return base_qindex;
   }
