@@ -2418,8 +2418,7 @@ static int encode_without_recode(AV1_COMP *cpi) {
   av1_set_size_dependent_vars(cpi, &q, &bottom_index, &top_index);
   av1_set_mv_search_params(cpi);
 
-  if (cm->current_frame.frame_number == 0 && svc->number_temporal_layers > 1 &&
-      svc->number_spatial_layers == 1) {
+  if (cm->current_frame.frame_number == 0 && cpi->ppi->use_svc) {
     const SequenceHeader *seq_params = cm->seq_params;
     if (aom_alloc_frame_buffer(
             &cpi->svc.source_last_ref, cm->width, cm->height,
@@ -2551,8 +2550,7 @@ static int encode_without_recode(AV1_COMP *cpi) {
   // encoded at high/max QP, and if so, set the q and adjust some rate
   // control parameters.
   if (cpi->sf.rt_sf.overshoot_detection_cbr == FAST_DETECTION_MAXQ &&
-      (cpi->rc.high_source_sad ||
-       (cpi->ppi->use_svc && cpi->svc.high_source_sad_superframe))) {
+      cpi->rc.high_source_sad) {
     if (av1_encodedframe_overshoot_cbr(cpi, &q)) {
       av1_set_quantizer(cm, q_cfg->qm_minlevel, q_cfg->qm_maxlevel, q,
                         q_cfg->enable_chroma_deltaq, q_cfg->enable_hdr_deltaq);

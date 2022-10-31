@@ -381,8 +381,7 @@ static void cyclic_refresh_update_map(AV1_COMP *const cpi) {
 }
 
 static int is_scene_change_detected(AV1_COMP *const cpi) {
-  return cpi->rc.high_source_sad ||
-         (cpi->ppi->use_svc && cpi->svc.high_source_sad_superframe);
+  return cpi->rc.high_source_sad;
 }
 
 // Set cyclic refresh parameters.
