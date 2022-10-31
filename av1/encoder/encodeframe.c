@@ -876,8 +876,7 @@ static AOM_INLINE void grade_source_content_sb(AV1_COMP *cpi,
   AV1_COMMON *const cm = &cpi->common;
   bool calc_src_content = false;
 
-  if (cpi->sf.rt_sf.source_metrics_sb_nonrd &&
-      cpi->svc.number_spatial_layers <= 1 &&
+  if (cpi->sf.rt_sf.source_metrics_sb_nonrd && cpi->svc.spatial_layer_id == 0 &&
       cm->current_frame.frame_type != KEY_FRAME) {
     if (!cpi->sf.rt_sf.check_scene_detection || cpi->rc.frame_source_sad > 0) {
       calc_src_content = is_calc_src_content_needed(cpi, x, mi_row, mi_col);
