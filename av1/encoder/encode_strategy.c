@@ -1622,6 +1622,10 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
 
   cpi->td.mb.delta_qindex = 0;
 
+#if CONFIG_AQ_SWEEP
+  cpi->td.mb.rdmult_delta_qindex = 0;
+#endif
+
   if (!frame_params.show_existing_frame) {
     cm->quant_params.using_qmatrix = oxcf->q_cfg.using_qm;
   }

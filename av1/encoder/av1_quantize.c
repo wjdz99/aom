@@ -751,8 +751,21 @@ void av1_init_plane_quantizers(const AV1_COMP *cpi, MACROBLOCK *x,
                                    ? quant_params->base_qindex + x->delta_qindex
                                    : quant_params->base_qindex));
   const int qindex = av1_get_qindex(&cm->seg, segment_id, current_qindex);
+#if CONFIG_AQ_SWEEP
+  const int current_rd_qindex =
+      AOMMAX(0, AOMMIN(QINDEX_RANGE - 1,
+                       cm->delta_q_info.delta_q_present_flag
+                           ? quant_params->base_qindex + x->rdmult_delta_qindex
+                           : quant_params->base_qindex));
+  const int qindex_rd = av1_get_qindex(&cm->seg, segment_id, current_rd_qindex);
+
+  const int rdmult =
+      av1_compute_rd_mult(cpi, qindex_rd + quant_params->y_dc_delta_q);
+#else
   const int rdmult =
       av1_compute_rd_mult(cpi, qindex + quant_params->y_dc_delta_q);
+#endif  // CONFIG_AQ_SWEEP
+
   const int qindex_change = x->qindex != qindex;
   if (qindex_change || do_update) {
     av1_set_q_index(&cpi->enc_quant_dequant_params, qindex, x);
@@ -767,7 +780,11 @@ void av1_init_plane_quantizers(const AV1_COMP *cpi, MACROBLOCK *x,
   x->seg_skip_block = segfeature_active(&cm->seg, segment_id, SEG_LVL_SKIP);
 
   av1_set_error_per_bit(&x->errorperbit, rdmult);
+#if CONFIG_AQ_SWEEP
+  av1_set_sad_per_bit(cpi, &x->sadperbit, qindex_rd);
+#else
   av1_set_sad_per_bit(cpi, &x->sadperbit, qindex);
+#endif  // CONFIG_AQ_SWEEP
 
   x->prev_segment_id = segment_id;
 }
