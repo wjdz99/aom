@@ -18,6 +18,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "40ecbfe2_cadb9441",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5610
+      },
+      "writtenOn": "2022-10-31T16:13:10Z",
+      "side": 1,
+      "message": "I will take a look. It would be surprising if the Q limitations cause this but it could be that the mode search is different when frames since key is low.",
+      "parentUuid": "b8b1cb66_56cfdd1d",
+      "revId": "ca5be09053eccd18a594b33337b8c054e2c23bdb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "20173251_2c9631b7",
@@ -95,6 +113,24 @@
       "writtenOn": "2022-10-28T19:00:24Z",
       "side": 1,
       "message": "The current approach resets the rate control on scene changes (this is done in the function av1_encodedframe_overshoot_cbr()), before encoding the scene change. The rate_correction factor is also reset there (not to 1, but renormalized). And then we would let the rate_correction factor adjust to the over/undershoot of the encoded scene change.\n\nWondering if we should let the rate_corrrection adjust/react somewhat to the over/undershoot of the encoded scene change, instead of forcing to 1 always?",
+      "revId": "ca5be09053eccd18a594b33337b8c054e2c23bdb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f85e27da_63b85bc6",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 752,
+      "author": {
+        "id": 5610
+      },
+      "writtenOn": "2022-10-31T16:13:10Z",
+      "side": 1,
+      "message": "Personally I think trying to react to overshoot or undershoot earlier in the scene other than perhaps a window of a few frames, is a mistake and wrong in the context on RTC. Obviously we don\u0027t want to put out so many bits that the pipe cant cope and we lag, but for example if we undershoot for a first section why in an RTC low delay setting would we want to overshoot for the next section. In the days when the nominal pipe was an actual limit (like an ISDN line) this approach would have been a disaster. You cant save up underspent bits.. and if you deliberately overspend you will buffer up lag that has to be discharged, regardless of what happened before. Obviously we now tend to be working with a nominal stream target where the actual pipe has burst capacity a lot higher than the mean rate but even so I think that the idea of correcting for overshoot/undershoot in one part of a clip with the opposite in another part only makes sense for streamed content. For RTC surely we should always be trying to focus in on the correct bandwidth going forward. Also in the real world case we don\u0027t just have a 5 second or 10 second fixed length clip which means our testing creates a further false constraint in terms of rate control.  Clearly, we don\u0027t want to output too many bits over a prolonged period, but should we be then starving subsequent frames. Even more importantly, if we have a static section and underspend because we reach min Q, that does not mean we have more bits that we SHOULD spend if the next section is harder, rather that next section should still target the nominal rate.  I will check the renormalization of the factor in av1_encodedframe_overshoot_cbr() though to see how this compares. It may be it just needs a little adjustment there because certainly the value 1.0 is somewhat arbitrary but also almost always conservative, i.e. it usually settles well below this value.",
+      "parentUuid": "8cdad778_139c0adc",
       "revId": "ca5be09053eccd18a594b33337b8c054e2c23bdb",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
