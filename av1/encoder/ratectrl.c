@@ -2872,7 +2872,22 @@ static void rc_scene_detection_onepass_rt(AV1_COMP *cpi,
       rc->percent_blocks_with_motion =
           ((num_samples - num_zero_temp_sad) * 100) / num_samples;
   }
-  cpi->svc.high_source_sad_superframe = rc->high_source_sad;
+  // Scene detection is only on base SLO, pass the state to the upper spatial
+  // layers.
+  if (cpi->svc.number_spatial_layers > 1) {
+    SVC *svc = &cpi->svc;
+    for (int sl = 0; sl < svc->number_spatial_layers; ++sl) {
+      int tl = svc->temporal_layer_id;
+      const int layer = LAYER_IDS_TO_IDX(sl, tl, svc->number_temporal_layers);
+      LAYER_CONTEXT *lc = &svc->layer_context[layer];
+      RATE_CONTROL *lrc = &lc->rc;
+      lrc->high_source_sad = rc->high_source_sad;
+      lrc->frame_source_sad = rc->frame_source_sad;
+      lrc->avg_source_sad = rc->avg_source_sad;
+      lrc->percent_blocks_with_motion = rc->percent_blocks_with_motion;
+      lrc->max_block_source_sad = rc->max_block_source_sad;
+    }
+  }
 }
 
 /*!\brief Set the GF baseline interval for 1 pass real-time mode.
