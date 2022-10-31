@@ -87,6 +87,24 @@
       "parentUuid": "5f6af52b_7b7efe4b",
       "revId": "f695447e0b6f6def2d5b17b6a8550cef3d579f8f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b02d03a6_9f795ee9",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-10-31T20:37:32Z",
+      "side": 1,
+      "message": "There\u0027re two cases here when superblock size is 128x128:\n\n1. The superblock is not splitted. In this case, the skip flag set in pick_sb_modes_nonrd covers the whole superblock, thus the skip flag for 64x64 subblocks inside needs to be overwritten. If not, 3 of the 64x64 subblocks will always be skipped for CDEF, which may cause visual artifacts.\n\n2. The superblock is splitted into 64x64 or smaller. In this case, the skip flag will be set for each 64x64 subblock inside the superblock, in pick_sb_modes_nonrd. Then there\u0027s no need to overwrite the flags.\n\nSo this change should only apply to case 2. I think a correct change should see if the superblock is splitted or not when SB size is 128x128. And overwrite if it\u0027s not splitted.",
+      "parentUuid": "b68783ff_fe1bae5c",
+      "revId": "f695447e0b6f6def2d5b17b6a8550cef3d579f8f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
