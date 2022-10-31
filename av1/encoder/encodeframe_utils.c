@@ -1389,6 +1389,7 @@ void av1_source_content_sb(AV1_COMP *cpi, MACROBLOCK *x, TileDataEnc *tile_data,
   uint8_t *src_y = cpi->source->y_buffer;
   const int src_ystride = cpi->source->y_stride;
   const int src_offset = src_ystride * (mi_row << 2) + (mi_col << 2);
+  if (cpi->last_source == NULL) return;
   uint8_t *last_src_y = cpi->last_source->y_buffer;
   const int last_src_ystride = cpi->last_source->y_stride;
   const int last_src_offset = last_src_ystride * (mi_row << 2) + (mi_col << 2);
@@ -1426,7 +1427,7 @@ void av1_source_content_sb(AV1_COMP *cpi, MACROBLOCK *x, TileDataEnc *tile_data,
     x->content_state_sb.low_sumdiff = 1;
 
   if (!cpi->sf.rt_sf.use_rtc_tf || cpi->rc.high_source_sad ||
-      cpi->rc.frame_source_sad > 20000)
+      cpi->rc.frame_source_sad > 20000 || cpi->svc.number_spatial_layers > 1)
     return;
 
   // In-place temporal filter. If psnr calculation is enabled, we store the
