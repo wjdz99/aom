@@ -546,6 +546,6 @@ void av1_svc_update_frame_number_buffslot(AV1_COMP *const cpi) {
   const RTC_REF *const rtc_ref = &cpi->ppi->rtc_ref;
   for (int i = 0; i < 8; i++) {
     if (current_frame->frame_type == KEY_FRAME || rtc_ref->refresh[i] == 1)
-      svc->frame_number_buffslot[i] = current_frame->frame_number;
+      svc->frame_number_buffslot[i] = svc->current_superframe;
   }
 }
