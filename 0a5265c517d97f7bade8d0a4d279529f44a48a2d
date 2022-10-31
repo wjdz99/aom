@@ -33,6 +33,24 @@
       "message": "clang format really wanted to expand elements to it\u0027s own line. Is there a way to keep formatting on and still prevent that?",
       "revId": "0a5265c517d97f7bade8d0a4d279529f44a48a2d",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2169ef1b_98edbe1b",
+        "filename": "av1/common/quant_common.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 324,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-10-31T17:45:32Z",
+      "side": 1,
+      "message": "\u003e clang format really wanted to expand elements to it\u0027s own line. Is there a way to keep formatting on and still prevent that?\n\nDo you have an example? One method to retain formatting would be to add trailing empty comments (\u0027//\u0027) to the lines. In practice this isn\u0027t too much different than disabling the formatting and arguably makes the intent less clear to the reader.",
+      "parentUuid": "7dc617d2_47074ac8",
+      "revId": "0a5265c517d97f7bade8d0a4d279529f44a48a2d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
