@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c58b3f49_b3374b7f",
+        "filename": "av1/qmode_rc/ducky_encode.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 517,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-10-31T13:30:43Z",
+      "side": 1,
+      "message": "This can be const. \n\nOr for that matter, the variable isn\u0027t really needed, since it\u0027s only used once, and you could just use gop_encode_info_list[i] below. But if you prefer leaving the variable (since it keeps the references to i together), it\u0027s fine to keep it.",
+      "range": {
+        "startLine": 517,
+        "startChar": 4,
+        "endLine": 517,
+        "endChar": 38
+      },
+      "revId": "ded8c329ad9636790a580f0b227ac3ed7f1bcdce",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "da502c0b_7797c96c",
+        "filename": "av1/qmode_rc/ratectrl_qmode.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 1293,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-10-31T13:30:43Z",
+      "side": 1,
+      "message": "The rdmult field is deprecated, and I\u0027m planning on removing it in https://aomedia-review.googlesource.com/c/aom/+/165381.\n\nBut if we land this change first, this can stay, and I\u0027ll deal with it in my change.",
+      "range": {
+        "startLine": 1293,
+        "startChar": 0,
+        "endLine": 1293,
+        "endChar": 55
+      },
+      "revId": "ded8c329ad9636790a580f0b227ac3ed7f1bcdce",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5aa1169b_bb00ada8",
+        "filename": "av1/qmode_rc/ratectrl_qmode_interface.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 307,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-10-31T13:30:43Z",
+      "side": 1,
+      "message": "It will simplify integration into downstream repos if at first this is not pure virtual. Then I can change it to pure virtual once all derived classes implement it.\n\nFor now, I\u0027d declare it like this:\n\n    // TODO(wachsler): Make pure virtual once all derived classes implement it.\n    virtual StatusOr\u003cGopEncodeInfo\u003e GetTplPassGopEncodeInfo(\n          const GopStruct \u0026gop_struct AOM_UNUSED) {\n      return Status{ AOM_CODEC_UNSUP_FEATURE, \"Not yet implemented\" };\n    };",
+      "range": {
+        "startLine": 307,
+        "startChar": 0,
+        "endLine": 307,
+        "endChar": 39
+      },
+      "revId": "ded8c329ad9636790a580f0b227ac3ed7f1bcdce",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f6508d90_5eb2c80d",
+        "filename": "test/ratectrl_qmode_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 1045,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-10-31T13:30:43Z",
+      "side": 1,
+      "message": "This could just be:\n\n    for (const auto\u0026 gop_struct : gop_list)",
+      "range": {
+        "startLine": 1044,
+        "startChar": 2,
+        "endLine": 1045,
+        "endChar": 51
+      },
+      "revId": "ded8c329ad9636790a580f0b227ac3ed7f1bcdce",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cc0b7da2_3897c314",
+        "filename": "test/ratectrl_qmode_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 1047,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-10-31T13:30:43Z",
+      "side": 1,
+      "message": "Add:\n\n     ASSERT_TRUE(gop_encode_info.ok());\n     \nbefore this line.",
+      "range": {
+        "startLine": 1047,
+        "startChar": 0,
+        "endLine": 1047,
+        "endChar": 60
+      },
+      "revId": "ded8c329ad9636790a580f0b227ac3ed7f1bcdce",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
