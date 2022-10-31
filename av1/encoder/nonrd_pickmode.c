@@ -3347,8 +3347,9 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
         get_segdata(seg, segment_id, SEG_LVL_REF_FRAME) != (int)ref_frame)
       continue;
 
-    // For screen content:
-    if (cpi->oxcf.tune_cfg.content == AOM_CONTENT_SCREEN) {
+    // For screen content: for base spatial layer only for now.
+    if (cpi->oxcf.tune_cfg.content == AOM_CONTENT_SCREEN &&
+        cpi->svc.spatial_layer_id == 0) {
       // If source_sad is computed: skip non-zero motion
       // check for stationary (super)blocks. Otherwise if superblock
       // has motion skip the modes with zero motion for flat blocks,

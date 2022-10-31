@@ -2418,8 +2418,7 @@ static int encode_without_recode(AV1_COMP *cpi) {
   av1_set_size_dependent_vars(cpi, &q, &bottom_index, &top_index);
   av1_set_mv_search_params(cpi);
 
-  if (cm->current_frame.frame_number == 0 && svc->number_temporal_layers > 1 &&
-      svc->number_spatial_layers == 1) {
+  if (cm->current_frame.frame_number == 0 && cpi->ppi->use_svc) {
     const SequenceHeader *seq_params = cm->seq_params;
     if (aom_alloc_frame_buffer(
             &cpi->svc.source_last_ref, cm->width, cm->height,
