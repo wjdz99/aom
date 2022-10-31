@@ -24,6 +24,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "b594210c_4628cecf",
+        "filename": "av1/qmode_rc/ducky_encode.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 517,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2022-10-31T16:27:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c58b3f49_b3374b7f",
+      "range": {
+        "startLine": 517,
+        "startChar": 4,
+        "endLine": 517,
+        "endChar": 38
+      },
+      "revId": "ded8c329ad9636790a580f0b227ac3ed7f1bcdce",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "da502c0b_7797c96c",
@@ -37,6 +61,30 @@
       "writtenOn": "2022-10-31T13:30:43Z",
       "side": 1,
       "message": "The rdmult field is deprecated, and I\u0027m planning on removing it in https://aomedia-review.googlesource.com/c/aom/+/165381.\n\nBut if we land this change first, this can stay, and I\u0027ll deal with it in my change.",
+      "range": {
+        "startLine": 1293,
+        "startChar": 0,
+        "endLine": 1293,
+        "endChar": 55
+      },
+      "revId": "ded8c329ad9636790a580f0b227ac3ed7f1bcdce",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8ed1496a_85d94f94",
+        "filename": "av1/qmode_rc/ratectrl_qmode.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 1293,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2022-10-31T16:27:50Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "da502c0b_7797c96c",
       "range": {
         "startLine": 1293,
         "startChar": 0,
@@ -70,6 +118,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "c3a82e46_7a354cec",
+        "filename": "av1/qmode_rc/ratectrl_qmode_interface.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 307,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2022-10-31T16:27:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5aa1169b_bb00ada8",
+      "range": {
+        "startLine": 307,
+        "startChar": 0,
+        "endLine": 307,
+        "endChar": 39
+      },
+      "revId": "ded8c329ad9636790a580f0b227ac3ed7f1bcdce",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "f6508d90_5eb2c80d",
@@ -93,6 +165,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "28f3c4ad_d6319823",
+        "filename": "test/ratectrl_qmode_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 1045,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2022-10-31T16:27:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f6508d90_5eb2c80d",
+      "range": {
+        "startLine": 1044,
+        "startChar": 2,
+        "endLine": 1045,
+        "endChar": 51
+      },
+      "revId": "ded8c329ad9636790a580f0b227ac3ed7f1bcdce",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "cc0b7da2_3897c314",
@@ -106,6 +202,30 @@
       "writtenOn": "2022-10-31T13:30:43Z",
       "side": 1,
       "message": "Add:\n\n     ASSERT_TRUE(gop_encode_info.ok());\n     \nbefore this line.",
+      "range": {
+        "startLine": 1047,
+        "startChar": 0,
+        "endLine": 1047,
+        "endChar": 60
+      },
+      "revId": "ded8c329ad9636790a580f0b227ac3ed7f1bcdce",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8d8ff9cf_e522bff3",
+        "filename": "test/ratectrl_qmode_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 1047,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2022-10-31T16:27:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cc0b7da2_3897c314",
       "range": {
         "startLine": 1047,
         "startChar": 0,
