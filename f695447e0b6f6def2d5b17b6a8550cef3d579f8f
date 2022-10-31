@@ -16,6 +16,23 @@
       "message": "Hi Marco, Yunqing,\n\nIn this CL, we fixed issues with the speed feature skip_cdef_sb when SB size is 128x128. \nIn the parent version, the decision to skip CDEF filtering is done and stored at 64x64/64x128/128x64/128x128 block level (i.e., first mi instance) in pick_sb_modes_nonrd(). This is consistent with signaling in the bitstream. Eg: After processing 128x128 superblock, the skip decision of first 64x64 CDEF block overwrites the decisions of remaining 64x64 CDEF blocks after the call to av1_nonrd_use_partition() in encode_nonrd_sb(). The same is seen when 128x64/64x128 blocks are chosen. As per our understanding, this is not correct. Hence the relevant code is cleaned-up in this CL.\n\nThe CL has effect only for rtc-screen, speed\u003d9 and 10 as it fixes issues when skip_cdef_sb\u003d1, cdef_pick_method \u003d CDEF_PICK_FROM_Q and sb_size\u003d128x128. \n\nFor rtc-screen, speed\u003d9, 7 out of 9 contents improve in quality. For rtc-screen, speed\u003d10, 8 out of 9 contents improve in quality. The contents that are dropping in BD-Rate are given below:\n\n```\n                                                      BD-Rate Loss(%)\ncpu                 Content                    avg.psnr   ovr.psnr   ssim\n9             slides_webplot.1920_1080          1.2493     1.9070    1.2734\n10        screen_crd_colwinscroll.1920_1128     0.3104     0.2370   -0.1049\n```\n\nWe also verified that CL produces bit-exact output for few test-set/speed setting combinations in case of --rt/--good usage.\n\nPlease let us know your opinion on the CL.\n\nRegards,\nRanjit",
       "revId": "f695447e0b6f6def2d5b17b6a8550cef3d579f8f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5f6af52b_7b7efe4b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-10-31T19:52:35Z",
+      "side": 1,
+      "message": "There\u0027s some code in pick_sb_modes_nonrd to change the flag based on mode search and noise sensitivity:\n\nhttps://aomedia.googlesource.com/aom/+/refs/heads/main/av1/encoder/partition_search.c#2296\n\nWhich is very important to reduce visual artifacts from cdef skipping.",
+      "revId": "f695447e0b6f6def2d5b17b6a8550cef3d579f8f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
