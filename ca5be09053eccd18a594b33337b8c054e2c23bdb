@@ -36,6 +36,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "b3b10b06_c63e0d78",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2022-11-01T03:25:54Z",
+      "side": 1,
+      "message": "Ok.\n\nThe are 3 changes in the patch:\n1) setting frames_since_key to 0 in cyclic refresh, which causes larger-delta q for longer period (as mentioned we can do this without reseting frames_since_key)\n2) the change in.adjust_q_cbr()\n3)reseting the rc factor to 1 when rc-\u003ehigh_source_sad\u003d1 (and on key frames)\n\nMay be good to know the effect of each, i think (1) can be a separate patch.",
+      "parentUuid": "40ecbfe2_cadb9441",
+      "revId": "ca5be09053eccd18a594b33337b8c054e2c23bdb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "20173251_2c9631b7",
@@ -131,6 +149,24 @@
       "side": 1,
       "message": "Personally I think trying to react to overshoot or undershoot earlier in the scene other than perhaps a window of a few frames, is a mistake and wrong in the context on RTC. Obviously we don\u0027t want to put out so many bits that the pipe cant cope and we lag, but for example if we undershoot for a first section why in an RTC low delay setting would we want to overshoot for the next section. In the days when the nominal pipe was an actual limit (like an ISDN line) this approach would have been a disaster. You cant save up underspent bits.. and if you deliberately overspend you will buffer up lag that has to be discharged, regardless of what happened before. Obviously we now tend to be working with a nominal stream target where the actual pipe has burst capacity a lot higher than the mean rate but even so I think that the idea of correcting for overshoot/undershoot in one part of a clip with the opposite in another part only makes sense for streamed content. For RTC surely we should always be trying to focus in on the correct bandwidth going forward. Also in the real world case we don\u0027t just have a 5 second or 10 second fixed length clip which means our testing creates a further false constraint in terms of rate control.  Clearly, we don\u0027t want to output too many bits over a prolonged period, but should we be then starving subsequent frames. Even more importantly, if we have a static section and underspend because we reach min Q, that does not mean we have more bits that we SHOULD spend if the next section is harder, rather that next section should still target the nominal rate.  I will check the renormalization of the factor in av1_encodedframe_overshoot_cbr() though to see how this compares. It may be it just needs a little adjustment there because certainly the value 1.0 is somewhat arbitrary but also almost always conservative, i.e. it usually settles well below this value.",
       "parentUuid": "8cdad778_139c0adc",
+      "revId": "ca5be09053eccd18a594b33337b8c054e2c23bdb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5eb31d21_900c16ca",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 752,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2022-11-01T03:25:54Z",
+      "side": 1,
+      "message": "For RTC we have always taken the approach to respond quickly to overshoot, so on a change where high_source_sad \u003d 1 (high content change, like scene/slide change) we should react after encoding that frame. The fast reaction to overshoot is because otherwise an RTC application may just end of dropping more frames to stabilize the encoder buffer.\n\nI\u0027m fine with capping the rate_correction_factor to some maximum increase, but some response to the overshoot I think is needed.\n\nThe resetting in av1_encodedframe_overshoot_cbr() is based on the target-bits/#mb, and was carried over from vp9, so it should be fixed for av1. I think it makes sense to reset there on the scene change (before encoding), and then adjust after encoding in update_rate_correction_factors.",
+      "parentUuid": "f85e27da_63b85bc6",
       "revId": "ca5be09053eccd18a594b33337b8c054e2c23bdb",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
