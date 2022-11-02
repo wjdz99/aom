@@ -16,6 +16,23 @@
       "message": "Hi Chi-Yo, Jingning, Lin, Yunqing,\n\nIn this CL, the NEON implementation of aom_hadamard_16x16() is modified to match the output with that of C implementation. This CL also enables relevant unit-test. \n\nThe NEON implementation of aom_hadamard_16x16() is modified similar to SSE2 implementation in the CL below:\nhttps://aomedia-review.googlesource.com/c/aom/+/163202\nTo facilitate the change, we introduced a temporary buffer to store intermediate data as final output is written out of order in this CL. \n\nWe observed that the latest implementation reduces function time (using unit-test) by ~1.66%(in 32-bit build) and increases function time by ~0.93%(in 64-bit build). \n\nPlease review the CL.\n\nRegards,\nRanjit",
       "revId": "28d6600d23f1a028a8dec00b48bb9c7766d9ebd3",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "025331ff_d648ca59",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2022-11-02T18:16:39Z",
+      "side": 1,
+      "message": "Thanks for fixing these functions!",
+      "revId": "28d6600d23f1a028a8dec00b48bb9c7766d9ebd3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
