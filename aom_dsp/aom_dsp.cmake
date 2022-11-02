@@ -175,18 +175,21 @@ if(CONFIG_AV1_ENCODER)
               "${AOM_ROOT}/aom_dsp/variance.h")
 
   # Flow estimation library
-  list(APPEND AOM_DSP_ENCODER_SOURCES
-              "${AOM_ROOT}/aom_dsp/flow_estimation/corner_detect.c"
-              "${AOM_ROOT}/aom_dsp/flow_estimation/corner_match.c"
-              "${AOM_ROOT}/aom_dsp/flow_estimation/disflow.c"
-              "${AOM_ROOT}/aom_dsp/flow_estimation/flow_estimation.c"
-              "${AOM_ROOT}/aom_dsp/flow_estimation/ransac.c")
+  if(NOT CONFIG_REALTIME_ONLY)
+    list(APPEND AOM_DSP_ENCODER_SOURCES
+                "${AOM_ROOT}/aom_dsp/flow_estimation/corner_detect.c"
+                "${AOM_ROOT}/aom_dsp/flow_estimation/corner_match.c"
+                "${AOM_ROOT}/aom_dsp/flow_estimation/disflow.c"
+                "${AOM_ROOT}/aom_dsp/flow_estimation/flow_estimation.c"
+                "${AOM_ROOT}/aom_dsp/flow_estimation/pyramid.c"
+                "${AOM_ROOT}/aom_dsp/flow_estimation/ransac.c")
 
-  list(APPEND AOM_DSP_ENCODER_INTRIN_SSE4_1
-              "${AOM_ROOT}/aom_dsp/flow_estimation/x86/corner_match_sse4.c")
+    list(APPEND AOM_DSP_ENCODER_INTRIN_SSE4_1
+                "${AOM_ROOT}/aom_dsp/flow_estimation/x86/corner_match_sse4.c")
 
-  list(APPEND AOM_DSP_ENCODER_INTRIN_AVX2
-              "${AOM_ROOT}/aom_dsp/flow_estimation/x86/corner_match_avx2.c")
+    list(APPEND AOM_DSP_ENCODER_INTRIN_AVX2
+                "${AOM_ROOT}/aom_dsp/flow_estimation/x86/corner_match_avx2.c")
+  endif()
 
   list(APPEND AOM_DSP_ENCODER_ASM_SSE2 "${AOM_ROOT}/aom_dsp/x86/sad4d_sse2.asm"
               "${AOM_ROOT}/aom_dsp/x86/sad_sse2.asm"

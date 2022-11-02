@@ -17,6 +17,10 @@
 #include "aom_scale/yv12config.h"
 #include "aom_util/aom_thread.h"
 
+#include "av1/common/mv.h"
+#include "av1/common/warped_motion.h"
+#include "av1/encoder/cost.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif

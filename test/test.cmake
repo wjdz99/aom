@@ -103,6 +103,11 @@ endif()
 
 list(APPEND AOM_DECODE_PERF_TEST_SOURCES "${AOM_ROOT}/test/decode_perf_test.cc")
 
+if(NOT CONFIG_REALTIME_ONLY)
+  list(APPEND AOM_UNIT_TEST_ENCODER_SOURCES
+              "${AOM_ROOT}/test/flow_estimation_test.cc")
+endif()
+
 if(CONFIG_REALTIME_ONLY)
   list(REMOVE_ITEM AOM_UNIT_TEST_ENCODER_SOURCES
                    "${AOM_ROOT}/test/allintra_end_to_end_test.cc"
@@ -204,8 +209,12 @@ if(NOT BUILD_SHARED_LIBS)
               "${AOM_ROOT}/test/av1_k_means_test.cc")
 
   list(APPEND AOM_UNIT_TEST_ENCODER_INTRIN_SSE4_1
-              "${AOM_ROOT}/test/corner_match_test.cc"
               "${AOM_ROOT}/test/simd_cmp_sse4.cc")
+
+  if(NOT CONFIG_REALTIME_ONLY)
+    list(APPEND AOM_UNIT_TEST_ENCODER_INTRIN_SSE4_1
+                "${AOM_ROOT}/test/corner_match_test.cc")
+  endif()
 
   if(CONFIG_ACCOUNTING)
     list(APPEND AOM_UNIT_TEST_COMMON_SOURCES
