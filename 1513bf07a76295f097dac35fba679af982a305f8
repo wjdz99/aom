@@ -70,6 +70,30 @@
       },
       "revId": "1513bf07a76295f097dac35fba679af982a305f8",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "274a8e57_bf145556",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 548,
+      "author": {
+        "id": 6245
+      },
+      "writtenOn": "2022-11-02T12:29:58Z",
+      "side": 0,
+      "message": "\u003e Re 1), speed 9 and 10 pick cdef strength values from QP, so av1_cdef_compute_sb_list is not used. But I don\u0027t think it matters for this CL.\n\nAck. We referred to av1_cdef_compute_sb_list() as it is a common function and demonstrates using block sizes (128x128 vs 64x64).  \n\n\u003e Re 2), I agree. If the 128x128 SB is not splitted, that\u0027ll be only called once (which is called per coding block) and the rest of CDEF strength values are ignored.\n\nAck.\n\n\u003e If that\u0027s the case, then this CL doesn\u0027t change anything when 128x128 SB is not splitted; but it fixes the overwrite issue when 128x128 SB is splitted. Is this where the coding gain comes from?\n\nYes. We verified the same.\n\n\u003e BTW is the instruction count increased or decreased?\n\nOverall, the instruction count has increased. Eg: For speed\u003d10, the instruction count increased by 0.194%. \n\n\u003e Besides that, I think it\u0027s better to do visual test with CDEF changes as the metrics are not a good indicator here.\n\nWe performed few visual tests (for the cases where there is BD-Rate drop with clips  at similar bit-rates), please find our observations below: The differences are mainly seen at non-static regions/frames (i.e., scene-cuts, special effects, etc.)\n1) sc_web_browsing720p at 500kbps : Text and colors seem to be better with this CL. At a scene-cut points, we observed bullet in the web-page is carried from previous scene to new scene with this CL. \n2) screen_crd_colwinscroll.1920_1128 at 500 kbps : Contouring artifacts are seen in both the versions.\n3) screenshare_youtube.1680_1178 at 600 kbps : The dragging artifacts are more in parent version. Artifacts are seen in the blocks near frame boundaries (in couple of frames) with this CL.\nOverall, the results seem to be mixed. As the CL fixes an underlying algorithmic issue, we feel that the CL can be considered for merging.",
+      "parentUuid": "9f1b1d7c_1ee3be27",
+      "range": {
+        "startLine": 548,
+        "startChar": 32,
+        "endLine": 548,
+        "endChar": 45
+      },
+      "revId": "1513bf07a76295f097dac35fba679af982a305f8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
