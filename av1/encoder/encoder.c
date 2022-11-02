@@ -61,6 +61,7 @@
 #include "av1/encoder/encodetxb.h"
 #include "av1/encoder/ethread.h"
 #include "av1/encoder/firstpass.h"
+#include "av1/encoder/global_motion_facade.h"
 #include "av1/encoder/hash_motion.h"
 #include "av1/encoder/hybrid_fwd_txfm.h"
 #include "av1/encoder/intra_mode_search.h"
@@ -2685,7 +2686,9 @@ static int encode_with_recode_loop(AV1_COMP *cpi, size_t *size, uint8_t *dest) {
       cpi->sf.interp_sf.adaptive_interp_filter_search)
     cpi->interp_search_flags.interp_filter_search_mask =
         av1_setup_interp_filter_search_mask(cpi);
-  cpi->source->buf_8bit_valid = 0;
+#if !CONFIG_REALTIME_ONLY
+  aom_invalidate_gm_data(&cm->cur_frame->buf);
+#endif  // !CONFIG_REALTIME_ONLY
 
   av1_setup_frame_size(cpi);
 
@@ -4456,9 +4459,13 @@ void av1_post_encode_updates(AV1_COMP *const cpi,
   AV1_PRIMARY *const ppi = cpi->ppi;
   AV1_COMMON *const cm = &cpi->common;
 
+  // TODO(rachelbarker): Should this be inside the #if !CONFIG_REALTIME_ONLY
+  // block too?
   update_gm_stats(cpi);
 
 #if !CONFIG_REALTIME_ONLY
+  av1_free_flow_fields(cpi);
+
   // Update the total stats remaining structure.
   if (cpi->twopass_frame.this_frame != NULL &&
       ppi->twopass.stats_buf_ctx->total_left_stats) {
@@ -4480,6 +4487,7 @@ void av1_post_encode_updates(AV1_COMP *const cpi,
       memcpy(cm->ref_frame_map, ppi->ref_frame_map_copy,
              sizeof(cm->ref_frame_map));
     }
+
     refresh_reference_frames(cpi);
     // For frame_parallel_level 1 frame in a parallel encode set of lower layer
     // frames, store the updated cm->ref_frame_map in ppi->ref_frame_map_copy.

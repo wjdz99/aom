@@ -27,8 +27,8 @@ namespace AV1CornerMatch {
 
 using libaom_test::ACMRandom;
 
-typedef double (*ComputeCrossCorrFunc)(unsigned char *im1, int stride1, int x1,
-                                       int y1, unsigned char *im2, int stride2,
+typedef double (*ComputeCrossCorrFunc)(const uint8_t *im1, int stride1, int x1,
+                                       int y1, const uint8_t *im2, int stride2,
                                        int x2, int y2);
 
 using std::make_tuple;

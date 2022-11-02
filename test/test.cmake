@@ -103,6 +103,11 @@ endif()
 
 list(APPEND AOM_DECODE_PERF_TEST_SOURCES "${AOM_ROOT}/test/decode_perf_test.cc")
 
+if(NOT CONFIG_REALTIME_ONLY)
+  list(APPEND AOM_UNIT_TEST_ENCODER_SOURCES
+              "${AOM_ROOT}/test/flow_estimation_test.cc")
+endif()
+
 if(CONFIG_REALTIME_ONLY)
   list(REMOVE_ITEM AOM_UNIT_TEST_ENCODER_SOURCES
                    "${AOM_ROOT}/test/allintra_end_to_end_test.cc"

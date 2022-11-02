@@ -108,14 +108,6 @@ static AOM_INLINE void convert_fullmv_to_mv(int_mv *mv) {
 
 #define WARPEDDIFF_PREC_BITS (WARPEDMODEL_PREC_BITS - WARPEDPIXEL_PREC_BITS)
 
-// Number of types used for global motion (must be >= 3 and <= TRANS_TYPES)
-// The following can be useful:
-// GLOBAL_TRANS_TYPES 3 - up to rotation-zoom
-// GLOBAL_TRANS_TYPES 4 - up to affine
-// GLOBAL_TRANS_TYPES 6 - up to hor/ver trapezoids
-// GLOBAL_TRANS_TYPES 7 - up to full homography
-#define GLOBAL_TRANS_TYPES 4
-
 typedef struct {
   int global_warp_allowed;
   int local_warp_allowed;
