@@ -156,6 +156,9 @@ set_aom_config_var(CONFIG_TFLITE 0
 set_aom_config_var(CONFIG_THREE_PASS 0
                    "AV1 experiment: Enable three-pass encoding.")
 
+set_aom_config_var(CONFIG_GM_USE_DISFLOW 0
+                   "Use disflow method for global motion")
+
 #
 # Variables in this section control optional features of the build system.
 #
