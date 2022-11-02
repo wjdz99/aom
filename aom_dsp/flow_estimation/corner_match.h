@@ -13,32 +13,38 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <memory.h>
 
+#include "aom_dsp/flow_estimation/flow_estimation.h"
 #include "aom_scale/yv12config.h"
 
-#include "av1/common/mv.h"
-#include "av1/encoder/global_motion.h"
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #define MATCH_SZ 13
 #define MATCH_SZ_BY2 ((MATCH_SZ - 1) / 2)
 #define MATCH_SZ_SQ (MATCH_SZ * MATCH_SZ)
 
-typedef struct {
-  int x, y;
-  int rx, ry;
-} Correspondence;
+CorrespondenceList *aom_compute_corner_match(YV12_BUFFER_CONFIG *src,
+                                             YV12_BUFFER_CONFIG *ref,
+                                             int bit_depth);
 
-int aom_determine_correspondence(unsigned char *src, int *src_corners,
-                                 int num_src_corners, unsigned char *ref,
-                                 int *ref_corners, int num_ref_corners,
-                                 int width, int height, int src_stride,
-                                 int ref_stride, int *correspondence_pts);
+bool aom_fit_global_model_to_correspondences(const CorrespondenceList *corrs,
+                                             TransformationType type,
+                                             MotionModel *params_by_motion,
+                                             int num_motions);
 
-int aom_compute_global_motion_feature_based(
-    TransformationType type, unsigned char *src_buffer, int src_width,
-    int src_height, int src_stride, int *src_corners, int num_src_corners,
-    YV12_BUFFER_CONFIG *ref, int bit_depth, int *num_inliers_by_motion,
-    MotionModel *params_by_motion, int num_motions);
+bool aom_fit_local_model_to_correspondences(const CorrespondenceList *corrs,
+                                            const PixelRect *rect,
+                                            TransformationType type,
+                                            double *mat);
+
+void aom_free_correspondence_list(CorrespondenceList *list);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif  // AOM_FLOW_ESTIMATION_CORNER_MATCH_H_

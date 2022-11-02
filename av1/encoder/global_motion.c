@@ -21,14 +21,9 @@
 #include "av1/encoder/global_motion.h"
 
 #include "av1/common/convolve.h"
-#include "av1/common/resize.h"
 #include "av1/common/warped_motion.h"
 
 #include "av1/encoder/segmentation.h"
-#include "aom_dsp/flow_estimation/corner_detect.h"
-#include "aom_dsp/flow_estimation/corner_match.h"
-#include "aom_dsp/flow_estimation/ransac.h"
-#include "aom_dsp/flow_estimation/disflow.h"
 
 #define MIN_TRANS_THRESH (1 * GM_TRANS_DECODE_FACTOR)
 
@@ -58,12 +53,6 @@ static void convert_to_params(const double *params, int32_t *model) {
     alpha_present |= (model[i] != 0);
     model[i] = (model[i] + diag_value) * GM_ALPHA_DECODE_FACTOR;
   }
-  for (; i < 8; ++i) {
-    model[i] = (int32_t)floor(params[i] * (1 << GM_ROW3HOMO_PREC_BITS) + 0.5);
-    model[i] = (int32_t)clamp(model[i], GM_ROW3HOMO_MIN, GM_ROW3HOMO_MAX) *
-               GM_ROW3HOMO_DECODE_FACTOR;
-    alpha_present |= (model[i] != 0);
-  }
 
   if (!alpha_present) {
     if (abs(model[0]) < MIN_TRANS_THRESH && abs(model[1]) < MIN_TRANS_THRESH) {
@@ -85,11 +74,10 @@ void av1_convert_model_to_params(const double *params,
 // zero-centering.
 static int32_t add_param_offset(int param_index, int32_t param_value,
                                 int32_t offset) {
-  const int scale_vals[3] = { GM_TRANS_PREC_DIFF, GM_ALPHA_PREC_DIFF,
-                              GM_ROW3HOMO_PREC_DIFF };
-  const int clamp_vals[3] = { GM_TRANS_MAX, GM_ALPHA_MAX, GM_ROW3HOMO_MAX };
+  const int scale_vals[3] = { GM_TRANS_PREC_DIFF, GM_ALPHA_PREC_DIFF };
+  const int clamp_vals[3] = { GM_TRANS_MAX, GM_ALPHA_MAX };
   // type of param: 0 - translation, 1 - affine, 2 - homography
-  const int param_type = (param_index < 2 ? 0 : (param_index < 6 ? 1 : 2));
+  const int param_type = (param_index < 2 ? 0 : 1);
   const int is_one_centered = (param_index == 2 || param_index == 5);
 
   // Make parameter zero-centered and offset the shift that was done to make
@@ -246,10 +234,9 @@ int64_t av1_refine_integerized_param(
     int d_width, int d_height, int d_stride, int n_refinements,
     int64_t best_frame_error, uint8_t *segment_map, int segment_map_stride,
     int64_t erroradv_threshold) {
-  static const int max_trans_model_params[TRANS_TYPES] = { 0, 2, 4, 6 };
   const int border = ERRORADV_BORDER;
   int i = 0, p;
-  int n_params = max_trans_model_params[wmtype];
+  int n_params = trans_model_params[wmtype];
   int32_t *param_mat = wm->wmmat;
   int64_t step_error, best_error;
   int32_t step;

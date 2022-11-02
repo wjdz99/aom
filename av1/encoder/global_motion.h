@@ -13,18 +13,18 @@
 #define AOM_AV1_ENCODER_GLOBAL_MOTION_H_
 
 #include "aom/aom_integer.h"
-#include "aom_dsp/flow_estimation/flow_estimation.h"
 #include "aom_scale/yv12config.h"
 #include "aom_util/aom_thread.h"
+#include "aom_dsp/flow_estimation/flow_estimation.h"
 
 #include "av1/common/mv.h"
 #include "av1/common/warped_motion.h"
+#include "av1/encoder/cost.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#define MAX_CORNERS 4096
 #define RANSAC_NUM_MOTIONS 1
 #define GM_REFINEMENT_COUNT 5
 #define MAX_DIRECTIONS 2

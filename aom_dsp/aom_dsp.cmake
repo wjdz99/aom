@@ -180,6 +180,7 @@ if(CONFIG_AV1_ENCODER)
               "${AOM_ROOT}/aom_dsp/flow_estimation/corner_match.c"
               "${AOM_ROOT}/aom_dsp/flow_estimation/disflow.c"
               "${AOM_ROOT}/aom_dsp/flow_estimation/flow_estimation.c"
+              "${AOM_ROOT}/aom_dsp/flow_estimation/pyramid.c"
               "${AOM_ROOT}/aom_dsp/flow_estimation/ransac.c")
 
   list(APPEND AOM_DSP_ENCODER_INTRIN_SSE4_1
