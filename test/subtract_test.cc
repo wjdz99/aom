@@ -34,11 +34,15 @@ namespace {
 class AV1SubtractBlockTest : public ::testing::TestWithParam<SubtractFunc> {
  public:
   virtual void TearDown() {}
+
+ protected:
+  void CheckResult();
+  void RunForSpeed();
 };
 
 using libaom_test::ACMRandom;
 
-TEST_P(AV1SubtractBlockTest, SimpleSubtract) {
+void AV1SubtractBlockTest::CheckResult() {
   ACMRandom rnd(ACMRandom::DeterministicSeed());
 
   // FIXME(rbultje) split in its own file
@@ -47,13 +51,13 @@ TEST_P(AV1SubtractBlockTest, SimpleSubtract) {
     const int block_width = block_size_wide[bsize];
     const int block_height = block_size_high[bsize];
     int16_t *diff = reinterpret_cast<int16_t *>(
-        aom_memalign(16, sizeof(*diff) * block_width * block_height * 2));
+        aom_memalign(32, sizeof(*diff) * block_width * block_height * 2));
     ASSERT_NE(diff, nullptr);
     uint8_t *pred = reinterpret_cast<uint8_t *>(
-        aom_memalign(16, block_width * block_height * 2));
+        aom_memalign(32, block_width * block_height * 2));
     ASSERT_NE(pred, nullptr);
     uint8_t *src = reinterpret_cast<uint8_t *>(
-        aom_memalign(16, block_width * block_height * 2));
+        aom_memalign(32, block_width * block_height * 2));
     ASSERT_NE(src, nullptr);
 
     for (int n = 0; n < 100; n++) {
@@ -93,12 +97,89 @@ TEST_P(AV1SubtractBlockTest, SimpleSubtract) {
   }
 }
 
+void AV1SubtractBlockTest::RunForSpeed() {
+  const int test_num = 200000;
+  ACMRandom rnd(ACMRandom::DeterministicSeed());
+
+  for (BLOCK_SIZE bsize = BLOCK_4X4; bsize < BLOCK_SIZES;
+       bsize = static_cast<BLOCK_SIZE>(static_cast<int>(bsize) + 1)) {
+    const int block_width = block_size_wide[bsize];
+    const int block_height = block_size_high[bsize];
+    int16_t *diff_c = reinterpret_cast<int16_t *>(
+        aom_memalign(32, sizeof(*diff_c) * block_width * block_height * 2));
+    ASSERT_NE(diff_c, nullptr);
+    int16_t *diff_simd = reinterpret_cast<int16_t *>(
+        aom_memalign(32, sizeof(*diff_simd) * block_width * block_height * 2));
+    ASSERT_NE(diff_simd, nullptr);
+    uint8_t *pred = reinterpret_cast<uint8_t *>(
+        aom_memalign(32, block_width * block_height * 2));
+    ASSERT_NE(pred, nullptr);
+    uint8_t *src = reinterpret_cast<uint8_t *>(
+        aom_memalign(32, block_width * block_height * 2));
+    ASSERT_NE(src, nullptr);
+
+    // Fill the input data.
+      for (int r = 0; r < block_height; ++r) {
+        for (int c = 0; c < block_width * 2; ++c) {
+          src[r * block_width * 2 + c] = rnd.Rand8();
+          pred[r * block_width * 2 + c] = rnd.Rand8();
+        }
+      }
+
+      aom_usec_timer ref_timer;
+      aom_usec_timer_start(&ref_timer);
+      for (int i = 0; i < test_num; ++i) {
+        aom_subtract_block_c(block_height, block_width, diff_c, block_width,
+                             src, block_width, pred, block_width);
+      }
+      aom_usec_timer_mark(&ref_timer);
+      const int64_t ref_elapsed_time = aom_usec_timer_elapsed(&ref_timer);
+
+      aom_usec_timer timer;
+      aom_usec_timer_start(&timer);
+      for (int i = 0; i < test_num; ++i) {
+        GetParam()(block_height, block_width, diff_simd, block_width, src,
+                   block_width, pred, block_width);
+      }
+      aom_usec_timer_mark(&timer);
+      const int64_t elapsed_time = aom_usec_timer_elapsed(&timer);
+
+        printf(
+          "[%dx%d]: "
+          "ref_time=%6" PRId64 " \t simd_time=%6" PRId64
+          " \t "
+          "gain=%f \n",
+          block_width, block_height, ref_elapsed_time, elapsed_time,
+          static_cast<double>(ref_elapsed_time) /
+              static_cast<double>(elapsed_time));
+
+      for (int r = 0; r < block_height; ++r) {
+        for (int c = 0; c < block_width; ++c) {
+          EXPECT_EQ(diff_c[r * block_width + c], diff_simd[r * block_width + c])
+              << "r = " << r << ", c = " << c << ", bs = " << bsize;
+        }
+      }
+
+    aom_free(diff_c);
+    aom_free(diff_simd);
+    aom_free(pred);
+    aom_free(src);
+  }
+}
+
+TEST_P(AV1SubtractBlockTest, CheckResult) { CheckResult(); }
+TEST_P(AV1SubtractBlockTest, Speed) { RunForSpeed(); }
+
 INSTANTIATE_TEST_SUITE_P(C, AV1SubtractBlockTest,
                          ::testing::Values(aom_subtract_block_c));
 
 #if HAVE_SSE2
 INSTANTIATE_TEST_SUITE_P(SSE2, AV1SubtractBlockTest,
                          ::testing::Values(aom_subtract_block_sse2));
+#endif
+#if HAVE_AVX2
+INSTANTIATE_TEST_SUITE_P(AVX2, AV1SubtractBlockTest,
+                         ::testing::Values(aom_subtract_block_avx2));
 #endif
 #if HAVE_NEON
 INSTANTIATE_TEST_SUITE_P(NEON, AV1SubtractBlockTest,
