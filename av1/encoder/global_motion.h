@@ -15,31 +15,19 @@
 #include "aom/aom_integer.h"
 #include "aom_scale/yv12config.h"
 #include "aom_util/aom_thread.h"
+#include "aom_dsp/flow_estimation/flow_estimation.h"
 
 #include "av1/common/mv.h"
 #include "av1/common/warped_motion.h"
+#include "av1/encoder/cost.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#define MAX_CORNERS 4096
 #define RANSAC_NUM_MOTIONS 1
 #define GM_REFINEMENT_COUNT 5
 #define MAX_DIRECTIONS 2
-
-typedef enum {
-  GLOBAL_MOTION_FEATURE_BASED,
-  GLOBAL_MOTION_DISFLOW_BASED,
-} GlobalMotionEstimationType;
-
-unsigned char *av1_downconvert_frame(YV12_BUFFER_CONFIG *frm, int bit_depth);
-
-typedef struct {
-  double params[MAX_PARAMDIM - 1];
-  int *inliers;
-  int num_inliers;
-} MotionModel;
 
 // The structure holds a valid reference frame type and its temporal distance
 // from the source frame.
@@ -96,6 +84,17 @@ typedef struct {
   int8_t allocated_workers;
 } AV1GlobalMotionSync;
 
+// Cost (in bits) to signal a given global motion type
+// This is only the cost of signaling a given type, and does not
+// take into account the cost of the associated parameters.
+#define GM_TYPE_UNUSABLE_COST (1000 << AV1_PROB_COST_SHIFT)
+static const int gm_type_cost[TRANS_TYPES] = {
+  1,  // IDENTITY
+  3,  // TRANSLATION
+  2,  // ROTZOOM
+  3,  // AFFINE
+};
+
 void av1_convert_model_to_params(const double *params,
                                  WarpedMotionParams *model);
 
@@ -129,29 +128,6 @@ int64_t av1_refine_integerized_param(
     int64_t best_frame_error, uint8_t *segment_map, int segment_map_stride,
     int64_t erroradv_threshold);
 
-/*
-  Computes "num_motions" candidate global motion parameters between two frames.
-  The array "params_by_motion" should be length 8 * "num_motions". The ordering
-  of each set of parameters is best described  by the homography:
-
-        [x'     (m2 m3 m0   [x
-    z .  y'  =   m4 m5 m1 *  y
-         1]      m6 m7 1)    1]
-
-  where m{i} represents the ith value in any given set of parameters.
-
-  "num_inliers" should be length "num_motions", and will be populated with the
-  number of inlier feature points for each motion. Params for which the
-  num_inliers entry is 0 should be ignored by the caller.
-*/
-int av1_compute_global_motion(TransformationType type,
-                              unsigned char *src_buffer, int src_width,
-                              int src_height, int src_stride, int *src_corners,
-                              int num_src_corners, YV12_BUFFER_CONFIG *ref,
-                              int bit_depth,
-                              GlobalMotionEstimationType gm_estimation_type,
-                              int *num_inliers_by_motion,
-                              MotionModel *params_by_motion, int num_motions);
 #ifdef __cplusplus
 }  // extern "C"
 #endif

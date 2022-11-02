@@ -1406,6 +1406,9 @@ YV12_BUFFER_CONFIG *av1_realloc_and_scale_if_required(
 #endif
     return scaled;
   } else {
+#if CONFIG_AV1_ENCODER
+    aom_invalidate_gm_data(unscaled);
+#endif  // CONFIG_AV1_ENCODER
     return unscaled;
   }
 }
