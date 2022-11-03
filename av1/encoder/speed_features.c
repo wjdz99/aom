@@ -1275,6 +1275,12 @@ static void set_rt_speed_feature_framesize_dependent(const AV1_COMP *const cpi,
     if (speed >= 8) {
       sf->rt_sf.use_nonrd_filter_search = 1;
       sf->rt_sf.tx_size_level_based_on_qstep = 1;
+      // Disable pruning of H and V modes logic for frames where current sad is
+      // more than the average sad ,else enable the H and V pruning.
+      if (cpi->rc.frame_source_sad > 1.1 * cpi->rc.avg_source_sad)
+        sf->rt_sf.prune_hv_pred_modes_using_src_sad = false;
+      else
+        sf->rt_sf.prune_hv_pred_modes_using_src_sad = true;
     }
     if (speed >= 9) {
       sf->rt_sf.use_comp_ref_nonrd = 0;
@@ -1324,7 +1330,10 @@ static void set_rt_speed_feature_framesize_dependent(const AV1_COMP *const cpi,
       sf->rt_sf.short_circuit_low_temp_var = 0;
       sf->rt_sf.use_nonrd_altref_frame = 1;
     }
-    if (speed >= 8) sf->rt_sf.tx_size_level_based_on_qstep = 2;
+    if (speed >= 8) {
+      sf->rt_sf.tx_size_level_based_on_qstep = 2;
+      sf->rt_sf.prune_hv_pred_modes_using_src_sad = true;
+    }
     if (speed >= 9) {
       sf->rt_sf.gf_length_lvl = 1;
       sf->rt_sf.skip_cdef_sb = 1;
@@ -1438,6 +1447,7 @@ static void set_rt_speed_feature_framesize_dependent(const AV1_COMP *const cpi,
       sf->rt_sf.nonrd_check_partition_merge_mode = 3;
       sf->rt_sf.nonrd_prune_ref_frame_search = 1;
       sf->rt_sf.use_nonrd_filter_search = 0;
+      sf->rt_sf.prune_hv_pred_modes_using_src_sad = false;
     }
     if (speed >= 9) {
       sf->rt_sf.prune_idtx_nonrd = 1;
@@ -2070,6 +2080,7 @@ static AOM_INLINE void init_rt_sf(REAL_TIME_SPEED_FEATURES *rt_sf) {
   rt_sf->fullpel_search_step_param = 0;
   for (int i = 0; i < BLOCK_SIZES; ++i)
     rt_sf->intra_y_mode_bsize_mask_nrd[i] = INTRA_ALL;
+  rt_sf->prune_hv_pred_modes_using_src_sad = false;
   rt_sf->nonrd_aggressive_skip = 0;
   rt_sf->skip_cdef_sb = 0;
   rt_sf->force_large_partition_blocks_intra = 0;
