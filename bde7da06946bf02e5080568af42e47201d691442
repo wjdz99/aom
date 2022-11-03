@@ -24,6 +24,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "fedd2ba0_ebdcdd03",
+        "filename": "av1/encoder/block.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 982,
+      "author": {
+        "id": 31132
+      },
+      "writtenOn": "2022-11-03T15:00:00Z",
+      "side": 1,
+      "message": "Yes. Done.",
+      "parentUuid": "06b7a2f7_6b12c9f9",
+      "range": {
+        "startLine": 972,
+        "startChar": 0,
+        "endLine": 982,
+        "endChar": 14
+      },
+      "revId": "bde7da06946bf02e5080568af42e47201d691442",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "27a00fd5_3e18c660",
@@ -47,6 +71,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "533f66df_06983143",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 227,
+      "author": {
+        "id": 31132
+      },
+      "writtenOn": "2022-11-03T15:00:00Z",
+      "side": 1,
+      "message": "The comment is outdated. Fixed in the latest patch now.",
+      "parentUuid": "27a00fd5_3e18c660",
+      "range": {
+        "startLine": 225,
+        "startChar": 1,
+        "endLine": 227,
+        "endChar": 9
+      },
+      "revId": "bde7da06946bf02e5080568af42e47201d691442",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "2a9e4121_0cb52383",
@@ -60,6 +108,30 @@
       "writtenOn": "2022-11-02T23:37:33Z",
       "side": 1,
       "message": "remove all the debug codes",
+      "range": {
+        "startLine": 705,
+        "startChar": 0,
+        "endLine": 705,
+        "endChar": 19
+      },
+      "revId": "bde7da06946bf02e5080568af42e47201d691442",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e004911f_ba51361f",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 705,
+      "author": {
+        "id": 31132
+      },
+      "writtenOn": "2022-11-03T15:00:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2a9e4121_0cb52383",
       "range": {
         "startLine": 705,
         "startChar": 0,
