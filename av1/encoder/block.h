@@ -943,6 +943,16 @@ typedef struct macroblock {
    */
   int delta_qindex;
 
+  /*! \brief Difference between frame-level qindex and qindex that used to
+   * compute rdmult (lambda).
+   */
+  int rdmult_delta_qindex;
+
+  /*! \brief current qindex (before adjusted by delta_q_res) used to derive
+   * rdmult_delta_qindex.
+   */
+  int rdmult_cur_qindex;
+
   /*! \brief Rate-distortion multiplier.
    *
    * The rd multiplier used to determine the rate-distortion trade-off. This is
