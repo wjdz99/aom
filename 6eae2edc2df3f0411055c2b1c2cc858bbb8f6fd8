@@ -1,0 +1,142 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "70f54ab5_42894adf",
+        "filename": "aom/aomcx.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 1471,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2022-11-03T17:01:03Z",
+      "side": 1,
+      "message": "The flag enables qp sweep.\nNot unit test.",
+      "range": {
+        "startLine": 1471,
+        "startChar": 14,
+        "endLine": 1471,
+        "endChar": 23
+      },
+      "revId": "6eae2edc2df3f0411055c2b1c2cc858bbb8f6fd8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7add32d9_a7309712",
+        "filename": "av1/encoder/block.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 949,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2022-11-03T17:01:03Z",
+      "side": 1,
+      "message": "As far as I understand,\nx-\u003erdmult_delta_qindex is assigned the same as x-\u003edelta_qindex,\nbefore qp sweep.\n\nThen during qp sweep, x-\u003edelta_qindex is changed and used to calculate the actual\nqindex, while x-\u003erdmult_delta_qindex remains the same, and is used to calculate the rdmult in \"set_deltaq_rdmult\".\n\nAm I right?\n\nIf so, please add such description here so that it is easier for other to understand in the future.\n\nThanks.",
+      "range": {
+        "startLine": 949,
+        "startChar": 6,
+        "endLine": 949,
+        "endChar": 25
+      },
+      "revId": "6eae2edc2df3f0411055c2b1c2cc858bbb8f6fd8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5a870652_683b4b72",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 704,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2022-11-03T17:01:03Z",
+      "side": 1,
+      "message": "These could be const. \"start, end, step\".\n\nSame for \"backup_current_qindex\"",
+      "range": {
+        "startLine": 704,
+        "startChar": 2,
+        "endLine": 704,
+        "endChar": 5
+      },
+      "revId": "6eae2edc2df3f0411055c2b1c2cc858bbb8f6fd8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a2113d7f_459bae0d",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 847,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2022-11-03T17:01:03Z",
+      "side": 1,
+      "message": "condense to \"const int best_qp_diff \u003d\"",
+      "range": {
+        "startLine": 846,
+        "startChar": 6,
+        "endLine": 847,
+        "endChar": 18
+      },
+      "revId": "6eae2edc2df3f0411055c2b1c2cc858bbb8f6fd8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4a74aa82_a3e73412",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 856,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2022-11-03T17:01:03Z",
+      "side": 1,
+      "message": "const",
+      "range": {
+        "startLine": 856,
+        "startChar": 6,
+        "endLine": 856,
+        "endChar": 9
+      },
+      "revId": "6eae2edc2df3f0411055c2b1c2cc858bbb8f6fd8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f7ceb102_1da80ad5",
+        "filename": "av1/encoder/encodeframe_utils.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1559,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2022-11-03T17:01:03Z",
+      "side": 1,
+      "message": "cpi-\u003esf.inter_sf.inter_mode_rd_model_estimation \u003d\u003d 1 is by default on.\nIt is not related to row_mt?",
+      "range": {
+        "startLine": 1557,
+        "startChar": 2,
+        "endLine": 1559,
+        "endChar": 61
+      },
+      "revId": "6eae2edc2df3f0411055c2b1c2cc858bbb8f6fd8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
