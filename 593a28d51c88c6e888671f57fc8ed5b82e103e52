@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a294a4ff_2b6d2dca",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 878,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2022-11-03T22:37:49Z",
+      "side": 1,
+      "message": "but the default is kMedSad, set outside this function.",
+      "revId": "593a28d51c88c6e888671f57fc8ed5b82e103e52",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
