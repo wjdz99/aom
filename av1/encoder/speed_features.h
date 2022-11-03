@@ -1478,8 +1478,16 @@ typedef struct REAL_TIME_SPEED_FEATURES {
   int fullpel_search_step_param;
 
   // Bit mask to enable or disable intra modes for each prediction block size
-  // separately, for nonrd pickmode.
+  // separately, for nonrd pickmode.  Currently, the sf is not respected when
+  // 'force_intra_check' is true in 'estimate_intra_mode()' function. Also, H
+  // and V pred modes allowed through this sf can be further pruned when
+  //'prune_hv_pred_modes_using_src_sad' sf is true.
   int intra_y_mode_bsize_mask_nrd[BLOCK_SIZES];
+
+  // The H and V intra predition modes evalution in inter frame is pruned based
+  // on SB source sad. For blocks with SB source sad <= kMedSad, H and V pred
+  // modes are pruned.
+  bool prune_hv_pred_modes_using_src_sad;
 
   // Skips mode checks more aggressively in nonRD mode
   int nonrd_aggressive_skip;
