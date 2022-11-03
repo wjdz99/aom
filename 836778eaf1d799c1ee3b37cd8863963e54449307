@@ -16,6 +16,24 @@
       "message": "these are already set to default (kMedSad) outside this function, so no need to set them here.",
       "revId": "836778eaf1d799c1ee3b37cd8863963e54449307",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "722f8be6_3a5db2e6",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 878,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-11-03T22:34:11Z",
+      "side": 1,
+      "message": "\u003e these are already set to default (kMedSad) outside this function, so no need to set them here.\n\nI made them asserts if that makes sense.",
+      "parentUuid": "21abdbfd_bde57123",
+      "revId": "836778eaf1d799c1ee3b37cd8863963e54449307",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
