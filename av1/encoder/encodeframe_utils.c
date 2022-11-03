@@ -1384,6 +1384,10 @@ static int fast_detect_non_zero_motion(AV1_COMP *cpi, const uint8_t *src_y,
 // its collocated block in the last frame.
 void av1_source_content_sb(AV1_COMP *cpi, MACROBLOCK *x, TileDataEnc *tile_data,
                            int mi_row, int mi_col) {
+  if (cpi->last_source->y_width != cpi->source->y_width ||
+      cpi->last_source->y_height != cpi->source->y_height)
+    return;
+
   unsigned int tmp_sse;
   unsigned int tmp_variance;
   const BLOCK_SIZE bsize = cpi->common.seq_params->sb_size;
@@ -1392,6 +1396,7 @@ void av1_source_content_sb(AV1_COMP *cpi, MACROBLOCK *x, TileDataEnc *tile_data,
   uint8_t *last_src_y = cpi->last_source->y_buffer;
   int last_src_ystride = cpi->last_source->y_stride;
   const int offset = cpi->source->y_stride * (mi_row << 2) + (mi_col << 2);
+  assert(src_ystride == last_src_ystride);
   uint64_t avg_source_sse_threshold_verylow = 10000;     // ~1.5*1.5*(64*64)
   uint64_t avg_source_sse_threshold_low[2] = { 100000,   // ~5*5*(64*64)
                                                36000 };  // ~3*3*(64*64)
@@ -1430,9 +1435,6 @@ void av1_source_content_sb(AV1_COMP *cpi, MACROBLOCK *x, TileDataEnc *tile_data,
       x->content_state_sb.low_sumdiff = 1;
   }
 
-  if (cpi->last_source->y_width != cpi->source->y_width ||
-      cpi->last_source->y_height != cpi->source->y_height)
-    return;
   if (!cpi->sf.rt_sf.use_rtc_tf || tmp_sse == 0 || cpi->rc.high_source_sad ||
       cpi->rc.frame_source_sad > 20000)
     return;
