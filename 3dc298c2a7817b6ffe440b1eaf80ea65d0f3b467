@@ -18,6 +18,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "b287320f_a25a3920",
+        "filename": "aom_dsp/x86/intrapred_ssse3.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1629,
+      "author": {
+        "id": 8471
+      },
+      "writtenOn": "2022-11-04T12:18:59Z",
+      "side": 1,
+      "message": "ack",
+      "parentUuid": "b3de1f2c_d1678913",
+      "revId": "3dc298c2a7817b6ffe440b1eaf80ea65d0f3b467",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "877b074b_b152b85e",
@@ -31,6 +49,30 @@
       "writtenOn": "2022-11-04T02:03:13Z",
       "side": 1,
       "message": "planning on following up after getting everything to do a rename / reuse the loads defined already in aom?",
+      "range": {
+        "startLine": 1631,
+        "startChar": 32,
+        "endLine": 1631,
+        "endChar": 37
+      },
+      "revId": "3dc298c2a7817b6ffe440b1eaf80ea65d0f3b467",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f584099b_7212e3f0",
+        "filename": "aom_dsp/x86/intrapred_ssse3.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1631,
+      "author": {
+        "id": 8471
+      },
+      "writtenOn": "2022-11-04T12:18:59Z",
+      "side": 1,
+      "message": "Yes.",
+      "parentUuid": "877b074b_b152b85e",
       "range": {
         "startLine": 1631,
         "startChar": 32,
