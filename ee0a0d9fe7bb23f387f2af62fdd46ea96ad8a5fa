@@ -1,0 +1,165 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "feee6285_affff9fe",
+        "filename": "aom/aomcx.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 1479,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-11-04T16:23:55Z",
+      "side": 1,
+      "message": "this effectively enables the whole feature right? not only unit test.\n\nI\u0027d just name it AV1E_ENABLE_SB_QP_SWEEP",
+      "range": {
+        "startLine": 1479,
+        "startChar": 2,
+        "endLine": 1479,
+        "endChar": 35
+      },
+      "revId": "ee0a0d9fe7bb23f387f2af62fdd46ea96ad8a5fa",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4e5dbf87_19c474a7",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 2443,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-11-04T16:23:55Z",
+      "side": 1,
+      "message": "same here, I\u0027d just remove _unit_test",
+      "range": {
+        "startLine": 2443,
+        "startChar": 23,
+        "endLine": 2443,
+        "endChar": 56
+      },
+      "revId": "ee0a0d9fe7bb23f387f2af62fdd46ea96ad8a5fa",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b52de18d_55518a38",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 622,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-11-04T16:23:55Z",
+      "side": 1,
+      "message": "static void\n\nit\u0027s only used in this file",
+      "range": {
+        "startLine": 622,
+        "startChar": 0,
+        "endLine": 622,
+        "endChar": 4
+      },
+      "revId": "ee0a0d9fe7bb23f387f2af62fdd46ea96ad8a5fa",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fecf24e8_3d1ed158",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 622,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-11-04T16:23:55Z",
+      "side": 1,
+      "message": "maybe rename it to qp_sweep_init_quantizer? since it\u0027s only used for that purpose. It\u0027ll avoid confusion with other quantizer initialization functions.",
+      "range": {
+        "startLine": 622,
+        "startChar": 5,
+        "endLine": 622,
+        "endChar": 20
+      },
+      "revId": "ee0a0d9fe7bb23f387f2af62fdd46ea96ad8a5fa",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "91eeee5c_f30883b2",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 694,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-11-04T16:23:55Z",
+      "side": 1,
+      "message": "static \n\nSince this function is only used in this file",
+      "range": {
+        "startLine": 694,
+        "startChar": 0,
+        "endLine": 694,
+        "endChar": 3
+      },
+      "revId": "ee0a0d9fe7bb23f387f2af62fdd46ea96ad8a5fa",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f4ccfb14_d294a42b",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 801,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-11-04T16:23:55Z",
+      "side": 1,
+      "message": "for memory allocation you should use:\n\nCHECK_MEM_ERROR",
+      "range": {
+        "startLine": 801,
+        "startChar": 25,
+        "endLine": 801,
+        "endChar": 31
+      },
+      "revId": "ee0a0d9fe7bb23f387f2af62fdd46ea96ad8a5fa",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "40d9d9e8_45281f2a",
+        "filename": "test/sb_qp_sweep_test.cc",
+        "patchSetId": 8
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-11-04T16:23:55Z",
+      "side": 1,
+      "message": "this could be a parameter too for better sharding",
+      "range": {
+        "startLine": 112,
+        "startChar": 0,
+        "endLine": 112,
+        "endChar": 25
+      },
+      "revId": "ee0a0d9fe7bb23f387f2af62fdd46ea96ad8a5fa",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
