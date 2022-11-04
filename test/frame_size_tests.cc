@@ -162,8 +162,11 @@ TEST_P(AV1ResolutionChange, InvalidRefSize) {
   EXPECT_EQ(frame_count, kNumFramesPerResolution * kFrameSizes.size());
 }
 
+// TODO(https://crbug.com/aomedia/3350): These tests fail under valgrind due to
+// uninitialized data use in av1_choose_var_based_partitioning() among other
+// locations.
 INSTANTIATE_TEST_SUITE_P(
-    Realtime, AV1ResolutionChange,
+    DISABLED_Realtime, AV1ResolutionChange,
     ::testing::Combine(::testing::Values(AOM_USAGE_REALTIME),
                        ::testing::Values(AOM_VBR, AOM_CBR),
                        ::testing::Range(6, 11)));
@@ -181,8 +184,11 @@ INSTANTIATE_TEST_SUITE_P(
     ::testing::Combine(::testing::Values(AOM_USAGE_GOOD_QUALITY),
                        ::testing::Values(AOM_VBR, AOM_CBR, AOM_CQ, AOM_Q),
                        ::testing::Range(0, 2)));
+// TODO(https://crbug.com/aomedia/3350): These tests fail under valgrind due to
+// uninitialized data use in av1_choose_var_based_partitioning() among other
+// locations.
 INSTANTIATE_TEST_SUITE_P(
-    AllIntra, AV1ResolutionChange,
+    DISABLED_AllIntra, AV1ResolutionChange,
     ::testing::Combine(::testing::Values(AOM_USAGE_ALL_INTRA),
                        ::testing::Values(AOM_Q), ::testing::Range(6, 10)));
 
