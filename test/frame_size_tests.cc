@@ -135,6 +135,7 @@ TEST_P(AV1ResolutionChange, InvalidRefSize) {
     cfg.g_h = frame_size.height;
     EXPECT_EQ(aom_codec_enc_config_set(enc.get(), &cfg), AOM_CODEC_OK);
     video.SetSize(cfg.g_w, cfg.g_h);
+    video.Next();  // SetSize() does not call FillFrame().
 
     aom_codec_iter_t iter;
     const aom_codec_cx_pkt_t *pkt;
