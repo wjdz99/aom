@@ -1,0 +1,244 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b6d42d5d_97faef6a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 10
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-11-05T02:29:19Z",
+      "side": 1,
+      "message": "I just made a quick cosmetic pass, I didn\u0027t look too closely at the implementation.",
+      "revId": "49073066823e55e435b3eda3b0d0ee63a08dccf1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d29b1365_32ee08d0",
+        "filename": "av1/encoder/block.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 946,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-11-05T02:29:19Z",
+      "side": 1,
+      "message": "\u0027that was used\u0027 or just \u0027used\u0027 could work",
+      "range": {
+        "startLine": 946,
+        "startChar": 62,
+        "endLine": 946,
+        "endChar": 72
+      },
+      "revId": "49073066823e55e435b3eda3b0d0ee63a08dccf1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "60f402a6_c2772438",
+        "filename": "av1/encoder/block.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 956,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-11-05T02:29:19Z",
+      "side": 1,
+      "message": "...before being adjusted...\n\nTry to be consistent with the capitalization in the \\brief comment, this could be \u0027Current\u0027. Take a look at the doxygen output to get an idea of how it\u0027s displayed.",
+      "range": {
+        "startLine": 956,
+        "startChar": 29,
+        "endLine": 956,
+        "endChar": 44
+      },
+      "revId": "49073066823e55e435b3eda3b0d0ee63a08dccf1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bd78af6a_d279aff6",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 650,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-11-05T02:29:19Z",
+      "side": 1,
+      "message": "this could be merged with line 648",
+      "revId": "49073066823e55e435b3eda3b0d0ee63a08dccf1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "752b67eb_939511cd",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 738,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-11-05T02:29:19Z",
+      "side": 1,
+      "message": "// !CONFIG_REALTIME_ONLY",
+      "range": {
+        "startLine": 738,
+        "startChar": 8,
+        "endLine": 738,
+        "endChar": 32
+      },
+      "revId": "49073066823e55e435b3eda3b0d0ee63a08dccf1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fd261e9a_f73a7d8f",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 896,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-11-05T02:29:19Z",
+      "side": 1,
+      "message": "there\u0027s no need to check the pointer before calling aom_free()\n\nhttps://aomedia.googlesource.com/aom/+/49073066823e55e435b3eda3b0d0ee63a08dccf1/aom_mem/aom_mem.c#77",
+      "revId": "49073066823e55e435b3eda3b0d0ee63a08dccf1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "068ba79d_919c9bb7",
+        "filename": "test/sb_qp_sweep_test.cc",
+        "patchSetId": 10
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-11-05T02:29:19Z",
+      "side": 1,
+      "message": "2022",
+      "range": {
+        "startLine": 2,
+        "startChar": 17,
+        "endLine": 2,
+        "endChar": 21
+      },
+      "revId": "49073066823e55e435b3eda3b0d0ee63a08dccf1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "24135b24_cd0956e9",
+        "filename": "test/sb_qp_sweep_test.cc",
+        "patchSetId": 10
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-11-05T02:29:19Z",
+      "side": 1,
+      "message": "add a blank line after the c++ system headers:\n\nhttps://google.github.io/styleguide/cppguide.html#Names_and_Order_of_Includes",
+      "revId": "49073066823e55e435b3eda3b0d0ee63a08dccf1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "35b59ab5_277f97c3",
+        "filename": "test/sb_qp_sweep_test.cc",
+        "patchSetId": 10
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-11-05T02:29:19Z",
+      "side": 1,
+      "message": "add a blank line after this to balance the one at the end",
+      "revId": "49073066823e55e435b3eda3b0d0ee63a08dccf1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f2b72377_a585c98a",
+        "filename": "test/sb_qp_sweep_test.cc",
+        "patchSetId": 10
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-11-05T02:29:19Z",
+      "side": 1,
+      "message": "add a comment documenting what the two parameters are:\n\nhttps://aomedia.googlesource.com/aom/+/49073066823e55e435b3eda3b0d0ee63a08dccf1/test/frame_size_tests.cc#79",
+      "revId": "49073066823e55e435b3eda3b0d0ee63a08dccf1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2445d65e_313bb7f0",
+        "filename": "test/sb_qp_sweep_test.cc",
+        "patchSetId": 10
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-11-05T02:29:19Z",
+      "side": 1,
+      "message": "this would be better implemented using a std::unique_ptr:\n\nhttps://en.cppreference.com/w/cpp/memory/unique_ptr",
+      "range": {
+        "startLine": 40,
+        "startChar": 32,
+        "endLine": 40,
+        "endChar": 48
+      },
+      "revId": "49073066823e55e435b3eda3b0d0ee63a08dccf1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8e4132a0_7dc2e628",
+        "filename": "test/sb_qp_sweep_test.cc",
+        "patchSetId": 10
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-11-05T02:29:19Z",
+      "side": 1,
+      "message": "new code should prefer \u0027override\u0027:\n\nhttps://google.github.io/styleguide/cppguide.html#Inheritance",
+      "range": {
+        "startLine": 42,
+        "startChar": 2,
+        "endLine": 42,
+        "endChar": 9
+      },
+      "revId": "49073066823e55e435b3eda3b0d0ee63a08dccf1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
