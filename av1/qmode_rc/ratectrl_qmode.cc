@@ -1243,6 +1243,53 @@ StatusOr<TplGopDepStats> ComputeTplGopDepStats(
   return tpl_gop_dep_stats;
 }
 
+void SetupDeltaQ(const TplFrameDepStats &frame_dep_stats,
+                 std::vector<uint8_t> *superblock_q_indices,
+                 const int frame_width, const int frame_height,
+                 const int base_qindex) {
+  // TODO(jianj) : Add support to various superblock sizes.
+  const int sb_size = 64;
+  const int num_unit_per_sb = sb_size / frame_dep_stats.unit_size;
+  const int sb_rows = std::ceil(frame_height / sb_size);
+  const int sb_cols = std::ceil(frame_width / sb_size);
+  int intra_cost = 0;
+  int mc_dep_cost = 0;
+  // Calculate delta_q offset for each superblock.
+  for (int sb_row = 0; sb_row < sb_rows; sb_row++) {
+    for (int sb_col = 0; sb_col < sb_cols; sb_col++) {
+      const int unit_row_start = sb_row * num_unit_per_sb;
+      const int unit_row_end = (sb_row + 1) * num_unit_per_sb;
+      const int unit_col_start = sb_col * num_unit_per_sb;
+      const int unit_col_end = (sb_col + 1) * num_unit_per_sb;
+      // A simplified version of av1_get_q_for_deltaq_objective()
+      for (int unit_row = unit_row_start; unit_row < unit_row_end; unit_row++) {
+        for (int unit_col = unit_col_start; unit_col < unit_col_end;
+             unit_col++) {
+          const TplUnitDepStats &unit_dep_stat =
+              frame_dep_stats.unit_stats[unit_row][unit_col];
+          intra_cost += static_cast<int>(unit_dep_stat.intra_cost)
+                        << RDDIV_BITS;
+          mc_dep_cost += static_cast<int>(unit_dep_stat.intra_cost)
+                         << RDDIV_BITS;
+        }
+      }
+
+      uint8_t offset = 0;
+      double beta = 1.0;
+      if (mc_dep_cost > 0 && intra_cost > 0) {
+        const double r0 = 1;
+        const double rk = (double)intra_cost / mc_dep_cost;
+        beta = r0 / rk;
+        assert(beta > 0.0);
+      }
+      offset = static_cast<uint8_t>(
+          av1_get_deltaq_offset(AOM_BITS_8, base_qindex, beta));
+
+      superblock_q_indices->push_back(offset);
+    }
+  }
+}
+
 int AV1RateControlQMode::GetRDMult(const GopFrame &gop_frame,
                                    int q_index) const {
   // TODO(angiebird):
@@ -1352,6 +1399,9 @@ StatusOr<GopEncodeInfo> AV1RateControlQMode::GetGopEncodeInfo(
                                                        qstep_ratio, AOM_BITS_8);
       if (rc_param_.base_q_index) param.q_index = AOMMAX(param.q_index, 1);
       active_best_quality = param.q_index;
+
+      SetupDeltaQ(frame_dep_stats, &param.superblock_q_indices,
+                  rc_param_.frame_width, rc_param_.frame_height, param.q_index);
     } else {
       // Intermediate ARFs
       assert(gop_frame.layer_depth >= 1);
