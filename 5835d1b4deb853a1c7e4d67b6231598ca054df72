@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c37a464b_8c91c79a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 29295
+      },
+      "writtenOn": "2022-11-07T10:06:21Z",
+      "side": 1,
+      "message": "Hello Yunqing, Marco,\n\nIn the parent version: if reuse_inter_pred was disabled, there would be an issue building inter predictor for compound mode, when interpolation filter is evaluated. This CL fixes this potential issue.\n\nWe confirmed the bit-exact behavior for RT speed 5-10.\n\nNeeraj",
+      "revId": "5835d1b4deb853a1c7e4d67b6231598ca054df72",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
