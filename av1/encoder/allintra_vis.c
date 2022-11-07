@@ -298,25 +298,10 @@ static BLOCK_SIZE pick_block_size(AV1_COMP *cpi,
   return vote > 0.0 ? orig_block_size : sub_block_size;
 }
 
-static int64_t pick_norm_factor_and_block_size(AV1_COMP *const cpi,
-                                               BLOCK_SIZE *best_block_size) {
+static int64_t estimate_wiener_var_norm(AV1_COMP *const cpi,
+                                        BLOCK_SIZE norm_block_size) {
   const AV1_COMMON *const cm = &cpi->common;
-  const BLOCK_SIZE sb_size = cm->seq_params->sb_size;
-  BLOCK_SIZE last_block_size;
-  BLOCK_SIZE this_block_size = sb_size;
-  *best_block_size = sb_size;
-  // Pick from block size 128x128, 64x64, 32x32 and 16x16.
-  do {
-    last_block_size = this_block_size;
-    assert(this_block_size >= BLOCK_16X16 && this_block_size <= BLOCK_128X128);
-    const int block_size = block_size_wide[this_block_size];
-    if (block_size < 32) break;
-    this_block_size = pick_block_size(cpi, last_block_size);
-  } while (this_block_size != last_block_size);
-  *best_block_size = this_block_size;
-
   int64_t norm_factor = 1;
-  const BLOCK_SIZE norm_block_size = this_block_size;
   assert(norm_block_size >= BLOCK_16X16 && norm_block_size <= BLOCK_128X128);
   const int norm_step = mi_size_wide[norm_block_size];
   double sb_wiener_log = 0;
@@ -548,9 +533,8 @@ void av1_set_mb_wiener_variance(AV1_COMP *cpi) {
   // Determine whether to turn off several intra coding tools.
   automatic_intra_tools_off(cpi, sum_rec_distortion, sum_est_rate);
 
-  BLOCK_SIZE norm_block_size = BLOCK_16X16;
-  cpi->norm_wiener_variance =
-      pick_norm_factor_and_block_size(cpi, &norm_block_size);
+  BLOCK_SIZE norm_block_size = cm->seq_params->sb_size;
+  cpi->norm_wiener_variance = estimate_wiener_var_norm(cpi, norm_block_size);
   const int norm_step = mi_size_wide[norm_block_size];
 
   double sb_wiener_log = 0;
