@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, Alliance for Open Media. All rights reserved
+ * Copyright (c) 2022, Alliance for Open Media. All rights reserved
  *
  * This source code is subject to the terms of the BSD 2 Clause License and
  * the Alliance for Open Media Patent License 1.0. If the BSD 2 Clause License
@@ -12,6 +12,7 @@
 #include <initializer_list>
 #include <string>
 #include <vector>
+
 #include "third_party/googletest/src/googletest/include/gtest/gtest.h"
 #include "test/codec_factory.h"
 #include "test/encode_test_driver.h"
@@ -20,6 +21,8 @@
 #include "test/yuv_video_source.h"
 
 namespace {
+
+// Parameters: cpu-used, row-mt.
 class AV1SBQPSweepTest : public ::libaom_test::CodecTestWith2Params<int, bool>,
                          public ::libaom_test::EncoderTest {
  protected:
@@ -31,15 +34,15 @@ class AV1SBQPSweepTest : public ::libaom_test::CodecTestWith2Params<int, bool>,
     cfg.w = 1280;
     cfg.h = 720;
     cfg.allow_lowbitdepth = 1;
-    decoder_ = codec_->CreateDecoder(cfg, 0);
+    decoder_ =
+        std::unique_ptr<::libaom_test::Decoder>(codec_->CreateDecoder(cfg, 0));
     if (decoder_->IsAV1()) {
       decoder_->Control(AV1_SET_DECODE_TILE_ROW, -1);
       decoder_->Control(AV1_SET_DECODE_TILE_COL, -1);
     }
   }
-  virtual ~AV1SBQPSweepTest() { delete decoder_; }
 
-  virtual void SetUp() {
+  void SetUp() override {
     InitializeConfig(::libaom_test::kTwoPassGood);
 
     cfg_.g_lag_in_frames = 5;
@@ -129,7 +132,7 @@ class AV1SBQPSweepTest : public ::libaom_test::CodecTestWith2Params<int, bool>,
   double psnr_;
   unsigned int nframes_;
   size_t sum_frame_size_;
-  ::libaom_test::Decoder *decoder_;
+  std::unique_ptr<::libaom_test::Decoder> decoder_;
 };
 
 TEST_P(AV1SBQPSweepTest, SweepMatchTest) { DoTest(); }
