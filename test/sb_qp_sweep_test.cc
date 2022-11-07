@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, Alliance for Open Media. All rights reserved
+ * Copyright (c) 2022, Alliance for Open Media. All rights reserved
  *
  * This source code is subject to the terms of the BSD 2 Clause License and
  * the Alliance for Open Media Patent License 1.0. If the BSD 2 Clause License
@@ -12,6 +12,7 @@
 #include <initializer_list>
 #include <string>
 #include <vector>
+
 #include "third_party/googletest/src/googletest/include/gtest/gtest.h"
 #include "test/codec_factory.h"
 #include "test/encode_test_driver.h"
@@ -20,6 +21,8 @@
 #include "test/yuv_video_source.h"
 
 namespace {
+
+// Parameters: cpu-used, row-mt.
 class AV1SBQPSweepTest : public ::libaom_test::CodecTestWith2Params<int, bool>,
                          public ::libaom_test::EncoderTest {
  protected:
@@ -31,23 +34,23 @@ class AV1SBQPSweepTest : public ::libaom_test::CodecTestWith2Params<int, bool>,
     cfg.w = 1280;
     cfg.h = 720;
     cfg.allow_lowbitdepth = 1;
-    decoder_ = codec_->CreateDecoder(cfg, 0);
+    decoder_ =
+        std::unique_ptr<::libaom_test::Decoder>(codec_->CreateDecoder(cfg, 0));
     if (decoder_->IsAV1()) {
       decoder_->Control(AV1_SET_DECODE_TILE_ROW, -1);
       decoder_->Control(AV1_SET_DECODE_TILE_COL, -1);
     }
   }
-  virtual ~AV1SBQPSweepTest() { delete decoder_; }
 
-  virtual void SetUp() {
+  void SetUp() override {
     InitializeConfig(::libaom_test::kTwoPassGood);
 
     cfg_.g_lag_in_frames = 5;
     cfg_.rc_end_usage = AOM_Q;
   }
 
-  virtual void PreEncodeFrameHook(::libaom_test::VideoSource *video,
-                                  ::libaom_test::Encoder *encoder) {
+  void PreEncodeFrameHook(::libaom_test::VideoSource *video,
+                          ::libaom_test::Encoder *encoder) override {
     if (video->frame() == 0) {
       SetTileSize(encoder);
       encoder->Control(AOME_SET_CPUUSED, set_cpu_used_);
@@ -65,12 +68,12 @@ class AV1SBQPSweepTest : public ::libaom_test::CodecTestWith2Params<int, bool>,
     encoder->Control(AV1E_SET_TILE_ROWS, 1);
   }
 
-  virtual void BeginPassHook(unsigned int) {
+  void BeginPassHook(unsigned int) override {
     psnr_ = 0.0;
     nframes_ = 0;
   }
 
-  virtual void PSNRPktHook(const aom_codec_cx_pkt_t *pkt) {
+  void PSNRPktHook(const aom_codec_cx_pkt_t *pkt) override {
     psnr_ += pkt->data.psnr.psnr[0];
     nframes_++;
   }
@@ -85,7 +88,7 @@ class AV1SBQPSweepTest : public ::libaom_test::CodecTestWith2Params<int, bool>,
     return 0.0;
   }
 
-  virtual void FramePktHook(const aom_codec_cx_pkt_t *pkt) {
+  void FramePktHook(const aom_codec_cx_pkt_t *pkt) override {
     sum_frame_size_ += pkt->data.frame.sz;
 
     const aom_codec_err_t res = decoder_->DecodeFrame(
@@ -129,7 +132,7 @@ class AV1SBQPSweepTest : public ::libaom_test::CodecTestWith2Params<int, bool>,
   double psnr_;
   unsigned int nframes_;
   size_t sum_frame_size_;
-  ::libaom_test::Decoder *decoder_;
+  std::unique_ptr<::libaom_test::Decoder> decoder_;
 };
 
 TEST_P(AV1SBQPSweepTest, SweepMatchTest) { DoTest(); }
