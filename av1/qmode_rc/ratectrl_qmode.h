@@ -90,6 +90,11 @@ StatusOr<TplGopDepStats> ComputeTplGopDepStats(
     const std::vector<LookaheadStats> &lookahead_stats,
     const std::vector<RefFrameTable> &ref_frame_table_list);
 
+void SetupDeltaQ(const TplFrameDepStats &frame_dep_stats,
+                 std::vector<uint8_t> *superblock_q_indices,
+                 const int frame_width, const int frame_height,
+                 const int base_qindex);
+
 class AV1RateControlQMode : public AV1RateControlQModeInterface {
  public:
   Status SetRcParam(const RateControlParam &rc_param) override;
