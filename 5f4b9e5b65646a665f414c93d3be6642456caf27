@@ -16,6 +16,23 @@
       "message": "Hi Wan-Teh, Frank, Marco,\n\nIn this CL, should_skip_postproc_filtering() is modified to handle all possible cases to skip the application of post-processing filters on the reconstructed frame for ALLINTRA encode (based on tool configuration and speed features). An enum \u0027SKIP_POSTPROC_FILTER_APPL\u0027 is newly introduced which is used to set the bit-mask \u0027skip_apply_postproc_filters\u0027 if:\n\n1.subsequent post-processing stages are not dependent on the filtered output from the current stage or\n2.subsequent post-processing stages are disabled\n\nThis is a bit-exact change. For AVIF still-image encode on a typical image dataset, this change results in 0.036% and 0.068% instruction count reduction for speed 3 and 4 respectively (since the application of loop restoration filters are being skipped with this CL).\n\nFor libaom AV1 video encode, bit-match is verified (w.r.t. parent commit) for \u0027GOOD\u0027, \u0027RT\u0027 and \u0027ALLINTRA\u0027 encoding modes for a few contents with different encoding configurations. \n\nWe see that the application of deblocking and CDEF filters on the reconstructed frame is skipped for non-reference frames in case of svc encoding. We can choose to modify the relevant code as in the current CL. Please let us know your opinion on pursuing the above mentioned refactoring in a separate CL.\n\nPlease review.\n\nRegards,\nMudassir",
       "revId": "5f4b9e5b65646a665f414c93d3be6642456caf27",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a4f85712_b180c577",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2022-11-07T13:54:47Z",
+      "side": 1,
+      "message": "Hi Chi Yo, Yunqing,\n\nPlease review this patch.\n\nRegards,\nMudassir",
+      "revId": "5f4b9e5b65646a665f414c93d3be6642456caf27",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
