@@ -51,6 +51,211 @@
       "parentUuid": "a4f85712_b180c577",
       "revId": "5f4b9e5b65646a665f414c93d3be6642456caf27",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "218cd4db_2414e4cc",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-11-07T23:03:17Z",
+      "side": 1,
+      "message": "\u003e We see that the application of deblocking and CDEF filters on the reconstructed frame is skipped for non-reference frames in case of svc encoding. We can choose to modify the relevant code as in the current CL. Please let us know your opinion on pursuing the above mentioned refactoring in a separate CL.\n\nI think it\u0027s a good idea to pursue this refactoring in a separate CL.",
+      "parentUuid": "33c7668f_b4b14bf0",
+      "revId": "5f4b9e5b65646a665f414c93d3be6642456caf27",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b44e77a5_c428963d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-11-07T23:03:17Z",
+      "side": 1,
+      "message": "Hi Mudassir,\n\nThank you for the CL. Sorry about the late reply because I was out of the office.\n\nI suggest some changes.",
+      "revId": "5f4b9e5b65646a665f414c93d3be6642456caf27",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b46bd746_0115c7ca",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2219,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-11-07T23:03:17Z",
+      "side": 1,
+      "message": "Nit: change `uint8_t` to `unsigned int` to match the return type of `derive_skip_apply_postproc_filters()`.",
+      "revId": "5f4b9e5b65646a665f414c93d3be6642456caf27",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1e812dd3_245fa505",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2266,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-11-07T23:03:17Z",
+      "side": 1,
+      "message": "Nit: I suggest removing the following early return statement from `av1_superres_post_encode()`:\n\n```\n  if (!av1_superres_scaled(cm)) return;\n```\n\nAnd put lines 2264-2266 inside an if statement:\n\n```\n  const int use_superres \u003d av1_superres_scaled(cm);\n  if (use_superres) {\n    if ((skip_apply_postproc_filters \u0026 (1 \u003c\u003c SKIP_APPL_SR)) \u003d\u003d 0) {\n      av1_superres_post_encode(cpi);\n    }\n  }\n```\n\nThis makes it clear that the `SKIP_APPL_SR` bit is only checked when `use_superres` is true, similar to when the other SKIP_APPL_xxx` bits are checked.",
+      "revId": "5f4b9e5b65646a665f414c93d3be6642456caf27",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b6abef40_2520a4cd",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2335,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-11-07T23:03:17Z",
+      "side": 1,
+      "message": "Nit: change `uint8_t` to `unsigned int` to match the return type of `derive_skip_apply_postproc_filters()`.",
+      "revId": "5f4b9e5b65646a665f414c93d3be6642456caf27",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ff3ad658_fc5217a6",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 240,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-11-07T23:03:17Z",
+      "side": 1,
+      "message": "Nit: Do not use abbreviations in the comments. Say \"loop restoration filter\" instead of \"LRF\", \"super resolution\" instead of \"SR\", etc. \"CDEF\" is okay because the abbreviation is commonly used.\n\nIn fact, it is not necessary to use abbreviations in the enum names. We can model after the parameter names of `derive_skip_apply_postproc_filters()`:\n\n```\nstatic INLINE unsigned int derive_skip_apply_postproc_filters(\n    const AV1_COMP *cpi, int use_loopfilter, int use_cdef, int use_superres,\n    int use_restoration) {\n```",
+      "revId": "5f4b9e5b65646a665f414c93d3be6642456caf27",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "aa4cef37_6f26f45a",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 243,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-11-07T23:03:17Z",
+      "side": 1,
+      "message": "Define these enum values as follows (I omitted the comments for brevity):\n\n```\ntypedef enum {\n  SKIP_APPL_LRF \u003d 1 \u003c\u003c 0,\n  SKIP_APPL_SR \u003d 1 \u003c\u003c 1,\n  SKIP_APPL_CDEF \u003d 1 \u003c\u003c 2,\n  SKIP_APPL_LPF \u003d 1 \u003c\u003c 3,\n} SKIP_POSTPROC_FILTER_APPL;\n```\n\nThen change `1 \u003c\u003c SKIP_APPL_LRF` to `SKIP_APPL_LRF`, etc.",
+      "revId": "5f4b9e5b65646a665f414c93d3be6642456caf27",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "10739c2d_c8dcfcc0",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 244,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-11-07T23:03:17Z",
+      "side": 1,
+      "message": "1. Nit: I suggest naming this enum type `SKIP_APPL_POSTPROC_FILTER` so that it matches the name convention of its values `SKIP_APPL_xxx`.\n\n2. Optional: In addition, it might be good to change \"APPL\" to \"APPLY\" to match the variable name `skip_apply_postproc_filters` and function name `derive_skip_apply_postproc_filters`, even though the word \"application\" (a noun) is more grammatical than \"apply\" (a verb).",
+      "revId": "5f4b9e5b65646a665f414c93d3be6642456caf27",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "34af7722_704ac3a5",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 4152,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-11-07T23:03:17Z",
+      "side": 1,
+      "message": "Nit: This case is not obvious and could be explained with a comment.",
+      "revId": "5f4b9e5b65646a665f414c93d3be6642456caf27",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a2945d99_a5a118f0",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 4156,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-11-07T23:03:17Z",
+      "side": 1,
+      "message": "Optional: It would be helpful to explain why `use_restoration`, `use_superres`, `use_cdef`, `use_loopfilter` must be checked in this order. I think it has to do with the input-output relations between the post-processing filters. Most people are probably not familiar with that.",
+      "revId": "5f4b9e5b65646a665f414c93d3be6642456caf27",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1a484656_853f7d9c",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 4156,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-11-07T23:03:17Z",
+      "side": 1,
+      "message": "Nit: Do not use \"else\" after a return statement:\n\n```\n  if (use_restoration)\n    return 1 \u003c\u003c SKIP_APPL_LRF;\n  if (use_superres)\n    return 1 \u003c\u003c SKIP_APPL_SR;\n  if (use_cdef) {\n    return (cpi-\u003esf.lpf_sf.cdef_pick_method \u003d\u003d CDEF_PICK_FROM_Q \u0026\u0026\n            use_loopfilter)\n               ? (1 \u003c\u003c SKIP_APPL_LPF) | (1 \u003c\u003c SKIP_APPL_CDEF)\n               : 1 \u003c\u003c SKIP_APPL_CDEF;\n  }\n  if (use_loopfilter)\n    return 1 \u003c\u003c SKIP_APPL_LPF;\n```",
+      "revId": "5f4b9e5b65646a665f414c93d3be6642456caf27",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7d0121a2_94a4536d",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1610,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-11-07T23:03:17Z",
+      "side": 1,
+      "message": "Nit: change `uint8_t` to `unsigned int` to match the return type of `derive_skip_apply_postproc_filters()`.",
+      "revId": "5f4b9e5b65646a665f414c93d3be6642456caf27",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
