@@ -182,7 +182,7 @@ unsigned int av1_get_perpixel_variance(const AV1_COMP *cpi,
     var = cpi->ppi->fn_ptr[plane_bsize].vf(ref->buf, ref->stride, AV1_VAR_OFFS,
                                            0, &sse);
   }
-  return ROUND_POWER_OF_TWO(var, num_pels_log2_lookup[plane_bsize]);
+  return ROUND_POWER_OF_TWO(var, num_pels_log2_lookup_aom[plane_bsize]);
 }
 
 unsigned int av1_get_perpixel_variance_facade(const AV1_COMP *cpi,

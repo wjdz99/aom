@@ -57,11 +57,11 @@ extern __declspec(selectany) const uint8_t block_size_high[BLOCK_SIZES_ALL] = {
 // Maps a block size to a context.
 // The Size_Group table in the spec (Section 9.3. Conversion tables).
 // AOMMIN(3, AOMMIN(mi_size_wide_log2(bsize), mi_size_high_log2(bsize)))
-static const uint8_t size_group_lookup[BLOCK_SIZES_ALL] = {
+extern __declspec(selectany) const uint8_t size_group_lookup_aom[BLOCK_SIZES_ALL] = {
   0, 0, 0, 1, 1, 1, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 0, 0, 1, 1, 2, 2
 };
 
-static const uint8_t num_pels_log2_lookup[BLOCK_SIZES_ALL] = {
+extern __declspec(selectany) const uint8_t num_pels_log2_lookup_aom[BLOCK_SIZES_ALL] = {
   4, 5, 5, 6, 7, 7, 8, 9, 9, 10, 11, 11, 12, 13, 13, 14, 6, 6, 8, 8, 10, 10
 };
 
@@ -102,7 +102,7 @@ extern __declspec(selectany) const BLOCK_SIZE subsize_lookup_aom[EXT_PARTITION_T
   }
 };
 
-static const TX_SIZE max_txsize_lookup[BLOCK_SIZES_ALL] = {
+extern __declspec(selectany) const TX_SIZE max_txsize_lookup_aom[BLOCK_SIZES_ALL] = {
   //                   4X4
                        TX_4X4,
   // 4X8,    8X4,      8X8
@@ -146,13 +146,13 @@ extern __declspec(selectany) const TX_SIZE max_txsize_rect_lookup[BLOCK_SIZES_AL
       TX_16X64,  TX_64X16
 };
 
-static const TX_TYPE_1D vtx_tab[TX_TYPES] = {
+extern __declspec(selectany) const TX_TYPE_1D vtx_tab[TX_TYPES] = {
   DCT_1D,      ADST_1D, DCT_1D,      ADST_1D,
   FLIPADST_1D, DCT_1D,  FLIPADST_1D, ADST_1D, FLIPADST_1D, IDTX_1D,
   DCT_1D,      IDTX_1D, ADST_1D,     IDTX_1D, FLIPADST_1D, IDTX_1D,
 };
 
-static const TX_TYPE_1D htx_tab[TX_TYPES] = {
+extern __declspec(selectany) const TX_TYPE_1D htx_tab[TX_TYPES] = {
   DCT_1D,  DCT_1D,      ADST_1D,     ADST_1D,
   DCT_1D,  FLIPADST_1D, FLIPADST_1D, FLIPADST_1D, ADST_1D, IDTX_1D,
   IDTX_1D, DCT_1D,      IDTX_1D,     ADST_1D,     IDTX_1D, FLIPADST_1D,
@@ -184,7 +184,7 @@ extern __declspec(selectany) const TX_SIZE sub_tx_size_map[TX_SIZES_ALL] = {
   TX_32X16,  // TX_64X16
 };
 
-static const TX_SIZE txsize_horz_map[TX_SIZES_ALL] = {
+extern __declspec(selectany) const TX_SIZE txsize_horz_map[TX_SIZES_ALL] = {
   TX_4X4,    // TX_4X4
   TX_8X8,    // TX_8X8
   TX_16X16,  // TX_16X16
@@ -206,7 +206,7 @@ static const TX_SIZE txsize_horz_map[TX_SIZES_ALL] = {
   TX_64X64,  // TX_64X16
 };
 
-static const TX_SIZE txsize_vert_map[TX_SIZES_ALL] = {
+extern __declspec(selectany) const TX_SIZE txsize_vert_map[TX_SIZES_ALL] = {
   TX_4X4,    // TX_4X4
   TX_8X8,    // TX_8X8
   TX_16X16,  // TX_16X16
@@ -258,7 +258,7 @@ extern __declspec(selectany) const int tx_size_wide_log2[TX_SIZES_ALL] = {
 };
 
 // Transform block width in log2 unit
-static const int tx_size_wide_unit_log2[TX_SIZES_ALL] = {
+extern __declspec(selectany) const int tx_size_wide_unit_log2[TX_SIZES_ALL] = {
   0, 1, 2, 3, 4, 0, 1, 1, 2, 2, 3, 3, 4, 0, 2, 1, 3, 2, 4,
 };
 
@@ -268,7 +268,7 @@ extern __declspec(selectany) const int tx_size_high_log2[TX_SIZES_ALL] = {
 };
 
 // Transform block height in log2 unit
-static const int tx_size_high_unit_log2[TX_SIZES_ALL] = {
+extern __declspec(selectany) const int tx_size_high_unit_log2[TX_SIZES_ALL] = {
   0, 1, 2, 3, 4, 1, 0, 2, 1, 3, 2, 4, 3, 2, 0, 3, 1, 4, 2,
 };
 
@@ -321,7 +321,7 @@ extern __declspec(selectany) const TX_SIZE txsize_sqr_map[TX_SIZES_ALL] = {
   TX_16X16,  // TX_64X16
 };
 
-static const TX_SIZE txsize_sqr_up_map[TX_SIZES_ALL] = {
+extern __declspec(selectany) const TX_SIZE txsize_sqr_up_map[TX_SIZES_ALL] = {
   TX_4X4,    // TX_4X4
   TX_8X8,    // TX_8X8
   TX_16X16,  // TX_16X16
@@ -343,7 +343,7 @@ static const TX_SIZE txsize_sqr_up_map[TX_SIZES_ALL] = {
   TX_64X64,  // TX_64X16
 };
 
-static const int8_t txsize_log2_minus4[TX_SIZES_ALL] = {
+extern __declspec(selectany) const int8_t txsize_log2_minus4[TX_SIZES_ALL] = {
   0,  // TX_4X4
   2,  // TX_8X8
   4,  // TX_16X16
@@ -366,7 +366,7 @@ static const int8_t txsize_log2_minus4[TX_SIZES_ALL] = {
 };
 
 /* clang-format off */
-static const TX_SIZE tx_mode_to_biggest_tx_size[TX_MODES] = {
+extern __declspec(selectany) const TX_SIZE tx_mode_to_biggest_tx_size_aom[TX_MODES] = {
   TX_4X4,    // ONLY_4X4
   TX_64X64,  // TX_MODE_LARGEST
   TX_64X64,  // TX_MODE_SELECT
@@ -406,10 +406,10 @@ extern __declspec(selectany) const BLOCK_SIZE ss_size_lookup_aom[BLOCK_SIZES_ALL
 // a blocksize partition  11111 means we split 128x128, 64x64, 32x32, 16x16
 // and 8x8.  10000 means we just split the 128x128 to 64x64
 /* clang-format off */
-static const struct {
+extern __declspec(selectany) const struct {
   PARTITION_CONTEXT above;
   PARTITION_CONTEXT left;
-} partition_context_lookup[BLOCK_SIZES_ALL] = {
+} partition_context_lookup_aom[BLOCK_SIZES_ALL] = {
   { 31, 31 },  // 4X4   - {0b11111, 0b11111}
   { 31, 30 },  // 4X8   - {0b11111, 0b11110}
   { 30, 31 },  // 8X4   - {0b11110, 0b11111}
@@ -435,17 +435,17 @@ static const struct {
 };
 /* clang-format on */
 
-static const int intra_mode_context[INTRA_MODES] = {
+extern __declspec(selectany) const int intra_mode_context[INTRA_MODES] = {
   0, 1, 2, 3, 4, 4, 4, 4, 3, 0, 1, 2, 0,
 };
 
 // Note: this is also used in unit tests. So whenever one changes the table,
 // the unit tests need to be changed accordingly.
-static const int quant_dist_weight[4][2] = {
+extern __declspec(selectany) const int quant_dist_weight[4][2] = {
   { 2, 3 }, { 2, 5 }, { 2, 7 }, { 1, MAX_FRAME_DISTANCE }
 };
 
-static const int quant_dist_lookup_table[4][2] = {
+extern __declspec(selectany) const int quant_dist_lookup_table[4][2] = {
   { 9, 7 },
   { 11, 5 },
   { 12, 4 },

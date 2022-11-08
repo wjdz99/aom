@@ -366,8 +366,8 @@ static void get_txb_ctx_general(const BLOCK_SIZE plane_bsize,
     }
   } else {
     const int ctx_base = get_entropy_context(tx_size, a, l);
-    const int ctx_offset = (num_pels_log2_lookup[plane_bsize] >
-                            num_pels_log2_lookup[txsize_to_bsize_aom[tx_size]])
+    const int ctx_offset = (num_pels_log2_lookup_aom[plane_bsize] >
+                            num_pels_log2_lookup_aom[txsize_to_bsize_aom[tx_size]])
                                ? 10
                                : 7;
     txb_ctx->txb_skip_ctx = ctx_base + ctx_offset;
@@ -436,8 +436,8 @@ static void get_txb_ctx_general(const BLOCK_SIZE plane_bsize,
       }                                                                       \
     } else {                                                                  \
       const int ctx_base = get_entropy_context(tx_size, a, l);                \
-      const int ctx_offset = (num_pels_log2_lookup[plane_bsize] >             \
-                              num_pels_log2_lookup[txsize_to_bsize_aom[tx_size]]) \
+      const int ctx_offset = (num_pels_log2_lookup_aom[plane_bsize] >             \
+                              num_pels_log2_lookup_aom[txsize_to_bsize_aom[tx_size]]) \
                                  ? 10                                         \
                                  : 7;                                         \
       txb_ctx->txb_skip_ctx = ctx_base + ctx_offset;                          \

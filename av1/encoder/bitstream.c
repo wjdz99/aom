@@ -847,7 +847,7 @@ static AOM_INLINE void write_intra_y_mode_nonkf(FRAME_CONTEXT *frame_ctx,
                                                 BLOCK_SIZE bsize,
                                                 PREDICTION_MODE mode,
                                                 aom_writer *w) {
-  aom_write_symbol(w, mode, frame_ctx->y_mode_cdf[size_group_lookup[bsize]],
+  aom_write_symbol(w, mode, frame_ctx->y_mode_cdf[size_group_lookup_aom[bsize]],
                    INTRA_MODES);
 }
 
@@ -1169,7 +1169,7 @@ static AOM_INLINE void pack_inter_mode_mvs(AV1_COMP *cpi, ThreadData *const td,
         cpi->common.seq_params->enable_interintra_compound &&
         is_interintra_allowed(mbmi)) {
       const int interintra = mbmi->ref_frame[1] == INTRA_FRAME;
-      const int bsize_group = size_group_lookup[bsize];
+      const int bsize_group = size_group_lookup_aom[bsize];
       aom_write_symbol(w, interintra, ec_ctx->interintra_cdf[bsize_group], 2);
       if (interintra) {
         aom_write_symbol(w, mbmi->interintra_mode,

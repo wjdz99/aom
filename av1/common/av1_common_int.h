@@ -1427,8 +1427,8 @@ static INLINE void update_partition_context(MACROBLOCKD *xd, int mi_row,
 
   const int bw = mi_size_wide[bsize];
   const int bh = mi_size_high[bsize];
-  memset(above_ctx, partition_context_lookup[subsize].above, bw);
-  memset(left_ctx, partition_context_lookup[subsize].left, bh);
+  memset(above_ctx, partition_context_lookup_aom[subsize].above, bw);
+  memset(left_ctx, partition_context_lookup_aom[subsize].left, bh);
 }
 
 static INLINE int is_chroma_reference(int mi_row, int mi_col, BLOCK_SIZE bsize,

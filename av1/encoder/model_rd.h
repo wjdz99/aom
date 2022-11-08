@@ -105,7 +105,7 @@ static AOM_INLINE void model_rd_from_sse(const AV1_COMP *const cpi,
     assert(*rate >= 0);
     *dist = (square_error * quantizer) >> 8;
   } else {
-    av1_model_rd_from_var_lapndz(sse, num_pels_log2_lookup[plane_bsize],
+    av1_model_rd_from_var_lapndz(sse, num_pels_log2_lookup_aom[plane_bsize],
                                  p->dequant_QTX[1] >> dequant_shift, rate,
                                  dist);
   }

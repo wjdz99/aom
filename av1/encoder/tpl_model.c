@@ -103,7 +103,7 @@ static AOM_INLINE void get_quantize_error(const MACROBLOCK *x, int plane,
   const struct macroblock_plane *const p = &x->plane[plane];
   const MACROBLOCKD *xd = &x->e_mbd;
   const SCAN_ORDER *const scan_order = &av1_scan_orders[tx_size][DCT_DCT];
-  int pix_num = 1 << num_pels_log2_lookup[txsize_to_bsize_aom[tx_size]];
+  int pix_num = 1 << num_pels_log2_lookup_aom[txsize_to_bsize_aom[tx_size]];
   const int shift = tx_size == TX_32X32 ? 0 : 2;
 
   QUANT_PARAM quant_param;
@@ -213,7 +213,7 @@ static AOM_INLINE int32_t tpl_get_satd_cost(BitDepthInfo bd_info,
 static int rate_estimator(const tran_low_t *qcoeff, int eob, TX_SIZE tx_size) {
   const SCAN_ORDER *const scan_order = &av1_scan_orders[tx_size][DCT_DCT];
 
-  assert((1 << num_pels_log2_lookup[txsize_to_bsize_aom[tx_size]]) >= eob);
+  assert((1 << num_pels_log2_lookup_aom[txsize_to_bsize_aom[tx_size]]) >= eob);
   int rate_cost = 1;
 
   for (int idx = 0; idx < eob; ++idx) {
@@ -1340,7 +1340,7 @@ static AOM_INLINE void mc_flow_dispenser(AV1_COMP *cpi) {
   MACROBLOCKD *xd = &x->e_mbd;
   const BLOCK_SIZE bsize =
       convert_length_to_bsize(cpi->ppi->tpl_data.tpl_bsize_1d);
-  const TX_SIZE tx_size = max_txsize_lookup[bsize];
+  const TX_SIZE tx_size = max_txsize_lookup_aom[bsize];
   const int mi_height = mi_size_high[bsize];
   for (int mi_row = 0; mi_row < mi_params->mi_rows; mi_row += mi_height) {
     // Motion estimation row boundary

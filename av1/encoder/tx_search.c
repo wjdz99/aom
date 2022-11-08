@@ -63,7 +63,7 @@ static const uint32_t skip_pred_threshold[3][BLOCK_SIZES_ALL] = {
 // lookup table for predict_skip_txfm
 // int max_tx_size = max_txsize_rect_lookup[bsize];
 // if (tx_size_high[max_tx_size] > 16 || tx_size_wide[max_tx_size] > 16)
-//   max_tx_size = AOMMIN(max_txsize_lookup[bsize], TX_16X16);
+//   max_tx_size = AOMMIN(max_txsize_lookup_aom[bsize], TX_16X16);
 static const TX_SIZE max_predict_sf_tx_size[BLOCK_SIZES_ALL] = {
   TX_4X4,   TX_4X8,   TX_8X4,   TX_8X8,   TX_8X16,  TX_16X8,
   TX_16X16, TX_16X16, TX_16X16, TX_16X16, TX_16X16, TX_16X16,
@@ -732,7 +732,7 @@ static AOM_INLINE void PrintPredictionUnitStats(const AV1_COMP *const cpi,
   // Generate small sample to restrict output size.
   static unsigned int seed = 95014;
 
-  if ((lcg_rand16(&seed) % (1 << (14 - num_pels_log2_lookup[plane_bsize]))) !=
+  if ((lcg_rand16(&seed) % (1 << (14 - num_pels_log2_lookup_aom[plane_bsize]))) !=
       1)
     return;
 
@@ -772,7 +772,7 @@ static AOM_INLINE void PrintPredictionUnitStats(const AV1_COMP *const cpi,
   const unsigned int sad =
       cpi->ppi->fn_ptr[plane_bsize].sdf(src, src_stride, dst, dst_stride);
   const double sad_norm =
-      (double)sad / (1 << num_pels_log2_lookup[plane_bsize]);
+      (double)sad / (1 << num_pels_log2_lookup_aom[plane_bsize]);
 
   fprintf(fout, " %g %g", sse_norm, sad_norm);
 
