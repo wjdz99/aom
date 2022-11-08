@@ -24,6 +24,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "96e12ee3_a1212f46",
+        "filename": "av1/qmode_rc/ratectrl_qmode.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 1255,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-11-08T01:32:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "200a2870_2b2dbde6",
+      "range": {
+        "startLine": 1255,
+        "startChar": 2,
+        "endLine": 1255,
+        "endChar": 5
+      },
+      "revId": "238471f295518a8608882e364ee167f1f7b8cb82",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "dc36c30f_9c70fa29",
@@ -37,6 +61,30 @@
       "writtenOn": "2022-11-08T00:38:21Z",
       "side": 1,
       "message": "Prefer the prefix form unless you need postfix semantics. \n\ngo/cstyle#Preincrement_and_Predecrement",
+      "range": {
+        "startLine": 1258,
+        "startChar": 41,
+        "endLine": 1258,
+        "endChar": 49
+      },
+      "revId": "238471f295518a8608882e364ee167f1f7b8cb82",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "50457609_22405b3d",
+        "filename": "av1/qmode_rc/ratectrl_qmode.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 1258,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-11-08T01:32:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "dc36c30f_9c70fa29",
       "range": {
         "startLine": 1258,
         "startChar": 41,
@@ -70,6 +118,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "fa4ac793_658d9997",
+        "filename": "av1/qmode_rc/ratectrl_qmode.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 1271,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-11-08T01:32:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "aa6c23df_14a5d795",
+      "range": {
+        "startLine": 1271,
+        "startChar": 24,
+        "endLine": 1271,
+        "endChar": 37
+      },
+      "revId": "238471f295518a8608882e364ee167f1f7b8cb82",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "51dc77c0_f7abed12",
@@ -83,6 +155,30 @@
       "writtenOn": "2022-11-08T00:38:21Z",
       "side": 1,
       "message": "There\u0027s no need to declare this here; you can declare it where it\u0027s assigned.",
+      "range": {
+        "startLine": 1277,
+        "startChar": 6,
+        "endLine": 1277,
+        "endChar": 25
+      },
+      "revId": "238471f295518a8608882e364ee167f1f7b8cb82",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6fcb9474_af212a43",
+        "filename": "av1/qmode_rc/ratectrl_qmode.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 1277,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-11-08T01:32:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "51dc77c0_f7abed12",
       "range": {
         "startLine": 1277,
         "startChar": 6,
@@ -139,6 +235,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a9af1c48_1b2a2f55",
+        "filename": "av1/qmode_rc/ratectrl_qmode.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-11-08T01:32:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f4ae6792_b9c83b9c",
+      "range": {
+        "startLine": 94,
+        "startChar": 17,
+        "endLine": 94,
+        "endChar": 59
+      },
+      "revId": "238471f295518a8608882e364ee167f1f7b8cb82",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "3497cd14_6df2637a",
@@ -152,6 +272,30 @@
       "writtenOn": "2022-11-08T00:38:21Z",
       "side": 1,
       "message": "Const is meaningless here. go/totw/109",
+      "range": {
+        "startLine": 95,
+        "startChar": 17,
+        "endLine": 95,
+        "endChar": 22
+      },
+      "revId": "238471f295518a8608882e364ee167f1f7b8cb82",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b334dd7a_da6e684c",
+        "filename": "av1/qmode_rc/ratectrl_qmode.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-11-08T01:32:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3497cd14_6df2637a",
       "range": {
         "startLine": 95,
         "startChar": 17,
