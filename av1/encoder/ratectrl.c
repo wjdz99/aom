@@ -161,11 +161,27 @@ double av1_convert_qindex_to_q(int qindex, aom_bit_depth_t bit_depth) {
 
 int av1_rc_bits_per_mb(const AV1_COMP *cpi, FRAME_TYPE frame_type, int qindex,
                        double correction_factor, int accurate_estimate) {
-  (void)accurate_estimate;
   const AV1_COMMON *const cm = &cpi->common;
   const int is_screen_content_type = cpi->is_screen_content_type;
   const aom_bit_depth_t bit_depth = cm->seq_params->bit_depth;
   const double q = av1_convert_qindex_to_q(qindex, bit_depth);
+  const int min_dim = AOMMIN(cm->width, cm->height);
+
+  if (frame_type != KEY_FRAME && accurate_estimate) {
+    assert(cpi->rec_sse != UINT64_MAX);
+    const int mbs = cm->mi_params.MBs;
+    const int res = (min_dim < 480) ? 0 : ((min_dim < 720) ? 1 : 2);
+    const double sse_over_q2 = (double)(cpi->rec_sse << BPER_MB_NORMBITS) /
+                               ((double)q * q) / (double)mbs;
+    const double coef[3][2] = {
+      { 1.00895035e-01, 9.08826817e+03 },  // < 480
+      { 2.36947004e-01, 6.51610452e+03 },  // < 720
+      { 3.18440673e-01, 4.33863289e+03 }   // 720
+    };
+    int bits = (int)(coef[res][0] * sse_over_q2 + coef[res][1]);
+    return (int)(bits * correction_factor);
+  }
+
   int enumerator = frame_type == KEY_FRAME ? 2000000 : 1500000;
   if (is_screen_content_type) {
     enumerator = frame_type == KEY_FRAME ? 1000000 : 750000;
@@ -184,7 +200,8 @@ int av1_estimate_bits_at_q(const AV1_COMP *cpi, int q,
   const FRAME_TYPE frame_type = cm->current_frame.frame_type;
   const int mbs = cm->mi_params.MBs;
   const int bpm =
-      (int)(av1_rc_bits_per_mb(cpi, frame_type, q, correction_factor, 0));
+      (int)(av1_rc_bits_per_mb(cpi, frame_type, q, correction_factor,
+                               cpi->sf.hl_sf.accurate_bit_estimate));
   return AOMMAX(FRAME_OVERHEAD_BITS,
                 (int)((uint64_t)bpm * mbs) >> BPER_MB_NORMBITS);
 }
@@ -484,6 +501,13 @@ static int adjust_q_cbr(const AV1_COMP *cpi, int q, int active_worst_quality) {
       else
         q = qclamp;
     }
+
+    if (rc->rc_1_frame == -1 && rc->rc_2_frame <= 0) {
+      int qmin = (rc->rc_2_frame == 0) ? rc->q_1_frame
+                                       : AOMMAX(rc->q_1_frame, rc->q_2_frame);
+      q = AOMMAX(q, qmin);
+    }
+
     // Adjust Q base on source content change from scene detection.
     if (cpi->sf.rt_sf.check_scene_detection && rc->prev_avg_source_sad > 0 &&
         rc->frames_since_key > 10 && rc->frame_source_sad > 0 &&
@@ -629,6 +653,15 @@ static void set_rate_correction_factor(AV1_COMP *cpi, int is_encode_stage,
 
   if (cpi->common.current_frame.frame_type == KEY_FRAME) {
     p_rc->rate_correction_factors[KF_STD] = factor;
+
+    // RTC encoding: 0.7 is too aggressive when accurate_bit_estimate = 1, which
+    // may cause large overshoot for the frame after the key frame. So, reset
+    // this start value.
+    if (cpi->sf.hl_sf.accurate_bit_estimate) {
+      for (int i = 0; i < RATE_FACTOR_LEVELS - 1; ++i) {
+        p_rc->rate_correction_factors[i] = 0.9;
+      }
+    }
   } else if (is_stat_consumption_stage(cpi)) {
     const RATE_FACTOR_LEVEL rf_lvl =
         get_rate_factor_level(&cpi->ppi->gf_group, cpi->gf_frame_index);
@@ -762,7 +795,8 @@ static int get_bits_per_mb(const AV1_COMP *cpi, int use_cyclic_refresh,
   return use_cyclic_refresh
              ? av1_cyclic_refresh_rc_bits_per_mb(cpi, q, correction_factor)
              : av1_rc_bits_per_mb(cpi, cm->current_frame.frame_type, q,
-                                  correction_factor, 0);
+                                  correction_factor,
+                                  cpi->sf.hl_sf.accurate_bit_estimate);
 }
 
 /*!\brief Searches for a Q index value predicted to give an average macro
@@ -1159,14 +1193,6 @@ static int rc_pick_q_and_bounds_no_stats_cbr(const AV1_COMP *cpi, int width,
       else
         q = *top_index;
     }
-  }
-  // Special case: we force the first few frames to use low q such that
-  // these frames are encoded at a high quality, which provides good
-  // references for following frames.
-  if (current_frame->frame_type != KEY_FRAME && !cpi->ppi->use_svc &&
-      current_frame->frame_number >= 10 && current_frame->frame_number <= 15) {
-    q = AOMMIN(p_rc->last_kf_qindex + 108, AOMMAX(5, q - 9));
-    q = AOMMAX(q, rc->best_quality);
   }
 
   assert(*top_index <= rc->worst_quality && *top_index >= rc->best_quality);
@@ -1950,6 +1976,50 @@ static int rc_pick_q_and_bounds(const AV1_COMP *cpi, int width, int height,
   return q;
 }
 
+static void rc_compute_variance_onepass_rt(AV1_COMP *cpi) {
+  AV1_COMMON *const cm = &cpi->common;
+  YV12_BUFFER_CONFIG const *const unscaled_src = cpi->unscaled_source;
+  if (unscaled_src == NULL) return;
+
+  const uint8_t *src_y = unscaled_src->y_buffer;
+  const int src_ystride = unscaled_src->y_stride;
+  const YV12_BUFFER_CONFIG *yv12 = get_ref_frame_yv12_buf(cm, LAST_FRAME);
+  const uint8_t *pre_y = yv12->buffers[0];
+  const int pre_ystride = yv12->strides[0];
+
+  // TODO(yunqing): support scaled reference frames.
+  if (cpi->scaled_ref_buf[LAST_FRAME - 1]) return;
+
+  const int num_mi_cols = cm->mi_params.mi_cols;
+  const int num_mi_rows = cm->mi_params.mi_rows;
+  const BLOCK_SIZE bsize = BLOCK_64X64;
+  int num_samples = 0;
+  // sse is computed on 64x64 blocks
+  const int sb_size_by_mb = (cm->seq_params->sb_size == BLOCK_128X128)
+                                ? (cm->seq_params->mib_size >> 1)
+                                : cm->seq_params->mib_size;
+  const int sb_cols = (num_mi_cols + sb_size_by_mb - 1) / sb_size_by_mb;
+  const int sb_rows = (num_mi_rows + sb_size_by_mb - 1) / sb_size_by_mb;
+
+  uint64_t fsse = 0;
+  cpi->rec_sse = 0;
+
+  for (int sbi_row = 0; sbi_row < sb_rows; ++sbi_row) {
+    for (int sbi_col = 0; sbi_col < sb_cols; ++sbi_col) {
+      unsigned int sse;
+      cpi->ppi->fn_ptr[bsize].vf(src_y, src_ystride, pre_y, pre_ystride, &sse);
+      fsse += sse;
+      num_samples++;
+      src_y += 64;
+      pre_y += 64;
+    }
+    src_y += (src_ystride << 6) - (sb_cols << 6);
+    pre_y += (pre_ystride << 6) - (sb_cols << 6);
+  }
+  assert(num_samples > 0);
+  if (num_samples > 0) cpi->rec_sse = fsse;
+}
+
 int av1_rc_pick_q_and_bounds(AV1_COMP *cpi, int width, int height, int gf_index,
                              int *bottom_index, int *top_index) {
   PRIMARY_RATE_CONTROL *const p_rc = &cpi->ppi->p_rc;
@@ -1961,6 +2031,12 @@ int av1_rc_pick_q_and_bounds(AV1_COMP *cpi, int width, int height, int gf_index,
        gf_group->update_type[gf_index] == ARF_UPDATE) &&
       has_no_stats_stage(cpi)) {
     if (cpi->oxcf.rc_cfg.mode == AOM_CBR) {
+      // TODO(yunqing): the results could be used for encoder optimization.
+      cpi->rec_sse = UINT64_MAX;
+      if (cpi->sf.hl_sf.accurate_bit_estimate &&
+          cpi->common.current_frame.frame_type != KEY_FRAME)
+        rc_compute_variance_onepass_rt(cpi);
+
       q = rc_pick_q_and_bounds_no_stats_cbr(cpi, width, height, bottom_index,
                                             top_index);
       // preserve copy of active worst quality selected.
