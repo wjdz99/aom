@@ -18,6 +18,7 @@
 #include <fstream>
 #include <memory>
 #include <numeric>
+#include <random>
 #include <string>
 #include <vector>
 
@@ -1125,6 +1126,30 @@ TEST_F(RateControlQModeTest, TestMock) {
   const auto result = mock_rc.DetermineGopInfo(firstpass_info);
   EXPECT_EQ(result.status().code, AOM_CODEC_ERROR);
   EXPECT_EQ(result.status().message, "message");
+}
+
+TEST_F(RateControlQModeTest, TestKMeans) {
+  std::vector<int> centroids_ref = { 16, 48, 80, 112, 144, 176, 208, 240 };
+  std::unordered_map<int, int> kmeans_result_ref;
+  std::vector<uint8_t> random_input;
+  const int num_sample_per_cluster = 10;
+  const int num_clusters = 8;
+  std::default_random_engine generator;
+  for (int &centroid : centroids_ref) {
+    std::uniform_int_distribution<uint8_t> distribution(centroid - 8,
+                                                        centroid + 8);
+    for (int i = 0; i < num_sample_per_cluster; ++i) {
+      const int random_sample = distribution(generator);
+      random_input.push_back(random_sample);
+      kmeans_result_ref[random_sample] = centroid;
+    }
+  }
+  std::shuffle(random_input.begin(), random_input.end(), generator);
+  std::unordered_map<int, int> kmeans_result =
+      aom::internal::KMeans(random_input, num_clusters);
+  for (auto &result : kmeans_result) {
+    EXPECT_LE(abs(result.second - kmeans_result_ref[result.first]), 1);
+  }
 }
 
 }  // namespace aom
