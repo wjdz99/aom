@@ -202,6 +202,167 @@ static int get_var_perceptual_ai(AV1_COMP *const cpi, BLOCK_SIZE bsize,
   return sb_wiener_var;
 }
 
+static void calc_mb_wiener_var(AV1_COMP *const cpi, double *sum_rec_distortion,
+                               double *sum_est_rate) {
+  AV1_COMMON *const cm = &cpi->common;
+  uint8_t *buffer = cpi->source->y_buffer;
+  int buf_stride = cpi->source->y_stride;
+  ThreadData *td = &cpi->td;
+  MACROBLOCK *x = &td->mb;
+  MACROBLOCKD *xd = &x->e_mbd;
+  MB_MODE_INFO mbmi;
+  memset(&mbmi, 0, sizeof(mbmi));
+  MB_MODE_INFO *mbmi_ptr = &mbmi;
+  xd->mi = &mbmi_ptr;
+  const BLOCK_SIZE bsize = cpi->weber_bsize;
+  const TX_SIZE tx_size = max_txsize_lookup[bsize];
+  const int block_size = tx_size_wide[tx_size];
+  const int coeff_count = block_size * block_size;
+  const int mb_step = mi_size_wide[bsize];
+  const BitDepthInfo bd_info = get_bit_depth_info(xd);
+  DECLARE_ALIGNED(32, int16_t, src_diff[32 * 32]);
+  DECLARE_ALIGNED(32, tran_low_t, coeff[32 * 32]);
+  DECLARE_ALIGNED(32, tran_low_t, qcoeff[32 * 32]);
+  DECLARE_ALIGNED(32, tran_low_t, dqcoeff[32 * 32]);
+  cm->quant_params.base_qindex = cpi->oxcf.rc_cfg.cq_level;
+  av1_frame_init_quantizer(cpi);
+
+  for (int mi_row = 0; mi_row < cpi->frame_info.mi_rows; mi_row += mb_step) {
+    for (int mi_col = 0; mi_col < cpi->frame_info.mi_cols; mi_col += mb_step) {
+      PREDICTION_MODE best_mode = DC_PRED;
+      int best_intra_cost = INT_MAX;
+      xd->up_available = mi_row > 0;
+      xd->left_available = mi_col > 0;
+      const int mi_width = mi_size_wide[bsize];
+      const int mi_height = mi_size_high[bsize];
+      set_mode_info_offsets(&cpi->common.mi_params, &cpi->mbmi_ext_info, x, xd,
+                            mi_row, mi_col);
+      set_mi_row_col(xd, &xd->tile, mi_row, mi_height, mi_col, mi_width,
+                     cm->mi_params.mi_rows, cm->mi_params.mi_cols);
+      set_plane_n4(xd, mi_size_wide[bsize], mi_size_high[bsize],
+                   av1_num_planes(cm));
+      xd->mi[0]->bsize = bsize;
+      xd->mi[0]->motion_mode = SIMPLE_TRANSLATION;
+      av1_setup_dst_planes(xd->plane, bsize, &cm->cur_frame->buf, mi_row,
+                           mi_col, 0, av1_num_planes(cm));
+      int dst_buffer_stride = xd->plane[0].dst.stride;
+      uint8_t *dst_buffer = xd->plane[0].dst.buf;
+      uint8_t *mb_buffer =
+          buffer + mi_row * MI_SIZE * buf_stride + mi_col * MI_SIZE;
+      for (PREDICTION_MODE mode = INTRA_MODE_START; mode < INTRA_MODE_END;
+           ++mode) {
+        av1_predict_intra_block(
+            xd, cm->seq_params->sb_size,
+            cm->seq_params->enable_intra_edge_filter, block_size, block_size,
+            tx_size, mode, 0, 0, FILTER_INTRA_MODES, dst_buffer,
+            dst_buffer_stride, dst_buffer, dst_buffer_stride, 0, 0, 0);
+        av1_subtract_block(bd_info, block_size, block_size, src_diff,
+                           block_size, mb_buffer, buf_stride, dst_buffer,
+                           dst_buffer_stride);
+        av1_quick_txfm(0, tx_size, bd_info, src_diff, block_size, coeff);
+        int intra_cost = aom_satd(coeff, coeff_count);
+        if (intra_cost < best_intra_cost) {
+          best_intra_cost = intra_cost;
+          best_mode = mode;
+        }
+      }
+
+      av1_predict_intra_block(xd, cm->seq_params->sb_size,
+                              cm->seq_params->enable_intra_edge_filter,
+                              block_size, block_size, tx_size, best_mode, 0, 0,
+                              FILTER_INTRA_MODES, dst_buffer, dst_buffer_stride,
+                              dst_buffer, dst_buffer_stride, 0, 0, 0);
+      av1_subtract_block(bd_info, block_size, block_size, src_diff, block_size,
+                         mb_buffer, buf_stride, dst_buffer, dst_buffer_stride);
+      av1_quick_txfm(0, tx_size, bd_info, src_diff, block_size, coeff);
+
+      const struct macroblock_plane *const p = &x->plane[0];
+      uint16_t eob;
+      const SCAN_ORDER *const scan_order = &av1_scan_orders[tx_size][DCT_DCT];
+      QUANT_PARAM quant_param;
+      int pix_num = 1 << num_pels_log2_lookup[txsize_to_bsize[tx_size]];
+      av1_setup_quant(tx_size, 0, AV1_XFORM_QUANT_FP, 0, &quant_param);
+#if CONFIG_AV1_HIGHBITDEPTH
+      if (is_cur_buf_hbd(xd)) {
+        av1_highbd_quantize_fp_facade(coeff, pix_num, p, qcoeff, dqcoeff, &eob,
+                                      scan_order, &quant_param);
+      } else {
+        av1_quantize_fp_facade(coeff, pix_num, p, qcoeff, dqcoeff, &eob,
+                               scan_order, &quant_param);
+      }
+#else
+      av1_quantize_fp_facade(coeff, pix_num, p, qcoeff, dqcoeff, &eob,
+                             scan_order, &quant_param);
+#endif  // CONFIG_AV1_HIGHBITDEPTH
+      av1_inverse_transform_block(xd, dqcoeff, 0, DCT_DCT, tx_size, dst_buffer,
+                                  dst_buffer_stride, eob, 0);
+      WeberStats *weber_stats =
+          &cpi->mb_weber_stats[(mi_row / mb_step) * cpi->frame_info.mi_cols +
+                               (mi_col / mb_step)];
+
+      weber_stats->rec_pix_max = 1;
+      weber_stats->rec_variance = 0;
+      weber_stats->src_pix_max = 1;
+      weber_stats->src_variance = 0;
+      weber_stats->distortion = 0;
+
+      int64_t src_mean = 0;
+      int64_t rec_mean = 0;
+      int64_t dist_mean = 0;
+
+      for (int pix_row = 0; pix_row < block_size; ++pix_row) {
+        for (int pix_col = 0; pix_col < block_size; ++pix_col) {
+          int src_pix, rec_pix;
+#if CONFIG_AV1_HIGHBITDEPTH
+          if (is_cur_buf_hbd(xd)) {
+            uint16_t *src = CONVERT_TO_SHORTPTR(mb_buffer);
+            uint16_t *rec = CONVERT_TO_SHORTPTR(dst_buffer);
+            src_pix = src[pix_row * buf_stride + pix_col];
+            rec_pix = rec[pix_row * dst_buffer_stride + pix_col];
+          } else {
+            src_pix = mb_buffer[pix_row * buf_stride + pix_col];
+            rec_pix = dst_buffer[pix_row * dst_buffer_stride + pix_col];
+          }
+#else
+          src_pix = mb_buffer[pix_row * buf_stride + pix_col];
+          rec_pix = dst_buffer[pix_row * dst_buffer_stride + pix_col];
+#endif
+          src_mean += src_pix;
+          rec_mean += rec_pix;
+          dist_mean += src_pix - rec_pix;
+          weber_stats->src_variance += src_pix * src_pix;
+          weber_stats->rec_variance += rec_pix * rec_pix;
+          weber_stats->src_pix_max = AOMMAX(weber_stats->src_pix_max, src_pix);
+          weber_stats->rec_pix_max = AOMMAX(weber_stats->rec_pix_max, rec_pix);
+          weber_stats->distortion += (src_pix - rec_pix) * (src_pix - rec_pix);
+        }
+      }
+
+      if (cpi->oxcf.intra_mode_cfg.auto_intra_tools_off) {
+        *sum_rec_distortion += weber_stats->distortion;
+        int est_block_rate = 0;
+        int64_t est_block_dist = 0;
+        model_rd_sse_fn[MODELRD_LEGACY](cpi, x, bsize, 0,
+                                        weber_stats->distortion, pix_num,
+                                        &est_block_rate, &est_block_dist);
+        *sum_est_rate += est_block_rate;
+      }
+
+      weber_stats->src_variance -= (src_mean * src_mean) / pix_num;
+      weber_stats->rec_variance -= (rec_mean * rec_mean) / pix_num;
+      weber_stats->distortion -= (dist_mean * dist_mean) / pix_num;
+      weber_stats->satd = best_intra_cost;
+
+      qcoeff[0] = 0;
+      for (int idx = 1; idx < coeff_count; ++idx)
+        qcoeff[idx] = abs(qcoeff[idx]);
+      qsort(qcoeff, coeff_count, sizeof(*coeff), qsort_comp);
+
+      weber_stats->max_scale = (double)qcoeff[coeff_count - 1];
+    }
+  }
+}
+
 static double calc_src_mean_var(const uint8_t *const src_buffer,
                                 const int buf_stride, const int block_size,
                                 const int use_hbd, double *mean) {
@@ -366,16 +527,6 @@ static void automatic_intra_tools_off(AV1_COMP *cpi,
 
 void av1_set_mb_wiener_variance(AV1_COMP *cpi) {
   AV1_COMMON *const cm = &cpi->common;
-  uint8_t *buffer = cpi->source->y_buffer;
-  int buf_stride = cpi->source->y_stride;
-  ThreadData *td = &cpi->td;
-  MACROBLOCK *x = &td->mb;
-  MACROBLOCKD *xd = &x->e_mbd;
-  MB_MODE_INFO mbmi;
-  memset(&mbmi, 0, sizeof(mbmi));
-  MB_MODE_INFO *mbmi_ptr = &mbmi;
-  xd->mi = &mbmi_ptr;
-
   const SequenceHeader *const seq_params = cm->seq_params;
   if (aom_realloc_frame_buffer(
           &cm->cur_frame->buf, cm->width, cm->height, seq_params->subsampling_x,
@@ -384,168 +535,12 @@ void av1_set_mb_wiener_variance(AV1_COMP *cpi) {
           NULL, cpi->oxcf.tool_cfg.enable_global_motion, 0))
     aom_internal_error(cm->error, AOM_CODEC_MEM_ERROR,
                        "Failed to allocate frame buffer");
-
-  cm->quant_params.base_qindex = cpi->oxcf.rc_cfg.cq_level;
-  av1_frame_init_quantizer(cpi);
-
-  DECLARE_ALIGNED(32, int16_t, src_diff[32 * 32]);
-  DECLARE_ALIGNED(32, tran_low_t, coeff[32 * 32]);
-  DECLARE_ALIGNED(32, tran_low_t, qcoeff[32 * 32]);
-  DECLARE_ALIGNED(32, tran_low_t, dqcoeff[32 * 32]);
-
-  int mi_row, mi_col;
-
-  BLOCK_SIZE bsize = cpi->weber_bsize;
-  const TX_SIZE tx_size = max_txsize_lookup[bsize];
-  const int block_size = tx_size_wide[tx_size];
-  const int coeff_count = block_size * block_size;
-
-  const BitDepthInfo bd_info = get_bit_depth_info(xd);
   cpi->norm_wiener_variance = 0;
-  int mb_step = mi_size_wide[bsize];
-
   double sum_rec_distortion = 0.0;
   double sum_est_rate = 0.0;
-  for (mi_row = 0; mi_row < cpi->frame_info.mi_rows; mi_row += mb_step) {
-    for (mi_col = 0; mi_col < cpi->frame_info.mi_cols; mi_col += mb_step) {
-      PREDICTION_MODE best_mode = DC_PRED;
-      int best_intra_cost = INT_MAX;
 
-      xd->up_available = mi_row > 0;
-      xd->left_available = mi_col > 0;
-
-      const int mi_width = mi_size_wide[bsize];
-      const int mi_height = mi_size_high[bsize];
-      set_mode_info_offsets(&cpi->common.mi_params, &cpi->mbmi_ext_info, x, xd,
-                            mi_row, mi_col);
-      set_mi_row_col(xd, &xd->tile, mi_row, mi_height, mi_col, mi_width,
-                     cm->mi_params.mi_rows, cm->mi_params.mi_cols);
-      set_plane_n4(xd, mi_size_wide[bsize], mi_size_high[bsize],
-                   av1_num_planes(cm));
-      xd->mi[0]->bsize = bsize;
-      xd->mi[0]->motion_mode = SIMPLE_TRANSLATION;
-
-      av1_setup_dst_planes(xd->plane, bsize, &cm->cur_frame->buf, mi_row,
-                           mi_col, 0, av1_num_planes(cm));
-
-      int dst_buffer_stride = xd->plane[0].dst.stride;
-      uint8_t *dst_buffer = xd->plane[0].dst.buf;
-      uint8_t *mb_buffer =
-          buffer + mi_row * MI_SIZE * buf_stride + mi_col * MI_SIZE;
-
-      for (PREDICTION_MODE mode = INTRA_MODE_START; mode < INTRA_MODE_END;
-           ++mode) {
-        av1_predict_intra_block(
-            xd, cm->seq_params->sb_size,
-            cm->seq_params->enable_intra_edge_filter, block_size, block_size,
-            tx_size, mode, 0, 0, FILTER_INTRA_MODES, dst_buffer,
-            dst_buffer_stride, dst_buffer, dst_buffer_stride, 0, 0, 0);
-
-        av1_subtract_block(bd_info, block_size, block_size, src_diff,
-                           block_size, mb_buffer, buf_stride, dst_buffer,
-                           dst_buffer_stride);
-        av1_quick_txfm(0, tx_size, bd_info, src_diff, block_size, coeff);
-        int intra_cost = aom_satd(coeff, coeff_count);
-        if (intra_cost < best_intra_cost) {
-          best_intra_cost = intra_cost;
-          best_mode = mode;
-        }
-      }
-
-      int idx;
-      av1_predict_intra_block(xd, cm->seq_params->sb_size,
-                              cm->seq_params->enable_intra_edge_filter,
-                              block_size, block_size, tx_size, best_mode, 0, 0,
-                              FILTER_INTRA_MODES, dst_buffer, dst_buffer_stride,
-                              dst_buffer, dst_buffer_stride, 0, 0, 0);
-      av1_subtract_block(bd_info, block_size, block_size, src_diff, block_size,
-                         mb_buffer, buf_stride, dst_buffer, dst_buffer_stride);
-      av1_quick_txfm(0, tx_size, bd_info, src_diff, block_size, coeff);
-
-      const struct macroblock_plane *const p = &x->plane[0];
-      uint16_t eob;
-      const SCAN_ORDER *const scan_order = &av1_scan_orders[tx_size][DCT_DCT];
-      QUANT_PARAM quant_param;
-      int pix_num = 1 << num_pels_log2_lookup[txsize_to_bsize[tx_size]];
-      av1_setup_quant(tx_size, 0, AV1_XFORM_QUANT_FP, 0, &quant_param);
-#if CONFIG_AV1_HIGHBITDEPTH
-      if (is_cur_buf_hbd(xd)) {
-        av1_highbd_quantize_fp_facade(coeff, pix_num, p, qcoeff, dqcoeff, &eob,
-                                      scan_order, &quant_param);
-      } else {
-        av1_quantize_fp_facade(coeff, pix_num, p, qcoeff, dqcoeff, &eob,
-                               scan_order, &quant_param);
-      }
-#else
-      av1_quantize_fp_facade(coeff, pix_num, p, qcoeff, dqcoeff, &eob,
-                             scan_order, &quant_param);
-#endif  // CONFIG_AV1_HIGHBITDEPTH
-      av1_inverse_transform_block(xd, dqcoeff, 0, DCT_DCT, tx_size, dst_buffer,
-                                  dst_buffer_stride, eob, 0);
-      WeberStats *weber_stats =
-          &cpi->mb_weber_stats[(mi_row / mb_step) * cpi->frame_info.mi_cols +
-                               (mi_col / mb_step)];
-
-      weber_stats->rec_pix_max = 1;
-      weber_stats->rec_variance = 0;
-      weber_stats->src_pix_max = 1;
-      weber_stats->src_variance = 0;
-      weber_stats->distortion = 0;
-
-      int64_t src_mean = 0;
-      int64_t rec_mean = 0;
-      int64_t dist_mean = 0;
-
-      for (int pix_row = 0; pix_row < block_size; ++pix_row) {
-        for (int pix_col = 0; pix_col < block_size; ++pix_col) {
-          int src_pix, rec_pix;
-#if CONFIG_AV1_HIGHBITDEPTH
-          if (is_cur_buf_hbd(xd)) {
-            uint16_t *src = CONVERT_TO_SHORTPTR(mb_buffer);
-            uint16_t *rec = CONVERT_TO_SHORTPTR(dst_buffer);
-            src_pix = src[pix_row * buf_stride + pix_col];
-            rec_pix = rec[pix_row * dst_buffer_stride + pix_col];
-          } else {
-            src_pix = mb_buffer[pix_row * buf_stride + pix_col];
-            rec_pix = dst_buffer[pix_row * dst_buffer_stride + pix_col];
-          }
-#else
-          src_pix = mb_buffer[pix_row * buf_stride + pix_col];
-          rec_pix = dst_buffer[pix_row * dst_buffer_stride + pix_col];
-#endif
-          src_mean += src_pix;
-          rec_mean += rec_pix;
-          dist_mean += src_pix - rec_pix;
-          weber_stats->src_variance += src_pix * src_pix;
-          weber_stats->rec_variance += rec_pix * rec_pix;
-          weber_stats->src_pix_max = AOMMAX(weber_stats->src_pix_max, src_pix);
-          weber_stats->rec_pix_max = AOMMAX(weber_stats->rec_pix_max, rec_pix);
-          weber_stats->distortion += (src_pix - rec_pix) * (src_pix - rec_pix);
-        }
-      }
-
-      if (cpi->oxcf.intra_mode_cfg.auto_intra_tools_off) {
-        sum_rec_distortion += weber_stats->distortion;
-        int est_block_rate = 0;
-        int64_t est_block_dist = 0;
-        model_rd_sse_fn[MODELRD_LEGACY](cpi, x, bsize, 0,
-                                        weber_stats->distortion, pix_num,
-                                        &est_block_rate, &est_block_dist);
-        sum_est_rate += est_block_rate;
-      }
-
-      weber_stats->src_variance -= (src_mean * src_mean) / pix_num;
-      weber_stats->rec_variance -= (rec_mean * rec_mean) / pix_num;
-      weber_stats->distortion -= (dist_mean * dist_mean) / pix_num;
-      weber_stats->satd = best_intra_cost;
-
-      qcoeff[0] = 0;
-      for (idx = 1; idx < coeff_count; ++idx) qcoeff[idx] = abs(qcoeff[idx]);
-      qsort(qcoeff, coeff_count, sizeof(*coeff), qsort_comp);
-
-      weber_stats->max_scale = (double)qcoeff[coeff_count - 1];
-    }
-  }
+  // Calculate differential contrast for each block for the entire image.
+  calc_mb_wiener_var(cpi, &sum_rec_distortion, &sum_est_rate);
 
   // Determine whether to turn off several intra coding tools.
   automatic_intra_tools_off(cpi, sum_rec_distortion, sum_est_rate);
@@ -560,8 +555,9 @@ void av1_set_mb_wiener_variance(AV1_COMP *cpi) {
   for (int its_cnt = 0; its_cnt < 2; ++its_cnt) {
     sb_wiener_log = 0;
     sb_count = 0;
-    for (mi_row = 0; mi_row < cm->mi_params.mi_rows; mi_row += norm_step) {
-      for (mi_col = 0; mi_col < cm->mi_params.mi_cols; mi_col += norm_step) {
+    for (int mi_row = 0; mi_row < cm->mi_params.mi_rows; mi_row += norm_step) {
+      for (int mi_col = 0; mi_col < cm->mi_params.mi_cols;
+           mi_col += norm_step) {
         int sb_wiener_var =
             get_var_perceptual_ai(cpi, norm_block_size, mi_row, mi_col);
 
