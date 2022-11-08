@@ -18,7 +18,9 @@
 #include <fstream>
 #include <memory>
 #include <numeric>
+#include <random>
 #include <string>
+#include <unordered_set>
 #include <vector>
 
 #include "av1/qmode_rc/ducky_encode.h"
@@ -1125,6 +1127,45 @@ TEST_F(RateControlQModeTest, TestMock) {
   const auto result = mock_rc.DetermineGopInfo(firstpass_info);
   EXPECT_EQ(result.status().code, AOM_CODEC_ERROR);
   EXPECT_EQ(result.status().message, "message");
+}
+
+TEST_F(RateControlQModeTest, TestKMeans) {
+  // The distance between intended centroids is designed so each cluster is far
+  // enough from others.
+  std::vector<int> centroids_ref = { 16, 48, 80, 112, 144, 176, 208, 240 };
+  std::vector<uint8_t> random_input;
+  const int num_sample_per_cluster = 10;
+  const int num_clusters = 8;
+  std::default_random_engine generator;
+  for (int &centroid : centroids_ref) {
+    // This is to make sure each cluster is far enough from others.
+    std::uniform_int_distribution<uint8_t> distribution(centroid - 8,
+                                                        centroid + 8);
+    for (int i = 0; i < num_sample_per_cluster; ++i) {
+      const int random_sample = distribution(generator);
+      random_input.push_back(random_sample);
+    }
+  }
+  std::shuffle(random_input.begin(), random_input.end(), generator);
+  std::unordered_map<int, int> kmeans_result =
+      aom::internal::KMeans(random_input, num_clusters);
+
+  std::unordered_set<int> cluster_set;
+  for (auto &result : kmeans_result) {
+    cluster_set.insert(result.second);
+  }
+  // Verify there're num_clusters in the k-means result.
+  EXPECT_EQ(cluster_set.size(), num_clusters);
+
+  // Verify that for each data point, the assigned centroid is the closest one.
+  for (auto &result : kmeans_result) {
+    const int min_dist = abs(result.first - result.second);
+    for (const int centroid : cluster_set) {
+      if (centroid == result.second) continue;
+      const int dist = abs(result.first - centroid);
+      EXPECT_LE(min_dist, dist);
+    }
+  }
 }
 
 }  // namespace aom
