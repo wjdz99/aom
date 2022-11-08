@@ -88,6 +88,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "6c663d8a_bb77b855",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2022-11-08T14:42:45Z",
+      "side": 1,
+      "message": "Hi Yunqing,\nWe had earlier submitted a CL ( https://aomedia-review.googlesource.com/c/aom/+/162681) which skips  the application of deblocking filters on reconstructed frames in case of ALLINTRA encode, as the frame is never referenced. This CL handles all possible cases (based on tool configuration and speed features) to skip the application of different post-processing filters (not just deblocking filters) on the reconstructed frame for ALLINTRA encode.",
+      "parentUuid": "0c88cb95_836da6e6",
+      "revId": "5f4b9e5b65646a665f414c93d3be6642456caf27",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b46bd746_0115c7ca",
@@ -101,6 +119,24 @@
       "writtenOn": "2022-11-07T23:03:17Z",
       "side": 1,
       "message": "Nit: change `uint8_t` to `unsigned int` to match the return type of `derive_skip_apply_postproc_filters()`.",
+      "revId": "5f4b9e5b65646a665f414c93d3be6642456caf27",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e58ca263_d9cca65c",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2219,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2022-11-08T14:42:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b46bd746_0115c7ca",
       "revId": "5f4b9e5b65646a665f414c93d3be6642456caf27",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -122,6 +158,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "4261e89f_cf4fed3e",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2266,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2022-11-08T14:42:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1e812dd3_245fa505",
+      "revId": "5f4b9e5b65646a665f414c93d3be6642456caf27",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b6abef40_2520a4cd",
@@ -135,6 +189,24 @@
       "writtenOn": "2022-11-07T23:03:17Z",
       "side": 1,
       "message": "Nit: change `uint8_t` to `unsigned int` to match the return type of `derive_skip_apply_postproc_filters()`.",
+      "revId": "5f4b9e5b65646a665f414c93d3be6642456caf27",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "919852a6_db504651",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2335,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2022-11-08T14:42:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b6abef40_2520a4cd",
       "revId": "5f4b9e5b65646a665f414c93d3be6642456caf27",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -156,6 +228,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "545fedc6_98abfa78",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 240,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2022-11-08T14:42:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ff3ad658_fc5217a6",
+      "revId": "5f4b9e5b65646a665f414c93d3be6642456caf27",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "aa4cef37_6f26f45a",
@@ -169,6 +259,24 @@
       "writtenOn": "2022-11-07T23:03:17Z",
       "side": 1,
       "message": "Define these enum values as follows (I omitted the comments for brevity):\n\n```\ntypedef enum {\n  SKIP_APPL_LRF \u003d 1 \u003c\u003c 0,\n  SKIP_APPL_SR \u003d 1 \u003c\u003c 1,\n  SKIP_APPL_CDEF \u003d 1 \u003c\u003c 2,\n  SKIP_APPL_LPF \u003d 1 \u003c\u003c 3,\n} SKIP_POSTPROC_FILTER_APPL;\n```\n\nThen change `1 \u003c\u003c SKIP_APPL_LRF` to `SKIP_APPL_LRF`, etc.",
+      "revId": "5f4b9e5b65646a665f414c93d3be6642456caf27",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3b7bfb21_d70566f4",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 243,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2022-11-08T14:42:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "aa4cef37_6f26f45a",
       "revId": "5f4b9e5b65646a665f414c93d3be6642456caf27",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -190,6 +298,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e88edefc_bfc3b44b",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 244,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2022-11-08T14:42:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "10739c2d_c8dcfcc0",
+      "revId": "5f4b9e5b65646a665f414c93d3be6642456caf27",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "34af7722_704ac3a5",
@@ -203,6 +329,24 @@
       "writtenOn": "2022-11-07T23:03:17Z",
       "side": 1,
       "message": "Nit: This case is not obvious and could be explained with a comment.",
+      "revId": "5f4b9e5b65646a665f414c93d3be6642456caf27",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "513f2684_296c88a9",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 4152,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2022-11-08T14:42:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "34af7722_704ac3a5",
       "revId": "5f4b9e5b65646a665f414c93d3be6642456caf27",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -241,6 +385,42 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "d0e2b53f_aa715845",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 4156,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2022-11-08T14:42:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a484656_853f7d9c",
+      "revId": "5f4b9e5b65646a665f414c93d3be6642456caf27",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1edc1549_440f812f",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 4156,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2022-11-08T14:42:45Z",
+      "side": 1,
+      "message": "We have taken care of your suggestion by  modifying the comment in line 4139 to indicate the order in which different post-processing filters are applied. Also, the first point in the comment in line 4143 indicates that the input to one stage is dependent on the output from the previous stage.",
+      "parentUuid": "a2945d99_a5a118f0",
+      "revId": "5f4b9e5b65646a665f414c93d3be6642456caf27",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "7d0121a2_94a4536d",
@@ -254,6 +434,24 @@
       "writtenOn": "2022-11-07T23:03:17Z",
       "side": 1,
       "message": "Nit: change `uint8_t` to `unsigned int` to match the return type of `derive_skip_apply_postproc_filters()`.",
+      "revId": "5f4b9e5b65646a665f414c93d3be6642456caf27",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f1914bf9_c5f79c0e",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1610,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2022-11-08T14:42:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7d0121a2_94a4536d",
       "revId": "5f4b9e5b65646a665f414c93d3be6642456caf27",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
