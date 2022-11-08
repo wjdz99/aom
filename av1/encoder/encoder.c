@@ -4455,6 +4455,23 @@ void av1_post_encode_updates(AV1_COMP *const cpi,
   }
 #endif
 
+#define OUTPUT_FRAME_SIZE 0
+#if OUTPUT_FRAME_SIZE
+  if (cm->current_frame.frame_number - 1 > 0) {
+    const double q = av1_convert_qindex_to_q(cm->quant_params.base_qindex, 8);
+    FILE *f = fopen("out.csv", "a");
+    fprintf(f, "%d,", cpi->refresh_frame.golden_frame);
+    fprintf(f, "%d,", cpi->rc.rc_1_frame);
+    fprintf(f, "%d,", cm->quant_params.base_qindex);
+    fprintf(f, "%f,", q);
+    fprintf(f, "%ld,", 8 * cpi_data->frame_size);
+    fprintf(f, "%ld", cpi->rec_sse);
+    fprintf(f, "\n");
+    fclose(f);
+  }
+#endif  // OUTPUT_FRAME_SIZE
+#undef OUTPUT_FRAME_SIZE
+
   if (!is_stat_generation_stage(cpi) && !cpi->is_dropped_frame) {
     // Before calling refresh_reference_frames(), copy ppi->ref_frame_map_copy
     // to cm->ref_frame_map for frame_parallel_level 2 frame in a parallel
