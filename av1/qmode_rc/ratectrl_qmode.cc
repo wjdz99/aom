@@ -16,6 +16,8 @@
 #include <functional>
 #include <numeric>
 #include <sstream>
+#include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 #include "aom/aom_codec.h"
@@ -1299,6 +1301,52 @@ static std::vector<uint8_t> SetupDeltaQ(const TplFrameDepStats &frame_dep_stats,
   }
 
   return superblock_q_indices;
+}
+
+static std::unordered_map<int, int> KMeans(std::vector<int> qindices, int k) {
+  std::vector<int> centroids(k);
+  // Initialize the centroids with first k qindices
+  std::unordered_set<int> qindices_set;
+  for (auto &qp : qindices) qindices_set.insert(qp);
+  // Initialize the centroids with first k qindices
+  for (auto &qp : qindices_set) {
+    centroids.push_back(qp);
+    if (centroids.size() >= k) break;
+  }
+  bool centroids_changed = true;
+  std::unordered_map<int, int> cluster_map;
+  while (centroids_changed) {
+    // Find the closest centroid for each qindex
+    for (auto &qindex : qindices) {
+      int min_dist = INT_MAX;
+      for (auto &centroid : centroids) {
+        int dist = abs(centroid - qindex);
+        if (dist < min_dist) {
+          min_dist = dist;
+          cluster_map[qindex] = centroid;
+        }
+      }
+    }
+    // For each cluster, calculate the new centroids
+    std::unordered_map<int, std::vector<int>> cluster_qindices;
+    for (auto &qindex_centroid : cluster_map) {
+      cluster_qindices[qindex_centroid.second].push_back(qindex_centroid.first);
+    }
+    centroids_changed = false;
+    std::vector<int> new_centroids;
+    for (auto &cluster : cluster_qindices) {
+      int sum = 0;
+      for (auto &qindex : cluster.second) {
+        sum += qindex;
+      }
+      int new_centroid = sum / cluster.second.size();
+      new_centroids.push_back(new_centroid);
+      if (new_centroid != cluster.first) centroids_changed = true;
+    }
+    if (centroids_changed) centroids = new_centroids;
+  }
+
+  return cluster_map;
 }
 
 int AV1RateControlQMode::GetRDMult(const GopFrame &gop_frame,
