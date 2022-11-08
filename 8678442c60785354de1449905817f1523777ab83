@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "029f6f01_48e89e31",
+        "filename": "aom_dsp/x86/intrapred_ssse3.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1877,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-11-08T20:17:54Z",
+      "side": 1,
+      "message": "these will need a similar update to remove the const:\nhttps://aomedia-review.googlesource.com/c/aom/+/165842",
+      "range": {
+        "startLine": 1877,
+        "startChar": 29,
+        "endLine": 1877,
+        "endChar": 34
+      },
+      "revId": "8678442c60785354de1449905817f1523777ab83",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
