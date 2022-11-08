@@ -991,6 +991,9 @@ AV1_PRIMARY *av1_create_primary_compressor(
       aom_sub_pixel_variance64x16, aom_sub_pixel_avg_variance64x16,
       aom_sad64x16x4d, aom_dist_wtd_sad64x16_avg,
       aom_dist_wtd_sub_pixel_avg_variance64x16)
+#else
+  BFP(BLOCK_32X8, NULL, NULL, aom_variance32x8, NULL, NULL, NULL, NULL, NULL)
+  BFP(BLOCK_16X4, NULL, NULL, aom_variance16x4, NULL, NULL, NULL, NULL, NULL)
 #endif  // !CONFIG_REALTIME_ONLY
 
   BFP(BLOCK_128X128, aom_sad128x128, aom_sad128x128_avg, aom_variance128x128,

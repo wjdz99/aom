@@ -1316,6 +1316,10 @@ if (aom_config("CONFIG_AV1_ENCODER") eq "yes") {
 
   add_proto qw/unsigned int/, "aom_variance4x2", "const uint8_t *src_ptr, int source_stride, const uint8_t *ref_ptr, int ref_stride, unsigned int *sse";
 
+  if (aom_config("CONFIG_REALTIME_ONLY") eq "yes") {
+    add_proto qw/unsigned int/, "aom_variance32x8", "const uint8_t *src_ptr, int source_stride, const uint8_t *ref_ptr, int ref_stride, unsigned int *sse";
+    add_proto qw/unsigned int/, "aom_variance16x4", "const uint8_t *src_ptr, int source_stride, const uint8_t *ref_ptr, int ref_stride, unsigned int *sse";
+  }
   add_proto qw/uint64_t/, "aom_mse_wxh_16bit", "uint8_t *dst, int dstride,uint16_t *src, int sstride, int w, int h";
   specialize qw/aom_mse_wxh_16bit  sse2 avx2 neon/;
 
@@ -1345,6 +1349,8 @@ if (aom_config("CONFIG_AV1_ENCODER") eq "yes") {
   specialize qw/aom_variance8x4       sse2      neon/;
   specialize qw/aom_variance4x8       sse2      neon/;
   specialize qw/aom_variance4x4       sse2      neon/;
+  specialize qw/aom_variance32x8      sse2 avx2 neon/;
+  specialize qw/aom_variance16x4      sse2 avx2 neon/;
 
   specialize qw/aom_sub_pixel_variance128x128   avx2 neon sse2 ssse3/;
   specialize qw/aom_sub_pixel_variance128x64    avx2 neon sse2 ssse3/;
@@ -1382,9 +1388,7 @@ if (aom_config("CONFIG_AV1_ENCODER") eq "yes") {
 
   if (aom_config("CONFIG_REALTIME_ONLY") ne "yes") {
     specialize qw/aom_variance4x16  neon sse2/;
-    specialize qw/aom_variance16x4  neon sse2 avx2/;
     specialize qw/aom_variance8x32  neon sse2/;
-    specialize qw/aom_variance32x8  neon sse2 avx2/;
     specialize qw/aom_variance16x64 neon sse2 avx2/;
     specialize qw/aom_variance64x16 neon sse2 avx2/;
 

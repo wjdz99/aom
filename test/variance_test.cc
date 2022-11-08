@@ -1588,12 +1588,12 @@ const VarianceParams kArrayVariance_c[] = {
   VarianceParams(3, 2, &aom_variance8x4_c),
   VarianceParams(2, 3, &aom_variance4x8_c),
   VarianceParams(2, 2, &aom_variance4x4_c),
+  VarianceParams(5, 3, &aom_variance32x8_c),
+  VarianceParams(4, 2, &aom_variance16x4_c),
 #if !CONFIG_REALTIME_ONLY
   VarianceParams(6, 4, &aom_variance64x16_c),
   VarianceParams(4, 6, &aom_variance16x64_c),
-  VarianceParams(5, 3, &aom_variance32x8_c),
   VarianceParams(3, 5, &aom_variance8x32_c),
-  VarianceParams(4, 2, &aom_variance16x4_c),
   VarianceParams(2, 4, &aom_variance4x16_c),
 #endif
 };
@@ -2330,11 +2330,11 @@ const VarianceParams kArrayVariance_sse2[] = {
   VarianceParams(3, 2, &aom_variance8x4_sse2),
   VarianceParams(2, 3, &aom_variance4x8_sse2),
   VarianceParams(2, 2, &aom_variance4x4_sse2),
+  VarianceParams(5, 3, &aom_variance32x8_sse2),
+  VarianceParams(4, 2, &aom_variance16x4_sse2),
 #if !CONFIG_REALTIME_ONLY
   VarianceParams(6, 4, &aom_variance64x16_sse2),
-  VarianceParams(5, 3, &aom_variance32x8_sse2),
   VarianceParams(4, 6, &aom_variance16x64_sse2),
-  VarianceParams(4, 2, &aom_variance16x4_sse2),
   VarianceParams(3, 5, &aom_variance8x32_sse2),
   VarianceParams(2, 4, &aom_variance4x16_sse2),
 #endif
@@ -2950,11 +2950,11 @@ const VarianceParams kArrayVariance_avx2[] = {
   VarianceParams(4, 5, &aom_variance16x32_avx2),
   VarianceParams(4, 4, &aom_variance16x16_avx2),
   VarianceParams(4, 3, &aom_variance16x8_avx2),
+  VarianceParams(5, 3, &aom_variance32x8_avx2),
+  VarianceParams(4, 2, &aom_variance16x4_avx2),
 #if !CONFIG_REALTIME_ONLY
   VarianceParams(6, 4, &aom_variance64x16_avx2),
   VarianceParams(4, 6, &aom_variance16x64_avx2),
-  VarianceParams(5, 3, &aom_variance32x8_avx2),
-  VarianceParams(4, 2, &aom_variance16x4_avx2),
 #endif
 };
 INSTANTIATE_TEST_SUITE_P(AVX2, AvxVarianceTest,
@@ -3043,11 +3043,11 @@ const VarianceParams kArrayVariance_neon[] = {
   VarianceParams(3, 2, &aom_variance8x4_neon),
   VarianceParams(2, 3, &aom_variance4x8_neon),
   VarianceParams(2, 2, &aom_variance4x4_neon),
+  VarianceParams(5, 3, &aom_variance32x8_neon),
+  VarianceParams(4, 2, &aom_variance16x4_neon),
 #if !CONFIG_REALTIME_ONLY
   VarianceParams(2, 4, &aom_variance4x16_neon),
-  VarianceParams(4, 2, &aom_variance16x4_neon),
   VarianceParams(3, 5, &aom_variance8x32_neon),
-  VarianceParams(5, 3, &aom_variance32x8_neon),
   VarianceParams(4, 6, &aom_variance16x64_neon),
   VarianceParams(6, 4, &aom_variance64x16_neon),
 #endif

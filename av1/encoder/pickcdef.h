@@ -65,6 +65,11 @@ static const int nb_cdef_strengths[CDEF_PICK_METHODS] = {
   TOTAL_STRENGTHS
 };
 
+static const BLOCK_SIZE block_size_for_8bit_error_calc[PLANE_TYPES][4] = {
+  { BLOCK_8X8, BLOCK_16X8, BLOCK_INVALID, BLOCK_32X8 },
+  { BLOCK_4X4, BLOCK_8X4, BLOCK_INVALID, BLOCK_16X4 }
+};
+
 typedef void (*copy_fn_t)(uint16_t *dst, int dstride, const uint8_t *src,
                           int src_voffset, int src_hoffset, int sstride,
                           int vsize, int hsize);
