@@ -370,6 +370,30 @@ static INLINE void fill_borders_for_fbs_on_frame_boundary(
   }
 }
 
+// Checks dual and quad block processing is applicable for block widths 8 and 4
+// respectively in case of 8-bit encoding.
+static AOM_FORCE_INLINE int calc_8bit_error_bsize_index(cdef_list *dlist,
+                                                        int cdef_count, int bi,
+                                                        int subsampling_x,
+                                                        int subsampling_y) {
+  // TODO(Ranjit): Explore and extend the optimization for 422p encoding
+  if (subsampling_x != subsampling_y) return 0;
+
+  if (bi + 3 < cdef_count && dlist[bi].by == dlist[bi + 3].by &&
+      dlist[bi].bx + 3 == dlist[bi + 3].bx) {
+    /* Process four 8x8/4x4 blocks together as 32x8/16x4 block if their y
+     * co-ordinates match and x co-ordinates are separated by 3. */
+    return 3;
+  } else if (bi + 1 < cdef_count && dlist[bi].by == dlist[bi + 1].by &&
+             dlist[bi].bx + 1 == dlist[bi + 1].bx) {
+    /* Process two 8x8/4x4 blocks together as 16x8/8x4 block if their y
+     * co-ordinates match and x co-ordinates are separated by 1. */
+    return 1;
+  } else {
+    return 0;
+  }
+}
+
 // Returns the block error after CDEF filtering for a given strength
 static INLINE uint64_t get_filt_error(
     const CdefSearchCtx *cdef_search_ctx, const struct macroblockd_plane *pd,
@@ -420,10 +444,10 @@ static INLINE uint64_t get_filt_error(
       // If few 8x8/4x4 blocks in CDEF block need to be filtered, filtering
       // functions produce 8-bit output and the error is calculated in 8-bit
       // domain
-      aom_variance_fn_t calc_blk_var_fn =
-          cdef_search_ctx->vfp[cdef_search_ctx->bsize[pli]].vf;
+      const PLANE_TYPE pli_type = get_plane_type(pli);
       if (pri_strength == 0 && sec_strength == 0) {
-        for (int bi = 0; bi < cdef_count; bi++) {
+        int inc = 1;
+        for (int bi = 0; bi < cdef_count; bi = bi + inc) {
           const uint8_t by = dlist[bi].by;
           const uint8_t bx = dlist[bi].bx;
           unsigned int curr_uint_mse;
@@ -431,11 +455,17 @@ static INLINE uint64_t get_filt_error(
           const FULLPEL_MV this_mv = { row + (by << bh_log2),
                                        col + (bx << bw_log2) };
           const int buf_offset = get_offset_from_fullmv(&this_mv, ref_stride);
+          int error_calc_bsize_index = calc_8bit_error_bsize_index(
+              dlist, cdef_count, bi, pd->subsampling_x, pd->subsampling_y);
+          BLOCK_SIZE error_calc_bsize =
+              block_size_for_8bit_error_calc[pli_type][error_calc_bsize_index];
           // When CDEF strength is zero, filtering is not applied. Hence
           // error is calculated between source and unfiltered pixels
-          calc_blk_var_fn(&ref_buffer[buf_offset], ref_stride,
-                          get_buf_from_fullmv(&pd->dst, &this_mv),
-                          pd->dst.stride, &curr_uint_mse);
+          cdef_search_ctx->vfp[error_calc_bsize].vf(
+              &ref_buffer[buf_offset], ref_stride,
+              get_buf_from_fullmv(&pd->dst, &this_mv), pd->dst.stride,
+              &curr_uint_mse);
+          inc = error_calc_bsize_index + 1;
           curr_mse += curr_uint_mse;
         }
       } else {
@@ -446,8 +476,8 @@ static INLINE uint64_t get_filt_error(
                            dlist, cdef_count, pri_strength,
                            sec_strength + (sec_strength == 3),
                            cdef_search_ctx->damping, coeff_shift);
-
-        for (int bi = 0; bi < cdef_count; bi++) {
+        int inc = 1;
+        for (int bi = 0; bi < cdef_count; bi = bi + inc) {
           const uint8_t by = dlist[bi].by;
           const uint8_t bx = dlist[bi].bx;
           const int16_t by_pos = (by << bh_log2);
@@ -459,9 +489,14 @@ static INLINE uint64_t get_filt_error(
           const int buf_offset = get_offset_from_fullmv(&this_mv, ref_stride);
           const int tmp_buf_offset =
               get_offset_from_fullmv(&tmp_buf_pos, (1 << MAX_SB_SIZE_LOG2));
-          calc_blk_var_fn(&ref_buffer[buf_offset], ref_stride,
-                          &tmp_dst8[tmp_buf_offset], (1 << MAX_SB_SIZE_LOG2),
-                          &curr_uint_mse);
+          int error_calc_bsize_index = calc_8bit_error_bsize_index(
+              dlist, cdef_count, bi, pd->subsampling_x, pd->subsampling_y);
+          BLOCK_SIZE error_calc_bsize =
+              block_size_for_8bit_error_calc[pli_type][error_calc_bsize_index];
+          cdef_search_ctx->vfp[error_calc_bsize].vf(
+              &ref_buffer[buf_offset], ref_stride, &tmp_dst8[tmp_buf_offset],
+              (1 << MAX_SB_SIZE_LOG2), &curr_uint_mse);
+          inc = error_calc_bsize_index + 1;
           curr_mse += curr_uint_mse;
         }
       }
