@@ -374,7 +374,7 @@ static const TX_SIZE tx_mode_to_biggest_tx_size[TX_MODES] = {
 
 // The Subsampled_Size table in the spec (Section 5.11.38. Get plane residual
 // size function).
-static const BLOCK_SIZE ss_size_lookup[BLOCK_SIZES_ALL][2][2] = {
+extern __declspec(selectany) const BLOCK_SIZE ss_size_lookup_aom[BLOCK_SIZES_ALL][2][2] = {
   //  ss_x == 0      ss_x == 0          ss_x == 1      ss_x == 1
   //  ss_y == 0      ss_y == 1          ss_y == 0      ss_y == 1
   { { BLOCK_4X4,     BLOCK_4X4 },     { BLOCK_4X4,     BLOCK_4X4 } },
