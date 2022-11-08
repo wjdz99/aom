@@ -699,7 +699,7 @@ static void calculate_variance(int bw, int bh, TX_SIZE tx_size,
                                unsigned int *sse_i, int *sum_i,
                                unsigned int *var_o, unsigned int *sse_o,
                                int *sum_o) {
-  const BLOCK_SIZE unit_size = txsize_to_bsize[tx_size];
+  const BLOCK_SIZE unit_size = txsize_to_bsize_aom[tx_size];
   const int nw = 1 << (bw - b_width_log2_lookup[unit_size]);
   const int nh = 1 << (bh - b_height_log2_lookup[unit_size]);
   int i, j, k = 0;
@@ -1596,7 +1596,7 @@ static void estimate_block_intra(int plane, int block, int row, int col,
   MACROBLOCKD *const xd = &x->e_mbd;
   struct macroblock_plane *const p = &x->plane[plane];
   struct macroblockd_plane *const pd = &xd->plane[plane];
-  const BLOCK_SIZE bsize_tx = txsize_to_bsize[tx_size];
+  const BLOCK_SIZE bsize_tx = txsize_to_bsize_aom[tx_size];
   uint8_t *const src_buf_base = p->src.buf;
   uint8_t *const dst_buf_base = pd->dst.buf;
   const int64_t src_stride = p->src.stride;

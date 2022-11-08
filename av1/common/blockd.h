@@ -999,7 +999,7 @@ static INLINE BLOCK_SIZE get_partition_subsize(BLOCK_SIZE bsize,
     const int sqr_bsize_idx = get_sqr_bsize_idx(bsize);
     return sqr_bsize_idx >= SQR_BLOCK_SIZES
                ? BLOCK_INVALID
-               : subsize_lookup[partition][sqr_bsize_idx];
+               : subsize_lookup_aom[partition][sqr_bsize_idx];
   }
 }
 

@@ -319,7 +319,7 @@ static void get_txb_ctx_general(const BLOCK_SIZE plane_bsize,
   txb_ctx->dc_sign_ctx = dc_sign_contexts[dc_sign + 2 * MAX_TX_SIZE_UNIT];
 
   if (plane == 0) {
-    if (plane_bsize == txsize_to_bsize[tx_size]) {
+    if (plane_bsize == txsize_to_bsize_aom[tx_size]) {
       txb_ctx->txb_skip_ctx = 0;
     } else {
       // This is the algorithm to generate table skip_contexts[top][left].
@@ -367,7 +367,7 @@ static void get_txb_ctx_general(const BLOCK_SIZE plane_bsize,
   } else {
     const int ctx_base = get_entropy_context(tx_size, a, l);
     const int ctx_offset = (num_pels_log2_lookup[plane_bsize] >
-                            num_pels_log2_lookup[txsize_to_bsize[tx_size]])
+                            num_pels_log2_lookup[txsize_to_bsize_aom[tx_size]])
                                ? 10
                                : 7;
     txb_ctx->txb_skip_ctx = ctx_base + ctx_offset;
@@ -407,7 +407,7 @@ static void get_txb_ctx_general(const BLOCK_SIZE plane_bsize,
     txb_ctx->dc_sign_ctx = dc_sign_contexts[dc_sign + 2 * MAX_TX_SIZE_UNIT];  \
                                                                               \
     if (plane == 0) {                                                         \
-      if (plane_bsize == txsize_to_bsize[tx_size]) {                          \
+      if (plane_bsize == txsize_to_bsize_aom[tx_size]) {                          \
         txb_ctx->txb_skip_ctx = 0;                                            \
       } else {                                                                \
         static const uint8_t skip_contexts[5][5] = { { 1, 2, 2, 2, 3 },       \
@@ -437,7 +437,7 @@ static void get_txb_ctx_general(const BLOCK_SIZE plane_bsize,
     } else {                                                                  \
       const int ctx_base = get_entropy_context(tx_size, a, l);                \
       const int ctx_offset = (num_pels_log2_lookup[plane_bsize] >             \
-                              num_pels_log2_lookup[txsize_to_bsize[tx_size]]) \
+                              num_pels_log2_lookup[txsize_to_bsize_aom[tx_size]]) \
                                  ? 10                                         \
                                  : 7;                                         \
       txb_ctx->txb_skip_ctx = ctx_base + ctx_offset;                          \

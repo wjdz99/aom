@@ -466,7 +466,7 @@ void av1_set_mb_wiener_variance(AV1_COMP *cpi) {
       uint16_t eob;
       const SCAN_ORDER *const scan_order = &av1_scan_orders[tx_size][DCT_DCT];
       QUANT_PARAM quant_param;
-      int pix_num = 1 << num_pels_log2_lookup[txsize_to_bsize[tx_size]];
+      int pix_num = 1 << num_pels_log2_lookup[txsize_to_bsize_aom[tx_size]];
       av1_setup_quant(tx_size, 0, AV1_XFORM_QUANT_FP, 0, &quant_param);
 #if CONFIG_AV1_HIGHBITDEPTH
       if (is_cur_buf_hbd(xd)) {

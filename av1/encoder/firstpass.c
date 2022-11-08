@@ -321,11 +321,11 @@ static BLOCK_SIZE get_bsize(const CommonModeInfoParams *const mi_params,
     default: assert(0 && "First pass block size is not supported!"); break;
   }
   if (is_half_width && is_half_height) {
-    return subsize_lookup[PARTITION_SPLIT][square_block_size];
+    return subsize_lookup_aom[PARTITION_SPLIT][square_block_size];
   } else if (is_half_width) {
-    return subsize_lookup[PARTITION_VERT][square_block_size];
+    return subsize_lookup_aom[PARTITION_VERT][square_block_size];
   } else if (is_half_height) {
-    return subsize_lookup[PARTITION_HORZ][square_block_size];
+    return subsize_lookup_aom[PARTITION_HORZ][square_block_size];
   } else {
     return fp_block_size;
   }
