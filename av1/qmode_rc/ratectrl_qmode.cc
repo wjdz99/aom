@@ -16,6 +16,8 @@
 #include <functional>
 #include <numeric>
 #include <sstream>
+#include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 #include "aom/aom_codec.h"
@@ -1301,6 +1303,58 @@ static std::vector<uint8_t> SetupDeltaQ(const TplFrameDepStats &frame_dep_stats,
   return superblock_q_indices;
 }
 
+static std::unordered_map<int, int> FindKMeansClusterMap(
+    const std::vector<uint8_t> &qindices, const std::vector<int> &centroids) {
+  std::unordered_map<int, int> cluster_map;
+  for (const uint8_t qindex : qindices) {
+    int nearest_centroid = *std::min_element(
+        centroids.begin(), centroids.end(),
+        [qindex](int centroid) { return abs(centroid - qindex); });
+    cluster_map.insert({ qindex, nearest_centroid });
+  }
+  return cluster_map;
+}
+
+static std::unordered_map<int, int> KMeans(std::vector<uint8_t> qindices,
+                                           int k) {
+  std::vector<int> centroids;
+  // Initialize the centroids with first k qindices
+  std::unordered_set<int> qindices_set;
+
+  for (const uint8_t qp : qindices) {
+    if (!qindices_set.insert(qp).second) continue;  // Already added.
+    centroids.push_back(qp);
+    if (static_cast<int>(centroids.size()) >= k) break;
+  }
+
+  std::unordered_map<int, int> cluster_map;
+  while (true) {
+    // Find the closest centroid for each qindex
+    cluster_map = FindKMeansClusterMap(qindices, centroids);
+    // For each cluster, calculate the new centroids
+    std::unordered_map<int, std::vector<int>> centroid_to_qindices;
+    for (auto &qindex_centroid : cluster_map) {
+      centroid_to_qindices[qindex_centroid.second].push_back(
+          qindex_centroid.first);
+    }
+    bool centroids_changed = true;
+    std::vector<int> new_centroids;
+    for (const auto &cluster : centroid_to_qindices) {
+      int sum = 0;
+      for (const int qindex : cluster.second) {
+        sum += qindex;
+      }
+      int new_centroid = sum / cluster.second.size();
+      new_centroids.push_back(new_centroid);
+      if (new_centroid != cluster.first) centroids_changed = true;
+    }
+    if (!centroids_changed) break;
+    centroids = new_centroids;
+  }
+
+  return cluster_map;
+}
+
 int AV1RateControlQMode::GetRDMult(const GopFrame &gop_frame,
                                    int q_index) const {
   // TODO(angiebird):
@@ -1415,12 +1469,13 @@ StatusOr<GopEncodeInfo> AV1RateControlQMode::GetGopEncodeInfo(
         std::vector<uint8_t> superblock_q_indices = SetupDeltaQ(
             frame_dep_stats, rc_param_.frame_width, rc_param_.frame_height,
             param.q_index, frame_importance);
-        for (auto &qindex : superblock_q_indices) {
+        std::unordered_map<int, int> qindex_centroids = KMeans(
+            superblock_q_indices, rc_param_.max_distinct_q_indices_per_frame);
+        for (const uint8_t qindex : superblock_q_indices) {
           // TODO(jianj): Calcualte rdmult per SB.
-          param.superblock_encode_params.push_back({ qindex, 0 });
+          param.superblock_encode_params.push_back(
+              { qindex_centroids.find(qindex)->second, 0 });
         }
-        // TODO(b/256852795): Implement K-means to restrict the numbers of q
-        // indices to rc_param_.max_distinct_q_indices_per_frame
       }
     } else {
       // Intermediate ARFs
