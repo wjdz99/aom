@@ -1070,7 +1070,7 @@ static void read_intra_block_mode_info(AV1_COMMON *const cm,
 
   FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
 
-  mbmi->mode = read_intra_mode(r, ec_ctx->y_mode_cdf[size_group_lookup[bsize]]);
+  mbmi->mode = read_intra_mode(r, ec_ctx->y_mode_cdf[size_group_lookup_aom[bsize]]);
 
   mbmi->angle_delta[PLANE_TYPE_Y] =
       use_angle_delta && av1_is_directional_mode(mbmi->mode)
@@ -1379,7 +1379,7 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
   mbmi->use_wedge_interintra = 0;
   if (cm->seq_params->enable_interintra_compound && !mbmi->skip_mode &&
       is_interintra_allowed(mbmi)) {
-    const int bsize_group = size_group_lookup[bsize];
+    const int bsize_group = size_group_lookup_aom[bsize];
     const int interintra =
         aom_read_symbol(r, ec_ctx->interintra_cdf[bsize_group], 2, ACCT_STR);
     assert(mbmi->ref_frame[1] == NONE_FRAME);

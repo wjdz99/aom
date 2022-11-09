@@ -247,7 +247,7 @@ static AOM_INLINE void inverse_transform_inter_block(
                           reduced_tx_set_used);
 #if CONFIG_MISMATCH_DEBUG
   int pixel_c, pixel_r;
-  BLOCK_SIZE bsize = txsize_to_bsize[tx_size];
+  BLOCK_SIZE bsize = txsize_to_bsize_aom[tx_size];
   int blk_w = block_size_wide[bsize];
   int blk_h = block_size_high[bsize];
   const int mi_row = -xd->mb_to_top_edge >> (3 + MI_SIZE_LOG2);
@@ -377,8 +377,8 @@ static AOM_INLINE void decode_mbmi_block(AV1Decoder *const pbi,
   if (bsize >= BLOCK_8X8 &&
       (seq_params->subsampling_x || seq_params->subsampling_y)) {
     const BLOCK_SIZE uv_subsize =
-        ss_size_lookup[bsize][seq_params->subsampling_x]
-                      [seq_params->subsampling_y];
+        ss_size_lookup_aom[bsize][seq_params->subsampling_x]
+                          [seq_params->subsampling_y];
     if (uv_subsize == BLOCK_INVALID)
       aom_internal_error(xd->error_info, AOM_CODEC_CORRUPT_FRAME,
                          "Invalid block size.");

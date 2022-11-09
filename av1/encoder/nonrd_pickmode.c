@@ -265,7 +265,7 @@ static INLINE int early_term_inter_search_with_sse(int early_term_idx,
   static const double early_term_thresh_newmv_nearestmv[4] = { 0.3, 0.3, 0.3,
                                                                0.3 };
 
-  const int size_group = size_group_lookup[bsize];
+  const int size_group = size_group_lookup_aom[bsize];
   assert(size_group < 4);
   assert((early_term_idx > 0) && (early_term_idx < EARLY_TERM_INDICES));
   const double threshold =
@@ -632,8 +632,8 @@ static TX_SIZE calculate_tx_size(const AV1_COMP *const cpi, BLOCK_SIZE bsize,
     // the ac component is low.
     if (sse > ((var * multiplier) >> 2) || (var < var_thresh))
       tx_size =
-          AOMMIN(max_txsize_lookup[bsize],
-                 tx_mode_to_biggest_tx_size[txfm_params->tx_mode_search_type]);
+          AOMMIN(max_txsize_lookup_aom[bsize],
+                 tx_mode_to_biggest_tx_size_aom[txfm_params->tx_mode_search_type]);
     else
       tx_size = TX_8X8;
 
@@ -644,8 +644,8 @@ static TX_SIZE calculate_tx_size(const AV1_COMP *const cpi, BLOCK_SIZE bsize,
       tx_size = TX_16X16;
   } else {
     tx_size =
-        AOMMIN(max_txsize_lookup[bsize],
-               tx_mode_to_biggest_tx_size[txfm_params->tx_mode_search_type]);
+        AOMMIN(max_txsize_lookup_aom[bsize],
+               tx_mode_to_biggest_tx_size_aom[txfm_params->tx_mode_search_type]);
   }
 
   if (txfm_params->tx_mode_search_type != ONLY_4X4 && bsize > BLOCK_32X32)
@@ -699,7 +699,7 @@ static void calculate_variance(int bw, int bh, TX_SIZE tx_size,
                                unsigned int *sse_i, int *sum_i,
                                unsigned int *var_o, unsigned int *sse_o,
                                int *sum_o) {
-  const BLOCK_SIZE unit_size = txsize_to_bsize[tx_size];
+  const BLOCK_SIZE unit_size = txsize_to_bsize_aom[tx_size];
   const int nw = 1 << (bw - b_width_log2_lookup[unit_size]);
   const int nh = 1 << (bh - b_height_log2_lookup[unit_size]);
   int i, j, k = 0;
@@ -1530,13 +1530,13 @@ static void model_rd_for_sb_uv(AV1_COMP *cpi, BLOCK_SIZE plane_bsize,
     assert(sse >= var);
     tot_sse += sse;
 
-    av1_model_rd_from_var_lapndz(sse - var, num_pels_log2_lookup[bs],
+    av1_model_rd_from_var_lapndz(sse - var, num_pels_log2_lookup_aom[bs],
                                  dc_quant >> 3, &rate, &dist);
 
     this_rdc->rate += rate >> 1;
     this_rdc->dist += dist << 3;
 
-    av1_model_rd_from_var_lapndz(var, num_pels_log2_lookup[bs], ac_quant >> 3,
+    av1_model_rd_from_var_lapndz(var, num_pels_log2_lookup_aom[bs], ac_quant >> 3,
                                  &rate, &dist);
 
     this_rdc->rate += rate;
@@ -1596,7 +1596,7 @@ static void estimate_block_intra(int plane, int block, int row, int col,
   MACROBLOCKD *const xd = &x->e_mbd;
   struct macroblock_plane *const p = &x->plane[plane];
   struct macroblockd_plane *const pd = &xd->plane[plane];
-  const BLOCK_SIZE bsize_tx = txsize_to_bsize[tx_size];
+  const BLOCK_SIZE bsize_tx = txsize_to_bsize_aom[tx_size];
   uint8_t *const src_buf_base = p->src.buf;
   uint8_t *const dst_buf_base = pd->dst.buf;
   const int64_t src_stride = p->src.stride;
@@ -2091,7 +2091,7 @@ static void compute_intra_yprediction(const AV1_COMMON *cm,
   // block and transform sizes, in number of 4x4 blocks log 2 ("*_b")
   // 4x4=0, 8x8=2, 16x16=4, 32x32=6, 64x64=8
   // transform size varies per plane, look it up in a common way.
-  const TX_SIZE tx_size = max_txsize_lookup[bsize];
+  const TX_SIZE tx_size = max_txsize_lookup_aom[bsize];
   const BLOCK_SIZE plane_bsize =
       get_plane_block_size(bsize, pd->subsampling_x, pd->subsampling_y);
   // If mb_to_right_edge is < 0 we are in a situation in which
@@ -2126,8 +2126,8 @@ void av1_nonrd_pick_intra_mode(AV1_COMP *cpi, MACROBLOCK *x, RD_STATS *rd_cost,
   struct estimate_block_intra_args args = { cpi, x, DC_PRED, 1, 0 };
   const TxfmSearchParams *txfm_params = &x->txfm_search_params;
   const TX_SIZE intra_tx_size =
-      AOMMIN(max_txsize_lookup[bsize],
-             tx_mode_to_biggest_tx_size[txfm_params->tx_mode_search_type]);
+      AOMMIN(max_txsize_lookup_aom[bsize],
+             tx_mode_to_biggest_tx_size_aom[txfm_params->tx_mode_search_type]);
   int *bmode_costs;
   PREDICTION_MODE best_mode = DC_PRED;
   const MB_MODE_INFO *above_mi = xd->above_mbmi;
@@ -2437,8 +2437,8 @@ static void estimate_intra_mode(
 
   struct estimate_block_intra_args args = { cpi, x, DC_PRED, 1, 0 };
   TX_SIZE intra_tx_size = AOMMIN(
-      AOMMIN(max_txsize_lookup[bsize],
-             tx_mode_to_biggest_tx_size[txfm_params->tx_mode_search_type]),
+      AOMMIN(max_txsize_lookup_aom[bsize],
+             tx_mode_to_biggest_tx_size_aom[txfm_params->tx_mode_search_type]),
       TX_16X16);
   if (is_screen_content && cpi->rc.high_source_sad &&
       x->source_variance > spatial_var_thresh && bsize <= BLOCK_16X16)
@@ -3096,8 +3096,8 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
 #endif
   init_mbmi(mi, DC_PRED, NONE_FRAME, NONE_FRAME, cm);
   mi->tx_size = AOMMIN(
-      AOMMIN(max_txsize_lookup[bsize],
-             tx_mode_to_biggest_tx_size[txfm_params->tx_mode_search_type]),
+      AOMMIN(max_txsize_lookup_aom[bsize],
+             tx_mode_to_biggest_tx_size_aom[txfm_params->tx_mode_search_type]),
       TX_16X16);
 
   int single_inter_mode_costs[RTC_INTER_MODES][REF_FRAMES];

@@ -529,9 +529,9 @@ void av1_sum_intra_stats(const AV1_COMMON *const cm, FRAME_COUNTS *counts,
     update_cdf(get_y_mode_cdf(fc, above_mi, left_mi), y_mode, INTRA_MODES);
   } else {
 #if CONFIG_ENTROPY_STATS
-    ++counts->y_mode[size_group_lookup[bsize]][y_mode];
+    ++counts->y_mode[size_group_lookup_aom[bsize]][y_mode];
 #endif  // CONFIG_ENTROPY_STATS
-    update_cdf(fc->y_mode_cdf[size_group_lookup[bsize]], y_mode, INTRA_MODES);
+    update_cdf(fc->y_mode_cdf[size_group_lookup_aom[bsize]], y_mode, INTRA_MODES);
   }
 
   if (av1_filter_intra_allowed(cm, mbmi)) {

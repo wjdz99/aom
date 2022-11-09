@@ -233,7 +233,7 @@ static BLOCK_SIZE pick_block_size(AV1_COMP *cpi,
       get_partition_subsize(orig_block_size, PARTITION_SPLIT);
   const int mb_step = mi_size_wide[orig_block_size];
   const int sub_step = mb_step >> 1;
-  const TX_SIZE tx_size = max_txsize_lookup[orig_block_size];
+  const TX_SIZE tx_size = max_txsize_lookup_aom[orig_block_size];
   const int block_size = tx_size_wide[tx_size];
   const int split_block_size = block_size >> 1;
   assert(split_block_size >= 8);
@@ -396,7 +396,7 @@ void av1_set_mb_wiener_variance(AV1_COMP *cpi) {
   int mi_row, mi_col;
 
   BLOCK_SIZE bsize = cpi->weber_bsize;
-  const TX_SIZE tx_size = max_txsize_lookup[bsize];
+  const TX_SIZE tx_size = max_txsize_lookup_aom[bsize];
   const int block_size = tx_size_wide[tx_size];
   const int coeff_count = block_size * block_size;
 
@@ -466,7 +466,7 @@ void av1_set_mb_wiener_variance(AV1_COMP *cpi) {
       uint16_t eob;
       const SCAN_ORDER *const scan_order = &av1_scan_orders[tx_size][DCT_DCT];
       QUANT_PARAM quant_param;
-      int pix_num = 1 << num_pels_log2_lookup[txsize_to_bsize[tx_size]];
+      int pix_num = 1 << num_pels_log2_lookup_aom[txsize_to_bsize_aom[tx_size]];
       av1_setup_quant(tx_size, 0, AV1_XFORM_QUANT_FP, 0, &quant_param);
 #if CONFIG_AV1_HIGHBITDEPTH
       if (is_cur_buf_hbd(xd)) {

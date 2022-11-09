@@ -35,7 +35,7 @@ void av1_alloc_txb_buf(AV1_COMP *cpi) {
   const int subsampling_x = cm->seq_params->subsampling_x;
   const int subsampling_y = cm->seq_params->subsampling_y;
   const int luma_max_sb_square =
-      1 << num_pels_log2_lookup[cm->seq_params->sb_size];
+      1 << num_pels_log2_lookup_aom[cm->seq_params->sb_size];
   const int chroma_max_sb_square =
       luma_max_sb_square >> (subsampling_x + subsampling_y);
   const int num_tcoeffs =

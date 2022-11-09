@@ -182,7 +182,7 @@ static unsigned int haar_ac_energy(MACROBLOCK *x, BLOCK_SIZE bs) {
   int64_t var = av1_haar_ac_sad_mxn_uint8_input(buf, stride, hbd, num_8x8_rows,
                                                 num_8x8_cols);
 
-  return (unsigned int)((uint64_t)var * 256) >> num_pels_log2_lookup[bs];
+  return (unsigned int)((uint64_t)var * 256) >> num_pels_log2_lookup_aom[bs];
 }
 
 double av1_log_block_wavelet_energy(MACROBLOCK *x, BLOCK_SIZE bs) {
