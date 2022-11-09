@@ -34,6 +34,24 @@
       "parentUuid": "56d7e30f_f4fd66e5",
       "revId": "f818ee696c978ec52de06f3e89a202a47182665b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7feaf457_c3ea9aea",
+        "filename": "av1/common/arm/convolve_neon.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 3077,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-11-09T20:46:16Z",
+      "side": 1,
+      "message": "\u003e I blindly copied and adapted the 8-tap implementation without checking. :( \n\u003e \n\u003e It seems that we can share this path for AArch32 without any register spillage[1].\n\u003e \n\u003e [1] https://godbolt.org/z/6se3qdfoe\n\nGreat, thanks for checking. I wasn\u0027t sure about the origin of the other branches, maybe there was an issue with older versions of gcc/clang.",
+      "parentUuid": "4c2f8c3a_7c04a988",
+      "revId": "f818ee696c978ec52de06f3e89a202a47182665b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ],
   "submitRequirementResults": [
