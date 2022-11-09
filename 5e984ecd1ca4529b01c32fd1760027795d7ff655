@@ -24,6 +24,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "eea50e12_d1dcd3b4",
+        "filename": "av1/qmode_rc/ratectrl_qmode.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 1307,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-11-09T22:05:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cfccedf9_70c4a4dc",
+      "range": {
+        "startLine": 1307,
+        "startChar": 4,
+        "endLine": 1307,
+        "endChar": 61
+      },
+      "revId": "5e984ecd1ca4529b01c32fd1760027795d7ff655",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "deb0b9a0_de7b2a1c",
@@ -37,6 +61,30 @@
       "writtenOn": "2022-11-09T18:55:21Z",
       "side": 1,
       "message": "const uint8_t qindex",
+      "range": {
+        "startLine": 1309,
+        "startChar": 7,
+        "endLine": 1309,
+        "endChar": 19
+      },
+      "revId": "5e984ecd1ca4529b01c32fd1760027795d7ff655",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "aab14f5d_78319557",
+        "filename": "av1/qmode_rc/ratectrl_qmode.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 1309,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-11-09T22:05:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "deb0b9a0_de7b2a1c",
       "range": {
         "startLine": 1309,
         "startChar": 7,
@@ -70,6 +118,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "cc08e3fd_7deeb1ed",
+        "filename": "av1/qmode_rc/ratectrl_qmode.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 1318,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-11-09T22:05:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d0ebea67_6ad36224",
+      "range": {
+        "startLine": 1310,
+        "startChar": 0,
+        "endLine": 1318,
+        "endChar": 0
+      },
+      "revId": "5e984ecd1ca4529b01c32fd1760027795d7ff655",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "9678d804_cb00eb2c",
@@ -83,6 +155,30 @@
       "writtenOn": "2022-11-09T18:55:21Z",
       "side": 1,
       "message": "IIUC, you\u0027re trying to arbitrarily pick up to k unique qindices. Instead of adding all the qindices to the set first, this could easily be done with a single loop:\n\n    for (const uint8_t qp : qindices) {\n      if (!qindices_set.insert(qp).second) continue;  // Already added.\n      centroids.push_back(qp);\n      if (static_cast\u003cint\u003e(centroids.size()) \u003e\u003d k) break;\n    }",
+      "range": {
+        "startLine": 1326,
+        "startChar": 0,
+        "endLine": 1332,
+        "endChar": 3
+      },
+      "revId": "5e984ecd1ca4529b01c32fd1760027795d7ff655",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f2c1a60a_7e28d3a6",
+        "filename": "av1/qmode_rc/ratectrl_qmode.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 1332,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-11-09T22:05:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9678d804_cb00eb2c",
       "range": {
         "startLine": 1326,
         "startChar": 0,
@@ -116,6 +212,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "1497459c_2ff08505",
+        "filename": "av1/qmode_rc/ratectrl_qmode.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 1334,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-11-09T22:05:28Z",
+      "side": 1,
+      "message": "this needs to be returned.",
+      "parentUuid": "683a48b8_2555c748",
+      "range": {
+        "startLine": 1334,
+        "startChar": 0,
+        "endLine": 1334,
+        "endChar": 43
+      },
+      "revId": "5e984ecd1ca4529b01c32fd1760027795d7ff655",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b12dabc2_53ca531b",
@@ -129,6 +249,30 @@
       "writtenOn": "2022-11-09T18:55:21Z",
       "side": 1,
       "message": "Instead of defining centroids_changed outside of the loop, it might be clearer to just do this:\n\n    while (true) {\n      ...\n      bool centroids_changed \u003d false;\n      for (...) {\n         ...\n         if (...) centroids_changed \u003d true;\n      }\n      if (!centroids_changed) break;\n    }\n \nThis way you don\u0027t have the oddity of having to initialize centroids_changed to true before the loop, when they haven\u0027t really changed yet.",
+      "range": {
+        "startLine": 1335,
+        "startChar": 0,
+        "endLine": 1335,
+        "endChar": 29
+      },
+      "revId": "5e984ecd1ca4529b01c32fd1760027795d7ff655",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "711a8a3a_69364546",
+        "filename": "av1/qmode_rc/ratectrl_qmode.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 1335,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-11-09T22:05:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b12dabc2_53ca531b",
       "range": {
         "startLine": 1335,
         "startChar": 0,
@@ -162,6 +306,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "cd28dedb_322250c8",
+        "filename": "av1/qmode_rc/ratectrl_qmode.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 1339,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-11-09T22:05:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e6fddc99_44f9567e",
+      "range": {
+        "startLine": 1339,
+        "startChar": 46,
+        "endLine": 1339,
+        "endChar": 62
+      },
+      "revId": "5e984ecd1ca4529b01c32fd1760027795d7ff655",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "bc01c0d3_1bbf5ff5",
@@ -175,6 +343,30 @@
       "writtenOn": "2022-11-09T18:55:21Z",
       "side": 1,
       "message": "const auto \u0026",
+      "range": {
+        "startLine": 1345,
+        "startChar": 9,
+        "endLine": 1345,
+        "endChar": 15
+      },
+      "revId": "5e984ecd1ca4529b01c32fd1760027795d7ff655",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6ceb2342_a604e884",
+        "filename": "av1/qmode_rc/ratectrl_qmode.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 1345,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-11-09T22:05:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bc01c0d3_1bbf5ff5",
       "range": {
         "startLine": 1345,
         "startChar": 9,
@@ -208,6 +400,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "8de92356_0731d527",
+        "filename": "av1/qmode_rc/ratectrl_qmode.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 1347,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-11-09T22:05:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9b7167ee_471c234f",
+      "range": {
+        "startLine": 1347,
+        "startChar": 11,
+        "endLine": 1347,
+        "endChar": 24
+      },
+      "revId": "5e984ecd1ca4529b01c32fd1760027795d7ff655",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b8916495_52c9c674",
@@ -231,6 +447,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "1546db91_a5b44622",
+        "filename": "av1/qmode_rc/ratectrl_qmode.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 1357,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-11-09T22:05:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b8916495_52c9c674",
+      "range": {
+        "startLine": 1357,
+        "startChar": 0,
+        "endLine": 1357,
+        "endChar": 58
+      },
+      "revId": "5e984ecd1ca4529b01c32fd1760027795d7ff655",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "67917701_90fd47ff",
@@ -244,6 +484,30 @@
       "writtenOn": "2022-11-09T18:55:21Z",
       "side": 1,
       "message": "If you don\u0027t want to mutate the map, it\u0027s better to use find() rather than operator[]. go/totw/202\n\nThis would also allow you to declare qindex_centroids as const.",
+      "range": {
+        "startLine": 1480,
+        "startChar": 16,
+        "endLine": 1480,
+        "endChar": 40
+      },
+      "revId": "5e984ecd1ca4529b01c32fd1760027795d7ff655",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "52beddfc_fc2ff93b",
+        "filename": "av1/qmode_rc/ratectrl_qmode.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 1480,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-11-09T22:05:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "67917701_90fd47ff",
       "range": {
         "startLine": 1480,
         "startChar": 16,
