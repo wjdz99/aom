@@ -990,7 +990,7 @@ int av1_search_palette_mode(IntraModeSearchState *intra_search_state,
   uint8_t best_tx_type_map[MAX_MIB_SIZE * MAX_MIB_SIZE];
   const ModeCosts *mode_costs = &x->mode_costs;
   const int *const intra_mode_cost =
-      mode_costs->mbmode_cost[size_group_lookup[bsize]];
+      mode_costs->mbmode_cost[size_group_lookup_aom[bsize]];
   const int rows = block_size_high[bsize];
   const int cols = block_size_wide[bsize];
 
@@ -1079,7 +1079,7 @@ void av1_search_palette_mode_luma(const AV1_COMP *cpi, MACROBLOCK *x,
   uint8_t best_tx_type_map[MAX_MIB_SIZE * MAX_MIB_SIZE];
   const ModeCosts *mode_costs = &x->mode_costs;
   const int *const intra_mode_cost =
-      mode_costs->mbmode_cost[size_group_lookup[bsize]];
+      mode_costs->mbmode_cost[size_group_lookup_aom[bsize]];
   const int rows = block_size_high[bsize];
   const int cols = block_size_wide[bsize];
 
@@ -1258,7 +1258,8 @@ int av1_handle_intra_y_mode(IntraModeSearchState *intra_search_state,
   const PREDICTION_MODE mode = mbmi->mode;
   const ModeCosts *mode_costs = &x->mode_costs;
   const int mode_cost =
-      mode_costs->mbmode_cost[size_group_lookup[bsize]][mode] + ref_frame_cost;
+      mode_costs->mbmode_cost[size_group_lookup_aom[bsize]][mode] +
+      ref_frame_cost;
   const int skip_ctx = av1_get_skip_txfm_context(xd);
 
   int known_rate = mode_cost;
@@ -1290,7 +1291,7 @@ int av1_handle_intra_y_mode(IntraModeSearchState *intra_search_state,
     }
     if (intra_search_state->directional_mode_skip_mask[mode]) return 0;
   }
-  const TX_SIZE tx_size = AOMMIN(TX_32X32, max_txsize_lookup[bsize]);
+  const TX_SIZE tx_size = AOMMIN(TX_32X32, max_txsize_lookup_aom[bsize]);
   const int64_t this_model_rd =
       intra_model_rd(&cpi->common, x, 0, bsize, tx_size, /*use_hadamard=*/1);
 
@@ -1554,7 +1555,7 @@ int64_t av1_rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
       continue;
 
     // Use intra_y_mode_mask speed feature to skip intra mode evaluation.
-    if (!(intra_sf->intra_y_mode_mask[max_txsize_lookup[bsize]] &
+    if (!(intra_sf->intra_y_mode_mask[max_txsize_lookup_aom[bsize]] &
           (1 << mbmi->mode)))
       continue;
 
@@ -1563,7 +1564,7 @@ int64_t av1_rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
             intra_sf->prune_luma_odd_delta_angles_in_intra))
       continue;
 
-    const TX_SIZE tx_size = AOMMIN(TX_32X32, max_txsize_lookup[bsize]);
+    const TX_SIZE tx_size = AOMMIN(TX_32X32, max_txsize_lookup_aom[bsize]);
     const int64_t this_model_rd =
         intra_model_rd(&cpi->common, x, 0, bsize, tx_size, /*use_hadamard=*/1);
 

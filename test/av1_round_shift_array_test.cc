@@ -115,7 +115,7 @@ TEST_P(AV1CompRoundShiftTest, DISABLED_Speed) {
 INSTANTIATE_TEST_SUITE_P(
     SSE4_1, AV1CompRoundShiftTest,
     ::testing::Combine(::testing::Values(&av1_round_shift_array_sse4_1),
-                       ::testing::ValuesIn(txsize_to_bsize),
+                       ::testing::ValuesIn(txsize_to_bsize_aom),
                        ::testing::ValuesIn(kValidBitCheck)));
 #endif
 
@@ -123,7 +123,7 @@ INSTANTIATE_TEST_SUITE_P(
 INSTANTIATE_TEST_SUITE_P(
     NEON, AV1CompRoundShiftTest,
     ::testing::Combine(::testing::Values(&av1_round_shift_array_neon),
-                       ::testing::ValuesIn(txsize_to_bsize),
+                       ::testing::ValuesIn(txsize_to_bsize_aom),
                        ::testing::ValuesIn(kValidBitCheck)));
 #endif
 

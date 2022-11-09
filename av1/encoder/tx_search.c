@@ -63,7 +63,7 @@ static const uint32_t skip_pred_threshold[3][BLOCK_SIZES_ALL] = {
 // lookup table for predict_skip_txfm
 // int max_tx_size = max_txsize_rect_lookup[bsize];
 // if (tx_size_high[max_tx_size] > 16 || tx_size_wide[max_tx_size] > 16)
-//   max_tx_size = AOMMIN(max_txsize_lookup[bsize], TX_16X16);
+//   max_tx_size = AOMMIN(max_txsize_lookup_aom[bsize], TX_16X16);
 static const TX_SIZE max_predict_sf_tx_size[BLOCK_SIZES_ALL] = {
   TX_4X4,   TX_4X8,   TX_8X4,   TX_8X8,   TX_8X16,  TX_16X8,
   TX_16X16, TX_16X16, TX_16X16, TX_16X16, TX_16X16, TX_16X16,
@@ -550,7 +550,7 @@ static AOM_INLINE void PrintTransformUnitStats(
   FILE *fout = fopen(output_file, "a");
   if (!fout) return;
 
-  const BLOCK_SIZE tx_bsize = txsize_to_bsize[tx_size];
+  const BLOCK_SIZE tx_bsize = txsize_to_bsize_aom[tx_size];
   const MACROBLOCKD *const xd = &x->e_mbd;
   const int plane = 0;
   struct macroblock_plane *const p = &x->plane[plane];
@@ -732,8 +732,8 @@ static AOM_INLINE void PrintPredictionUnitStats(const AV1_COMP *const cpi,
   // Generate small sample to restrict output size.
   static unsigned int seed = 95014;
 
-  if ((lcg_rand16(&seed) % (1 << (14 - num_pels_log2_lookup[plane_bsize]))) !=
-      1)
+  if ((lcg_rand16(&seed) %
+       (1 << (14 - num_pels_log2_lookup_aom[plane_bsize]))) != 1)
     return;
 
   const char output_file[] = "pu_stats.txt";
@@ -772,7 +772,7 @@ static AOM_INLINE void PrintPredictionUnitStats(const AV1_COMP *const cpi,
   const unsigned int sad =
       cpi->ppi->fn_ptr[plane_bsize].sdf(src, src_stride, dst, dst_stride);
   const double sad_norm =
-      (double)sad / (1 << num_pels_log2_lookup[plane_bsize]);
+      (double)sad / (1 << num_pels_log2_lookup_aom[plane_bsize]);
 
   fprintf(fout, " %g %g", sse_norm, sad_norm);
 
@@ -973,7 +973,7 @@ static INLINE int64_t dist_block_px_domain(const AV1_COMP *cpi, MACROBLOCK *x,
   MACROBLOCKD *const xd = &x->e_mbd;
   const struct macroblock_plane *const p = &x->plane[plane];
   const uint16_t eob = p->eobs[block];
-  const BLOCK_SIZE tx_bsize = txsize_to_bsize[tx_size];
+  const BLOCK_SIZE tx_bsize = txsize_to_bsize_aom[tx_size];
   const int bsw = block_size_wide[tx_bsize];
   const int bsh = block_size_high[tx_bsize];
   const int src_stride = x->plane[plane].src.stride;
@@ -1963,7 +1963,7 @@ static INLINE void predict_dc_only_block(
   uint64_t block_var = UINT64_MAX;
   const int dc_qstep = x->plane[plane].dequant_QTX[0] >> 3;
   *block_sse = pixel_diff_stats(x, plane, blk_row, blk_col, plane_bsize,
-                                txsize_to_bsize[tx_size], block_mse_q8,
+                                txsize_to_bsize_aom[tx_size], block_mse_q8,
                                 per_px_mean, &block_var);
   assert((*block_mse_q8) != UINT_MAX);
   uint64_t var_threshold = (uint64_t)(1.8 * qstep * qstep);
@@ -2072,7 +2072,7 @@ static void search_tx_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
     }
   } else {
     block_sse = pixel_diff_dist(x, plane, blk_row, blk_col, plane_bsize,
-                                txsize_to_bsize[tx_size], &block_mse_q8);
+                                txsize_to_bsize_aom[tx_size], &block_mse_q8);
     assert(block_mse_q8 != UINT_MAX);
   }
 
@@ -2778,7 +2778,7 @@ static void ml_predict_intra_tx_depth_prune(MACROBLOCK *x, int blk_row,
   // obtained over the current block
   // 3) When operating bit-depth is not 8-bit as the input features are not
   // scaled according to bit-depth.
-  if (xd->lossless[mbmi->segment_id] || txsize_to_bsize[tx_size] != bsize ||
+  if (xd->lossless[mbmi->segment_id] || txsize_to_bsize_aom[tx_size] != bsize ||
       xd->bd != 8)
     return;
 

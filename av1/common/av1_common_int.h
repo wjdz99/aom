@@ -1427,8 +1427,8 @@ static INLINE void update_partition_context(MACROBLOCKD *xd, int mi_row,
 
   const int bw = mi_size_wide[bsize];
   const int bh = mi_size_high[bsize];
-  memset(above_ctx, partition_context_lookup[subsize].above, bw);
-  memset(left_ctx, partition_context_lookup[subsize].left, bh);
+  memset(above_ctx, partition_context_lookup_aom[subsize].above, bw);
+  memset(left_ctx, partition_context_lookup_aom[subsize].left, bh);
 }
 
 static INLINE int is_chroma_reference(int mi_row, int mi_col, BLOCK_SIZE bsize,
@@ -1676,7 +1676,7 @@ static INLINE void set_mi_offsets(const CommonModeInfoParams *const mi_params,
 static INLINE void txfm_partition_update(TXFM_CONTEXT *above_ctx,
                                          TXFM_CONTEXT *left_ctx,
                                          TX_SIZE tx_size, TX_SIZE txb_size) {
-  BLOCK_SIZE bsize = txsize_to_bsize[txb_size];
+  BLOCK_SIZE bsize = txsize_to_bsize_aom[txb_size];
   int bh = mi_size_high[bsize];
   int bw = mi_size_wide[bsize];
   uint8_t txw = tx_size_wide[tx_size];

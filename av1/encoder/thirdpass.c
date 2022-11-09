@@ -657,7 +657,7 @@ BLOCK_SIZE av1_get_third_pass_adjusted_blk_size(THIRD_PASS_MI_INFO *this_mi,
   const int h = (int)(round(h_second_pass * ratio_h));
 
   for (int i = 0; i < SQR_BLOCK_SIZES; i++) {
-    const BLOCK_SIZE this_bsize = subsize_lookup[part_type][i];
+    const BLOCK_SIZE this_bsize = subsize_lookup_aom[part_type][i];
     if (this_bsize == BLOCK_INVALID) continue;
 
     const int this_w = block_size_wide[this_bsize];

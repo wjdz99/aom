@@ -37,7 +37,8 @@ void av1_setup_shared_coeff_buffer(const SequenceHeader *const seq_params,
                                    PC_TREE_SHARED_BUFFERS *shared_bufs,
                                    struct aom_internal_error_info *error) {
   const int num_planes = seq_params->monochrome ? 1 : MAX_MB_PLANE;
-  const int max_sb_square_y = 1 << num_pels_log2_lookup[seq_params->sb_size];
+  const int max_sb_square_y = 1
+                              << num_pels_log2_lookup_aom[seq_params->sb_size];
   const int max_sb_square_uv = max_sb_square_y >> (seq_params->subsampling_x +
                                                    seq_params->subsampling_y);
   for (int i = 0; i < num_planes; i++) {
