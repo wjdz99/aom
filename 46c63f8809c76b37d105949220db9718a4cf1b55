@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "29ce8164_30ccd562",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 29295
+      },
+      "writtenOn": "2022-11-09T07:01:32Z",
+      "side": 1,
+      "message": "Hello Yunqing, Marco,\n\nThe parent version is triggering an assert in av1_encode_mv() for a testcase: desktop2360p, 200 kbps for cpu 8. The assert catches if the mv difference (new - ref) is zero. \n\nIn the CL, a condition is added to check whether the NEWMV is same as NEARESTMV in search_new_mv() in the reduced-complexity ME path. For NEARMV, this is not needed since early-term of NEARMV would mean early-term of NEWMV as well. For the combined_motion_search() path, this is already taken care by a similar condition. For good presets, it is taken care by av1_check_newmv_joint_nonzero().\n\nThe details of worst-case drops are:\n```\ncpu      clip                  BD Rate Loss (%)          Instr. Cnt \n                         avg.psnr   ovr.psnr   ssim      Red (%)\n 7   marcooffice720p     0.0490     0.0306     0.0652     0.003\n 8   desktop2360p        0.2430     0.2748     0.3202     0.034\n 9   desktop_marco_                                      \n     30fps.1920_1080     0.0088     0.0088     0.0260     0.021\n```\n\nPlease review the CL.\n\nThanks,\nNeeraj",
+      "revId": "46c63f8809c76b37d105949220db9718a4cf1b55",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
