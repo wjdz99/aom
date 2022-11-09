@@ -1498,7 +1498,7 @@ void av1_ml_predict_breakout(AV1_COMP *const cpi, const MACROBLOCK *const x,
   float features[FEATURES];
   int feature_index = 0;
 
-  const int num_pels_log2 = num_pels_log2_lookup[bsize];
+  const int num_pels_log2 = num_pels_log2_lookup_aom[bsize];
   float rate_f = (float)AOMMIN(rd_stats->rate, INT_MAX);
   rate_f = ((float)x->rdmult / 128.0f / 512.0f / (float)(1 << num_pels_log2)) *
            rate_f;
