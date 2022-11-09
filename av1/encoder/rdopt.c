@@ -1473,7 +1473,7 @@ static int64_t motion_mode_rd(
     if (mbmi->motion_mode != WARPED_CAUSAL) rd_stats->rate += switchable_rate;
     if (interintra_allowed) {
       rd_stats->rate +=
-          mode_costs->interintra_cost[size_group_lookup[bsize]]
+          mode_costs->interintra_cost[size_group_lookup_aom[bsize]]
                                      [mbmi->ref_frame[1] == INTRA_FRAME];
     }
     if ((last_motion_mode_allowed > SIMPLE_TRANSLATION) &&
@@ -2053,7 +2053,7 @@ static int ref_mv_idx_to_search(AV1_COMP *const cpi, MACROBLOCK *x,
   if (!cpi->sf.inter_sf.prune_mode_search_simple_translation)
     return good_indices;
   if (!have_nearmv_in_inter_mode(this_mode)) return good_indices;
-  if (num_pels_log2_lookup[bsize] <= 6) return good_indices;
+  if (num_pels_log2_lookup_aom[bsize] <= 6) return good_indices;
   // Do not prune when there is internal resizing. TODO(elliottk) fix this
   // so b/2384 can be resolved.
   if (av1_is_scaled(get_ref_scale_factors(cm, mbmi->ref_frame[0])) ||
@@ -2907,7 +2907,7 @@ static int64_t handle_inter_mode(
 
         if (cpi->sf.rt_sf.skip_newmv_mode_based_on_sse) {
           const int th_idx = cpi->sf.rt_sf.skip_newmv_mode_based_on_sse - 1;
-          const int pix_idx = num_pels_log2_lookup[bsize] - 4;
+          const int pix_idx = num_pels_log2_lookup_aom[bsize] - 4;
           const double scale_factor[3][11] = {
             { 0.7, 0.7, 0.7, 0.7, 0.7, 0.8, 0.8, 0.9, 0.9, 0.9, 0.9 },
             { 0.7, 0.7, 0.7, 0.7, 0.8, 0.8, 1, 1, 1, 1, 1 },
@@ -3885,7 +3885,7 @@ static AOM_INLINE void init_mode_skip_mask(mode_skip_mask_t *mask,
   }
 
   mask->pred_modes[INTRA_FRAME] |=
-      ~(uint32_t)sf->intra_sf.intra_y_mode_mask[max_txsize_lookup[bsize]];
+      ~(uint32_t)sf->intra_sf.intra_y_mode_mask[max_txsize_lookup_aom[bsize]];
 }
 
 static AOM_INLINE void init_neighbor_pred_buf(
@@ -5767,7 +5767,7 @@ void av1_rd_pick_inter_mode(struct AV1_COMP *cpi, struct TileDataEnc *tile_data,
   const int do_tx_search =
       !((sf->inter_sf.inter_mode_rd_model_estimation == 1 && md->ready) ||
         (sf->inter_sf.inter_mode_rd_model_estimation == 2 &&
-         num_pels_log2_lookup[bsize] > 8));
+         num_pels_log2_lookup_aom[bsize] > 8));
   InterModesInfo *inter_modes_info = x->inter_modes_info;
   inter_modes_info->num = 0;
 
@@ -6210,7 +6210,7 @@ void av1_rd_pick_inter_mode_sb_seg_skip(const AV1_COMP *cpi,
                            features->allow_high_precision_mv, bsize, mi_col,
                            mi_row, features->cur_frame_force_integer_mv)
           .as_int;
-  mbmi->tx_size = max_txsize_lookup[bsize];
+  mbmi->tx_size = max_txsize_lookup_aom[bsize];
   x->txfm_search_info.skip_txfm = 1;
 
   mbmi->ref_mv_idx = 0;

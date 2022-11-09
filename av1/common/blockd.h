@@ -999,7 +999,7 @@ static INLINE BLOCK_SIZE get_partition_subsize(BLOCK_SIZE bsize,
     const int sqr_bsize_idx = get_sqr_bsize_idx(bsize);
     return sqr_bsize_idx >= SQR_BLOCK_SIZES
                ? BLOCK_INVALID
-               : subsize_lookup[partition][sqr_bsize_idx];
+               : subsize_lookup_aom[partition][sqr_bsize_idx];
   }
 }
 
@@ -1136,10 +1136,10 @@ static INLINE int get_ext_tx_types(TX_SIZE tx_size, int is_inter,
 #define TXSIZEMIN(t1, t2) (tx_size_2d[(t1)] <= tx_size_2d[(t2)] ? (t1) : (t2))
 
 static INLINE TX_SIZE tx_size_from_tx_mode(BLOCK_SIZE bsize, TX_MODE tx_mode) {
-  const TX_SIZE largest_tx_size = tx_mode_to_biggest_tx_size[tx_mode];
+  const TX_SIZE largest_tx_size = tx_mode_to_biggest_tx_size_aom[tx_mode];
   const TX_SIZE max_rect_tx_size = max_txsize_rect_lookup[bsize];
   if (bsize == BLOCK_4X4)
-    return AOMMIN(max_txsize_lookup[bsize], largest_tx_size);
+    return AOMMIN(max_txsize_lookup_aom[bsize], largest_tx_size);
   if (txsize_sqr_map[max_rect_tx_size] <= largest_tx_size)
     return max_rect_tx_size;
   else
@@ -1193,7 +1193,7 @@ static INLINE BLOCK_SIZE get_plane_block_size(BLOCK_SIZE bsize,
   assert(bsize < BLOCK_SIZES_ALL);
   assert(subsampling_x >= 0 && subsampling_x < 2);
   assert(subsampling_y >= 0 && subsampling_y < 2);
-  return ss_size_lookup[bsize][subsampling_x][subsampling_y];
+  return ss_size_lookup_aom[bsize][subsampling_x][subsampling_y];
 }
 
 /*
@@ -1435,7 +1435,7 @@ static INLINE int is_interintra_allowed(const MB_MODE_INFO *mbmi) {
 static INLINE int is_interintra_allowed_bsize_group(int group) {
   int i;
   for (i = 0; i < BLOCK_SIZES_ALL; i++) {
-    if (size_group_lookup[i] == group &&
+    if (size_group_lookup_aom[i] == group &&
         is_interintra_allowed_bsize((BLOCK_SIZE)i)) {
       return 1;
     }

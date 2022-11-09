@@ -482,7 +482,7 @@ static void encode_block(int plane, int block, int blk_row, int blk_col,
 #if CONFIG_MISMATCH_DEBUG
   if (dry_run == OUTPUT_ENABLED) {
     int pixel_c, pixel_r;
-    BLOCK_SIZE bsize = txsize_to_bsize[tx_size];
+    BLOCK_SIZE bsize = txsize_to_bsize_aom[tx_size];
     int blk_w = block_size_wide[bsize];
     int blk_h = block_size_high[bsize];
     mi_to_pixel_loc(&pixel_c, &pixel_r, xd->mi_col, xd->mi_row, blk_col,
@@ -665,7 +665,7 @@ void av1_encode_sb(const struct AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bsize,
     const int mi_width = mi_size_wide[plane_bsize];
     const int mi_height = mi_size_high[plane_bsize];
     const TX_SIZE max_tx_size = get_vartx_max_txsize(xd, plane_bsize, plane);
-    const BLOCK_SIZE txb_size = txsize_to_bsize[max_tx_size];
+    const BLOCK_SIZE txb_size = txsize_to_bsize_aom[max_tx_size];
     const int bw = mi_size_wide[txb_size];
     const int bh = mi_size_high[txb_size];
     int block = 0;

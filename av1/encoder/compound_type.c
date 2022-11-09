@@ -341,7 +341,7 @@ static int64_t pick_interinter_seg(const AV1_COMP *const cpi,
   MB_MODE_INFO *const mbmi = xd->mi[0];
   const int bw = block_size_wide[bsize];
   const int bh = block_size_high[bsize];
-  const int N = 1 << num_pels_log2_lookup[bsize];
+  const int N = 1 << num_pels_log2_lookup_aom[bsize];
   int rate;
   int64_t dist;
   DIFFWTD_MASK_TYPE cur_mask_type;
@@ -555,7 +555,7 @@ static int handle_smooth_inter_intra_mode(
   MACROBLOCKD *xd = &x->e_mbd;
   const ModeCosts *mode_costs = &x->mode_costs;
   const int *const interintra_mode_cost =
-      mode_costs->interintra_mode_cost[size_group_lookup[bsize]];
+      mode_costs->interintra_mode_cost[size_group_lookup_aom[bsize]];
   const AV1_COMMON *const cm = &cpi->common;
   const int bw = block_size_wide[bsize];
 
@@ -623,7 +623,7 @@ static int handle_wedge_inter_intra_mode(
   MACROBLOCKD *xd = &x->e_mbd;
   const ModeCosts *mode_costs = &x->mode_costs;
   const int *const interintra_mode_cost =
-      mode_costs->interintra_mode_cost[size_group_lookup[bsize]];
+      mode_costs->interintra_mode_cost[size_group_lookup_aom[bsize]];
   const AV1_COMMON *const cm = &cpi->common;
   const int bw = block_size_wide[bsize];
   const int try_smooth_interintra =
@@ -1074,7 +1074,7 @@ static int64_t masked_compound_type_rd(
       (void)cpi->ppi->fn_ptr[bsize].vf(*preds0, *strides, *preds1, *strides,
                                        &sse);
     const unsigned int mse =
-        ROUND_POWER_OF_TWO(sse, num_pels_log2_lookup[bsize]);
+        ROUND_POWER_OF_TWO(sse, num_pels_log2_lookup_aom[bsize]);
     // If two predictors are very similar, skip wedge compound mode search
     if (mse < 8 || (!have_newmv_in_inter_mode(this_mode) && mse < 64)) {
       *comp_model_rd_cur = INT64_MAX;
