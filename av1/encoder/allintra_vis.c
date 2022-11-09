@@ -206,7 +206,7 @@ static void calc_mb_wiener_var(AV1_COMP *const cpi, double *sum_rec_distortion,
   MB_MODE_INFO *mbmi_ptr = &mbmi;
   xd->mi = &mbmi_ptr;
   const BLOCK_SIZE bsize = cpi->weber_bsize;
-  const TX_SIZE tx_size = max_txsize_lookup[bsize];
+  const TX_SIZE tx_size = max_txsize_lookup_aom[bsize];
   const int block_size = tx_size_wide[tx_size];
   const int coeff_count = block_size * block_size;
   const int mb_step = mi_size_wide[bsize];
@@ -271,7 +271,7 @@ static void calc_mb_wiener_var(AV1_COMP *const cpi, double *sum_rec_distortion,
       uint16_t eob;
       const SCAN_ORDER *const scan_order = &av1_scan_orders[tx_size][DCT_DCT];
       QUANT_PARAM quant_param;
-      int pix_num = 1 << num_pels_log2_lookup[txsize_to_bsize[tx_size]];
+      int pix_num = 1 << num_pels_log2_lookup_aom[txsize_to_bsize_aom[tx_size]];
       av1_setup_quant(tx_size, 0, AV1_XFORM_QUANT_FP, 0, &quant_param);
 #if CONFIG_AV1_HIGHBITDEPTH
       if (is_cur_buf_hbd(xd)) {

@@ -341,7 +341,7 @@ static AOM_INLINE void get_txb_dimensions(const MACROBLOCKD *xd, int plane,
 }
 
 static AOM_INLINE int bsize_to_num_blk(BLOCK_SIZE bsize) {
-  int num_blk = 1 << (num_pels_log2_lookup[bsize] - 2 * MI_SIZE_LOG2);
+  int num_blk = 1 << (num_pels_log2_lookup_aom[bsize] - 2 * MI_SIZE_LOG2);
   return num_blk;
 }
 
@@ -362,7 +362,7 @@ static INLINE int check_txfm_eval(MACROBLOCK *const x, BLOCK_SIZE bsize,
                                                    QINDEX_BITS));
   }
   if ((best_skip_rd >
-       (x->source_variance << (num_pels_log2_lookup[bsize] + RDDIV_BITS))) &&
+       (x->source_variance << (num_pels_log2_lookup_aom[bsize] + RDDIV_BITS))) &&
       (x->qindex >= pred_qindex_thresh))
     aggr_factor *= scale[level];
   // For level setting 1, be more conservative for non-luma-only case even when
