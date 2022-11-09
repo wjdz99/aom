@@ -159,15 +159,25 @@ double av1_convert_qindex_to_q(int qindex, aom_bit_depth_t bit_depth) {
   }
 }
 
+int av1_get_bpmb_enumerator(FRAME_TYPE frame_type,
+  const int is_screen_content_type) {
+  int enumerator;
+
+  if (is_screen_content_type) {
+    enumerator = (frame_type == KEY_FRAME) ? 1000000 : 750000;
+  } else {
+    enumerator = (frame_type == KEY_FRAME) ? 2000000 : 1500000;
+  }
+
+  return enumerator;
+}
+
 int av1_rc_bits_per_mb(FRAME_TYPE frame_type, int qindex,
                        double correction_factor, aom_bit_depth_t bit_depth,
                        const int is_screen_content_type) {
   const double q = av1_convert_qindex_to_q(qindex, bit_depth);
-  int enumerator = frame_type == KEY_FRAME ? 2000000 : 1500000;
-  if (is_screen_content_type) {
-    enumerator = frame_type == KEY_FRAME ? 1000000 : 750000;
-  }
-
+  const int enumerator = av1_get_bpmb_enumerator(frame_type,
+                                                 is_screen_content_type);
   assert(correction_factor <= MAX_BPB_FACTOR &&
          correction_factor >= MIN_BPB_FACTOR);
 
@@ -3222,10 +3232,12 @@ int av1_encodedframe_overshoot_cbr(AV1_COMP *cpi, int *q) {
     int target_bits_per_mb;
     double q2;
     int enumerator;
+    int is_screen_content = (cpi->oxcf.tune_cfg.content == AOM_CONTENT_SCREEN);
+
     *q = (3 * cpi->rc.worst_quality + *q) >> 2;
     // For screen content use the max-q set by the user to allow for less
     // overshoot on slide changes.
-    if (cpi->oxcf.tune_cfg.content == AOM_CONTENT_SCREEN)
+    if (is_screen_content)
       *q = cpi->rc.worst_quality;
     cpi->cyclic_refresh->counter_encode_maxq_scene_change = 0;
     // Adjust avg_frame_qindex, buffer_level, and rate correction factors, as
@@ -3245,12 +3257,11 @@ int av1_encodedframe_overshoot_cbr(AV1_COMP *cpi, int *q) {
     // and qp (==max_QP). This comes from the inverse computation of
     // av1_rc_bits_per_mb().
     q2 = av1_convert_qindex_to_q(*q, cm->seq_params->bit_depth);
-    enumerator = 1800000;  // Factor for inter frame.
-    enumerator += (int)(enumerator * q2) >> 12;
+    enumerator = av1_get_bpmb_enumerator(INTER_NORMAL, is_screen_content);
     new_correction_factor = (double)target_bits_per_mb * q2 / enumerator;
     if (new_correction_factor > rate_correction_factor) {
       rate_correction_factor =
-          AOMMIN(2.0 * rate_correction_factor, new_correction_factor);
+          (new_correction_factor + rate_correction_factor) / 2.0;
       if (rate_correction_factor > MAX_BPB_FACTOR)
         rate_correction_factor = MAX_BPB_FACTOR;
       cpi->ppi->p_rc.rate_correction_factors[INTER_NORMAL] =
