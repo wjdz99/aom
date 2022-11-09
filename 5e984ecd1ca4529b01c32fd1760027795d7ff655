@@ -1,0 +1,257 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cfccedf9_70c4a4dc",
+        "filename": "av1/qmode_rc/ratectrl_qmode.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 1307,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-11-09T18:55:21Z",
+      "side": 1,
+      "message": "These should be const references; there\u0027s no reason to copy them.",
+      "range": {
+        "startLine": 1307,
+        "startChar": 4,
+        "endLine": 1307,
+        "endChar": 61
+      },
+      "revId": "5e984ecd1ca4529b01c32fd1760027795d7ff655",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "deb0b9a0_de7b2a1c",
+        "filename": "av1/qmode_rc/ratectrl_qmode.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 1309,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-11-09T18:55:21Z",
+      "side": 1,
+      "message": "const uint8_t qindex",
+      "range": {
+        "startLine": 1309,
+        "startChar": 7,
+        "endLine": 1309,
+        "endChar": 19
+      },
+      "revId": "5e984ecd1ca4529b01c32fd1760027795d7ff655",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d0ebea67_6ad36224",
+        "filename": "av1/qmode_rc/ratectrl_qmode.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 1318,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-11-09T18:55:21Z",
+      "side": 1,
+      "message": "Rather than updating the map entry every time you find a new minimum, you could just use std::min_element to find the nearest centroid, and then set it once:\n\n    int nearest_centroid \u003d *std::min_element(\n            centroids.begin(), \n            centroids.end(), \n            [qindex] (int centroid) { return abs(centroid - qindex); });\n    cluster_map.insert({qindex, nearest_centroid});",
+      "range": {
+        "startLine": 1310,
+        "startChar": 0,
+        "endLine": 1318,
+        "endChar": 0
+      },
+      "revId": "5e984ecd1ca4529b01c32fd1760027795d7ff655",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9678d804_cb00eb2c",
+        "filename": "av1/qmode_rc/ratectrl_qmode.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 1332,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-11-09T18:55:21Z",
+      "side": 1,
+      "message": "IIUC, you\u0027re trying to arbitrarily pick up to k unique qindices. Instead of adding all the qindices to the set first, this could easily be done with a single loop:\n\n    for (const uint8_t qp : qindices) {\n      if (!qindices_set.insert(qp).second) continue;  // Already added.\n      centroids.push_back(qp);\n      if (static_cast\u003cint\u003e(centroids.size()) \u003e\u003d k) break;\n    }",
+      "range": {
+        "startLine": 1326,
+        "startChar": 0,
+        "endLine": 1332,
+        "endChar": 3
+      },
+      "revId": "5e984ecd1ca4529b01c32fd1760027795d7ff655",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "683a48b8_2555c748",
+        "filename": "av1/qmode_rc/ratectrl_qmode.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 1334,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-11-09T18:55:21Z",
+      "side": 1,
+      "message": "This could be declared inside the loop where it\u0027s initialized.",
+      "range": {
+        "startLine": 1334,
+        "startChar": 0,
+        "endLine": 1334,
+        "endChar": 43
+      },
+      "revId": "5e984ecd1ca4529b01c32fd1760027795d7ff655",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b12dabc2_53ca531b",
+        "filename": "av1/qmode_rc/ratectrl_qmode.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 1335,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-11-09T18:55:21Z",
+      "side": 1,
+      "message": "Instead of defining centroids_changed outside of the loop, it might be clearer to just do this:\n\n    while (true) {\n      ...\n      bool centroids_changed \u003d false;\n      for (...) {\n         ...\n         if (...) centroids_changed \u003d true;\n      }\n      if (!centroids_changed) break;\n    }\n \nThis way you don\u0027t have the oddity of having to initialize centroids_changed to true before the loop, when they haven\u0027t really changed yet.",
+      "range": {
+        "startLine": 1335,
+        "startChar": 0,
+        "endLine": 1335,
+        "endChar": 29
+      },
+      "revId": "5e984ecd1ca4529b01c32fd1760027795d7ff655",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e6fddc99_44f9567e",
+        "filename": "av1/qmode_rc/ratectrl_qmode.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 1339,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-11-09T18:55:21Z",
+      "side": 1,
+      "message": "It might be clearer what this holds if you called it centroid_to_qindices.",
+      "range": {
+        "startLine": 1339,
+        "startChar": 46,
+        "endLine": 1339,
+        "endChar": 62
+      },
+      "revId": "5e984ecd1ca4529b01c32fd1760027795d7ff655",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bc01c0d3_1bbf5ff5",
+        "filename": "av1/qmode_rc/ratectrl_qmode.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 1345,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-11-09T18:55:21Z",
+      "side": 1,
+      "message": "const auto \u0026",
+      "range": {
+        "startLine": 1345,
+        "startChar": 9,
+        "endLine": 1345,
+        "endChar": 15
+      },
+      "revId": "5e984ecd1ca4529b01c32fd1760027795d7ff655",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9b7167ee_471c234f",
+        "filename": "av1/qmode_rc/ratectrl_qmode.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 1347,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-11-09T18:55:21Z",
+      "side": 1,
+      "message": "int qindex",
+      "range": {
+        "startLine": 1347,
+        "startChar": 11,
+        "endLine": 1347,
+        "endChar": 24
+      },
+      "revId": "5e984ecd1ca4529b01c32fd1760027795d7ff655",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b8916495_52c9c674",
+        "filename": "av1/qmode_rc/ratectrl_qmode.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 1357,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-11-09T18:55:21Z",
+      "side": 1,
+      "message": "Is there any reason to call FindKMeansClusterMap again?",
+      "range": {
+        "startLine": 1357,
+        "startChar": 0,
+        "endLine": 1357,
+        "endChar": 58
+      },
+      "revId": "5e984ecd1ca4529b01c32fd1760027795d7ff655",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "67917701_90fd47ff",
+        "filename": "av1/qmode_rc/ratectrl_qmode.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 1480,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-11-09T18:55:21Z",
+      "side": 1,
+      "message": "If you don\u0027t want to mutate the map, it\u0027s better to use find() rather than operator[]. go/totw/202\n\nThis would also allow you to declare qindex_centroids as const.",
+      "range": {
+        "startLine": 1480,
+        "startChar": 16,
+        "endLine": 1480,
+        "endChar": 40
+      },
+      "revId": "5e984ecd1ca4529b01c32fd1760027795d7ff655",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
