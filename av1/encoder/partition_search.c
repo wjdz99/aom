@@ -1190,7 +1190,7 @@ static void update_stats(const AV1_COMMON *const cm, ThreadData *td) {
 
       if (cm->seq_params->enable_interintra_compound &&
           is_interintra_allowed(mbmi)) {
-        const int bsize_group = size_group_lookup[bsize];
+        const int bsize_group = size_group_lookup_aom[bsize];
         if (mbmi->ref_frame[1] == INTRA_FRAME) {
 #if CONFIG_ENTROPY_STATS
           counts->interintra[bsize_group][1]++;
@@ -1415,9 +1415,9 @@ static void encode_b(const AV1_COMP *const cpi, TileDataEnc *tile_data,
     set_cb_offsets(x->mbmi_ext_frame->cb_offset, x->cb_offset[PLANE_TYPE_Y],
                    x->cb_offset[PLANE_TYPE_UV]);
     assert(x->cb_offset[PLANE_TYPE_Y] <
-           (1 << num_pels_log2_lookup[cpi->common.seq_params->sb_size]));
+           (1 << num_pels_log2_lookup_aom[cpi->common.seq_params->sb_size]));
     assert(x->cb_offset[PLANE_TYPE_UV] <
-           ((1 << num_pels_log2_lookup[cpi->common.seq_params->sb_size]) >>
+           ((1 << num_pels_log2_lookup_aom[cpi->common.seq_params->sb_size]) >>
             (subsampling_x + subsampling_y)));
   }
 
@@ -2071,9 +2071,9 @@ static void encode_b_nonrd(const AV1_COMP *const cpi, TileDataEnc *tile_data,
     set_cb_offsets(x->mbmi_ext_frame->cb_offset, x->cb_offset[PLANE_TYPE_Y],
                    x->cb_offset[PLANE_TYPE_UV]);
     assert(x->cb_offset[PLANE_TYPE_Y] <
-           (1 << num_pels_log2_lookup[cpi->common.seq_params->sb_size]));
+           (1 << num_pels_log2_lookup_aom[cpi->common.seq_params->sb_size]));
     assert(x->cb_offset[PLANE_TYPE_UV] <
-           ((1 << num_pels_log2_lookup[cpi->common.seq_params->sb_size]) >>
+           ((1 << num_pels_log2_lookup_aom[cpi->common.seq_params->sb_size]) >>
             (subsampling_x + subsampling_y)));
   }
 
@@ -3944,7 +3944,7 @@ static void prune_partitions_after_none(AV1_COMP *const cpi, MACROBLOCK *x,
          (mi_size_wide_log2[bsize] + mi_size_high_log2[bsize]));
     const int rate_breakout_thr =
         cpi->sf.part_sf.partition_search_breakout_rate_thr *
-        num_pels_log2_lookup[bsize];
+        num_pels_log2_lookup_aom[bsize];
     // If all y, u, v transform blocks in this partition are skippable,
     // and the dist & rate are within the thresholds, the partition
     // search is terminated for current branch of the partition search

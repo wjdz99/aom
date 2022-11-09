@@ -213,7 +213,7 @@ void av1_calc_mb_wiener_var_row(AV1_COMP *const cpi, const int mi_row,
   MB_MODE_INFO *mbmi_ptr = &mbmi;
   xd->mi = &mbmi_ptr;
   const BLOCK_SIZE bsize = cpi->weber_bsize;
-  const TX_SIZE tx_size = max_txsize_lookup[bsize];
+  const TX_SIZE tx_size = max_txsize_lookup_aom[bsize];
   const int block_size = tx_size_wide[tx_size];
   const int coeff_count = block_size * block_size;
   const int mb_step = mi_size_wide[bsize];

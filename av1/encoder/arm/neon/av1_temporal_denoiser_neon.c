@@ -201,7 +201,7 @@ static int av1_denoiser_8xN_neon(const uint8_t *sig, int sig_stride,
       // The delta is set by the excess of absolute pixel diff over the
       // threshold.
       const int delta =
-          ((abs(sum_diff) - sum_diff_thresh) >> num_pels_log2_lookup[bs]) + 1;
+          ((abs(sum_diff) - sum_diff_thresh) >> num_pels_log2_lookup_aom[bs]) + 1;
       // Only apply the adjustment for max delta up to 3.
       if (delta < 4) {
         const uint8x16_t k_delta = vmovq_n_u8(delta);
@@ -296,7 +296,7 @@ static int av1_denoiser_NxM_neon(const uint8_t *sig, int sig_stride,
     const int sum_diff_thresh = total_adj_strong_thresh(bs, increase_denoising);
     if (abs(sum_diff) > sum_diff_thresh) {
       const int delta =
-          ((abs(sum_diff) - sum_diff_thresh) >> num_pels_log2_lookup[bs]) + 1;
+          ((abs(sum_diff) - sum_diff_thresh) >> num_pels_log2_lookup_aom[bs]) + 1;
       // Only apply the adjustment for max delta up to 3.
       if (delta < 4) {
         const uint8x16_t k_delta = vdupq_n_u8(delta);
