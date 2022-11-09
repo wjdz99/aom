@@ -673,8 +673,12 @@ void av1_rc_update_rate_correction_factors(AV1_COMP *cpi, int is_encode_stage,
   int cyclic_refresh_active =
       cpi->oxcf.q_cfg.aq_mode == CYCLIC_REFRESH_AQ && cpi->common.seg.enabled;
 
-  // Do not update the rate factors for arf overlay frames.
-  if (cpi->rc.is_src_frame_alt_ref) return;
+  // Do not update the rate factors for non key frame scene changes or arf
+  // overlay frames.
+  if (cpi->rc.is_src_frame_alt_ref ||
+      (cpi->cyclic_refresh->counter_encode_maxq_scene_change == 0)) {
+    return;
+  }
 
   // Clear down mmx registers to allow floating point in what follows
 
