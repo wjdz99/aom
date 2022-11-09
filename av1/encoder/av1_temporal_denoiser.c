@@ -45,23 +45,23 @@ static int noise_motion_thresh(BLOCK_SIZE bs, int increase_denoising) {
 }
 
 static unsigned int sse_thresh(BLOCK_SIZE bs, int increase_denoising) {
-  return (1 << num_pels_log2_lookup[bs]) * (increase_denoising ? 80 : 40);
+  return (1 << num_pels_log2_lookup_aom[bs]) * (increase_denoising ? 80 : 40);
 }
 
 static int sse_diff_thresh(BLOCK_SIZE bs, int increase_denoising,
                            int motion_magnitude) {
   if (motion_magnitude > noise_motion_thresh(bs, increase_denoising)) {
     if (increase_denoising)
-      return (1 << num_pels_log2_lookup[bs]) << 2;
+      return (1 << num_pels_log2_lookup_aom[bs]) << 2;
     else
       return 0;
   } else {
-    return (1 << num_pels_log2_lookup[bs]) << 4;
+    return (1 << num_pels_log2_lookup_aom[bs]) << 4;
   }
 }
 
 static int total_adj_weak_thresh(BLOCK_SIZE bs, int increase_denoising) {
-  return (1 << num_pels_log2_lookup[bs]) * (increase_denoising ? 3 : 2);
+  return (1 << num_pels_log2_lookup_aom[bs]) * (increase_denoising ? 3 : 2);
 }
 
 // TODO(kyslov): If increase_denoising is enabled in the future,
@@ -138,7 +138,7 @@ int av1_denoiser_filter_c(const uint8_t *sig, int sig_stride,
 
   // Otherwise, we try to dampen the filter if the delta is not too high.
   delta = ((abs(total_adj) - total_adj_strong_thresh(bs, increase_denoising)) >>
-           num_pels_log2_lookup[bs]) +
+           num_pels_log2_lookup_aom[bs]) +
           1;
 
   if (delta >= delta_thresh(bs, increase_denoising)) {
