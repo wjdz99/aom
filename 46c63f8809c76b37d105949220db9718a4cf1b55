@@ -34,6 +34,23 @@
       "parentUuid": "29ce8164_30ccd562",
       "revId": "46c63f8809c76b37d105949220db9718a4cf1b55",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "52bcb4f4_a6859792",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2022-11-09T19:43:08Z",
+      "side": 1,
+      "message": "I\u0027m fine with this.\n\nYou say (ALTREF, NEARESTMV) was not evaluated due to an early exit, but (ALTREF,NEWMV) gets checked. What early exit is causing NEAREST to be skipped but not NEWMV? Wonder if there an issue there (whether we should make sure NEAREST is always checked before NEWMV).",
+      "revId": "46c63f8809c76b37d105949220db9718a4cf1b55",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
