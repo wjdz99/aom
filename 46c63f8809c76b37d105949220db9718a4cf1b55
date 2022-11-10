@@ -51,6 +51,41 @@
       "message": "I\u0027m fine with this.\n\nYou say (ALTREF, NEARESTMV) was not evaluated due to an early exit, but (ALTREF,NEWMV) gets checked. What early exit is causing NEAREST to be skipped but not NEWMV? Wonder if there an issue there (whether we should make sure NEAREST is always checked before NEWMV).",
       "revId": "46c63f8809c76b37d105949220db9718a4cf1b55",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "adea1cd7_003e25b6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 29295
+      },
+      "writtenOn": "2022-11-10T09:58:13Z",
+      "side": 1,
+      "message": "Thanks for the review.",
+      "revId": "46c63f8809c76b37d105949220db9718a4cf1b55",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fbe678de_29bffcef",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 29295
+      },
+      "writtenOn": "2022-11-10T09:58:13Z",
+      "side": 1,
+      "message": "Hi Marco,\n\nWe have identified one set of cases that have the following mode evaluation behavior in the parent commit: \n1. (ALTREF, NEARESTMV) has an early exit in early_term_inter_search_with_sse() based on the best_sse so far. \n2. (ALTREF, NEARMV) gets fully evaluated and eventually selected as the best mode based on RD cost. Its sse is slightly higher than the best_sse so far. \n3. (ALTREF, NEWMV) does ME to obtain best motion vector which happens to be same as NEARESTMV. Thus, it produces the same sse as that earlier produced by (ALTREF, NEARESTMV) prior to its early exit. But NEWMV does not early exit because of a higher best_sse that comes from (ALTREF, NEARMV) being the best mode in Step 2. As a result, NEWMV (that is same as NEARESTMV) sails through and eventually wins as the best mode. \n\nAssuming we retain the assert in av1_encode_mv(), we have a few options: \n(A) Do not early exit based on sse for (ALTREF, NEARESTMV). But the trade-off is not good here:\n```\ncpu   Testset  Instr Cnt        BD-Rate Loss(%)       \n                Red(%)   avg.psnr  ovr.psnr   ssim                        \n 8     rtc      -1.048    -0.0455  -0.0400  -0.0448\n ```\nIf this is done for other ref frames for consistency, there would be more speed-loss. In other words, the early exit based on SSE seems to work well here.\n(B) Keep evaluating NEWMV even if it is equal to ref mv after ME. If NEWMV is the eventual winner and same as ref mv, we change the signaling. However, this involves more code changes, especially we should remove the condition from combined_motion_search(). Other checks are also needed to make this work for all cases.\n(C) Do not proceed with NEWMV if it comes out same as ref mv. This is assuming whatever decision was made for NEARESTMV would apply here. This is consistent with a similar check done at the end of combined_motion_search() for other ref frames. \n\nIn the CL, we have (C) which is better than (A), somewhat sub-optimal to (B), but it currently fixes the issue. Please let us know if any suggestions.\n\nThanks,\nNeeraj",
+      "parentUuid": "52bcb4f4_a6859792",
+      "revId": "46c63f8809c76b37d105949220db9718a4cf1b55",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
