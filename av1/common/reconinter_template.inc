@@ -9,40 +9,37 @@
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
  */
 
-#ifndef IS_ENC
-#error "IS_ENC must be defined for reconinter_template.inc."
+#ifndef IS_DEC
+#error "IS_DEC must be defined for reconinter_template.inc."
 #endif
 
-#if IS_ENC
-#define RENAME(x) av1_enc_##x
+#if IS_DEC
+#define RENAME(x) x
 #else
-#define RENAME(x) av1_dec_##x
-#endif  // IS_ENC
+#define RENAME(x) av1_enc_##x
+#endif  // IS_DEC
 
-#if !IS_ENC
-static
-#endif  // !IS_ENC
-   AOM_INLINE void
-    RENAME(build_one_inter_predictor)(uint8_t *dst, int dst_stride,
-                                      const MV *src_mv,
-                                      InterPredParams *inter_pred_params
-#if !IS_ENC
-                                      ,
-                                      MACROBLOCKD *xd, int mi_x, int mi_y,
-                                      int ref, uint8_t **mc_buf
-#endif  //! IS_ENC
-    ) {
+#if IS_DEC
+static AOM_INLINE void RENAME(build_one_inter_predictor)(
+    uint8_t *dst, int dst_stride, const MV *src_mv,
+    InterPredParams *inter_pred_params, MACROBLOCKD *xd, int mi_x, int mi_y,
+    int ref, uint8_t **mc_buf) {
+#else
+AOM_INLINE void RENAME(build_one_inter_predictor)(
+    uint8_t *dst, int dst_stride, const MV *src_mv,
+    InterPredParams *inter_pred_params) {
+#endif  // IS_DEC
   SubpelParams subpel_params;
   uint8_t *src;
   int src_stride;
-#if IS_ENC
-  enc_calc_subpel_params(src_mv, inter_pred_params, &src, &subpel_params,
-                         &src_stride);
-#else
+#if IS_DEC
   dec_calc_subpel_params_and_extend(src_mv, inter_pred_params, xd, mi_x, mi_y,
                                     ref, mc_buf, &src, &subpel_params,
                                     &src_stride);
-#endif  // IS_ENC
+#else
+  enc_calc_subpel_params(src_mv, inter_pred_params, &src, &subpel_params,
+                         &src_stride);
+#endif  // IS_DEC
   if (inter_pred_params->comp_mode == UNIFORM_SINGLE ||
       inter_pred_params->comp_mode == UNIFORM_COMP) {
     av1_make_inter_predictor(src, src_stride, dst, dst_stride,
@@ -90,14 +87,18 @@ static bool is_sub8x8_inter(const MACROBLOCKD *xd, int plane, BLOCK_SIZE bsize,
   return true;
 }
 
-static AOM_INLINE void build_inter_predictors_sub8x8(
-    const AV1_COMMON *cm, MACROBLOCKD *xd, int plane, const MB_MODE_INFO *mi,
-    int mi_x, int mi_y
-#if !IS_ENC
-    ,
-    uint8_t **mc_buf
-#endif  // !IS_ENC
-) {
+#if IS_DEC
+static AOM_INLINE void build_inter_predictors_sub8x8(const AV1_COMMON *cm,
+                                                     MACROBLOCKD *xd, int plane,
+                                                     const MB_MODE_INFO *mi,
+                                                     int mi_x, int mi_y,
+                                                     uint8_t **mc_buf) {
+#else
+static AOM_INLINE void build_inter_predictors_sub8x8(const AV1_COMMON *cm,
+                                                     MACROBLOCKD *xd, int plane,
+                                                     const MB_MODE_INFO *mi,
+                                                     int mi_x, int mi_y) {
+#endif  // IS_DEC
   const BLOCK_SIZE bsize = mi->bsize;
   struct macroblockd_plane *const pd = &xd->plane[plane];
   const bool ss_x = pd->subsampling_x;
@@ -151,13 +152,14 @@ static AOM_INLINE void build_inter_predictors_sub8x8(
       inter_pred_params.conv_params =
           get_conv_params_no_round(ref, plane, NULL, 0, is_compound, xd->bd);
 
+#if IS_DEC
       RENAME(build_one_inter_predictor)
-      (dst, dst_buf->stride, &mv, &inter_pred_params
-#if !IS_ENC
-       ,
-       xd, mi_x + x, mi_y + y, ref, mc_buf
-#endif  // !IS_ENC
-      );
+      (dst, dst_buf->stride, &mv, &inter_pred_params, xd, mi_x + x, mi_y + y,
+       ref, mc_buf);
+#else
+      RENAME(build_one_inter_predictor)
+      (dst, dst_buf->stride, &mv, &inter_pred_params);
+#endif  // IS_DEC
 
       ++col;
     }
@@ -165,14 +167,15 @@ static AOM_INLINE void build_inter_predictors_sub8x8(
   }
 }
 
+#if IS_DEC
 static AOM_INLINE void build_inter_predictors_8x8_and_bigger(
     const AV1_COMMON *cm, MACROBLOCKD *xd, int plane, const MB_MODE_INFO *mi,
-    int build_for_obmc, int bw, int bh, int mi_x, int mi_y
-#if !IS_ENC
-    ,
-    uint8_t **mc_buf
-#endif  // !IS_ENC
-) {
+    int build_for_obmc, int bw, int bh, int mi_x, int mi_y, uint8_t **mc_buf) {
+#else
+static AOM_INLINE void build_inter_predictors_8x8_and_bigger(
+    const AV1_COMMON *cm, MACROBLOCKD *xd, int plane, const MB_MODE_INFO *mi,
+    int build_for_obmc, int bw, int bh, int mi_x, int mi_y) {
+#endif  // IS_DEC
   const int is_compound = has_second_ref(mi);
   const int is_intrabc = is_intrabc_block(mi);
   assert(IMPLIES(is_intrabc, !is_compound));
@@ -232,41 +235,41 @@ static AOM_INLINE void build_inter_predictors_8x8_and_bigger(
       inter_pred_params.mask_comp.seg_mask = xd->seg_mask;
     }
 
+#if IS_DEC
     RENAME(build_one_inter_predictor)
-    (dst, dst_buf->stride, &mv, &inter_pred_params
-#if !IS_ENC
-     ,
-     xd, mi_x, mi_y, ref, mc_buf
-#endif  // !IS_ENC
-    );
+    (dst, dst_buf->stride, &mv, &inter_pred_params, xd, mi_x, mi_y, ref,
+     mc_buf);
+#else
+    RENAME(build_one_inter_predictor)
+    (dst, dst_buf->stride, &mv, &inter_pred_params);
+#endif  // IS_DEC
   }
 }
+#if IS_DEC
 static AOM_INLINE void RENAME(build_inter_predictors)(
     const AV1_COMMON *cm, MACROBLOCKD *xd, int plane, const MB_MODE_INFO *mi,
-    int build_for_obmc, int bw, int bh, int mi_x, int mi_y
-#if !IS_ENC
-    ,
-    uint8_t **mc_buf
-#endif  // !IS_ENC
-) {
+    int build_for_obmc, int bw, int bh, int mi_x, int mi_y, uint8_t **mc_buf) {
   if (is_sub8x8_inter(xd, plane, mi->bsize, is_intrabc_block(mi),
                       build_for_obmc)) {
     assert(bw < 8 || bh < 8);
-    build_inter_predictors_sub8x8
-    (cm, xd, plane, mi, mi_x, mi_y
-#if !IS_ENC
-     ,
-     mc_buf
-#endif  // !IS_ENC
-    );
+    build_inter_predictors_sub8x8(cm, xd, plane, mi, mi_x, mi_y, mc_buf);
   } else {
-    build_inter_predictors_8x8_and_bigger
-    (cm, xd, plane, mi, build_for_obmc, bw, bh, mi_x, mi_y
-#if !IS_ENC
-     ,
-     mc_buf
-#endif  // !IS_ENC
-    );
+    build_inter_predictors_8x8_and_bigger(cm, xd, plane, mi, build_for_obmc, bw,
+                                          bh, mi_x, mi_y, mc_buf);
   }
 }
+#else
+static AOM_INLINE void RENAME(build_inter_predictors)(
+    const AV1_COMMON *cm, MACROBLOCKD *xd, int plane, const MB_MODE_INFO *mi,
+    int build_for_obmc, int bw, int bh, int mi_x, int mi_y) {
+  if (is_sub8x8_inter(xd, plane, mi->bsize, is_intrabc_block(mi),
+                      build_for_obmc)) {
+    assert(bw < 8 || bh < 8);
+    build_inter_predictors_sub8x8(cm, xd, plane, mi, mi_x, mi_y);
+  } else {
+    build_inter_predictors_8x8_and_bigger(cm, xd, plane, mi, build_for_obmc, bw,
+                                          bh, mi_x, mi_y);
+  }
+}
+#endif  // IS_DEC
 #undef RENAME
