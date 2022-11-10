@@ -24,6 +24,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "23a55110_71af5f82",
+        "filename": "av1/common/reconinter_template.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2022-11-10T20:46:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6cb53089_35d73d63",
+      "range": {
+        "startLine": 13,
+        "startChar": 35,
+        "endLine": 13,
+        "endChar": 43
+      },
+      "revId": "d03db9ffb4add4cce9f1d1531ea0defabf1769b5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "9c973297_4d0d951e",
@@ -37,6 +61,30 @@
       "writtenOn": "2022-11-10T00:49:25Z",
       "side": 1,
       "message": "AOM_INLINE might not make sense if static isn\u0027t being used.",
+      "range": {
+        "startLine": 29,
+        "startChar": 4,
+        "endLine": 29,
+        "endChar": 14
+      },
+      "revId": "d03db9ffb4add4cce9f1d1531ea0defabf1769b5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a48ec13b_baf51645",
+        "filename": "av1/common/reconinter_template.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2022-11-10T20:46:18Z",
+      "side": 1,
+      "message": "I agree this is a bit unusual, but I think I do need the inline for my purpose here.\n\nThe gains of this commit comes from having the compiler optimizing out calls to enc_calc_subpel_params in av1_enc_build_one_inter_predictor. Without the inline keyword here, av1_enc_build_one_inter_predictor doesn\u0027t get inlined in build_inter_predictors_sub8x8 and the like, which eats away the gains.\n\nI decided to use inline without static keyword here so we can generate two different versions of the function- one that gets inlined and another one that gets exposed in av1/encoder/reconinter_enc.h.",
+      "parentUuid": "9c973297_4d0d951e",
       "range": {
         "startLine": 29,
         "startChar": 4,
@@ -64,6 +112,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "384cf13a_8d57f0ba",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 649,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2022-11-10T20:46:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9069d343_340fab4f",
+      "revId": "d03db9ffb4add4cce9f1d1531ea0defabf1769b5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b4d8f0e1_f77766d7",
@@ -77,6 +143,24 @@
       "writtenOn": "2022-11-10T00:49:25Z",
       "side": 1,
       "message": "we don\u0027t use this in this project currently, but using .inc to indicate the intended use is suggested:\n\nhttps://google.github.io/styleguide/cppguide.html#File_Names",
+      "revId": "d03db9ffb4add4cce9f1d1531ea0defabf1769b5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9766bdcf_3fc4f5b1",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 650,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2022-11-10T20:46:18Z",
+      "side": 1,
+      "message": "Done.\nWe should rename av1/encoder/k_means_template.h in a separate patch to be consistent as well.",
+      "parentUuid": "b4d8f0e1_f77766d7",
       "revId": "d03db9ffb4add4cce9f1d1531ea0defabf1769b5",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
