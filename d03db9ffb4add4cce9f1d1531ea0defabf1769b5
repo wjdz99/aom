@@ -97,6 +97,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "d7c4a002_f031e249",
+        "filename": "av1/common/reconinter_template.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-11-10T21:05:59Z",
+      "side": 1,
+      "message": "\u003e I agree this is a bit unusual, but I think I do need the inline for my purpose here.\n\u003e \n\u003e The gains of this commit comes from having the compiler optimizing out calls to enc_calc_subpel_params in av1_enc_build_one_inter_predictor. Without the inline keyword here, av1_enc_build_one_inter_predictor doesn\u0027t get inlined in build_inter_predictors_sub8x8 and the like, which eats away the gains.\n\u003e \n\nThis makes sense if it\u0027s called in the same module, I wasn\u0027t sure if it was.\n\n\u003e I decided to use inline without static keyword here so we can generate two different versions of the function- one that gets inlined and another one that gets exposed in av1/encoder/reconinter_enc.h.",
+      "parentUuid": "a48ec13b_baf51645",
+      "range": {
+        "startLine": 29,
+        "startChar": 4,
+        "endLine": 29,
+        "endChar": 14
+      },
+      "revId": "d03db9ffb4add4cce9f1d1531ea0defabf1769b5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "9069d343_340fab4f",
         "filename": "av1/decoder/decodeframe.c",
         "patchSetId": 4
@@ -161,6 +185,24 @@
       "side": 1,
       "message": "Done.\nWe should rename av1/encoder/k_means_template.h in a separate patch to be consistent as well.",
       "parentUuid": "b4d8f0e1_f77766d7",
+      "revId": "d03db9ffb4add4cce9f1d1531ea0defabf1769b5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3b4baf64_0fbffbfe",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 650,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-11-10T21:05:59Z",
+      "side": 1,
+      "message": "\u003e Done.\n\u003e We should rename av1/encoder/k_means_template.h in a separate patch to be consistent as well.\n\nI think there might be some other examples in the dsp code too.",
+      "parentUuid": "9766bdcf_3fc4f5b1",
       "revId": "d03db9ffb4add4cce9f1d1531ea0defabf1769b5",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
