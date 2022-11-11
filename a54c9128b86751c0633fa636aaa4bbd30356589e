@@ -41,6 +41,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "1ffea28e_6996f28f",
+        "filename": "av1/encoder/partition_search.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2662,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2022-11-11T23:06:18Z",
+      "side": 1,
+      "message": "I change it back to return nothing.",
+      "parentUuid": "8ae41209_fdd09fa6",
+      "range": {
+        "startLine": 2661,
+        "startChar": 0,
+        "endLine": 2662,
+        "endChar": 29
+      },
+      "revId": "a54c9128b86751c0633fa636aaa4bbd30356589e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a0770fa6_57469cd1",
@@ -54,6 +78,30 @@
       "writtenOn": "2022-11-11T18:41:32Z",
       "side": 1,
       "message": "I\u0027m a bit wary of returning a whole struct here. Is it possible to pass in a pointer instead?",
+      "range": {
+        "startLine": 2664,
+        "startChar": 0,
+        "endLine": 2664,
+        "endChar": 8
+      },
+      "revId": "a54c9128b86751c0633fa636aaa4bbd30356589e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "56ffb10c_f838d596",
+        "filename": "av1/encoder/partition_search.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2664,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2022-11-11T23:06:18Z",
+      "side": 1,
+      "message": "I change it back to return nothing.",
+      "parentUuid": "a0770fa6_57469cd1",
       "range": {
         "startLine": 2664,
         "startChar": 0,
