@@ -1776,6 +1776,8 @@ static void recheck_zeromv_after_denoising(
  * \param[in]    x                    Pointer to structure holding all the
  *                                    data for the current macroblock
  * \param[in]    this_rdc             Pointer to calculated RD Cost
+ * \param[in]    inter_pred_params_sr Pointer to structure holding parameters of
+                                      inter prediction for single reference
  * \param[in]    mi_row               Row index in 4x4 units
  * \param[in]    mi_col               Column index in 4x4 units
  * \param[in]    tmp                  Pointer to a temporary buffer for
@@ -1800,8 +1802,9 @@ static void recheck_zeromv_after_denoising(
  * skipped
  */
 static void search_filter_ref(AV1_COMP *cpi, MACROBLOCK *x, RD_STATS *this_rdc,
-                              int mi_row, int mi_col, PRED_BUFFER *tmp,
-                              BLOCK_SIZE bsize, int reuse_inter_pred,
+                              InterPredParams *inter_pred_params_sr, int mi_row,
+                              int mi_col, PRED_BUFFER *tmp, BLOCK_SIZE bsize,
+                              int reuse_inter_pred,
                               PRED_BUFFER **this_mode_pred,
                               int *this_early_term, unsigned int *var,
                               int use_model_yrd_large, int64_t best_sse,
@@ -1820,6 +1823,11 @@ static void search_filter_ref(AV1_COMP *cpi, MACROBLOCK *x, RD_STATS *this_rdc,
   int best_early_term = 0;
   int64_t best_cost = INT64_MAX;
   int best_filter_index = -1;
+
+  SubpelParams subpel_params;
+  if (!comp_pred)
+    init_subpel_params(&mi->mv[0].as_mv, inter_pred_params_sr, &subpel_params,
+                       pd->pre->width, pd->pre->height);
   for (int i = 0; i < FILTER_SEARCH_SIZE * FILTER_SEARCH_SIZE; ++i) {
     int64_t cost;
     if (cpi->sf.interp_sf.disable_dual_filter &&
@@ -1828,7 +1836,8 @@ static void search_filter_ref(AV1_COMP *cpi, MACROBLOCK *x, RD_STATS *this_rdc,
     mi->interp_filters.as_filters.x_filter = filters_ref_set[i].filter_x;
     mi->interp_filters.as_filters.y_filter = filters_ref_set[i].filter_y;
     if (!comp_pred)
-      av1_enc_build_inter_predictor_y(xd, mi_row, mi_col);
+      av1_enc_build_inter_predictor_y_nonrd(xd, inter_pred_params_sr,
+                                            &subpel_params);
     else
       av1_enc_build_inter_predictor(cm, xd, mi_row, mi_col, NULL, bsize, 0, 0);
     unsigned int curr_var = UINT_MAX;
@@ -1879,7 +1888,8 @@ static void search_filter_ref(AV1_COMP *cpi, MACROBLOCK *x, RD_STATS *this_rdc,
     pd->dst.stride = (*this_mode_pred)->stride;
   } else if (best_filter_index < dim_factor * FILTER_SEARCH_SIZE - 1) {
     if (!comp_pred)
-      av1_enc_build_inter_predictor_y(xd, mi_row, mi_col);
+      av1_enc_build_inter_predictor_y_nonrd(xd, inter_pred_params_sr,
+                                            &subpel_params);
     else
       av1_enc_build_inter_predictor(cm, xd, mi_row, mi_col, NULL, bsize, 0, 0);
   }
@@ -3257,6 +3267,14 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
                                mbmi_ext->mode_context);
 
   MV_REFERENCE_FRAME last_comp_ref_frame = NONE_FRAME;
+  InterPredParams inter_pred_params_sr;
+
+  init_inter_block_params(&inter_pred_params_sr, pd->width, pd->height,
+                          mi_row * MI_SIZE, mi_col * MI_SIZE, pd->subsampling_x,
+                          pd->subsampling_y, xd->bd, is_cur_buf_hbd(xd),
+                          /*is_intrabc=*/0, xd->block_ref_scale_factors[0]);
+  inter_pred_params_sr.conv_params =
+      get_conv_params(/*do_average=*/0, AOM_PLANE_Y, xd->bd);
 
   for (int idx = 0; idx < num_inter_modes + tot_num_comp_modes; ++idx) {
     // If we are at the first compound mode, and the single modes already
@@ -3535,10 +3553,10 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
 #if COLLECT_PICK_MODE_STAT
       aom_usec_timer_start(&ms_stat.timer2);
 #endif
-      search_filter_ref(cpi, x, &this_rdc, mi_row, mi_col, tmp, bsize,
-                        reuse_inter_pred, &this_mode_pred, &this_early_term,
-                        &var, use_model_yrd_large, best_pickmode.best_sse,
-                        comp_pred);
+      search_filter_ref(cpi, x, &this_rdc, &inter_pred_params_sr, mi_row,
+                        mi_col, tmp, bsize, reuse_inter_pred, &this_mode_pred,
+                        &this_early_term, &var, use_model_yrd_large,
+                        best_pickmode.best_sse, comp_pred);
 #if COLLECT_PICK_MODE_STAT
       aom_usec_timer_mark(&ms_stat.timer2);
       ms_stat.ifs_time[bsize][this_mode] +=
@@ -3570,11 +3588,16 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
 #if COLLECT_PICK_MODE_STAT
       aom_usec_timer_start(&ms_stat.timer2);
 #endif
-      if (!comp_pred)
-        av1_enc_build_inter_predictor_y(xd, mi_row, mi_col);
-      else
+      if (!comp_pred) {
+        SubpelParams subpel_params;
+        init_subpel_params(&mi->mv[0].as_mv, &inter_pred_params_sr,
+                           &subpel_params, pd->pre->width, pd->pre->height);
+        av1_enc_build_inter_predictor_y_nonrd(xd, &inter_pred_params_sr,
+                                              &subpel_params);
+      } else {
         av1_enc_build_inter_predictor(cm, xd, mi_row, mi_col, NULL, bsize, 0,
                                       0);
+      }
 
       if (use_model_yrd_large) {
         model_skip_for_sb_y_large(cpi, bsize, mi_row, mi_col, x, xd, &this_rdc,
