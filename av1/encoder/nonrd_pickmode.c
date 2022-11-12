@@ -3221,11 +3221,8 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
       thresh_sad_pred += (x->pred_mv_sad[LAST_FRAME] >> 2);
   }
 
-  const int large_block = bsize >= BLOCK_32X32;
   const int use_model_yrd_large =
-      cpi->oxcf.rc_cfg.mode == AOM_CBR && large_block &&
-      !cyclic_refresh_segment_id_boosted(xd->mi[0]->segment_id) &&
-      quant_params->base_qindex && cm->seq_params->bit_depth == 8;
+      get_model_rd_flag_for_large_blocks(cpi, xd, bsize);
 
   // decide block-level interp filter search flags:
   // filter_search_enabled_blk:
