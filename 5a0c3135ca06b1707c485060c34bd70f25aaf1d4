@@ -98,6 +98,30 @@
       },
       "revId": "5a0c3135ca06b1707c485060c34bd70f25aaf1d4",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a3397dab_2b78f7b9",
+        "filename": "av1/common/reconinter_template.inc",
+        "patchSetId": 3
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-11-12T05:48:58Z",
+      "side": 1,
+      "message": "I\u0027ll submit this because it fixes the build, but I think a more robust solution will be to always make the implementation static inline and in the encoder case define a public function that calls it. I could see the Visual Studio issue occurring in other compilers depending on the order of the optimization passes.",
+      "parentUuid": "e6b5933e_8feb27e6",
+      "range": {
+        "startLine": 24,
+        "startChar": 0,
+        "endLine": 27,
+        "endChar": 10
+      },
+      "revId": "5a0c3135ca06b1707c485060c34bd70f25aaf1d4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
