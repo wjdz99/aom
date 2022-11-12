@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0cadc6cf_98385a4c",
+        "filename": "test/ratectrl_qmode_test.cc",
+        "patchSetId": 13
+      },
+      "lineNbr": 1141,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-11-12T22:17:43Z",
+      "side": 1,
+      "message": "This test appears to count on the fact that the clusters are far enough apart that there\u0027s no danger of any ambiguity of which cluster a point should be in. It may be worth mentioning that in a comment.\n\nThat does allow for a deterministic test, but it\u0027s not really a realistic test. Then again, it is a lot better than having no test.\n\nOther alternatives would be:\n\n- Don\u0027t use random test data. The downside to this is that it\u0027s harder to cover as many cases.\n\n- Instead of checking the specific clusters, just test the expected invariants:\n    1. There are k clusters (assuming this really is an invariant)\n    2. Each input point appears in one cluster\n    3. Each point is closer to the centroid of its cluster than to the centroid of any other cluster.\n\nThat said, this test is probably fine for now (assuming it\u0027s no flaky – see my other comment), if it\u0027s not straightforward to come up with something better. More tests could be added later if needed.",
+      "range": {
+        "startLine": 1139,
+        "startChar": 0,
+        "endLine": 1141,
+        "endChar": 0
+      },
+      "revId": "0562f5831562ef1955816a6d3494c00fc40a7581",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "caeedca4_7bb09001",
+        "filename": "test/ratectrl_qmode_test.cc",
+        "patchSetId": 13
+      },
+      "lineNbr": 1151,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-11-12T22:17:43Z",
+      "side": 1,
+      "message": "Is this guaranteed not to be flaky? You\u0027re only generating 10 samples per cluster, so I\u0027d think it would be possible for the centroid of a cluster to differ from the intended centroid by more than 1.\n\nInstead of comparing against the intended centroid, you could compute the actual centroid of each cluster, and then you should be able to test for equality.",
+      "range": {
+        "startLine": 1151,
+        "startChar": 0,
+        "endLine": 1151,
+        "endChar": 71
+      },
+      "revId": "0562f5831562ef1955816a6d3494c00fc40a7581",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
