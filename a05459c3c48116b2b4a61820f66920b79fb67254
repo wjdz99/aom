@@ -123,6 +123,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a40fbff3_fac7a4e6",
+        "filename": "av1/encoder/allintra_vis.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 233,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2022-11-14T21:25:56Z",
+      "side": 1,
+      "message": "Thanks. I think I can keep it as is for now.",
+      "parentUuid": "410d9a3a_1e8574a3",
+      "range": {
+        "startLine": 231,
+        "startChar": 1,
+        "endLine": 233,
+        "endChar": 3
+      },
+      "revId": "a05459c3c48116b2b4a61820f66920b79fb67254",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "525491bb_78c0050a",
@@ -194,6 +218,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a40a9647_9b69531e",
+        "filename": "av1/encoder/allintra_vis.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 470,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2022-11-14T21:25:56Z",
+      "side": 1,
+      "message": "That\u0027s a good point. If we break the dependency, we could still compute intra mode with less accurate reconstruction. It is safer at the moment to keep the change minimum since the change might lead to difference in perceptual quality, which needs more examples to understand the difference.",
+      "parentUuid": "a773b25d_c0c70d70",
+      "range": {
+        "startLine": 470,
+        "startChar": 32,
+        "endLine": 470,
+        "endChar": 52
+      },
+      "revId": "a05459c3c48116b2b4a61820f66920b79fb67254",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "aa5b6f0e_0a6723ac",
@@ -254,6 +302,30 @@
       "writtenOn": "2022-11-14T20:05:24Z",
       "side": 1,
       "message": "Since you are focusing on ultra HD performance, maybe try a higher sync_range to see if it helps the speed.",
+      "range": {
+        "startLine": 2436,
+        "startChar": 2,
+        "endLine": 2436,
+        "endChar": 30
+      },
+      "revId": "a05459c3c48116b2b4a61820f66920b79fb67254",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ec858eb6_5059f73e",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 2436,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2022-11-14T21:25:56Z",
+      "side": 1,
+      "message": "Thanks. I tested with sync_range 2 and 3, it seems the speed is similar. So I keep it the same. But we can always improve this and test with more examples later.",
+      "parentUuid": "54fac9d2_97f7474a",
       "range": {
         "startLine": 2436,
         "startChar": 2,
