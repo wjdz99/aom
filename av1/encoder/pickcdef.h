@@ -165,10 +165,6 @@ typedef struct {
    */
   int sb_count;
   /*!
-   * Holds pointers to sse/sad/variance computation functions
-   */
-  aom_variance_fn_ptr_t *vfp;
-  /*!
    * Indicates if 16bit frame buffers are to be used i.e., the content bit-depth
    * is > 8-bit
    */
@@ -255,8 +251,7 @@ void av1_cdef_mse_calc_block(CdefSearchCtx *cdef_search_ctx, int fbr, int fbc,
 void av1_cdef_search(struct MultiThreadInfo *mt_info,
                      const YV12_BUFFER_CONFIG *frame,
                      const YV12_BUFFER_CONFIG *ref, AV1_COMMON *cm,
-                     MACROBLOCKD *xd, aom_variance_fn_ptr_t *vfp,
-                     CDEF_PICK_METHOD pick_method, int rdmult,
+                     MACROBLOCKD *xd, CDEF_PICK_METHOD pick_method, int rdmult,
                      int skip_cdef_feature, CDEF_CONTROL cdef_control,
                      const int is_screen_content, int non_reference_frame);
 
