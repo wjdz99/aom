@@ -18,6 +18,23 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "7e1b0d19_bed1d8ba",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2022-11-14T19:40:41Z",
+      "side": 1,
+      "message": "Thanks for the review Yunqing.",
+      "revId": "a05459c3c48116b2b4a61820f66920b79fb67254",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "67338236_6b6d8157",
@@ -31,6 +48,30 @@
       "writtenOn": "2022-11-14T19:21:53Z",
       "side": 1,
       "message": "If you define your own sync struct, you probably don\u0027t need to deal with tile here? TPL mt can be an example.",
+      "range": {
+        "startLine": 231,
+        "startChar": 1,
+        "endLine": 233,
+        "endChar": 3
+      },
+      "revId": "a05459c3c48116b2b4a61820f66920b79fb67254",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7fb9b08b_12140707",
+        "filename": "av1/encoder/allintra_vis.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 233,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2022-11-14T19:40:41Z",
+      "side": 1,
+      "message": "I found if I add new structs, they are almost the same as row mt sync. So I reuse it.\nNo tile is needed indeed. Do you think it\u0027s a blocker or better adding new structs?",
+      "parentUuid": "67338236_6b6d8157",
       "range": {
         "startLine": 231,
         "startChar": 1,
@@ -64,6 +105,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "fc3107d6_7425510a",
+        "filename": "av1/encoder/allintra_vis.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 470,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2022-11-14T19:40:41Z",
+      "side": 1,
+      "message": "For all intra, it needs the top and left reconstructed pixels as normal intra modes. I think this is the same dependency as row mt, right?",
+      "parentUuid": "525491bb_78c0050a",
+      "range": {
+        "startLine": 470,
+        "startChar": 32,
+        "endLine": 470,
+        "endChar": 52
+      },
+      "revId": "a05459c3c48116b2b4a61820f66920b79fb67254",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "aa5b6f0e_0a6723ac",
@@ -77,6 +142,30 @@
       "writtenOn": "2022-11-14T19:21:53Z",
       "side": 1,
       "message": "Looks like these header files are already included?",
+      "range": {
+        "startLine": 22,
+        "startChar": 0,
+        "endLine": 23,
+        "endChar": 20
+      },
+      "revId": "a05459c3c48116b2b4a61820f66920b79fb67254",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fbaf9dde_7a764886",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2022-11-14T19:40:41Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "aa5b6f0e_0a6723ac",
       "range": {
         "startLine": 22,
         "startChar": 0,
