@@ -1001,10 +1001,15 @@ static INLINE void aom_process_hadamard_lp_8x16(MACROBLOCK *x,
   const int16_t *src_diff = &p->src_diff[(r * diff_stride + c) << 2];
 
 #if CONFIG_AV1_HIGHBITDEPTH
-#define DECLARE_HBD_LOOP_VARS_BLOCK_YRD()              \
-  tran_low_t *const coeff = p->coeff + block_offset;   \
-  tran_low_t *const qcoeff = p->qcoeff + block_offset; \
-  tran_low_t *const dqcoeff = p->dqcoeff + block_offset;
+#define DECLARE_HBD_LOOP_VARS_BLOCK_YRD()                                  \
+  const SCAN_ORDER *const scan_order = &av1_scan_orders[tx_size][DCT_DCT]; \
+  const int block_offset = BLOCK_OFFSET(block + s);                        \
+  tran_low_t *const coeff = p->coeff + block_offset;                       \
+  tran_low_t *const qcoeff = p->qcoeff + block_offset;                     \
+  tran_low_t *const dqcoeff = p->dqcoeff + block_offset;                   \
+  uint16_t *const eob = &p->eobs[block + s];                               \
+  const int diff_stride = bw;                                              \
+  const int16_t *src_diff = &p->src_diff[(r * diff_stride + c) << 2];
 
 static AOM_FORCE_INLINE void update_yrd_loop_vars_hbd(
     MACROBLOCK *x, int *skippable, const int step, const int ncoeffs,
@@ -1125,19 +1130,13 @@ static void block_yrd(MACROBLOCK *x, RD_STATS *this_rdc, int *skippable,
 
   // Keep track of the row and column of the blocks we use so that we know
   // if we are in the unrestricted motion border.
-  for (int r = 0; r < max_blocks_high; r += block_step) {
-    for (int c = 0, s = 0; c < max_blocks_wide; c += block_step, s += step) {
-      DECLARE_LOOP_VARS_BLOCK_YRD()
 #if CONFIG_AV1_HIGHBITDEPTH
-      DECLARE_HBD_LOOP_VARS_BLOCK_YRD()
-#else
-      (void)use_hbd;
-#endif
-
-      switch (tx_size) {
-#if CONFIG_AV1_HIGHBITDEPTH
-        case TX_16X16:
-          if (use_hbd) {
+  if (use_hbd) {
+    for (int r = 0; r < max_blocks_high; r += block_step) {
+      for (int c = 0, s = 0; c < max_blocks_wide; c += block_step, s += step) {
+        DECLARE_HBD_LOOP_VARS_BLOCK_YRD()
+        switch (tx_size) {
+          case TX_16X16:
             aom_hadamard_16x16(src_diff, diff_stride, coeff);
             av1_quantize_fp(coeff, 16 * 16, p->zbin_QTX, p->round_fp_QTX,
                             p->quant_fp_QTX, p->quant_shift_QTX, qcoeff,
@@ -1147,97 +1146,112 @@ static void block_yrd(MACROBLOCK *x, RD_STATS *this_rdc, int *skippable,
                             // used together.
                             default_scan_fp_16x16_transpose,
                             av1_default_iscan_fp_16x16_transpose);
-          } else {
-            aom_hadamard_lp_16x16(src_diff, diff_stride, low_coeff);
-            av1_quantize_lp(low_coeff, 16 * 16, p->round_fp_QTX,
-                            p->quant_fp_QTX, low_qcoeff, low_dqcoeff,
-                            p->dequant_QTX, eob,
-                            // default_scan_lp_16x16_transpose and
-                            // av1_default_iscan_lp_16x16_transpose have to be
-                            // used together.
-                            default_scan_lp_16x16_transpose,
-                            av1_default_iscan_lp_16x16_transpose);
-          }
-          break;
-        case TX_8X8:
-          if (use_hbd) {
+            break;
+          case TX_8X8:
             aom_hadamard_8x8(src_diff, diff_stride, coeff);
             av1_quantize_fp(
                 coeff, 8 * 8, p->zbin_QTX, p->round_fp_QTX, p->quant_fp_QTX,
                 p->quant_shift_QTX, qcoeff, dqcoeff, p->dequant_QTX, eob,
                 default_scan_8x8_transpose, av1_default_iscan_8x8_transpose);
-          } else {
-            if (!is_tx_8x8_dual_applicable) {
-              aom_hadamard_lp_8x8(src_diff, diff_stride, low_coeff);
-            } else {
-              assert(is_tx_8x8_dual_applicable);
-            }
-            av1_quantize_lp(
-                low_coeff, 8 * 8, p->round_fp_QTX, p->quant_fp_QTX, low_qcoeff,
-                low_dqcoeff, p->dequant_QTX, eob,
-                // default_scan_8x8_transpose and
-                // av1_default_iscan_8x8_transpose have to be used together.
-                default_scan_8x8_transpose, av1_default_iscan_8x8_transpose);
-          }
-          break;
-        default:
-          assert(tx_size == TX_4X4);
-          // In tx_size=4x4 case, aom_fdct4x4 and aom_fdct4x4_lp generate
-          // normal coefficients order, so we don't need to change the scan
-          // order here.
-          if (use_hbd) {
+            break;
+          default:
+            assert(tx_size == TX_4X4);
+            // In tx_size=4x4 case, aom_fdct4x4 and aom_fdct4x4_lp generate
+            // normal coefficients order, so we don't need to change the scan
+            // order here.
             aom_fdct4x4(src_diff, coeff, diff_stride);
             av1_quantize_fp(coeff, 4 * 4, p->zbin_QTX, p->round_fp_QTX,
                             p->quant_fp_QTX, p->quant_shift_QTX, qcoeff,
                             dqcoeff, p->dequant_QTX, eob, scan_order->scan,
                             scan_order->iscan);
-          } else {
+            break;
+        }
+        assert(*eob <= 1024);
+        update_yrd_loop_vars_hbd(x, skippable, step, *eob, coeff, qcoeff,
+                                 dqcoeff, this_rdc, &eob_cost,
+                                 (r * num_blk_skip_w + c) >> sh_blk_skip);
+      }
+      block += row_step;
+    }
+  } else
+#endif
+  {
+    switch (tx_size) {
+      case TX_16X16:
+        for (int r = 0; r < max_blocks_high; r += block_step) {
+          for (int c = 0, s = 0; c < max_blocks_wide;
+               c += block_step, s += step) {
+            DECLARE_LOOP_VARS_BLOCK_YRD()
+            aom_hadamard_lp_16x16(src_diff, diff_stride, low_coeff);
+            av1_quantize_lp(low_coeff, 16 * 16, p->round_fp_QTX,
+                            p->quant_fp_QTX, low_qcoeff, low_dqcoeff,
+                            p->dequant_QTX, eob,
+                            default_scan_lp_16x16_transpose,
+                            av1_default_iscan_lp_16x16_transpose);
+            assert(*eob <= 1024);
+            update_yrd_loop_vars(x, skippable, step, *eob, low_coeff,
+                                 low_qcoeff, low_dqcoeff, this_rdc, &eob_cost,
+                                 (r * num_blk_skip_w + c) >> sh_blk_skip);
+          }
+          block += row_step;
+        }
+        break;
+      case TX_8X8:
+        if (!is_tx_8x8_dual_applicable) {
+          for (int r = 0; r < max_blocks_high; r += block_step) {
+            for (int c = 0, s = 0; c < max_blocks_wide;
+                 c += block_step, s += step) {
+              DECLARE_LOOP_VARS_BLOCK_YRD()
+              aom_hadamard_lp_8x8(src_diff, diff_stride, low_coeff);
+              av1_quantize_lp(low_coeff, 8 * 8, p->round_fp_QTX,
+                              p->quant_fp_QTX, low_qcoeff, low_dqcoeff,
+                              p->dequant_QTX, eob, default_scan_8x8_transpose,
+                              av1_default_iscan_8x8_transpose);
+              assert(*eob <= 1024);
+
+              update_yrd_loop_vars(x, skippable, step, *eob, low_coeff,
+                                   low_qcoeff, low_dqcoeff, this_rdc, &eob_cost,
+                                   (r * num_blk_skip_w + c) >> sh_blk_skip);
+            }
+            block += row_step;
+          }
+        } else {
+          for (int r = 0; r < max_blocks_high; r += block_step) {
+            for (int c = 0, s = 0; c < max_blocks_wide;
+                 c += block_step, s += step) {
+              DECLARE_LOOP_VARS_BLOCK_YRD()
+              av1_quantize_lp(low_coeff, 8 * 8, p->round_fp_QTX,
+                              p->quant_fp_QTX, low_qcoeff, low_dqcoeff,
+                              p->dequant_QTX, eob, default_scan_8x8_transpose,
+                              av1_default_iscan_8x8_transpose);
+              assert(*eob <= 1024);
+
+              update_yrd_loop_vars(x, skippable, step, *eob, low_coeff,
+                                   low_qcoeff, low_dqcoeff, this_rdc, &eob_cost,
+                                   (r * num_blk_skip_w + c) >> sh_blk_skip);
+            }
+            block += row_step;
+          }
+        }
+        break;
+      default:
+        for (int r = 0; r < max_blocks_high; r += block_step) {
+          for (int c = 0, s = 0; c < max_blocks_wide;
+               c += block_step, s += step) {
+            DECLARE_LOOP_VARS_BLOCK_YRD()
             aom_fdct4x4_lp(src_diff, low_coeff, diff_stride);
             av1_quantize_lp(low_coeff, 4 * 4, p->round_fp_QTX, p->quant_fp_QTX,
                             low_qcoeff, low_dqcoeff, p->dequant_QTX, eob,
                             scan_order->scan, scan_order->iscan);
-          }
-          break;
-#else
-        case TX_16X16:
-          aom_hadamard_lp_16x16(src_diff, diff_stride, low_coeff);
-          av1_quantize_lp(low_coeff, 16 * 16, p->round_fp_QTX, p->quant_fp_QTX,
-                          low_qcoeff, low_dqcoeff, p->dequant_QTX, eob,
-                          default_scan_lp_16x16_transpose,
-                          av1_default_iscan_lp_16x16_transpose);
-          break;
-        case TX_8X8:
-          if (!is_tx_8x8_dual_applicable) {
-            aom_hadamard_lp_8x8(src_diff, diff_stride, low_coeff);
-          } else {
-            assert(is_tx_8x8_dual_applicable);
-          }
-          av1_quantize_lp(low_coeff, 8 * 8, p->round_fp_QTX, p->quant_fp_QTX,
-                          low_qcoeff, low_dqcoeff, p->dequant_QTX, eob,
-                          default_scan_8x8_transpose,
-                          av1_default_iscan_8x8_transpose);
-          break;
-        default:
-          aom_fdct4x4_lp(src_diff, low_coeff, diff_stride);
-          av1_quantize_lp(low_coeff, 4 * 4, p->round_fp_QTX, p->quant_fp_QTX,
-                          low_qcoeff, low_dqcoeff, p->dequant_QTX, eob,
-                          scan_order->scan, scan_order->iscan);
-          break;
-#endif
-      }
-      assert(*eob <= 1024);
-#if CONFIG_AV1_HIGHBITDEPTH
-      if (use_hbd)
-        update_yrd_loop_vars_hbd(x, skippable, step, *eob, coeff, qcoeff,
-                                 dqcoeff, this_rdc, &eob_cost,
+            assert(*eob <= 1024);
+            update_yrd_loop_vars(x, skippable, step, *eob, low_coeff,
+                                 low_qcoeff, low_dqcoeff, this_rdc, &eob_cost,
                                  (r * num_blk_skip_w + c) >> sh_blk_skip);
-      else
-#endif
-        update_yrd_loop_vars(x, skippable, step, *eob, low_coeff, low_qcoeff,
-                             low_dqcoeff, this_rdc, &eob_cost,
-                             (r * num_blk_skip_w + c) >> sh_blk_skip);
+          }
+          block += row_step;
+        }
+        break;
     }
-    block += row_step;
   }
 
   this_rdc->skip_txfm = *skippable;
