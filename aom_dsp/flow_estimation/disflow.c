@@ -20,6 +20,8 @@
 #include "aom_dsp/flow_estimation/ransac.h"
 #include "aom_mem/aom_mem.h"
 
+#include "config/aom_dsp_rtcd.h"
+
 // TODO(rachelbarker):
 // Implement specialized functions for upscaling flow fields,
 // replacing av1_upscale_plane_double_prec().
@@ -359,9 +361,9 @@ static INLINE void invert_2x2(const double *M, double *M_inv) {
   M_inv[3] = M_0 * det_inv;
 }
 
-static INLINE void compute_flow_at_point(unsigned char *frm, unsigned char *ref,
-                                         int x, int y, int width, int height,
-                                         int stride, double *u, double *v) {
+void aom_compute_flow_at_point_c(unsigned char *frm, unsigned char *ref, int x,
+                                 int y, int width, int height, int stride,
+                                 double *u, double *v) {
   double M[4];
   double M_inv[4];
   int b[2];
@@ -482,10 +484,10 @@ static void compute_flow_field(ImagePyramid *frm_pyr, ImagePyramid *ref_pyr,
         assert(patch_tl_x >= 0);
         assert(patch_tl_y >= 0);
 
-        compute_flow_at_point(frm_pyr->level_buffer + cur_loc,
-                              ref_pyr->level_buffer + cur_loc, patch_tl_x,
-                              patch_tl_y, cur_width, cur_height, cur_stride,
-                              &flow_u[flow_field_idx], &flow_v[flow_field_idx]);
+        aom_compute_flow_at_point(
+            frm_pyr->level_buffer + cur_loc, ref_pyr->level_buffer + cur_loc,
+            patch_tl_x, patch_tl_y, cur_width, cur_height, cur_stride,
+            &flow_u[flow_field_idx], &flow_v[flow_field_idx]);
       }
     }
 
