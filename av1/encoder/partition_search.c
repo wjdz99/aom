@@ -2441,6 +2441,86 @@ static int try_split_partition(AV1_COMP *const cpi, ThreadData *const td,
   return split;
 }
 
+// Returns if SPLIT partitions should be evaluated
+static bool calc_do_split_flag(const AV1_COMP *cpi, const MACROBLOCK *x,
+                               const PC_TREE *pc_tree, const RD_STATS *none_rdc,
+                               const CommonModeInfoParams *mi_params,
+                               int mi_row, int mi_col, int hbs,
+                               BLOCK_SIZE bsize, PARTITION_TYPE partition) {
+  const AV1_COMMON *cm = &cpi->common;
+  const int is_larger_qindex = cm->quant_params.base_qindex > 100;
+  const MACROBLOCKD *const xd = &x->e_mbd;
+  extern int k;
+  bool do_split =
+      (cpi->sf.rt_sf.nonrd_check_partition_merge_mode == 3)
+          ? (bsize <= BLOCK_32X32 || (is_larger_qindex && bsize <= BLOCK_64X64))
+          : true;
+  if (cpi->oxcf.tune_cfg.content == AOM_CONTENT_SCREEN ||
+      cpi->sf.rt_sf.nonrd_check_partition_merge_mode < 2)
+    return do_split;
+
+  const int use_model_yrd_large =
+      get_model_rd_flag_for_large_blocks(cpi, xd, bsize);
+
+  // When model based skip is not used (i.e.,use_model_yrd_large = 0), skip_txfm
+  // would have been populated based on hadamard transform and skip_txfm flag is
+  // more reliable. Hence split is disabled at all quantizers.
+  // When model based skip is used (i.e.,use_model_yrd_large = 1), skip_txfm may
+  // not be reliable. Hence split is disabled only at lower quantizers.
+  if (none_rdc->skip_txfm == 1 &&
+      ((!use_model_yrd_large) || (use_model_yrd_large && !is_larger_qindex)))
+    return false;
+
+  if (none_rdc->skip_txfm == 1 && pc_tree->none->mic.mode == NEWMV &&
+      bsize <= BLOCK_32X32 && do_split) {
+    BLOCK_SIZE subsize = get_partition_subsize(bsize, partition);
+    const int sub_blk_dim = block_size_wide[bsize] / 2;
+    int eval_decision = 1;
+    double min_per_pixel_error = (double)0xFFFFFFFF;
+    double max_per_pixel_error = 0.;
+    for (int i = 0; i < SUB_PARTITIONS_SPLIT; i++) {
+      int x_idx = (i & 1) * hbs;
+      int y_idx = (i >> 1) * hbs;
+      if ((mi_row + y_idx >= mi_params->mi_rows) ||
+          (mi_col + x_idx >= mi_params->mi_cols)) {
+        eval_decision = 0;
+        break;
+      }
+      int x_sub_blk_offset = (i & 1) * sub_blk_dim;
+      int y_sub_blk_offset = (i >> 1) * sub_blk_dim;
+      unsigned int curr_uint_mse;
+      const unsigned int curr_uint_var = cpi->ppi->fn_ptr[subsize].vf(
+          x->plane[0].src.buf + y_sub_blk_offset * x->plane[0].src.stride +
+              x_sub_blk_offset,
+          x->plane[0].src.stride,
+          xd->plane[0].dst.buf + y_sub_blk_offset * xd->plane[0].dst.stride +
+              x_sub_blk_offset,
+          xd->plane[0].dst.stride, &curr_uint_mse);
+      const double curr_per_pixel_error =
+          (double)sqrt((double)curr_uint_var / block_size_wide[subsize] /
+                       block_size_high[subsize]);
+      if (curr_per_pixel_error < min_per_pixel_error)
+        min_per_pixel_error = curr_per_pixel_error;
+      if (curr_per_pixel_error > max_per_pixel_error)
+        max_per_pixel_error = curr_per_pixel_error;
+    }
+    if (eval_decision) {
+      // If the sub blk variances are close, avoid the split.
+      // Use smaller thresholds for larger block sizes to reduce potential
+      // visual artifacts as per pixel error could be small though larger errors
+      // are seen in few of 4 sub-blocks
+      static const div_factor[MAX_MIB_SIZE_LOG2 + 1] = { -1, 1, 2, 4, -1, -1 };
+      assert(subsize == BLOCK_8X8 || subsize == BLOCK_16X16 ||
+             subsize == BLOCK_32X32);
+      int div_factor_index = mi_size_wide_log2[subsize];
+      double thresh = 3. / div_factor_index;
+      if (max_per_pixel_error - min_per_pixel_error <= thresh) do_split = false;
+    }
+  }
+
+  return do_split;
+}
+
 static void try_merge(AV1_COMP *const cpi, ThreadData *td,
                       TileDataEnc *tile_data, MB_MODE_INFO **mib,
                       TokenExtra **tp, const int mi_row, const int mi_col,
@@ -2481,11 +2561,8 @@ static void try_merge(AV1_COMP *const cpi, ThreadData *td,
 
   if (cpi->sf.rt_sf.nonrd_check_partition_merge_mode < 2 ||
       none_rdc.skip_txfm != 1 || pc_tree->none->mic.mode == NEWMV) {
-    const int is_larger_qindex = cm->quant_params.base_qindex > 100;
-    do_split = (cpi->sf.rt_sf.nonrd_check_partition_merge_mode == 3)
-                   ? (bsize <= BLOCK_32X32 ||
-                      (is_larger_qindex && bsize <= BLOCK_64X64))
-                   : 1;
+    do_split = calc_do_split_flag(cpi, x, pc_tree, &none_rdc, mi_params, mi_row,
+                                  mi_col, hbs, bsize, partition);
     if (do_split) {
       av1_init_rd_stats(&split_rdc);
       split_rdc.rate += mode_costs->partition_cost[pl][PARTITION_SPLIT];
