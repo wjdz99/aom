@@ -235,6 +235,8 @@ class RateControlQModeTest : public ::testing::Test {
     rc_param_.base_q_index = 128;
     rc_param_.frame_height = kFrameHeight;
     rc_param_.frame_width = kFrameWidth;
+    rc_param_.max_distinct_lambda_scales_per_frame = 1;
+    rc_param_.max_distinct_q_indices_per_frame = 1;
   }
 
   RateControlParam rc_param_;
