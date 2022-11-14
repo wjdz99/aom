@@ -16,6 +16,75 @@
       "message": "Yunqing, could you please take a look at this CL too? Thanks",
       "revId": "a05459c3c48116b2b4a61820f66920b79fb67254",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "67338236_6b6d8157",
+        "filename": "av1/encoder/allintra_vis.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 233,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2022-11-14T19:21:53Z",
+      "side": 1,
+      "message": "If you define your own sync struct, you probably don\u0027t need to deal with tile here? TPL mt can be an example.",
+      "range": {
+        "startLine": 231,
+        "startChar": 1,
+        "endLine": 233,
+        "endChar": 3
+      },
+      "revId": "a05459c3c48116b2b4a61820f66920b79fb67254",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "525491bb_78c0050a",
+        "filename": "av1/encoder/allintra_vis.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 470,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2022-11-14T19:21:53Z",
+      "side": 1,
+      "message": "This sync read enforces some dependency. Is there same dependency requirement here? If not, you could define one for your use case and get some speedup.",
+      "range": {
+        "startLine": 470,
+        "startChar": 32,
+        "endLine": 470,
+        "endChar": 52
+      },
+      "revId": "a05459c3c48116b2b4a61820f66920b79fb67254",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "aa5b6f0e_0a6723ac",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2022-11-14T19:21:53Z",
+      "side": 1,
+      "message": "Looks like these header files are already included?",
+      "range": {
+        "startLine": 22,
+        "startChar": 0,
+        "endLine": 23,
+        "endChar": 20
+      },
+      "revId": "a05459c3c48116b2b4a61820f66920b79fb67254",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
