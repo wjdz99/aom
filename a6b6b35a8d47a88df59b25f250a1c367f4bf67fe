@@ -54,6 +54,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "50ff121a_e01f8736",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5610
+      },
+      "writtenOn": "2022-11-14T13:26:38Z",
+      "side": 1,
+      "message": "I will run a couple of other tests before deciding whether to limit this to screen content. Initially I did not have the reset of cpi-\u003erc.q_2_frame  etc, just the return as per the alt refs case. This gave a much bigger metrics gain on the screen set because what often happened was that the single frame following the scene change was coded at a lower Q (\u003c MaxQ) and gave a single large spike, but the spikes immediately after that were then smaller as the Q jumped back up again.  I thought this was undesirable and the current code significantly reduces the magnitude of the initial post scene change spikes in the slide show clip. Making the spikes less severe though usually wont always be the best thing from a metrics perspective.",
+      "parentUuid": "291e243f_8f36224a",
+      "revId": "a6b6b35a8d47a88df59b25f250a1c367f4bf67fe",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "604d5044_706bc528",
