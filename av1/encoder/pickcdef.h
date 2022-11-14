@@ -173,16 +173,25 @@ typedef struct {
    * is > 8-bit
    */
   bool use_highbitdepth;
+  /*!
+   * Holds the minimum partition size allowed
+   */
+  BLOCK_SIZE default_min_partition_size;
 } CdefSearchCtx;
 
 static INLINE int sb_all_skip(const CommonModeInfoParams *const mi_params,
-                              int mi_row, int mi_col) {
+                              int mi_row, int mi_col,
+                              BLOCK_SIZE default_min_partition_size) {
   const int maxr = AOMMIN(mi_params->mi_rows - mi_row, MI_SIZE_64X64);
   const int maxc = AOMMIN(mi_params->mi_cols - mi_col, MI_SIZE_64X64);
   const int stride = mi_params->mi_stride;
   MB_MODE_INFO **mbmi = mi_params->mi_grid_base + mi_row * stride + mi_col;
-  for (int r = 0; r < maxr; ++r, mbmi += stride) {
-    for (int c = 0; c < maxc; ++c) {
+  // If minimum partition size is set to BLOCK_8X8, it is sufficient to check
+  // one instance of the structure in each 8x8 block
+  const int mbmi_inc = default_min_partition_size == BLOCK_8X8 ? 2 : 1;
+  const int mbmi_inc_stride = mbmi_inc * stride;
+  for (int r = 0; r < maxr; r = r + mbmi_inc, mbmi += mbmi_inc_stride) {
+    for (int c = 0; c < maxc; c = c + mbmi_inc) {
       if (!mbmi[c]->skip_txfm) return 0;
     }
   }
@@ -199,12 +208,14 @@ static INLINE int sb_all_skip(const CommonModeInfoParams *const mi_params,
 //   1/0 will be returned to indicate skip/don't skip cdef processing of sb
 //   respectively.
 static INLINE int cdef_sb_skip(const CommonModeInfoParams *const mi_params,
-                               int fbr, int fbc) {
+                               int fbr, int fbc,
+                               BLOCK_SIZE default_min_partition_size) {
   const MB_MODE_INFO *const mbmi =
       mi_params->mi_grid_base[MI_SIZE_64X64 * fbr * mi_params->mi_stride +
                               MI_SIZE_64X64 * fbc];
   // No filtering if the entire filter block is skipped.
-  if (sb_all_skip(mi_params, fbr * MI_SIZE_64X64, fbc * MI_SIZE_64X64))
+  if (sb_all_skip(mi_params, fbr * MI_SIZE_64X64, fbc * MI_SIZE_64X64,
+                  default_min_partition_size))
     return 1;
   // Skip odd numbered 64x64 block rows(cols) when bsize is BLOCK_128X128,
   // BLOCK_64X128(BLOCK_128X128, BLOCK_128X64) as for such blocks CDEF filtering
@@ -240,6 +251,8 @@ void av1_cdef_mse_calc_block(CdefSearchCtx *cdef_search_ctx, int fbr, int fbc,
  * \param[in]      is_screen_content   Whether it is screen content type
  * \param[in]      non_reference_frame Indicates if current frame is
  * non-reference
+ * \param[in]      default_min_partition_size Holds the minimum partition size
+ * allowed
  *
  * \remark Nothing is returned. Instead, optimal CDEF parameters are stored
  * in the \c cdef_info structure of type \ref CdefInfo inside \c cm:
@@ -258,7 +271,8 @@ void av1_cdef_search(struct MultiThreadInfo *mt_info,
                      MACROBLOCKD *xd, aom_variance_fn_ptr_t *vfp,
                      CDEF_PICK_METHOD pick_method, int rdmult,
                      int skip_cdef_feature, CDEF_CONTROL cdef_control,
-                     const int is_screen_content, int non_reference_frame);
+                     const int is_screen_content, int non_reference_frame,
+                     BLOCK_SIZE default_min_partition_size);
 
 #ifdef __cplusplus
 }  // extern "C"

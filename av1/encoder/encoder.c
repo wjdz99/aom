@@ -2234,12 +2234,15 @@ static void cdef_restoration_frame(AV1_COMP *cpi, AV1_COMMON *cm,
             AOMMAX(cpi->sf.rt_sf.screen_content_cdef_filter_qindex_thresh,
                    cpi->rc.best_quality + 5) &&
         cpi->oxcf.tune_cfg.content == AOM_CONTENT_SCREEN;
+    const BLOCK_SIZE default_min_partition_size =
+        cpi->sf.part_sf.default_min_partition_size;
     // Find CDEF parameters
     av1_cdef_search(&cpi->mt_info, &cm->cur_frame->buf, cpi->source, cm, xd,
                     cpi->ppi->fn_ptr, cpi->sf.lpf_sf.cdef_pick_method,
                     cpi->td.mb.rdmult, cpi->sf.rt_sf.skip_cdef_sb,
                     cpi->oxcf.tool_cfg.cdef_control, use_screen_content_model,
-                    cpi->ppi->rtc_ref.non_reference_frame);
+                    cpi->ppi->rtc_ref.non_reference_frame,
+                    default_min_partition_size);
 
     // Apply the filter
     if (!cpi->ppi->rtc_ref.non_reference_frame &&
@@ -2251,9 +2254,10 @@ static void cdef_restoration_frame(AV1_COMP *cpi, AV1_COMMON *cm,
         av1_cdef_frame_mt(cm, xd, cpi->mt_info.cdef_worker,
                           cpi->mt_info.workers, &cpi->mt_info.cdef_sync,
                           num_workers, av1_cdef_init_fb_row_mt,
-                          do_extend_border);
+                          do_extend_border, default_min_partition_size);
       } else {
-        av1_cdef_frame(&cm->cur_frame->buf, cm, xd, av1_cdef_init_fb_row);
+        av1_cdef_frame(&cm->cur_frame->buf, cm, xd, av1_cdef_init_fb_row,
+                       default_min_partition_size);
       }
     }
 #if CONFIG_COLLECT_COMPONENT_TIMING

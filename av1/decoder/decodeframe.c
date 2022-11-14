@@ -5294,10 +5294,10 @@ void av1_decode_tg_tiles_and_wrapup(AV1Decoder *pbi, const uint8_t *data,
           av1_cdef_frame_mt(cm, &pbi->dcb.xd, pbi->cdef_worker,
                             pbi->tile_workers, &pbi->cdef_sync,
                             pbi->num_workers, av1_cdef_init_fb_row_mt,
-                            do_extend_border_mt);
+                            do_extend_border_mt, BLOCK_4X4);
         } else {
           av1_cdef_frame(&pbi->common.cur_frame->buf, cm, &pbi->dcb.xd,
-                         av1_cdef_init_fb_row);
+                         av1_cdef_init_fb_row, BLOCK_4X4);
         }
       }
 
