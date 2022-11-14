@@ -2772,9 +2772,10 @@ static AOM_INLINE int cdef_get_next_job(AV1CdefSync *cdef_sync,
 
   // If a block is skip, do not process the block and
   // check the skip condition for the next block.
-  while ((!cdef_sync->end_of_frame) &&
-         (cdef_sb_skip(cdef_search_ctx->mi_params, cdef_sync->fbr,
-                       cdef_sync->fbc))) {
+  while (
+      (!cdef_sync->end_of_frame) &&
+      (cdef_sb_skip(cdef_search_ctx->mi_params, cdef_sync->fbr, cdef_sync->fbc,
+                    cdef_search_ctx->default_min_partition_size))) {
     update_next_job_info(cdef_sync, nvfb, nhfb);
   }
 

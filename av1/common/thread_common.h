@@ -108,6 +108,7 @@ typedef struct AV1CdefWorker {
   uint16_t *linebuf[MAX_MB_PLANE];
   cdef_init_fb_row_t cdef_init_fb_row_fn;
   int do_extend_border;
+  BLOCK_SIZE default_min_partition_size;
 } AV1CdefWorkerData;
 
 typedef struct AV1CdefRowSync {
@@ -138,7 +139,8 @@ void av1_cdef_frame_mt(AV1_COMMON *const cm, MACROBLOCKD *const xd,
                        AV1CdefWorkerData *const cdef_worker,
                        AVxWorker *const workers, AV1CdefSync *const cdef_sync,
                        int num_workers, cdef_init_fb_row_t cdef_init_fb_row_fn,
-                       int do_extend_border);
+                       int do_extend_border,
+                       BLOCK_SIZE default_min_partition_size);
 void av1_cdef_init_fb_row_mt(const AV1_COMMON *const cm,
                              const MACROBLOCKD *const xd,
                              CdefBlockInfo *const fb_info,
