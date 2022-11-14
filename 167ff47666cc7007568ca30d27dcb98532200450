@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "dd93552f_b2d87a51",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9101
+      },
+      "writtenOn": "2022-11-14T13:32:59Z",
+      "side": 1,
+      "message": "Hi Yunqing,\nThis patch refactors the build_inter_predictor function for the single reference mode of Luma plane. The function initializes the parameters related to block size, subsampling, motion information and interp filter which add-up overhead while calling. The patch reduces the overhead by categorizing the parameters at block level, mode level \u0026 interp filter level and initializing them at respective places.\n\nWe noticed that Chi Yo has recently submitted [a patch](https://aomedia-review.googlesource.com/c/aom/+/166121) to refactor the recon_inter functions. Hence, we have rebased the patch on top of the latest commit.\n\nPlease check the BORG test results for the RT preset.\n```\n                 Instruction Count        BD-Rate Loss(%)\ncpu   Resolution   Reduction(%)    avg.psnr   ovr.psnr    ssim\n 7     rtc_1080p      0.201         0.0000     0.0000    0.0000\n 7           rtc      0.303         0.0000     0.0000    0.0000\n 7      rtc_derf      0.442         0.0000     0.0000    0.0000\n 7    rtc-screen      0.029         0.0000     0.0000    0.0000\n\n 8     rtc_1080p      0.227         0.0000     0.0000    0.0000\n 8           rtc      0.337         0.0000     0.0000    0.0000\n 8      rtc_derf      0.214         0.0000     0.0000    0.0000\n 8    rtc-screen      0.027         0.0000     0.0000    0.0000\n\n 9     rtc_1080p      0.202         0.0000     0.0000    0.0000\n 9           rtc      0.276         0.0000     0.0000    0.0000\n 9      rtc_derf      0.152         0.0000     0.0000    0.0000\n 9    rtc-screen      0.050         0.0000     0.0000    0.0000\n\n10     rtc_1080p      0.205         0.0000     0.0000    0.0000\n10           rtc      0.253         0.0000     0.0000    0.0000\n10      rtc_derf      0.153         0.0000     0.0000    0.0000\n10    rtc-screen      0.048         0.0000     0.0000    0.0000\n```\n\nIn the commit message:\n[-] sign indicates encode time increase\n[+] sign indicates encode time reduction\n\nThe instruction count reduction specified has been measured using command:\n$ perf stat -e instructions:u ./aomenc\n\nWe ensured that the change is bit-exact for RT and Good presets. Speed impact of this patch in Good preset is negligible.\nPlease review the patch.\n\nThank you.",
+      "revId": "167ff47666cc7007568ca30d27dcb98532200450",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
