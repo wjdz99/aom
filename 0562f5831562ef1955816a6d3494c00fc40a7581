@@ -24,6 +24,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "0b511e5c_b65349dd",
+        "filename": "test/ratectrl_qmode_test.cc",
+        "patchSetId": 13
+      },
+      "lineNbr": 1141,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-11-14T21:23:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0cadc6cf_98385a4c",
+      "range": {
+        "startLine": 1139,
+        "startChar": 0,
+        "endLine": 1141,
+        "endChar": 0
+      },
+      "revId": "0562f5831562ef1955816a6d3494c00fc40a7581",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "caeedca4_7bb09001",
@@ -37,6 +61,30 @@
       "writtenOn": "2022-11-12T22:17:43Z",
       "side": 1,
       "message": "Is this guaranteed not to be flaky? You\u0027re only generating 10 samples per cluster, so I\u0027d think it would be possible for the centroid of a cluster to differ from the intended centroid by more than 1.\n\nInstead of comparing against the intended centroid, you could compute the actual centroid of each cluster, and then you should be able to test for equality.",
+      "range": {
+        "startLine": 1151,
+        "startChar": 0,
+        "endLine": 1151,
+        "endChar": 71
+      },
+      "revId": "0562f5831562ef1955816a6d3494c00fc40a7581",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9df36ad4_d2d4ced1",
+        "filename": "test/ratectrl_qmode_test.cc",
+        "patchSetId": 13
+      },
+      "lineNbr": 1151,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-11-14T21:23:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "caeedca4_7bb09001",
       "range": {
         "startLine": 1151,
         "startChar": 0,
