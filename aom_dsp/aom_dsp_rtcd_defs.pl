@@ -2001,6 +2001,9 @@ if (aom_config("CONFIG_AV1_ENCODER") eq "yes") {
   add_proto qw/double aom_compute_cross_correlation/, "const uint8_t *im1, int stride1, int x1, int y1, const uint8_t *im2, int stride2, int x2, int y2";
   specialize qw/aom_compute_cross_correlation sse4_1 avx2/;
 
+  add_proto qw/void aom_compute_flow_at_point/, "const uint8_t *frm, const uint8_t *ref, int x, int y, int width, int height, int stride, double *u, double *v";
+  specialize qw/aom_compute_flow_at_point sse4_1/;
+
 }  # CONFIG_AV1_ENCODER
 
 1;
