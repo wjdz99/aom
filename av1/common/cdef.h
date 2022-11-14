@@ -72,7 +72,7 @@ extern "C" {
 
 int av1_cdef_compute_sb_list(const CommonModeInfoParams *const mi_params,
                              int mi_row, int mi_col, cdef_list *dlist,
-                             BLOCK_SIZE bsize);
+                             BLOCK_SIZE bsize, BLOCK_SIZE default_min_partition_size);
 
 typedef void (*cdef_init_fb_row_t)(
     const AV1_COMMON *const cm, const MACROBLOCKD *const xd,
@@ -88,17 +88,20 @@ typedef void (*cdef_init_fb_row_t)(
  * \param[in, out]  cm        Pointer to top level common structure
  * \param[in]       xd        Pointer to common current coding block structure
  * \param[in]       cdef_init_fb_row_fn   Function Pointer
+ * \param[in]       default_min_partition_size  Minimum partition size allowed
  *
  * \remark Nothing is returned. Instead, the filtered frame is output in
  * \c frame.
  */
 void av1_cdef_frame(YV12_BUFFER_CONFIG *frame, AV1_COMMON *const cm,
-                    MACROBLOCKD *xd, cdef_init_fb_row_t cdef_init_fb_row_fn);
+                    MACROBLOCKD *xd, cdef_init_fb_row_t cdef_init_fb_row_fn,
+                    BLOCK_SIZE default_min_partition_size);
 void av1_cdef_fb_row(const AV1_COMMON *const cm, MACROBLOCKD *xd,
                      uint16_t **const linebuf, uint16_t **const colbuf,
                      uint16_t *const src, int fbr,
                      cdef_init_fb_row_t cdef_init_fb_row_fn,
-                     struct AV1CdefSyncData *const cdef_sync);
+                     struct AV1CdefSyncData *const cdef_sync,
+                     BLOCK_SIZE default_min_partition_size);
 void av1_cdef_init_fb_row(const AV1_COMMON *const cm,
                           const MACROBLOCKD *const xd,
                           CdefBlockInfo *const fb_info,

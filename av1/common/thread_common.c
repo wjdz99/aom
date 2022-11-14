@@ -917,7 +917,8 @@ static int cdef_sb_row_worker_hook(void *arg1, void *arg2) {
     MACROBLOCKD *xd = cdef_worker->xd;
     av1_cdef_fb_row(cm, xd, cdef_worker->linebuf, cdef_worker->colbuf,
                     cdef_worker->srcbuf, cur_fbr,
-                    cdef_worker->cdef_init_fb_row_fn, cdef_sync);
+                    cdef_worker->cdef_init_fb_row_fn, cdef_sync,
+                    cdef_worker->default_min_partition_size);
     if (cdef_worker->do_extend_border) {
       for (int plane = 0; plane < num_planes; ++plane) {
         const YV12_BUFFER_CONFIG *ybf = &cm->cur_frame->buf;
@@ -939,7 +940,7 @@ static void prepare_cdef_frame_workers(
     AV1_COMMON *const cm, MACROBLOCKD *xd, AV1CdefWorkerData *const cdef_worker,
     AVxWorkerHook hook, AVxWorker *const workers, AV1CdefSync *const cdef_sync,
     int num_workers, cdef_init_fb_row_t cdef_init_fb_row_fn,
-    int do_extend_border) {
+    int do_extend_border, BLOCK_SIZE default_min_partition_size) {
   const int num_planes = av1_num_planes(cm);
 
   cdef_worker[0].srcbuf = cm->cdef_info.srcbuf;
@@ -951,6 +952,7 @@ static void prepare_cdef_frame_workers(
     cdef_worker[i].xd = xd;
     cdef_worker[i].cdef_init_fb_row_fn = cdef_init_fb_row_fn;
     cdef_worker[i].do_extend_border = do_extend_border;
+    cdef_worker[i].default_min_partition_size = default_min_partition_size;
     for (int plane = 0; plane < num_planes; plane++)
       cdef_worker[i].linebuf[plane] = cm->cdef_info.linebuf[plane];
 
@@ -1035,7 +1037,8 @@ void av1_cdef_frame_mt(AV1_COMMON *const cm, MACROBLOCKD *const xd,
                        AV1CdefWorkerData *const cdef_worker,
                        AVxWorker *const workers, AV1CdefSync *const cdef_sync,
                        int num_workers, cdef_init_fb_row_t cdef_init_fb_row_fn,
-                       int do_extend_border) {
+                       int do_extend_border,
+                       BLOCK_SIZE default_min_partition_size) {
   YV12_BUFFER_CONFIG *frame = &cm->cur_frame->buf;
   const int num_planes = av1_num_planes(cm);
 
@@ -1045,7 +1048,8 @@ void av1_cdef_frame_mt(AV1_COMMON *const cm, MACROBLOCKD *const xd,
   reset_cdef_job_info(cdef_sync);
   prepare_cdef_frame_workers(cm, xd, cdef_worker, cdef_sb_row_worker_hook,
                              workers, cdef_sync, num_workers,
-                             cdef_init_fb_row_fn, do_extend_border);
+                             cdef_init_fb_row_fn, do_extend_border,
+                             default_min_partition_size);
   launch_cdef_workers(workers, num_workers);
   sync_cdef_workers(workers, cm, num_workers);
 }

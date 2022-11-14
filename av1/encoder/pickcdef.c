@@ -534,7 +534,7 @@ void av1_cdef_mse_calc_block(CdefSearchCtx *cdef_search_ctx, int fbr, int fbc,
   // Get number of 8x8 blocks which are not skip. Cdef processing happens for
   // 8x8 blocks which are not skip.
   const int cdef_count = av1_cdef_compute_sb_list(
-      mi_params, fbr * MI_SIZE_64X64, fbc * MI_SIZE_64X64, dlist, bs);
+      mi_params, fbr * MI_SIZE_64X64, fbc * MI_SIZE_64X64, dlist, bs, cdef_search_ctx->default_min_partition_size);
   const bool is_fb_on_frm_left_boundary = (fbc == 0);
   const bool is_fb_on_frm_right_boundary =
       (fbc + hb_step == cdef_search_ctx->nhfb);
@@ -593,7 +593,9 @@ static void cdef_mse_calc_frame(CdefSearchCtx *cdef_search_ctx) {
   for (int fbr = 0; fbr < cdef_search_ctx->nvfb; ++fbr) {
     for (int fbc = 0; fbc < cdef_search_ctx->nhfb; ++fbc) {
       // Checks if cdef processing can be skipped for particular sb.
-      if (cdef_sb_skip(cdef_search_ctx->mi_params, fbr, fbc)) continue;
+      if (cdef_sb_skip(cdef_search_ctx->mi_params, fbr, fbc,
+                       cdef_search_ctx->default_min_partition_size))
+        continue;
       // Calculate mse for each sb and store the relevant sb index.
       av1_cdef_mse_calc_block(cdef_search_ctx, fbr, fbc,
                               cdef_search_ctx->sb_count);
@@ -656,7 +658,8 @@ static AOM_INLINE void cdef_params_init(const YV12_BUFFER_CONFIG *frame,
                                         AV1_COMMON *cm, MACROBLOCKD *xd,
                                         CdefSearchCtx *cdef_search_ctx,
                                         aom_variance_fn_ptr_t *vfp,
-                                        CDEF_PICK_METHOD pick_method) {
+                                        CDEF_PICK_METHOD pick_method,
+                                        BLOCK_SIZE default_min_partition_size) {
   const CommonModeInfoParams *const mi_params = &cm->mi_params;
   const int num_planes = av1_num_planes(cm);
   cdef_search_ctx->mi_params = &cm->mi_params;
@@ -673,6 +676,7 @@ static AOM_INLINE void cdef_params_init(const YV12_BUFFER_CONFIG *frame,
   cdef_search_ctx->sb_count = 0;
   cdef_search_ctx->vfp = vfp;
   cdef_search_ctx->use_highbitdepth = cm->seq_params->use_highbitdepth;
+  cdef_search_ctx->default_min_partition_size = default_min_partition_size;
   av1_setup_dst_planes(xd->plane, cm->seq_params->sb_size, frame, 0, 0, 0,
                        num_planes);
   // Initialize plane wise information.
@@ -797,7 +801,8 @@ void av1_cdef_search(MultiThreadInfo *mt_info, const YV12_BUFFER_CONFIG *frame,
                      MACROBLOCKD *xd, aom_variance_fn_ptr_t *vfp,
                      CDEF_PICK_METHOD pick_method, int rdmult,
                      int skip_cdef_feature, CDEF_CONTROL cdef_control,
-                     const int is_screen_content, int non_reference_frame) {
+                     const int is_screen_content, int non_reference_frame,
+                     BLOCK_SIZE default_min_partition_size) {
   assert(cdef_control != CDEF_NONE);
   if (cdef_control == CDEF_REFERENCE && non_reference_frame) {
     CdefInfo *const cdef_info = &cm->cdef_info;
@@ -819,7 +824,8 @@ void av1_cdef_search(MultiThreadInfo *mt_info, const YV12_BUFFER_CONFIG *frame,
   const int num_planes = av1_num_planes(cm);
   CdefSearchCtx cdef_search_ctx;
   // Initialize parameters related to CDEF search context.
-  cdef_params_init(frame, ref, cm, xd, &cdef_search_ctx, vfp, pick_method);
+  cdef_params_init(frame, ref, cm, xd, &cdef_search_ctx, vfp, pick_method,
+                   default_min_partition_size);
   // Allocate CDEF search context buffers.
   if (!cdef_alloc_data(&cdef_search_ctx)) {
     CdefInfo *const cdef_info = &cm->cdef_info;

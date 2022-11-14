@@ -35,7 +35,8 @@ static int is_8x8_block_skip(MB_MODE_INFO **grid, int mi_row, int mi_col,
 
 int av1_cdef_compute_sb_list(const CommonModeInfoParams *const mi_params,
                              int mi_row, int mi_col, cdef_list *dlist,
-                             BLOCK_SIZE bs) {
+                             BLOCK_SIZE bs,
+                             BLOCK_SIZE default_min_partition_size) {
   MB_MODE_INFO **grid = mi_params->mi_grid_base;
   int maxc = mi_params->mi_cols - mi_col;
   int maxr = mi_params->mi_rows - mi_row;
@@ -54,13 +55,31 @@ int av1_cdef_compute_sb_list(const CommonModeInfoParams *const mi_params,
   const int r_shift = 1;
   const int c_shift = 1;
   int count = 0;
-  for (int r = 0; r < maxr; r += r_step) {
-    for (int c = 0; c < maxc; c += c_step) {
-      if (!is_8x8_block_skip(grid, mi_row + r, mi_col + c,
-                             mi_params->mi_stride)) {
-        dlist[count].by = r >> r_shift;
-        dlist[count].bx = c >> c_shift;
-        count++;
+  // TODO(Ranjit): Test and enable the following logic for larger values of
+  // default minimum partition sizes (i.e., >= BLOCK_16X16)
+  if (default_min_partition_size == BLOCK_8X8) {
+    // If minimum partition size is set to BLOCK_8X8, it is sufficient to check
+    // one instance of the structure in each 8x8 block
+    MB_MODE_INFO **mbmi = grid + mi_row * mi_params->mi_stride + mi_col;
+    int mi_8x8_stride = r_step * mi_params->mi_stride;
+    for (int r = 0; r < maxr; r += r_step, mbmi += mi_8x8_stride) {
+      for (int c = 0; c < maxc; c += c_step) {
+        if (!mbmi[c]->skip_txfm) {
+          dlist[count].by = r >> r_shift;
+          dlist[count].bx = c >> c_shift;
+          count++;
+        }
+      }
+    }
+  } else {
+    for (int r = 0; r < maxr; r += r_step) {
+      for (int c = 0; c < maxc; c += c_step) {
+        if (!is_8x8_block_skip(grid, mi_row + r, mi_col + c,
+                               mi_params->mi_stride)) {
+          dlist[count].by = r >> r_shift;
+          dlist[count].bx = c >> c_shift;
+          count++;
+        }
       }
     }
   }
@@ -285,7 +304,8 @@ static INLINE void cdef_init_fb_col(const MACROBLOCKD *const xd,
 
 static void cdef_fb_col(const AV1_COMMON *const cm, const MACROBLOCKD *const xd,
                         CdefBlockInfo *const fb_info, uint16_t **const colbuf,
-                        int *cdef_left, int fbc, int fbr) {
+                        int *cdef_left, int fbc, int fbr,
+                        BLOCK_SIZE default_min_partition_size) {
   const CommonModeInfoParams *const mi_params = &cm->mi_params;
   const int mbmi_cdef_strength =
       mi_params
@@ -329,9 +349,9 @@ static void cdef_fb_col(const AV1_COMMON *const cm, const MACROBLOCKD *const xd,
     return;
   }
 
-  fb_info->cdef_count = av1_cdef_compute_sb_list(mi_params, fbr * MI_SIZE_64X64,
-                                                 fbc * MI_SIZE_64X64,
-                                                 fb_info->dlist, BLOCK_64X64);
+  fb_info->cdef_count = av1_cdef_compute_sb_list(
+      mi_params, fbr * MI_SIZE_64X64, fbc * MI_SIZE_64X64, fb_info->dlist,
+      BLOCK_64X64, default_min_partition_size);
   if (!fb_info->cdef_count) {
     av1_zero_array(cdef_left, num_planes);
     return;
@@ -413,7 +433,8 @@ void av1_cdef_fb_row(const AV1_COMMON *const cm, MACROBLOCKD *xd,
                      uint16_t **const linebuf, uint16_t **const colbuf,
                      uint16_t *const src, int fbr,
                      cdef_init_fb_row_t cdef_init_fb_row_fn,
-                     struct AV1CdefSyncData *const cdef_sync) {
+                     struct AV1CdefSyncData *const cdef_sync,
+                     BLOCK_SIZE default_min_partition_size) {
   CdefBlockInfo fb_info;
   int cdef_left[MAX_MB_PLANE] = { 1, 1, 1 };
   const int nhfb = (cm->mi_params.mi_cols + MI_SIZE_64X64 - 1) / MI_SIZE_64X64;
@@ -426,7 +447,8 @@ void av1_cdef_fb_row(const AV1_COMMON *const cm, MACROBLOCKD *xd,
           (MI_SIZE_64X64 * (fbc + 1) == cm->mi_params.mi_cols) ? 1 : 0;
     else
       fb_info.frame_boundary[RIGHT] = 1;
-    cdef_fb_col(cm, xd, &fb_info, colbuf, &cdef_left[0], fbc, fbr);
+    cdef_fb_col(cm, xd, &fb_info, colbuf, &cdef_left[0], fbc, fbr,
+                default_min_partition_size);
   }
 }
 
@@ -438,7 +460,8 @@ void av1_cdef_fb_row(const AV1_COMMON *const cm, MACROBLOCKD *xd,
 // Returns:
 //   Nothing will be returned.
 void av1_cdef_frame(YV12_BUFFER_CONFIG *frame, AV1_COMMON *const cm,
-                    MACROBLOCKD *xd, cdef_init_fb_row_t cdef_init_fb_row_fn) {
+                    MACROBLOCKD *xd, cdef_init_fb_row_t cdef_init_fb_row_fn,
+                    BLOCK_SIZE default_min_partition_size) {
   const int num_planes = av1_num_planes(cm);
   const int nvfb = (cm->mi_params.mi_rows + MI_SIZE_64X64 - 1) / MI_SIZE_64X64;
 
@@ -447,5 +470,6 @@ void av1_cdef_frame(YV12_BUFFER_CONFIG *frame, AV1_COMMON *const cm,
 
   for (int fbr = 0; fbr < nvfb; fbr++)
     av1_cdef_fb_row(cm, xd, cm->cdef_info.linebuf, cm->cdef_info.colbuf,
-                    cm->cdef_info.srcbuf, fbr, cdef_init_fb_row_fn, NULL);
+                    cm->cdef_info.srcbuf, fbr, cdef_init_fb_row_fn, NULL,
+                    default_min_partition_size);
 }
