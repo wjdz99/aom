@@ -380,9 +380,9 @@ static INLINE void invert_2x2(const double *M, double *M_inv) {
   M_inv[3] = M_0 * det_inv;
 }
 
-static INLINE void compute_flow_at_point(const uint8_t *frm, const uint8_t *ref,
-                                         int x, int y, int width, int height,
-                                         int stride, double *u, double *v) {
+void aom_compute_flow_at_point_c(const uint8_t *frm, const uint8_t *ref, int x,
+                                 int y, int width, int height, int stride,
+                                 double *u, double *v) {
   double M[4];
   double M_inv[4];
   int b[2];
@@ -507,9 +507,10 @@ static void compute_flow_field(const ImagePyramid *frm_pyr,
         assert(patch_tl_x >= 0);
         assert(patch_tl_y >= 0);
 
-        compute_flow_at_point(src_buffer, ref_buffer, patch_tl_x, patch_tl_y,
-                              cur_width, cur_height, cur_stride,
-                              &flow_u[flow_field_idx], &flow_v[flow_field_idx]);
+        aom_compute_flow_at_point(src_buffer, ref_buffer, patch_tl_x,
+                                  patch_tl_y, cur_width, cur_height, cur_stride,
+                                  &flow_u[flow_field_idx],
+                                  &flow_v[flow_field_idx]);
       }
     }
 
