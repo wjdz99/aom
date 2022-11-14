@@ -534,26 +534,44 @@ static void set_block_thresholds(const AV1_COMMON *cm, RD_OPT *rd,
       }
     }
   }
-
+  int segment_qindex[MAX_SEGMENTS] = { -1 };
   for (segment_id = 0; segment_id < MAX_SEGMENTS; ++segment_id) {
     const int qindex = clamp(
         av1_get_qindex(&cm->seg, segment_id, cm->quant_params.base_qindex) +
             cm->quant_params.y_dc_delta_q,
         0, MAXQ);
-    const int q = compute_rd_thresh_factor(qindex, cm->seq_params->bit_depth);
+    int duplicate_segment_id = -1;
+    for (int tmp_seg_id = 0; tmp_seg_id < segment_id; tmp_seg_id++) {
+      if (segment_qindex[tmp_seg_id] == qindex) {
+        duplicate_segment_id = tmp_seg_id;
+        break;
+      }
+    }
+    if (duplicate_segment_id == -1) {
+      segment_qindex[segment_id] = qindex;
+      const int q = compute_rd_thresh_factor(qindex, cm->seq_params->bit_depth);
 
-    for (bsize = 0; bsize < BLOCK_SIZES_ALL; ++bsize) {
-      // Threshold here seems unnecessarily harsh but fine given actual
-      // range of values used for cpi->sf.thresh_mult[].
-      const int t = q * rd_thresh_block_size_factor[bsize];
-      const int thresh_max = INT_MAX / t;
+      for (bsize = 0; bsize < BLOCK_SIZES_ALL; ++bsize) {
+        // Threshold here seems unnecessarily harsh but fine given actual
+        // range of values used for cpi->sf.thresh_mult[].
+        const int t = q * rd_thresh_block_size_factor[bsize];
+        const int thresh_max = INT_MAX / t;
 
-      for (i = 0; i < num_modes_count; ++i) {
-        const int mode_index = use_nonrd_pick_mode ? mode_indices[i] : i;
-        rd->threshes[segment_id][bsize][mode_index] =
-            rd->thresh_mult[mode_index] < thresh_max
-                ? rd->thresh_mult[mode_index] * t / 4
-                : INT_MAX;
+        for (i = 0; i < num_modes_count; ++i) {
+          const int mode_index = use_nonrd_pick_mode ? mode_indices[i] : i;
+          rd->threshes[segment_id][bsize][mode_index] =
+              rd->thresh_mult[mode_index] < thresh_max
+                  ? rd->thresh_mult[mode_index] * t / 4
+                  : INT_MAX;
+        }
+      }
+    } else {
+      for (bsize = 0; bsize < BLOCK_SIZES_ALL; ++bsize) {
+        for (i = 0; i < num_modes_count; ++i) {
+          const int mode_index = use_nonrd_pick_mode ? mode_indices[i] : i;
+          rd->threshes[segment_id][bsize][mode_index] =
+              rd->threshes[duplicate_segment_id][bsize][mode_index];
+        }
       }
     }
   }
