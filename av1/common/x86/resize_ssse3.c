@@ -809,10 +809,41 @@ static void scale_plane_1_to_2_phase_0(const uint8_t *src,
   } while (--y);
 }
 
+// There's SIMD optimizations for 1/4, 1/2 and 3/4 downscaling and 2x upscaling
+// in SSSE3.
+static INLINE bool av1_has_optimized_scaler_ssse3(const int src_width,
+                                                  const int src_height,
+                                                  const int dst_width,
+                                                  const int dst_height) {
+  const bool has_optimized_scaler =
+      (2 * dst_width == src_width && 2 * dst_height == src_height) ||
+      (4 * dst_width == src_width && 4 * dst_height == src_height) ||
+      (4 * dst_width == 3 * src_width && 4 * dst_height == 3 * src_height) ||
+      (dst_width == src_width * 2 && dst_height == src_height * 2);
+
+  return has_optimized_scaler;
+}
+
 void av1_resize_and_extend_frame_ssse3(const YV12_BUFFER_CONFIG *src,
                                        YV12_BUFFER_CONFIG *dst,
                                        const InterpFilter filter,
                                        const int phase, const int num_planes) {
+  bool has_optimized_scaler =
+      av1_has_optimized_scaler_ssse3(src->y_crop_width, src->y_crop_height,
+                                     dst->y_crop_width, dst->y_crop_height);
+
+  if (num_planes > 1) {
+    has_optimized_scaler =
+        has_optimized_scaler &&
+        av1_has_optimized_scaler_ssse3(src->uv_crop_width, src->uv_crop_height,
+                                       dst->uv_crop_width, dst->uv_crop_width);
+  }
+
+  if (!has_optimized_scaler) {
+    av1_resize_and_extend_frame_c(src, dst, filter, phase, num_planes);
+    return;
+  }
+
   // We use AOMMIN(num_planes, MAX_MB_PLANE) instead of num_planes to quiet
   // the static analysis warnings.
   int scaled = 0;
