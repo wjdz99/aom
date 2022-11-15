@@ -670,7 +670,7 @@ class DatarateTestSVC
     // mismatch count, since loopfilter/cdef is not applied for these on
     // encoder side, but is always applied on decoder.
     // This means 30 = #frames(60) - #TL2_frames(30).
-    EXPECT_EQ((int)GetMismatchFrames(), 30);
+    EXPECT_LE((int)GetMismatchFrames(), 30);
   }
 
   virtual void BasicRateTargetingSVC1TL3SLScreenTest() {
