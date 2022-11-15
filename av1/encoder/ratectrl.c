@@ -3225,16 +3225,9 @@ void av1_get_one_pass_rt_params(AV1_COMP *cpi, FRAME_TYPE *const frame_type,
 
 int av1_encodedframe_overshoot_cbr(AV1_COMP *cpi, int *q) {
   AV1_COMMON *const cm = &cpi->common;
-  RATE_CONTROL *const rc = &cpi->rc;
   PRIMARY_RATE_CONTROL *const p_rc = &cpi->ppi->p_rc;
   SPEED_FEATURES *const sf = &cpi->sf;
-  int thresh_qp = 7 * (rc->worst_quality >> 3);
-  // Lower thresh_qp for video (more overshoot at lower Q) to be
-  // more conservative for video.
-  if (cpi->oxcf.tune_cfg.content != AOM_CONTENT_SCREEN)
-    thresh_qp = 3 * (rc->worst_quality >> 2);
-  if (sf->rt_sf.overshoot_detection_cbr == FAST_DETECTION_MAXQ &&
-      cm->quant_params.base_qindex < thresh_qp) {
+  if (sf->rt_sf.overshoot_detection_cbr == FAST_DETECTION_MAXQ) {
     double rate_correction_factor =
         cpi->ppi->p_rc.rate_correction_factors[INTER_NORMAL];
     const int target_size = cpi->rc.avg_frame_bandwidth;
