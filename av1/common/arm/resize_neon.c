@@ -694,10 +694,39 @@ static void scale_plane_4_to_3_general(const uint8_t *src, const int src_stride,
   } while (x);
 }
 
+// There's SIMD optimizations for 1/4, 1/2 and 3/4 downscaling in NEON.
+static INLINE bool av1_has_optimized_scaler_neon(const int src_width,
+                                                 const int src_height,
+                                                 const int dst_width,
+                                                 const int dst_height) {
+  const bool has_optimized_scaler =
+      (dst_width * 4 == src_width && dst_height * 4 == src_height) ||
+      (dst_width * 2 == src_width && dst_height * 2 == src_height) ||
+      (dst_width * 4 == src_width * 3 && dst_height * 4 == src_height * 3);
+
+  return has_optimized_scaler;
+}
+
 void av1_resize_and_extend_frame_neon(const YV12_BUFFER_CONFIG *src,
                                       YV12_BUFFER_CONFIG *dst,
                                       const InterpFilter filter,
                                       const int phase, const int num_planes) {
+  bool has_optimized_scaler =
+      av1_has_optimized_scaler_neon(src->y_crop_width, src->y_crop_height,
+                                    dst->y_crop_width, dst->y_crop_height);
+
+  if (num_planes > 1) {
+    has_optimized_scaler =
+        has_optimized_scaler &&
+        av1_has_optimized_scaler_neon(src->uv_crop_width, src->uv_crop_height,
+                                      dst->uv_crop_width, dst->uv_crop_width);
+  }
+
+  if (!has_optimized_scaler) {
+    av1_resize_and_extend_frame_c(src, dst, filter, phase, num_planes);
+    return;
+  }
+
   // We use AOMMIN(num_planes, MAX_MB_PLANE) instead of num_planes to quiet
   // the static analysis warnings.
   int scaled = 0;
