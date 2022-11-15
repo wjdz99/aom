@@ -16,6 +16,40 @@
       "message": "Hi Wan-Teh, Frank, Marco,\n\nIn the parent version, the application of deblocking and CDEF filters is skipped in svc real-time encoding mode based on cpi-\u003eppi-\u003ertc_ref.non_reference_frame. In this CL we have simplified these conditions by appropriately populating the bitmask skip_apply_postproc_filters when cpi-\u003eppi-\u003ertc_ref.non_reference_frame\u003d1 and the bitmask is used to avoid the application of deblocking and CDEF filters.\n\nFor libaom AV1 video encode, bit-match is verified (w.r.t. parent commit) for \u0027GOOD\u0027, \u0027RT\u0027 and \u0027ALLINTRA\u0027 encoding modes for a few contents with different encoding configurations. It is verified that the CL is bit-exact for AVIF still-image encode for a typical image dataset.\n\nPlease review.\n\nRegards,\nMudassir",
       "revId": "04987c62fec54a5c1f5e2686aebe04ecab65540d",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4e859b4c_1edecd57",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-11-15T23:40:43Z",
+      "side": 1,
+      "message": "LGTM.",
+      "revId": "04987c62fec54a5c1f5e2686aebe04ecab65540d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "34b64087_132bb90e",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 2245,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-11-15T23:40:43Z",
+      "side": 1,
+      "message": "We can add `assert(!cpi-\u003eppi-\u003ertc_ref.non_reference_frame)` to verify that we didn\u0027t make a mistake.",
+      "revId": "04987c62fec54a5c1f5e2686aebe04ecab65540d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
