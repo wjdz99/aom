@@ -89,6 +89,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "b57f0ef9_e41ecda4",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 653,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2022-11-16T01:26:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2ea9b890_dea5b15f",
+      "revId": "8b53070d539a45f2839f2b39507d1f652c4fd8f2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "1fe686d8_b9ab45f7",
@@ -102,6 +120,24 @@
       "writtenOn": "2022-11-09T21:48:01Z",
       "side": 1,
       "message": "You can still have it on for single layer, so\nif (cpi-\u003esvc.number_spatial_layers \u003e 1 || cpi-\u003esvc.number_temporal_layers \u003e 1)\n  sf-\u003ehl_sf.accurate_bit_estimate \u003d 0;\n  \nThen you can run the svc encoder for 1 layer and get as output RC stats that measure rate-mismatch and variance of short-time bitrate average: for example,\n\nexamples/svc_encoder_rtc -sl 1 -tl 1 -lm 0 -k 10000 -b 1000 --bitrates\u003d1000 --min-q\u003d2 --max-q\u003d52 -aq 3 -sp 7 input.y4m -o out.av1",
+      "revId": "8b53070d539a45f2839f2b39507d1f652c4fd8f2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c448f8ab_60b546f7",
+        "filename": "av1/encoder/speed_features.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 1439,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2022-11-16T01:26:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1fe686d8_b9ab45f7",
       "revId": "8b53070d539a45f2839f2b39507d1f652c4fd8f2",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
