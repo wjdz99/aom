@@ -22,6 +22,30 @@
       },
       "revId": "1e76fb81b8e66751eac074b0bdbf00124a129c32",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0ad01d4c_604b31b4",
+        "filename": "aom_dsp/x86/intrapred_ssse3.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1344,
+      "author": {
+        "id": 8471
+      },
+      "writtenOn": "2022-11-16T19:50:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8f612c0a_dfc32fa3",
+      "range": {
+        "startLine": 1344,
+        "startChar": 29,
+        "endLine": 1344,
+        "endChar": 33
+      },
+      "revId": "1e76fb81b8e66751eac074b0bdbf00124a129c32",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
