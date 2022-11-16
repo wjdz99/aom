@@ -314,7 +314,7 @@ TEST_P(LowbdIntraPredTest, DISABLED_Speed) {
   IntraPredFunc<IntraPred>(&aom_##type##_predictor_##width##x##height##_##opt, \
                            &aom_##type##_predictor_##width##x##height##_c,     \
                            width, height, 8)
-
+#if 0
 #define lowbd_intrapred(type, opt)                                    \
   lowbd_entry(type, 4, 4, opt), lowbd_entry(type, 4, 8, opt),         \
       lowbd_entry(type, 4, 16, opt), lowbd_entry(type, 8, 4, opt),    \
@@ -326,7 +326,12 @@ TEST_P(LowbdIntraPredTest, DISABLED_Speed) {
       lowbd_entry(type, 32, 32, opt), lowbd_entry(type, 32, 64, opt), \
       lowbd_entry(type, 64, 16, opt), lowbd_entry(type, 64, 32, opt), \
       lowbd_entry(type, 64, 64, opt)
-
+#else
+#define lowbd_intrapred(type, opt)                                    \
+lowbd_entry(type, 16, 4, opt),   \
+      lowbd_entry(type, 16, 8, opt), lowbd_entry(type, 16, 16, opt),  \
+      lowbd_entry(type, 16, 32, opt), lowbd_entry(type, 16, 64, opt)
+#endif
 #if HAVE_SSE2
 const IntraPredFunc<IntraPred> LowbdIntraPredTestVector[] = {
   lowbd_intrapred(dc, sse2),      lowbd_intrapred(dc_top, sse2),
@@ -368,10 +373,10 @@ INSTANTIATE_TEST_SUITE_P(NEON, LowbdIntraPredTest,
 
 #if HAVE_SSSE3
 const IntraPredFunc<IntraPred> LowbdIntraPredTestVectorSsse3[] = {
-  lowbd_intrapred(paeth, ssse3),
-  lowbd_intrapred(smooth, ssse3),
+//  lowbd_intrapred(paeth, ssse3),
+  //lowbd_intrapred(smooth, ssse3),
   lowbd_intrapred(smooth_v, ssse3),
-  lowbd_intrapred(smooth_h, ssse3),
+//  lowbd_intrapred(smooth_h, ssse3),
 };
 
 INSTANTIATE_TEST_SUITE_P(SSSE3, LowbdIntraPredTest,
