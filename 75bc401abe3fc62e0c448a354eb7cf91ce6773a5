@@ -53,6 +53,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "6c8c6d68_b1ead263",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1685,
+      "author": {
+        "id": 8893
+      },
+      "writtenOn": "2022-11-16T17:28:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9ec6d161_34215c35",
+      "revId": "75bc401abe3fc62e0c448a354eb7cf91ce6773a5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "eedcc39c_1911a10a",
@@ -76,6 +94,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "df4d1fcf_0d7d6f11",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1688,
+      "author": {
+        "id": 8893
+      },
+      "writtenOn": "2022-11-16T17:28:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "eedcc39c_1911a10a",
+      "range": {
+        "startLine": 1688,
+        "startChar": 8,
+        "endLine": 1688,
+        "endChar": 12
+      },
+      "revId": "75bc401abe3fc62e0c448a354eb7cf91ce6773a5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c06d8669_4f78efc4",
@@ -89,6 +131,30 @@
       "writtenOn": "2022-11-16T01:51:49Z",
       "side": 1,
       "message": "why is `av1_row_mt_mem_dealloc` called with `alloc_tile_data`? `av1_alloc_tile_data` seems to handle its own dealloc/alloc.",
+      "range": {
+        "startLine": 1690,
+        "startChar": 6,
+        "endLine": 1690,
+        "endChar": 21
+      },
+      "revId": "75bc401abe3fc62e0c448a354eb7cf91ce6773a5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "697d7210_0f566d0e",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1690,
+      "author": {
+        "id": 8893
+      },
+      "writtenOn": "2022-11-16T17:28:44Z",
+      "side": 1,
+      "message": "av1_row_mt_mem_dealloc() deallocates \u0027row_mt_sync\u0027 which is a member of cpi-\u003etile_data[i]. Hence, \u0027row_mt_sync\u0027 needs to be deallocated before tile_data is freed. We have moved the call to av1_row_mt_mem_dealloc() inside av1_alloc_tile_data() and  row_mt_mem_alloc().",
+      "parentUuid": "c06d8669_4f78efc4",
       "range": {
         "startLine": 1690,
         "startChar": 6,
