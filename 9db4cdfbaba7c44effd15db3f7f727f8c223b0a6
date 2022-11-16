@@ -69,6 +69,24 @@
       "parentUuid": "6e2298c2_d9be7114",
       "revId": "9db4cdfbaba7c44effd15db3f7f727f8c223b0a6",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "99cdfe16_6997eb13",
+        "filename": "av1/encoder/reconinter_enc.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-11-16T19:05:43Z",
+      "side": 1,
+      "message": "\u003e \u003e It\u0027s recommended in this webpage: https://abseil.io/tips/94\n\u003e \n\u003e Good point, I didn\u0027t make the comment because it was not the point of this change, but could be a good follow up. The format suggested also allows for clang-tidy to detect incorrect names.\n\nhttps://aomedia-review.googlesource.com/c/aom/+/166561",
+      "parentUuid": "03d328b2_cb88a753",
+      "revId": "9db4cdfbaba7c44effd15db3f7f727f8c223b0a6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
