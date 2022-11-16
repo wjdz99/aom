@@ -20,6 +20,12 @@
 extern "C" {
 #endif
 
+#ifdef _MSC_VER
+#define SELECT_ANY_DATA __declspec(selectany)
+#else
+#define SELECT_ANY_DATA static
+#endif
+
 // Log 2 conversion lookup tables in units of mode info (4x4).
 // The Mi_Width_Log2 table in the spec (Section 9.3. Conversion tables).
 static const uint8_t mi_size_wide_log2[BLOCK_SIZES_ALL] = {
@@ -374,7 +380,7 @@ static const TX_SIZE tx_mode_to_biggest_tx_size[TX_MODES] = {
 
 // The Subsampled_Size table in the spec (Section 5.11.38. Get plane residual
 // size function).
-static const BLOCK_SIZE ss_size_lookup[BLOCK_SIZES_ALL][2][2] = {
+SELECT_ANY_DATA const BLOCK_SIZE aom_ss_size_lookup[BLOCK_SIZES_ALL][2][2] = {
   //  ss_x == 0      ss_x == 0          ss_x == 1      ss_x == 1
   //  ss_y == 0      ss_y == 1          ss_y == 0      ss_y == 1
   { { BLOCK_4X4,     BLOCK_4X4 },     { BLOCK_4X4,     BLOCK_4X4 } },
