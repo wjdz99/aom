@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c4199bb9_0ca6349c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 6245
+      },
+      "writtenOn": "2022-11-16T14:51:16Z",
+      "side": 1,
+      "message": "Hi Marco, Yunqing,\n\nIn this CL, we tried avoiding the split evaluation based on residual statistics and model rd logic when NONE partition has skip_txfm\u003d1. From the low level statistics we observed that NONE partition is winning (over SPLIT) 80-85% of cases in the parent version when skip_txfm\u003d1. Hence we introduced a pruning logic when skip_txfm\u003d1.\nWe further considered residual statistics to do the pruning for 32x32 blocks and this logic is disabled for larger blocks as speed-up is seen to be less/trade-off is not encouraging. For 8x8 and 16x16 blocks, the evaluation is disabled based on reliability of skip_txfm flag (i.e, depending upon model rd logic used). This logic is enabled when the speed feature nonrd_check_partition_merge_mode \u003e\u003d 2 and is disabled for screen contents.\n\nPlease check the detailed borg results below:\n \n```\n                   Instruction Count        BD-Rate Loss(%)\n    cpu Resolution   Reduction(%)    avg.psnr  ovr.psnr    ssim\n     7   rtc_1080p      0.948        -0.2081   -0.1658   -0.1529\n     7         rtc      1.770         0.1176    0.0966    0.1372\n     7    rtc_derf      2.589         0.0704    0.0325    0.0561\n```\n\nPlease check the details of contents with maximum BD-Rate drop (avg.psnr) below.  \n\n```\n                                          BD-Rate Loss(%)\ncpu           Content              avg.psnr   ovr.psnr     ssim\n 7   desktopqvga_320_240            1.2939     0.8593     1.2657    \n 7           desktop360p            0.8818     0.9705     1.4056   \n 7         tacomascmvvga            0.5898     0.3149     0.2827   \n\n```\nWe did visual quality analysis for few clips (including the ones with worst BD-Rate drop) and the details are summarized below: \ntacomascmvvga at 200kbps - In parent version, larger block artifacts are seen when the hand is moved near the face region and the same are less pronounced in the modified version.\ndesktop360p at 200kbps, desktopqvga2_320_240 at 40kbps - There are no substantial differences between parent and modified versions, visually.\napprtc_pixel3_320_240 at 30kbps - Both in parent and modified versions, trailing artifacts are seen when the hand is moved across the camera. However the recovery seemed faster in the modified version. Lesser artifacts were seen in modified version near the edges of light on top as relevant regions seemed to be smoother and slightly better visually.\n\nOverall, the visual quality seemed to be similar or slightly better with this CL. \n\nThe instruction count reduction specified has been measured using command:\n $ perf stat -e instructions:u ./aomenc …\n\nWe also verified that CL produces bit-exact output with no speed impact for other speed settings of –rt usage (speed\u003d8,9,10) and with screen content coding (speed\u003d7,8,9,10).\n\nPlease review the CL. \n\nRegards,\nRanjit",
+      "revId": "245c0fed29073c3790f10eab57d501ec67da9f7a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
