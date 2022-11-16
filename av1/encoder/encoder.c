@@ -172,12 +172,20 @@ int av1_get_active_map(AV1_COMP *cpi, unsigned char *new_map_16x16, int rows,
 
     memset(new_map_16x16, !cpi->active_map.enabled, rows * cols);
     if (cpi->active_map.enabled) {
-      for (int r = 0; r < mi_rows; ++r) {
-        for (int c = 0; c < mi_cols; ++c) {
+      for (int r = 0; r<mi_rows>> row_scale; ++r) {
+        for (int c = 0; c<mi_cols>> col_scale; ++c) {
           // Cyclic refresh segments are considered active despite not having
           // AM_SEGMENT_ID_ACTIVE
-          new_map_16x16[(r >> row_scale) * cols + (c >> col_scale)] |=
-              seg_map_8x8[r * mi_cols + c] != AM_SEGMENT_ID_INACTIVE;
+          uint8_t temp = 0;
+          temp |= seg_map_8x8[(2 * r + 0) * mi_cols + (2 * c + 0)] !=
+                  AM_SEGMENT_ID_INACTIVE;
+          temp |= seg_map_8x8[(2 * r + 0) * mi_cols + (2 * c + 1)] !=
+                  AM_SEGMENT_ID_INACTIVE;
+          temp |= seg_map_8x8[(2 * r + 1) * mi_cols + (2 * c + 0)] !=
+                  AM_SEGMENT_ID_INACTIVE;
+          temp |= seg_map_8x8[(2 * r + 1) * mi_cols + (2 * c + 1)] !=
+                  AM_SEGMENT_ID_INACTIVE;
+          new_map_16x16[r * cols + c] |= temp;
         }
       }
     }
