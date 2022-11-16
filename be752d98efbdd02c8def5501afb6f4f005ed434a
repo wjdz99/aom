@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8ce487e0_2547f29b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 31012
+      },
+      "writtenOn": "2022-11-16T11:31:54Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nThis CL reverts the commit, which was submitted to optimize the hadamard transform by avoiding the transpose. During the optimization, hadd()/hsub() were introduced in place of add and unpack instructions. As hadd()/hsub() take more CPI (cycles/clocks per instruction) than the add and unpacks, encode time increment is seen. \n\nHence, the current CL is prepared to revert the change. Please note that the current CL helps in encode time reduction while increasing the instruction count.\n\nPlease review the CL.\n\nRegards,\nDiksha",
+      "revId": "be752d98efbdd02c8def5501afb6f4f005ed434a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
