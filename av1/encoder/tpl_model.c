@@ -364,7 +364,7 @@ static void get_rate_distortion(
   for (int plane = 0; plane < num_planes; ++plane) {
     struct macroblockd_plane *pd = &xd->plane[plane];
     BLOCK_SIZE bsize_plane =
-        ss_size_lookup[txsize_to_bsize[tx_size]][pd->subsampling_x]
+        aom_ss_size_lookup[txsize_to_bsize[tx_size]][pd->subsampling_x]
                       [pd->subsampling_y];
 
     int dst_buffer_stride = rec_stride_pool[plane];
