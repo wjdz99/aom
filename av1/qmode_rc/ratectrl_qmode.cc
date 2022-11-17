@@ -1389,8 +1389,13 @@ StatusOr<GopEncodeInfo> AV1RateControlQMode::GetTplPassGopEncodeInfo(
 
     if (gop_frame.update_type == GopFrameType::kOverlay ||
         gop_frame.update_type == GopFrameType::kIntermediateOverlay ||
-        gop_frame.update_type == GopFrameType::kRegularLeaf) {
-      param.q_index = rc_param_.base_q_index;
+        gop_frame.update_type == GopFrameType::kRegularLeaf || 1) {
+      // param.q_index = rc_param_.base_q_index;
+      double qstep_ratio = 1.5;
+      param.q_index = av1_get_q_index_from_qstep_ratio(active_worst_quality,
+                                                       qstep_ratio, AOM_BITS_8);
+      if (rc_param_.base_q_index) param.q_index = AOMMAX(param.q_index, 1);
+
     } else if (gop_frame.update_type == GopFrameType::kRegularGolden ||
                gop_frame.update_type == GopFrameType::kRegularKey ||
                gop_frame.update_type == GopFrameType::kRegularArf) {
@@ -1407,6 +1412,7 @@ StatusOr<GopEncodeInfo> AV1RateControlQMode::GetTplPassGopEncodeInfo(
           (active_worst_quality * (depth_factor - 1) + active_best_quality) /
           depth_factor;
     }
+    (void)active_best_quality;
     param.rdmult = GetRDMult(gop_frame, param.q_index);
     gop_encode_info.param_list.push_back(param);
   }
