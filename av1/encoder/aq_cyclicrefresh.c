@@ -330,8 +330,8 @@ static void cyclic_refresh_update_map(AV1_COMP *const cpi) {
       sb_sad = cpi->src_sad_blk_64x64[sb_col_index + sb_cols * sb_row_index];
       int scale = (cm->width * cm->height < 640 * 360) ? 6 : 8;
       int scale_low = 2;
-      thresh_sad = (scale * 64 * 64);
-      thresh_sad_low = (scale_low * 64 * 64);
+      thresh_sad = (scale * 64 * 64) << cpi->svc.number_temporal_layers;
+      thresh_sad_low = (scale_low * 64 * 64) << cpi->svc.number_temporal_layers;
     }
     // cr_map only needed at 8x8 blocks.
     for (y = 0; y < ymis; y += 2) {
