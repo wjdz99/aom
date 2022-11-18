@@ -34,6 +34,41 @@
       "parentUuid": "c0428f2d_428deecb",
       "revId": "342c66c4a2eeca7fe817d901a5a50575b115ddc0",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "787d7f3d_7dfdc0f0",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 9
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-11-18T19:01:31Z",
+      "side": 1,
+      "message": "I would probably suggest adding av1/common/common_data.c and defining `av1_ss_size_lookup` in the .c file. You can model it after the `av1_wedge_params_lookup` table (declared in av1/common/reconinter.h and defined in av1/common/reconinter.c).",
+      "parentUuid": "1ac83f5e_ca0adf4c",
+      "revId": "342c66c4a2eeca7fe817d901a5a50575b115ddc0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0b071436_ef6678b9",
+        "filename": "av1/common/common_data.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 383,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-11-18T19:01:31Z",
+      "side": 1,
+      "message": "I suggest using the `av1_` prefix instead of `aom_` for this variable name.",
+      "revId": "342c66c4a2eeca7fe817d901a5a50575b115ddc0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
