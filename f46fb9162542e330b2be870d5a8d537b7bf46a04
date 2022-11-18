@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2b50dd72_09fe9bf3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 6245
+      },
+      "writtenOn": "2022-11-18T13:10:01Z",
+      "side": 1,
+      "message": "Hi Marco, Yunqing,\n\nIn this CL, we tried improving the error calculation logic in get_filt_error() for 8-bit  encoding. The following CLs introduced the logic to calculate the error in the 8-bit domain after CDEF filtering.\nhttps://aomedia-review.googlesource.com/c/aom/+/164322\nhttps://aomedia-review.googlesource.com/c/aom/+/165461\n\nHowever CLs above use  cpi-\u003eppi-\u003efn_ptr[].vf for error calculation. The relevant functions calculate additional metrics like mean and variance which are not required. In this CL, the error is calculated using aom_sse() for speed-up. The  speed-up is further improved by calculating error at 32x8/16x8/16x4/8x4 level if consecutive 2 or 4 blocks are filtered in horizontal direction.  \n\nWe shall analyze SIMD implementation of aom_sse() and submit a separate CL if there is scope for further improvement. \n\nPlease check the borg results for real-time encoding mode below. \n```\n                   Instruction Count          BD-Rate Loss(%)\ncpu Resolution       Reduction(%)       avg.psnr   ovr.psnr   ssim\n     7        rtc      0.540             0.0000    0.0000   0.0000\n     7  rtc_1080p      0.449             0.0000    0.0000   0.0000\n     7 rtc_screen      0.158             0.0000    0.0000   0.0000\n     8        rtc      0.630             0.0000    0.0000   0.0000\n     8  rtc_1080p      0.704             0.0000    0.0000   0.0000\n     8 rtc_screen      0.138             0.0000    0.0000   0.0000\n     9  rtc_1080p      0.760             0.0000    0.0000   0.0000\n    10  rtc_1080p      0.780             0.0000    0.0000   0.0000\n```\n\nThe instruction count reduction specified has been measured using command:\n $ perf stat -e instructions:u ./aomenc …\n\nWe also verified that CL produces bit-exact output for specific speed settings of --good usage (speed\u003d5,6) with a minor speed-up of \u003c0.1%. \n\nPlease review the CL. \n\nRegards,\nRanjit",
+      "revId": "f46fb9162542e330b2be870d5a8d537b7bf46a04",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
