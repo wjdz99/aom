@@ -33,6 +33,23 @@
       "message": "Hi Cherma, could you also take a look? Thanks.",
       "revId": "4386ecc3fcabd801bc873c66289e4790df497816",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b1cd573e_7045e92c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2022-11-18T19:42:26Z",
+      "side": 1,
+      "message": "Cherma ran a thorough test with this CL (thanks!). Here is what he found:\n\"As per our tests, the CL is not bit-matching with parent commit for rt-screen test set (for all contents), otherwise the CL is bit-matching for rt and good preset testcases. Though we are not sure, we suspect that mismatch in rt-screen test set could be related to changes made in identity transform.\"\n\nI verified this and here is an example:\n./aomenc -o out.webm wikipedia_420.y4m --end-usage\u003dcbr --target-bitrate\u003d1000 --profile\u003d0 --kf-max-dist\u003d90000 --end-usage\u003dcbr --cpu-used\u003d8 --min-q\u003d2 --max-q\u003d52 --undershoot-pct\u003d50 --overshoot-pct\u003d50 --buf-sz\u003d1000 --buf-initial-sz\u003d500 --buf-optimal-sz\u003d600 --max-intra-rate\u003d300 --passes\u003d1 --rt --lag-in-frames\u003d0  --error-resilient\u003d0 --tile-columns\u003d0 --aq-mode\u003d3 --enable-obmc\u003d0 --enable-global-motion\u003d0 --enable-warped-motion\u003d0 --deltaq-mode\u003d0 --enable-tpl-model\u003d0 --mode-cost-upd-freq\u003d3 --coeff-cost-upd-freq\u003d3  --enable-ref-frame-mvs\u003d0 --mv-cost-upd-freq\u003d3 --dv-cost-upd-freq\u003d3 --enable-order-hint\u003d0 --threads\u003d0   --cpu-used\u003d7 --dv-cost-upd-freq\u003d3 --max-q\u003d52 --aq-mode\u003d3 --psnr --enable-palette\u003d1 --enable-intrabc\u003d0 --tune-content\u003dscreen\nI think you can test with any screen content video. Otherwise, if you need a clip, I can share one.",
+      "revId": "4386ecc3fcabd801bc873c66289e4790df497816",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
