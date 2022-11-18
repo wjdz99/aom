@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d641768b_9ba6fd7a",
+        "filename": "aom_dsp/x86/intrapred_ssse3.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 968,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-11-18T18:05:02Z",
+      "side": 1,
+      "message": "this scope isn\u0027t necessary since it\u0027s C99 unless you wanted to call out this block with the comment",
+      "revId": "817d3c9781cf16b11d7229ac9efaaba7ce09bbcb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "912b0d93_3bb525ec",
+        "filename": "aom_dsp/x86/intrapred_ssse3.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 985,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-11-18T18:05:02Z",
+      "side": 1,
+      "message": "same comment for the scope here",
+      "revId": "817d3c9781cf16b11d7229ac9efaaba7ce09bbcb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
