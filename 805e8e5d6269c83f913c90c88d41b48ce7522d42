@@ -51,6 +51,24 @@
       "parentUuid": "df73aa98_4cf21181",
       "revId": "805e8e5d6269c83f913c90c88d41b48ce7522d42",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0d395be8_2dfdb47c",
+        "filename": "av1/qmode_rc/ratectrl_qmode.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 1361,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-11-18T23:19:34Z",
+      "side": 1,
+      "message": "Thanks. I tested std::lround(). MSVC 2022 doesn\u0027t warn about implicit conversions from long to int.\n\nI will go ahead and submit like this to fix the warning.",
+      "parentUuid": "6bddbd67_237f015f",
+      "revId": "805e8e5d6269c83f913c90c88d41b48ce7522d42",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
