@@ -2243,6 +2243,7 @@ static void cdef_restoration_frame(AV1_COMP *cpi, AV1_COMMON *cm,
 
     // Apply the filter
     if ((skip_apply_postproc_filters & SKIP_APPLY_CDEF) == 0) {
+      assert(!cpi->ppi->rtc_ref.non_reference_frame);
       if (num_workers > 1) {
         // Extension of frame borders is multi-threaded along with cdef.
         const int do_extend_border =
@@ -2354,6 +2355,7 @@ static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
       // addition to enabling dual/quad loop-filtering. This is enabled when lpf
       // pick method is LPF_PICK_FROM_Q as u and v plane filter levels are
       // equal.
+      assert(!cpi->ppi->rtc_ref.non_reference_frame);
       int lpf_opt_level = get_lpf_opt_level(&cpi->sf);
       av1_loop_filter_frame_mt(&cm->cur_frame->buf, cm, xd, 0, num_planes, 0,
                                mt_info->workers, num_workers,
