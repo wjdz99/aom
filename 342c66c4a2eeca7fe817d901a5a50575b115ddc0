@@ -16,6 +16,24 @@
       "message": "Was this causing a link failure or a warning in some way?\n\nI think this change is doing two things: namespacing the array, which is good, and trying to deal with the common data. I\u0027m not convinced all of the arrays need to be visible given how they\u0027re used. They could instead be moved to a C file, but it will require a closer inspection.\n\nFor this change let\u0027s first namespace the globals.",
       "revId": "342c66c4a2eeca7fe817d901a5a50575b115ddc0",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1ac83f5e_ca0adf4c",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 9
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 31457
+      },
+      "writtenOn": "2022-11-18T18:34:38Z",
+      "side": 1,
+      "message": "Both __declspec(selectany) and __attribute__((selectany)) were causing compile failures on non-windows targets. I agree that moving the common data definitions to their own C file would be a good idea. Should I proceed with that on a new CL?",
+      "parentUuid": "c0428f2d_428deecb",
+      "revId": "342c66c4a2eeca7fe817d901a5a50575b115ddc0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
