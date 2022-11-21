@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cecb89b7_e5b412ae",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 31012
+      },
+      "writtenOn": "2022-11-21T10:30:54Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nThe function aom_int_pro_col_avx2() computes SAD for block_width 128, 64, 32 \u0026 16. In the parent CL, sad is computed and stored once for each row. And also, the instruction _mm256_sad_epu8() produces the result which gets stored in lower 16-bits in each 64-bit lane of a 256-bit register while higher 16-bits are zero without being of any use. In this CL, we  have modified the logic to utilize all 16 bit fields in a 256-register efficiently by processing multiple rows at a time. This way the storing of sad is also done once for multiple rows.\n\nThis change improved the module level gains significantly, especially at lower width cases. Please find the below module level gains.\n```\n                                            Scaling w.r.t. C (x)\nBlock_size                            Parent CL             Current CL\n16x16                                     2.07                  5.93\n32x32                                     3.53                  4.75\n64x64                                     3.41                  4.61\n128x128                                   4.14                  4.53\n```\nPlease check the encoder speed-up measured (for AVX2) using instruction count as below. The gains seen for speed 9 and 10 are negligible.\n```\n               Instruction Count    \ncpu Resolution    Reduction(%)\n 7   rtc_1080p      0.191\n 7         rtc      0.403\n 7    rtc_derf      0.516\n 7  rtc_screen      0.226\n\n 8   rtc_1080p      0.199\n 8         rtc      0.448\n 8    rtc_derf      0.289\n 8  rtc_screen      0.235\n\n 9   rtc_1080p      0.012\n 9         rtc      0.059\n 9    rtc_derf      0.063\n 9  rtc_screen      0.002\n\n10   rtc_1080p      0.022\n10         rtc      0.089\n10    rtc_derf      0.092\n10  rtc_screen      0.002\n```\nThe instruction count reduction specified has been measured using command:\n$ perf stat -e instructions:u ./aomenc …\n\nPlease review the CL.\n\nRegards,\nDiksha",
+      "revId": "f49e5f2e7cadc42f992a80474567cf48c69bf234",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
