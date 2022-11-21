@@ -16,6 +16,24 @@
       "message": "how does it affect the coding performance in fwd kf settings?",
       "revId": "92501b1e64fe9b5a7672802ec33b9ab466c65e96",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "af5caba9_94379693",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2022-11-21T19:32:44Z",
+      "side": 1,
+      "message": "This shouldn\u0027t affect the performance since max_before is determined as the maximum number of frames before the arf in the lookahead buffer. Before this patch it is possible for num_before to be larger than that, which results in a seg fault.",
+      "parentUuid": "91edc404_b03f46f6",
+      "revId": "92501b1e64fe9b5a7672802ec33b9ab466c65e96",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
