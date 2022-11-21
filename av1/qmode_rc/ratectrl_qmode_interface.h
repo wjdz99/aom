@@ -61,8 +61,10 @@ struct TplBlockStats {
   int16_t width;   // Pixel width.
   int16_t row;     // Pixel row of the top left corner.
   int16_t col;     // Pixel col of the top left corner.
-  int64_t intra_cost;
-  int64_t inter_cost;
+  int64_t intra_cost;  // Quantization distortion of the best intra mode.
+  int64_t inter_cost;  // Quantization distortion of the best inter mode.
+  int64_t intra_pred_res;  // Prediction residual of the intra mode.
+  int64_t inter_pred_res;  // Prediction residual of the inter mode.
 
   // Valid only if TplFrameStats::rate_dist_present is true:
   int64_t recrf_rate;  // Bits when using recon as reference.
