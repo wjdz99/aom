@@ -41,6 +41,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "3e8026bd_cb82d405",
+        "filename": "av1/qmode_rc/ratectrl_qmode_interface.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2022-11-21T22:13:31Z",
+      "side": 1,
+      "message": "Done\nupdated the comments.",
+      "parentUuid": "05c22ff4_f35b2f86",
+      "range": {
+        "startLine": 64,
+        "startChar": 39,
+        "endLine": 64,
+        "endChar": 49
+      },
+      "revId": "afef576c7220ff97187a3a6c9ac266312e807118",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "db5d9edf_96dc9435",
@@ -54,6 +78,30 @@
       "writtenOn": "2022-11-21T21:51:46Z",
       "side": 1,
       "message": "Note that there\u0027s a flag TplFrameStats::rate_dist_present which indicates whether or not the recrf_rate and recrf_dist fields are present. \n\nI think we\u0027ll need something similar here. We could either:\n- use the same flag for both purposes, since both will be available on BigWave but not BigOcean, or \n- add a different flag, at least for now, since recrf_rate and recrf_dist are already available, but I haven\u0027t plumbed the new fields through yet",
+      "range": {
+        "startLine": 66,
+        "startChar": 0,
+        "endLine": 68,
+        "endChar": 0
+      },
+      "revId": "afef576c7220ff97187a3a6c9ac266312e807118",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3476741d_1f41c98d",
+        "filename": "av1/qmode_rc/ratectrl_qmode_interface.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2022-11-21T22:13:31Z",
+      "side": 1,
+      "message": "I moved these two declarations to be below line 69, as they are present only when the TplFrameStats::rate_dist_present is true (ie in v3).\n\nThey are related to the two new fields that we just added in v3 for the prediction error.",
+      "parentUuid": "db5d9edf_96dc9435",
       "range": {
         "startLine": 66,
         "startChar": 0,
