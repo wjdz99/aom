@@ -74,6 +74,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "b67c6f87_8980f6d4",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 9
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 31457
+      },
+      "writtenOn": "2022-11-21T18:34:40Z",
+      "side": 1,
+      "message": "Ah yes, I discovered it when building chrome locally. This is the error message I got:\nlibvpx.lib(vp9_common_data.obj) : error LNK2005: ss_size_lookup already defined in aom_quantize_avx.obj\n.\\v8_context_snapshot_generator.exe : fatal error LNK1169: one or more multiply defined symbols found\n\nAlso, I will go ahead with creating a common_data.c file for the fix.",
+      "parentUuid": "16ab6d99_1802c98a",
+      "revId": "342c66c4a2eeca7fe817d901a5a50575b115ddc0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "0b071436_ef6678b9",
         "filename": "av1/common/common_data.h",
         "patchSetId": 9
