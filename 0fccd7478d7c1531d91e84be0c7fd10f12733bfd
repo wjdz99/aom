@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "26ad0330_c1c6bbe1",
+        "filename": "aom_dsp/x86/intrapred_ssse3.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 2140,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-11-22T21:58:30Z",
+      "side": 1,
+      "message": "without the force inline I\u0027d be worried about this and the win32 ABI, though I don\u0027t see an issue if I use:\nhttps://aomedia-review.googlesource.com/c/aom/+/166982\n\nor disable it entirely in most Visual Studio versions.\n\n2015 will report things for existing code:\naom_dsp\\x86\\intrapred_ssse3.c(1073): error C2719: \u0027round\u0027: formal parameter with requested alignment of 16 won\u0027t be aligned",
+      "range": {
+        "startLine": 2139,
+        "startChar": 34,
+        "endLine": 2140,
+        "endChar": 52
+      },
+      "revId": "0fccd7478d7c1531d91e84be0c7fd10f12733bfd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
