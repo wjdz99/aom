@@ -1273,7 +1273,7 @@ static void set_rt_speed_feature_framesize_dependent(const AV1_COMP *const cpi,
     }
     if (speed == 8) sf->rt_sf.prefer_large_partition_blocks = 1;
     if (speed >= 8) {
-      sf->rt_sf.use_nonrd_filter_search = 0;
+      sf->rt_sf.use_nonrd_filter_search = 1;
       sf->rt_sf.tx_size_level_based_on_qstep = 1;
     }
     if (speed >= 9) {
