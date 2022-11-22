@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "01c9ccfb_5f816e48",
+        "filename": "av1/qmode_rc/ducky_encode.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-11-22T15:27:51Z",
+      "side": 1,
+      "message": "This is fine but of course will require the calling code downstream to change. Another (simpler) option would be to just hard-code it to BLOCK_64X64, since that\u0027s all were likely to care about for the foreseeable future.",
+      "range": {
+        "startLine": 76,
+        "startChar": 52,
+        "endLine": 76,
+        "endChar": 70
+      },
+      "revId": "8cc901b3a7b54311e261af508931674aece8051d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "302611db_702e024e",
+        "filename": "test/ducky_encode_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-11-22T15:27:51Z",
+      "side": 1,
+      "message": "Are you going to add any tests using BLOCK_128X128? \nAlthough I guess we won\u0027t be using it, so maybe that\u0027s a low priority.",
+      "range": {
+        "startLine": 38,
+        "startChar": 39,
+        "endLine": 38,
+        "endChar": 50
+      },
+      "revId": "8cc901b3a7b54311e261af508931674aece8051d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
