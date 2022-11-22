@@ -242,36 +242,48 @@ static AOM_INLINE void setup_delta_q(AV1_COMP *const cpi, ThreadData *td,
 
   const int delta_q_res = delta_q_info->delta_q_res;
   int current_qindex = cm->quant_params.base_qindex;
-  if (cpi->oxcf.q_cfg.deltaq_mode == DELTA_Q_PERCEPTUAL) {
-    if (DELTA_Q_PERCEPTUAL_MODULATION == 1) {
-      const int block_wavelet_energy_level =
-          av1_block_wavelet_energy_level(cpi, x, sb_size);
-      x->sb_energy_level = block_wavelet_energy_level;
-      current_qindex = av1_compute_q_from_energy_level_deltaq_mode(
-          cpi, block_wavelet_energy_level);
-    } else {
-      const int block_var_level = av1_log_block_var(cpi, x, sb_size);
-      x->sb_energy_level = block_var_level;
-      current_qindex =
-          av1_compute_q_from_energy_level_deltaq_mode(cpi, block_var_level);
-    }
-  } else if (cpi->oxcf.q_cfg.deltaq_mode == DELTA_Q_OBJECTIVE &&
-             cpi->oxcf.algo_cfg.enable_tpl_model) {
-    // Setup deltaq based on tpl stats
+  if (cpi->use_ducky_encode && cpi->ducky_encode_info.frame_info.qp_mode ==
+                                   DUCKY_ENCODE_FRAME_MODE_QINDEX) {
+    const int sb_row = mi_row >> cm->seq_params->mib_size_log2;
+    const int sb_col = mi_col >> cm->seq_params->mib_size_log2;
+    const int sb_cols = mi_params->mi_cols >> cm->seq_params->mib_size_log2;
+    const int sb_index = sb_row * sb_cols + sb_col;
     current_qindex =
-        av1_get_q_for_deltaq_objective(cpi, td, NULL, sb_size, mi_row, mi_col);
-  } else if (cpi->oxcf.q_cfg.deltaq_mode == DELTA_Q_PERCEPTUAL_AI) {
-    current_qindex = av1_get_sbq_perceptual_ai(cpi, sb_size, mi_row, mi_col);
-  } else if (cpi->oxcf.q_cfg.deltaq_mode == DELTA_Q_USER_RATING_BASED) {
-    current_qindex = av1_get_sbq_user_rating_based(cpi, mi_row, mi_col);
-  } else if (cpi->oxcf.q_cfg.enable_hdr_deltaq) {
-    current_qindex = av1_get_q_for_hdr(cpi, x, sb_size, mi_row, mi_col);
+        cpi->ducky_encode_info.frame_info.superblock_encode_qindex[sb_index];
+  } else {
+    if (cpi->oxcf.q_cfg.deltaq_mode == DELTA_Q_PERCEPTUAL) {
+      if (DELTA_Q_PERCEPTUAL_MODULATION == 1) {
+        const int block_wavelet_energy_level =
+            av1_block_wavelet_energy_level(cpi, x, sb_size);
+        x->sb_energy_level = block_wavelet_energy_level;
+        current_qindex = av1_compute_q_from_energy_level_deltaq_mode(
+            cpi, block_wavelet_energy_level);
+      } else {
+        const int block_var_level = av1_log_block_var(cpi, x, sb_size);
+        x->sb_energy_level = block_var_level;
+        current_qindex =
+            av1_compute_q_from_energy_level_deltaq_mode(cpi, block_var_level);
+      }
+    } else if (cpi->oxcf.q_cfg.deltaq_mode == DELTA_Q_OBJECTIVE &&
+               cpi->oxcf.algo_cfg.enable_tpl_model) {
+      // Setup deltaq based on tpl stats
+      current_qindex = av1_get_q_for_deltaq_objective(cpi, td, NULL, sb_size,
+                                                      mi_row, mi_col);
+    } else if (cpi->oxcf.q_cfg.deltaq_mode == DELTA_Q_PERCEPTUAL_AI) {
+      current_qindex = av1_get_sbq_perceptual_ai(cpi, sb_size, mi_row, mi_col);
+    } else if (cpi->oxcf.q_cfg.deltaq_mode == DELTA_Q_USER_RATING_BASED) {
+      current_qindex = av1_get_sbq_user_rating_based(cpi, mi_row, mi_col);
+    } else if (cpi->oxcf.q_cfg.enable_hdr_deltaq) {
+      current_qindex = av1_get_q_for_hdr(cpi, x, sb_size, mi_row, mi_col);
+    }
   }
 
   x->rdmult_cur_qindex = current_qindex;
   MACROBLOCKD *const xd = &x->e_mbd;
-  current_qindex = av1_adjust_q_from_delta_q_res(
-      delta_q_res, xd->current_base_qindex, current_qindex);
+  // There's no need to adjust to delta_q_res when using DuckyEncode
+  if (!cpi->use_ducky_encode)
+    current_qindex = av1_adjust_q_from_delta_q_res(
+        delta_q_res, xd->current_base_qindex, current_qindex);
 
   x->delta_qindex = current_qindex - cm->quant_params.base_qindex;
   x->rdmult_delta_qindex = x->delta_qindex;
@@ -1795,54 +1807,56 @@ static AOM_INLINE void encode_frame_internal(AV1_COMP *cpi) {
   features->all_lossless = features->coded_lossless && !av1_superres_scaled(cm);
 
   // Fix delta q resolution for the moment
-  cm->delta_q_info.delta_q_res = 0;
-  if (cpi->oxcf.q_cfg.aq_mode != CYCLIC_REFRESH_AQ) {
-    if (deltaq_mode == DELTA_Q_OBJECTIVE)
-      cm->delta_q_info.delta_q_res = DEFAULT_DELTA_Q_RES_OBJECTIVE;
-    else if (deltaq_mode == DELTA_Q_PERCEPTUAL)
-      cm->delta_q_info.delta_q_res = DEFAULT_DELTA_Q_RES_PERCEPTUAL;
-    else if (deltaq_mode == DELTA_Q_PERCEPTUAL_AI)
-      cm->delta_q_info.delta_q_res = DEFAULT_DELTA_Q_RES_PERCEPTUAL;
-    else if (deltaq_mode == DELTA_Q_USER_RATING_BASED)
-      cm->delta_q_info.delta_q_res = DEFAULT_DELTA_Q_RES_PERCEPTUAL;
-    else if (deltaq_mode == DELTA_Q_HDR)
-      cm->delta_q_info.delta_q_res = DEFAULT_DELTA_Q_RES_PERCEPTUAL;
-    // Set delta_q_present_flag before it is used for the first time
-    cm->delta_q_info.delta_lf_res = DEFAULT_DELTA_LF_RES;
-    cm->delta_q_info.delta_q_present_flag = deltaq_mode != NO_DELTA_Q;
+  if (!cpi->use_ducky_encode) {
+    cm->delta_q_info.delta_q_res = 0;
+    if (cpi->oxcf.q_cfg.aq_mode != CYCLIC_REFRESH_AQ) {
+      if (deltaq_mode == DELTA_Q_OBJECTIVE)
+        cm->delta_q_info.delta_q_res = DEFAULT_DELTA_Q_RES_OBJECTIVE;
+      else if (deltaq_mode == DELTA_Q_PERCEPTUAL)
+        cm->delta_q_info.delta_q_res = DEFAULT_DELTA_Q_RES_PERCEPTUAL;
+      else if (deltaq_mode == DELTA_Q_PERCEPTUAL_AI)
+        cm->delta_q_info.delta_q_res = DEFAULT_DELTA_Q_RES_PERCEPTUAL;
+      else if (deltaq_mode == DELTA_Q_USER_RATING_BASED)
+        cm->delta_q_info.delta_q_res = DEFAULT_DELTA_Q_RES_PERCEPTUAL;
+      else if (deltaq_mode == DELTA_Q_HDR)
+        cm->delta_q_info.delta_q_res = DEFAULT_DELTA_Q_RES_PERCEPTUAL;
+      // Set delta_q_present_flag before it is used for the first time
+      cm->delta_q_info.delta_lf_res = DEFAULT_DELTA_LF_RES;
+      cm->delta_q_info.delta_q_present_flag = deltaq_mode != NO_DELTA_Q;
 
-    // Turn off cm->delta_q_info.delta_q_present_flag if objective delta_q
-    // is used for ineligible frames. That effectively will turn off row_mt
-    // usage. Note objective delta_q and tpl eligible frames are only altref
-    // frames currently.
-    const GF_GROUP *gf_group = &cpi->ppi->gf_group;
-    if (cm->delta_q_info.delta_q_present_flag) {
-      if (deltaq_mode == DELTA_Q_OBJECTIVE &&
-          gf_group->update_type[cpi->gf_frame_index] == LF_UPDATE)
-        cm->delta_q_info.delta_q_present_flag = 0;
+      // Turn off cm->delta_q_info.delta_q_present_flag if objective delta_q
+      // is used for ineligible frames. That effectively will turn off row_mt
+      // usage. Note objective delta_q and tpl eligible frames are only altref
+      // frames currently.
+      const GF_GROUP *gf_group = &cpi->ppi->gf_group;
+      if (cm->delta_q_info.delta_q_present_flag) {
+        if (deltaq_mode == DELTA_Q_OBJECTIVE &&
+            gf_group->update_type[cpi->gf_frame_index] == LF_UPDATE)
+          cm->delta_q_info.delta_q_present_flag = 0;
 
-      if (deltaq_mode == DELTA_Q_OBJECTIVE &&
-          cm->delta_q_info.delta_q_present_flag) {
-        cm->delta_q_info.delta_q_present_flag &= allow_deltaq_mode(cpi);
+        if (deltaq_mode == DELTA_Q_OBJECTIVE &&
+            cm->delta_q_info.delta_q_present_flag) {
+          cm->delta_q_info.delta_q_present_flag &= allow_deltaq_mode(cpi);
+        }
       }
+
+      // Reset delta_q_used flag
+      cpi->deltaq_used = 0;
+
+      cm->delta_q_info.delta_lf_present_flag =
+          cm->delta_q_info.delta_q_present_flag &&
+          oxcf->tool_cfg.enable_deltalf_mode;
+      cm->delta_q_info.delta_lf_multi = DEFAULT_DELTA_LF_MULTI;
+
+      // update delta_q_present_flag and delta_lf_present_flag based on
+      // base_qindex
+      cm->delta_q_info.delta_q_present_flag &= quant_params->base_qindex > 0;
+      cm->delta_q_info.delta_lf_present_flag &= quant_params->base_qindex > 0;
+    } else {
+      cpi->cyclic_refresh->actual_num_seg1_blocks = 0;
+      cpi->cyclic_refresh->actual_num_seg2_blocks = 0;
+      cpi->rc.cnt_zeromv = 0;
     }
-
-    // Reset delta_q_used flag
-    cpi->deltaq_used = 0;
-
-    cm->delta_q_info.delta_lf_present_flag =
-        cm->delta_q_info.delta_q_present_flag &&
-        oxcf->tool_cfg.enable_deltalf_mode;
-    cm->delta_q_info.delta_lf_multi = DEFAULT_DELTA_LF_MULTI;
-
-    // update delta_q_present_flag and delta_lf_present_flag based on
-    // base_qindex
-    cm->delta_q_info.delta_q_present_flag &= quant_params->base_qindex > 0;
-    cm->delta_q_info.delta_lf_present_flag &= quant_params->base_qindex > 0;
-  } else {
-    cpi->cyclic_refresh->actual_num_seg1_blocks = 0;
-    cpi->cyclic_refresh->actual_num_seg2_blocks = 0;
-    cpi->rc.cnt_zeromv = 0;
   }
 
   av1_frame_init_quantizer(cpi);

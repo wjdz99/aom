@@ -400,6 +400,19 @@ static void DuckyEncodeInfoSetEncodeFrameDecision(
   frame_info->gop_mode = static_cast<DUCKY_ENCODE_GOP_MODE>(decision.gop_mode);
   frame_info->q_index = decision.parameters.q_index;
   frame_info->rdmult = decision.parameters.rdmult;
+  const size_t num_superblocks =
+      decision.parameters.superblock_encode_params.size();
+  if (num_superblocks > 1) {
+    frame_info->delta_q_enabled = 1;
+    frame_info->superblock_encode_qindex = new int[num_superblocks];
+    frame_info->superblock_encode_rdmult = new int[num_superblocks];
+    for (size_t i = 0; i < num_superblocks; ++i) {
+      frame_info->superblock_encode_qindex[i] =
+          decision.parameters.superblock_encode_params[i].q_index;
+      frame_info->superblock_encode_rdmult[i] =
+          decision.parameters.superblock_encode_params[i].rdmult;
+    }
+  }
 }
 
 static void DuckyEncodeInfoGetEncodeFrameResult(
