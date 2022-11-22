@@ -22,6 +22,30 @@
       },
       "revId": "1a9e6c86a6394f49c1df6d686eae87ff984a385a",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "98816961_e8939d5a",
+        "filename": "av1/qmode_rc/ducky_encode.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2022-11-22T02:21:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "39a8e54f_9b3da6a2",
+      "range": {
+        "startLine": 83,
+        "startChar": 29,
+        "endLine": 83,
+        "endChar": 34
+      },
+      "revId": "1a9e6c86a6394f49c1df6d686eae87ff984a385a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
