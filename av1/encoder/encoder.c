@@ -2424,12 +2424,11 @@ static int encode_without_recode(AV1_COMP *cpi) {
   int phase_scaler = cpi->ppi->use_svc
                          ? svc->downsample_filter_phase[svc->spatial_layer_id]
                          : 0;
-
   set_size_independent_vars(cpi);
   av1_setup_frame_size(cpi);
+  cm->prev_frame = get_primary_ref_frame_buf(cm);
   av1_set_size_dependent_vars(cpi, &q, &bottom_index, &top_index);
   av1_set_mv_search_params(cpi);
-
   if (cm->current_frame.frame_number == 0 && cpi->ppi->use_svc) {
     const SequenceHeader *seq_params = cm->seq_params;
     if (aom_alloc_frame_buffer(

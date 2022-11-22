@@ -1478,14 +1478,38 @@ int main(int argc, const char **argv) {
       if (frame_avail && slx == 0) ++rc.layer_input_frames[layer];
 
       if (test_dynamic_scaling_single_layer) {
-        if (frame_cnt >= 200 && frame_cnt <= 400) {
+        // Example to scale down by 2x, 4x, and then back up to 2x and original.
+        if (frame_cnt >= 200 && frame_cnt < 400) {
           // Scale source down by 2x2.
+          struct aom_scaling_mode mode = { AOME_ONETWO, AOME_ONETWO };
+          aom_codec_control(&codec, AOME_SET_SCALEMODE, &mode);
+        } else if  (frame_cnt >= 400 && frame_cnt < 600) {
+          // Scale source down by 4x4.
+          struct aom_scaling_mode mode = { AOME_ONEFOUR, AOME_ONEFOUR };
+          aom_codec_control(&codec, AOME_SET_SCALEMODE, &mode);
+        }  else if (frame_cnt >= 600 && frame_cnt < 800) {
+          // Source back up to 2x2.
           struct aom_scaling_mode mode = { AOME_ONETWO, AOME_ONETWO };
           aom_codec_control(&codec, AOME_SET_SCALEMODE, &mode);
         } else {
           // Source back up to original resolution (no scaling).
           struct aom_scaling_mode mode = { AOME_NORMAL, AOME_NORMAL };
           aom_codec_control(&codec, AOME_SET_SCALEMODE, &mode);
+        }
+        if (frame_cnt == 200 || frame_cnt == 400 || frame_cnt == 600 ||
+            frame_cnt == 800) {
+          // For dynamic resize testing on single layer: refresh all references
+          // on the resized frame: this is to avoid decode error:
+          // if resize goes down by >= 4x then libaom decoder will throw an error
+          // that some reference (even though not used) is beyond the limit size
+          // (within 4x).
+          for (i = 0; i < REF_FRAMES; i++) ref_frame_config.refresh[i] = 1;
+          if (use_svc_control) {
+            aom_codec_control(&codec, AV1E_SET_SVC_REF_FRAME_CONFIG,
+                              &ref_frame_config);
+            aom_codec_control(&codec, AV1E_SET_SVC_REF_FRAME_COMP_PRED,
+                              &ref_frame_comp_pred);
+          }
         }
       }
 
