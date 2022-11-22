@@ -24,6 +24,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "fee7a50f_af6b47f5",
+        "filename": "av1/qmode_rc/ducky_encode.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-11-22T15:48:14Z",
+      "side": 1,
+      "message": "there\u0027s only one application that\u0027s using ducky encode at the moment so it\u0027s minimal effort to change that.",
+      "parentUuid": "01c9ccfb_5f816e48",
+      "range": {
+        "startLine": 76,
+        "startChar": 52,
+        "endLine": 76,
+        "endChar": 70
+      },
+      "revId": "8cc901b3a7b54311e261af508931674aece8051d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "302611db_702e024e",
@@ -37,6 +61,30 @@
       "writtenOn": "2022-11-22T15:27:51Z",
       "side": 1,
       "message": "Are you going to add any tests using BLOCK_128X128? \nAlthough I guess we won\u0027t be using it, so maybe that\u0027s a low priority.",
+      "range": {
+        "startLine": 38,
+        "startChar": 39,
+        "endLine": 38,
+        "endChar": 50
+      },
+      "revId": "8cc901b3a7b54311e261af508931674aece8051d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1b709d53_4f71023f",
+        "filename": "test/ducky_encode_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-11-22T15:48:14Z",
+      "side": 1,
+      "message": "All tests were running at 128x128 before this CL.\n\nI was thinking about adding tests covering 128x128 but it\u0027ll be a bit more change (using parameterized tests to avoid duplication) so I\u0027ll leave it to future CLs.",
+      "parentUuid": "302611db_702e024e",
       "range": {
         "startLine": 38,
         "startChar": 39,
