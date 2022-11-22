@@ -1,0 +1,123 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "eb216915_de01a445",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-11-22T23:47:46Z",
+      "side": 1,
+      "message": "Nit: It would be good to mention the original code kept data in `p-\u003ecoeff`, `p-\u003eqcoeff`, `p-\u003edqcoeff`, and `p-\u003eeobs`, and this CL changes the code to use local variables instead.",
+      "revId": "0b04f52c855a01ac2605a67d600aa144783fb2d5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "290e29f9_cf4a3ecd",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-11-22T23:47:46Z",
+      "side": 1,
+      "message": "I believe I understood the changes and it looks good. I suggest some changes to clarify the code.",
+      "revId": "0b04f52c855a01ac2605a67d600aa144783fb2d5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ac8e290b_fdbf4fb9",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1008,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-11-22T23:47:46Z",
+      "side": 1,
+      "message": "Nit: change `*const` to just `const`.",
+      "revId": "0b04f52c855a01ac2605a67d600aa144783fb2d5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9df7150e_57824f3b",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1120,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-11-22T23:47:46Z",
+      "side": 1,
+      "message": "Does this change also improve performance?",
+      "revId": "0b04f52c855a01ac2605a67d600aa144783fb2d5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4e875908_d0dfa96d",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1192,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-11-22T23:47:46Z",
+      "side": 1,
+      "message": "Why do we need to use a different value for `low_coeff` here and at line 1234? A comment would be helpful. You may be able to just explain in the comment at line 1008.",
+      "revId": "0b04f52c855a01ac2605a67d600aa144783fb2d5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c82ecc7b_b68ab295",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1193,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-11-22T23:47:46Z",
+      "side": 1,
+      "message": "Delete this assertion. Its condition is obviously true because we have just checked it at line 1188.",
+      "revId": "0b04f52c855a01ac2605a67d600aa144783fb2d5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "82aba04d_cd2fe208",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1235,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-11-22T23:47:46Z",
+      "side": 1,
+      "message": "Delete this assertion.",
+      "revId": "0b04f52c855a01ac2605a67d600aa144783fb2d5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
