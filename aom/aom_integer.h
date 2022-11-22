@@ -15,7 +15,11 @@
 #include <stddef.h>
 
 #if defined(_MSC_VER)
+#if !defined(_WIN32)
 #define AOM_FORCE_INLINE __forceinline
+#else
+#define AOM_FORCE_INLINE __inline
+#endif
 #define AOM_INLINE __inline
 #else
 #define AOM_FORCE_INLINE __inline__ __attribute__((always_inline))
