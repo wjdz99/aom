@@ -43,6 +43,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "906d96bf_5a92076a",
+        "filename": "aom_dsp/x86/avg_intrin_avx2.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 618,
+      "author": {
+        "id": 31012
+      },
+      "writtenOn": "2022-11-22T05:41:44Z",
+      "side": 1,
+      "message": "Thanks for correcting, removed ref_tmp.",
+      "parentUuid": "cf935f58_68f5ad95",
+      "range": {
+        "startLine": 618,
+        "startChar": 2,
+        "endLine": 618,
+        "endChar": 31
+      },
+      "revId": "f49e5f2e7cadc42f992a80474567cf48c69bf234",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "bddeae1c_200da3a9",
         "filename": "aom_dsp/x86/avg_intrin_avx2.c",
         "patchSetId": 1
@@ -54,6 +78,30 @@
       "writtenOn": "2022-11-21T19:55:54Z",
       "side": 1,
       "message": "We only loop through it 1, 2, or 4 times. So consider using a do-while loop to save an instruction.",
+      "range": {
+        "startLine": 622,
+        "startChar": 2,
+        "endLine": 622,
+        "endChar": 42
+      },
+      "revId": "f49e5f2e7cadc42f992a80474567cf48c69bf234",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "939e19dc_4e8392a9",
+        "filename": "aom_dsp/x86/avg_intrin_avx2.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 622,
+      "author": {
+        "id": 31012
+      },
+      "writtenOn": "2022-11-22T05:41:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bddeae1c_200da3a9",
       "range": {
         "startLine": 622,
         "startChar": 2,
