@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a1f0cd0f_690edda4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 31042
+      },
+      "writtenOn": "2022-11-22T14:16:35Z",
+      "side": 1,
+      "message": "This is the same kind of speicalization as the non-averaging case - and gets us a few extra % overall for --cpu-used \u003c 5.",
+      "revId": "d4b85df460eb62dc430899ac6e21f6e21e854914",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
