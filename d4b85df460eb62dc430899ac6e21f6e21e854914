@@ -63,6 +63,30 @@
       },
       "revId": "d4b85df460eb62dc430899ac6e21f6e21e854914",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "86c93c04_cb115935",
+        "filename": "aom_dsp/arm/subpel_variance_neon.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 410,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-11-22T23:26:59Z",
+      "side": 1,
+      "message": "\u003e In terms of performance on modern OoO cores, no - the adjacent cmp and b.ne instructions in the first implementation here[1] will be merged together.\n\u003e \n\u003e That said, the tidier loop prologue and the more elegant use of a flag-setting loop counter decrement mean the code size reduction is worth having.\n\nRight, the latter part was what I was referring to.\n\n\u003e Since this kind of change can be made in lots of places in this file (and others) I\u0027d like to merge this patch as-is and then do all of the loop control-flow changes for this file in a subsequent patch.\n\u003e \n\nThat makes sense. I mentioned it knowing libaom hasn\u0027t really adhered to this.\n\n\u003e Feel free to submit this change if that all sounds OK. \n\u003e \n\u003e [1] https://godbolt.org/z/zv47nfoPd",
+      "parentUuid": "2d7ea6cb_f84a8d22",
+      "range": {
+        "startLine": 409,
+        "startChar": 2,
+        "endLine": 410,
+        "endChar": 27
+      },
+      "revId": "d4b85df460eb62dc430899ac6e21f6e21e854914",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
