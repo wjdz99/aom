@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9e1b9531_cb9dae6c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 31022
+      },
+      "writtenOn": "2022-11-23T13:04:09Z",
+      "side": 1,
+      "message": "Hi Yunqing, Marco,\n\nThis CL refactors the model_skip_sb_y_large() function mainly for speed and to facilitate intrinsic changes. Please check the refactoring changes in the patch.\n1. Early return based on the ‘force_zeromv_skip_for_blk’ flag is moved to the beginning of the function which avoids some of the declarations.\n2. Refactored and combined the ‘for’ loops which updates ac_test and dc_test flags for speed-up. This change also removes the variables and conditions related to TX_SIZE 32x32.\n3. To improve modularity of model_skip_for_sb_y_large() function, some of the operations are abstracted into new functions. These changes are done to facilitate required changes in the dependent patch. (https://aomedia-review.googlesource.com/c/aom/+/167062).\n\nFor this patch, we observed ~0.15% instruction count reduction. (achieved mainly due to change #2). We also submitted a dependent CL (https://aomedia-review.googlesource.com/c/aom/+/167062), to avoid calculate_variance() for block sizes \u003e 32x32 and combined gains are mentioned in the dependent CL.\n\nPlease review the patch.\n\nThanks \u0026 Regards,\nAnupam.",
+      "revId": "279484cf94092166dec357344dcc55ca7d855706",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
