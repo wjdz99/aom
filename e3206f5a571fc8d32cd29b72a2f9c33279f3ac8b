@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "69a70471_4ee62775",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 249,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-11-23T12:16:32Z",
+      "side": 1,
+      "message": "I think this may need to be rounded up.",
+      "range": {
+        "startLine": 249,
+        "startChar": 24,
+        "endLine": 249,
+        "endChar": 75
+      },
+      "revId": "e3206f5a571fc8d32cd29b72a2f9c33279f3ac8b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0ca9f550_9d0a78b4",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 254,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-11-23T12:16:32Z",
+      "side": 1,
+      "message": "nit: This could just be \"else if\". You don\u0027t need the extra braces.",
+      "range": {
+        "startLine": 253,
+        "startChar": 4,
+        "endLine": 254,
+        "endChar": 6
+      },
+      "revId": "e3206f5a571fc8d32cd29b72a2f9c33279f3ac8b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "216acae4_3d5912c0",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 283,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-11-23T12:16:32Z",
+      "side": 1,
+      "message": "nit: This just says what the code is doing, but doesn\u0027t explain why. \n\nAnd in fact, this ought to be safe to do. It really ought to be a no-op. Another option would be to do something like this:\n\n    int adjusted_qindex \u003d av1_adjust_q_from_delta_q_res(...);\n    if (cpi-\u003euse_ducky_encode) {\n      assert(adjusted_qindex \u003d\u003d current_qindex);\n    }\n    current_qindex \u003d adjusted_qindex;",
+      "range": {
+        "startLine": 283,
+        "startChar": 5,
+        "endLine": 283,
+        "endChar": 68
+      },
+      "revId": "e3206f5a571fc8d32cd29b72a2f9c33279f3ac8b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "81058156_924ce6e1",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1812,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-11-23T12:16:32Z",
+      "side": 1,
+      "message": "Shouldn\u0027t delta_q_res be initialized to something? \n\nIn theory you could set it to 4 based on the knowledge that that\u0027s what the RC library uses.\n\nIf you don\u0027t want to assume that, it would be safe to use 1, although that will use a few more bits per superblock. \n\nIt shouldn\u0027t be zero, though, because that will result in dividing by zero in write_delta_q_params.\n\nMaybe do something like this?\n\n    cm-\u003edelta_q_info.delta_q_res \u003d 0;\n    if (cpi-\u003euse_ducky_encode) {\n      cm-\u003edelta_q_info.delta_q_res \u003d DEFAULT_DELTA_Q_RES_DUCKY_ENCODE;\n    } else if (cpi-\u003eoxcf.q_cfg.aq_mode !\u003d CYCLIC_REFRESH_AQ) {",
+      "range": {
+        "startLine": 1810,
+        "startChar": 0,
+        "endLine": 1812,
+        "endChar": 55
+      },
+      "revId": "e3206f5a571fc8d32cd29b72a2f9c33279f3ac8b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "46e35593_6a77bcf8",
+        "filename": "av1/qmode_rc/ducky_encode.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 409,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-11-23T12:16:32Z",
+      "side": 1,
+      "message": "You\u0027re leaking these. Here are ways I can think of to fix this:\n\n1. In DuckyEncode::EncodeFrame, delete them after encoding the frame.\n\n2. In DuckyEncode::EncodeFrame, allocate vectors for these on the stack, pass them in here by reference, and then assign the pointers in frame_info to the data() of those vectors. This has the advantage that you don\u0027t need to explicitly delete them.\n\n3. Move the declaration of SuperblockEncodeParameters into a new header which can be included from C, but I\u0027m dubious that this would work, because it\u0027s in the aom namespace, and there\u0027s also a bigwave::av1:::SuperblockEncodeParameters.",
+      "range": {
+        "startLine": 407,
+        "startChar": 0,
+        "endLine": 409,
+        "endChar": 0
+      },
+      "revId": "e3206f5a571fc8d32cd29b72a2f9c33279f3ac8b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
