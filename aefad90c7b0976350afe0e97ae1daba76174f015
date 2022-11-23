@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4d98e3a8_b9400e6a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 31022
+      },
+      "writtenOn": "2022-11-23T14:32:53Z",
+      "side": 1,
+      "message": "Hi Yunqing, Marco,\n\nAs per our understanding, the tx_size in model_skip_y_large() is computed based on the block variance and sse. As tx_size is not known beforehand, the specified metrics are maintained at 8x8 level and the same metrics are used to calculate variance, sse at the required tx_size level. It is also observed that, for block size \u003e 32x32, the tx_size is always chosen as 16x16.\nHence, this CL avoids calculate_variance() by getting the required variance and sse from block_variance_16x16_dual() function.\nOnce the patch gets merged, we will submit a follow up patch to add sse2 and Neon optimizations with unit-test for the newly created intrinsic functions.\n\nPlease check the combined gains of encoder for this patch and its dependent patch.\n```\n   \t              Instruction Count\ncpu   Resolution     Reduction(%)\n 7          rtc        0.521\n 7     rtc_derf        0.291\n 7    rtc_1080p        0.919\n 7   rtc_screen        0.523\n\n 8          rtc        0.492\n 8     rtc_derf        0.063\n 8    rtc_1080p        0.579\n 8   rtc_screen        0.528\n\n 9          rtc        0.476\n 9     rtc_derf        0.125\n 9    rtc_1080p        0.570\n 9   rtc_screen        0.300\n\n10          rtc        0.375\n10     rtc_derf        0.122\n10    rtc_1080p        0.571\n10   rtc_screen        0.324\n```\n\nThe instruction count reduction specified has been measured using command:\n$ perf stat -e instructions:u ./aomenc …\n\nPlease review the CL.\n\nThanks \u0026 Regards,\nAnupam.",
+      "revId": "aefad90c7b0976350afe0e97ae1daba76174f015",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
