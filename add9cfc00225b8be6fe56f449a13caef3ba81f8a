@@ -16,6 +16,40 @@
       "message": "Hi Wan-Teh, Frank, Marco,\n\nIn this CL we have added an assert in the functions loopfilter_frame() and cdef_restoration_frame() to check that deblocking and CDEF post-processing filters are applied on the reconstructed frame only when cpi-\u003eppi-\u003ertc_ref.non_reference_frame is set to 0 (as per the comments in the CL https://aomedia-review.googlesource.com/c/aom/+/166362 ).\n\nFor libaom AV1 video encode, bit-match is verified (w.r.t. parent commit) for \u0027GOOD\u0027, \u0027RT\u0027 and \u0027ALLINTRA\u0027 encoding modes for a few contents with different encoding configurations.\n\nPlease review.\n\nRegards,\nNeha.",
       "revId": "add9cfc00225b8be6fe56f449a13caef3ba81f8a",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a44ea348_0117fbf9",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-11-23T04:50:49Z",
+      "side": 1,
+      "message": "LGTM. I suggest a small change.",
+      "revId": "add9cfc00225b8be6fe56f449a13caef3ba81f8a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fac91acb_ea7761ba",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 2358,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-11-23T04:50:49Z",
+      "side": 1,
+      "message": "Nit: could you move this assertion before the comment block?",
+      "revId": "add9cfc00225b8be6fe56f449a13caef3ba81f8a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
