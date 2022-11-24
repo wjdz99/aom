@@ -365,6 +365,62 @@ static bool use_aggressive_subpel_search_method(
   return false;
 }
 
+void av1_make_default_fullpel_ms_params_nonrd(
+    FULLPEL_MOTION_SEARCH_PARAMS *ms_params, const struct AV1_COMP *cpi,
+    const MACROBLOCK *x, BLOCK_SIZE bsize, const MV *ref_mv,
+    const search_site_config search_sites[NUM_DISTINCT_SEARCH_METHODS],
+    int fine_search_interval) {
+  const MV_SPEED_FEATURES *mv_sf = &cpi->sf.mv_sf;
+
+  // High level params
+  ms_params->bsize = bsize;
+  ms_params->vfp = &cpi->ppi->fn_ptr[bsize];
+
+  init_ms_buffers(&ms_params->ms_buffers, x);
+
+  SEARCH_METHODS search_method = mv_sf->search_method;
+  if (mv_sf->use_bsize_dependent_search_method) {
+    const int min_dim = AOMMIN(block_size_wide[bsize], block_size_high[bsize]);
+    const int qband = x->qindex >> (QINDEX_BITS - 2);
+    if (min_dim >= 16 && x->content_state_sb.source_sad_nonrd <= kMedSad &&
+        qband < 3) {
+      search_method = get_faster_search_method(search_method);
+    }
+  }
+
+  av1_set_mv_search_method(ms_params, search_sites, search_method);
+
+  const int use_downsampled_sad =
+      mv_sf->use_downsampled_sad && block_size_high[bsize] >= 16;
+  if (use_downsampled_sad) {
+    ms_params->sdf = ms_params->vfp->sdsf;
+    ms_params->sdx4df = ms_params->vfp->sdsx4df;
+  } else {
+    ms_params->sdf = ms_params->vfp->sdf;
+    ms_params->sdx4df = ms_params->vfp->sdx4df;
+  }
+
+  ms_params->mesh_patterns[0] = mv_sf->mesh_patterns;
+  ms_params->mesh_patterns[1] = mv_sf->intrabc_mesh_patterns;
+  ms_params->force_mesh_thresh = mv_sf->exhaustive_searches_thresh;
+  ms_params->prune_mesh_search =
+      (cpi->sf.mv_sf.prune_mesh_search == PRUNE_MESH_SEARCH_LVL_2) ? 1 : 0;
+  ms_params->mesh_search_mv_diff_threshold = 4;
+  ms_params->run_mesh_search = 0;
+  ms_params->fine_search_interval = fine_search_interval;
+
+  ms_params->is_intra_mode = 0;
+
+  ms_params->fast_obmc_search = mv_sf->obmc_full_pixel_search_level;
+
+  ms_params->mv_limits = x->mv_limits;
+  av1_set_mv_search_range(&ms_params->mv_limits, ref_mv);
+
+  // Mvcost params
+  init_mv_cost_params(&ms_params->mv_cost_params, x->mv_costs, ref_mv,
+                      x->errorperbit, x->sadperbit);
+}
+
 /*!\brief Runs Motion Estimation for a specific block and specific ref frame.
  *
  * \ingroup nonrd_mode_search
@@ -436,9 +492,9 @@ static int combined_motion_search(AV1_COMP *cpi, MACROBLOCK *x,
   const search_site_config *src_search_sites = av1_get_search_site_config(
       x->search_site_cfg_buf, mv_search_params, search_method, ref_stride);
   FULLPEL_MOTION_SEARCH_PARAMS full_ms_params;
-  av1_make_default_fullpel_ms_params(&full_ms_params, cpi, x, bsize, &center_mv,
-                                     src_search_sites,
-                                     /*fine_search_interval=*/0);
+  av1_make_default_fullpel_ms_params_nonrd(&full_ms_params, cpi, x, bsize,
+                                           &center_mv, src_search_sites,
+                                           /*fine_search_interval=*/0);
 
   const unsigned int full_var_rd = av1_full_pixel_search(
       start_mv, &full_ms_params, step_param, cond_cost_list(cpi, cost_list),

@@ -196,8 +196,62 @@ static const SEARCH_METHODS search_method_lookup[NUM_SEARCH_METHODS] = {
   SQUARE,           // SQUARE
   HEX,              // FAST_HEX
   BIGDIA,           // FAST_DIAMOND
-  BIGDIA            // FAST_BIGDIA
+  BIGDIA,           // FAST_BIGDIA
+  BIGDIA            // VFAST_DIAMOND
 };
+
+static INLINE void init_ms_buffers(MSBuffers *ms_buffers, const MACROBLOCK *x) {
+  ms_buffers->ref = &x->e_mbd.plane[0].pre[0];
+  ms_buffers->src = &x->plane[0].src;
+
+  av1_set_ms_compound_refs(ms_buffers, NULL, NULL, 0, 0);
+
+  ms_buffers->wsrc = x->obmc_buffer.wsrc;
+  ms_buffers->obmc_mask = x->obmc_buffer.mask;
+}
+
+static INLINE void init_mv_cost_params(MV_COST_PARAMS *mv_cost_params,
+                                       const MvCosts *mv_costs,
+                                       const MV *ref_mv, int errorperbit,
+                                       int sadperbit) {
+  mv_cost_params->ref_mv = ref_mv;
+  mv_cost_params->full_ref_mv = get_fullmv_from_mv(ref_mv);
+  mv_cost_params->mv_cost_type = MV_COST_ENTROPY;
+  mv_cost_params->error_per_bit = errorperbit;
+  mv_cost_params->sad_per_bit = sadperbit;
+  // For allintra encoding mode, 'mv_costs' is not allocated. Hence, the
+  // population of mvjcost and mvcost are avoided. In case of IntraBC, these
+  // values are populated from 'dv_costs' in av1_set_ms_to_intra_mode().
+  if (mv_costs != NULL) {
+    mv_cost_params->mvjcost = mv_costs->nmv_joint_cost;
+    mv_cost_params->mvcost[0] = mv_costs->mv_cost_stack[0];
+    mv_cost_params->mvcost[1] = mv_costs->mv_cost_stack[1];
+  }
+}
+
+static AOM_INLINE SEARCH_METHODS
+get_faster_search_method(SEARCH_METHODS search_method) {
+  // Note on search method's accuracy:
+  //  1. NSTEP
+  //  2. DIAMOND
+  //  3. BIGDIA \approx SQUARE
+  //  4. HEX.
+  //  5. FAST_HEX \approx FAST_DIAMOND
+  switch (search_method) {
+    case NSTEP: return DIAMOND;
+    case NSTEP_8PT: return DIAMOND;
+    case DIAMOND: return BIGDIA;
+    case CLAMPED_DIAMOND: return BIGDIA;
+    case BIGDIA: return HEX;
+    case SQUARE: return HEX;
+    case HEX: return FAST_HEX;
+    case FAST_HEX: return FAST_HEX;
+    case FAST_DIAMOND: return VFAST_DIAMOND;
+    case FAST_BIGDIA: return FAST_BIGDIA;
+    case VFAST_DIAMOND: return VFAST_DIAMOND;
+    default: assert(0 && "Invalid search method!"); return DIAMOND;
+  }
+}
 
 // Mv beyond the range do not produce new/different prediction block.
 static INLINE void av1_set_mv_search_method(
