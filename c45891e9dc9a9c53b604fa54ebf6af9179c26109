@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d3863d6d_44c078b1",
+        "filename": "av1/common/arm/resize_neon.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 732,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-11-24T00:16:58Z",
+      "side": 1,
+      "message": "Nit: oom_errored \u003d\u003e malloc_failed or out_of_memory or ran_out_of_memory\n\nI\u0027m sorry I suggested a bad variable name earlier.",
+      "revId": "c45891e9dc9a9c53b604fa54ebf6af9179c26109",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}

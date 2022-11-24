@@ -104,6 +104,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "c260714f_5175917f",
+        "filename": "av1/common/resize.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1394,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-11-24T00:16:58Z",
+      "side": 1,
+      "message": "This is just nice to have. Marked this resolved to reduce the number of unresolved comments.\n\nBut if you also like this suggested change, I can write a CL to make this change.",
+      "parentUuid": "6971cda9_b8376700",
+      "revId": "147797237aa9a98991b1d25cc101a61f7faf3be4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "3cbae4a8_80df62be",
@@ -293,6 +311,24 @@
       "writtenOn": "2022-11-17T18:47:56Z",
       "side": 1,
       "message": "IMPORTANT: Should we pass `ref-\u003ey_crop_width` and `ref-\u003ey_crop_height` instead of `cm-\u003ewidth` and `cm-\u003eheight` as the first two arguments?\n\nNote that the code (lines 745-760) below deals with `ref` and `\u0026new_fb-\u003ebuf`.\n\nI am not sure if `cm-\u003ewidth \u003d\u003d ref-\u003ey_crop_width` and `cm-\u003eheight \u003d\u003d ref-\u003ey_crop_height` are true.",
+      "revId": "147797237aa9a98991b1d25cc101a61f7faf3be4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3d0a0357_85656e41",
+        "filename": "av1/encoder/encoder_utils.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 736,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-11-24T00:16:58Z",
+      "side": 1,
+      "message": "I wrote https://aomedia-review.googlesource.com/c/aom/+/167081 to fix this.",
+      "parentUuid": "e4f68ce0_fde10eac",
       "revId": "147797237aa9a98991b1d25cc101a61f7faf3be4",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
