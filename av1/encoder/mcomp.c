@@ -32,58 +32,6 @@
 #include "av1/encoder/rdopt.h"
 #include "av1/encoder/reconinter_enc.h"
 
-static INLINE void init_mv_cost_params(MV_COST_PARAMS *mv_cost_params,
-                                       const MvCosts *mv_costs,
-                                       const MV *ref_mv, int errorperbit,
-                                       int sadperbit) {
-  mv_cost_params->ref_mv = ref_mv;
-  mv_cost_params->full_ref_mv = get_fullmv_from_mv(ref_mv);
-  mv_cost_params->mv_cost_type = MV_COST_ENTROPY;
-  mv_cost_params->error_per_bit = errorperbit;
-  mv_cost_params->sad_per_bit = sadperbit;
-  // For allintra encoding mode, 'mv_costs' is not allocated. Hence, the
-  // population of mvjcost and mvcost are avoided. In case of IntraBC, these
-  // values are populated from 'dv_costs' in av1_set_ms_to_intra_mode().
-  if (mv_costs != NULL) {
-    mv_cost_params->mvjcost = mv_costs->nmv_joint_cost;
-    mv_cost_params->mvcost[0] = mv_costs->mv_cost_stack[0];
-    mv_cost_params->mvcost[1] = mv_costs->mv_cost_stack[1];
-  }
-}
-
-static INLINE void init_ms_buffers(MSBuffers *ms_buffers, const MACROBLOCK *x) {
-  ms_buffers->ref = &x->e_mbd.plane[0].pre[0];
-  ms_buffers->src = &x->plane[0].src;
-
-  av1_set_ms_compound_refs(ms_buffers, NULL, NULL, 0, 0);
-
-  ms_buffers->wsrc = x->obmc_buffer.wsrc;
-  ms_buffers->obmc_mask = x->obmc_buffer.mask;
-}
-
-static AOM_INLINE SEARCH_METHODS
-get_faster_search_method(SEARCH_METHODS search_method) {
-  // Note on search method's accuracy:
-  //  1. NSTEP
-  //  2. DIAMOND
-  //  3. BIGDIA \approx SQUARE
-  //  4. HEX.
-  //  5. FAST_HEX \approx FAST_DIAMOND
-  switch (search_method) {
-    case NSTEP: return DIAMOND;
-    case NSTEP_8PT: return DIAMOND;
-    case DIAMOND: return BIGDIA;
-    case CLAMPED_DIAMOND: return BIGDIA;
-    case BIGDIA: return HEX;
-    case SQUARE: return HEX;
-    case HEX: return FAST_HEX;
-    case FAST_HEX: return FAST_HEX;
-    case FAST_DIAMOND: return FAST_DIAMOND;
-    case FAST_BIGDIA: return FAST_BIGDIA;
-    default: assert(0 && "Invalid search method!"); return DIAMOND;
-  }
-}
-
 void av1_init_obmc_buffer(OBMCBuffer *obmc_buffer) {
   obmc_buffer->wsrc = NULL;
   obmc_buffer->mask = NULL;
@@ -1240,6 +1188,15 @@ static int fast_hex_search(const FULLPEL_MV start_mv,
                     cost_list, best_mv);
 }
 
+static int vfast_dia_search(const FULLPEL_MV start_mv,
+                            const FULLPEL_MOTION_SEARCH_PARAMS *ms_params,
+                            const int search_step, const int do_init_search,
+                            int *cost_list, FULLPEL_MV *best_mv) {
+  return bigdia_search(start_mv, ms_params,
+                       AOMMAX(MAX_MVSEARCH_STEPS - 1, search_step),
+                       do_init_search, cost_list, best_mv);
+}
+
 static int fast_dia_search(const FULLPEL_MV start_mv,
                            const FULLPEL_MOTION_SEARCH_PARAMS *ms_params,
                            const int search_step, const int do_init_search,
@@ -1682,6 +1639,10 @@ int av1_full_pixel_search(const FULLPEL_MV start_mv,
     case FAST_BIGDIA:
       var = fast_bigdia_search(start_mv, ms_params, step_param, 0, cost_list,
                                best_mv);
+      break;
+    case VFAST_DIAMOND:
+      var = vfast_dia_search(start_mv, ms_params, step_param, 0, cost_list,
+                             best_mv);
       break;
     case FAST_DIAMOND:
       var = fast_dia_search(start_mv, ms_params, step_param, 0, cost_list,
