@@ -24,6 +24,7 @@
 #define RENAME_(x, y) AV1_K_MEANS_RENAME(x, y)
 #define RENAME(x) RENAME_(x, AV1_K_MEANS_DIM)
 
+#if AV1_K_MEANS_DIM == 2
 static int RENAME(calc_dist)(const int *p1, const int *p2) {
   int dist = 0;
   for (int i = 0; i < AV1_K_MEANS_DIM; ++i) {
@@ -32,6 +33,7 @@ static int RENAME(calc_dist)(const int *p1, const int *p2) {
   }
   return dist;
 }
+#endif
 
 void RENAME(av1_calc_indices)(const int *data, const int *centroids,
                               uint8_t *indices, int64_t *dist, int n, int k) {
@@ -39,18 +41,30 @@ void RENAME(av1_calc_indices)(const int *data, const int *centroids,
     *dist = 0;
   }
   for (int i = 0; i < n; ++i) {
+#if AV1_K_MEANS_DIM == 2
     int min_dist = RENAME(calc_dist)(data + i * AV1_K_MEANS_DIM, centroids);
+#else
+    int min_dist = abs(data[i] - centroids[0]);
+#endif
     indices[i] = 0;
     for (int j = 1; j < k; ++j) {
+#if AV1_K_MEANS_DIM == 2
       const int this_dist = RENAME(calc_dist)(data + i * AV1_K_MEANS_DIM,
                                               centroids + j * AV1_K_MEANS_DIM);
+#else
+      const int this_dist = abs(data[i] - centroids[j]);
+#endif
       if (this_dist < min_dist) {
         min_dist = this_dist;
         indices[i] = j;
       }
     }
     if (dist) {
+#if AV1_K_MEANS_DIM == 2
       *dist += min_dist;
+#else
+      *dist += min_dist * min_dist;
+#endif
     }
   }
 }
