@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e5152185_b5b2b4e9",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 31592
+      },
+      "writtenOn": "2022-11-25T13:12:48Z",
+      "side": 1,
+      "message": "Hi Marco and Yunqing,\n\nIn the parent version, the intra modes in inter frames are pruned using the speed feature/mask ‘intra_y_mode_bsize_mask_nrd’. As per the mask, the intra modes in intra frames are evaluated. For speed \u003c\u003d 8, DC, H and V are evaluated, while for speed \u003e\u003d 9, only DC mode gets evaluated. In this CL, we introduced a speed feature ‘prune_hv_pred_modes_using_src_sad’, which prunes H and V intra modes for cpu 8, based on source sad and other block properties. The following describes the pruning logic used for different test sets.\n\n```\nFor rtc_derf:\na.  Pruning is enabled when SB level source sad \u003c\u003d kMedSad.\nb.  Pruning is disabled when the current frame source sad is 1.1 times \nmore than average frame sad. In other words, when current frame is not \nsimilar to its previous frames, as determined by a threshold on SAD, \nH and V Intra modes should still be evaluated.\nc.  Pruning is disabled when the current block is boosted through segment id.\n\nFor rtc, only logic (a) is applied.\n```\n\nFor rtc-derf, when H and V intra modes are pruned using logic ‘a’, even though the overall BD-Rate and Maximum BD-Rate is within the trade-off limit, we observed visual artifacts w.r.t. Reference. Hence, we took a conservative approach to prune the H and V modes.\n\nWe performed visual tests for the following content:\n```\n cpu  content                         bitrate/s\n                                      (kbps)\n  8   apprtc_pixel3_320_240           60, 100\n  8   capture_nexus_320_240           40, 60, 100\n  8   three_scene_cut_180p            60\n  8   jimred_320_240                  40\n  8   desktopqvga2_320_240            40, 50\n  8   mac_marco_stationary_320_240    40, 100\n  8   mac_marco_moving_320_240        100\n  8   tacomascmvvga                   300\n  8   mmstionaryvga                   400\n  8   mmmovingvga                     300\n  8   kirlandvga                      300\n  8   jimredvga_25fps                 400\n  8   testnoise720p                   800\n  8   marcooffice720p                 800\n```\nFor all contents, we did not find any new artifacts. For some frames, we observed the visual drag improving, while in a few frames it is slightly worse. Overall we feel the visual quality is neutral or better.\n\nThe sf is disabled for screen as the trade-off is not good\n\nIn the commit message:\n[-] sign indicates encode time increase\n[+] sign indicates encode time reduction\n\nThe instruction count reduction specified has been measured using command:\n```\n$ perf stat -e instructions:u ./aomenc\n```\n\nPlease review the CL.\n\nRegards,\nNarayan",
+      "revId": "6f8c167006f4976ee204b56024bbac172f96e822",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
