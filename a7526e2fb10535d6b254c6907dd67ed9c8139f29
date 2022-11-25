@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "01d64009_020d85d4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 29295
+      },
+      "writtenOn": "2022-11-25T11:47:37Z",
+      "side": 1,
+      "message": "Hi Marco/Yunqing,\n\nIn this CL, we used the sf: use_bsize_dependent_search_method \nfrom good preset to switch to faster motion search for larger \nblocks with lower SAD. The qband condition is added to disable\nthe logic for the blocks with higher qp, where prediction is \nmore important to maintain objective and visual quality.\n\nThe details of worst/best case drops:\n```\n                                  BD-Rate Loss(%)     Instr Cnt\ncpu              content    avg.psnr ovr.psnr   ssim   Red (%)\n\t\t\t\t\t\t\t\t\t\t\t\t\t   \n--- Worst ---                                          \n 8       marcooffice720p     0.9295   0.9203   1.2445   0.959\n 8      desktop2_320_180     0.8200   0.8714   1.2345   0.628\n 8 capture_nexus_320_240     0.5187   0.3936   0.5575   1.713\n\t\t\t\t\t\t\t\t\t\t\t\t\t   \n--- Best ---                                           \n 8     thaloundeskmtgvga    -1.6624  -2.2745  -2.0144   1.546\n 8        jimred_320_240    -1.2807  -1.0570  -1.1796   0.938\n 8      desktop1_320_180    -1.0354  -0.9782  -1.5675   0.816\n``` \n\nWe did visual check of the following Worst-case clips against \nthe Ref commit:                            \n```\n No   cpu               content  bitrate   Outcome of CL\n                                 (kbps)  \n 1     8        desktop2_320_180   40   small diff at frame level\n                                        overall neutral quality\n 2     8   capture_nexus_320_240   50   small diff at frame level\n                                        overall neutral quality\n 3     8         marcooffice720p  800   no noticeable differences\n 4     8            mmmovingvga   300   no noticeable differences\n```\nFor 1 and 2, some frames are improving, while some are slightly \nworse. Overall visual quality is neutral. No new artifacts.\n\nFor cpu 7, the results are out of trade-off:\n```\n                  Instr Cnt    BD-Rate Loss(%)\ncpu   Testset      Red(%)   avg.psnr   ovr.psnr    ssim\n 7           rtc   1.111     0.3009     0.3688    0.4210                \n 7      rtc_derf   0.805     0.1282     0.1690    0.1399\n```\nAlso, it gives a bad BD-Rate drop: thaloundeskmtgvga ~5%(avg-psnr)\nThus, it is disabled for cpu 7.\n\nFor cpu 9 and 10, this logic may not be applicable, possibly due \nto the partition logic that favors large blocks. So, the large \nblocks e.g. 16x16 need FAST_DIAMOND to retain the objective and \nvisual quality. Please see the Borg results below:\n```\n                  Instr Cnt    BD-Rate Loss(%)\ncpu   Testset      Red(%)   avg.psnr   ovr.psnr    ssim\n 9           rtc   0.930     0.1341     0.1087    0.1539             \n 9      rtc_derf   0.691     0.0348     0.0723    0.1242\n10           rtc   0.860     0.3469     0.3955    0.3245\n10      rtc_derf   0.739     0.0806     0.0916    0.1136\n```\nAlthough for Borg results are well within our trade-off limit,\nthe worst-case drop for cpu 9 is dark720p: 1.27% (avg. psnr)\nAlso, we spotted a small green block in mmmovingvga 300kbps \nnear the green baloon (cpu 9). For these reasons, this logic is \ncurrently disabled for cpu 9, 10. A softer logic may be possible\ne.g. min_dim \u003e\u003d 32.\n\nrtc_screen is not affected much, speed-up \u003c 0.5%. So, we\nhave disabled it in this CL.\n\nPlease review the CL and let us know your suggestions.\n\nThanks,\nNeeraj",
+      "revId": "a7526e2fb10535d6b254c6907dd67ed9c8139f29",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
