@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e4d576e3_c0449701",
+        "filename": "av1/qmode_rc/ducky_encode.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 353,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-11-27T12:30:45Z",
+      "side": 1,
+      "message": "I don\u0027t believe there\u0027s any need for these to be passed by value. They could both be const references.",
+      "range": {
+        "startLine": 352,
+        "startChar": 58,
+        "endLine": 353,
+        "endChar": 69
+      },
+      "revId": "2bb8b571ace6a19c122854850c11297456220ce3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cc295d9e_bce5cbea",
+        "filename": "av1/qmode_rc/ducky_encode.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 537,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-11-27T12:30:45Z",
+      "side": 1,
+      "message": "There shouldn\u0027t be any need to make a copy here. This could be a reference.",
+      "range": {
+        "startLine": 537,
+        "startChar": 4,
+        "endLine": 537,
+        "endChar": 44
+      },
+      "revId": "2bb8b571ace6a19c122854850c11297456220ce3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a758353d_10f65335",
+        "filename": "av1/qmode_rc/ducky_encode.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 573,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-11-27T12:30:45Z",
+      "side": 1,
+      "message": "There shouldn\u0027t be any need to make a copy here either. It could be a const reference, or don\u0027t bother with a named variable at all and just use gop_encode_info_list[i] as the argument.",
+      "range": {
+        "startLine": 573,
+        "startChar": 0,
+        "endLine": 573,
+        "endChar": 65
+      },
+      "revId": "2bb8b571ace6a19c122854850c11297456220ce3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
