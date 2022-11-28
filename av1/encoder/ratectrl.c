@@ -2782,18 +2782,19 @@ static void rc_scene_detection_onepass_rt(AV1_COMP *cpi,
     width = cpi->oxcf.frm_dim_cfg.width;
     height = cpi->oxcf.frm_dim_cfg.height;
   }
+  if (unscaled_src == NULL || unscaled_last_src == NULL) return;
+  src_y = unscaled_src->y_buffer;
+  src_ystride = unscaled_src->y_stride;
+  src_width = unscaled_src->y_width;
+  src_height = unscaled_src->y_height;
   if (width != cm->render_width || height != cm->render_height ||
+      width != src_width || height != src_height ||
       unscaled_src == NULL || unscaled_last_src == NULL) {
     if (cpi->src_sad_blk_64x64) {
       aom_free(cpi->src_sad_blk_64x64);
       cpi->src_sad_blk_64x64 = NULL;
     }
   }
-  if (unscaled_src == NULL || unscaled_last_src == NULL) return;
-  src_y = unscaled_src->y_buffer;
-  src_ystride = unscaled_src->y_stride;
-  src_width = unscaled_src->y_width;
-  src_height = unscaled_src->y_height;
   last_src_y = unscaled_last_src->y_buffer;
   last_src_ystride = unscaled_last_src->y_stride;
   last_src_width = unscaled_last_src->y_width;
