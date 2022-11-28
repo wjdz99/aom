@@ -2179,6 +2179,10 @@ void av1_rc_postencode_update(AV1_COMP *cpi, uint64_t bytes_used) {
   if (current_frame->frame_type == KEY_FRAME) rc->frames_since_key = 0;
   if (cpi->refresh_frame.golden_frame)
     rc->frame_num_last_gf_refresh = current_frame->frame_number;
+  if (cpi->svc.spatial_layer_id == 0) {
+    rc->prev_coded_width = cm->width;
+    rc->prev_coded_height = cm->height;
+  }
   // if (current_frame->frame_number == 1 && cm->show_frame)
   /*
   rc->this_frame_target =
@@ -2195,6 +2199,10 @@ void av1_rc_postencode_update_drop_frame(AV1_COMP *cpi) {
   cpi->rc.rc_2_frame = 0;
   cpi->rc.rc_1_frame = 0;
   cpi->rc.prev_avg_frame_bandwidth = cpi->rc.avg_frame_bandwidth;
+  if (cpi->svc.spatial_layer_id == 0) {
+    cpi->rc.prev_coded_width = cpi->common.width;
+    cpi->rc.prev_coded_height = cpi->common.height;
+  }
 }
 
 int av1_find_qindex(double desired_q, aom_bit_depth_t bit_depth,
@@ -3182,7 +3190,8 @@ void av1_get_one_pass_rt_params(AV1_COMP *cpi, FRAME_TYPE *const frame_type,
     }
   }
   // Check for scene change: for SVC check on base spatial layer only.
-  if (cpi->sf.rt_sf.check_scene_detection && svc->spatial_layer_id == 0)
+  if (cpi->sf.rt_sf.check_scene_detection && svc->spatial_layer_id == 0 &&
+      rc->prev_coded_width == cm->width && rc->prev_coded_height == cm->height)
     rc_scene_detection_onepass_rt(cpi, frame_input);
   // Check for dynamic resize, for single spatial layer for now.
   // For temporal layers only check on base temporal layer.
