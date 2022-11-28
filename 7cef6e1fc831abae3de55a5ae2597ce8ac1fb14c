@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b7d79177_d94c67f5",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-11-28T23:37:46Z",
+      "side": 1,
+      "message": "Added the people who worked on `rc_scene_detection_onepass_rt()` before.",
+      "revId": "7cef6e1fc831abae3de55a5ae2597ce8ac1fb14c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
