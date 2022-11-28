@@ -2794,6 +2794,12 @@ static void rc_scene_detection_onepass_rt(AV1_COMP *cpi,
   src_ystride = unscaled_src->y_stride;
   src_width = unscaled_src->y_width;
   src_height = unscaled_src->y_height;
+  if (width != src_width || height != src_height) {
+    if (cpi->src_sad_blk_64x64) {
+      aom_free(cpi->src_sad_blk_64x64);
+      cpi->src_sad_blk_64x64 = NULL;
+    }
+  }
   last_src_y = unscaled_last_src->y_buffer;
   last_src_ystride = unscaled_last_src->y_stride;
   last_src_width = unscaled_last_src->y_width;
