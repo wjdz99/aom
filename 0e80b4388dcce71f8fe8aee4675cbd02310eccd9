@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4662be99_bd873909",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 2796,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-11-28T23:08:52Z",
+      "side": 0,
+      "message": "There is a subtle change of behavior when `unscaled_src \u003d\u003d NULL || unscaled_last_src \u003d\u003d NULL` is true. In the original code, we will not only free `cpi-\u003esrc_sad_blk_64x64` but also return early. In the new code, we will only return early.\n\nTo avoid this change of behavior, I suggest going back to the original code and adding an if statement here:\n\n```\n  if (width !\u003d src_width || height !\u003d src_height) {\n    if (cpi-\u003esrc_sad_blk_64x64) {\n      aom_free(cpi-\u003esrc_sad_blk_64x64);\n      cpi-\u003esrc_sad_blk_64x64 \u003d NULL;\n    }\n  }\n```",
+      "revId": "0e80b4388dcce71f8fe8aee4675cbd02310eccd9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
