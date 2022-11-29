@@ -405,6 +405,7 @@ static void DuckyEncodeInfoSetEncodeFrameDecision(
   frame_info->rdmult = decision.parameters.rdmult;
   const size_t num_superblocks =
       decision.parameters.superblock_encode_params.size();
+  frame_info->delta_q_enabled = 0;
   if (num_superblocks > 1) {
     frame_info->delta_q_enabled = 1;
     frame_info->superblock_encode_qindex = new int[num_superblocks];
@@ -591,10 +592,10 @@ std::vector<EncodeFrameResult> DuckyEncode::EncodeVideo(
       aom::EncodeFrameDecision frame_decision = { aom::EncodeFrameMode::kQindex,
                                                   aom::EncodeGopMode::kGopRcl,
                                                   frame_param };
-      EncodeFrame(frame_decision);
+      EncodeFrameResult temp_result = EncodeFrame(frame_decision);
       if (ppi->cpi->common.show_frame) {
         bitstream_buf_.resize(pending_ctx_size_);
-        EncodeFrameResult encode_frame_result = {};
+        EncodeFrameResult encode_frame_result = temp_result;
         encode_frame_result.bitstream_buf = bitstream_buf_;
         encoded_frame_list.push_back(encode_frame_result);
 
@@ -665,8 +666,10 @@ EncodeFrameResult DuckyEncode::EncodeFrame(
   fprintf(stderr, "frame %d, qp = %d, size %d, PSNR %f\n",
           encode_frame_result.global_order_idx, encode_frame_result.q_index,
           encode_frame_result.rate, encode_frame_result.psnr);
-  delete[] cpi->ducky_encode_info.frame_info.superblock_encode_qindex;
-  delete[] cpi->ducky_encode_info.frame_info.superblock_encode_rdmult;
+  if (cpi->ducky_encode_info.frame_info.delta_q_enabled) {
+    delete[] cpi->ducky_encode_info.frame_info.superblock_encode_qindex;
+    delete[] cpi->ducky_encode_info.frame_info.superblock_encode_rdmult;
+  }
   return encode_frame_result;
 }
 
