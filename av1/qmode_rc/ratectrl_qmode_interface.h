@@ -327,8 +327,18 @@ class AV1RateControlQModeInterface {
       const std::vector<LookaheadStats> &lookahead_stats,
       const RefFrameTable &ref_frame_table_snapshot_init) = 0;
 
+  // Additionally, pass in the first pass info (whose stats_list starts from the
+  // first frame in this gop)
+  virtual StatusOr<GopEncodeInfo> GetGopEncodeInfo(
+      const GopStruct &gop_struct, const TplGopStats &tpl_gop_stats,
+      const std::vector<LookaheadStats> &lookahead_stats,
+      const FirstpassInfo &firstpass_info,
+      const RefFrameTable &ref_frame_table_snapshot) = 0;
+
   virtual StatusOr<GopEncodeInfo> GetTplPassGopEncodeInfo(
       const GopStruct &gop_struct) = 0;
+  virtual StatusOr<GopEncodeInfo> GetTplPassGopEncodeInfo(
+      const GopStruct &gop_struct, const FirstpassInfo &firstpass_info) = 0;
 };
 }  // namespace aom
 
