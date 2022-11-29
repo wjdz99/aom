@@ -1389,6 +1389,26 @@ static int GetRDMult(const GopFrame &gop_frame, int q_index) {
   }
 }
 
+StatusOr<GopEncodeInfo> GetGopEncodeInfoFp(
+    int base_q_index, const GopStruct &gop_struct,
+    const FirstpassInfo &firstpass_info) {
+  // TODO(any): This is currently a placeholder. Should use the fp stats to
+  // calculate frame-level qp.
+  (void)firstpass_info;
+  GopEncodeInfo gop_encode_info;
+  const int frame_count = static_cast<int>(gop_struct.gop_frame_list.size());
+  for (int i = 0; i < frame_count; i++) {
+    FrameEncodeParameters param;
+    const GopFrame &gop_frame = gop_struct.gop_frame_list[i];
+    // Use constant QP for TPL pass encoding. Keep the functionality
+    // that allows QP changes across sub-gop.
+    param.q_index = base_q_index;
+    param.rdmult = GetRDMult(gop_frame, param.q_index);
+    gop_encode_info.param_list.push_back(param);
+  }
+  return gop_encode_info;
+}
+
 StatusOr<GopEncodeInfo> AV1RateControlQMode::GetTplPassGopEncodeInfo(
     const GopStruct &gop_struct) {
   GopEncodeInfo gop_encode_info;
@@ -1403,6 +1423,11 @@ StatusOr<GopEncodeInfo> AV1RateControlQMode::GetTplPassGopEncodeInfo(
     gop_encode_info.param_list.push_back(param);
   }
   return gop_encode_info;
+}
+
+StatusOr<GopEncodeInfo> AV1RateControlQMode::GetTplPassGopEncodeInfo(
+    const GopStruct &gop_struct, const FirstpassInfo &firstpass_info) {
+  return GetGopEncodeInfoFp(rc_param_.base_q_index, gop_struct, firstpass_info);
 }
 
 StatusOr<GopEncodeInfo> AV1RateControlQMode::GetGopEncodeInfo(
@@ -1492,6 +1517,33 @@ StatusOr<GopEncodeInfo> AV1RateControlQMode::GetGopEncodeInfo(
     gop_encode_info.param_list.push_back(param);
   }
   return gop_encode_info;
+}
+
+StatusOr<GopEncodeInfo> AV1RateControlQMode::GetGopEncodeInfo(
+    const GopStruct &gop_struct, const TplGopStats &tpl_gop_stats,
+    const std::vector<LookaheadStats> &lookahead_stats,
+    const FirstpassInfo &firstpass_info,
+    const RefFrameTable &ref_frame_table_snapshot_init) {
+  Status status = ValidateTplStats(gop_struct, tpl_gop_stats);
+  if (!status.ok()) {
+    return GetGopEncodeInfoFp(rc_param_.base_q_index, gop_struct,
+                              firstpass_info);
+  }
+
+  for (const auto &lookahead_stat : lookahead_stats) {
+    Status status = ValidateTplStats(*lookahead_stat.gop_struct,
+                                     *lookahead_stat.tpl_gop_stats);
+    if (!status.ok()) {
+      return GetGopEncodeInfoFp(rc_param_.base_q_index, gop_struct,
+                                firstpass_info);
+    }
+  }
+
+  // TODO(any): Currently firstpass stats are used as a fall-back, but we could
+  // also combine it with tpl results in the future for more stable qp
+  // determination.
+  return GetGopEncodeInfo(gop_struct, tpl_gop_stats, lookahead_stats,
+                          ref_frame_table_snapshot_init);
 }
 
 }  // namespace aom
