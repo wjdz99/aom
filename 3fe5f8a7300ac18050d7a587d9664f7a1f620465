@@ -26,6 +26,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "db86654a_22c5cbb3",
+        "filename": "av1/qmode_rc/ratectrl_qmode.cc",
+        "patchSetId": 7
+      },
+      "lineNbr": 1559,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2022-11-30T21:08:25Z",
+      "side": 1,
+      "message": "I was thinking, say, when the client knows that the tpl stats are not good/correct, it could pass in an empty tpl stats list, and know that the library will just be using the first pass stats. \n\nBut if you think this is not needed, I can remove it from the CL (I mean this part is not an API change so should be easy to add/remove in the future anyways).",
+      "parentUuid": "f5353b57_3e072aed",
+      "range": {
+        "startLine": 1546,
+        "startChar": 0,
+        "endLine": 1559,
+        "endChar": 0
+      },
+      "revId": "3fe5f8a7300ac18050d7a587d9664f7a1f620465",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "ed89e50b_cfa5644e",
         "filename": "av1/qmode_rc/ratectrl_qmode_interface.h",
         "patchSetId": 7
@@ -37,6 +61,30 @@
       "writtenOn": "2022-11-30T20:58:56Z",
       "side": 1,
       "message": "Should it just be the stats for the current GOP? Or should there be stats for the lookahead GOPs as well? Or for all frames to the end of the sequence?",
+      "range": {
+        "startLine": 335,
+        "startChar": 59,
+        "endLine": 336,
+        "endChar": 44
+      },
+      "revId": "3fe5f8a7300ac18050d7a587d9664f7a1f620465",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "732ff540_5c271a51",
+        "filename": "av1/qmode_rc/ratectrl_qmode_interface.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 336,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2022-11-30T21:08:25Z",
+      "side": 1,
+      "message": "Stats for the current gop is definitely needed. It is also preferred that we have stats for the next gop. Stats further than that could be helpful but we don\u0027t have a concrete plan for that yet. \n\nI believe this function should be able to check the size of the first pass stats, and determine what strategy to use.",
+      "parentUuid": "ed89e50b_cfa5644e",
       "range": {
         "startLine": 335,
         "startChar": 59,
