@@ -1,0 +1,174 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3bbde951_6f1adbde",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-11-30T22:58:47Z",
+      "side": 1,
+      "message": "Yuan: I read the whole CL carefully. After addressing my comments, we just need Jerome to take a final look at your changes to the `av1_resize_and_extend_frame_c()` function and also your question in https://aomedia-review.googlesource.com/c/aom/+/161961.",
+      "revId": "5af2ab3d3e41513ee6c90ee3dffb2f085072db5b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e5faf0da_75ba4957",
+        "filename": "av1/common/arm/resize_neon.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 800,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-11-30T22:58:47Z",
+      "side": 1,
+      "message": "I suggest asserting the original conditional expression here:\n\n```\n      assert(4 * dst_w \u003d\u003d 3 * src_w \u0026\u0026 4 * dst_h \u003d\u003d 3 * src_h);\n```",
+      "revId": "5af2ab3d3e41513ee6c90ee3dffb2f085072db5b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a66cc1b6_8cd42781",
+        "filename": "av1/common/resize.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1214,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-11-30T22:58:47Z",
+      "side": 1,
+      "message": "1) The original code uses `av1_sub_pel_filters_8smooth` in the `EIGHTTAP_REGULAR` case. Is this change intended? I just wanted to confirm this with you.\n\n2) This switch statement seems to be equivalent to the `av1_interp_filter_params_list` table. Should we just use that table?\n\n```\n  assert(filter \u003d\u003d BILINEAR || filter \u003d\u003d EIGHTTAP_SMOOTH ||\n         filter \u003d\u003d EIGHTTAP_REGULAR);\n  const InterpKernel *const kernel \u003d\n      (const InterpKernel *)av1_interp_filter_params_list[filter].filter_ptr;\n```",
+      "revId": "5af2ab3d3e41513ee6c90ee3dffb2f085072db5b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0aa9ea0d_560c3c7c",
+        "filename": "av1/common/resize.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1221,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-11-30T22:58:47Z",
+      "side": 1,
+      "message": "Nit: I suggest declaring local variables `src_buffer` and `dst_buffer` here and using them instead of `src-\u003ebuffers[i]` and `dst-\u003ebuffers[i]` below.",
+      "revId": "5af2ab3d3e41513ee6c90ee3dffb2f085072db5b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d1469381_bb72cb92",
+        "filename": "av1/common/resize.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1240,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-11-30T22:58:47Z",
+      "side": 1,
+      "message": "Note that I think we need to call `aom_extend_frame_borders(dst, num_planes)` here. Please see my CL https://aomedia-review.googlesource.com/c/aom/+/167401.",
+      "revId": "5af2ab3d3e41513ee6c90ee3dffb2f085072db5b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2911470f_93516d30",
+        "filename": "av1/common/resize.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1241,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-11-30T22:58:47Z",
+      "side": 1,
+      "message": "Yuan: I read the `av1_resize_and_extend_frame_c()` function carefully, both the original code and the new code. Unfortunately I still don\u0027t understand the code. I found that Jerome originally wrote this function in https://aomedia-review.googlesource.com/c/aom/+/113067. So it\u0027s best to have Jerome read your changes to this function.",
+      "revId": "5af2ab3d3e41513ee6c90ee3dffb2f085072db5b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "31169858_ee77d266",
+        "filename": "av1/common/resize.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-11-30T22:58:47Z",
+      "side": 1,
+      "message": "Could you explain why this is true? I can\u0027t infer this property from the source code of `av1_resize_and_extend_frame_c()` (which I assume is the normative scaler).\n\nUPDATE: I found that you explained this in your comment in https://aomedia-review.googlesource.com/c/aom/+/161961.",
+      "revId": "5af2ab3d3e41513ee6c90ee3dffb2f085072db5b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c5257396_754888c5",
+        "filename": "av1/common/resize.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-11-30T22:58:47Z",
+      "side": 1,
+      "message": "Document that the return value of this function is used when deciding whether av1_resize_and_extend_frame() or av1_resize_and_extend_frame_nonnormative() is called.",
+      "revId": "5af2ab3d3e41513ee6c90ee3dffb2f085072db5b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f8eb562e_a8f185fe",
+        "filename": "av1/common/x86/resize_ssse3.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 951,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-11-30T22:58:47Z",
+      "side": 1,
+      "message": "Assert the original conditional expression here:\n\n```\n      assert(dst_w \u003d\u003d src_w * 2 \u0026\u0026 dst_h \u003d\u003d src_h * 2);\n```",
+      "revId": "5af2ab3d3e41513ee6c90ee3dffb2f085072db5b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "75106316_cc44497f",
+        "filename": "av1/encoder/encoder_utils.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 736,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-11-30T22:58:47Z",
+      "side": 1,
+      "message": "I just modified this line in https://aomedia-review.googlesource.com/c/aom/+/167081. Please rebase this CL to the tip of the main branch.",
+      "revId": "5af2ab3d3e41513ee6c90ee3dffb2f085072db5b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
