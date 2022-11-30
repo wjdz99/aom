@@ -16,6 +16,23 @@
       "message": "Hi Yunqing,\n\u003eThe idea sounds okey. For rtc_derf, the pruning happens mostly at the moving objects. It would be good to check visual impact on people\u0027s face.\n\nWe have rebased the patch to latest and taken care of your comments. We checked the following additional contents for visual quality, especially people\u0027s face:\n```\ncpu         content                   bitrate/s\n                                      (kbps)\n 8      mac_marco_moving_320_240      50,100,150\n 8      desktopqvga_320_240           60,80,150\n 8      room180p                      40\n ```\nFor the tested contents, we did not observe any new artifacts. The face region is of equal or better quality - it helped reduce color artifacts at a few frames in mac_marco_moving_320_240 and desktopqvga_320_240. Visual drag is slightly better or worse at some frames, but it is generally less noticeable. Overall, the CL has produced equal or better visual quality.\n\n\u003eNeed less restrictions for rtc - rtc clips use large block sizes?\n\nYes. In the parent version, the following logic exists:\n\n```\nBlock_size      Intra modes_Evaluated\n\u003e\u003d 32X32           DC\n \u003c 32x32           DC, H, V\n```\nrtc generally tend to select larger blocks and the visual impact of pruning logic is less in rtc.",
       "revId": "f2dbeddf51f585f95bbdb069af0a1e39d6851961",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "16283093_ca9163f9",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2513,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2022-11-30T17:38:27Z",
+      "side": 1,
+      "message": "why have this condition on segment based on resolution: prefer to keep it simpler and just do (for all resoln)\nis_skip_based_segment \u003d !cyclic_refresh_segment_id_boosted(segment_id)\n\nIf this takes away too much speedup for rtc, then we just disable feature for rtc in speed features.",
+      "revId": "f2dbeddf51f585f95bbdb069af0a1e39d6851961",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
