@@ -1,13 +1,15 @@
 /*
- * Copyright (c) 2016, Alliance for Open Media. All rights reserved
+ * Copyright (c) 2022, Alliance for Open Media. All rights reserved
  *
- * This source code is subject to the terms of the BSD 2 Clause License and
- * the Alliance for Open Media Patent License 1.0. If the BSD 2 Clause License
- * was not distributed with this source code in the LICENSE file, you can
- * obtain it at www.aomedia.org/license/software. If the Alliance for Open
- * Media Patent License 1.0 was not distributed with this source code in the
- * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
+ * This source code is subject to the terms of the BSD 3-Clause Clear License
+ * and the Alliance for Open Media Patent License 1.0. If the BSD 3-Clause Clear
+ * License was not distributed with this source code in the LICENSE file, you
+ * can obtain it at aomedia.org/license/software-license/bsd-3-c-c/.  If the
+ * Alliance for Open Media Patent License 1.0 was not distributed with this
+ * source code in the PATENTS file, you can obtain it at
+ * aomedia.org/license/patent-license/.
  */
+
 #include <memory.h>
 #include <math.h>
 #include <time.h>
@@ -15,8 +17,10 @@
 #include <stdlib.h>
 #include <assert.h>
 
+#include "aom_dsp/flow_estimation/ransac.h"
 #include "aom_dsp/mathutils.h"
-#include "av1/encoder/ransac.h"
+
+// TODO(rachelbarker): Remove dependence on code in av1/encoder/
 #include "av1/encoder/random.h"
 
 #define MAX_MINPTS 4
@@ -782,7 +786,7 @@ static int ransac_affine(int *matched_points, int npoints,
                 find_affine, project_points_double_affine);
 }
 
-RansacFunc av1_get_ransac_type(TransformationType type) {
+RansacFunc aom_get_ransac_type(TransformationType type) {
   switch (type) {
     case AFFINE: return ransac_affine;
     case ROTZOOM: return ransac_rotzoom;
@@ -821,7 +825,7 @@ static int ransac_affine_double_prec(double *matched_points, int npoints,
                             project_points_double_affine);
 }
 
-RansacFuncDouble av1_get_ransac_double_prec_type(TransformationType type) {
+RansacFuncDouble aom_get_ransac_double_prec_type(TransformationType type) {
   switch (type) {
     case AFFINE: return ransac_affine_double_prec;
     case ROTZOOM: return ransac_rotzoom_double_prec;
