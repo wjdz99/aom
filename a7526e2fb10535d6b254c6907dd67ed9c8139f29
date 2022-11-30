@@ -43,6 +43,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "0654eb83_61b96622",
+        "filename": "av1/encoder/mcomp.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1196,
+      "author": {
+        "id": 29295
+      },
+      "writtenOn": "2022-11-30T12:05:43Z",
+      "side": 1,
+      "message": "Yes. Here is the mapping: \n```\nSEARCH_METHODS enum     bigdia_search() param\n\n    FAST_BIGDIA        MAX_MVSEARCH_STEPS - 3\n    FAST_DIAMOND       MAX_MVSEARCH_STEPS - 2\n    VFAST_DIAMOND      MAX_MVSEARCH_STEPS - 1\n```\nFAST_BIGDIA and FAST_DIAMOND are existing in the parent commit. The CL creates VFAST_DIAMOND.",
+      "parentUuid": "0286cae0_ed18eb66",
+      "range": {
+        "startLine": 1196,
+        "startChar": 30,
+        "endLine": 1196,
+        "endChar": 52
+      },
+      "revId": "a7526e2fb10535d6b254c6907dd67ed9c8139f29",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "2827071c_16575b56",
         "filename": "av1/encoder/nonrd_pickmode.c",
         "patchSetId": 2
@@ -54,6 +78,30 @@
       "writtenOn": "2022-11-28T17:59:07Z",
       "side": 1,
       "message": "Not sure if making a copy of this function here is a good idea. Instead, could you add a new level for mv_sf-\u003euse_bsize_dependent_search_method?",
+      "range": {
+        "startLine": 368,
+        "startChar": 5,
+        "endLine": 368,
+        "endChar": 45
+      },
+      "revId": "a7526e2fb10535d6b254c6907dd67ed9c8139f29",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "90643523_1a372c56",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 368,
+      "author": {
+        "id": 29295
+      },
+      "writtenOn": "2022-11-30T12:05:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2827071c_16575b56",
       "range": {
         "startLine": 368,
         "startChar": 5,
