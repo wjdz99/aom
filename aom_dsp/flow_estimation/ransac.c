@@ -16,7 +16,7 @@
 #include <assert.h>
 
 #include "aom_dsp/mathutils.h"
-#include "av1/encoder/ransac.h"
+#include "aom_dsp/flow_estimation/ransac.h"
 #include "av1/encoder/random.h"
 
 #define MAX_MINPTS 4
@@ -782,7 +782,7 @@ static int ransac_affine(int *matched_points, int npoints,
                 find_affine, project_points_double_affine);
 }
 
-RansacFunc av1_get_ransac_type(TransformationType type) {
+RansacFunc aom_get_ransac_type(TransformationType type) {
   switch (type) {
     case AFFINE: return ransac_affine;
     case ROTZOOM: return ransac_rotzoom;
@@ -821,7 +821,7 @@ static int ransac_affine_double_prec(double *matched_points, int npoints,
                             project_points_double_affine);
 }
 
-RansacFuncDouble av1_get_ransac_double_prec_type(TransformationType type) {
+RansacFuncDouble aom_get_ransac_double_prec_type(TransformationType type) {
   switch (type) {
     case AFFINE: return ransac_affine_double_prec;
     case ROTZOOM: return ransac_rotzoom_double_prec;
