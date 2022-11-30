@@ -1,0 +1,142 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "42cfd03c_f1c322d8",
+        "filename": "av1/qmode_rc/ratectrl_qmode.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 1395,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-11-30T09:22:05Z",
+      "side": 1,
+      "message": "Please use a bug number instead of a user name in TODO\u0027s. go/comments#todo\n\nAny change to the API really ought to have a bug associated with it, since it requires a bunch of CL\u0027s to 3 different repos (to add a fake implementation, make the tests support it, change the callers to use the new API, and remove the old API).",
+      "range": {
+        "startLine": 1395,
+        "startChar": 10,
+        "endLine": 1395,
+        "endChar": 17
+      },
+      "revId": "3c02b4c0046a018d06488b497900aae90e8970d2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8d6f699a_4d62e23e",
+        "filename": "av1/qmode_rc/ratectrl_qmode.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 1527,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-11-30T09:22:05Z",
+      "side": 1,
+      "message": "I don\u0027t understand the point of validating the stats here and then calling the other version of GetGopEncodeInfo which validates them again. This could be left out until the function is changed to do something else.",
+      "range": {
+        "startLine": 1527,
+        "startChar": 0,
+        "endLine": 1527,
+        "endChar": 62
+      },
+      "revId": "3c02b4c0046a018d06488b497900aae90e8970d2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0e8b4d9b_fdf17b07",
+        "filename": "av1/qmode_rc/ratectrl_qmode.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 1530,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-11-30T09:22:05Z",
+      "side": 1,
+      "message": "I don\u0027t understand this. If there\u0027s an error, shouldn\u0027t it just do this?\n\n    return status;",
+      "range": {
+        "startLine": 1529,
+        "startChar": 4,
+        "endLine": 1530,
+        "endChar": 46
+      },
+      "revId": "3c02b4c0046a018d06488b497900aae90e8970d2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "19cba593_908fca4d",
+        "filename": "av1/qmode_rc/ratectrl_qmode.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 1538,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-11-30T09:22:05Z",
+      "side": 1,
+      "message": "Same here.",
+      "range": {
+        "startLine": 1537,
+        "startChar": 6,
+        "endLine": 1538,
+        "endChar": 48
+      },
+      "revId": "3c02b4c0046a018d06488b497900aae90e8970d2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "29c023ac_f14687d1",
+        "filename": "av1/qmode_rc/ratectrl_qmode_interface.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 325,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-11-30T09:22:05Z",
+      "side": 1,
+      "message": "Please add TODO\u0027s (with a bug number for this change) to remove the old declarations once they\u0027re no longer used.",
+      "range": {
+        "startLine": 325,
+        "startChar": 0,
+        "endLine": 325,
+        "endChar": 51
+      },
+      "revId": "3c02b4c0046a018d06488b497900aae90e8970d2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fb88e042_cd01b44a",
+        "filename": "av1/qmode_rc/ratectrl_qmode_interface.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 342,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-11-30T09:22:05Z",
+      "side": 1,
+      "message": "When you add new functions to the interface, it\u0027s better to start with them not being pure virtual, so that the header can be integrated to the other repos without needing implementations in all derived classes.\n\nPlease do it like this:\n\n    // TODO(b/########): Make pure virtual once all derived classes implement it.\n    virtual StatusOr\u003cGopEncodeInfo\u003e GetTplPassGopEncodeInfo(\n        const GopStruct \u0026gop_struct AOM_UNUSED, \n        const FirstpassInfo \u0026firstpass_info AOM_UNUSED) {\n      return Status{ AOM_CODEC_UNSUP_FEATURE, \"Not yet implemented\" };\n    }",
+      "range": {
+        "startLine": 340,
+        "startChar": 0,
+        "endLine": 342,
+        "endChar": 0
+      },
+      "revId": "3c02b4c0046a018d06488b497900aae90e8970d2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
