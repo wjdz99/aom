@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "dff0b841_4d8ad5c0",
+        "filename": "av1/encoder/encoder_utils.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 737,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-11-30T19:24:09Z",
+      "side": 0,
+      "message": "Because `cm-\u003ewidth \u003d\u003d new_fb-\u003ebuf.y_crop_width` and `cm-\u003eheight \u003d\u003d new_fb-\u003ebuf.y_crop_height`, the boolean `has_optimized_scaler` is always false, so we will always call `av1_resize_and_extend_frame_nonnormative()` below.",
+      "revId": "d7fc49b8b6b5663ec93b6850839e3451e3dd0339",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
