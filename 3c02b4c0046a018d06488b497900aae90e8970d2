@@ -18,6 +18,23 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "787872bb_089ff6ec",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2022-11-30T18:11:52Z",
+      "side": 1,
+      "message": "Thanks for the reviews!",
+      "revId": "3c02b4c0046a018d06488b497900aae90e8970d2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "42cfd03c_f1c322d8",
@@ -41,6 +58,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f83335e4_51116aa3",
+        "filename": "av1/qmode_rc/ratectrl_qmode.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 1395,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2022-11-30T18:11:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "42cfd03c_f1c322d8",
+      "range": {
+        "startLine": 1395,
+        "startChar": 10,
+        "endLine": 1395,
+        "endChar": 17
+      },
+      "revId": "3c02b4c0046a018d06488b497900aae90e8970d2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "8d6f699a_4d62e23e",
@@ -54,6 +95,30 @@
       "writtenOn": "2022-11-30T09:22:05Z",
       "side": 1,
       "message": "I don\u0027t understand the point of validating the stats here and then calling the other version of GetGopEncodeInfo which validates them again. This could be left out until the function is changed to do something else.",
+      "range": {
+        "startLine": 1527,
+        "startChar": 0,
+        "endLine": 1527,
+        "endChar": 62
+      },
+      "revId": "3c02b4c0046a018d06488b497900aae90e8970d2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "92525dee_b3902098",
+        "filename": "av1/qmode_rc/ratectrl_qmode.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 1527,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2022-11-30T18:11:52Z",
+      "side": 1,
+      "message": "I think the current implementation basically says when TPL stats are not given, let\u0027s use firstpass stats to decide the frame qps. When it is given, we will fall back to the existing function.\n\nIndeed the existing function will need to check again in this case. I have extracted the common part to another function to avoid this.",
+      "parentUuid": "8d6f699a_4d62e23e",
       "range": {
         "startLine": 1527,
         "startChar": 0,
@@ -89,6 +154,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "7ab63dac_ba0549b0",
+        "filename": "av1/qmode_rc/ratectrl_qmode.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 1530,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2022-11-30T18:11:52Z",
+      "side": 1,
+      "message": "As mentioned, when TPL stats is not given, we want to use first pass stats to decide the frame qp.",
+      "parentUuid": "0e8b4d9b_fdf17b07",
+      "range": {
+        "startLine": 1529,
+        "startChar": 4,
+        "endLine": 1530,
+        "endChar": 46
+      },
+      "revId": "3c02b4c0046a018d06488b497900aae90e8970d2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "19cba593_908fca4d",
         "filename": "av1/qmode_rc/ratectrl_qmode.cc",
         "patchSetId": 3
@@ -100,6 +189,30 @@
       "writtenOn": "2022-11-30T09:22:05Z",
       "side": 1,
       "message": "Same here.",
+      "range": {
+        "startLine": 1537,
+        "startChar": 6,
+        "endLine": 1538,
+        "endChar": 48
+      },
+      "revId": "3c02b4c0046a018d06488b497900aae90e8970d2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c086bcce_7ace47cf",
+        "filename": "av1/qmode_rc/ratectrl_qmode.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 1538,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2022-11-30T18:11:52Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "19cba593_908fca4d",
       "range": {
         "startLine": 1537,
         "startChar": 6,
@@ -133,6 +246,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "86b29f4d_05f344bf",
+        "filename": "av1/qmode_rc/ratectrl_qmode_interface.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 325,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2022-11-30T18:11:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "29c023ac_f14687d1",
+      "range": {
+        "startLine": 325,
+        "startChar": 0,
+        "endLine": 325,
+        "endChar": 51
+      },
+      "revId": "3c02b4c0046a018d06488b497900aae90e8970d2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "fb88e042_cd01b44a",
@@ -146,6 +283,30 @@
       "writtenOn": "2022-11-30T09:22:05Z",
       "side": 1,
       "message": "When you add new functions to the interface, it\u0027s better to start with them not being pure virtual, so that the header can be integrated to the other repos without needing implementations in all derived classes.\n\nPlease do it like this:\n\n    // TODO(b/########): Make pure virtual once all derived classes implement it.\n    virtual StatusOr\u003cGopEncodeInfo\u003e GetTplPassGopEncodeInfo(\n        const GopStruct \u0026gop_struct AOM_UNUSED, \n        const FirstpassInfo \u0026firstpass_info AOM_UNUSED) {\n      return Status{ AOM_CODEC_UNSUP_FEATURE, \"Not yet implemented\" };\n    }",
+      "range": {
+        "startLine": 340,
+        "startChar": 0,
+        "endLine": 342,
+        "endChar": 0
+      },
+      "revId": "3c02b4c0046a018d06488b497900aae90e8970d2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3d6e4f7a_753bc339",
+        "filename": "av1/qmode_rc/ratectrl_qmode_interface.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 342,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2022-11-30T18:11:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fb88e042_cd01b44a",
       "range": {
         "startLine": 340,
         "startChar": 0,
