@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7f40b1ab_41e50f0c",
+        "filename": "test/ducky_encode_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-11-30T18:16:49Z",
+      "side": 1,
+      "message": "Hi Jerome,\n\nValgrind reported \"Conditional jump or move depends on uninitialised value(s)\" here. See https://build.aomedia.org/jenkins/view/libaom-nightly-tests/job/libaom__unit_tests-valgrind/2156/GTEST_SHARD_INDEX\u003d8,arch\u003dx86_64-linux-gcc,filter\u003dav1-non_large/console:\n\n```\n07:15:59 [----------] 1 test from DuckyEncodeRCTest\n07:15:59 [ RUN      ] DuckyEncodeRCTest.EncodeVideoWithRC\n07:16:08 \u003d\u003d825724\u003d\u003d Conditional jump or move depends on uninitialised value(s)\n07:16:08 \u003d\u003d825724\u003d\u003d    at 0x24E683: av1_mark_flashes (pass2_strategy.c:3497)\n07:16:08 \u003d\u003d825724\u003d\u003d    by 0x25065E: av1_init_second_pass (pass2_strategy.c:3925)\n07:16:08 \u003d\u003d825724\u003d\u003d    by 0x1FE40B: av1_create_compressor (encoder.c:1368)\n07:16:08 \u003d\u003d825724\u003d\u003d    by 0x1D4278: av1_create_context_and_bufferpool (av1_cx_iface.c:2531)\n07:16:08 \u003d\u003d825724\u003d\u003d    by 0x758245: aom::DuckyEncode::InitEncoder(aom_enc_pass, std::vector\u003cFIRSTPASS_STATS, std::allocator\u003cFIRSTPASS_STATS\u003e \u003e const*) (ducky_encode.cc:234)\n07:16:08 \u003d\u003d825724\u003d\u003d    by 0x7588DB: aom::DuckyEncode::StartEncode(std::vector\u003cFIRSTPASS_STATS, std::allocator\u003cFIRSTPASS_STATS\u003e \u003e const\u0026) (ducky_encode.cc:348)\n07:16:08 \u003d\u003d825724\u003d\u003d    by 0x177F87: aom::DuckyEncodeRCTest_EncodeVideoWithRC_Test::TestBody() (ducky_encode_test.cc:148)\n07:16:08 \u003d\u003d825724\u003d\u003d    by 0x78E4FC: HandleSehExceptionsInMethodIfSupported\u003ctesting::Test, void\u003e (gtest.cc:2599)\n07:16:08 \u003d\u003d825724\u003d\u003d    by 0x78E4FC: void testing::internal::HandleExceptionsInMethodIfSupported\u003ctesting::Test, void\u003e(testing::Test*, void (testing::Test::*)(), char const*) (gtest.cc:2635)\n07:16:08 \u003d\u003d825724\u003d\u003d    by 0x77E89D: Run (gtest.cc:2674)\n07:16:08 \u003d\u003d825724\u003d\u003d    by 0x77E89D: testing::Test::Run() (gtest.cc:2664)\n07:16:08 \u003d\u003d825724\u003d\u003d    by 0x77EA54: testing::TestInfo::Run() (gtest.cc:2853)\n07:16:08 \u003d\u003d825724\u003d\u003d    by 0x77EF94: Run (gtest.cc:3012)\n07:16:08 \u003d\u003d825724\u003d\u003d    by 0x77EF94: testing::TestSuite::Run() (gtest.cc:2985)\n07:16:08 \u003d\u003d825724\u003d\u003d    by 0x785E6E: testing::internal::UnitTestImpl::RunAllTests() (gtest.cc:5870)\n```",
+      "revId": "f7006126118d3b75e9b01ef6f2dae857b75fb80a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
