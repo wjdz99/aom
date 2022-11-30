@@ -1,6 +1,23 @@
 {
   "comments": [
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "6940326c_25f42202",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-11-30T09:25:45Z",
+      "side": 1,
+      "message": "Apparently -1 doesn\u0027t really block submission, so changing to -2 for now.",
+      "revId": "3c02b4c0046a018d06488b497900aae90e8970d2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "42cfd03c_f1c322d8",
