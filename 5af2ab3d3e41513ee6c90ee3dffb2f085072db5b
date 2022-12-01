@@ -35,6 +35,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "1ad84dd8_ed5b9847",
+        "filename": "av1/common/arm/resize_neon.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 800,
+      "author": {
+        "id": 26549
+      },
+      "writtenOn": "2022-12-01T02:58:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e5faf0da_75ba4957",
+      "revId": "5af2ab3d3e41513ee6c90ee3dffb2f085072db5b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a66cc1b6_8cd42781",
@@ -52,6 +70,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "4ea8d14d_42bce382",
+        "filename": "av1/common/resize.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1214,
+      "author": {
+        "id": 26549
+      },
+      "writtenOn": "2022-12-01T02:58:18Z",
+      "side": 1,
+      "message": "\u003e1) Marco Paniconi added usage of `EIGHTTAP_REGULAR` in https://aomedia-review.googlesource.com/c/aom/+/114068. Yaowu Xu then added `EIGHTTAP_REGULAR` to the assertion in https://aomedia-review.googlesource.com/c/aom/+/114201, but didn\u0027t correct the kernel loading code. I believe that @marpan@google.com indeed want `av1_sub_pel_filters_8` for `EIGHTTAP_REGULAR`.\n\n\u003e2)\nI didn\u0027t aware of `av1_interp_filter_params_list`. Updated.",
+      "parentUuid": "a66cc1b6_8cd42781",
+      "revId": "5af2ab3d3e41513ee6c90ee3dffb2f085072db5b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "0aa9ea0d_560c3c7c",
@@ -65,6 +101,24 @@
       "writtenOn": "2022-11-30T22:58:47Z",
       "side": 1,
       "message": "Nit: I suggest declaring local variables `src_buffer` and `dst_buffer` here and using them instead of `src-\u003ebuffers[i]` and `dst-\u003ebuffers[i]` below.",
+      "revId": "5af2ab3d3e41513ee6c90ee3dffb2f085072db5b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "33892dbe_e4daf630",
+        "filename": "av1/common/resize.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1221,
+      "author": {
+        "id": 26549
+      },
+      "writtenOn": "2022-12-01T02:58:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0aa9ea0d_560c3c7c",
       "revId": "5af2ab3d3e41513ee6c90ee3dffb2f085072db5b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -106,6 +160,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "7464931e_2f7f9a62",
+        "filename": "av1/common/resize.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1240,
+      "author": {
+        "id": 26549
+      },
+      "writtenOn": "2022-12-01T02:58:18Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "8326b850_797b736f",
+      "revId": "5af2ab3d3e41513ee6c90ee3dffb2f085072db5b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "2911470f_93516d30",
         "filename": "av1/common/resize.c",
         "patchSetId": 4
@@ -139,6 +211,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "31021759_3f79ecf9",
+        "filename": "av1/common/resize.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1241,
+      "author": {
+        "id": 26549
+      },
+      "writtenOn": "2022-12-01T02:58:18Z",
+      "side": 1,
+      "message": "`av1_resize_and_extend_frame_c()` was introduced in https://aomedia-review.googlesource.com/c/aom/+/113067.\nFrom commit message it was intended for 2:1 scale, but was actually being used for all scaling ratios, until https://aomedia-review.googlesource.com/c/aom/+/161961 switched to prefer non-normative.\n\n`av1_resize_and_extend_frame_c()`\u0027s precision is 1/16th pixel. Not sure if it\u0027s high enough to handle any ratio.",
+      "parentUuid": "44c14ee7_432fe410",
+      "revId": "5af2ab3d3e41513ee6c90ee3dffb2f085072db5b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "31169858_ee77d266",
@@ -152,6 +242,24 @@
       "writtenOn": "2022-11-30T22:58:47Z",
       "side": 1,
       "message": "Could you explain why this is true? I can\u0027t infer this property from the source code of `av1_resize_and_extend_frame_c()` (which I assume is the normative scaler).\n\nUPDATE: I found that you explained this in your comment in https://aomedia-review.googlesource.com/c/aom/+/161961.",
+      "revId": "5af2ab3d3e41513ee6c90ee3dffb2f085072db5b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6e5dc8d6_abac3e4e",
+        "filename": "av1/common/resize.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 26549
+      },
+      "writtenOn": "2022-12-01T02:58:18Z",
+      "side": 1,
+      "message": "Should we note that this is explained in comment of `aom_convolve8_c()`?",
+      "parentUuid": "31169858_ee77d266",
       "revId": "5af2ab3d3e41513ee6c90ee3dffb2f085072db5b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -173,6 +281,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "7c8ae3f3_cb55b5b8",
+        "filename": "av1/common/resize.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 26549
+      },
+      "writtenOn": "2022-12-01T02:58:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c5257396_754888c5",
+      "revId": "5af2ab3d3e41513ee6c90ee3dffb2f085072db5b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "f8eb562e_a8f185fe",
@@ -190,6 +316,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "1404e02e_a882e1ba",
+        "filename": "av1/common/x86/resize_ssse3.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 951,
+      "author": {
+        "id": 26549
+      },
+      "writtenOn": "2022-12-01T02:58:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f8eb562e_a8f185fe",
+      "revId": "5af2ab3d3e41513ee6c90ee3dffb2f085072db5b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "75106316_cc44497f",
@@ -203,6 +347,24 @@
       "writtenOn": "2022-11-30T22:58:47Z",
       "side": 1,
       "message": "I just modified this line in https://aomedia-review.googlesource.com/c/aom/+/167081. Please rebase this CL to the tip of the main branch.",
+      "revId": "5af2ab3d3e41513ee6c90ee3dffb2f085072db5b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "612fa448_a68ae505",
+        "filename": "av1/encoder/encoder_utils.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 736,
+      "author": {
+        "id": 26549
+      },
+      "writtenOn": "2022-12-01T02:58:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "75106316_cc44497f",
       "revId": "5af2ab3d3e41513ee6c90ee3dffb2f085072db5b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
