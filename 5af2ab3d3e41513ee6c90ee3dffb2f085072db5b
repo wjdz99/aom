@@ -86,6 +86,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "8326b850_797b736f",
+        "filename": "av1/common/resize.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1240,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-12-01T01:52:36Z",
+      "side": 1,
+      "message": "Yuan: I checked in my CL. Please take care to keep the new `aom_extend_frame_borders(dst, num_planes)` call here when you rebase this CL.",
+      "parentUuid": "d1469381_bb72cb92",
+      "revId": "5af2ab3d3e41513ee6c90ee3dffb2f085072db5b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "2911470f_93516d30",
@@ -99,6 +117,24 @@
       "writtenOn": "2022-11-30T22:58:47Z",
       "side": 1,
       "message": "Yuan: I read the `av1_resize_and_extend_frame_c()` function carefully, both the original code and the new code. Unfortunately I still don\u0027t understand the code. I found that Jerome originally wrote this function in https://aomedia-review.googlesource.com/c/aom/+/113067. So it\u0027s best to have Jerome read your changes to this function.",
+      "revId": "5af2ab3d3e41513ee6c90ee3dffb2f085072db5b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "44c14ee7_432fe410",
+        "filename": "av1/common/resize.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1241,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-12-01T01:52:36Z",
+      "side": 1,
+      "message": "If you can find the specification of the resize operation, I can compare it with the implementation here.",
+      "parentUuid": "2911470f_93516d30",
       "revId": "5af2ab3d3e41513ee6c90ee3dffb2f085072db5b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
