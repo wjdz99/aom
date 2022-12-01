@@ -19,6 +19,7 @@
 
 #include <stdint.h>
 
+#include "aom_mem/aom_mem.h"
 #include "config/aom_config.h"
 #include "config/aom_scale_rtcd.h"
 
@@ -3024,8 +3025,8 @@ static int64_t get_kf_group_bits(AV1_COMP *cpi, double kf_group_err,
       double vbr_corpus_complexity_lap =
           cpi->oxcf.rc_cfg.vbr_corpus_complexity_lap / 10.0;
       /* Get the average corpus complexity of the frame */
-      kf_group_bits = (int64_t)(
-          kf_group_bits * (kf_group_avg_error / vbr_corpus_complexity_lap));
+      kf_group_bits = (int64_t)(kf_group_bits * (kf_group_avg_error /
+                                                 vbr_corpus_complexity_lap));
     }
   } else {
     kf_group_bits = (int64_t)(twopass->bits_left *
@@ -3508,6 +3509,40 @@ void av1_mark_flashes(FIRSTPASS_STATS *first_stats,
   }
 }
 
+// Smooth-out the noise variance so it is more stable
+// TODO(bohanli): Use a better low-pass filter than averaging
+static void smooth_filter_noise(FIRSTPASS_STATS *first_stats,
+                                FIRSTPASS_STATS *last_stats) {
+  int i, j;
+  int len = last_stats - first_stats;
+  double *smooth_noise = aom_malloc(len * sizeof(*smooth_noise));
+  if (!smooth_noise) return;
+
+  for (i = 0; i < len; i++) {
+    double total_noise = 0;
+    double total_wt = 0;
+    for (j = -HALF_FILT_LEN; j <= HALF_FILT_LEN; j++) {
+      int idx = AOMMIN(AOMMAX(i + j, 0), len - 1);
+      if (first_stats[idx].is_flash) continue;
+
+      total_noise += first_stats[idx].noise_var;
+      total_wt += 1.0;
+    }
+    if (total_wt > 0.01) {
+      total_noise /= total_wt;
+    } else {
+      total_noise = first_stats[i].noise_var;
+    }
+    smooth_noise[i] = total_noise;
+  }
+
+  for (i = 0; i < len; i++) {
+    first_stats[i].noise_var = smooth_noise[i];
+  }
+
+  aom_free(smooth_noise);
+}
+
 // Estimate the noise variance of each frame from the first pass stats
 void av1_estimate_noise(FIRSTPASS_STATS *first_stats,
                         FIRSTPASS_STATS *last_stats) {
@@ -3595,6 +3630,8 @@ void av1_estimate_noise(FIRSTPASS_STATS *first_stats,
        this_stats++) {
     this_stats->noise_var = (first_stats + 2)->noise_var;
   }
+
+  smooth_filter_noise(first_stats, last_stats);
 }
 
 // Estimate correlation coefficient of each frame with its previous frame.
