@@ -50,6 +50,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "dc5d0b68_bfceccc7",
+        "filename": "av1/qmode_rc/ratectrl_qmode.cc",
+        "patchSetId": 7
+      },
+      "lineNbr": 1559,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-12-01T11:48:18Z",
+      "side": 1,
+      "message": "Sure, good point. In any case, I\u0027d say it\u0027s not needed.",
+      "parentUuid": "db86654a_22c5cbb3",
+      "range": {
+        "startLine": 1546,
+        "startChar": 0,
+        "endLine": 1559,
+        "endChar": 0
+      },
+      "revId": "3fe5f8a7300ac18050d7a587d9664f7a1f620465",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "ed89e50b_cfa5644e",
         "filename": "av1/qmode_rc/ratectrl_qmode_interface.h",
         "patchSetId": 7
@@ -85,6 +109,30 @@
       "side": 1,
       "message": "Stats for the current gop is definitely needed. It is also preferred that we have stats for the next gop. Stats further than that could be helpful but we don\u0027t have a concrete plan for that yet. \n\nI believe this function should be able to check the size of the first pass stats, and determine what strategy to use.",
       "parentUuid": "ed89e50b_cfa5644e",
+      "range": {
+        "startLine": 335,
+        "startChar": 59,
+        "endLine": 336,
+        "endChar": 44
+      },
+      "revId": "3fe5f8a7300ac18050d7a587d9664f7a1f620465",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bfb1c409_4b82b016",
+        "filename": "av1/qmode_rc/ratectrl_qmode_interface.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 336,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-12-01T11:48:18Z",
+      "side": 1,
+      "message": "Okay, SG. We could either say:\n\n1. There should be stats for all frames starting from the first frame of the GOP and continuing to the end of the sequence, or\n\n2. The stats start at the first frame of the GOP, and there must be stats for all frames in the GOP and any lookahead frames. The caller may pass more frames than that, but the API won\u0027t require it.\n\nI\u0027m just always going to pass them all, I think, so either one would be fine. My preference would be for #1, particularly if it would be simpler for the implementation to deal with. But if you prefer #2, that\u0027s fine.\n\nIn either case, please make it explicit in your comment. Thanks!",
+      "parentUuid": "732ff540_5c271a51",
       "range": {
         "startLine": 335,
         "startChar": 59,
