@@ -1,0 +1,280 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f66df775_392a75b1",
+        "filename": "aom_dsp/flow_estimation/corner_detect.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2022-12-01T18:56:17Z",
+      "side": 1,
+      "message": "This should be AOM_AOM_DSP_FLOW_ESTIMATION_CORNER_DETECT_H_\n\nSome other macro guards in this CL need to change their names too.",
+      "range": {
+        "startLine": 13,
+        "startChar": 8,
+        "endLine": 13,
+        "endChar": 44
+      },
+      "revId": "73760cf21c9ee6e6b625bac1e9c502042b5e027c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "53ddd8d6_b407145c",
+        "filename": "aom_dsp/flow_estimation/corner_match.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2022-12-01T18:56:17Z",
+      "side": 1,
+      "message": "Is there a reason why we are renaming these from av1_ to aom_? I think even in current libavm there are lots of av1_* functions. The convention seems to be that those functions (at least in libaom) are the \"public\" functions that can be used by other files.\n\nI personally recommend not changing these, but I guess it is not a breaking change either.",
+      "range": {
+        "startLine": 52,
+        "startChar": 7,
+        "endLine": 52,
+        "endChar": 10
+      },
+      "revId": "73760cf21c9ee6e6b625bac1e9c502042b5e027c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d04314ea_5e2e2697",
+        "filename": "aom_dsp/flow_estimation/corner_match.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 201,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2022-12-01T18:56:17Z",
+      "side": 1,
+      "message": "Can use aom_calloc for this task?",
+      "range": {
+        "startLine": 201,
+        "startChar": 28,
+        "endLine": 201,
+        "endChar": 38
+      },
+      "revId": "73760cf21c9ee6e6b625bac1e9c502042b5e027c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2930ac13_05c09e57",
+        "filename": "aom_dsp/flow_estimation/corner_match.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 216,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2022-12-01T18:56:17Z",
+      "side": 1,
+      "message": "If not changed then this should be a const ptr. Other parameters too in this function.",
+      "range": {
+        "startLine": 216,
+        "startChar": 29,
+        "endLine": 216,
+        "endChar": 54
+      },
+      "revId": "73760cf21c9ee6e6b625bac1e9c502042b5e027c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "69540c81_7b1bfa96",
+        "filename": "aom_dsp/flow_estimation/corner_match.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 238,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2022-12-01T18:56:17Z",
+      "side": 1,
+      "message": "May be better to use aom_malloc and aom_free here.",
+      "range": {
+        "startLine": 238,
+        "startChar": 13,
+        "endLine": 238,
+        "endChar": 19
+      },
+      "revId": "73760cf21c9ee6e6b625bac1e9c502042b5e027c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3cc212ee_c5e86159",
+        "filename": "aom_dsp/flow_estimation/corner_match.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2022-12-01T18:56:17Z",
+      "side": 1,
+      "message": "The convention seems to be naming these typedef structs to all capitalized words. Maybe not a strict one, though.",
+      "range": {
+        "startLine": 34,
+        "startChar": 2,
+        "endLine": 34,
+        "endChar": 16
+      },
+      "revId": "73760cf21c9ee6e6b625bac1e9c502042b5e027c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b6d77e24_fe6318ad",
+        "filename": "aom_dsp/flow_estimation/disflow.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2022-12-01T18:56:17Z",
+      "side": 1,
+      "message": "const",
+      "range": {
+        "startLine": 62,
+        "startChar": 44,
+        "endLine": 62,
+        "endChar": 61
+      },
+      "revId": "73760cf21c9ee6e6b625bac1e9c502042b5e027c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d2680397_b4497947",
+        "filename": "aom_dsp/flow_estimation/disflow.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2022-12-01T18:56:17Z",
+      "side": 1,
+      "message": "const",
+      "range": {
+        "startLine": 63,
+        "startChar": 65,
+        "endLine": 64,
+        "endChar": 58
+      },
+      "revId": "73760cf21c9ee6e6b625bac1e9c502042b5e027c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2829309f_dc85a624",
+        "filename": "aom_dsp/flow_estimation/disflow.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2022-12-01T18:56:17Z",
+      "side": 1,
+      "message": "const",
+      "range": {
+        "startLine": 90,
+        "startChar": 26,
+        "endLine": 90,
+        "endChar": 44
+      },
+      "revId": "73760cf21c9ee6e6b625bac1e9c502042b5e027c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "77edbe8c_0b965ded",
+        "filename": "aom_dsp/flow_estimation/disflow.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 255,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2022-12-01T18:56:17Z",
+      "side": 1,
+      "message": "Is this function not needed, but still kept for some reason? I think it\u0027s better to either remove it or add a TODO comment here.",
+      "range": {
+        "startLine": 255,
+        "startChar": 0,
+        "endLine": 255,
+        "endChar": 2
+      },
+      "revId": "73760cf21c9ee6e6b625bac1e9c502042b5e027c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b19d95e8_b8ba0dc3",
+        "filename": "aom_dsp/flow_estimation/disflow.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 592,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2022-12-01T18:56:17Z",
+      "side": 1,
+      "message": "Consider using aom_calloc?",
+      "range": {
+        "startLine": 592,
+        "startChar": 6,
+        "endLine": 592,
+        "endChar": 16
+      },
+      "revId": "73760cf21c9ee6e6b625bac1e9c502042b5e027c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "623939cf_c7ee6c14",
+        "filename": "aom_dsp/flow_estimation/ransac.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2022-12-01T18:56:17Z",
+      "side": 1,
+      "message": "Please double check the terms for libaom. I\u0027m not certain if this should be changed.",
+      "range": {
+        "startLine": 4,
+        "startChar": 55,
+        "endLine": 4,
+        "endChar": 56
+      },
+      "revId": "73760cf21c9ee6e6b625bac1e9c502042b5e027c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
