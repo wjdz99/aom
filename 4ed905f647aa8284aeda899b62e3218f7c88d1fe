@@ -16,6 +16,24 @@
       "message": "This line is little hard to follow. Add comment or maybe split max_delta_down into a function?\n\nIt seems that if the previous frame has overshoot (rc_1_frame\u003d-1) then you want the delta to be smaller (1/16 instead of 1/8 if rc_1_frame\u003d1)? But if previous frame has overshoot the current frame QP should generally be pushed up so it wouldn\u0027t hit this limit much?",
       "revId": "4ed905f647aa8284aeda899b62e3218f7c88d1fe",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cf843870_29c26fdf",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 24
+      },
+      "lineNbr": 490,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2022-12-01T03:18:39Z",
+      "side": 1,
+      "message": "The purpose was to lower allowed max_delta_down if previous frame has overshoot. But, to make the logic less confusing, I removed all changes except the frame complexity part.\nAlso, currently only allow this bit estimation for aq_mode\u003d0 case, so this won\u0027t affect anything critical. Will experiment more carefully before enabling it for aq_mode \u003d3.",
+      "parentUuid": "69896b10_eedbc481",
+      "revId": "4ed905f647aa8284aeda899b62e3218f7c88d1fe",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
