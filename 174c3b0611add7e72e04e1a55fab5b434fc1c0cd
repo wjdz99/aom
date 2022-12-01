@@ -26,6 +26,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "a746be28_53f749ef",
+        "filename": "av1/encoder/k_means_template.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2022-12-01T00:07:06Z",
+      "side": 1,
+      "message": "Yes, looks like the unit test is for av1_calc_indices_dim1/2. More tests could be added if you think that is helpful.",
+      "parentUuid": "ef89da91_c316ce97",
+      "range": {
+        "startLine": 94,
+        "startChar": 12,
+        "endLine": 94,
+        "endChar": 23
+      },
+      "revId": "174c3b0611add7e72e04e1a55fab5b434fc1c0cd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "5fb5e9b1_b3ca7aed",
         "filename": "av1/encoder/k_means_template.h",
         "patchSetId": 5
