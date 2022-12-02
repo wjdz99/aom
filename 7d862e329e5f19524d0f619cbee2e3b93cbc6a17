@@ -16,6 +16,24 @@
       "message": "Chi Yo:\n\nIn addition to the changes James suggested, I also changed \"any\" to \"either\" because this code considers only two neighbors (above and left).\n\nAlso, the \"unless\" part of this sentence can be clarified:\n- The condition in the \"unless\" part is mutually exclusive with the first condition, so \"unless\" sounds strange here.\n- \"Unless\" implies we don\u0027t move `*color_idx` by 1. But we also reset `*color_idx` to 0. I think the comment should say that.",
       "revId": "7d862e329e5f19524d0f619cbee2e3b93cbc6a17",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9e69d2a8_7a72edb3",
+        "filename": "av1/encoder/tokenize.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2022-12-02T23:02:55Z",
+      "side": 1,
+      "message": "I agree with your comment.\nThe comment in the code is copied from line 149. So we should change both of them.",
+      "parentUuid": "6881a77b_234d3e99",
+      "revId": "7d862e329e5f19524d0f619cbee2e3b93cbc6a17",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
