@@ -2547,7 +2547,6 @@ void av1_calc_mb_wiener_var_mt(AV1_COMP *cpi, double *sum_rec_distortion,
   row_mt_sync->intrabc_extra_top_right_sb_delay = 0;
   row_mt_sync->num_threads_working = num_workers;
   row_mt_sync->next_mi_row = 0;
-  row_mt_sync->sync_range = 1;
   memset(row_mt_sync->num_finished_cols, -1,
          sizeof(*row_mt_sync->num_finished_cols) * num_workers);
 
