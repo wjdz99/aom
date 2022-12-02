@@ -16,6 +16,24 @@
       "message": "Nit: list `src_buffer` before `src_stride`, and list `dst_buffer` before `dst_stride`.",
       "revId": "738dae1924ea70152b114ab655473616e9342129",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9f782a31_82848e7f",
+        "filename": "av1/common/resize.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 1220,
+      "author": {
+        "id": 26549
+      },
+      "writtenOn": "2022-12-02T05:19:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bbe6196f_a8d88f7a",
+      "revId": "738dae1924ea70152b114ab655473616e9342129",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
