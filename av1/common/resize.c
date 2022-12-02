@@ -1217,25 +1217,27 @@ void av1_resize_and_extend_frame_c(const YV12_BUFFER_CONFIG *src,
   assert(filter == BILINEAR || filter == EIGHTTAP_SMOOTH ||
          filter == EIGHTTAP_REGULAR);
   const InterpKernel *const kernel =
-      filter == BILINEAR ? av1_bilinear_filters : av1_sub_pel_filters_8smooth;
+      (const InterpKernel *)av1_interp_filter_params_list[filter].filter_ptr;
   const int dst_w = dst->y_crop_width;
   const int dst_h = dst->y_crop_height;
   for (int i = 0; i < AOMMIN(num_planes, MAX_MB_PLANE); ++i) {
-    const int factor = (i == 0 || i == 3 ? 1 : 2);
+    const int factor_x = (i == 0 || !src->subsampling_x ? 1 : 2);
+    const int factor_y = (i == 0 || !src->subsampling_y ? 1 : 2);
     const int src_stride = src_strides[i];
     const int dst_stride = dst_strides[i];
     for (int y = 0; y < dst_h; y += 16) {
-      const int y_q4 = y * (16 / factor) * src_h / dst_h + phase_scaler;
+      const int y_q4 = y * (16 / factor_y) * src_h / dst_h + phase_scaler;
       for (int x = 0; x < dst_w; x += 16) {
-        const int x_q4 = x * (16 / factor) * src_w / dst_w + phase_scaler;
+        const int x_q4 = x * (16 / factor_x) * src_w / dst_w + phase_scaler;
         const uint8_t *src_ptr = srcs[i] +
-                                 (y / factor) * src_h / dst_h * src_stride +
-                                 (x / factor) * src_w / dst_w;
-        uint8_t *dst_ptr = dsts[i] + (y / factor) * dst_stride + (x / factor);
+                                 (y / factor_y) * src_h / dst_h * src_stride +
+                                 (x / factor_x) * src_w / dst_w;
+        uint8_t *dst_ptr =
+            dsts[i] + (y / factor_y) * dst_stride + (x / factor_x);
 
         aom_scaled_2d(src_ptr, src_stride, dst_ptr, dst_stride, kernel,
                       x_q4 & 0xf, 16 * src_w / dst_w, y_q4 & 0xf,
-                      16 * src_h / dst_h, 16 / factor, 16 / factor);
+                      16 * src_h / dst_h, 16 / factor_x, 16 / factor_y);
       }
     }
   }
