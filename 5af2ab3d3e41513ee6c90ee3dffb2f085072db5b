@@ -88,6 +88,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "102692bb_d257650c",
+        "filename": "av1/common/resize.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1214,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-12-02T00:40:18Z",
+      "side": 1,
+      "message": "Thanks for looking up the history of this code.",
+      "parentUuid": "4ea8d14d_42bce382",
+      "revId": "5af2ab3d3e41513ee6c90ee3dffb2f085072db5b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "0aa9ea0d_560c3c7c",
@@ -260,6 +278,24 @@
       "side": 1,
       "message": "Should we note that this is explained in comment of `aom_convolve8_c()`?",
       "parentUuid": "31169858_ee77d266",
+      "revId": "5af2ab3d3e41513ee6c90ee3dffb2f085072db5b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bcd2625e_d291df85",
+        "filename": "av1/common/resize.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-12-02T00:40:18Z",
+      "side": 1,
+      "message": "Yes, your comment can refer to an explanation elsewhere. No need to duplicate the explanation.",
+      "parentUuid": "6e5dc8d6_abac3e4e",
       "revId": "5af2ab3d3e41513ee6c90ee3dffb2f085072db5b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
