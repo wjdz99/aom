@@ -174,34 +174,30 @@ int av1_get_bpmb_enumerator(FRAME_TYPE frame_type,
   return enumerator;
 }
 
+static int get_init_ratio(double sse) { return (int)(300000 / sse); }
+
 int av1_rc_bits_per_mb(const AV1_COMP *cpi, FRAME_TYPE frame_type, int qindex,
                        double correction_factor, int accurate_estimate) {
   const AV1_COMMON *const cm = &cpi->common;
   const int is_screen_content_type = cpi->is_screen_content_type;
   const aom_bit_depth_t bit_depth = cm->seq_params->bit_depth;
   const double q = av1_convert_qindex_to_q(qindex, bit_depth);
+  int enumerator =
+      av1_get_bpmb_enumerator(frame_type, is_screen_content_type);
 
-  const int min_dim = AOMMIN(cm->width, cm->height);
+  assert(correction_factor <= MAX_BPB_FACTOR &&
+         correction_factor >= MIN_BPB_FACTOR);
 
   if (frame_type != KEY_FRAME && accurate_estimate) {
     assert(cpi->rec_sse != UINT64_MAX);
     const int mbs = cm->mi_params.MBs;
-    const int res = (min_dim < 480) ? 0 : ((min_dim < 720) ? 1 : 2);
-    const double sse_over_q2 = (double)(cpi->rec_sse << BPER_MB_NORMBITS) /
-                               ((double)q * q) / (double)mbs;
-    const double coef[3][2] = {
-      { 0.535, 3000.0 },  // < 480
-      { 0.590, 3000.0 },  // < 720
-      { 0.485, 1000.0 }   // 720
-    };
-    int bits = (int)(coef[res][0] * sse_over_q2 + coef[res][1]);
-    return (int)(bits * correction_factor);
+    const double sse_sqrt =
+        (double)((int)sqrt((double)(cpi->rec_sse)) << BPER_MB_NORMBITS) /
+        (double)mbs;
+    const int ratio =
+        (cpi->rc.rc_ratio == 0) ? get_init_ratio(sse_sqrt) : cpi->rc.rc_ratio;
+    enumerator = AOMMIN(AOMMAX((int)(ratio * sse_sqrt), 20000), 170000);
   }
-
-  const int enumerator =
-      av1_get_bpmb_enumerator(frame_type, is_screen_content_type);
-  assert(correction_factor <= MAX_BPB_FACTOR &&
-         correction_factor >= MIN_BPB_FACTOR);
 
   // q based adjustment to baseline enumerator
   return (int)(enumerator * correction_factor / q);
@@ -2020,7 +2016,7 @@ static void rc_compute_variance_onepass_rt(AV1_COMP *cpi) {
   const int sb_rows = (num_mi_rows + sb_size_by_mb - 1) / sb_size_by_mb;
 
   uint64_t fsse = 0;
-  cpi->rec_sse = 0;
+  cpi->rec_sse = 1;  // Ensure rec_sse > 0
 
   for (int sbi_row = 0; sbi_row < sb_rows; ++sbi_row) {
     for (int sbi_col = 0; sbi_col < sb_cols; ++sbi_col) {
@@ -2157,6 +2153,24 @@ void av1_rc_postencode_update(AV1_COMP *cpi, uint64_t bytes_used) {
 
   const int qindex = cm->quant_params.base_qindex;
 
+#define OUTPUT_FRAME_SIZE 1
+#if OUTPUT_FRAME_SIZE
+  if (cm->current_frame.frame_number - 1 > 0) {
+    const double q = av1_convert_qindex_to_q(cm->quant_params.base_qindex, 8);
+    FILE *f = fopen("out.csv", "a");
+    double sse = (double)cpi->rec_sse;
+    fprintf(f, "%d,", cpi->refresh_frame.golden_frame);
+    fprintf(f, "%d,", cpi->rc.rc_1_frame);
+    fprintf(f, "%d,", cm->quant_params.base_qindex);
+    fprintf(f, "%f,", q);
+    fprintf(f, "%ld,", 8 * bytes_used);
+    fprintf(f, "%f", sse);
+    fprintf(f, "\n");
+    fclose(f);
+  }
+#endif  // OUTPUT_FRAME_SIZE
+#undef OUTPUT_FRAME_SIZE
+
 #if RT_PASSIVE_STRATEGY
   const int frame_number = current_frame->frame_number % MAX_Q_HISTORY;
   p_rc->q_history[frame_number] = qindex;
@@ -2167,6 +2181,24 @@ void av1_rc_postencode_update(AV1_COMP *cpi, uint64_t bytes_used) {
 
   // Post encode loop adjustment of Q prediction.
   av1_rc_update_rate_correction_factors(cpi, 0, cm->width, cm->height);
+
+  // Update bit estimation ratio.
+  if (cm->current_frame.frame_type != KEY_FRAME &&
+      cpi->sf.hl_sf.accurate_bit_estimate) {
+    const double q = av1_convert_qindex_to_q(cm->quant_params.base_qindex,
+                                             cm->seq_params->bit_depth);
+
+    if (cpi->rc.rc_ratio == 0) {
+      const double sse_sqrt =
+          (double)((int)sqrt((double)(cpi->rec_sse)) << BPER_MB_NORMBITS) /
+          (double)cm->mi_params.MBs;
+      cpi->rc.rc_ratio = get_init_ratio(sse_sqrt);
+    } else {
+      int this_rc_ratio =
+          (int)(rc->projected_frame_size * q / sqrt((double)cpi->rec_sse));
+      cpi->rc.rc_ratio = (7 * cpi->rc.rc_ratio + this_rc_ratio) / 8;
+    }
+  }
 
   // Keep a record of last Q and ambient average Q.
   if (current_frame->frame_type == KEY_FRAME) {
