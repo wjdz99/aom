@@ -222,15 +222,7 @@ void av1_calc_mb_wiener_var_row(AV1_COMP *const cpi, const int mi_row,
   av1_frame_init_quantizer(cpi);
   MultiThreadInfo *const mt_info = &cpi->mt_info;
   AV1EncRowMultiThreadInfo *const enc_row_mt = &mt_info->enc_row_mt;
-  TileDataEnc *const tile_data = cpi->tile_data;
-  AV1EncRowMultiThreadSync *row_mt_sync = NULL;
-  // TODO(any):
-  // This line is to avoid warnings:
-  // "member access within null pointer of type 'TileDataEnc'".
-  // There might be a better way.
-  if (tile_data != NULL) {
-    row_mt_sync = &cpi->tile_data[0].row_mt_sync;
-  }
+  AV1EncRowMultiThreadSync *const row_mt_sync = &cpi->tile_data[0].row_mt_sync;
   const int mi_cols = cm->mi_params.mi_cols;
   const int mt_thread_id = mi_row / mb_step;
   // TODO(chengchen): test different unit step size
