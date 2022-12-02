@@ -1416,6 +1416,8 @@ StatusOr<GopEncodeInfo> AV1RateControlQMode::GetGopEncodeInfoWithNoStats(
     param.q_index = rc_param_.base_q_index;
     param.rdmult = av1_compute_rd_mult_based_on_qindex(AOM_BITS_8, LF_UPDATE,
                                                        rc_param_.base_q_index);
+    param.rdmult /= 20;
+    param.rdmult = AOMMAX(param.rdmult, 1);
     // TODO(jingning): gop_frame is needed in two pass tpl later.
     (void)gop_frame;
     gop_encode_info.param_list.push_back(param);
