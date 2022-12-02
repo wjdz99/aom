@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "92871562_1651f0d8",
+        "filename": "av1/encoder/tokenize.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-12-02T23:58:06Z",
+      "side": 1,
+      "message": "Chi Yo: In the \"fast\" function, there is only one neighbor. So I changed the comment to refer to it as \"the neighbor\".\n\nI also removed the \"unless\" part completely because I don\u0027t know how to adapt it for the \"fast\" function. If you can suggest a wording, I will use it.",
+      "revId": "a46fd15fe03ce20d00d3027614c11cb7cd9abd06",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
