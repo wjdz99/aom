@@ -24,6 +24,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a2645ca4_10ba4931",
+        "filename": "av1/qmode_rc/ducky_encode.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 587,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-12-02T02:16:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "76210607_48eb868f",
+      "range": {
+        "startLine": 587,
+        "startChar": 2,
+        "endLine": 587,
+        "endChar": 27
+      },
+      "revId": "bd1119faa2f4707fd6fa184bfa076b4f9892025b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "452d8d89_363cf585",
@@ -37,6 +61,30 @@
       "writtenOn": "2022-12-02T01:57:59Z",
       "side": 1,
       "message": "FWIW, I don\u0027t think there\u0027s really any need to make a new copy. You could just modify the elements of first_tpl_gop_stats_list, and then return it. But this isn\u0027t going to be used in production, so it\u0027s not really a big deal.",
+      "range": {
+        "startLine": 592,
+        "startChar": 0,
+        "endLine": 592,
+        "endChar": 61
+      },
+      "revId": "bd1119faa2f4707fd6fa184bfa076b4f9892025b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d3554d2d_47d7bd85",
+        "filename": "av1/qmode_rc/ducky_encode.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 592,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-12-02T02:16:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "452d8d89_363cf585",
       "range": {
         "startLine": 592,
         "startChar": 0,
