@@ -180,21 +180,15 @@ int av1_rc_bits_per_mb(const AV1_COMP *cpi, FRAME_TYPE frame_type, int qindex,
   const int is_screen_content_type = cpi->is_screen_content_type;
   const aom_bit_depth_t bit_depth = cm->seq_params->bit_depth;
   const double q = av1_convert_qindex_to_q(qindex, bit_depth);
+  const int ratio =
+      cpi->refresh_frame.golden_frame ? cpi->rc.rc_ratio_g : cpi->rc.rc_ratio_l;
 
-  const int min_dim = AOMMIN(cm->width, cm->height);
-
-  if (frame_type != KEY_FRAME && accurate_estimate) {
+  if (frame_type != KEY_FRAME && accurate_estimate && ratio > 0) {
     assert(cpi->rec_sse != UINT64_MAX);
     const int mbs = cm->mi_params.MBs;
-    const int res = (min_dim < 480) ? 0 : ((min_dim < 720) ? 1 : 2);
-    const double sse_over_q2 = (double)(cpi->rec_sse << BPER_MB_NORMBITS) /
-                               ((double)q * q) / (double)mbs;
-    const double coef[3][2] = {
-      { 0.535, 3000.0 },  // < 480
-      { 0.590, 3000.0 },  // < 720
-      { 0.485, 1000.0 }   // 720
-    };
-    int bits = (int)(coef[res][0] * sse_over_q2 + coef[res][1]);
+    const double sse =
+        sqrt((double)(cpi->rec_sse << BPER_MB_NORMBITS) / (double)mbs);
+    const int bits = (int)(ratio * sse / q);
     return (int)(bits * correction_factor);
   }
 
@@ -2157,6 +2151,27 @@ void av1_rc_postencode_update(AV1_COMP *cpi, uint64_t bytes_used) {
 
   const int qindex = cm->quant_params.base_qindex;
 
+#define OUTPUT_FRAME_SIZE 0
+#if OUTPUT_FRAME_SIZE
+  if (cm->current_frame.frame_number - 1 > 0) {
+    const double q = av1_convert_qindex_to_q(cm->quant_params.base_qindex, 8);
+    FILE *f = fopen("out.csv", "a");
+    double sse = sqrt((double)cpi->rec_sse);
+    if (!cpi->refresh_frame.golden_frame) {  // && q >70 && q < 80) {
+      // fprintf(f, "%d,", cpi->refresh_frame.golden_frame);
+      // fprintf(f, "%d,", cpi->rc.rc_1_frame);
+      // fprintf(f, "%d,", cm->quant_params.base_qindex);
+      fprintf(f, "%f,", q);
+      fprintf(f, "%ld,", 8 * bytes_used);
+      fprintf(f, "%f", sse);
+      fprintf(f, "\n");
+      fclose(f);
+    }
+  }
+
+#endif  // OUTPUT_FRAME_SIZE
+#undef OUTPUT_FRAME_SIZE
+
 #if RT_PASSIVE_STRATEGY
   const int frame_number = current_frame->frame_number % MAX_Q_HISTORY;
   p_rc->q_history[frame_number] = qindex;
@@ -2167,6 +2182,20 @@ void av1_rc_postencode_update(AV1_COMP *cpi, uint64_t bytes_used) {
 
   // Post encode loop adjustment of Q prediction.
   av1_rc_update_rate_correction_factors(cpi, 0, cm->width, cm->height);
+
+  // Update bit estimation ratio.
+  if (cm->current_frame.frame_type != KEY_FRAME) {
+    const double q = av1_convert_qindex_to_q(cm->quant_params.base_qindex, 8);
+    int this_rc_ratio = (int)(8 * bytes_used * q / sqrt((double)cpi->rec_sse));
+    if (!cpi->refresh_frame.golden_frame)
+      cpi->rc.rc_ratio_l = (cpi->rc.rc_ratio_l == 0)
+                               ? this_rc_ratio
+                               : (cpi->rc.rc_ratio_l + this_rc_ratio) / 2;
+    else
+      cpi->rc.rc_ratio_g = (cpi->rc.rc_ratio_g == 0)
+                               ? this_rc_ratio
+                               : (cpi->rc.rc_ratio_g + this_rc_ratio) / 2;
+  }
 
   // Keep a record of last Q and ambient average Q.
   if (current_frame->frame_type == KEY_FRAME) {

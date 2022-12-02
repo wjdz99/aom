@@ -261,6 +261,10 @@ typedef struct {
 
   int prev_coded_width;
   int prev_coded_height;
+
+  // The ratio used for golden/non-golden frames in bit estimation.
+  int rc_ratio_g;
+  int rc_ratio_l;
   /*!\endcond */
 } RATE_CONTROL;
 
