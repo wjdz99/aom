@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "386eaa78_906f2460",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 7
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-12-03T00:08:57Z",
+      "side": 1,
+      "message": "Yuan: James Zern said that you can\u0027t run verification build on your CLs yet, and a committer can push a commit to run verification build. So I made simple edits to the commit message (changing \"scale factor\" to \"scaling factor\" and wrapping lines at 72 characters), because I can\u0027t push a commit if it\u0027s exactly the same as the last patchset.",
+      "revId": "edeb96f61b87454251611f168d675d73010d1590",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
