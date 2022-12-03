@@ -52,6 +52,24 @@
       "parentUuid": "5a5bb3a6_7f7834ff",
       "revId": "c0239a23c24796ddc003f2a3199a9014a1930a80",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8f343979_79b4c61e",
+        "filename": "av1/common/resize.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 1224,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-12-03T03:10:02Z",
+      "side": 0,
+      "message": "Thanks for the reply.\n\nYour version has ASan errors. My naive version doesn\u0027t. Here are the steps to reproduce:\n\n```\ncmake ../aom -G Ninja -DSANITIZE\u003daddress\nninja\n./test_libaom --gtest_filter\u003dAV1/DatarateTestSVC.BasicRateTargetingSVC1TL2SL/8\n```\n\nPerhaps your version requires sufficient borders around the frame?",
+      "parentUuid": "aff18323_cc8d11df",
+      "revId": "c0239a23c24796ddc003f2a3199a9014a1930a80",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
