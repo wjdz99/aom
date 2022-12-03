@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f07f1fde_651a0663",
+        "filename": "av1/common/resize.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 26549
+      },
+      "writtenOn": "2022-12-03T09:14:23Z",
+      "side": 1,
+      "message": "Visual assessment shows that if scale ratio or its reciprocal is not a multiple of 1/16, there are some artifact, especially on lines, due to non-exact ratio representation, so the restrictions are added here.",
+      "revId": "cc65b07473bd9fd5e8812ccacdf0311194de4f6d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
