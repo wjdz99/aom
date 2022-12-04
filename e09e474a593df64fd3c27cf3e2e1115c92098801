@@ -1,0 +1,106 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cbaebbd7_d70aa88f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 13
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-12-04T02:58:18Z",
+      "side": 1,
+      "message": "Yuan: Thank you very much for tracking down and fixing the ASan errors.",
+      "revId": "e09e474a593df64fd3c27cf3e2e1115c92098801",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b3818cd1_2bcd8a64",
+        "filename": "av1/common/resize.c",
+        "patchSetId": 13
+      },
+      "lineNbr": 1234,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-12-04T02:58:18Z",
+      "side": 1,
+      "message": "Nit: These variables should be work_w and work_h, because they are the width and height of the actual working area.\n\nThe names \"work_w\" and \"work_h\" are not ideal because it\u0027s not clear what \"work\" means here, but I don\u0027t have a good suggestion now. I suggest adding a comment to say \"Width and height of the actual working area\".",
+      "revId": "e09e474a593df64fd3c27cf3e2e1115c92098801",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "35d850bc_ac0f817b",
+        "filename": "av1/common/resize.c",
+        "patchSetId": 13
+      },
+      "lineNbr": 1235,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-12-04T02:58:18Z",
+      "side": 1,
+      "message": "Please add a comment to note why aom_scaled_2d_c is used in this case.\n\nDo you know if work_h also needs to be 16 for the SIMD version? Since the function name contains \"2d\", I guess it may have the same requirement for work_w and work_h, but I want to confirm that with you.",
+      "revId": "e09e474a593df64fd3c27cf3e2e1115c92098801",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "befae979_48da834c",
+        "filename": "av1/common/resize.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-12-04T02:58:18Z",
+      "side": 1,
+      "message": "Nit: scale \u003d\u003e scaling\n\nand add \"its\" before \"reciprocal\"",
+      "revId": "e09e474a593df64fd3c27cf3e2e1115c92098801",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4bf8e3e3_71b7aac0",
+        "filename": "av1/common/resize.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-12-04T02:58:18Z",
+      "side": 1,
+      "message": "Nit: do \u003d\u003e does",
+      "revId": "e09e474a593df64fd3c27cf3e2e1115c92098801",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c78826be_8e1af29c",
+        "filename": "av1/common/resize.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-12-04T02:58:18Z",
+      "side": 1,
+      "message": "Yuan: Do you think \"av1_has_optimized_scaler\" is still an appropriate name for how this function is used in the new code?",
+      "revId": "e09e474a593df64fd3c27cf3e2e1115c92098801",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
