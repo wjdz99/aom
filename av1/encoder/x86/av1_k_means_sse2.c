@@ -17,9 +17,7 @@
 static int64_t k_means_horizontal_sum_sse2(__m128i a) {
   const __m128i sum1 = _mm_unpackhi_epi64(a, a);
   const __m128i sum2 = _mm_add_epi64(a, sum1);
-  int64_t res;
-  _mm_storel_epi64((__m128i_u *)(&res), sum2);
-  return res;
+  return _mm_cvtsi128_si64(sum2);
 }
 
 void av1_calc_indices_dim1_sse2(const int *data, const int *centroids,
@@ -56,8 +54,8 @@ void av1_calc_indices_dim1_sse2(const int *data, const int *centroids,
     ind[l] = _mm_packus_epi16(ind[l], v_zero);
     if (total_dist) {
       // Convert to 64 bit and add to sum.
-      const __m128i dist1 = _mm_unpacklo_epi32(v_zero, dist[0]);
-      const __m128i dist2 = _mm_unpackhi_epi32(v_zero, dist[0]);
+      const __m128i dist1 = _mm_unpacklo_epi32(dist[0], v_zero);
+      const __m128i dist2 = _mm_unpackhi_epi32(dist[0], v_zero);
       sum = _mm_add_epi64(sum, dist1);
       sum = _mm_add_epi64(sum, dist2);
     }
@@ -86,18 +84,12 @@ void av1_calc_indices_dim2_sse2(const int *data, const int *centroids,
     l = (l == 0) ? 1 : 0;
     __m128i ind1 = _mm_loadu_si128((__m128i *)data);
     __m128i ind2 = _mm_loadu_si128((__m128i *)(data + 4));
-    __m128i indl = _mm_unpacklo_epi32(ind1, ind2);
-    __m128i indh = _mm_unpackhi_epi32(ind1, ind2);
-    ind1 = _mm_unpacklo_epi32(indl, indh);
-    ind2 = _mm_unpackhi_epi32(indl, indh);
+    ind1 = _mm_packs_epi32(ind1, ind2);
     for (int j = 0; j < k; j++) {
-      __m128i cent0 = _mm_set1_epi32(centroids[2 * j]);
-      __m128i cent1 = _mm_set1_epi32(centroids[2 * j + 1]);
-      __m128i d1 = _mm_sub_epi32(ind1, cent0);
-      __m128i d2 = _mm_sub_epi32(ind2, cent1);
-      __m128i d3 = _mm_madd_epi16(d1, d1);
-      __m128i d4 = _mm_madd_epi16(d2, d2);
-      dist[j] = _mm_add_epi32(d3, d4);
+      const int cx = centroids[2 * j], cy = centroids[2 * j + 1];
+      __m128i cent = _mm_set_epi16(cy, cx, cy, cx, cy, cx, cy, cx);
+      __m128i d1 = _mm_sub_epi16(ind1, cent);
+      dist[j] = _mm_madd_epi16(d1, d1);
     }
 
     ind[l] = _mm_setzero_si128();
@@ -113,8 +105,8 @@ void av1_calc_indices_dim2_sse2(const int *data, const int *centroids,
     ind[l] = _mm_packus_epi16(ind[l], v_zero);
     if (total_dist) {
       // Convert to 64 bit and add to sum.
-      const __m128i dist1 = _mm_unpacklo_epi32(v_zero, dist[0]);
-      const __m128i dist2 = _mm_unpackhi_epi32(v_zero, dist[0]);
+      const __m128i dist1 = _mm_unpacklo_epi32(dist[0], v_zero);
+      const __m128i dist2 = _mm_unpackhi_epi32(dist[0], v_zero);
       sum = _mm_add_epi64(sum, dist1);
       sum = _mm_add_epi64(sum, dist2);
     }
