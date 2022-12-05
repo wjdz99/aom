@@ -620,12 +620,12 @@ function(setup_aom_test_targets)
      AND ENABLE_TESTS
      AND NOT BUILD_SHARED_LIBS
      AND NOT CONFIG_REALTIME_ONLY)
-    add_executable(test_av1_rc_qmode ${AV1_RC_QMODE_SOURCES})
-    target_link_libraries(test_av1_rc_qmode ${AOM_LIB_LINK_TYPE} aom
+    add_executable(av1_rc_qmode_test ${AV1_RC_QMODE_SOURCES})
+    target_link_libraries(av1_rc_qmode_test ${AOM_LIB_LINK_TYPE} aom
                           av1_rc_qmode aom_gtest aom_gmock)
-    set_property(TARGET test_av1_rc_qmode
+    set_property(TARGET av1_rc_qmode_test
                  PROPERTY FOLDER ${AOM_IDE_TEST_FOLDER})
-    list(APPEND AOM_APP_TARGETS test_av1_rc_qmode)
+    list(APPEND AOM_APP_TARGETS av1_rc_qmode_test)
   endif()
   set(AOM_APP_TARGETS ${AOM_APP_TARGETS} PARENT_SCOPE)
 endfunction()
