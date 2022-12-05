@@ -46,7 +46,7 @@ SECTION .text
   %endif
 %endmacro
 
-; This is specically designed to handle when src_strideq is a
+; This is specially designed to handle when src_strideq is a
 ; memory position, under such case, we can not accomplish
 ; complex address calculation using LEA, and fall back to
 ; using simple ADD instruction at each line ending.
