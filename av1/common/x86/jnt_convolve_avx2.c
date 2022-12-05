@@ -1050,11 +1050,13 @@ static AOM_INLINE void av1_dist_wtd_convolve_2d_no_avg_copy_avx2(
   } else {                                                                    \
     assert(w == 4);                                                           \
     do {                                                                      \
+      int32_t src0, src1, src2, src3;                                         \
+      memcpy(&src0, src + 0 * src_stride, sizeof(src0));                      \
+      memcpy(&src1, src + 1 * src_stride, sizeof(src1));                      \
+      memcpy(&src2, src + 2 * src_stride, sizeof(src2));                      \
+      memcpy(&src3, src + 3 * src_stride, sizeof(src3));                      \
       __m256i src_3210_8bit =                                                 \
-          _mm256_setr_epi32(*(int32_t *)(src + 0 * src_stride),               \
-                            *(int32_t *)(src + 1 * src_stride), 0, 0,         \
-                            *(int32_t *)(src + 2 * src_stride),               \
-                            *(int32_t *)(src + 3 * src_stride), 0, 0);        \
+          _mm256_setr_epi32(src0, src1, 0, 0, src2, src3, 0, 0);              \
                                                                               \
       __m256i src_3210 = _mm256_unpacklo_epi8(src_3210_8bit, zero);           \
       src_3210 = _mm256_slli_epi16(src_3210, LEFT_SHIFT);                     \
