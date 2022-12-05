@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1a008603_9ebdcb0a",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-12-05T17:31:18Z",
+      "side": 1,
+      "message": "Nit: Did you mean SSE2 here?",
+      "revId": "a56e0b1457a10a2de678b4e89b2881c0ee0617af",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "503b688c_03db86d3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-12-05T17:31:18Z",
+      "side": 1,
+      "message": "LGTM.\n\nChi Yo: It would be good if you could take a look, because I didn\u0027t review the previous CL.",
+      "revId": "a56e0b1457a10a2de678b4e89b2881c0ee0617af",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7db5a0e6_285bd0a1",
+        "filename": "av1/encoder/x86/av1_k_means_sse2.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-12-05T17:31:18Z",
+      "side": 1,
+      "message": "If we can use the SSSE3 intrinsic `_mm_abs_epi32`, we can just return `_mm_abs_epi32(diff1)` here, right?\n\nI wonder if libaom requires SSSE3 (or higher) as the minimum.",
+      "revId": "a56e0b1457a10a2de678b4e89b2881c0ee0617af",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}

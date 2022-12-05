@@ -53,6 +53,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "d8adaea0_d6cc075e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-12-05T17:31:18Z",
+      "side": 1,
+      "message": "I saw the `__m128i_u` type and didn\u0027t know what it was. So I did a search for it and found that StackOverflow page, which says \"`__m128i_u` is not portable (e.g. to MSVC)\". I have a Windows computer with Visual Studio 2022 installed, so I built libaom with VS 2022 and indeed it didn\u0027t know about the `__m128i_u` type.\n\nJames Zern has a nightly Visual Studio build and it didn\u0027t seem to run after your CL was committed. So the MSVC build error was not reported by his nightly Visual Studio build.",
+      "parentUuid": "ab71735f_78c286c8",
+      "revId": "ecaf557a2f1469ce91b879dd462ef5f104d5918a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b3e565a2_2b9ac767",
