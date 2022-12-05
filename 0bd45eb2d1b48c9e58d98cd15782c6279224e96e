@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "25c8b00c_c50e63d3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 31022
+      },
+      "writtenOn": "2022-12-05T15:40:03Z",
+      "side": 1,
+      "message": "Hi Yunqing, Marco,\n\nThis CL introduced a structure ‘InterModeSearchStateNonrd’ to store parameters and statistics used in non-rd path for inter mode evaluation.\n\nWe are also planning to submit the follow up CLs to abstract\n* Setup and initializations of parameters used in inter mode evaluation\n* Logic to skip inter mode based on statistics and speed feature setting.\n\nPlease review the patch.\n\nThanks \u0026 Regards,\nAnupam",
+      "revId": "0bd45eb2d1b48c9e58d98cd15782c6279224e96e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
