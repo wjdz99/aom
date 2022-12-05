@@ -24,6 +24,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e1016012_ff96fdd9",
+        "filename": "aom_dsp/flow_estimation/corner_detect.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 29052
+      },
+      "writtenOn": "2022-12-05T14:28:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f66df775_392a75b1",
+      "range": {
+        "startLine": 13,
+        "startChar": 8,
+        "endLine": 13,
+        "endChar": 44
+      },
+      "revId": "73760cf21c9ee6e6b625bac1e9c502042b5e027c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "53ddd8d6_b407145c",
@@ -47,6 +71,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "c05b362e_dd1331cf",
+        "filename": "aom_dsp/flow_estimation/corner_match.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 29052
+      },
+      "writtenOn": "2022-12-05T14:28:28Z",
+      "side": 1,
+      "message": "I was thinking that they should be aom_ instead of av1_ if they\u0027re in aom_dsp/ , but I see now that there are also quite a few av1_ functions in aom_dsp/ . So I\u0027ve changed them back to av1_ now :)",
+      "parentUuid": "53ddd8d6_b407145c",
+      "range": {
+        "startLine": 52,
+        "startChar": 7,
+        "endLine": 52,
+        "endChar": 10
+      },
+      "revId": "73760cf21c9ee6e6b625bac1e9c502042b5e027c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d04314ea_5e2e2697",
@@ -60,6 +108,30 @@
       "writtenOn": "2022-12-01T18:56:17Z",
       "side": 1,
       "message": "Can use aom_calloc for this task?",
+      "range": {
+        "startLine": 201,
+        "startChar": 28,
+        "endLine": 201,
+        "endChar": 38
+      },
+      "revId": "73760cf21c9ee6e6b625bac1e9c502042b5e027c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "677c83e0_f47cbae0",
+        "filename": "aom_dsp/flow_estimation/corner_match.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 201,
+      "author": {
+        "id": 29052
+      },
+      "writtenOn": "2022-12-05T14:28:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d04314ea_5e2e2697",
       "range": {
         "startLine": 201,
         "startChar": 28,
@@ -95,6 +167,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "6977ccca_c058540c",
+        "filename": "aom_dsp/flow_estimation/corner_match.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 216,
+      "author": {
+        "id": 29052
+      },
+      "writtenOn": "2022-12-05T14:28:28Z",
+      "side": 1,
+      "message": "A lot of this code gets replaced in the next patch, and I have gone through and made sure everything has const where possible in that patch. Can we leave this for now?",
+      "parentUuid": "2930ac13_05c09e57",
+      "range": {
+        "startLine": 216,
+        "startChar": 29,
+        "endLine": 216,
+        "endChar": 54
+      },
+      "revId": "73760cf21c9ee6e6b625bac1e9c502042b5e027c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "69540c81_7b1bfa96",
         "filename": "aom_dsp/flow_estimation/corner_match.c",
         "patchSetId": 3
@@ -106,6 +202,30 @@
       "writtenOn": "2022-12-01T18:56:17Z",
       "side": 1,
       "message": "May be better to use aom_malloc and aom_free here.",
+      "range": {
+        "startLine": 238,
+        "startChar": 13,
+        "endLine": 238,
+        "endChar": 19
+      },
+      "revId": "73760cf21c9ee6e6b625bac1e9c502042b5e027c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1f07fc26_2fc4dda1",
+        "filename": "aom_dsp/flow_estimation/corner_match.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 238,
+      "author": {
+        "id": 29052
+      },
+      "writtenOn": "2022-12-05T14:28:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "69540c81_7b1bfa96",
       "range": {
         "startLine": 238,
         "startChar": 13,
@@ -141,6 +261,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "9789339e_be73455f",
+        "filename": "aom_dsp/flow_estimation/corner_match.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 29052
+      },
+      "writtenOn": "2022-12-05T14:28:28Z",
+      "side": 1,
+      "message": "The current code seems to be quite inconsistent, to be honest - we have a mix of this_style, ThisStyle, and THIS_STYLE in different places. The global motion code is mostly ThisStyle, so I\u0027d prefer to keep it this way for consistency there",
+      "parentUuid": "3cc212ee_c5e86159",
+      "range": {
+        "startLine": 34,
+        "startChar": 2,
+        "endLine": 34,
+        "endChar": 16
+      },
+      "revId": "73760cf21c9ee6e6b625bac1e9c502042b5e027c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "b6d77e24_fe6318ad",
         "filename": "aom_dsp/flow_estimation/disflow.c",
         "patchSetId": 3
@@ -152,6 +296,30 @@
       "writtenOn": "2022-12-01T18:56:17Z",
       "side": 1,
       "message": "const",
+      "range": {
+        "startLine": 62,
+        "startChar": 44,
+        "endLine": 62,
+        "endChar": 61
+      },
+      "revId": "73760cf21c9ee6e6b625bac1e9c502042b5e027c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fa0f9113_0fd886a6",
+        "filename": "aom_dsp/flow_estimation/disflow.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 29052
+      },
+      "writtenOn": "2022-12-05T14:28:28Z",
+      "side": 1,
+      "message": "As above - this file gets a massive overhaul in a later patch, so I\u0027d prefer to leave it as-is for now",
+      "parentUuid": "b6d77e24_fe6318ad",
       "range": {
         "startLine": 62,
         "startChar": 44,
@@ -233,6 +401,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "7ff51731_6efa4c80",
+        "filename": "aom_dsp/flow_estimation/disflow.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 255,
+      "author": {
+        "id": 29052
+      },
+      "writtenOn": "2022-12-05T14:28:28Z",
+      "side": 1,
+      "message": "As above - this code all gets overhauled in another patch, so I\u0027d prefer to leave it as-is for now",
+      "parentUuid": "77edbe8c_0b965ded",
+      "range": {
+        "startLine": 255,
+        "startChar": 0,
+        "endLine": 255,
+        "endChar": 2
+      },
+      "revId": "73760cf21c9ee6e6b625bac1e9c502042b5e027c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "b19d95e8_b8ba0dc3",
         "filename": "aom_dsp/flow_estimation/disflow.c",
         "patchSetId": 3
@@ -267,6 +459,30 @@
       "writtenOn": "2022-12-01T18:56:17Z",
       "side": 1,
       "message": "Please double check the terms for libaom. I\u0027m not certain if this should be changed.",
+      "range": {
+        "startLine": 4,
+        "startChar": 55,
+        "endLine": 4,
+        "endChar": 56
+      },
+      "revId": "73760cf21c9ee6e6b625bac1e9c502042b5e027c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "401d55e5_448fa6e0",
+        "filename": "aom_dsp/flow_estimation/ransac.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 29052
+      },
+      "writtenOn": "2022-12-05T14:28:28Z",
+      "side": 1,
+      "message": "Yeah, that\u0027s not entirely clear to me - https://aomedia.org/license/ now suggests the 3-clause BSD license, but some of the older code has a 2-clause license.\n\nI\u0027ve reverted this change for now, but will email Adrian to ask what the correct thing to do is.",
+      "parentUuid": "623939cf_c7ee6c14",
       "range": {
         "startLine": 4,
         "startChar": 55,
