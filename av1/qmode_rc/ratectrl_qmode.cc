@@ -267,6 +267,11 @@ Status AV1RateControlQMode::SetRcParam(const RateControlParam &rc_param) {
   return { AOM_CODEC_OK, "" };
 }
 
+Status AV1RateControlQMode::IncreaseTplPassIndex() {
+  ++rc_param_.tpl_pass_index;
+  return { AOM_CODEC_OK, "" };
+}
+
 // Threshold for use of the lagging second reference frame. High second ref
 // usage may point to a transient event like a flash or occlusion rather than
 // a real scene cut.
