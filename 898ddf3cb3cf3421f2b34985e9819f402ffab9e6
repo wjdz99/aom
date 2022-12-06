@@ -22,6 +22,30 @@
       },
       "revId": "898ddf3cb3cf3421f2b34985e9819f402ffab9e6",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8494490e_03ef7d76",
+        "filename": "av1/qmode_rc/ratectrl_qmode_interface.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 311,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-12-06T19:50:20Z",
+      "side": 1,
+      "message": "Following up on that:\n\nI\u0027ve been viewing this API as essentially memoryless with the exception that SetRcParam can set up parameters which are used by the other calls.\n\nBut there shouldn\u0027t be any reason for the other calls to \"communicate\" with each other by means of saved state.\n\nNote that in production, each pass (first, TPL1, TPL2, and final encode) will be done in a separate binary, so it\u0027s guaranteed that each one will get its own copy of the RC library implementation.\n\nPerhaps I should add a comment to the header clarifying this.",
+      "parentUuid": "10136f69_25c2a8cc",
+      "range": {
+        "startLine": 311,
+        "startChar": 0,
+        "endLine": 311,
+        "endChar": 44
+      },
+      "revId": "898ddf3cb3cf3421f2b34985e9819f402ffab9e6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
