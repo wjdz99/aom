@@ -308,6 +308,7 @@ class AV1RateControlQModeInterface {
   virtual ~AV1RateControlQModeInterface();
 
   virtual Status SetRcParam(const RateControlParam &rc_param) = 0;
+  virtual Status IncreaseTplPassIndex() = 0;
   virtual StatusOr<GopStructList> DetermineGopInfo(
       const FirstpassInfo &firstpass_info) = 0;
 

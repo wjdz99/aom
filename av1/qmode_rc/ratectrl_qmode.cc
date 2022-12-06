@@ -264,6 +264,12 @@ Status AV1RateControlQMode::SetRcParam(const RateControlParam &rc_param) {
     return { AOM_CODEC_INVALID_PARAM, error_message.str() };
   }
   rc_param_ = rc_param;
+  rc_param_.tpl_pass_index = 0;
+  return { AOM_CODEC_OK, "" };
+}
+
+Status AV1RateControlQMode::IncreaseTplPassIndex() {
+  ++rc_param_.tpl_pass_index;
   return { AOM_CODEC_OK, "" };
 }
 
