@@ -102,6 +102,7 @@ StatusOr<TplGopDepStats> ComputeTplGopDepStats(
 class AV1RateControlQMode : public AV1RateControlQModeInterface {
  public:
   Status SetRcParam(const RateControlParam &rc_param) override;
+  Status IncreaseTplPassIndex() override;
   StatusOr<GopStructList> DetermineGopInfo(
       const FirstpassInfo &firstpass_info) override;
   StatusOr<GopEncodeInfo> GetGopEncodeInfo(

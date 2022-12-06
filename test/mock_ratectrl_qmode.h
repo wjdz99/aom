@@ -21,6 +21,7 @@ class MockRateControlQMode : public AV1RateControlQModeInterface {
  public:
   MOCK_METHOD(Status, SetRcParam, (const RateControlParam &rc_param),
               (override));
+  MOCK_METHOD(Status, IncreaseTplPassIndex, (), (override));
   MOCK_METHOD(StatusOr<GopStructList>, DetermineGopInfo,
               (const FirstpassInfo &firstpass_info), (override));
   MOCK_METHOD(StatusOr<GopEncodeInfo>, GetGopEncodeInfo,
