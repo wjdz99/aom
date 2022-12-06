@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c39b6b4f_bc2bffef",
+        "filename": "av1/qmode_rc/ratectrl_qmode.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 267,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-12-06T18:56:31Z",
+      "side": 1,
+      "message": "this ignores the tpl_pass_index from the argument passed into this function.\n\nShould it be always 0? Either way, there should be an error check as we did above for other fields.",
+      "range": {
+        "startLine": 267,
+        "startChar": 12,
+        "endLine": 267,
+        "endChar": 26
+      },
+      "revId": "e0771ba99590ff3fb730b2b38ae8b045a85bf6d0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
