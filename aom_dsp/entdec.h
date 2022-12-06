@@ -18,6 +18,10 @@
 extern "C" {
 #endif
 
+typedef uint32_t dec_od_ec_window;
+
+#define DEC_OD_EC_WINDOW_SIZE ((int)sizeof(dec_od_ec_window) * CHAR_BIT)
+
 typedef struct od_ec_dec od_ec_dec;
 
 #if defined(OD_ACCOUNTING) && OD_ACCOUNTING
@@ -48,7 +52,7 @@ struct od_ec_dec {
     As we shift up during renormalization, if we don't have enough bits left in
      the window to fill the top 16, we'll read in more bits of the coded
      value.*/
-  od_ec_window dif;
+  dec_od_ec_window dif;
   /*The number of values in the current range.*/
   uint16_t rng;
   /*The number of bits of data in the current value.*/
