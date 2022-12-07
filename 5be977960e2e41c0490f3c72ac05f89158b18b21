@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "855049e3_c2aac39f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 6245
+      },
+      "writtenOn": "2022-12-07T16:56:23Z",
+      "side": 1,
+      "message": "Hi Yunqing, Angie,\nIn this CL, we fixed potential issues due to the speed feature disable_filtered_key_tpl by cleaning-up the same.\n\nThe speed feature was initially introduced in CL below and the sf was relevant as tpl was happening separately for key frame and first ARF frame of GF group.\nhttps://aomedia-review.googlesource.com/c/aom/+/113364\n\nLater, tpl stats computation was combined for above 2 cases in the CL below\nhttps://aomedia-review.googlesource.com/c/aom/+/148007\nHowever tpl stats computation of the first GF group/key frame has been under disable_filtered_key_tpl. Hence tpl stats computation was not happening for the first GF group/key frame for speed\u003d6 in the parent version.\n\nIn this CL, the speed feature is cleaned-up so that tpl stats are computed appropriately for the first GF group/key frame. Though the CL increases the encode time by ~1.47% and LOWRES2 does not have significant impact, we feel that this CL can be considered as it fixes an underlying issue in speed\u003d6 and gives overall quality/SSIM improvement.  \n\nPlease check the borg results for good encoding mode below:\n```\n                 Instruction Count      BD-Rate Loss(%)\ncpu   Testset       Reduction(%)    avg.psnr   ovr.psnr    ssim\n  6   LOWRES2         -1.007         -0.0891   -0.1327   -1.2631\n  6   MIDRES2         -1.640         -0.2633   -0.3907   -2.2604\n  6    HDRES2         -1.762         -0.8351   -0.8809   -2.2599\n```\n\nThe instruction count reduction specified has been measured using command:\n $ perf stat -e instructions:u ./aomenc …\n\nWe also verified that CL produces bit-exact output for ‘good’, speed\u003d5.\n\nWhile fixing the issue, we were to adjust thresholds for following cases to avoid unit-test failures:\n\nAV1/HorzSuperresEndToEndTest.HorzSuperresEndToEndPSNRTest/1 :\n```\nBefore the fix, total size\u003d16513 bytes and PSNR\u003d45.66db\nAfter the fix, total size\u003d13871 bytes and PSNR\u003d44.81\nGiven that there is a size reduction of ~16%, we relaxed the threshold from 45db to 44.7db\n```\n\n\nAV1/HorzSuperresEndToEndTest.HorzSuperresEndToEndPSNRTest/3 :\n```\nBefore the fix, total size\u003d24834 bytes and PSNR\u003d47.998db\nAfter the fix, total size\u003d20623 bytes and PSNR\u003d46.92\nGiven that there is a size reduction of ~17%, we relaxed the threshold from 47.9db to 46.8db\n```\n\nAV1/HorzSuperresEndToEndTest.HorzSuperresEndToEndPSNRTest/5 :\n```\nBefore the fix, total size\u003d85448 bytes and PSNR\u003d60.01db\nAfter the fix, total size\u003d67650 bytes and PSNR\u003d52.65db\nThere is a PSNR drop of 7.35db with a size reduction of ~21%. \nWe observed similar behavior when we tried enabling the sf in the parent version for speed\u003d5 (through a hack to unit-test). Hence we relaxed the threshold from 56db to 52.5db. \n```\n\nPlease let us know your thoughts on the CL. \n\nRegards,\nRanjit",
+      "revId": "5be977960e2e41c0490f3c72ac05f89158b18b21",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
