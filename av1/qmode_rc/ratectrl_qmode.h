@@ -35,9 +35,11 @@ struct TplUnitDepStats {
 };
 
 struct TplFrameDepStats {
-  int unit_size;  // equivalent to min_block_size
-  double rdcost;  // overall rate-distortion cost
+  int unit_size;      // equivalent to min_block_size
+  double rdcost;      // overall rate-distortion cost
+  double alt_rdcost;  // rate-distortion cost in the second tpl pass
   std::vector<std::vector<TplUnitDepStats>> unit_stats;
+  std::vector<std::vector<TplUnitDepStats>> alt_unit_stats;
 };
 
 struct TplGopDepStats {
@@ -80,7 +82,7 @@ double TplFrameDepStatsAccumulateIntraCost(
     const TplFrameDepStats &frame_dep_stats);
 
 double TplFrameDepStatsAccumulateInterCost(
-    const TplFrameDepStats &frame_dep_stats);
+    const TplFrameDepStats &frame_dep_stats, int unit_idx);
 
 double TplFrameDepStatsAccumulate(const TplFrameDepStats &frame_dep_stats);
 
