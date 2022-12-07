@@ -1221,30 +1221,35 @@ static INLINE void ensure_mv_buffer(RefCntBuffer *buf, AV1_COMMON *cm) {
 
   if (buf->mvs == NULL || buf_rows != mi_params->mi_rows ||
       buf_cols != mi_params->mi_cols) {
-    aom_free(buf->mvs);
     buf->mi_rows = mi_params->mi_rows;
     buf->mi_cols = mi_params->mi_cols;
-    CHECK_MEM_ERROR(cm, buf->mvs,
-                    (MV_REF *)aom_calloc(((mi_params->mi_rows + 1) >> 1) *
-                                             ((mi_params->mi_cols + 1) >> 1),
-                                         sizeof(*buf->mvs)));
+   //Allocate buf->mvs only if temporal mv prediction is enabled.
+    if (cm->seq_params->order_hint_info.enable_ref_frame_mvs) {
+      aom_free(buf->mvs);
+      CHECK_MEM_ERROR(cm, buf->mvs,
+                      (MV_REF *)aom_calloc(((mi_params->mi_rows + 1) >> 1) *
+                                               ((mi_params->mi_cols + 1) >> 1),
+                                           sizeof(*buf->mvs)));
+    }
     aom_free(buf->seg_map);
     CHECK_MEM_ERROR(
         cm, buf->seg_map,
         (uint8_t *)aom_calloc(mi_params->mi_rows * mi_params->mi_cols,
                               sizeof(*buf->seg_map)));
   }
+  // Allocate tpl_mvs only if temporal mv prediction is enabled.
+  if (cm->seq_params->order_hint_info.enable_ref_frame_mvs) {
+    const int mem_size = ((mi_params->mi_rows + MAX_MIB_SIZE) >> 1) *
+                         (mi_params->mi_stride >> 1);
+    int realloc = cm->tpl_mvs == NULL;
+    if (cm->tpl_mvs) realloc |= cm->tpl_mvs_mem_size < mem_size;
 
-  const int mem_size =
-      ((mi_params->mi_rows + MAX_MIB_SIZE) >> 1) * (mi_params->mi_stride >> 1);
-  int realloc = cm->tpl_mvs == NULL;
-  if (cm->tpl_mvs) realloc |= cm->tpl_mvs_mem_size < mem_size;
-
-  if (realloc) {
-    aom_free(cm->tpl_mvs);
-    CHECK_MEM_ERROR(cm, cm->tpl_mvs,
-                    (TPL_MV_REF *)aom_calloc(mem_size, sizeof(*cm->tpl_mvs)));
-    cm->tpl_mvs_mem_size = mem_size;
+    if (realloc) {
+      aom_free(cm->tpl_mvs);
+      CHECK_MEM_ERROR(cm, cm->tpl_mvs,
+                      (TPL_MV_REF *)aom_calloc(mem_size, sizeof(*cm->tpl_mvs)));
+      cm->tpl_mvs_mem_size = mem_size;
+    }
   }
 }
 
