@@ -888,10 +888,10 @@ int av1_rc_regulate_q(const AV1_COMP *cpi, int target_bits_per_frame,
       get_rate_correction_factor(cpi, width, height);
   const int target_bits_per_mb =
       (int)(((uint64_t)target_bits_per_frame << BPER_MB_NORMBITS) / MBs);
-
   int q =
       find_closest_qindex_by_rate(target_bits_per_mb, cpi, correction_factor,
                                   active_best_quality, active_worst_quality);
+
   if (cpi->oxcf.rc_cfg.mode == AOM_CBR && has_no_stats_stage(cpi))
     return adjust_q_cbr(cpi, q, active_worst_quality, width, height);
 
@@ -2175,6 +2175,7 @@ void av1_rc_postencode_update(AV1_COMP *cpi, uint64_t bytes_used) {
         ROUND_POWER_OF_TWO(3 * p_rc->avg_frame_qindex[KEY_FRAME] + qindex, 2);
   } else {
     if ((cpi->ppi->use_svc && cpi->oxcf.rc_cfg.mode == AOM_CBR) ||
+         cpi->rc.rtc_external_ratectrl ||
         (!rc->is_src_frame_alt_ref &&
          !(refresh_frame->golden_frame || is_intrnl_arf ||
            refresh_frame->alt_ref_frame))) {
@@ -2607,7 +2608,7 @@ int av1_calc_iframe_target_size_one_pass_cbr(const AV1_COMP *cpi) {
     }
   } else {
     int kf_boost = 32;
-    double framerate = cpi->framerate;
+    int framerate = (int)(cpi->framerate + 0.5);
 
     kf_boost = AOMMAX(kf_boost, (int)(2 * framerate - 16));
     if (rc->frames_since_key < framerate / 2) {
