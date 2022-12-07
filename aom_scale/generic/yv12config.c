@@ -12,6 +12,7 @@
 #include <assert.h>
 
 #include "aom/internal/aom_image_internal.h"
+#include "aom_dsp/pyramid.h"
 #include "aom_mem/aom_mem.h"
 #include "aom_ports/mem.h"
 #include "aom_scale/yv12config.h"
@@ -31,7 +32,9 @@ int aom_free_frame_buffer(YV12_BUFFER_CONFIG *ybf) {
     if (ybf->buffer_alloc_sz > 0) {
       aom_free(ybf->buffer_alloc);
     }
-    if (ybf->y_buffer_8bit) aom_free(ybf->y_buffer_8bit);
+    if (ybf->y_pyramid) {
+      aom_free_pyramid(ybf->y_pyramid);
+    }
     aom_remove_metadata_from_frame_buffer(ybf);
     /* buffer_alloc isn't accessed by most functions.  Rather y_buffer,
       u_buffer and v_buffer point to buffer_alloc and are used.  Clear out
@@ -51,7 +54,7 @@ static int realloc_frame_buffer_aligned(
     const uint64_t uvplane_size, const int aligned_width,
     const int aligned_height, const int uv_width, const int uv_height,
     const int uv_stride, const int uv_border_w, const int uv_border_h,
-    int alloc_y_buffer_8bit, int alloc_y_plane_only) {
+    int num_pyramid_levels, int alloc_y_plane_only) {
   if (ybf) {
     const int aom_byte_align = (byte_alignment == 0) ? 1 : byte_alignment;
     const uint64_t frame_size =
@@ -62,8 +65,11 @@ static int realloc_frame_buffer_aligned(
 #if defined AOM_MAX_ALLOCABLE_MEMORY
     // The size of ybf->buffer_alloc.
     uint64_t alloc_size = frame_size;
-    // The size of ybf->y_buffer_8bit.
-    if (use_highbitdepth) alloc_size += yplane_size;
+    // The size of ybf->y_pyramid
+    if (num_pyramid_levels > 0) {
+      alloc_size += aom_get_pyramid_alloc_size(
+          width, height, num_pyramid_levels, use_highbitdepth);
+    }
     // The decoder may allocate REF_FRAMES frame buffers in the frame buffer
     // pool. Bound the total amount of allocated memory as if these REF_FRAMES
     // frame buffers were allocated in a single allocation.
@@ -159,16 +165,13 @@ static int realloc_frame_buffer_aligned(
 
     ybf->use_external_reference_buffers = 0;
 
-    if (use_highbitdepth && alloc_y_buffer_8bit) {
-      if (ybf->y_buffer_8bit) aom_free(ybf->y_buffer_8bit);
-      ybf->y_buffer_8bit = (uint8_t *)aom_memalign(32, (size_t)yplane_size);
-      if (!ybf->y_buffer_8bit) return AOM_CODEC_MEM_ERROR;
-    } else {
-      if (ybf->y_buffer_8bit) {
-        aom_free(ybf->y_buffer_8bit);
-        ybf->y_buffer_8bit = NULL;
-        ybf->buf_8bit_valid = 0;
-      }
+    if (ybf->y_pyramid) {
+      aom_free_pyramid(ybf->y_pyramid);
+      ybf->y_pyramid = NULL;
+    }
+    if (num_pyramid_levels > 0) {
+      ybf->y_pyramid = aom_alloc_pyramid(width, height, num_pyramid_levels,
+                                         use_highbitdepth);
     }
 
     ybf->corrupted = 0; /* assume not corrupted by errors */
@@ -209,7 +212,7 @@ int aom_realloc_frame_buffer(YV12_BUFFER_CONFIG *ybf, int width, int height,
                              int border, int byte_alignment,
                              aom_codec_frame_buffer_t *fb,
                              aom_get_frame_buffer_cb_fn_t cb, void *cb_priv,
-                             int alloc_y_buffer_8bit, int alloc_y_plane_only) {
+                             int num_pyramid_levels, int alloc_y_plane_only) {
 #if CONFIG_SIZE_LIMIT
   if (width > DECODE_WIDTH_LIMIT || height > DECODE_HEIGHT_LIMIT)
     return AOM_CODEC_MEM_ERROR;
@@ -236,7 +239,7 @@ int aom_realloc_frame_buffer(YV12_BUFFER_CONFIG *ybf, int width, int height,
         ybf, width, height, ss_x, ss_y, use_highbitdepth, border,
         byte_alignment, fb, cb, cb_priv, y_stride, yplane_size, uvplane_size,
         aligned_width, aligned_height, uv_width, uv_height, uv_stride,
-        uv_border_w, uv_border_h, alloc_y_buffer_8bit, alloc_y_plane_only);
+        uv_border_w, uv_border_h, num_pyramid_levels, alloc_y_plane_only);
   }
   return AOM_CODEC_MEM_ERROR;
 }
