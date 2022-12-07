@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8113f74c_3276b9eb",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 31592
+      },
+      "writtenOn": "2022-12-07T14:10:16Z",
+      "side": 1,
+      "message": "Hi Marco, Yunqing,\n\nThanks for reviewing the CL. \n\nWe studied and improved the logic further by making it uniform across all resolutions: rtc and derf content. We found another condition useful in preserving the visual quality: When both chroma channels have a non-zero color sensitivity, we disable the pruning logic. \n\nThe worst/best case BD Rate drops are:\n```\n                                         BD-Rate Loss(%)       Instr Cnt\ncpu Impact        content         avg.psnr  ovr.psnr    ssim    Red (%) \n 8   worst       fourpeople720p    0.9739    0.9519    1.2536    1.727\n 8   worst             dark720p    0.7668    0.6244    0.1004    1.784\n 8   worst           street180p    0.7655    0.8313    0.7762    3.540\n 8    best          mmmovingvga   -1.4940   -1.5158   -1.7194    2.701\n 8    best      marcooffice720p   -0.8852   -0.8755   -1.1510    1.995\n 8    best  desktopqvga_320_240   -0.7711   -0.5778   -0.9443    2.286\n```\n\nWe checked the following contents for visual quality (including moving objects such as people\u0027s faces) against the ref:\n```\ncpu    content                         bitrates\n       \n 8     street180p                      200,250 \n 8     capture_pixel_office_320_240    150,200 \n 8     tac_narrows_320_240             40,50   \n 8     desktopqvga2_320_240            40,80  \n 8     apprtc_pixel3_320_240           40     \n 8     room180p                        40      \n 8     mac_marco_moving_320_240        40         \n 8     fourpeople720p                  800,1000,1400  \n 8     dark720p                        800,1000       \n 8     street360p                      500,600   \n 8     testnoise720p                   1000,800    \n 8     tacomascmvvga                   300        \n 8     vidyo1_1280x720_60              1000,1200 \n 8     desktop2360p                    300        \n```\nFor the above contents, we did not see any new artifacts. At some frames, the visual drag gets better, while at a few frames it gets slightly worse. In general, it is less noticeable. One possible reason for improvement in drag at some frames can be that, at lower bitrates, the H and V prediction may actually make the drag worse. Since we prune H and V modes based on block properties, it needs to select Intra DC or other mode, of which Intra DC provides a smoothing effect. The overall visual quality is equal or better. \n \nThe instruction count reduction specified has been measured using command:\n```\n$ perf stat -e instructions:u ./aomenc … \n```\n\nPlease review the CL and let us know your suggestions.\n\nThanks,",
+      "revId": "5e42fd6e8bc8fd0bd598ecd3e5a418ec617affe4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}

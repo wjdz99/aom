@@ -35,6 +35,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "cecb08b8_aaa9a1b8",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2513,
+      "author": {
+        "id": 31592
+      },
+      "writtenOn": "2022-12-07T14:10:16Z",
+      "side": 1,
+      "message": "Thanks. We have found this condition useful in rtc as well. Thus, in the new patchset, the condition cyclic_refresh_segment_id_boosted(segment_id) is applied to both rtc and derf testsets.",
+      "parentUuid": "16283093_ca9163f9",
+      "revId": "f2dbeddf51f585f95bbdb069af0a1e39d6851961",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ecbbc8a9_4e3841f5",
@@ -48,6 +66,24 @@
       "writtenOn": "2022-11-30T17:57:29Z",
       "side": 1,
       "message": "may be better to put this logic switch to off (based on frame_source_sad) into the is_prune_intra_mode() where the feature is used, to keep the speed features code cleaner. Update comment in speed_features.h as well to mention frame_source_sad.\n\nAlso why it this logic (to disable based on frame_source_sad) only used for rtc_derf?",
+      "revId": "f2dbeddf51f585f95bbdb069af0a1e39d6851961",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c234bec7_26f7d0a4",
+        "filename": "av1/encoder/speed_features.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1278,
+      "author": {
+        "id": 31592
+      },
+      "writtenOn": "2022-12-07T14:10:16Z",
+      "side": 1,
+      "message": "Thanks for suggestions. We have moved the frame_source-sad logic into the function is_prune_intra_mode(). We have updated the speed_features.h comment accordingly. This condition is applied to reduce the visual impact mainly seen in frames with higher sad. In the new patchset, we have applied this to both rtc and derf testsets.",
+      "parentUuid": "ecbbc8a9_4e3841f5",
       "revId": "f2dbeddf51f585f95bbdb069af0a1e39d6851961",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
