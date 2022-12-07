@@ -64,6 +64,21 @@ void *aom_memalign(size_t align, size_t size) {
   return x;
 }
 
+void *aom_memalign_realloc(void *ptr, size_t old_size, size_t new_size,
+                           size_t align) {
+  void *x = NULL;
+  if (!ptr) {
+    x = (unsigned char *)aom_memalign(align, new_size);
+    return x;
+  }
+  // allocate new aligned memory
+  x = (unsigned char *)aom_memalign(align, new_size);
+  // copy to new memory
+  memcpy((unsigned char *)x, (unsigned char *)ptr, old_size);
+  aom_free(ptr);
+  return x;
+}
+
 void *aom_malloc(size_t size) { return aom_memalign(DEFAULT_ALIGNMENT, size); }
 
 void *aom_calloc(size_t num, size_t size) {

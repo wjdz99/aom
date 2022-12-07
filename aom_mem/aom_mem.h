@@ -36,6 +36,8 @@ void *aom_memalign(size_t align, size_t size);
 void *aom_malloc(size_t size);
 void *aom_calloc(size_t num, size_t size);
 void aom_free(void *memblk);
+void *aom_memalign_realloc(void *ptr, size_t old_size, size_t new_size,
+                           size_t align);
 
 static INLINE void *aom_memset16(void *dest, int val, size_t length) {
   size_t i;
