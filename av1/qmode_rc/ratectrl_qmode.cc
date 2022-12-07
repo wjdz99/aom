@@ -904,6 +904,11 @@ TplFrameDepStats CreateTplFrameDepStats(int frame_height, int frame_width,
   for (auto &row : frame_dep_stats.unit_stats) {
     row.resize(unit_cols);
   }
+
+  frame_dep_stats.alt_unit_stats.resize(unit_rows);
+  for (auto &row : frame_dep_stats.alt_unit_stats) {
+    row.resize(unit_cols);
+  }
   return frame_dep_stats;
 }
 
@@ -915,7 +920,10 @@ TplUnitDepStats TplBlockStatsToDepStats(const TplBlockStats &block_stats,
   // In rare case, inter_cost may be greater than intra_cost.
   // If so, we need to modify inter_cost such that inter_cost <= intra_cost
   // because it is required by GetPropagationFraction()
-  dep_stats.inter_cost = std::min(dep_stats.intra_cost, dep_stats.inter_cost);
+  if (block_stats.ref_frame_index[0] >= 0)
+    dep_stats.inter_cost = std::min(dep_stats.intra_cost, dep_stats.inter_cost);
+  else
+    dep_stats.inter_cost = dep_stats.intra_cost;
   dep_stats.mv = block_stats.mv;
   dep_stats.ref_frame_index = block_stats.ref_frame_index;
   return dep_stats;
@@ -1019,7 +1027,37 @@ StatusOr<TplFrameDepStats> CreateTplFrameDepStatsWithoutPropagation(
     }
   }
 
-  frame_dep_stats.rdcost = TplFrameDepStatsAccumulateInterCost(frame_dep_stats);
+  for (const TplBlockStats &block_stats :
+       frame_stats.alternate_block_stats_list) {
+    Status status =
+        ValidateBlockStats(frame_stats, block_stats, min_block_size);
+    if (!status.ok()) {
+      return status;
+    }
+    const int block_unit_row = block_stats.row / min_block_size;
+    const int block_unit_col = block_stats.col / min_block_size;
+    // The block must start within the frame boundaries, but it may extend past
+    // the right edge or bottom of the frame. Find the number of unit rows and
+    // columns in the block which are fully within the frame.
+    const int block_unit_rows = std::min(block_stats.height / min_block_size,
+                                         unit_rows - block_unit_row);
+    const int block_unit_cols = std::min(block_stats.width / min_block_size,
+                                         unit_cols - block_unit_col);
+    const int unit_count = block_unit_rows * block_unit_cols;
+    TplUnitDepStats unit_stats =
+        TplBlockStatsToDepStats(block_stats, unit_count);
+    for (int r = 0; r < block_unit_rows; r++) {
+      for (int c = 0; c < block_unit_cols; c++) {
+        frame_dep_stats.alt_unit_stats[block_unit_row + r][block_unit_col + c] =
+            unit_stats;
+      }
+    }
+  }
+
+  frame_dep_stats.rdcost =
+      TplFrameDepStatsAccumulateInterCost(frame_dep_stats, 0);
+  frame_dep_stats.alt_rdcost =
+      TplFrameDepStatsAccumulateInterCost(frame_dep_stats, 1);
 
   return frame_dep_stats;
 }
@@ -1066,13 +1104,19 @@ double TplFrameDepStatsAccumulateIntraCost(
 }
 
 double TplFrameDepStatsAccumulateInterCost(
-    const TplFrameDepStats &frame_dep_stats) {
+    const TplFrameDepStats &frame_dep_stats, int unit_idx) {
   auto getInterCost = [](double sum, const TplUnitDepStats &unit) {
     return sum + unit.inter_cost;
   };
   double sum = 0;
-  for (const auto &row : frame_dep_stats.unit_stats) {
-    sum = std::accumulate(row.begin(), row.end(), sum, getInterCost);
+  if (unit_idx == 0) {
+    for (const auto &row : frame_dep_stats.unit_stats) {
+      sum = std::accumulate(row.begin(), row.end(), sum, getInterCost);
+    }
+  } else {
+    for (const auto &row : frame_dep_stats.alt_unit_stats) {
+      sum = std::accumulate(row.begin(), row.end(), sum, getInterCost);
+    }
   }
   return std::max(sum, 1.0);
 }
@@ -1460,6 +1504,36 @@ StatusOr<GopEncodeInfo> AV1RateControlQMode::GetGopEncodeInfoWithTpl(
       static_cast<int>(tpl_gop_stats.frame_stats_list.size());
   const int active_worst_quality = rc_param_.base_q_index;
   int active_best_quality = rc_param_.base_q_index;
+
+  double base_rdcost = 1.0;  // baseline total rdcost
+  double hqr_rdcost = 0;     // high quality referece total rdcost
+  double arf_rdcost_high = 1.0;
+  double arf_rdcost_low = 0;
+
+  int kf_arf_seen = 0;
+
+  for (int i = 0; i < frame_count; ++i) {
+    FrameEncodeParameters param;
+    const GopFrame &gop_frame = gop_struct.gop_frame_list[i];
+    const TplFrameDepStats &frame_dep_stats =
+        gop_dep_stats->frame_dep_stats_list[i];
+    if (gop_frame.update_type == GopFrameType::kRegularGolden ||
+        gop_frame.update_type == GopFrameType::kRegularKey ||
+        gop_frame.update_type == GopFrameType::kRegularArf) {
+      if (!kf_arf_seen) {
+        arf_rdcost_high += frame_dep_stats.rdcost;
+        arf_rdcost_low += frame_dep_stats.alt_rdcost;
+      }
+      kf_arf_seen = 1;
+    } else {
+      base_rdcost += frame_dep_stats.rdcost;
+      hqr_rdcost += frame_dep_stats.alt_rdcost;
+    }
+  }
+
+  double tp_frame_importance = 1.0 + fabs((base_rdcost - hqr_rdcost) /
+                                          (arf_rdcost_high - arf_rdcost_low));
+
   for (int i = 0; i < frame_count; i++) {
     FrameEncodeParameters param;
     const GopFrame &gop_frame = gop_struct.gop_frame_list[i];
@@ -1477,8 +1551,12 @@ StatusOr<GopEncodeInfo> AV1RateControlQMode::GetGopEncodeInfoWithTpl(
           TplFrameDepStatsAccumulateIntraCost(frame_dep_stats);
       const double cost_with_propagation =
           TplFrameDepStatsAccumulate(frame_dep_stats);
-      const double frame_importance =
+      double frame_importance =
           cost_with_propagation / cost_without_propagation;
+
+      if (rc_param_.tpl_pass_count == TplPassCount::kTwoTplPasses)
+        frame_importance = tp_frame_importance;
+
       // Imitate the behavior of av1_tpl_get_qstep_ratio()
       const double qstep_ratio = sqrt(1 / frame_importance);
       param.q_index = av1_get_q_index_from_qstep_ratio(rc_param_.base_q_index,
