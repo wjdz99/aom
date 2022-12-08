@@ -16,6 +16,23 @@
       "message": "PTAL. Thanks for the review.",
       "revId": "1b254956b291db50c59e4adfd5ac7c5b3fc4f6ab",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "03fc3566_bfb5359a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 17
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 26549
+      },
+      "writtenOn": "2022-12-08T02:13:19Z",
+      "side": 1,
+      "message": "Wan-Teh \u0026 Jerome: Thanks for your review and update.",
+      "revId": "1b254956b291db50c59e4adfd5ac7c5b3fc4f6ab",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
