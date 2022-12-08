@@ -20,9 +20,7 @@
 #define EC_PROB_SHIFT 6
 #define EC_MIN_PROB 4  // must be <= (1<<EC_PROB_SHIFT)/16
 
-/*OPT: od_ec_window must be at least 32 bits, but if you have fast arithmetic
-   on a larger type, you can speed up the decoder by using it here.*/
-typedef uint32_t od_ec_window;
+typedef uint64_t od_ec_window;
 
 /*The size in bits of od_ec_window.*/
 #define OD_EC_WINDOW_SIZE ((int)sizeof(od_ec_window) * CHAR_BIT)
