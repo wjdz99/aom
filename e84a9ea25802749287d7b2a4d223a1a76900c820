@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "db0b6d6e_ae6278ec",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 2611,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-12-08T15:00:49Z",
+      "side": 1,
+      "message": "better to use round() like in this CL\n\nhttps://chromium-review.googlesource.com/c/webm/libvpx/+/3032430\n\nhttps://en.cppreference.com/w/c/numeric/math/round",
+      "revId": "e84a9ea25802749287d7b2a4d223a1a76900c820",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
