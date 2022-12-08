@@ -16,6 +16,69 @@
       "message": "Jerome: Please review. Thanks.\n\nI ran test_libaom with ASan and assertions enabled and it passed with this CL.",
       "revId": "ed82462a5b5ffdc6b6a8170f7b70ff9c0779ff88",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "194215c9_336b3d8c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 16
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-12-08T00:14:19Z",
+      "side": 1,
+      "message": "Thanks for the fix.\n\nThere were two fuzzing issues with the scaler before, hence my previous fix avoiding using aom_scaled_2d.\n\nWan-Teh verified this patch doesn\u0027t introduce more fuzzing issues. Thank you Wan-Teh for the review and the verification.",
+      "revId": "ed82462a5b5ffdc6b6a8170f7b70ff9c0779ff88",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "203fa059_32caf4a3",
+        "filename": "av1/common/arm/resize_neon.c",
+        "patchSetId": 16
+      },
+      "lineNbr": 698,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-12-08T00:14:19Z",
+      "side": 1,
+      "message": "this is not defined in a header so drop av1_ prefix.",
+      "range": {
+        "startLine": 698,
+        "startChar": 19,
+        "endLine": 698,
+        "endChar": 48
+      },
+      "revId": "ed82462a5b5ffdc6b6a8170f7b70ff9c0779ff88",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "635a605c_e5b2377e",
+        "filename": "av1/common/x86/resize_ssse3.c",
+        "patchSetId": 16
+      },
+      "lineNbr": 814,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-12-08T00:14:19Z",
+      "side": 1,
+      "message": "same here, drop av1_ prefix",
+      "range": {
+        "startLine": 814,
+        "startChar": 19,
+        "endLine": 814,
+        "endChar": 23
+      },
+      "revId": "ed82462a5b5ffdc6b6a8170f7b70ff9c0779ff88",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
