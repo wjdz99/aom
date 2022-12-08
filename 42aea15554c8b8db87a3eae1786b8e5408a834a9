@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "095a596a_bda4e5dd",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-12-08T22:57:43Z",
+      "side": 1,
+      "message": "Kyle: Could you edit the commit message and change the bug number to 3360?",
+      "revId": "42aea15554c8b8db87a3eae1786b8e5408a834a9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
