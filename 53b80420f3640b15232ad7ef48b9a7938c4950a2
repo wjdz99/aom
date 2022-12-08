@@ -16,6 +16,29 @@
       "message": "Hi Yunqing, Marco,\n\nThis CL modifies the entropy encoding byte-push mechanism using a 64-bit variable. Since we push several bytes at-a-time, there is a considerable speed-up across presets.\n\nIn this CL, we ensure the following:\n1. Encode time is reduced for 32-bit build as well. The encode time reduction for 32-bit build is approx 1/3rd of the 64-bit build. For example, the CL provides approx 0.6% encode time reduction for RTC cpu 10.  \n2. The CL produces bit-exact output for good 0-6 presets with a negligible speed-up. \n3. We remove an intermediate pre-carry buffer and take care of the carry by using backward propagation. The memory savings due to removal of the pre-carry buffer should be ~1%. We did not exactly profile it. The backward propagation logic is quite straight-forward and does not need a new unit test, since the overflow case remains the same as it was in the parent version: when the carry is propagated back through the intermediate bytes, all 0xFF, all the way to the first byte, which is also a 0xFF.\n4. The decoder operations remain the same i.e. it uses 32 bit register. Changing the byte-consume mechanism needs more study, especially the normative aspects of AC. Thus, we did not modify the decoder at this time. \n5. Since the CL modifies low-level math functions, the instruction count does not accurately capture the true impact. Our encode time reduction numbers are generated as the average of multiple encoder runs of the CL for several rtc and rtc_derf contents at different bitrates, as compared to the corresponding ones using the parent version.\n\nPlease review the CL. \n\nThanks,\nNeeraj",
       "revId": "53b80420f3640b15232ad7ef48b9a7938c4950a2",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d02e4f4d_2e64ac38",
+        "filename": "aom_dsp/entcode.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2022-12-08T17:48:03Z",
+      "side": 1,
+      "message": "Could you make this change in entennc.h instead? So, keep all changes in the encoder code, and no code change for the decoder.",
+      "range": {
+        "startLine": 23,
+        "startChar": 0,
+        "endLine": 23,
+        "endChar": 30
+      },
+      "revId": "53b80420f3640b15232ad7ef48b9a7938c4950a2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
