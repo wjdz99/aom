@@ -18,6 +18,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "718ec53b_f4b67f57",
+        "filename": "third_party/SVT-AV1/convolve_avx2.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 1429,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2022-12-09T20:23:04Z",
+      "side": 0,
+      "message": "These all compiles to the same assembly.\nI think it\u0027s better to keep them consistent in the same file.",
+      "parentUuid": "7a76fba6_c26be87d",
+      "revId": "4ea3956584da928d745f68beff6b7adbd8eae335",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "6b4f71fe_89bc14fc",
@@ -49,6 +67,24 @@
       "side": 0,
       "message": "\u003e UBSan did not warn about these two. Do you think we need to fix these?\n\nThese should become mov\u0027s in any case, so it should be fine. I think it\u0027s better to be consistent given code is copy and pasted.\n\nFailures due to this are suppressed, though, because unaligned loads are supported by mov. This does help quiet some noise in the logs though.",
       "parentUuid": "6b4f71fe_89bc14fc",
+      "revId": "4ea3956584da928d745f68beff6b7adbd8eae335",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "49f7f084_4d4dadee",
+        "filename": "third_party/SVT-AV1/convolve_avx2.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 1441,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2022-12-09T20:23:04Z",
+      "side": 0,
+      "message": "Ack",
+      "parentUuid": "c0a93956_b96be1f9",
       "revId": "4ea3956584da928d745f68beff6b7adbd8eae335",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
