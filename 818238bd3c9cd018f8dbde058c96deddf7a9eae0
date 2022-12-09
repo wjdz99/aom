@@ -16,6 +16,46 @@
       "message": "Hi Yunqing, \n\nThanks for the suggestion! Please review. \n\nNeeraj",
       "revId": "818238bd3c9cd018f8dbde058c96deddf7a9eae0",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5e7ef3fc_164b1a12",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2022-12-09T18:15:13Z",
+      "side": 1,
+      "message": "Chi Yo, could you also take a look? Thanks.",
+      "revId": "818238bd3c9cd018f8dbde058c96deddf7a9eae0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7617e2f7_91ef5435",
+        "filename": "aom_dsp/entenc.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 164,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2022-12-09T18:15:13Z",
+      "side": 1,
+      "message": "Can this part be moved to the header file, and create a function to be called here (similar to how get_msb() is done)? Separating compiler related defines from actual implementation makes it easy to follow and maintain the code. Would this be possible?",
+      "range": {
+        "startLine": 129,
+        "startChar": 0,
+        "endLine": 164,
+        "endChar": 6
+      },
+      "revId": "818238bd3c9cd018f8dbde058c96deddf7a9eae0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
