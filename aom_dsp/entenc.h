@@ -18,6 +18,8 @@
 extern "C" {
 #endif
 
+typedef uint64_t enc_od_ec_window;
+
 typedef struct od_ec_enc od_ec_enc;
 
 #define OD_MEASURE_EC_OVERHEAD (0)
@@ -30,14 +32,10 @@ struct od_ec_enc {
   unsigned char *buf;
   /*The size of the buffer.*/
   uint32_t storage;
-  /*A buffer for output bytes with their associated carry flags.*/
-  uint16_t *precarry_buf;
-  /*The size of the pre-carry buffer.*/
-  uint32_t precarry_storage;
   /*The offset at which the next entropy-coded byte will be written.*/
   uint32_t offs;
   /*The low end of the current range.*/
-  od_ec_window low;
+  enc_od_ec_window low;
   /*The number of values in the current range.*/
   uint16_t rng;
   /*The number of bits of data in the current value.*/
