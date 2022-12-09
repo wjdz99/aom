@@ -24,6 +24,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "991e3ac5_fbd43510",
+        "filename": "av1/encoder/pass2_strategy.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 3516,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2022-12-09T18:54:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f6592b33_f28b32c9",
+      "range": {
+        "startLine": 3516,
+        "startChar": 0,
+        "endLine": 3516,
+        "endChar": 11
+      },
+      "revId": "f96d1819faa94bbfa960a240246fcacf2db013de",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "be579984_59fcab7b",
@@ -37,6 +61,30 @@
       "writtenOn": "2022-12-08T20:58:18Z",
       "side": 1,
       "message": "use CHECK_MEM_ERROR()",
+      "range": {
+        "startLine": 3518,
+        "startChar": 25,
+        "endLine": 3518,
+        "endChar": 35
+      },
+      "revId": "f96d1819faa94bbfa960a240246fcacf2db013de",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0136ad51_5a90c039",
+        "filename": "av1/encoder/pass2_strategy.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 3518,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2022-12-09T18:54:21Z",
+      "side": 1,
+      "message": "CHECK_MEM_ERROR uses cm but we don\u0027t pass cm into this function. Besides, CHECK_MEM_ERROR exits the program when cannot allocating the memory, while in our case here it is not really necessary. I slightly lean towards not using it here, but please let me know if you believe it should be changed. Thanks!",
+      "parentUuid": "be579984_59fcab7b",
       "range": {
         "startLine": 3518,
         "startChar": 25,
