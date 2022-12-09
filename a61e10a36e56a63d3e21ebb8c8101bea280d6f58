@@ -16,6 +16,24 @@
       "message": "This global variable should have a longer name. For example, the first parameter of the `print_time` function at line 2335 is also named `ms_stat`.\n\nAlso, should we put the declaration of this global variable in `#if COLLECT_PICK_MODE_STAT` as before?\n\nFinally, it is usually a bad idea to use a global variable. Can this be avoided?",
       "revId": "a61e10a36e56a63d3e21ebb8c8101bea280d6f58",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b1765f4b_f50be459",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 2326,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-12-09T22:39:31Z",
+      "side": 1,
+      "message": "I wrote https://aomedia-review.googlesource.com/c/aom/+/168021 to put the declaration inside `#if COLLECT_PICK_MODE_STAT`.",
+      "parentUuid": "a649b20f_5758a7a4",
+      "revId": "a61e10a36e56a63d3e21ebb8c8101bea280d6f58",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
