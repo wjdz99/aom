@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1fe94a8f_9893d7d6",
+        "filename": "aom_dsp/arm/hadamard_neon.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-12-12T20:53:33Z",
+      "side": 1,
+      "message": "delete this line and move \u0027{\u0027 after \u0027)\u0027. This fooled clang-format due to the blank line.",
+      "revId": "0ffd629e42cc1d6aa4af24ba5fce4f291e0ef2c7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
