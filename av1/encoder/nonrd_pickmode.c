@@ -2323,8 +2323,6 @@ typedef struct _mode_search_stat {
   struct aom_usec_timer bsize_timer;
 } mode_search_stat;
 
-static mode_search_stat ms_stat;
-
 static AOM_INLINE void print_stage_time(const char *stage_name,
                                         int64_t stage_time,
                                         int64_t total_time) {
@@ -3397,7 +3395,12 @@ static AOM_FORCE_INLINE bool skip_inter_mode_nonrd(
     int svc_mv_col, int svc_mv_row, int force_skip_low_temp_var,
     unsigned int sse_zeromv_norm, const int num_inter_modes,
     const unsigned char segment_id, BLOCK_SIZE bsize,
-    bool comp_use_zero_zeromv_only, bool check_globalmv) {
+    bool comp_use_zero_zeromv_only, bool check_globalmv
+#if COLLECT_PICK_MODE_STAT
+    ,
+    static mode_search_stat ms_stat
+#endif
+) {
   AV1_COMMON *const cm = &cpi->common;
   const struct segmentation *const seg = &cm->seg;
   const SVC *const svc = &cpi->svc;
@@ -3556,6 +3559,9 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
   const MB_MODE_INFO_EXT *const mbmi_ext = &x->mbmi_ext;
   const InterpFilter filter_ref = cm->features.interp_filter;
   const InterpFilter default_interp_filter = EIGHTTAP_REGULAR;
+#if COLLECT_PICK_MODE_STAT
+  static mode_search_stat ms_stat;
+#endif
   MV_REFERENCE_FRAME ref_frame, ref_frame2;
   const unsigned char segment_id = mi->segment_id;
   int best_early_term = 0;
@@ -3722,7 +3728,12 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
             &comp_pred, &this_mode, &last_comp_ref_frame, &ref_frame,
             &ref_frame2, idx, svc_mv_col, svc_mv_row, force_skip_low_temp_var,
             sse_zeromv_norm, num_inter_modes, segment_id, bsize,
-            comp_use_zero_zeromv_only, check_globalmv))
+            comp_use_zero_zeromv_only, check_globalmv
+#if COLLECT_PICK_MODE_STAT
+            ,
+            ms_stat
+#endif
+            ))
       continue;
 
     // Select prediction reference frames.
