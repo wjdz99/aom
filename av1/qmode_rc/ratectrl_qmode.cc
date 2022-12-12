@@ -1024,6 +1024,9 @@ StatusOr<TplFrameDepStats> CreateTplFrameDepStatsWithoutPropagation(
     }
   }
 
+  fprintf(stderr, "block stats count = %lu\n",
+          frame_stats.alternate_block_stats_list.size());
+
   for (const TplBlockStats &block_stats :
        frame_stats.alternate_block_stats_list) {
     Status status =
@@ -1055,6 +1058,9 @@ StatusOr<TplFrameDepStats> CreateTplFrameDepStatsWithoutPropagation(
       TplFrameDepStatsAccumulateInterCost(frame_dep_stats, 0);
   frame_dep_stats.alt_rdcost =
       TplFrameDepStatsAccumulateInterCost(frame_dep_stats, 1);
+
+  fprintf(stderr, "rdcost = %lf, alt_rdcost = %lf\n", frame_dep_stats.rdcost,
+          frame_dep_stats.alt_rdcost);
 
   return frame_dep_stats;
 }
