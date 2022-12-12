@@ -34,6 +34,24 @@
       "parentUuid": "a649b20f_5758a7a4",
       "revId": "a61e10a36e56a63d3e21ebb8c8101bea280d6f58",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "290f8c3c_4383f4f6",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 2326,
+      "author": {
+        "id": 31022
+      },
+      "writtenOn": "2022-12-12T12:53:50Z",
+      "side": 1,
+      "message": "Hi Wan-Teh,\n\nThank you for the suggestion! We have submitted a CL to remove the global variable. Please review.\n\nhttps://aomedia-review.googlesource.com/c/aom/+/167963\n\nAnupam",
+      "parentUuid": "b1765f4b_f50be459",
+      "revId": "a61e10a36e56a63d3e21ebb8c8101bea280d6f58",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
