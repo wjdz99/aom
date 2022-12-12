@@ -24,6 +24,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "700b2ddb_cce1288a",
+        "filename": "av1/qmode_rc/ratectrl_qmode.cc",
+        "patchSetId": 9
+      },
+      "lineNbr": 912,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2022-12-12T23:02:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "158f46ff_aebe91cf",
+      "range": {
+        "startLine": 908,
+        "startChar": 0,
+        "endLine": 912,
+        "endChar": 0
+      },
+      "revId": "3e4398e532bf8afca10484c0ad391df60c685413",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e7f18d3b_8c2a951f",
@@ -37,6 +61,30 @@
       "writtenOn": "2022-12-09T14:00:22Z",
       "side": 1,
       "message": "It looks like this is identical to what\u0027s being done for in the loop above, aside from the source and destination vectors. Why not factor it out into a separate function?",
+      "range": {
+        "startLine": 1027,
+        "startChar": 0,
+        "endLine": 1053,
+        "endChar": 0
+      },
+      "revId": "3e4398e532bf8afca10484c0ad391df60c685413",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "deb86eb5_7f37ab20",
+        "filename": "av1/qmode_rc/ratectrl_qmode.cc",
+        "patchSetId": 9
+      },
+      "lineNbr": 1053,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2022-12-12T23:02:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e7f18d3b_8c2a951f",
       "range": {
         "startLine": 1027,
         "startChar": 0,
@@ -70,6 +118,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a500e9f2_cfff2b8d",
+        "filename": "av1/qmode_rc/ratectrl_qmode.cc",
+        "patchSetId": 9
+      },
+      "lineNbr": 1104,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2022-12-12T23:02:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b8b15f4b_96a1f6fb",
+      "range": {
+        "startLine": 1104,
+        "startChar": 4,
+        "endLine": 1104,
+        "endChar": 57
+      },
+      "revId": "3e4398e532bf8afca10484c0ad391df60c685413",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "6559c427_e750a63a",
@@ -83,6 +155,30 @@
       "writtenOn": "2022-12-09T14:00:22Z",
       "side": 1,
       "message": "This could be bool.",
+      "range": {
+        "startLine": 1510,
+        "startChar": 2,
+        "endLine": 1510,
+        "endChar": 5
+      },
+      "revId": "3e4398e532bf8afca10484c0ad391df60c685413",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5a3a3ef7_4005d464",
+        "filename": "av1/qmode_rc/ratectrl_qmode.cc",
+        "patchSetId": 9
+      },
+      "lineNbr": 1510,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2022-12-12T23:02:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6559c427_e750a63a",
       "range": {
         "startLine": 1510,
         "startChar": 2,
@@ -118,6 +214,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "4e97a2bb_596cd135",
+        "filename": "av1/qmode_rc/ratectrl_qmode.cc",
+        "patchSetId": 9
+      },
+      "lineNbr": 1532,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2022-12-12T23:02:31Z",
+      "side": 1,
+      "message": "arf_rdcost_high is initialized as 1, and arf_rdcost_low is initialized as 0. The former shall always be higher than the later, hence this shall be always positive.",
+      "parentUuid": "4993dc03_d46af603",
+      "range": {
+        "startLine": 1532,
+        "startChar": 42,
+        "endLine": 1532,
+        "endChar": 76
+      },
+      "revId": "3e4398e532bf8afca10484c0ad391df60c685413",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "a32d2c5f_52122067",
         "filename": "av1/qmode_rc/ratectrl_qmode.cc",
         "patchSetId": 9
@@ -129,6 +249,30 @@
       "writtenOn": "2022-12-09T14:00:22Z",
       "side": 1,
       "message": "I don\u0027t understand this. Doesn\u0027t this mean that all frames will have the same importance when using two passes?",
+      "range": {
+        "startLine": 1554,
+        "startChar": 0,
+        "endLine": 1556,
+        "endChar": 0
+      },
+      "revId": "3e4398e532bf8afca10484c0ad391df60c685413",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6fa57073_bbccb6e5",
+        "filename": "av1/qmode_rc/ratectrl_qmode.cc",
+        "patchSetId": 9
+      },
+      "lineNbr": 1556,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2022-12-12T23:02:31Z",
+      "side": 1,
+      "message": "If this is in two tpl passes mode, overwrite the single pass based decision, instead use the results from two passes.\n\nThis needs further modifications to make it work for SB level QP adaptation later.",
+      "parentUuid": "a32d2c5f_52122067",
       "range": {
         "startLine": 1554,
         "startChar": 0,
