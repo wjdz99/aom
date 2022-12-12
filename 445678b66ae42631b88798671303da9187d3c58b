@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "47df0a27_7d7ef10d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 31592
+      },
+      "writtenOn": "2022-12-12T09:49:17Z",
+      "side": 1,
+      "message": "Hi Marco/Yunqing,\n\nIn this CL, we improved the code readability in the function av1_choose_var_based_partitioning() mainly in the following ways:\n\n* Made variable names better\n-Reduced the scope of the loop counters\n-Added constant qualifier for appropriate variables\n-Changed datatype from int to bool where applicable\n\nPlease review the CL.",
+      "revId": "445678b66ae42631b88798671303da9187d3c58b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
