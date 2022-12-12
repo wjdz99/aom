@@ -16,6 +16,91 @@
       "message": "Hi Wan-Teh, Frank,\n \nThe buffers buf-\u003emvs and cm-\u003etpl_mvs hold the motion vector information that is required for motion vector projection and these buffers are allocated unconditionally in the parent version. In this CL, the allocation of these buffers is done only if temporal mv prediction is enabled (cm-\u003eseq_params-\u003eorder_hint_info.enable_ref_frame_mvs \u003d 1). This is a bit-exact change.\n\nFor AVIF still-image encode, an average encode time reduction of 0.69% (since calloc/memset is avoided) and average heap memory reduction of ~1% is observed on average across different resolutions with speed\u003d9 and threads\u003d4.\n\nWhen tested for real time video encode for speed\u003d10, for 720p and 1080p resolutions,  we observed an average heap memory reduction of ~2.2%.\n\nFor libaom AV1 video encode, bit-match is verified (w.r.t. parent commit) for \u0027GOOD\u0027, \u0027RT\u0027 and \u0027ALLINTRA\u0027 encoding modes for a few contents with different encoding configurations. \n\nPlease review.\n\nRegards,\nApurve",
       "revId": "a4fd227ad714223b03085a29f85e9bf2655e0ea5",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0a138f34_58cedef0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-12-12T23:08:02Z",
+      "side": 1,
+      "message": "Jingning: You fixed a bug in `ensure_mv_buffer()` before:\nhttps://aomedia-review.googlesource.com/c/aom/+/41141\n\nIt would be good if you could take a look at this CL.",
+      "revId": "a4fd227ad714223b03085a29f85e9bf2655e0ea5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bb8eb92d_72f0ea3f",
+        "filename": "av1/common/av1_common_int.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 1222,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-12-12T23:08:02Z",
+      "side": 1,
+      "message": "This is a subtle issue.\n\nAfter this CL, if `cm-\u003eseq_params-\u003eorder_hint_info.enable_ref_frame_mvs` is false, then `buf-\u003emvs` will remain a null pointer, so `buf-\u003emvs \u003d\u003d NULL` will always be true. I am worried that this will result in reallocating `buf-\u003eseg_map` unnecessarily at lines 1234-1238.\n\nCan this happen?\n\nIf so, I think the fix is to remove `buf-\u003emvs \u003d\u003d NULL ||` from this line, assuming `buf-\u003emi_rows` and `buf-\u003emi_cols` are both 0 initially.\n\n\nNote: I found a previous attempt at the first change of your CL:\nhttps://aomedia-review.googlesource.com/c/aom/+/160021\n\nThat CL was reverted:\nhttps://aomedia-review.googlesource.com/c/aom/+/160601\n\nIt may be related to the subtle issue I noted here.",
+      "revId": "a4fd227ad714223b03085a29f85e9bf2655e0ea5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fc787131_b899d40c",
+        "filename": "av1/common/av1_common_int.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 1227,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-12-12T23:08:02Z",
+      "side": 1,
+      "message": "I analyzed the code. `buf-\u003emvs` is used only under two conditions:\n- `cm-\u003eseq_params-\u003eorder_hint_info.enable_ref_frame_mvs`\n- `cm-\u003efeatures.allow_ref_frame_mvs`\n\nCould you explain why the conditional expression here isn\u0027t the following?\n\n```\n    if (cm-\u003eseq_params-\u003eorder_hint_info.enable_ref_frame_mvs ||\n        cm-\u003efeatures.allow_ref_frame_mvs) {\n```\n\nDoes `cm-\u003eseq_params-\u003eorder_hint_info.enable_ref_frame_mvs` imply `cm-\u003efeatures.allow_ref_frame_mvs`?",
+      "revId": "a4fd227ad714223b03085a29f85e9bf2655e0ea5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8c89781a_cab854c3",
+        "filename": "av1/common/av1_common_int.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 1241,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-12-12T23:08:02Z",
+      "side": 1,
+      "message": "I found that `cm-\u003etpl_mvs` is only used when `cm-\u003efeatures.allow_ref_frame_mvs` is true. Should we check `cm-\u003efeatures.allow_ref_frame_mvs` instead here?",
+      "revId": "a4fd227ad714223b03085a29f85e9bf2655e0ea5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "36ccc45b_a831e044",
+        "filename": "av1/common/av1_common_int.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 1247,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-12-12T23:08:02Z",
+      "side": 1,
+      "message": "Note: This is an unrelated cleanup. It may be better to do this cleanup in a separate CL.\n\nIt is not necessary to use the `realloc` variable. Lines 1244-1247 are equivalent to:\n\n```\n    if (cm-\u003etpl_mvs \u003d\u003d NULL || cm-\u003etpl_mvs_mem_size \u003c mem_size) {\n```",
+      "revId": "a4fd227ad714223b03085a29f85e9bf2655e0ea5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
