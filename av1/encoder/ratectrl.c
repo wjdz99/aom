@@ -168,7 +168,7 @@ int av1_get_bpmb_enumerator(FRAME_TYPE frame_type,
   if (is_screen_content_type) {
     enumerator = (frame_type == KEY_FRAME) ? 1000000 : 750000;
   } else {
-    enumerator = (frame_type == KEY_FRAME) ? 2000000 : 1500000;
+    enumerator = (frame_type == KEY_FRAME) ? 2000000 : 300000;
   }
 
   return enumerator;
