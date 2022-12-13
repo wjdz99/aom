@@ -56,6 +56,30 @@
       },
       "revId": "818238bd3c9cd018f8dbde058c96deddf7a9eae0",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c34668e0_2c7bcb3a",
+        "filename": "aom_dsp/entenc.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 164,
+      "author": {
+        "id": 29295
+      },
+      "writtenOn": "2022-12-13T11:07:45Z",
+      "side": 1,
+      "message": "Yes. In Patchset 9, we have moved this implementation to a new function write_enc_data_to_out_buf() in entenc.h. We have confirmed that there is no significant change to the reported timer gains.",
+      "parentUuid": "7617e2f7_91ef5435",
+      "range": {
+        "startLine": 129,
+        "startChar": 0,
+        "endLine": 164,
+        "endChar": 6
+      },
+      "revId": "818238bd3c9cd018f8dbde058c96deddf7a9eae0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
