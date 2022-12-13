@@ -1240,6 +1240,12 @@ int main(int argc, const char **argv) {
   cfg.g_lag_in_frames = 0;
   cfg.kf_mode = AOM_KF_AUTO;
 
+  aom_codec_iface_t *encoder = get_aom_encoder_by_short_name("av1");
+
+  /* Decide if other chroma subsamplings than 4:2:0 are supported */
+  if (get_fourcc_by_aom_encoder(encoder) == AV1_FOURCC)
+    app_input.input_ctx.only_i420 = 0;
+
   parse_command_line(argc, argv, &app_input, &svc_params, &cfg);
 
   unsigned int ts_number_layers = svc_params.number_temporal_layers;
@@ -1263,8 +1269,6 @@ int main(int argc, const char **argv) {
       die("Failed to allocate image (%dx%d)", width, height);
     }
   }
-
-  aom_codec_iface_t *encoder = get_aom_encoder_by_short_name("av1");
 
   memcpy(&rc.layer_target_bitrate[0], &svc_params.layer_target_bitrate[0],
          sizeof(svc_params.layer_target_bitrate));
