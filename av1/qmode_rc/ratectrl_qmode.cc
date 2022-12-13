@@ -1439,11 +1439,155 @@ StatusOr<GopEncodeInfo> AV1RateControlQMode::GetGopEncodeInfoWithNoStats(
 }
 
 StatusOr<GopEncodeInfo> AV1RateControlQMode::GetGopEncodeInfoWithFp(
-    const GopStruct &gop_struct,
-    const FirstpassInfo &firstpass_info AOM_UNUSED) {
-  // TODO(b/260859962): This is currently a placeholder. Should use the fp
-  // stats to calculate frame-level qp.
-  return GetGopEncodeInfoWithNoStats(gop_struct);
+    const GopStruct &gop_struct, const FirstpassInfo &firstpass_info,
+    const std::vector<LookaheadStats> &lookahead_stats) {
+  const int stats_size = static_cast<int>(firstpass_info.stats_list.size());
+  // Make a copy of the first pass stats, and analyze them
+  FirstpassInfo fp_info_copy = firstpass_info;
+  av1_mark_flashes(fp_info_copy.stats_list.data(),
+                   fp_info_copy.stats_list.data() + stats_size);
+  av1_estimate_noise(fp_info_copy.stats_list.data(),
+                     fp_info_copy.stats_list.data() + stats_size);
+  av1_estimate_coeff(fp_info_copy.stats_list.data(),
+                     fp_info_copy.stats_list.data() + stats_size);
+
+  int this_gop_len = AOMMIN(gop_struct.show_frame_count, stats_size);
+  int next_gop_len = this_gop_len;
+  if (lookahead_stats.size() > 0 && lookahead_stats[0].gop_struct) {
+    next_gop_len = lookahead_stats[0].gop_struct[0].show_frame_count;
+  }
+  next_gop_len = AOMMIN(next_gop_len, stats_size - this_gop_len);
+
+  GopEncodeInfo gop_encode_info;
+  const int frame_count = static_cast<int>(gop_struct.gop_frame_list.size());
+  const int active_worst_quality = rc_param_.base_q_index;
+  int active_best_quality = rc_param_.base_q_index;
+  for (int i = 0; i < frame_count; i++) {
+    FrameEncodeParameters param;
+    const GopFrame &gop_frame = gop_struct.gop_frame_list[i];
+    if (gop_frame.update_type == GopFrameType::kOverlay ||
+        gop_frame.update_type == GopFrameType::kIntermediateOverlay ||
+        gop_frame.update_type == GopFrameType::kRegularLeaf) {
+      param.q_index = rc_param_.base_q_index;
+    } else if (gop_frame.update_type == GopFrameType::kRegularKey) {
+      // Accumulate correlation coefficients to determine KF boost
+      double boost = 0.0;
+      double coeff_kf = 1.0;
+      for (int i = 1; i < stats_size; i++) {
+        if (fp_info_copy.stats_list[i].is_flash ||
+            fp_info_copy.stats_list[i - 1].is_flash)
+          continue;
+        coeff_kf *= fp_info_copy.stats_list[i].cor_coeff;
+
+        const double this_cor =
+            coeff_kf * sqrt(AOMMAX((fp_info_copy.stats_list[i].intra_error -
+                                    fp_info_copy.stats_list[i].noise_var) /
+                                       fp_info_copy.stats_list[i].intra_error,
+                                   0.5));
+
+        boost += this_cor;
+      }
+      boost = AOMMIN(AOMMAX(sqrt(boost), 1.0), 6.0);
+      const double qstep_ratio = 1.0 / boost;
+      param.q_index = av1_get_q_index_from_qstep_ratio(rc_param_.base_q_index,
+                                                       qstep_ratio, AOM_BITS_8);
+      if (rc_param_.base_q_index) param.q_index = AOMMAX(param.q_index, 1);
+      active_best_quality = param.q_index;
+    } else if (gop_frame.update_type == GopFrameType::kRegularGolden ||
+               gop_frame.update_type == GopFrameType::kRegularArf) {
+      double boost = 0.0;
+
+      // Backward ones
+      for (int f = this_gop_len - 1; f > 0; f--) {
+        // The contribution of this arf to frame f
+        double coeff_this = 1.0;
+        for (int k = this_gop_len; k > f; k--) {
+          if (fp_info_copy.stats_list[k].is_flash ||
+              fp_info_copy.stats_list[k - 1].is_flash)
+            continue;
+          coeff_this *= fp_info_copy.stats_list[k].cor_coeff;
+        }
+
+        // The contribution of last arf to frame f
+        double coeff_last = 1.0;
+        for (int k = 1; k <= f; k++) {
+          if (fp_info_copy.stats_list[k].is_flash ||
+              fp_info_copy.stats_list[k - 1].is_flash)
+            continue;
+          coeff_last *= fp_info_copy.stats_list[k].cor_coeff;
+        }
+
+        if (coeff_last > coeff_this) break;
+
+        // If this is a flash, although we ignore it in the accumulation, we
+        // still count it for this frame so it will probably have a low
+        // correlation
+        if (fp_info_copy.stats_list[f].is_flash)
+          coeff_this *= fp_info_copy.stats_list[f].cor_coeff;
+
+        const double this_cor =
+            coeff_this * sqrt(AOMMAX((fp_info_copy.stats_list[f].intra_error -
+                                      fp_info_copy.stats_list[f].noise_var) /
+                                         fp_info_copy.stats_list[f].intra_error,
+                                     0.5));
+        boost += this_cor;
+      }
+
+      // Forward ones
+      for (int f = this_gop_len + 1; f < this_gop_len + next_gop_len; f++) {
+        // The contribution of this arf to frame f
+        double coeff_this = 1.0;
+        for (int k = this_gop_len + 1; k <= f; k++) {
+          if (fp_info_copy.stats_list[k].is_flash ||
+              fp_info_copy.stats_list[k - 1].is_flash)
+            continue;
+          coeff_this *= fp_info_copy.stats_list[k].cor_coeff;
+        }
+
+        if (next_gop_len >= 4) {
+          // The contribution of next arf to frame f
+          double coeff_next = 1.0;
+          for (int k = this_gop_len + next_gop_len; k > f; k--) {
+            if (fp_info_copy.stats_list[k].is_flash ||
+                fp_info_copy.stats_list[k - 1].is_flash)
+              continue;
+            coeff_next *= fp_info_copy.stats_list[k].cor_coeff;
+          }
+          if (coeff_next > coeff_this) break;
+        }
+
+        // If this is a flash, although we ignore it in the accumulation, we
+        // still count it for this frame so it will probably have a low
+        // correlation
+        if (fp_info_copy.stats_list[f].is_flash)
+          coeff_this *= fp_info_copy.stats_list[f].cor_coeff;
+
+        const double this_cor =
+            coeff_this * sqrt(AOMMAX((fp_info_copy.stats_list[f].intra_error -
+                                      fp_info_copy.stats_list[f].noise_var) /
+                                         fp_info_copy.stats_list[f].intra_error,
+                                     0.5));
+
+        boost += this_cor;
+      }
+      boost = AOMMIN(AOMMAX(sqrt(boost), 1.0), 4.0);
+      const double qstep_ratio = 1.0 / boost;
+      param.q_index = av1_get_q_index_from_qstep_ratio(rc_param_.base_q_index,
+                                                       qstep_ratio, AOM_BITS_8);
+      if (rc_param_.base_q_index) param.q_index = AOMMAX(param.q_index, 1);
+      active_best_quality = param.q_index;
+    } else {
+      // Intermediate ARFs
+      assert(gop_frame.layer_depth >= 1);
+      const int depth_factor = 1 << (gop_frame.layer_depth - 1);
+      param.q_index =
+          (active_worst_quality * (depth_factor - 1) + active_best_quality) /
+          depth_factor;
+    }
+    param.rdmult = GetRDMult(gop_frame, param.q_index);
+    gop_encode_info.param_list.push_back(param);
+  }
+  return gop_encode_info;
 }
 
 StatusOr<GopEncodeInfo> AV1RateControlQMode::GetGopEncodeInfoWithTpl(
@@ -1523,8 +1667,9 @@ StatusOr<GopEncodeInfo> AV1RateControlQMode::GetGopEncodeInfoWithTpl(
 }
 
 StatusOr<GopEncodeInfo> AV1RateControlQMode::GetTplPassGopEncodeInfo(
-    const GopStruct &gop_struct, const FirstpassInfo &firstpass_info) {
-  return GetGopEncodeInfoWithFp(gop_struct, firstpass_info);
+    const GopStruct &gop_struct,
+    const FirstpassInfo &firstpass_info AOM_UNUSED) {
+  return GetGopEncodeInfoWithNoStats(gop_struct);
 }
 
 StatusOr<GopEncodeInfo> AV1RateControlQMode::GetGopEncodeInfo(
