@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "04be84eb_98a9a61b",
+        "filename": "examples/svc_encoder_rtc.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1216,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-12-13T19:48:15Z",
+      "side": 1,
+      "message": "I suggest we just set `app_input.input_ctx.only_i420` to 0 here. Please see my comment at line 1246.",
+      "revId": "5fe13b3f6455e503921e025c82e099445e9df2a7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c66d6e6a_b38bac70",
+        "filename": "examples/svc_encoder_rtc.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1243,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-12-13T19:48:15Z",
+      "side": 1,
+      "message": "Optional: This could be simplified. This is equivalent to:\n\n```\n  aom_codec_iface_t *encoder \u003d aom_codec_av1_cx();\n```\n\nAlso, we don\u0027t need to move this statement here. Please see my next comment.",
+      "revId": "5fe13b3f6455e503921e025c82e099445e9df2a7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "36f97bcc_a1abae13",
+        "filename": "examples/svc_encoder_rtc.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1246,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-12-13T19:48:15Z",
+      "side": 1,
+      "message": "The `get_fourcc_by_aom_encoder(encoder) \u003d\u003d AV1_FOURCC` check is true by construction. In line 1243, we set `encoder` to be the AV1 encoder. Therefore the fourcc of `encoder` must be `AV1_FOURCC`. This means we can set `app_input.input_ctx.only_i420` to 0 unconditionally here, and it seems that we can do this at line 1216.",
+      "revId": "5fe13b3f6455e503921e025c82e099445e9df2a7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
