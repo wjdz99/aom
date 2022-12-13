@@ -171,6 +171,8 @@ The toolchain files available at the time of this writing are:
  - x86-mingw-gcc.cmake
  - x86\_64-ios-simulator.cmake
  - x86\_64-mingw-gcc.cmake
+ - ppc-linux-gcc.cmake
+ - riscv-linux-gcc.cmake
 
 The following example demonstrates use of the x86-macos.cmake toolchain file on
 a x86\_64 MacOS host:
