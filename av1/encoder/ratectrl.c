@@ -162,13 +162,17 @@ double av1_convert_qindex_to_q(int qindex, aom_bit_depth_t bit_depth) {
 }
 
 int av1_get_bpmb_enumerator(FRAME_TYPE frame_type,
-                            const int is_screen_content_type) {
+                            const int is_screen_content_type,
+                            int frames_since_key, int enumerator_adj) {
   int enumerator;
 
   if (is_screen_content_type) {
     enumerator = (frame_type == KEY_FRAME) ? 1000000 : 750000;
   } else {
-    enumerator = (frame_type == KEY_FRAME) ? 2000000 : 1500000;
+    const int use_low_enumerator = enumerator_adj && (frames_since_key > 20);
+    enumerator = (frame_type == KEY_FRAME)
+                     ? 2000000
+                     : (use_low_enumerator ? 300000 : 1500000);
   }
 
   return enumerator;
@@ -198,8 +202,9 @@ int av1_rc_bits_per_mb(const AV1_COMP *cpi, FRAME_TYPE frame_type, int qindex,
     return (int)(bits * correction_factor);
   }
 
-  const int enumerator =
-      av1_get_bpmb_enumerator(frame_type, is_screen_content_type);
+  const int enumerator = av1_get_bpmb_enumerator(
+      frame_type, is_screen_content_type, cpi->rc.frames_since_key,
+      cpi->sf.hl_sf.enumerator_adj);
   assert(correction_factor <= MAX_BPB_FACTOR &&
          correction_factor >= MIN_BPB_FACTOR);
 
@@ -2157,6 +2162,24 @@ void av1_rc_postencode_update(AV1_COMP *cpi, uint64_t bytes_used) {
 
   const int qindex = cm->quant_params.base_qindex;
 
+#define OUTPUT_FRAME_SIZE 1
+#if OUTPUT_FRAME_SIZE
+  if (cm->current_frame.frame_number - 1 > 0) {
+    const double q = av1_convert_qindex_to_q(cm->quant_params.base_qindex, 8);
+    FILE *f = fopen("out.csv", "a");
+    double sse = (double)cpi->rec_sse;
+    fprintf(f, "%d,", cpi->refresh_frame.golden_frame);
+    fprintf(f, "%d,", cpi->rc.rc_1_frame);
+    fprintf(f, "%d,", cm->quant_params.base_qindex);
+    fprintf(f, "%f,", q);
+    fprintf(f, "%ld,", 8 * bytes_used);
+    fprintf(f, "%f", sse);
+    fprintf(f, "\n");
+    fclose(f);
+  }
+#endif  // OUTPUT_FRAME_SIZE
+#undef OUTPUT_FRAME_SIZE
+
 #if RT_PASSIVE_STRATEGY
   const int frame_number = current_frame->frame_number % MAX_Q_HISTORY;
   p_rc->q_history[frame_number] = qindex;
@@ -3371,7 +3394,9 @@ int av1_encodedframe_overshoot_cbr(AV1_COMP *cpi, int *q) {
   // and qp (==max_QP). This comes from the inverse computation of
   // av1_rc_bits_per_mb().
   q2 = av1_convert_qindex_to_q(*q, cm->seq_params->bit_depth);
-  enumerator = av1_get_bpmb_enumerator(INTER_NORMAL, is_screen_content);
+  enumerator = av1_get_bpmb_enumerator(INTER_NORMAL, is_screen_content,
+                                       cpi->rc.frames_since_key,
+                                       cpi->sf.hl_sf.enumerator_adj);
   new_correction_factor = (double)target_bits_per_mb * q2 / enumerator;
   if (new_correction_factor > rate_correction_factor) {
     rate_correction_factor =

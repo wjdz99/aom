@@ -442,6 +442,12 @@ typedef struct HIGH_LEVEL_SPEED_FEATURES {
    * 1: estimate bits more accurately based on the frame complexity.
    */
   int accurate_bit_estimate;
+
+  /*!
+   * Allow to adjust the enumerator used in bit estimation.
+   */
+  int enumerator_adj;
+
 } HIGH_LEVEL_SPEED_FEATURES;
 
 /*!
