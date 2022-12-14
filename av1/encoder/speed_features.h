@@ -1673,6 +1673,9 @@ typedef struct REAL_TIME_SPEED_FEATURES {
   // A flag that controls if we check or bypass GLOBALMV in rtc single ref frame
   // case.
   bool check_globalmv_on_single_ref;
+
+  // A flag that force 128x128 block to split in variance based partitioning.
+  bool force_split_128x128_block;
 } REAL_TIME_SPEED_FEATURES;
 
 /*!\endcond */

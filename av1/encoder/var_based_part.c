@@ -146,6 +146,8 @@ static AOM_INLINE void set_block_size(AV1_COMP *const cpi, int mi_row,
   }
 }
 
+// Returns 0 if we want to split the current block size (|bsize|).
+// Returns 1 if we dont want to split.
 static int set_vt_partitioning(AV1_COMP *cpi, MACROBLOCKD *const xd,
                                const TileInfo *const tile, void *data,
                                BLOCK_SIZE bsize, int mi_row, int mi_col,
@@ -159,6 +161,12 @@ static int set_vt_partitioning(AV1_COMP *cpi, MACROBLOCKD *const xd,
   int bs_height_check = block_height;
   int bs_width_vert_check = block_width >> 1;
   int bs_height_horiz_check = block_height >> 1;
+
+  // Force 128x128 block to split.
+  if (bsize == BLOCK_128X128 && cpi->sf.rt_sf.force_split_128x128_block) {
+    return 0;
+  }
+
   // On the right and bottom boundary we only need to check
   // if half the bsize fits, because boundary is extended
   // up to 64. So do this check only for sb_size = 64X64.

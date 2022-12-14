@@ -1385,7 +1385,10 @@ static void set_rt_speed_feature_framesize_dependent(const AV1_COMP *const cpi,
       sf->rt_sf.reduce_mv_pel_precision_highmotion = 0;
       sf->rt_sf.use_adaptive_subpel_search = 0;
     }
-    if (speed >= 9) sf->interp_sf.cb_pred_filter_search = 0;
+    if (speed >= 9) {
+      sf->interp_sf.cb_pred_filter_search = 0;
+      sf->rt_sf.force_split_128x128_block = true;
+    }
   } else {
     if (speed >= 9) sf->lpf_sf.cdef_pick_method = CDEF_PICK_FROM_Q;
     if (speed >= 10) sf->rt_sf.nonrd_aggressive_skip = 1;
@@ -1445,6 +1448,7 @@ static void set_rt_speed_feature_framesize_dependent(const AV1_COMP *const cpi,
     if (speed >= 7) {
       sf->rt_sf.reduce_mv_pel_precision_highmotion = 1;
       sf->mv_sf.use_bsize_dependent_search_method = 0;
+      sf->rt_sf.force_split_128x128_block = false;
     }
     if (speed >= 8) {
       sf->rt_sf.nonrd_check_partition_merge_mode = 3;
@@ -2124,6 +2128,7 @@ static AOM_INLINE void init_rt_sf(REAL_TIME_SPEED_FEATURES *rt_sf) {
   rt_sf->screen_content_cdef_filter_qindex_thresh = 0;
   rt_sf->enable_ref_short_signaling = false;
   rt_sf->check_globalmv_on_single_ref = true;
+  rt_sf->force_split_128x128_block = false;
 }
 
 // Populate appropriate sub-pel search method based on speed feature and user
