@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e2d82622_0ac5d835",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-12-14T03:10:43Z",
+      "side": 1,
+      "message": "Thanks for the patch. I see you\u0027ve completed the CLA. The first change you make needs to be uploaded by an existing committer. I\u0027ll do that after the review is finished.",
+      "revId": "5f3093c503ee102243fd7b0c3e7b518afe82fcd9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
