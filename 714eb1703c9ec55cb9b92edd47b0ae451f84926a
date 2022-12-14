@@ -16,6 +16,184 @@
       "message": "Thanks Yunqing.",
       "revId": "714eb1703c9ec55cb9b92edd47b0ae451f84926a",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "065208fd_406a9978",
+        "filename": "aom_dsp/entenc.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2022-12-14T02:26:57Z",
+      "side": 1,
+      "message": "accommodate",
+      "range": {
+        "startLine": 67,
+        "startChar": 61,
+        "endLine": 67,
+        "endChar": 71
+      },
+      "revId": "714eb1703c9ec55cb9b92edd47b0ae451f84926a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3feea6ab_12d52370",
+        "filename": "aom_dsp/entenc.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2022-12-14T02:26:57Z",
+      "side": 1,
+      "message": "What is e here?",
+      "range": {
+        "startLine": 72,
+        "startChar": 6,
+        "endLine": 72,
+        "endChar": 7
+      },
+      "revId": "714eb1703c9ec55cb9b92edd47b0ae451f84926a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "61184322_de3a69eb",
+        "filename": "aom_dsp/entenc.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2022-12-14T02:26:57Z",
+      "side": 1,
+      "message": "Could you add a comment on where the + 1 comes from?",
+      "range": {
+        "startLine": 90,
+        "startChar": 4,
+        "endLine": 90,
+        "endChar": 43
+      },
+      "revId": "714eb1703c9ec55cb9b92edd47b0ae451f84926a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "05ad5cf3_43e1bde1",
+        "filename": "aom_dsp/entenc.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2022-12-14T02:26:57Z",
+      "side": 1,
+      "message": "Ditto for the 24.",
+      "range": {
+        "startLine": 93,
+        "startChar": 4,
+        "endLine": 93,
+        "endChar": 37
+      },
+      "revId": "714eb1703c9ec55cb9b92edd47b0ae451f84926a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0a5329b1_359b01ce",
+        "filename": "aom_dsp/entenc.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2022-12-14T02:26:57Z",
+      "side": 1,
+      "message": "nit: Let\u0027s keep the naming style consistent with calling this `od_ec_enc_window`.",
+      "revId": "714eb1703c9ec55cb9b92edd47b0ae451f84926a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b0df9181_683bf198",
+        "filename": "aom_dsp/entenc.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2022-12-14T02:26:57Z",
+      "side": 1,
+      "message": "Since this function is called with an assert offs \u003e 0 before, can we replace this with a do ... while loop?",
+      "range": {
+        "startLine": 91,
+        "startChar": 0,
+        "endLine": 95,
+        "endChar": 3
+      },
+      "revId": "714eb1703c9ec55cb9b92edd47b0ae451f84926a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "863b121c_f4f85f75",
+        "filename": "aom_dsp/entenc.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2022-12-14T02:26:57Z",
+      "side": 1,
+      "message": "This is only useful when offs \u003d\u003d 0. Can we fold this into the above loop by checking for offs \u003e\u003d 0 instead?",
+      "range": {
+        "startLine": 96,
+        "startChar": 0,
+        "endLine": 100,
+        "endChar": 3
+      },
+      "revId": "714eb1703c9ec55cb9b92edd47b0ae451f84926a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5181ce79_ce7b664b",
+        "filename": "aom_dsp/entenc.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2022-12-14T02:26:57Z",
+      "side": 1,
+      "message": "I would define a get_byteswap64 function under aom_ports/bitops.h that calls different builtins based on the compiler, then we can remove the flags here and simply do\n` const uint64_t reg \u003d\n      get_byteswap64(output) \u003e\u003e ((8 - num_bytes_ready) \u003c\u003c 3);\n  memcpy(\u0026out[offs], \u0026reg, 8);\n  // Propagate carry backwards if exists\n  if (carry) {\n    assert(offs \u003e 0);\n    propagate_carry_bwd(out, offs - 1);\n  }\n  *enc_offs \u003d offs + num_bytes_ready;`",
+      "range": {
+        "startLine": 110,
+        "startChar": 0,
+        "endLine": 118,
+        "endChar": 37
+      },
+      "revId": "714eb1703c9ec55cb9b92edd47b0ae451f84926a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
