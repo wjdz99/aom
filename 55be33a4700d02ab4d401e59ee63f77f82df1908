@@ -24,6 +24,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "2e1f571d_4a8e2e67",
+        "filename": "av1/qmode_rc/ratectrl_qmode.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 1453,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2022-12-14T22:46:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8a68a4f4_06640019",
+      "range": {
+        "startLine": 1445,
+        "startChar": 0,
+        "endLine": 1453,
+        "endChar": 0
+      },
+      "revId": "55be33a4700d02ab4d401e59ee63f77f82df1908",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "be7a4066_31a64d85",
@@ -65,6 +89,54 @@
         "startChar": 2,
         "endLine": 1454,
         "endChar": 5
+      },
+      "revId": "55be33a4700d02ab4d401e59ee63f77f82df1908",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e421776a_8125edeb",
+        "filename": "av1/qmode_rc/ratectrl_qmode.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 1454,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2022-12-14T22:46:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "19a4dffd_12567151",
+      "range": {
+        "startLine": 1454,
+        "startChar": 2,
+        "endLine": 1454,
+        "endChar": 5
+      },
+      "revId": "55be33a4700d02ab4d401e59ee63f77f82df1908",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "eb8d62ec_df657aef",
+        "filename": "av1/qmode_rc/ratectrl_qmode.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 1454,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2022-12-14T22:46:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "be7a4066_31a64d85",
+      "range": {
+        "startLine": 1454,
+        "startChar": 0,
+        "endLine": 1454,
+        "endChar": 69
       },
       "revId": "55be33a4700d02ab4d401e59ee63f77f82df1908",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
@@ -116,6 +188,54 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "1ec24410_9e09892c",
+        "filename": "av1/qmode_rc/ratectrl_qmode.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 1456,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2022-12-14T22:46:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "df2dbf49_10082e9c",
+      "range": {
+        "startLine": 1456,
+        "startChar": 36,
+        "endLine": 1456,
+        "endChar": 65
+      },
+      "revId": "55be33a4700d02ab4d401e59ee63f77f82df1908",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1d5fa0ea_67ee9604",
+        "filename": "av1/qmode_rc/ratectrl_qmode.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 1456,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2022-12-14T22:46:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "264866ad_68ce206d",
+      "range": {
+        "startLine": 1456,
+        "startChar": 22,
+        "endLine": 1456,
+        "endChar": 32
+      },
+      "revId": "55be33a4700d02ab4d401e59ee63f77f82df1908",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c4b2c5a3_cd15cef1",
@@ -129,6 +249,30 @@
       "writtenOn": "2022-12-13T23:10:40Z",
       "side": 1,
       "message": "Again, it should be an error if there aren\u0027t sufficient stats. Don\u0027t sweep it under the rug.",
+      "range": {
+        "startLine": 1459,
+        "startChar": 0,
+        "endLine": 1459,
+        "endChar": 65
+      },
+      "revId": "55be33a4700d02ab4d401e59ee63f77f82df1908",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ac79f71b_94b5c202",
+        "filename": "av1/qmode_rc/ratectrl_qmode.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 1459,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2022-12-14T22:46:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c4b2c5a3_cd15cef1",
       "range": {
         "startLine": 1459,
         "startChar": 0,
@@ -162,6 +306,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "8e0f6ec1_ecfc8392",
+        "filename": "av1/qmode_rc/ratectrl_qmode.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 1465,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2022-12-14T22:46:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4fe5e2f4_487816ab",
+      "range": {
+        "startLine": 1465,
+        "startChar": 35,
+        "endLine": 1465,
+        "endChar": 38
+      },
+      "revId": "55be33a4700d02ab4d401e59ee63f77f82df1908",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "75e8bbec_8eb46484",
@@ -175,6 +343,30 @@
       "writtenOn": "2022-12-13T23:10:40Z",
       "side": 1,
       "message": "In C++ you may as well use std::max and std::min instead of AOMMAX and AOMMIN.",
+      "range": {
+        "startLine": 1483,
+        "startChar": 28,
+        "endLine": 1483,
+        "endChar": 34
+      },
+      "revId": "55be33a4700d02ab4d401e59ee63f77f82df1908",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f9521c91_5bcfa4cd",
+        "filename": "av1/qmode_rc/ratectrl_qmode.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 1483,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2022-12-14T22:46:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "75e8bbec_8eb46484",
       "range": {
         "startLine": 1483,
         "startChar": 28,
@@ -208,6 +400,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "b391c2e7_23185008",
+        "filename": "av1/qmode_rc/ratectrl_qmode.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 1500,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2022-12-14T22:46:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0ef04b6b_a5a8a340",
+      "range": {
+        "startLine": 1500,
+        "startChar": 9,
+        "endLine": 1500,
+        "endChar": 22
+      },
+      "revId": "55be33a4700d02ab4d401e59ee63f77f82df1908",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "4388fb22_f7ae8ce8",
@@ -221,6 +437,30 @@
       "writtenOn": "2022-12-13T23:10:40Z",
       "side": 1,
       "message": "This pattern is repeated many times. It would simplify the code to factor it out into a helper function like this:\n\n    double FlashAdjustedCorCoeff(const std::vector\u003cFIRSTPASS_STATS\u003e\u0026 stats_list,\n                                 int index) {\n      assert (index \u003e\u003d 1);\n      if (stats_list[index].is_flash || stats_list[index - 1].is_flash) {\n        return 1.0;\n      }\n      return stats_list[index].cor_coeff;\n    }",
+      "range": {
+        "startLine": 1505,
+        "startChar": 0,
+        "endLine": 1509,
+        "endChar": 0
+      },
+      "revId": "55be33a4700d02ab4d401e59ee63f77f82df1908",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "26700fec_a93b0562",
+        "filename": "av1/qmode_rc/ratectrl_qmode.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 1509,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2022-12-14T22:46:52Z",
+      "side": 1,
+      "message": "Done. Added a function that returns a bool to check for flashing. This way it also can help with the keyframe part too.",
+      "parentUuid": "4388fb22_f7ae8ce8",
       "range": {
         "startLine": 1505,
         "startChar": 0,
