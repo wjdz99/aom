@@ -16,6 +16,24 @@
       "message": "there\u0027s a mismatch in the license between the .c and .h. libaom is still mostly under BSD-2 clause, while discussion of relicensing is going on.",
       "revId": "53e3a6995203e3863135867a4b84a9b3630e60fc",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c631d85a_98ba2fe8",
+        "filename": "aom_dsp/flow_estimation/disflow.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 29052
+      },
+      "writtenOn": "2022-12-14T14:37:36Z",
+      "side": 1,
+      "message": "Ah, yes, I must have missed that when I was fixing up the licenses. I\u0027ll submit a patch shortly.\n\nDo you know which license we should use for new files at the moment? Should it be the 2-clause or the 3-clause one?",
+      "parentUuid": "6d79784f_7a22f559",
+      "revId": "53e3a6995203e3863135867a4b84a9b3630e60fc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
