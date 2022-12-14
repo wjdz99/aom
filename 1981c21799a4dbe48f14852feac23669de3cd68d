@@ -22,6 +22,30 @@
       },
       "revId": "1981c21799a4dbe48f14852feac23669de3cd68d",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0090024b_65ba9f44",
+        "filename": "aom_dsp/rect.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-12-14T18:12:13Z",
+      "side": 1,
+      "message": "I left this as 2022 because all the code in this file can be considered as new code. Although the PixelRect struct is based on the AV1PixelRect struct, you reordered the struct members and added a comment.\n\nDoes this sound reasonable?",
+      "parentUuid": "7abdc833_5609c7e1",
+      "range": {
+        "startLine": 2,
+        "startChar": 17,
+        "endLine": 2,
+        "endChar": 21
+      },
+      "revId": "1981c21799a4dbe48f14852feac23669de3cd68d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
