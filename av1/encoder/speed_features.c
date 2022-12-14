@@ -1320,7 +1320,7 @@ static void set_rt_speed_feature_framesize_dependent(const AV1_COMP *const cpi,
       // Enable this feature for [360p, 720p] resolution range initially.
       if (!cpi->rc.rtc_external_ratectrl &&
           AOMMIN(cm->width, cm->height) <= 720)
-        sf->hl_sf.accurate_bit_estimate = cpi->oxcf.q_cfg.aq_mode == NO_AQ;
+        sf->hl_sf.accurate_bit_estimate = 0;
     }
     if (speed >= 7) {
       sf->rt_sf.use_rtc_tf = 1;
