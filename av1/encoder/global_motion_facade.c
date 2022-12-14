@@ -337,13 +337,27 @@ static AOM_INLINE void update_valid_ref_frames_for_gm(
         !(cpi->ref_frame_flags & av1_ref_frame_flag_list[frame]);
     ref_buf[frame] = NULL;
     cm->global_motion[frame] = default_warp_params;
+
     // Skip global motion estimation for invalid ref frames
     if (buf == NULL ||
         (ref_disabled && cpi->sf.hl_sf.recode_loop != DISALLOW_RECODE)) {
       continue;
-    } else {
-      ref_buf[frame] = &buf->buf;
     }
+
+    // Check if this reference is scaled.
+    // As implemented in AV1, global motion only really works well if the
+    // current frame and the specified ref frame are the same size. So, if
+    // they are not, we skip global motion estimation
+    //
+    // In order to correctly account for superres, we need to compare the
+    // coded (downscaled) size of the current frame to the stored (upscaled)
+    // size of the ref frame
+    if (buf->buf.y_crop_width != cm->width ||
+        buf->buf.y_crop_height != cm->height) {
+      continue;
+    }
+
+    ref_buf[frame] = &buf->buf;
 
     int prune_ref_frames =
         ref_pruning_enabled &&
@@ -498,7 +512,6 @@ void av1_compute_global_motion_facade(AV1_COMP *cpi) {
   }
 
   if (cpi->common.current_frame.frame_type == INTER_FRAME && cpi->source &&
-      cpi->superres_mode == AOM_SUPERRES_NONE &&
       cpi->oxcf.tool_cfg.enable_global_motion && !gm_info->search_done) {
     setup_global_motion_info_params(cpi);
     if (cpi->mt_info.num_workers > 1)
