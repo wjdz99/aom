@@ -443,12 +443,10 @@ static AOM_INLINE void tune_thresh_based_on_qindex_window(
       (int)((1 - weight) * (thresholds[3] << fac) + weight * thresholds[3]);
 }
 
-static AOM_INLINE void set_vbp_thresholds(AV1_COMP *cpi, int64_t thresholds[],
-                                          int q, int content_lowsumdiff,
-                                          int source_sad_nonrd,
-                                          int source_sad_rd, int segment_id,
-                                          uint64_t blk_sad,
-                                          int lighting_change) {
+static AOM_INLINE void set_vbp_thresholds(
+    AV1_COMP *cpi, int64_t thresholds[], int q, int content_lowsumdiff,
+    int source_sad_nonrd, int source_sad_rd, bool is_segment_id_boosted,
+    uint64_t blk_sad, int lighting_change) {
   AV1_COMMON *const cm = &cpi->common;
   const int is_key_frame = frame_is_intra_only(cm);
   const int threshold_multiplier = is_key_frame ? 120 : 1;
@@ -585,7 +583,7 @@ static AOM_INLINE void set_vbp_thresholds(AV1_COMP *cpi, int64_t thresholds[],
     }
     if (cm->width * cm->height <= 352 * 288) {
       thresholds[3] = INT64_MAX;
-      if (segment_id == 0) {
+      if (is_segment_id_boosted == false) {
         thresholds[1] <<= 2;
         thresholds[2] <<= (source_sad_nonrd <= kLowSad) ? 5 : 4;
       } else {
@@ -596,7 +594,7 @@ static AOM_INLINE void set_vbp_thresholds(AV1_COMP *cpi, int64_t thresholds[],
       // moving boundary. So allow for sb with source_sad above threshold,
       // and avoid very large source_sad or high source content, to avoid
       // too many 8x8 within superblock.
-      if (segment_id == 0 && cpi->rc.avg_source_sad < 25000 &&
+      if (is_segment_id_boosted == false && cpi->rc.avg_source_sad < 25000 &&
           blk_sad > 25000 && blk_sad < 50000 && !lighting_change) {
         thresholds[2] = (3 * thresholds[2]) >> 2;
         thresholds[3] = thresholds[2] << 3;
@@ -606,7 +604,8 @@ static AOM_INLINE void set_vbp_thresholds(AV1_COMP *cpi, int64_t thresholds[],
       // high source sad, unless the whole frame has very high motion
       // (i.e, cpi->rc.avg_source_sad is very large, in which case all blocks
       // have high source sad).
-    } else if (cm->width * cm->height > 640 * 480 && segment_id == 0 &&
+    } else if (cm->width * cm->height > 640 * 480 &&
+               is_segment_id_boosted == false &&
                (source_sad_nonrd != kHighSad ||
                 cpi->rc.avg_source_sad > 50000)) {
       thresholds[0] = (3 * thresholds[0]) >> 1;
@@ -617,7 +616,8 @@ static AOM_INLINE void set_vbp_thresholds(AV1_COMP *cpi, int64_t thresholds[],
         thresholds[2] =
             (int)((1 - weight) * (thresholds[2] << 1) + weight * thresholds[2]);
       }
-    } else if (current_qindex > QINDEX_LARGE_BLOCK_THR && segment_id == 0 &&
+    } else if (current_qindex > QINDEX_LARGE_BLOCK_THR &&
+               is_segment_id_boosted == false &&
                (source_sad_nonrd != kHighSad ||
                 cpi->rc.avg_source_sad > 50000)) {
       thresholds[1] =
@@ -1319,6 +1319,7 @@ int av1_choose_var_based_partitioning(AV1_COMP *cpi, const TileInfo *const tile,
   const int low_res = (cm->width <= 352 && cm->height <= 288);
   int variance4x4downsample[64];
   const int segment_id = xd->mi[0]->segment_id;
+  int qindex = cm->quant_params.base_qindex;
   uint64_t blk_sad = 0;
   if (cpi->src_sad_blk_64x64 != NULL && !cpi->ppi->use_svc) {
     const int sb_size_by_mb = (cm->seq_params->sb_size == BLOCK_128X128)
@@ -1331,21 +1332,17 @@ int av1_choose_var_based_partitioning(AV1_COMP *cpi, const TileInfo *const tile,
     blk_sad = cpi->src_sad_blk_64x64[sbi_col + sbi_row * sb_cols];
   }
 
-  if (cpi->oxcf.q_cfg.aq_mode == CYCLIC_REFRESH_AQ && cm->seg.enabled &&
-      cyclic_refresh_segment_id_boosted(segment_id)) {
-    const int qindex =
-        av1_get_qindex(&cm->seg, segment_id, cm->quant_params.base_qindex);
-    set_vbp_thresholds(cpi, thresholds, qindex, x->content_state_sb.low_sumdiff,
-                       x->content_state_sb.source_sad_nonrd,
-                       x->content_state_sb.source_sad_rd, 1, blk_sad,
-                       x->content_state_sb.lighting_change);
-  } else {
-    set_vbp_thresholds(cpi, thresholds, cm->quant_params.base_qindex,
-                       x->content_state_sb.low_sumdiff,
-                       x->content_state_sb.source_sad_nonrd,
-                       x->content_state_sb.source_sad_rd, 0, blk_sad,
-                       x->content_state_sb.lighting_change);
-  }
+  const bool is_segment_id_boosted =
+      cpi->oxcf.q_cfg.aq_mode == CYCLIC_REFRESH_AQ && cm->seg.enabled &&
+      cyclic_refresh_segment_id_boosted(segment_id);
+
+  if (is_segment_id_boosted)
+    qindex = av1_get_qindex(&cm->seg, segment_id, cm->quant_params.base_qindex);
+
+  set_vbp_thresholds(cpi, thresholds, qindex, x->content_state_sb.low_sumdiff,
+                     x->content_state_sb.source_sad_nonrd,
+                     x->content_state_sb.source_sad_rd, is_segment_id_boosted,
+                     blk_sad, x->content_state_sb.lighting_change);
 
   // For non keyframes, disable 4x4 average for low resolution when speed = 8
   threshold_4x4avg = INT64_MAX;
