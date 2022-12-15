@@ -16,6 +16,24 @@
       "message": "Hi Yunqing,\n\nWe have addressed your comments. Please review.\n\nThanks \u0026 Regards,\nAnupam",
       "revId": "3c720c2718b0dfb1da573ebb6d74553bad1b0762",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2304196b_95b41acd",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2022-12-15T18:44:45Z",
+      "side": 1,
+      "message": "Looks good. Thanks.",
+      "parentUuid": "60afbf7d_3034606c",
+      "revId": "3c720c2718b0dfb1da573ebb6d74553bad1b0762",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
