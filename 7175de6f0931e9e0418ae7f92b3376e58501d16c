@@ -41,6 +41,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "b3a28a43_d154a516",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 31022
+      },
+      "writtenOn": "2022-12-15T11:35:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "90226cc0_44224ba9",
+      "range": {
+        "startLine": 96,
+        "startChar": 10,
+        "endLine": 96,
+        "endChar": 17
+      },
+      "revId": "7175de6f0931e9e0418ae7f92b3376e58501d16c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "0090c073_1840a8f1",
@@ -54,6 +78,30 @@
       "writtenOn": "2022-12-14T21:13:10Z",
       "side": 1,
       "message": "Declare 1 local variable for rt_sf-\u003ereduce_mv_pel_precision_highmotion since it is used in multiple places?",
+      "range": {
+        "startLine": 327,
+        "startChar": 6,
+        "endLine": 327,
+        "endChar": 47
+      },
+      "revId": "7175de6f0931e9e0418ae7f92b3376e58501d16c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3a7e01f2_7fd2bc41",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 327,
+      "author": {
+        "id": 31022
+      },
+      "writtenOn": "2022-12-15T11:35:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0090c073_1840a8f1",
       "range": {
         "startLine": 327,
         "startChar": 6,
