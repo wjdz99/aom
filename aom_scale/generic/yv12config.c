@@ -78,7 +78,7 @@ static int realloc_frame_buffer_aligned(
     // The size of ybf->y_pyramid
     if (num_pyramid_levels > 0) {
       alloc_size += aom_get_pyramid_alloc_size(
-          aligned_width, aligned_height, num_pyramid_levels, use_highbitdepth);
+          width, height, num_pyramid_levels, use_highbitdepth);
     }
 #endif  // CONFIG_AV1_ENCODER && !CONFIG_REALTIME_ONLY
     // The decoder may allocate REF_FRAMES frame buffers in the frame buffer
@@ -182,8 +182,8 @@ static int realloc_frame_buffer_aligned(
       ybf->y_pyramid = NULL;
     }
     if (num_pyramid_levels > 0) {
-      ybf->y_pyramid = aom_alloc_pyramid(aligned_width, aligned_height,
-                                         num_pyramid_levels, use_highbitdepth);
+      ybf->y_pyramid = aom_alloc_pyramid(width, height, num_pyramid_levels,
+                                         use_highbitdepth);
     }
 #endif  // CONFIG_AV1_ENCODER && !CONFIG_REALTIME_ONLY
 
