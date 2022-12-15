@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ce0ea2f2_13c16fc1",
+        "filename": "av1/qmode_rc/ratectrl_qmode.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 873,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-12-15T02:03:23Z",
+      "side": 1,
+      "message": "Since firstpass_info isn\u0027t used again after this, you could move from it.",
+      "range": {
+        "startLine": 873,
+        "startChar": 52,
+        "endLine": 873,
+        "endChar": 66
+      },
+      "revId": "c4d27eb4d5d87116b64a21924271bcfef3536dc0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "68718267_f19e227c",
+        "filename": "av1/qmode_rc/ratectrl_qmode.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 873,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-12-15T02:03:23Z",
+      "side": 1,
+      "message": "It might be clearer to call this something like firstpass_info_with_analysis or analyzed_firstpass_info, since the important thing is that it\u0027s been analyzed rather than that it\u0027s a copy.",
+      "range": {
+        "startLine": 873,
+        "startChar": 22,
+        "endLine": 873,
+        "endChar": 34
+      },
+      "revId": "c4d27eb4d5d87116b64a21924271bcfef3536dc0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a4c7f00a_60fd004f",
+        "filename": "av1/qmode_rc/ratectrl_qmode.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 1455,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-12-15T02:03:23Z",
+      "side": 1,
+      "message": "You could std::move here. Alternatively, change the type of the argument in the signature from `const FirstpassInfo\u0026` to just `FirstpassInfo`, and then you could do:\n\n    firstpass_info \u003d AnalyzeFpStats(firstpass_info);\n    \nrather than needing to use a different name.\n\n(You can\u0027t do that in DetermineGopInfo because it\u0027s an override of a virtual function.)",
+      "range": {
+        "startLine": 1455,
+        "startChar": 52,
+        "endLine": 1455,
+        "endChar": 66
+      },
+      "revId": "c4d27eb4d5d87116b64a21924271bcfef3536dc0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
