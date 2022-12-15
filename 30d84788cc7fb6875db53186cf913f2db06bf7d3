@@ -46,6 +46,30 @@
       },
       "revId": "30d84788cc7fb6875db53186cf913f2db06bf7d3",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ce4a2572_f79545ec",
+        "filename": "av1/encoder/global_motion_facade.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2022-12-15T23:04:43Z",
+      "side": 1,
+      "message": "If I remember correctly, in GM, 1 thread works on 1 reference frame. You can see if you need special handling for multiple thread case.",
+      "parentUuid": "32a569c5_b9cd83db",
+      "range": {
+        "startLine": 109,
+        "startChar": 2,
+        "endLine": 109,
+        "endChar": 59
+      },
+      "revId": "30d84788cc7fb6875db53186cf913f2db06bf7d3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
