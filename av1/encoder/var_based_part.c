@@ -1356,7 +1356,8 @@ int av1_choose_var_based_partitioning(AV1_COMP *cpi, const TileInfo *const tile,
 
   const int low_res = (cm->width <= 352 && cm->height <= 288);
   int variance4x4downsample[64];
-  const int segment_id = xd->mi[0]->segment_id;
+  int segment_id = xd->mi[0]->segment_id;
+  int qindex;
   uint64_t blk_sad = 0;
   if (cpi->src_sad_blk_64x64 != NULL && !cpi->ppi->use_svc) {
     const int sb_size_by_mb = (cm->seq_params->sb_size == BLOCK_128X128)
@@ -1371,19 +1372,16 @@ int av1_choose_var_based_partitioning(AV1_COMP *cpi, const TileInfo *const tile,
 
   if (cpi->oxcf.q_cfg.aq_mode == CYCLIC_REFRESH_AQ && cm->seg.enabled &&
       cyclic_refresh_segment_id_boosted(segment_id)) {
-    const int qindex =
-        av1_get_qindex(&cm->seg, segment_id, cm->quant_params.base_qindex);
-    set_vbp_thresholds(cpi, thresholds, qindex, x->content_state_sb.low_sumdiff,
-                       x->content_state_sb.source_sad_nonrd,
-                       x->content_state_sb.source_sad_rd, 1, blk_sad,
-                       x->content_state_sb.lighting_change);
+    segment_id = 1;
+    qindex = av1_get_qindex(&cm->seg, segment_id, cm->quant_params.base_qindex);
   } else {
-    set_vbp_thresholds(cpi, thresholds, cm->quant_params.base_qindex,
-                       x->content_state_sb.low_sumdiff,
-                       x->content_state_sb.source_sad_nonrd,
-                       x->content_state_sb.source_sad_rd, 0, blk_sad,
-                       x->content_state_sb.lighting_change);
+    segment_id = 0;
+    qindex = cm->quant_params.base_qindex;
   }
+  set_vbp_thresholds(cpi, thresholds, qindex, x->content_state_sb.low_sumdiff,
+                     x->content_state_sb.source_sad_nonrd,
+                     x->content_state_sb.source_sad_rd, segment_id, blk_sad,
+                     x->content_state_sb.lighting_change);
 
   // For non keyframes, disable 4x4 average for low resolution when speed = 8
   threshold_4x4avg = INT64_MAX;
