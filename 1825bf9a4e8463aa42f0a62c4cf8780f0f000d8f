@@ -69,6 +69,24 @@
       "parentUuid": "b21dffac_7bfede60",
       "revId": "1825bf9a4e8463aa42f0a62c4cf8780f0f000d8f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "afdb85e0_a69e0681",
+        "filename": "av1/qmode_rc/ratectrl_qmode.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 1498,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-12-15T19:32:55Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "a3b681a6_c31b766f",
+      "revId": "1825bf9a4e8463aa42f0a62c4cf8780f0f000d8f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
