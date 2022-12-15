@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a543fc3f_26da1e9e",
+        "filename": "av1/encoder/global_motion_facade.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 29052
+      },
+      "writtenOn": "2022-12-15T19:50:01Z",
+      "side": 1,
+      "message": "@bohanli - This is the one big thing I\u0027m not really sure about with this patch.\n\nDo you know how the multithreaded global motion search is done?\n\nMy concern is that, if the current frame has multiple references which point to the same underlying buffer, then we might end up with multiple threads trying to fill the same pyramid struct at the same time.\n\nBut I don\u0027t know if that can happen in practice, or if there\u0027s some deduplication logic somewhere which means we only evaluate global motion once per distinct ref frame. If we don\u0027t have that logic, then maybe we should implement it somehow.",
+      "range": {
+        "startLine": 109,
+        "startChar": 2,
+        "endLine": 109,
+        "endChar": 59
+      },
+      "revId": "30d84788cc7fb6875db53186cf913f2db06bf7d3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
