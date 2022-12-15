@@ -16,6 +16,23 @@
       "message": "Was this meant to be used somehow?",
       "revId": "1825bf9a4e8463aa42f0a62c4cf8780f0f000d8f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bed2e19b_84e2692e",
+        "filename": "av1/qmode_rc/ratectrl_qmode.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 1498,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-12-15T18:24:12Z",
+      "side": 1,
+      "message": "This variable probably should be renamed if there is no `arf_rdcost_low`. I am also wondering if Jingning intended to use `arf_rdcost_low`.",
+      "revId": "1825bf9a4e8463aa42f0a62c4cf8780f0f000d8f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
