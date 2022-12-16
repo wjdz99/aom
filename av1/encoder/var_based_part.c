@@ -568,7 +568,12 @@ static AOM_INLINE void set_vbp_thresholds(AV1_COMP *cpi, int64_t thresholds[],
   } else if (cm->width < 1920 && cm->height < 1080) {
     thresholds[2] = threshold_base << 1;
   } else if (cm->width < 2560 && cm->height < 1440) {
-    thresholds[2] = (5 * threshold_base) >> 1;
+    if (cpi->oxcf.speed > 7 &&
+        cpi->oxcf.tune_cfg.content != AOM_CONTENT_SCREEN) {
+      thresholds[2] = 8 * threshold_base;
+    } else {
+      thresholds[2] = (5 * threshold_base) >> 1;
+    }
   } else {
     thresholds[2] = (7 * threshold_base) >> 1;
   }
