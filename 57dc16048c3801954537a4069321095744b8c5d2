@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a9b5079e_65d0dba5",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 31022
+      },
+      "writtenOn": "2022-12-16T10:19:00Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nWe have rebased the patch, and addressed your queries. Please review the patch.",
+      "revId": "57dc16048c3801954537a4069321095744b8c5d2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
