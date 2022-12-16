@@ -41,6 +41,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "06f1146b_5c6651a4",
+        "filename": "aom_dsp/entenc.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 29295
+      },
+      "writtenOn": "2022-12-16T08:07:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "065208fd_406a9978",
+      "range": {
+        "startLine": 67,
+        "startChar": 61,
+        "endLine": 67,
+        "endChar": 71
+      },
+      "revId": "714eb1703c9ec55cb9b92edd47b0ae451f84926a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "3feea6ab_12d52370",
@@ -54,6 +78,30 @@
       "writtenOn": "2022-12-14T02:26:57Z",
       "side": 1,
       "message": "What is e here?",
+      "range": {
+        "startLine": 72,
+        "startChar": 6,
+        "endLine": 72,
+        "endChar": 7
+      },
+      "revId": "714eb1703c9ec55cb9b92edd47b0ae451f84926a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f5655714_2e776a73",
+        "filename": "aom_dsp/entenc.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 29295
+      },
+      "writtenOn": "2022-12-16T08:07:36Z",
+      "side": 1,
+      "message": "Apologies for missing it. e \u003d number of leading zeros in \"low\". The comment is improved with more details.",
+      "parentUuid": "3feea6ab_12d52370",
       "range": {
         "startLine": 72,
         "startChar": 6,
@@ -87,6 +135,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "4ba2008d_dfa4526a",
+        "filename": "aom_dsp/entenc.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 29295
+      },
+      "writtenOn": "2022-12-16T08:07:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "61184322_de3a69eb",
+      "range": {
+        "startLine": 90,
+        "startChar": 4,
+        "endLine": 90,
+        "endChar": 43
+      },
+      "revId": "714eb1703c9ec55cb9b92edd47b0ae451f84926a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "05ad5cf3_43e1bde1",
@@ -100,6 +172,30 @@
       "writtenOn": "2022-12-14T02:26:57Z",
       "side": 1,
       "message": "Ditto for the 24.",
+      "range": {
+        "startLine": 93,
+        "startChar": 4,
+        "endLine": 93,
+        "endChar": 37
+      },
+      "revId": "714eb1703c9ec55cb9b92edd47b0ae451f84926a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b02396cf_8a58eb2a",
+        "filename": "aom_dsp/entenc.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 29295
+      },
+      "writtenOn": "2022-12-16T08:07:36Z",
+      "side": 1,
+      "message": "Done. Also added a comment while updating \"s\" to explain 24",
+      "parentUuid": "05ad5cf3_43e1bde1",
       "range": {
         "startLine": 93,
         "startChar": 4,
@@ -127,6 +223,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f74b0fbd_c625da68",
+        "filename": "aom_dsp/entenc.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 29295
+      },
+      "writtenOn": "2022-12-16T08:07:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0a5329b1_359b01ce",
+      "revId": "714eb1703c9ec55cb9b92edd47b0ae451f84926a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b0df9181_683bf198",
@@ -140,6 +254,30 @@
       "writtenOn": "2022-12-14T02:26:57Z",
       "side": 1,
       "message": "Since this function is called with an assert offs \u003e 0 before, can we replace this with a do ... while loop?",
+      "range": {
+        "startLine": 91,
+        "startChar": 0,
+        "endLine": 95,
+        "endChar": 3
+      },
+      "revId": "714eb1703c9ec55cb9b92edd47b0ae451f84926a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a1b66198_de944ff6",
+        "filename": "aom_dsp/entenc.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 29295
+      },
+      "writtenOn": "2022-12-16T08:07:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b0df9181_683bf198",
       "range": {
         "startLine": 91,
         "startChar": 0,
@@ -175,6 +313,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "72311b59_f6fbb8a7",
+        "filename": "aom_dsp/entenc.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 29295
+      },
+      "writtenOn": "2022-12-16T08:07:36Z",
+      "side": 1,
+      "message": "The argument offs is of the type uint32_t, so we cannot fold as-is since offs can never go negative. Typecasting to int either as a function argument or a local var, both causes a small but noticeable avg encode time increase. We observed that an additional variable in these functions generally adds some encode time \u0026 instruction count. offs \u003d 0 needing a carry addition is an extremely rare corner-case, hence we took care of this to match exactly with the capability of parent commit.",
+      "parentUuid": "863b121c_f4f85f75",
+      "range": {
+        "startLine": 96,
+        "startChar": 0,
+        "endLine": 100,
+        "endChar": 3
+      },
+      "revId": "714eb1703c9ec55cb9b92edd47b0ae451f84926a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "5181ce79_ce7b664b",
         "filename": "aom_dsp/entenc.h",
         "patchSetId": 9
@@ -186,6 +348,30 @@
       "writtenOn": "2022-12-14T02:26:57Z",
       "side": 1,
       "message": "I would define a get_byteswap64 function under aom_ports/bitops.h that calls different builtins based on the compiler, then we can remove the flags here and simply do\n` const uint64_t reg \u003d\n      get_byteswap64(output) \u003e\u003e ((8 - num_bytes_ready) \u003c\u003c 3);\n  memcpy(\u0026out[offs], \u0026reg, 8);\n  // Propagate carry backwards if exists\n  if (carry) {\n    assert(offs \u003e 0);\n    propagate_carry_bwd(out, offs - 1);\n  }\n  *enc_offs \u003d offs + num_bytes_ready;`",
+      "range": {
+        "startLine": 110,
+        "startChar": 0,
+        "endLine": 118,
+        "endChar": 37
+      },
+      "revId": "714eb1703c9ec55cb9b92edd47b0ae451f84926a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a70efb6b_d83fe2ff",
+        "filename": "aom_dsp/entenc.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 29295
+      },
+      "writtenOn": "2022-12-16T08:07:36Z",
+      "side": 1,
+      "message": "Done.",
+      "parentUuid": "5181ce79_ce7b664b",
       "range": {
         "startLine": 110,
         "startChar": 0,
