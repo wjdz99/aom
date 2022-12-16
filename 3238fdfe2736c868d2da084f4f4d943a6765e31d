@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2c980bef_13551f90",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 31022
+      },
+      "writtenOn": "2022-12-16T12:56:27Z",
+      "side": 1,
+      "message": "Hi Yunqing, Marco,\n\nIn this patch, we have used av1_zero() rather than memset() to standardise the code in nonrd pickmode.c.\n\nThe changes are bit-exact. Please review the patch.\n\nThanks \u0026 Regards,\nAnupam",
+      "revId": "3238fdfe2736c868d2da084f4f4d943a6765e31d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
