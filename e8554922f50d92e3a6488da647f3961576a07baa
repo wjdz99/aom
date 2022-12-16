@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a438645d_96141609",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 31022
+      },
+      "writtenOn": "2022-12-16T13:10:57Z",
+      "side": 1,
+      "message": "Hi Yunqing, Marco,\n\nIn this patch, we have replaced hard coded constants in nonrd_pickmode.c with appropriate macro directives.\n\nThe changes are bit-exact. Please review the patch.\n\nThanks \u0026 Regards,\nAnupam",
+      "revId": "e8554922f50d92e3a6488da647f3961576a07baa",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
