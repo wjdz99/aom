@@ -174,7 +174,7 @@ int av1_get_bpmb_enumerator(FRAME_TYPE frame_type,
   return enumerator;
 }
 
-static int get_init_ratio(double sse) { return (int)(300000 / sse); }
+static int get_init_ratio(double sse) { return (int)(900000 / sse); }
 
 int av1_rc_bits_per_mb(const AV1_COMP *cpi, FRAME_TYPE frame_type, int qindex,
                        double correction_factor, int accurate_estimate) {
@@ -195,8 +195,11 @@ int av1_rc_bits_per_mb(const AV1_COMP *cpi, FRAME_TYPE frame_type, int qindex,
         (double)mbs;
     const int ratio = (cpi->rc.bit_est_ratio == 0) ? get_init_ratio(sse_sqrt)
                                                    : cpi->rc.bit_est_ratio;
+
+    const int max_thr = (cpi->rc.frames_since_key > 20) ? 170000 : 900000;
+
     // Clamp the enumerator to lower the q fluctuations.
-    enumerator = AOMMIN(AOMMAX((int)(ratio * sse_sqrt), 20000), 170000);
+    enumerator = AOMMIN(AOMMAX((int)(ratio * sse_sqrt), 20000), max_thr);
   }
 
   // q based adjustment to baseline enumerator
@@ -1203,11 +1206,11 @@ static int rc_pick_q_and_bounds_no_stats_cbr(const AV1_COMP *cpi, int width,
   // Special case: we force the first few frames to use low q such that
   // these frames are encoded at a high quality, which provides good
   // references for following frames.
-  if (current_frame->frame_type != KEY_FRAME && !cpi->ppi->use_svc &&
-      current_frame->frame_number >= 10 && current_frame->frame_number <= 15) {
-    q = AOMMIN(p_rc->last_kf_qindex + 108, AOMMAX(5, q - 9));
-    q = AOMMAX(q, rc->best_quality);
-  }
+//  if (current_frame->frame_type != KEY_FRAME && !cpi->ppi->use_svc &&
+//      current_frame->frame_number >= 10 && current_frame->frame_number <= 15) {
+//    q = AOMMIN(p_rc->last_kf_qindex + 108, AOMMAX(5, q - 9));
+//    q = AOMMAX(q, rc->best_quality);
+//  }
 
   assert(*top_index <= rc->worst_quality && *top_index >= rc->best_quality);
   assert(*bottom_index <= rc->worst_quality &&
@@ -2154,6 +2157,26 @@ void av1_rc_postencode_update(AV1_COMP *cpi, uint64_t bytes_used) {
 
   const int qindex = cm->quant_params.base_qindex;
 
+
+#define OUTPUT_FRAME_SIZE 1
+#if OUTPUT_FRAME_SIZE
+  if (cm->current_frame.frame_number - 1 > 0) {
+    const double q = av1_convert_qindex_to_q(cm->quant_params.base_qindex, 8);
+    FILE *f = fopen("out.csv", "a");
+    double sse = (double)cpi->rec_sse;
+    fprintf(f, "%d,", cpi->refresh_frame.golden_frame);
+    fprintf(f, "%d,", cpi->rc.rc_1_frame);
+    fprintf(f, "%d,", cm->quant_params.base_qindex);
+    fprintf(f, "%f,", q);
+    fprintf(f, "%ld,", 8 * bytes_used);
+    fprintf(f, "%f", sse);
+    fprintf(f, "\n");
+    fclose(f);
+  }
+#endif  // OUTPUT_FRAME_SIZE
+#undef OUTPUT_FRAME_SIZE
+
+
 #if RT_PASSIVE_STRATEGY
   const int frame_number = current_frame->frame_number % MAX_Q_HISTORY;
   p_rc->q_history[frame_number] = qindex;
@@ -2341,7 +2364,7 @@ static int find_qindex_by_rate(const AV1_COMP *const cpi,
   while (low < high) {
     const int mid = (low + high) >> 1;
     const int mid_bits_per_mb =
-        av1_rc_bits_per_mb(cpi, frame_type, mid, 1.0, 0);
+        av1_rc_bits_per_mb(cpi, frame_type, mid, 1.0, cpi->sf.hl_sf.accurate_bit_estimate);
     if (mid_bits_per_mb > desired_bits_per_mb) {
       low = mid + 1;
     } else {
@@ -2349,7 +2372,7 @@ static int find_qindex_by_rate(const AV1_COMP *const cpi,
     }
   }
   assert(low == high);
-  assert(av1_rc_bits_per_mb(cpi, frame_type, low, 1.0, 0) <=
+  assert(av1_rc_bits_per_mb(cpi, frame_type, low, 1.0, cpi->sf.hl_sf.accurate_bit_estimate) <=
              desired_bits_per_mb ||
          low == worst_qindex);
   return low;
@@ -2361,7 +2384,7 @@ int av1_compute_qdelta_by_rate(const AV1_COMP *cpi, FRAME_TYPE frame_type,
 
   // Look up the current projected bits per block for the base index
   const int base_bits_per_mb =
-      av1_rc_bits_per_mb(cpi, frame_type, qindex, 1.0, 0);
+      av1_rc_bits_per_mb(cpi, frame_type, qindex, 1.0, cpi->sf.hl_sf.accurate_bit_estimate);
 
   // Find the target bits per mb based on the base value and given ratio.
   const int target_bits_per_mb = (int)(rate_target_ratio * base_bits_per_mb);
