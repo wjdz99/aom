@@ -87,6 +87,24 @@
       "parentUuid": "f965405c_405b5974",
       "revId": "5ac68a7e5d7ff1a7a6864f4b7e78cac9f0858d72",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "add6b34e_0d63b957",
+        "filename": "av1/encoder/arm/neon/av1_fwd_txfm2d_neon.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 305,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-12-17T18:20:04Z",
+      "side": 1,
+      "message": "\u003e \u003e I missed this. I guess we could also count down in this function, now that you\u0027ve switched to incrementing the `in` buffer pointer.\n\u003e \n\u003e Done.\n\u003e \n\u003e I did see one failure, but it was indirect:\n\u003e \n\u003e ```\n\u003e \n\u003e [ RUN      ] AV1/DatarateTestRealtime.BasicRateTargetingCBRSpike/7\n\u003e test/encode_test_driver.h:109: Failure\n\u003e Expected equality of these values:\n\u003e   AOM_CODEC_OK\n\u003e     Which is: 0\n\u003e   res      \n\u003e     Which is: 1\n\u003e Unspecified internal error\n\u003e test/encode_test_driver.cc:202: Failure\n\u003e Value of: ::testing::Test::HasFatalFailure()\n\u003e   Actual: true\n\u003e Expected: false\n\u003e test/datarate_test.cc:107: Failure\n\u003e Expected: RunLoop(\u0026video) doesn\u0027t generate new fatal failures in the current thread.\n\u003e   Actual: it does.\n\u003e [  FAILED  ] AV1/DatarateTestRealtime.BasicRateTargetingCBRSpike/7, where GetParam() \u003d (0x5500fbb220, 0, 8, 3, 1) (16 ms)\n\u003e ```\n\nThis actually looks like a preexisting condition.",
+      "parentUuid": "240ac0bd_22e5e3d8",
+      "revId": "5ac68a7e5d7ff1a7a6864f4b7e78cac9f0858d72",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
