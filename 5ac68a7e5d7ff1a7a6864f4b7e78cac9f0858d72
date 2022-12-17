@@ -123,6 +123,24 @@
       "parentUuid": "add6b34e_0d63b957",
       "revId": "5ac68a7e5d7ff1a7a6864f4b7e78cac9f0858d72",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8225056c_098d7005",
+        "filename": "av1/encoder/arm/neon/av1_fwd_txfm2d_neon.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 305,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-12-17T23:57:14Z",
+      "side": 1,
+      "message": "\u003e The AV1/DatarateTestRealtime.BasicRateTargetingCBRSpike/7 test passed when I built patchset 3 of this CL on my MacBook Pro M1 and ran the test.\n\nI\u0027ll have to look into it. It\u0027s failing under emulation for me.",
+      "parentUuid": "28fe7d12_c420e621",
+      "revId": "5ac68a7e5d7ff1a7a6864f4b7e78cac9f0858d72",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
