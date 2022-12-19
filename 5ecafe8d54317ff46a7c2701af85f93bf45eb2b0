@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e485815d_1761feef",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 31012
+      },
+      "writtenOn": "2022-12-19T11:35:38Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nIn the current implementation of inverse transform, block size 8x8 is optimized using the ssse3 instruction set. However, there are certain operations (For ex. combining the round \u0026 transpose operations) which can be combined to facilitate the AVX2 implementation.\nIn this CL, we have tried to combine various operations so as to avoid computations at 128-bit level which can happen more efficiently at 256-bit level.\n\nThe module level scaling (timer base) for tx_size 8x8 is :\n```\n                  Scaling w.r.t. C (x)\ntx_type           Parent CL   This CL \nDCT_DCT            20.06x      35.81x\nADST_DCT           18.80x      29.88x\nDCT_ADST           19.70x      32.06x\nADST_ADST          17.43x      24.59x\nFLIPADST_DCT       17.87x      29.94x\nDCT_FLIPADST       20.08x      31.52x\nFLIPADST_FLIPADST  17.12x      25.03x\nADST_FLIPADST      17.95x      25.19x\nFLIPADST_ADST      16.94x      24.17x\n```\nThe gains are negligible for other transform types.\n\nPlease check the encoder speed-up measured (for AVX2) using instruction count as below. \n```\n               Instruction Count    \ncpu Resolution    Reduction(%)\n 7   rtc_1080p      0.496\n 7         rtc      0.642\n 7    rtc_derf      0.474\n 7  rtc_screen      0.149\n\n 8   rtc_1080p      0.485\n 8         rtc      0.495\n 8    rtc_derf      0.381\n 8  rtc_screen      0.140\n\n 9   rtc_1080p      0.518\n 9         rtc      0.615\n 9    rtc_derf      0.567\n 9  rtc_screen      0.181\n\n10   rtc_1080p      0.550\n10         rtc      0.711\n10    rtc_derf      0.638\n10  rtc_screen      0.206\n```\n\nThe instruction count reduction specified has been measured using command:\n$ perf stat -e instructions:u ./aomenc …\n\nPlease review the CL.\n\nThanks \u0026 Regards,\nDiksha",
+      "revId": "5ecafe8d54317ff46a7c2701af85f93bf45eb2b0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
