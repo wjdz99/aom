@@ -27,6 +27,7 @@
 #include "aom_dsp/noise_util.h"
 #include "aom_dsp/noise_model.h"
 #endif
+#include "aom_dsp/flow_estimation/corner_detect.h"
 #include "aom_dsp/psnr.h"
 #if CONFIG_INTERNAL_STATS
 #include "aom_dsp/ssim.h"
@@ -2716,6 +2717,7 @@ static int encode_with_recode_loop(AV1_COMP *cpi, size_t *size, uint8_t *dest) {
         av1_setup_interp_filter_search_mask(cpi);
 #if !CONFIG_REALTIME_ONLY
   aom_invalidate_pyramid(cpi->source->y_pyramid);
+  av1_invalidate_corner_list(cpi->source->corners);
 #endif  // !CONFIG_REALTIME_ONLY
 
   av1_setup_frame_size(cpi);
