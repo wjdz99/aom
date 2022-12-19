@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "df611001_4ab6f4b8",
+        "filename": "av1/encoder/var_based_part.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 571,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2022-12-19T20:27:55Z",
+      "side": 1,
+      "message": "bdrate/speed numbers look good, but there is big gap in thresholds between \u003c1080p (2x) and 1080p (8x, for speed \u003e 7), and then 3.5x for \u003e\u003d2560x1440 (smaller threshold than 1080p)?\n\nAlso this will affect screen?",
+      "revId": "442612b7a53aaca65c19e4831cfc694b66c23a3a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
