@@ -1633,7 +1633,8 @@ StatusOr<GopEncodeInfo> AV1RateControlQMode::GetGopEncodeInfoWithFp(
     } else if (gop_frame.update_type == GopFrameType::kRegularGolden ||
                gop_frame.update_type == GopFrameType::kRegularArf) {
       double boost = 0.0;
-
+      int count = 0;
+      double accu_cor = 0;
       // Check the influence of this arf frame to the frames before it
       for (int f = this_gop_len - 2; f > 0; --f) {
         // The contribution of this arf to frame f
@@ -1651,6 +1652,8 @@ StatusOr<GopEncodeInfo> AV1RateControlQMode::GetGopEncodeInfoWithFp(
         }
 
         if (coeff_last > coeff_this) break;
+        ++count;
+        accu_cor += analyzed_fp_info.stats_list[f + 1].cor_coeff;
 
         // If this is a flash, although we ignore it in the accumulation, we
         // still count it for this frame so it will probably have a low
@@ -1685,6 +1688,8 @@ StatusOr<GopEncodeInfo> AV1RateControlQMode::GetGopEncodeInfoWithFp(
           }
           if (coeff_next > coeff_this) break;
         }
+        ++count;
+        accu_cor += analyzed_fp_info.stats_list[f].cor_coeff;
 
         // If this is a flash, although we ignore it in the accumulation, we
         // still count it for this frame so it will probably have a low
@@ -1701,10 +1706,16 @@ StatusOr<GopEncodeInfo> AV1RateControlQMode::GetGopEncodeInfoWithFp(
 
         boost += this_cor;
       }
+      double avg_cor = accu_cor / count;
+
       boost = std::min(std::max(sqrt(boost), 1.0), 4.0);
+      if (avg_cor >= 0.99) boost *= 2.0;
+
       const double qstep_ratio = 1.0 / boost;
       param.q_index = av1_get_q_index_from_qstep_ratio(rc_param_.base_q_index,
                                                        qstep_ratio, AOM_BITS_8);
+      if (avg_cor >= 0.99) param.q_index = std::min(param.q_index, 30);
+
       if (rc_param_.base_q_index) param.q_index = std::max(param.q_index, 1);
       active_best_quality = param.q_index;
 
