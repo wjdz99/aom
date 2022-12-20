@@ -54,6 +54,29 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "5d01720a_ecb1fc84",
+        "filename": "av1/encoder/av1_quantize.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 686,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2022-12-20T23:15:33Z",
+      "side": 1,
+      "message": "This function is called once per frame / QP setting. I am not quite sure what the savings are, and why we shall anticipate speed gains here?",
+      "range": {
+        "startLine": 686,
+        "startChar": 5,
+        "endLine": 686,
+        "endChar": 23
+      },
+      "revId": "66ae128264dcd98d499087202c83a264f56371b6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "8c6b0f12_b2159ade",
         "filename": "av1/encoder/av1_quantize.c",
         "patchSetId": 2
