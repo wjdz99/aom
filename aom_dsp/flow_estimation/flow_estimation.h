@@ -39,9 +39,11 @@ enum {
 static const int trans_model_params[TRANS_TYPES] = { 0, 2, 4, 6 };
 
 typedef enum {
-  GLOBAL_MOTION_FEATURE_BASED,
-  GLOBAL_MOTION_DISFLOW_BASED,
-} GlobalMotionEstimationType;
+  GLOBAL_MOTION_METHOD_FEATURE_MATCH,
+  GLOBAL_MOTION_METHOD_DISFLOW,
+  GLOBAL_MOTION_METHOD_LAST = GLOBAL_MOTION_METHOD_DISFLOW,
+  GLOBAL_MOTION_METHODS
+} GlobalMotionMethod;
 
 typedef struct {
   double params[MAX_PARAMDIM - 1];
@@ -49,9 +51,14 @@ typedef struct {
   int num_inliers;
 } MotionModel;
 
+// For each global motion method, how many pyramid levels should we allocate?
+// Note that this is a maximum, and fewer levels will be allocated if the frame
+// is not large enough to need all of the specified levels
+extern const int global_motion_pyr_levels[GLOBAL_MOTION_METHODS];
+
 int aom_compute_global_motion(TransformationType type, YV12_BUFFER_CONFIG *src,
                               YV12_BUFFER_CONFIG *ref, int bit_depth,
-                              GlobalMotionEstimationType gm_estimation_type,
+                              GlobalMotionMethod gm_estimation_type,
                               int *num_inliers_by_motion,
                               MotionModel *params_by_motion, int num_motions);
 
