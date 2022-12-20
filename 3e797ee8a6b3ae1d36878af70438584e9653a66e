@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2a992dad_645a98de",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2586,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-12-20T20:55:09Z",
+      "side": 0,
+      "message": "I researched at the history of this conditional expression.\n\nThe `deltaq_mode !\u003d NO_DELTA_Q` check was first added in https://aomedia-review.googlesource.com/c/aom/+/98221 and was later copied elsewhere.\n\nThe `q_cfg-\u003eenable_chroma_deltaq` check was added in https://aomedia-review.googlesource.com/c/aom/+/130582.",
+      "revId": "3e797ee8a6b3ae1d36878af70438584e9653a66e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
