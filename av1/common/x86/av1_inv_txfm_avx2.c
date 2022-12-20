@@ -1840,6 +1840,8 @@ static INLINE void lowbd_inv_txfm2d_add_v_identity_avx2(
   int eobx, eoby;
   get_eobx_eoby_scan_v_identity(&eobx, &eoby, tx_size, eob);
   const int8_t *shift = av1_inv_txfm_shift_ls[tx_size];
+
+
   const int txw_idx = get_txw_idx(tx_size);
   const int txh_idx = get_txh_idx(tx_size);
   const int txfm_size_col = tx_size_wide[tx_size];
