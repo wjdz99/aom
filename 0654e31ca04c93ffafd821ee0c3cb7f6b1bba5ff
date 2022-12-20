@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7aa763c1_225a7d84",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2022-12-20T04:07:59Z",
+      "side": 1,
+      "message": "How does this affect the coding performance on top of the current g3 version?",
+      "revId": "0654e31ca04c93ffafd821ee0c3cb7f6b1bba5ff",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
