@@ -560,6 +560,12 @@ enum {
 // encoder in the cpi->scaled_ref_buf array.
 #define FRAME_BUFFERS (REF_FRAMES + 1 + INTER_REFS_PER_FRAME)
 
+// During allintra encoding, one reference frame buffer is free to be used again
+// only after another frame buffer is stored as the reference frame. Hence, it
+// is necessary and sufficient to maintain only two reference frame buffers in
+// this case.
+#define FRAME_BUFFERS_ALLINTRA 2
+
 #define FWD_RF_OFFSET(ref) (ref - LAST_FRAME)
 #define BWD_RF_OFFSET(ref) (ref - BWDREF_FRAME)
 
