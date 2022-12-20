@@ -33,6 +33,24 @@
       "message": "do we need to set segment_id\u003d1/0 in this loop, since its already set at line 1359?",
       "revId": "f855a38210250c5229646626d2e279f848c218ca",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "82fdc67c_d395a265",
+        "filename": "av1/encoder/var_based_part.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1375,
+      "author": {
+        "id": 31592
+      },
+      "writtenOn": "2022-12-20T11:54:24Z",
+      "side": 1,
+      "message": "Hi Marco,\nThanks for reviewing the CL.\n\nSorry for the confusion caused due to the misnomer. Here, 1/0 is set based on boosted status of segment_id. For better understanding, we refactored the code slightly by introducing a variable \u0027is_segment_id_boosted\u0027.\n\nPlease review the CL.",
+      "parentUuid": "edcb6018_b7e34db0",
+      "revId": "f855a38210250c5229646626d2e279f848c218ca",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
