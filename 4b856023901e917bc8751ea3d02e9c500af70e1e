@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b9838aec_449e8e6f",
+        "filename": "av1/encoder/var_based_part.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 577,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2022-12-20T17:53:25Z",
+      "side": 1,
+      "message": "It seems odd that for (video mode speed \u003e 7) resoln \u003e\u003d 2560x1440 will use much lower split threshold than resoln \u003c 2560x1440 (3.5x vs 8x). I think its better to remove this last else condition (resoln \u003e\u003d 2560x1440) for video speed 7, so the increase in split threshold applies there too.",
+      "revId": "4b856023901e917bc8751ea3d02e9c500af70e1e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
