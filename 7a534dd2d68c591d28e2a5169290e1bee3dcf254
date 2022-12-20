@@ -70,6 +70,24 @@
       "parentUuid": "6170bc5c_ec01059b",
       "revId": "7a534dd2d68c591d28e2a5169290e1bee3dcf254",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e9b71c88_eb5ba766",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-12-20T17:43:36Z",
+      "side": 1,
+      "message": "There\u0027s a longer explanation in cl/496421137. The file format for two TPL passes is simply the same as the one-pass format, but with the second pass appended. It\u0027s the responsibility of the code reading the file to \"zip\" the two passes together.",
+      "parentUuid": "bd9dcd22_9d5890cd",
+      "revId": "7a534dd2d68c591d28e2a5169290e1bee3dcf254",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
