@@ -16,6 +16,98 @@
       "message": "How does this affect the coding performance on top of the current g3 version?",
       "revId": "0654e31ca04c93ffafd821ee0c3cb7f6b1bba5ff",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b6d43a3d_a07e8430",
+        "filename": "av1/qmode_rc/ratectrl_qmode.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 1448,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-12-20T12:42:31Z",
+      "side": 1,
+      "message": "There\u0027s no need to abbreviate \"candidate\" to \"cand\". Please pick less cryptic names.\n\ngo/cstyle#General_Naming_Rules\n\nOptimize for readability using names that would be clear even to people on a different team.\n\nUse names that describe the purpose or intent of the object. Do not worry about saving horizontal space as it is far more important to make your code immediately understandable by a new reader. Minimize the use of abbreviations that would likely be unknown to someone outside your project (especially acronyms and initialisms). Do not abbreviate by deleting letters within a word. As a rule of thumb, an abbreviation is probably OK if it\u0027s listed in go/glossary or Wikipedia. Generally speaking, descriptiveness should be proportional to the name\u0027s scope of visibility. For example, n may be a fine name within a 5-line function, but within the scope of a class, it\u0027s likely too vague.",
+      "range": {
+        "startLine": 1448,
+        "startChar": 53,
+        "endLine": 1448,
+        "endChar": 61
+      },
+      "revId": "0654e31ca04c93ffafd821ee0c3cb7f6b1bba5ff",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0261e656_bbaecca7",
+        "filename": "av1/qmode_rc/ratectrl_qmode.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 1457,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-12-20T12:42:31Z",
+      "side": 1,
+      "message": "const auto \u0026",
+      "range": {
+        "startLine": 1457,
+        "startChar": 7,
+        "endLine": 1457,
+        "endChar": 11
+      },
+      "revId": "0654e31ca04c93ffafd821ee0c3cb7f6b1bba5ff",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fe9e6e10_a20a26c9",
+        "filename": "av1/qmode_rc/ratectrl_qmode.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 1481,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-12-20T12:42:31Z",
+      "side": 1,
+      "message": "This variable isn\u0027t really necessary. Just use gop_struct.gop_frame_list[i] in the call to CheckFrameUseReference.",
+      "range": {
+        "startLine": 1481,
+        "startChar": 20,
+        "endLine": 1481,
+        "endChar": 29
+      },
+      "revId": "0654e31ca04c93ffafd821ee0c3cb7f6b1bba5ff",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "182f088e_b743bfaa",
+        "filename": "av1/qmode_rc/ratectrl_qmode.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 1485,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-12-20T12:42:31Z",
+      "side": 1,
+      "message": "Is this really correct? With this break, you\u0027re only counting the first frame in each direction.",
+      "range": {
+        "startLine": 1485,
+        "startChar": 0,
+        "endLine": 1485,
+        "endChar": 12
+      },
+      "revId": "0654e31ca04c93ffafd821ee0c3cb7f6b1bba5ff",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }

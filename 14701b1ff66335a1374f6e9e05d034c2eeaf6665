@@ -236,6 +236,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "394d80b0_adb9b60e",
+        "filename": "av1/qmode_rc/ratectrl_qmode.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 1518,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-12-20T12:42:31Z",
+      "side": 1,
+      "message": "I was also suggesting that instead of just a noun phrase, the comment could explain a bit better what it means, namely that int_arf_frames is the first intermediate ARF in the GOP.",
+      "parentUuid": "4ad4374e_97653609",
+      "range": {
+        "startLine": 1518,
+        "startChar": 7,
+        "endLine": 1518,
+        "endChar": 29
+      },
+      "revId": "14701b1ff66335a1374f6e9e05d034c2eeaf6665",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "664c1cbb_c715dbee",
@@ -273,6 +297,30 @@
       "side": 1,
       "message": "Just realized that in this else branch arf_adjusted is always larger than int_arf_as_ref. Removed this check.",
       "parentUuid": "664c1cbb_c715dbee",
+      "range": {
+        "startLine": 1529,
+        "startChar": 17,
+        "endLine": 1529,
+        "endChar": 23
+      },
+      "revId": "14701b1ff66335a1374f6e9e05d034c2eeaf6665",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "79c4566d_ef969c5a",
+        "filename": "av1/qmode_rc/ratectrl_qmode.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 1529,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-12-20T12:42:31Z",
+      "side": 1,
+      "message": "In that case, why not change the assert to say that?",
+      "parentUuid": "6ec27470_320b158b",
       "range": {
         "startLine": 1529,
         "startChar": 17,
