@@ -65,6 +65,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "8ce97f6b_af6a006f",
+        "filename": "av1/qmode_rc/ratectrl_qmode.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 1448,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-12-21T11:11:54Z",
+      "side": 1,
+      "message": "I suppose it is used a fair amount in libaom, but it appears to be spelled out more often than it\u0027s abbreviated (e.g., CANDIDATE_MV, MAX_MV_REF_CANDIDATES, test_candidate_kf, TxCandidateInfo, etc...)",
+      "parentUuid": "d1e8839c_dd58bd1b",
+      "range": {
+        "startLine": 1448,
+        "startChar": 53,
+        "endLine": 1448,
+        "endChar": 61
+      },
+      "revId": "0654e31ca04c93ffafd821ee0c3cb7f6b1bba5ff",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "0261e656_bbaecca7",

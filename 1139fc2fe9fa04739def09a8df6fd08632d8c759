@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "344b6d67_c7bd0be7",
+        "filename": "av1/qmode_rc/ratectrl_qmode.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 1448,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-12-21T11:11:54Z",
+      "side": 1,
+      "message": "Please make sure the comment matches the code.",
+      "range": {
+        "startLine": 1448,
+        "startChar": 53,
+        "endLine": 1448,
+        "endChar": 61
+      },
+      "revId": "1139fc2fe9fa04739def09a8df6fd08632d8c759",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1b89fc28_f4b51de8",
+        "filename": "av1/qmode_rc/ratectrl_qmode.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 1451,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-12-21T11:11:54Z",
+      "side": 1,
+      "message": "\"ind\" is not the usual abbreviation for \"index\". I do see it used in 5 files in libaom, but \"idx\" is way more common. And honestly I don\u0027t really see the point of abbreviating a 5 letter word to 3 letters. I\u0027d just call it frame_index.",
+      "range": {
+        "startLine": 1451,
+        "startChar": 14,
+        "endLine": 1451,
+        "endChar": 17
+      },
+      "revId": "1139fc2fe9fa04739def09a8df6fd08632d8c759",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c63dd9d3_b205bd9a",
+        "filename": "av1/qmode_rc/ratectrl_qmode.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 1459,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-12-21T11:11:54Z",
+      "side": 1,
+      "message": "typo: \"reference\" is missing the \"n\".\n\n(I guess that\u0027s one argument in favor of abbreviations: the shorter the name, the less likely that you\u0027ll leave a letter out. 😊)",
+      "range": {
+        "startLine": 1459,
+        "startChar": 8,
+        "endLine": 1459,
+        "endChar": 26
+      },
+      "revId": "1139fc2fe9fa04739def09a8df6fd08632d8c759",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ae18febc_7259dac6",
+        "filename": "av1/qmode_rc/ratectrl_qmode.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 1479,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-12-21T11:11:54Z",
+      "side": 1,
+      "message": "It might be clearer to move this down after the first loop, and just do this instead:\n\n    if (!lookahead_stats.empty()) {\n      const auto\u0026 next_gop_frame_list \u003d \n          lookahead_stats[0].gop_struct[0].gop_frame_list;\n      const int next_gop_frame_count \u003d static_cast\u003cint\u003e\n          (next_gop_frame_list.size());\n      for (int i...) {\n      }\n    }\n\nThere are several advantages to this:\n1. It makes it clearer that you\u0027re not dereferencing lookahead_stats if it\u0027s empty.\n2. Moves the declaration of next_gop_frame_count closer to where it\u0027s used.\n3. Assigns a name to lookahead_stats[0].gop_struct[0].gop_frame_list so that you don\u0027t need to use that long expression twice.",
+      "range": {
+        "startLine": 1474,
+        "startChar": 0,
+        "endLine": 1479,
+        "endChar": 0
+      },
+      "revId": "1139fc2fe9fa04739def09a8df6fd08632d8c759",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "026aff0c_267cf74c",
+        "filename": "av1/qmode_rc/ratectrl_qmode.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 1487,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-12-21T11:11:54Z",
+      "side": 1,
+      "message": "(optional) If you used i as an index into the gop, this would be little more succinct:\n\n    for (int i \u003d 0; i \u003c next_gop_frame_count; ++i) {\n      if (CheckFrameUseReference(frame_count + i, ...gop_frame_list[i],...)",
+      "range": {
+        "startLine": 1487,
+        "startChar": 7,
+        "endLine": 1487,
+        "endChar": 71
+      },
+      "revId": "1139fc2fe9fa04739def09a8df6fd08632d8c759",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
