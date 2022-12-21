@@ -16,6 +16,24 @@
       "message": "Hi Venkata,\n\nThis block of code, as the comment says, still assumes height is a multiple of 4. So AddressSanitizer reports a heap-buffer-overflow error in the NEON/AV1HiprecConvolveTest.CheckOutput/8 test, where width is 16 and height is 34.",
       "revId": "d2c72a72fd98125198414c787b143d5e33326edc",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9dc2893b_32835c71",
+        "filename": "av1/common/arm/wiener_convolve_neon.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 194,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2022-12-21T11:51:05Z",
+      "side": 1,
+      "message": "Hi Wan-Teh,\n\nThank you for pointing out the issue. Through code study, we confirmed the reason for sanitizer failure. We also identified another issue related to redundant computation for some block sizes.\n\nWe will work on resolving the issues and plan for a patch submission.\n\nThanks \u0026 Regards,\nVenkata.",
+      "parentUuid": "a644cfbe_f77a3b69",
+      "revId": "d2c72a72fd98125198414c787b143d5e33326edc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
