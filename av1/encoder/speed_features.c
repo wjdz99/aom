@@ -1775,6 +1775,7 @@ static void set_rt_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->mv_sf.use_bsize_dependent_search_method = 0;
   }
   if (speed >= 10) {
+    sf->part_sf.use_nb_mvs_in_vbp = 1;
     sf->rt_sf.sse_early_term_inter_search = EARLY_TERM_IDX_4;
     sf->rt_sf.nonrd_prune_ref_frame_search = 3;
     sf->rt_sf.var_part_split_threshold_shift = 10;
@@ -1865,6 +1866,7 @@ static AOM_INLINE void init_part_sf(PARTITION_SPEED_FEATURES *part_sf) {
   part_sf->use_best_rd_for_pruning = 0;
   part_sf->skip_non_sq_part_based_on_none = 0;
   part_sf->disable_8x8_part_based_on_qidx = 0;
+  part_sf->use_nb_mvs_in_vbp = 0;
 }
 
 static AOM_INLINE void init_mv_sf(MV_SPEED_FEATURES *mv_sf) {
