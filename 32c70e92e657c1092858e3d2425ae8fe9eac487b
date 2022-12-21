@@ -16,6 +16,23 @@
       "message": "Hi Wan-Teh, Frank, \n\nThis CL adds a comment in the function should_prune_intra_modes_using_neighbors() and also modifies existing comments in av1_nonrd_pick_intra_mode() as per your suggestions in the CL https://aomedia-review.googlesource.com/c/aom/+/168283.\n\nPlease review.\n\nRegards,\nMudassir",
       "revId": "32c70e92e657c1092858e3d2425ae8fe9eac487b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "54f65c5b_01c1f531",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-12-21T19:16:13Z",
+      "side": 1,
+      "message": "LGTM. Thanks.",
+      "revId": "32c70e92e657c1092858e3d2425ae8fe9eac487b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
