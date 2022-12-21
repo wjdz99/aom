@@ -34,6 +34,24 @@
       "parentUuid": "a644cfbe_f77a3b69",
       "revId": "d2c72a72fd98125198414c787b143d5e33326edc",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0f0d3479_4d1e425b",
+        "filename": "av1/common/arm/wiener_convolve_neon.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 194,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-12-21T23:35:40Z",
+      "side": 1,
+      "message": "Thank you, Venkata.\n\nIf you have a Mac with the M1 or M2 CPU, you can configure libaom with \"cmake -DSANITIZE\u003daddress\" and reproduce the AddressSanitizer errors, without the need for cross-compilation or an emulator.",
+      "parentUuid": "9dc2893b_32835c71",
+      "revId": "d2c72a72fd98125198414c787b143d5e33326edc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
