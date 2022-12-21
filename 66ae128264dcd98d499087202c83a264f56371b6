@@ -52,6 +52,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "1b53765e_e4f1e055",
+        "filename": "av1/encoder/av1_quantize.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 676,
+      "author": {
+        "id": 31322
+      },
+      "writtenOn": "2022-12-21T12:53:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7507e755_a284d137",
+      "revId": "66ae128264dcd98d499087202c83a264f56371b6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "5d01720a_ecb1fc84",
@@ -65,6 +83,30 @@
       "writtenOn": "2022-12-20T23:15:33Z",
       "side": 1,
       "message": "This function is called once per frame / QP setting. I am not quite sure what the savings are, and why we shall anticipate speed gains here?",
+      "range": {
+        "startLine": 686,
+        "startChar": 5,
+        "endLine": 686,
+        "endChar": 23
+      },
+      "revId": "66ae128264dcd98d499087202c83a264f56371b6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "29ac878c_ba1eab78",
+        "filename": "av1/encoder/av1_quantize.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 686,
+      "author": {
+        "id": 31322
+      },
+      "writtenOn": "2022-12-21T12:53:43Z",
+      "side": 1,
+      "message": "Hi Jingning,\n\nIn the parent commit, even though the function av1_init_quantizer() is being redundantly called only once per frame (for all QP values), it comes out as a fixed overhead during multithread encode. This seems to be significant, especially during the MT encode of low-resolution contents. For a 360p content with speed \u003d 9 and threads \u003d 4, we observed that the function av1_init_quantizer() was initialized twice and was taking up ~2% of the total encode time in the parent commit. In this CL, we reduced the number of calls to 1 for AVIF encode which resulted in encode time reduction.",
+      "parentUuid": "5d01720a_ecb1fc84",
       "range": {
         "startLine": 686,
         "startChar": 5,
@@ -92,6 +134,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "9ca1c343_77c0c5f8",
+        "filename": "av1/encoder/av1_quantize.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 702,
+      "author": {
+        "id": 31322
+      },
+      "writtenOn": "2022-12-21T12:53:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8c6b0f12_b2159ade",
+      "revId": "66ae128264dcd98d499087202c83a264f56371b6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "4131c347_c402cd19",
@@ -105,6 +165,24 @@
       "writtenOn": "2022-12-20T20:55:09Z",
       "side": 1,
       "message": "It would be good to note whether the initial value must be `INT_MAX` or any invalid value (not in the 0..255 range) will do.\n\nIf any invalid value will do, then -1 may be a simpler initial value.",
+      "revId": "66ae128264dcd98d499087202c83a264f56371b6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d1823342_b5d99bbf",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1495,
+      "author": {
+        "id": 31322
+      },
+      "writtenOn": "2022-12-21T12:53:43Z",
+      "side": 1,
+      "message": "Yes, initializing the deltaq parameters with any invalid value would be sufficient. But since the dc/ac deltaq parameters indicate the delta quantizer parameters relative to the base_q_idx, these offsets can take both positive and negative values. As per write_delta_q(), these offsets are signed 7 bit values, and hence we have used INT_MAX to initialize these parameters.",
+      "parentUuid": "4131c347_c402cd19",
       "revId": "66ae128264dcd98d499087202c83a264f56371b6",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -132,6 +210,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f0b270c6_cfb82623",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1497,
+      "author": {
+        "id": 31322
+      },
+      "writtenOn": "2022-12-21T12:53:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f8704a3e_8d16805a",
+      "range": {
+        "startLine": 1497,
+        "startChar": 21,
+        "endLine": 1497,
+        "endChar": 40
+      },
+      "revId": "66ae128264dcd98d499087202c83a264f56371b6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "fc297dad_f018eb14",
@@ -145,6 +247,30 @@
       "writtenOn": "2022-12-20T20:55:09Z",
       "side": 1,
       "message": "Should we delete this comment now?",
+      "range": {
+        "startLine": 1506,
+        "startChar": 0,
+        "endLine": 1510,
+        "endChar": 5
+      },
+      "revId": "66ae128264dcd98d499087202c83a264f56371b6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "15b127d3_23523b9b",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1510,
+      "author": {
+        "id": 31322
+      },
+      "writtenOn": "2022-12-21T12:53:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fc297dad_f018eb14",
       "range": {
         "startLine": 1506,
         "startChar": 0,
