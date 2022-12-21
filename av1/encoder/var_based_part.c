@@ -1285,6 +1285,67 @@ static void setup_planes(AV1_COMP *cpi, MACROBLOCK *x, unsigned int *y_sad,
           xd->plane[AOM_PLANE_Y].pre[0].buf,
           xd->plane[AOM_PLANE_Y].pre[0].stride);
     }
+
+    // Evaluate if neighbours' MVs give better predictions. Zero MV is tested
+    // already, so only non-zero MVs are tested here.
+    if (cpi->sf.part_sf.use_nb_mvs_in_vbp &&
+        (xd->up_available || xd->left_available)) {
+      unsigned int above_y_sad = UINT_MAX;
+      unsigned int left_y_sad = UINT_MAX;
+      FULLPEL_MV above_mv = kZeroFullMv;
+      FULLPEL_MV left_mv = kZeroFullMv;
+      SubpelMvLimits subpel_mv_limits;
+      const MV dummy_mv = { 0, 0 };
+      av1_set_subpel_mv_search_range(&subpel_mv_limits, &x->mv_limits,
+                                     &dummy_mv);
+
+      if (xd->up_available) {
+        const MB_MODE_INFO *above_mbmi = xd->above_mbmi;
+        if (above_mbmi->mode >= INTRA_MODE_END &&
+            above_mbmi->ref_frame[0] == LAST_FRAME) {
+          MV temp = above_mbmi->mv[0].as_mv;
+          clamp_mv(&temp, &subpel_mv_limits);
+          above_mv = get_fullmv_from_mv(&temp);
+
+          if (above_mv.row || above_mv.col) {
+            uint8_t const *ref_buf =
+                get_buf_from_fullmv(&xd->plane[0].pre[0], &above_mv);
+            above_y_sad = cpi->ppi->fn_ptr[bsize].sdf(
+                x->plane[0].src.buf, x->plane[0].src.stride, ref_buf,
+                xd->plane[0].pre[0].stride);
+          }
+        }
+      }
+      if (xd->left_available) {
+        const MB_MODE_INFO *left_mbmi = xd->left_mbmi;
+        if (left_mbmi->mode >= INTRA_MODE_END &&
+            left_mbmi->ref_frame[0] == LAST_FRAME) {
+          MV temp = left_mbmi->mv[0].as_mv;
+          clamp_mv(&temp, &subpel_mv_limits);
+          left_mv = get_fullmv_from_mv(&temp);
+
+          if ((left_mv.row || left_mv.col) &&
+              (left_mv.row != above_mv.row || left_mv.col != above_mv.col)) {
+            uint8_t const *ref_buf =
+                get_buf_from_fullmv(&xd->plane[0].pre[0], &left_mv);
+            left_y_sad = cpi->ppi->fn_ptr[bsize].sdf(
+                x->plane[0].src.buf, x->plane[0].src.stride, ref_buf,
+                xd->plane[0].pre[0].stride);
+          }
+        }
+      }
+
+      if (above_y_sad < *y_sad && above_y_sad < left_y_sad) {
+        *y_sad = above_y_sad;
+        mi->mv[0].as_mv = get_mv_from_fullmv(&above_mv);
+        clamp_mv(&mi->mv[0].as_mv, &subpel_mv_limits);
+      }
+      if (left_y_sad < *y_sad && left_y_sad < above_y_sad) {
+        *y_sad = left_y_sad;
+        mi->mv[0].as_mv = get_mv_from_fullmv(&left_mv);
+        clamp_mv(&mi->mv[0].as_mv, &subpel_mv_limits);
+      }
+    }
     *y_sad_last = *y_sad;
   }
 
