@@ -1431,8 +1431,10 @@ static void set_rt_speed_feature_framesize_dependent(const AV1_COMP *const cpi,
     }
 
     if (cpi->svc.number_spatial_layers > 1 ||
-        cpi->svc.number_temporal_layers > 1)
+        cpi->svc.number_temporal_layers > 1) {
       sf->hl_sf.accurate_bit_estimate = 0;
+      sf->part_sf.use_nb_mvs_in_vbp = 0;
+    }
   }
   // Screen settings.
   if (cpi->oxcf.tune_cfg.content == AOM_CONTENT_SCREEN) {
@@ -1491,6 +1493,7 @@ static void set_rt_speed_feature_framesize_dependent(const AV1_COMP *const cpi,
     }
     sf->rt_sf.partition_direct_merging = 0;
     sf->hl_sf.accurate_bit_estimate = 0;
+    sf->part_sf.use_nb_mvs_in_vbp = 0;
   }
 }
 
@@ -1685,6 +1688,7 @@ static void set_rt_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->tx_sf.intra_tx_size_search_init_depth_sqr = 2;
     sf->part_sf.partition_search_type = VAR_BASED_PARTITION;
     sf->part_sf.max_intra_bsize = BLOCK_32X32;
+    sf->part_sf.use_nb_mvs_in_vbp = 1;
 
     sf->mv_sf.search_method = FAST_DIAMOND;
     sf->mv_sf.subpel_force_stop = QUARTER_PEL;
@@ -1760,6 +1764,7 @@ static void set_rt_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->rt_sf.prune_hv_pred_modes_using_src_sad = true;
   }
   if (speed >= 9) {
+    sf->part_sf.use_nb_mvs_in_vbp = 0;
     sf->rt_sf.sse_early_term_inter_search = EARLY_TERM_IDX_3;
     sf->rt_sf.estimate_motion_for_var_based_partition = 0;
     sf->rt_sf.prefer_large_partition_blocks = 3;
@@ -1865,6 +1870,7 @@ static AOM_INLINE void init_part_sf(PARTITION_SPEED_FEATURES *part_sf) {
   part_sf->use_best_rd_for_pruning = 0;
   part_sf->skip_non_sq_part_based_on_none = 0;
   part_sf->disable_8x8_part_based_on_qidx = 0;
+  part_sf->use_nb_mvs_in_vbp = 0;
 }
 
 static AOM_INLINE void init_mv_sf(MV_SPEED_FEATURES *mv_sf) {
