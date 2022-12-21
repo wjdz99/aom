@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b1893dca_16f65a71",
+        "filename": "aom_dsp/flow_estimation/corner_match.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 227,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-12-21T22:04:57Z",
+      "side": 1,
+      "message": "ThreadSanitizer may warn about this read of `src_pyramid-\u003evalid` without holding `src_pyramid-\u003emutex`.",
+      "revId": "cfb46c78e7badb3ecc25479368f6ea985fdfa512",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8cf50046_0531b7db",
+        "filename": "aom_dsp/pyramid.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-12-21T22:04:57Z",
+      "side": 1,
+      "message": "This header includes \u003cwindows.h\u003e on Windows. This is why we get compilation errors under MSVC.\n\nA solution is to rename the `s_lh` variables in convolve_avx2.h and convolve_avx2.c.",
+      "revId": "cfb46c78e7badb3ecc25479368f6ea985fdfa512",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a44b7754_288ba2bb",
+        "filename": "aom_dsp/pyramid.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-12-21T22:04:57Z",
+      "side": 1,
+      "message": "A few assertions read the `valid` flag without holding this mutex. Please see my comment in aom_dsp/flow_estimation/corner_match.c at line 227.",
+      "revId": "cfb46c78e7badb3ecc25479368f6ea985fdfa512",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
