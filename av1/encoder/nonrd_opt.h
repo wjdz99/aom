@@ -59,9 +59,6 @@ static INLINE int get_model_rd_flag(const AV1_COMP *cpi, const MACROBLOCKD *xd,
  * \param[in]    ref_frame                Reference frame for which to find
  *                                        ref MVs
  * \param[in]    frame_mv                 Predicted MVs for a block
- * \param[in]    tile_data                Pointer to struct holding adaptive
- *                                        data/contexts/models for the tile
- *                                        during encoding
  * \param[in]    yv12_mb                  Buffer to hold predicted block
  * \param[in]    bsize                    Current block size
  * \param[in]    force_skip_low_temp_var  Flag indicating possible mode search
@@ -73,7 +70,7 @@ static INLINE int get_model_rd_flag(const AV1_COMP *cpi, const MACROBLOCKD *xd,
  */
 static INLINE void find_predictors(
     AV1_COMP *cpi, MACROBLOCK *x, MV_REFERENCE_FRAME ref_frame,
-    int_mv frame_mv[MB_MODE_COUNT][REF_FRAMES], TileDataEnc *tile_data,
+    int_mv frame_mv[MB_MODE_COUNT][REF_FRAMES],
     struct buf_2d yv12_mb[8][MAX_MB_PLANE], BLOCK_SIZE bsize,
     int force_skip_low_temp_var, int skip_pred_mv) {
   AV1_COMMON *const cm = &cpi->common;
@@ -82,7 +79,6 @@ static INLINE void find_predictors(
   MB_MODE_INFO_EXT *const mbmi_ext = &x->mbmi_ext;
   const YV12_BUFFER_CONFIG *yv12 = get_ref_frame_yv12_buf(cm, ref_frame);
   const int num_planes = av1_num_planes(cm);
-  (void)tile_data;
 
   x->pred_mv_sad[ref_frame] = INT_MAX;
   x->pred_mv0_sad[ref_frame] = INT_MAX;
