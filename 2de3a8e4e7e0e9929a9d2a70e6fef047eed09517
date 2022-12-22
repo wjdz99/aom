@@ -33,6 +33,148 @@
       "message": "@jingning - While fixing this patch, I realized that I basically had to fix b/261325007 along the way. That bug is fixed by the change to av1_superres_post_encode() in the latest version of this patch.\n\nIn order to avoid entangling this patch too deeply with b/261325007 , this patch leaves global motion disabled when superres is used. Then I have pushed a follow-up patch to re-enable global motion afterwards:\nhttps://aomedia-review.googlesource.com/c/aom/+/168861\n\nBut I wanted to tag you here too as this patch contains the underlying fix.",
       "revId": "2de3a8e4e7e0e9929a9d2a70e6fef047eed09517",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "38feab2f_6064f661",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-12-22T22:38:37Z",
+      "side": 1,
+      "message": "Rachel: I only reviewed the diffs between patchset 1 and patchset 7. It would be good to have one of original reviewers take a look. I merely reported the bug :-)",
+      "revId": "2de3a8e4e7e0e9929a9d2a70e6fef047eed09517",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "069a30bb_6333371b",
+        "filename": "aom_dsp/flow_estimation/corner_match.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 217,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-12-22T22:38:37Z",
+      "side": 1,
+      "message": "It\u0027s unfortunate that we had to remove the const from src_pyramid and ref_pyramid so that we can lock and unlock their mutex fields. If this were C++ code we would mark the mutex field as \"mutable\". In C we will have to cast away the const when calling pthread_mutex_lock() and pthread_mutex_unlock. That may be acceptable.",
+      "revId": "2de3a8e4e7e0e9929a9d2a70e6fef047eed09517",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "70beac26_a13c861e",
+        "filename": "aom_dsp/pyramid.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 374,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-12-22T22:38:37Z",
+      "side": 1,
+      "message": "If we simulate C++\u0027s mutable keyword, we will declare the `pyr` parameter as `const ImagePyramid *` and cast away the const here and in line 380.",
+      "revId": "2de3a8e4e7e0e9929a9d2a70e6fef047eed09517",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0a430d00_3fb162d3",
+        "filename": "aom_scale/generic/yv12config.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-12-22T22:38:37Z",
+      "side": 1,
+      "message": "Delete stdio.h? I guess it was added for printf statements during debugging.",
+      "revId": "2de3a8e4e7e0e9929a9d2a70e6fef047eed09517",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a6ff0e8f_7be3cd17",
+        "filename": "av1/common/resize.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 1503,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-12-22T22:38:37Z",
+      "side": 1,
+      "message": "IMPORTANT: Did you intend to pass `num_pyramid_levels\u003d0` here?",
+      "revId": "2de3a8e4e7e0e9929a9d2a70e6fef047eed09517",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b9b87628_891501c9",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 2247,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-12-22T22:38:37Z",
+      "side": 1,
+      "message": "I suggest changing `CONFIG_DEBUG` to `!defined(NDEBUG)`.\n\nMake the same change to the comment in line 2257.",
+      "revId": "2de3a8e4e7e0e9929a9d2a70e6fef047eed09517",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b9d34278_62216858",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 2478,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-12-22T22:38:37Z",
+      "side": 1,
+      "message": "In general it\u0027s not clear when we can pass `num_pyramid_levels\u003d0` and when we must pass `cpi-\u003eimage_pyramid_levels`.",
+      "revId": "2de3a8e4e7e0e9929a9d2a70e6fef047eed09517",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1337adcb_4e01e785",
+        "filename": "av1/encoder/lookahead.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-12-22T22:38:37Z",
+      "side": 1,
+      "message": "Add `num_pyramid_levels` after `flags` to match the order of parameters in the function\u0027s prototype.\n\nNOTE: `flags` is often the last parameter. We may want to preserve that convention.",
+      "range": {
+        "startLine": 93,
+        "startChar": 0,
+        "endLine": 94,
+        "endChar": 47
+      },
+      "revId": "2de3a8e4e7e0e9929a9d2a70e6fef047eed09517",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
