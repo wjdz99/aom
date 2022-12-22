@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "23eeb78f_123bfe9a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 31022
+      },
+      "writtenOn": "2022-12-22T15:58:22Z",
+      "side": 1,
+      "message": "Yunqing, Marco\n\nIn this patch, we have used COLOR_SENS_IDX() macro for color_sensitivity index in nonrd_pickmode.c\n\nPlease review the patch.\n\nThanks \u0026 Regards,\nAnupam",
+      "revId": "00a0ecf905f8446db68c190e7d29de6187d662f3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
