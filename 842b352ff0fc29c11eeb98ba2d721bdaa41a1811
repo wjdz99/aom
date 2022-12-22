@@ -39,6 +39,30 @@
       },
       "revId": "842b352ff0fc29c11eeb98ba2d721bdaa41a1811",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7fa60322_40f65bff",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 832,
+      "author": {
+        "id": 31022
+      },
+      "writtenOn": "2022-12-22T10:28:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b772e07f_89f5f3f2",
+      "range": {
+        "startLine": 832,
+        "startChar": 20,
+        "endLine": 832,
+        "endChar": 27
+      },
+      "revId": "842b352ff0fc29c11eeb98ba2d721bdaa41a1811",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
