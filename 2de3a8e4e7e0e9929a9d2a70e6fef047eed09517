@@ -16,6 +16,23 @@
       "message": "@all - This is ready to review now.\n\nHowever, Wan-Teh has pointed out that we need to be ready to revert again if anything else breaks. Therefore, I will wait on merging this until I am back from my holiday on the 9th of January.",
       "revId": "2de3a8e4e7e0e9929a9d2a70e6fef047eed09517",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3ce9b2b2_7403a642",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 29052
+      },
+      "writtenOn": "2022-12-22T21:12:43Z",
+      "side": 1,
+      "message": "@jingning - While fixing this patch, I realized that I basically had to fix b/261325007 along the way. That bug is fixed by the change to av1_superres_post_encode() in the latest version of this patch.\n\nIn order to avoid entangling this patch too deeply with b/261325007 , this patch leaves global motion disabled when superres is used. Then I have pushed a follow-up patch to re-enable global motion afterwards:\nhttps://aomedia-review.googlesource.com/c/aom/+/168861\n\nBut I wanted to tag you here too as this patch contains the underlying fix.",
+      "revId": "2de3a8e4e7e0e9929a9d2a70e6fef047eed09517",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
