@@ -91,6 +91,10 @@ double TplFrameDepStatsAccumulateInterCost(
 
 double TplFrameDepStatsAccumulate(const TplFrameDepStats &frame_dep_stats);
 
+void TplFrameDepStatsCumulate(int coding_idx,
+                              const RefFrameTable &ref_frame_table,
+                              TplGopDepStats *tpl_gop_dep_stats);
+
 void TplFrameDepStatsPropagate(int coding_idx,
                                const RefFrameTable &ref_frame_table,
                                TplGopDepStats *tpl_gop_dep_stats);
