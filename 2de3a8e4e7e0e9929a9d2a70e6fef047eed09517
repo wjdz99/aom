@@ -71,6 +71,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "3d6cfb6b_1d6855f4",
+        "filename": "aom_dsp/flow_estimation/corner_match.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 217,
+      "author": {
+        "id": 29052
+      },
+      "writtenOn": "2022-12-23T20:11:17Z",
+      "side": 1,
+      "message": "Yeah - I wasn\u0027t sure if casting from (const ImagePyramid *) to (ImagePyramid *) would be allowed. If you and the other reviewers would prefer that I keep the \"const\"s and just cast it away when needed, then I can make that change.",
+      "parentUuid": "069a30bb_6333371b",
+      "revId": "2de3a8e4e7e0e9929a9d2a70e6fef047eed09517",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "70beac26_a13c861e",
         "filename": "aom_dsp/pyramid.c",
         "patchSetId": 7
@@ -82,6 +100,24 @@
       "writtenOn": "2022-12-22T22:38:37Z",
       "side": 1,
       "message": "If we simulate C++\u0027s mutable keyword, we will declare the `pyr` parameter as `const ImagePyramid *` and cast away the const here and in line 380.",
+      "revId": "2de3a8e4e7e0e9929a9d2a70e6fef047eed09517",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ca6b3060_d0da7985",
+        "filename": "aom_dsp/pyramid.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 374,
+      "author": {
+        "id": 29052
+      },
+      "writtenOn": "2022-12-23T20:11:17Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "70beac26_a13c861e",
       "revId": "2de3a8e4e7e0e9929a9d2a70e6fef047eed09517",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -99,6 +135,24 @@
       "writtenOn": "2022-12-22T22:38:37Z",
       "side": 1,
       "message": "Delete stdio.h? I guess it was added for printf statements during debugging.",
+      "revId": "2de3a8e4e7e0e9929a9d2a70e6fef047eed09517",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f0295d66_3e04ba04",
+        "filename": "aom_scale/generic/yv12config.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 29052
+      },
+      "writtenOn": "2022-12-23T20:11:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0a430d00_3fb162d3",
       "revId": "2de3a8e4e7e0e9929a9d2a70e6fef047eed09517",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -122,6 +176,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "727d46f1_4f5805ee",
+        "filename": "av1/common/resize.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 1503,
+      "author": {
+        "id": 29052
+      },
+      "writtenOn": "2022-12-23T20:11:17Z",
+      "side": 1,
+      "message": "Yes, this should be 0 here.\n\nI have added a comment to aom_realloc_frame_buffer(), explaining when num_pyramid_levels should be set to cpi-\u003eimage_pyramid_levels and when it should be 0. Please let me know if that clarifies things sufficiently.",
+      "parentUuid": "a6ff0e8f_7be3cd17",
+      "revId": "2de3a8e4e7e0e9929a9d2a70e6fef047eed09517",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "b9b87628_891501c9",
         "filename": "av1/encoder/encodeframe.c",
         "patchSetId": 7
@@ -133,6 +205,24 @@
       "writtenOn": "2022-12-22T22:38:37Z",
       "side": 1,
       "message": "I suggest changing `CONFIG_DEBUG` to `!defined(NDEBUG)`.\n\nMake the same change to the comment in line 2257.",
+      "revId": "2de3a8e4e7e0e9929a9d2a70e6fef047eed09517",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "53f104b1_36d06221",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 2247,
+      "author": {
+        "id": 29052
+      },
+      "writtenOn": "2022-12-23T20:11:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b9b87628_891501c9",
       "revId": "2de3a8e4e7e0e9929a9d2a70e6fef047eed09517",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -154,6 +244,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "26835c6a_862c8d44",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 2478,
+      "author": {
+        "id": 29052
+      },
+      "writtenOn": "2022-12-23T20:11:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b9d34278_62216858",
+      "revId": "2de3a8e4e7e0e9929a9d2a70e6fef047eed09517",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "1337adcb_4e01e785",
@@ -167,6 +275,30 @@
       "writtenOn": "2022-12-22T22:38:37Z",
       "side": 1,
       "message": "Add `num_pyramid_levels` after `flags` to match the order of parameters in the function\u0027s prototype.\n\nNOTE: `flags` is often the last parameter. We may want to preserve that convention.",
+      "range": {
+        "startLine": 93,
+        "startChar": 0,
+        "endLine": 94,
+        "endChar": 47
+      },
+      "revId": "2de3a8e4e7e0e9929a9d2a70e6fef047eed09517",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0ba1cd3e_ea1fafea",
+        "filename": "av1/encoder/lookahead.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 29052
+      },
+      "writtenOn": "2022-12-23T20:11:17Z",
+      "side": 1,
+      "message": "Good point. I have moved the num_pyramid_levels argument before flags, which fixes both of your comments.",
+      "parentUuid": "1337adcb_4e01e785",
       "range": {
         "startLine": 93,
         "startChar": 0,
