@@ -16,6 +16,24 @@
       "message": "Hi Yunqing, Marco\n\nIn this patch, we have fixed a couple of issues related to aom_get_var_sse_sum_16x16_dual implementation. Please check the details,\n - Limited the array size of sum16x16 in the C implementation\n - Fixed the array size used in unit test of the same function\n \nThe changes are bit-exact. Please review the patch.\n\nThanks \u0026 Regards,\nAnupam",
       "revId": "e01faa58d6babfbbf1382dd980a5e58041122a0e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "62e117d4_37064ff3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2022-12-27T21:30:02Z",
+      "side": 1,
+      "message": "Thanks for the fix.",
+      "parentUuid": "110771fd_cf7de0d7",
+      "revId": "e01faa58d6babfbbf1382dd980a5e58041122a0e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
