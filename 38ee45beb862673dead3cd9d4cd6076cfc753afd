@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ce47bbcd_a1aeff88",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 31022
+      },
+      "writtenOn": "2022-12-27T11:19:10Z",
+      "side": 1,
+      "message": "Hi Yunqing, Marco\n\nIn this patch, we have moved data structures, look-up tables, and utility functions from nonrd_pickmode.c to nonrd_opt.h file.\n\nThe changes are bit-exact. Please review the patch.\n\nThanks \u0026 Regards,\nAnupam",
+      "revId": "38ee45beb862673dead3cd9d4cd6076cfc753afd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
