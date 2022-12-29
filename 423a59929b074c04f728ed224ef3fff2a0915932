@@ -105,6 +105,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "92fd33b4_46867a46",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 2532,
+      "author": {
+        "id": 31322
+      },
+      "writtenOn": "2022-12-29T16:14:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9c28709e_9dc11698",
+      "revId": "423a59929b074c04f728ed224ef3fff2a0915932",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c7530659_1a1fe5b1",
@@ -118,6 +136,24 @@
       "writtenOn": "2022-12-29T00:14:21Z",
       "side": 1,
       "message": "[You don\u0027t need to address this issue in this CL.] I think we should not leave a partially-initialized `BufferPool` in `*p_buffer_pool` when this function returns an error. Otherwise, the `pthread_mutex_destroy()` call in `av1_destroy_context_and_bufferpool()` may fail. (We ignore the return value of `pthread_mutex_destroy()` right now.)\n\nThis comment also applies to the `init_decoder()` function in av1/av1_dx_iface.c.",
+      "revId": "423a59929b074c04f728ed224ef3fff2a0915932",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "80e70426_ad0e55d7",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 2536,
+      "author": {
+        "id": 31322
+      },
+      "writtenOn": "2022-12-29T16:14:43Z",
+      "side": 1,
+      "message": "Ack. We shall study and address this issue in a separate CL.",
+      "parentUuid": "c7530659_1a1fe5b1",
       "revId": "423a59929b074c04f728ed224ef3fff2a0915932",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -139,6 +175,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "c3cb0b2f_4b1dadd7",
+        "filename": "av1/common/alloccommon.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 31322
+      },
+      "writtenOn": "2022-12-29T16:14:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "836320b7_fe17848d",
+      "revId": "423a59929b074c04f728ed224ef3fff2a0915932",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "7cd92cd0_cbc2dca0",
@@ -156,6 +210,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "fe530edc_cc90caac",
+        "filename": "av1/common/av1_common_int.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 185,
+      "author": {
+        "id": 31322
+      },
+      "writtenOn": "2022-12-29T16:14:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7cd92cd0_cbc2dca0",
+      "revId": "423a59929b074c04f728ed224ef3fff2a0915932",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "5b3d1d52_5f852f7e",
@@ -169,6 +241,24 @@
       "writtenOn": "2022-12-29T00:14:21Z",
       "side": 1,
       "message": "[Unrelated observation; can ignore.] It seems that we only the second for loop. The second for loop covers the work done by the first for loop.",
+      "revId": "423a59929b074c04f728ed224ef3fff2a0915932",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e5c06553_68650a28",
+        "filename": "av1/common/entropymode.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1068,
+      "author": {
+        "id": 31322
+      },
+      "writtenOn": "2022-12-29T16:14:43Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "5b3d1d52_5f852f7e",
       "revId": "423a59929b074c04f728ed224ef3fff2a0915932",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -192,6 +282,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "4cc8dab3_61946fcb",
+        "filename": "av1/common/enums.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 560,
+      "author": {
+        "id": 31322
+      },
+      "writtenOn": "2022-12-29T16:14:43Z",
+      "side": 1,
+      "message": "As per our understanding, the decoder needs the worst case frames (FRAME_BUFFERS). We have modified the comment accordingly.",
+      "parentUuid": "6b245335_b3c6d65d",
+      "revId": "423a59929b074c04f728ed224ef3fff2a0915932",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "dcf86915_f4588d45",
         "filename": "av1/common/enums.h",
         "patchSetId": 4
@@ -209,6 +317,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "a9a5b56f_b6c6bce5",
+        "filename": "av1/common/enums.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 564,
+      "author": {
+        "id": 31322
+      },
+      "writtenOn": "2022-12-29T16:14:43Z",
+      "side": 1,
+      "message": "We cannot use a single frame buffer in allintra encoding. Please refer to our response to the comment below.",
+      "parentUuid": "dcf86915_f4588d45",
+      "revId": "423a59929b074c04f728ed224ef3fff2a0915932",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "10376910_e5288016",
         "filename": "av1/common/enums.h",
         "patchSetId": 4
@@ -220,6 +346,24 @@
       "writtenOn": "2022-12-29T00:14:21Z",
       "side": 1,
       "message": "Compared with the comment at line 558, Is it correct that 2 in the allintra case comes from 1 for the `cm-\u003eref_frame_map` array and 1 scratch frame for the new frame in `cm-\u003ecur_frame`?",
+      "revId": "423a59929b074c04f728ed224ef3fff2a0915932",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1683e5fc_d73dd441",
+        "filename": "av1/common/enums.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 566,
+      "author": {
+        "id": 31322
+      },
+      "writtenOn": "2022-12-29T16:14:43Z",
+      "side": 1,
+      "message": "Yes. cm-\u003ebuffer_pool-\u003eframe_bufs[] is released only after encoding 2 frames for allintra encoding. Hence we need at least 2 buffers for the same.",
+      "parentUuid": "10376910_e5288016",
       "revId": "423a59929b074c04f728ed224ef3fff2a0915932",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
