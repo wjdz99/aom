@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8f534101_74b159db",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 31592
+      },
+      "writtenOn": "2022-12-29T18:18:23Z",
+      "side": 1,
+      "message": "Hi Marco / Yunqing,\nIn this CL, we have done function level abstraction in var_based_part.c for certain parameters. Please check the list of functions with newly created sub-functions as below.\n\nset_vbp_thresholds()\n- set_vbp_thresholds_key_frame()\n- tune_thresh_based_on_qindex()\n- tune_thresh_based_on_resolution()\n- tune_thresh_noisy_content()\n\t\nsetup_planes()\n- set_ref_frame_for_partition()\n\nav1_choose_var_based_partitioning()\n- set_force_zeromv_skip_for_sb()\n\t\nPlease review the CL and let us know your suggestions.\n\nThanks \u0026 regards \nNarayan",
+      "revId": "fd80abfe01588a5bb8c190e04d10e59cd56e4f33",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
