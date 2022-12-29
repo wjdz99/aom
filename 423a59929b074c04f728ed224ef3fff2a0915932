@@ -3,6 +3,23 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "1f9a39e9_e5928f0e",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-12-29T00:14:21Z",
+      "side": 1,
+      "message": "While reviewing this CL, I fixed the use of `FRAME_BUFFERS` in av1/encoder/bitstream.c:\nhttps://aomedia-review.googlesource.com/c/aom/+/168981",
+      "revId": "423a59929b074c04f728ed224ef3fff2a0915932",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "3b11c38b_8a9938e2",
         "filename": "/PATCHSET_LEVEL",
         "patchSetId": 4
@@ -50,6 +67,159 @@
       "side": 1,
       "message": "Yes, FRAME_CONTEXT accounts for 93% of the memory in RefCntBuffer. For a 512p content in the parent commit,16(FRAME_BUFFER) instances of frame_bufs were allocated, which constitutes 3.01% of the encoder\u0027s heap memory. The number of instances in this CL has been reduced to 2, hence we are getting a reduction of ~2.33%.",
       "parentUuid": "293a0c7e_d8ccf256",
+      "revId": "423a59929b074c04f728ed224ef3fff2a0915932",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8a829b42_6a26eacb",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-12-29T00:14:21Z",
+      "side": 1,
+      "message": "Hi Apurve,\n\nThe CL generally looks good. I suggested a few changes. Note that some of my comments are about issues unrelated to your CL, so you don\u0027t need to address those issues in this CL.",
+      "revId": "423a59929b074c04f728ed224ef3fff2a0915932",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9c28709e_9dc11698",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 2532,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-12-29T00:14:21Z",
+      "side": 1,
+      "message": "Nit: Also reset `buffer_pool-\u003enum_ref_frame_bufs` to 0 before returning `AOM_CODEC_MEM_ERROR`.\n\nMake the same change to the `init_decoder()` function in av1/av1_dx_iface.c.",
+      "revId": "423a59929b074c04f728ed224ef3fff2a0915932",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c7530659_1a1fe5b1",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 2536,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-12-29T00:14:21Z",
+      "side": 1,
+      "message": "[You don\u0027t need to address this issue in this CL.] I think we should not leave a partially-initialized `BufferPool` in `*p_buffer_pool` when this function returns an error. Otherwise, the `pthread_mutex_destroy()` call in `av1_destroy_context_and_bufferpool()` may fail. (We ignore the return value of `pthread_mutex_destroy()` right now.)\n\nThis comment also applies to the `init_decoder()` function in av1/av1_dx_iface.c.",
+      "revId": "423a59929b074c04f728ed224ef3fff2a0915932",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "836320b7_fe17848d",
+        "filename": "av1/common/alloccommon.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-12-29T00:14:21Z",
+      "side": 1,
+      "message": "Set `pool-\u003eframe_bufs` to NULL and set `pool-\u003enum_ref_frame_bufs` to 0.",
+      "revId": "423a59929b074c04f728ed224ef3fff2a0915932",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7cd92cd0_cbc2dca0",
+        "filename": "av1/common/av1_common_int.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 185,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-12-29T00:14:21Z",
+      "side": 1,
+      "message": "Nit: We should follow a naming convention for the buffer size. Since the buffer is named `frame_bufs`, the corresponding buffer size should contain `frame_bufs`, not `ref_frame_bufs`, in its name.\n\nMake the same change to the name of the local variable at line 1093.",
+      "revId": "423a59929b074c04f728ed224ef3fff2a0915932",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5b3d1d52_5f852f7e",
+        "filename": "av1/common/entropymode.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1068,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-12-29T00:14:21Z",
+      "side": 1,
+      "message": "[Unrelated observation; can ignore.] It seems that we only the second for loop. The second for loop covers the work done by the first for loop.",
+      "revId": "423a59929b074c04f728ed224ef3fff2a0915932",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6b245335_b3c6d65d",
+        "filename": "av1/common/enums.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 560,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-12-29T00:14:21Z",
+      "side": 1,
+      "message": "This comment should now mention that `FRAME_BUFFERS` is also used on the decoder side. Alternatively, figure out how many frames the decoder needs and define a new macro for decoder. I think this is a better solution.\n\nThis comment should also mention that the encoder uses `FRAME_BUFFERS` only in GOOD and REALTIME modes",
+      "revId": "423a59929b074c04f728ed224ef3fff2a0915932",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "dcf86915_f4588d45",
+        "filename": "av1/common/enums.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 564,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-12-29T00:14:21Z",
+      "side": 1,
+      "message": "Can we avoid storing a frame buffer as the reference frame during allintra encoding?",
+      "revId": "423a59929b074c04f728ed224ef3fff2a0915932",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "10376910_e5288016",
+        "filename": "av1/common/enums.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 566,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-12-29T00:14:21Z",
+      "side": 1,
+      "message": "Compared with the comment at line 558, Is it correct that 2 in the allintra case comes from 1 for the `cm-\u003eref_frame_map` array and 1 scratch frame for the new frame in `cm-\u003ecur_frame`?",
       "revId": "423a59929b074c04f728ed224ef3fff2a0915932",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
