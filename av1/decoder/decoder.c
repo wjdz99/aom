@@ -441,6 +441,11 @@ int av1_receive_compressed_data(AV1Decoder *pbi, size_t size,
     if (ref_buf != NULL) ref_buf->buf.corrupted = 1;
   }
 
+  // assign_cur_frame_new_fb() decrements cm->cur_frame->ref_count directly
+  // rather than call decrease_ref_count(). If cm->cur_frame is not NULL and
+  // cm->cur_frame->raw_frame_buffer has already been allocated, it will not
+  // be released by assign_cur_frame_new_fb().
+  assert(cm->cur_frame == NULL);
   if (assign_cur_frame_new_fb(cm) == NULL) {
     pbi->error.error_code = AOM_CODEC_MEM_ERROR;
     return 1;
