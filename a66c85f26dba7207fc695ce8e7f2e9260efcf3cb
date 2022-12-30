@@ -16,6 +16,23 @@
       "message": "I made two simple changes in patchset 6.\n\nBohan, please review the diffs between patchsets 5 and 6. Thanks.",
       "revId": "a66c85f26dba7207fc695ce8e7f2e9260efcf3cb",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2c32e582_1fc1372e",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 2527,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-12-30T02:35:27Z",
+      "side": 1,
+      "message": "IMPORTANT: I just realized that `oxcf-\u003ekf_cfg.key_freq_max` may be changed during encoding by changing the `cfg-\u003ekf_max_dist` encoder config setting. So whenever the encoder config is set, we should check if `buffer_pool-\u003eframe_bufs` needs to be reallocated.\n\nIn addition to that, I can think of two other possible solutions.\n\n1. We can check `oxcf-\u003emode \u003d\u003d ALLINTRA` instead of `oxcf-\u003ekf_cfg.key_freq_max \u003d\u003d 0` here, and do not allow `cfg-\u003ekf_max_dist` to change in allintra mode. This solution assumes oxcf-\u003emode cannot be changed during encoding.\n\n2. Instead of a fixed-sized array, we can switch to a dynamically-growing array or linked list. For example, we can grow the array or linked list in `get_free_fb()`.",
+      "revId": "a66c85f26dba7207fc695ce8e7f2e9260efcf3cb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
