@@ -51,6 +51,24 @@
       "parentUuid": "2c32e582_1fc1372e",
       "revId": "a66c85f26dba7207fc695ce8e7f2e9260efcf3cb",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "30c81d4a_850e494e",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 2527,
+      "author": {
+        "id": 31322
+      },
+      "writtenOn": "2023-01-02T16:13:57Z",
+      "side": 1,
+      "message": "According to our understanding, ‘cfg-\u003ekf_max_dist’ is an encoder init-time parameter which is set to 0 for ALLINTRA usage (please see encoder_usage_cfg []).This cannot be changed during encoding, and even if the user configures it with a non-zero value for ALLINTRA usage, the encoder ignores it as per the below code snippet in parse_stream_params():\nif (global-\u003eusage \u003d\u003d AOM_USAGE_ALL_INTRA) {\nif (config-\u003ecfg.kf_max_dist !\u003d 0) {\naom_tools_warn(\n\"non-zero max key frame distance option ignored in all intra \"\n\"mode.\\n\");\nconfig-\u003ecfg.kf_max_dist \u003d 0;\n}\n}\nHence, we feel that checking \u0027oxcf-\u003ekf_cfg.key_freq_max\u0027 (as kf_cfg.key_freq_max \u003d cfg-\u003ekf_max_dist) to initialize \u0027num_frame_bufs\u0027 would be correct. Checking \u0027oxcf-\u003emode \u003d\u003d ALLINTRA\u0027 is also a possible alternative, but that would restrict this optimization to ALLINTRA mode alone (GOOD or RT modes with kf_max_dist \u003d 0 might not benefit). Checking \u0027oxcf-\u003einput_cfg.limit \u003d\u003d 1\u0027 would also limit this optimization to still-picture encoding. Hence, we feel that the current implementation is recommended. Please let us know your opinion.",
+      "parentUuid": "b51d6204_d1ed88e1",
+      "revId": "a66c85f26dba7207fc695ce8e7f2e9260efcf3cb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }

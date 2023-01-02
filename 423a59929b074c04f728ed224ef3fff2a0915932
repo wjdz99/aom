@@ -318,6 +318,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "6e8292fd_bb720d15",
+        "filename": "av1/common/enums.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 560,
+      "author": {
+        "id": 31322
+      },
+      "writtenOn": "2023-01-02T16:13:57Z",
+      "side": 1,
+      "message": "Ack, We shall take this up in a separate CL.",
+      "parentUuid": "007603c6_d7fbeb7a",
+      "revId": "423a59929b074c04f728ed224ef3fff2a0915932",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "dcf86915_f4588d45",
         "filename": "av1/common/enums.h",
         "patchSetId": 4
@@ -418,6 +436,24 @@
       "side": 1,
       "message": "In allintra encoding mode, we should be able to release all the reference frames before encoding a new frame, right?\n\nIf we do that, then I think we should be able to define `FRAME_BUFFERS_ALLINTRA` as 1.\n\nNote: An alternative is to never store the current frame in `cm-\u003eref_frame_map` if all frames are key frames. I tried this in https://aomedia-review.googlesource.com/c/aom/+/169021.",
       "parentUuid": "1683e5fc_d73dd441",
+      "revId": "423a59929b074c04f728ed224ef3fff2a0915932",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "90f4175a_b23706ca",
+        "filename": "av1/common/enums.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 566,
+      "author": {
+        "id": 31322
+      },
+      "writtenOn": "2023-01-02T16:13:57Z",
+      "side": 1,
+      "message": "Yes, not storing the current frame in cm-\u003eref_frame_map if oxcf-\u003ekf_cfg.key_freq_max \u003d\u003d 0 (as per your CL) would ensure that only one frame buffer is required during ALLINTRA video encode. We ran some preliminary tests and validated it. Please let us know if we should define FRAME_BUFFERS_ALLINTRA as 1 and submit the current CL once your CL is merged.",
+      "parentUuid": "f78def1f_9bbf9d75",
       "revId": "423a59929b074c04f728ed224ef3fff2a0915932",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
