@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "16367e20_ad752f5a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 31022
+      },
+      "writtenOn": "2023-01-03T13:33:00Z",
+      "side": 1,
+      "message": "Hi Yunqing, Marco\n\nIn this patch, we have separated functions defined in nonrd_pickmode.c for modularity by creating following new files: \n- Moved functions related to intra search to intra_mode_search_nonrd.c\n- Moved other utility function in non-rd to nonrd_utils.c\n- Moved function declarations to nonrd_utils.h\n\nWe also ensured that the \u0027INLINE\u0027 keyword is intact while moving the functions to the new source files.\nThe function movement has caused a negligible impact in instruction count reduction. Please check.\n```\nFor real-time encoding,\n               Instruction Count        BD-Rate Loss(%)\ncpu Resolution   Reduction(%)    avg.psnr  ovr.psnr   ssim\n 7        rtc      0.049          0.0000    0.0000   0.0000\n 7   rtc_derf      0.061          0.0000    0.0000   0.0000\n 8        rtc      0.077          0.0000    0.0000   0.0000\n 8   rtc_derf      0.106          0.0000    0.0000   0.0000 \n 9        rtc      0.087          0.0000    0.0000   0.0000\n 9   rtc_derf      0.073          0.0000    0.0000   0.0000 \n10        rtc      0.099          0.0000    0.0000   0.0000\n10   rtc_derf      0.164          0.0000    0.0000   0.0000\n```\nPlease review the patch.\n\nThanks \u0026 Regards,\nAnupam",
+      "revId": "fcc6f14ba168dc80dda9d0565522613cd5ace841",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
