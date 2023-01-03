@@ -462,4 +462,69 @@ static INLINE void find_predictors(AV1_COMP *cpi, MACROBLOCK *x,
   mbmi->num_proj_ref = 1;
 }
 
+static INLINE int early_term_inter_search_with_sse(int early_term_idx,
+                                                   BLOCK_SIZE bsize,
+                                                   int64_t this_sse,
+                                                   int64_t best_sse,
+                                                   PREDICTION_MODE this_mode) {
+  // Aggressiveness to terminate inter mode search early is adjusted based on
+  // speed and block size.
+  static const double early_term_thresh[4][4] = { { 0.65, 0.65, 0.65, 0.7 },
+                                                  { 0.6, 0.65, 0.85, 0.9 },
+                                                  { 0.5, 0.5, 0.55, 0.6 },
+                                                  { 0.6, 0.75, 0.85, 0.85 } };
+  static const double early_term_thresh_newmv_nearestmv[4] = { 0.3, 0.3, 0.3,
+                                                               0.3 };
+
+  const int size_group = size_group_lookup[bsize];
+  assert(size_group < 4);
+  assert((early_term_idx > 0) && (early_term_idx < EARLY_TERM_INDICES));
+  const double threshold =
+      ((early_term_idx == EARLY_TERM_IDX_4) &&
+       (this_mode == NEWMV || this_mode == NEARESTMV))
+          ? early_term_thresh_newmv_nearestmv[size_group]
+          : early_term_thresh[early_term_idx - 1][size_group];
+
+  // Terminate inter mode search early based on best sse so far.
+  if ((early_term_idx > 0) && (threshold * this_sse > best_sse)) {
+    return 1;
+  }
+  return 0;
+}
+
+static INLINE void init_mbmi_nonrd(MB_MODE_INFO *mbmi,
+                                   PREDICTION_MODE pred_mode,
+                                   MV_REFERENCE_FRAME ref_frame0,
+                                   MV_REFERENCE_FRAME ref_frame1,
+                                   const AV1_COMMON *cm) {
+  PALETTE_MODE_INFO *const pmi = &mbmi->palette_mode_info;
+  mbmi->ref_mv_idx = 0;
+  mbmi->mode = pred_mode;
+  mbmi->uv_mode = UV_DC_PRED;
+  mbmi->ref_frame[0] = ref_frame0;
+  mbmi->ref_frame[1] = ref_frame1;
+  pmi->palette_size[PLANE_TYPE_Y] = 0;
+  pmi->palette_size[PLANE_TYPE_UV] = 0;
+  mbmi->filter_intra_mode_info.use_filter_intra = 0;
+  mbmi->mv[0].as_int = mbmi->mv[1].as_int = 0;
+  mbmi->motion_mode = SIMPLE_TRANSLATION;
+  mbmi->num_proj_ref = 1;
+  mbmi->interintra_mode = 0;
+  set_default_interp_filters(mbmi, cm->features.interp_filter);
+}
+
+static INLINE void free_pred_buffer(PRED_BUFFER *p) {
+  if (p != NULL) p->in_use = 0;
+}
+
+static INLINE int get_pred_buffer(PRED_BUFFER *p, int len) {
+  for (int buf_idx = 0; buf_idx < len; buf_idx++) {
+    if (!p[buf_idx].in_use) {
+      p[buf_idx].in_use = 1;
+      return buf_idx;
+    }
+  }
+  return -1;
+}
+
 #endif  // AOM_AV1_ENCODER_NONRD_OPT_H_

@@ -15,62 +15,15 @@
 #include <math.h>
 #include <stdio.h>
 
-#include "config/aom_dsp_rtcd.h"
-#include "config/av1_rtcd.h"
-
-#include "aom_dsp/aom_dsp_common.h"
-#include "aom_dsp/txfm_common.h"
-#include "aom_ports/mem.h"
-
-#include "av1/common/blockd.h"
-#include "av1/common/mvref_common.h"
-#include "av1/common/pred_common.h"
 #include "av1/common/reconinter.h"
-#include "av1/common/reconintra.h"
 
 #include "av1/encoder/encodemv.h"
-#include "av1/encoder/encoder.h"
 #include "av1/encoder/intra_mode_search.h"
-#include "av1/encoder/model_rd.h"
 #include "av1/encoder/motion_search_facade.h"
 #include "av1/encoder/nonrd_opt.h"
-#include "av1/encoder/rdopt.h"
+#include "av1/encoder/nonrd_utils.h"
 #include "av1/encoder/reconinter_enc.h"
 #include "av1/encoder/var_based_part.h"
-
-static const SCAN_ORDER av1_fast_idtx_scan_order_16x16 = {
-  av1_fast_idtx_scan_16x16, av1_fast_idtx_iscan_16x16
-};
-
-static INLINE int early_term_inter_search_with_sse(int early_term_idx,
-                                                   BLOCK_SIZE bsize,
-                                                   int64_t this_sse,
-                                                   int64_t best_sse,
-                                                   PREDICTION_MODE this_mode) {
-  // Aggressiveness to terminate inter mode search early is adjusted based on
-  // speed and block size.
-  static const double early_term_thresh[4][4] = { { 0.65, 0.65, 0.65, 0.7 },
-                                                  { 0.6, 0.65, 0.85, 0.9 },
-                                                  { 0.5, 0.5, 0.55, 0.6 },
-                                                  { 0.6, 0.75, 0.85, 0.85 } };
-  static const double early_term_thresh_newmv_nearestmv[4] = { 0.3, 0.3, 0.3,
-                                                               0.3 };
-
-  const int size_group = size_group_lookup[bsize];
-  assert(size_group < 4);
-  assert((early_term_idx > 0) && (early_term_idx < EARLY_TERM_INDICES));
-  const double threshold =
-      ((early_term_idx == EARLY_TERM_IDX_4) &&
-       (this_mode == NEWMV || this_mode == NEARESTMV))
-          ? early_term_thresh_newmv_nearestmv[size_group]
-          : early_term_thresh[early_term_idx - 1][size_group];
-
-  // Terminate inter mode search early based on best sse so far.
-  if ((early_term_idx > 0) && (threshold * this_sse > best_sse)) {
-    return 1;
-  }
-  return 0;
-}
 
 static INLINE void init_best_pickmode(BEST_PICKMODE *bp) {
   bp->best_sse = INT64_MAX;
@@ -436,993 +389,6 @@ static void estimate_single_ref_frame_costs(const AV1_COMMON *cm,
   }
 }
 
-static INLINE void set_force_skip_flag(const AV1_COMP *const cpi,
-                                       MACROBLOCK *const x, unsigned int sse,
-                                       int *force_skip) {
-  if (x->txfm_search_params.tx_mode_search_type == TX_MODE_SELECT &&
-      cpi->sf.rt_sf.tx_size_level_based_on_qstep &&
-      cpi->sf.rt_sf.tx_size_level_based_on_qstep >= 2) {
-    const int qstep = x->plane[AOM_PLANE_Y].dequant_QTX[1] >> (x->e_mbd.bd - 5);
-    const unsigned int qstep_sq = qstep * qstep;
-    // If the sse is low for low source variance blocks, mark those as
-    // transform skip.
-    // Note: Though qstep_sq is based on ac qstep, the threshold is kept
-    // low so that reliable early estimate of tx skip can be obtained
-    // through its comparison with sse.
-    if (sse < qstep_sq && x->source_variance < qstep_sq &&
-        x->color_sensitivity[COLOR_SENS_IDX(AOM_PLANE_U)] == 0 &&
-        x->color_sensitivity[COLOR_SENS_IDX(AOM_PLANE_V)] == 0)
-      *force_skip = 1;
-  }
-}
-
-#define CAP_TX_SIZE_FOR_BSIZE_GT32(tx_mode_search_type, bsize) \
-  (((tx_mode_search_type) != ONLY_4X4 && (bsize) > BLOCK_32X32) ? true : false)
-#define TX_SIZE_FOR_BSIZE_GT32 (TX_16X16)
-
-static TX_SIZE calculate_tx_size(const AV1_COMP *const cpi, BLOCK_SIZE bsize,
-                                 MACROBLOCK *const x, unsigned int var,
-                                 unsigned int sse, int *force_skip) {
-  MACROBLOCKD *const xd = &x->e_mbd;
-  TX_SIZE tx_size;
-  const TxfmSearchParams *txfm_params = &x->txfm_search_params;
-  if (txfm_params->tx_mode_search_type == TX_MODE_SELECT) {
-    int multiplier = 8;
-    unsigned int var_thresh = 0;
-    unsigned int is_high_var = 1;
-    // Use quantizer based thresholds to determine transform size.
-    if (cpi->sf.rt_sf.tx_size_level_based_on_qstep) {
-      const int qband = x->qindex >> (QINDEX_BITS - 2);
-      const int mult[4] = { 8, 7, 6, 5 };
-      assert(qband < 4);
-      multiplier = mult[qband];
-      const int qstep = x->plane[AOM_PLANE_Y].dequant_QTX[1] >> (xd->bd - 5);
-      const unsigned int qstep_sq = qstep * qstep;
-      var_thresh = qstep_sq * 2;
-      if (cpi->sf.rt_sf.tx_size_level_based_on_qstep >= 2) {
-        // If the sse is low for low source variance blocks, mark those as
-        // transform skip.
-        // Note: Though qstep_sq is based on ac qstep, the threshold is kept
-        // low so that reliable early estimate of tx skip can be obtained
-        // through its comparison with sse.
-        if (sse < qstep_sq && x->source_variance < qstep_sq &&
-            x->color_sensitivity[COLOR_SENS_IDX(AOM_PLANE_U)] == 0 &&
-            x->color_sensitivity[COLOR_SENS_IDX(AOM_PLANE_V)] == 0)
-          *force_skip = 1;
-        // Further lower transform size based on aq mode only if residual
-        // variance is high.
-        is_high_var = (var >= var_thresh);
-      }
-    }
-    // Choose larger transform size for blocks where dc component is dominant or
-    // the ac component is low.
-    if (sse > ((var * multiplier) >> 2) || (var < var_thresh))
-      tx_size =
-          AOMMIN(max_txsize_lookup[bsize],
-                 tx_mode_to_biggest_tx_size[txfm_params->tx_mode_search_type]);
-    else
-      tx_size = TX_8X8;
-
-    if (cpi->oxcf.q_cfg.aq_mode == CYCLIC_REFRESH_AQ &&
-        cyclic_refresh_segment_id_boosted(xd->mi[0]->segment_id) && is_high_var)
-      tx_size = TX_8X8;
-    else if (tx_size > TX_16X16)
-      tx_size = TX_16X16;
-  } else {
-    tx_size =
-        AOMMIN(max_txsize_lookup[bsize],
-               tx_mode_to_biggest_tx_size[txfm_params->tx_mode_search_type]);
-  }
-
-  if (CAP_TX_SIZE_FOR_BSIZE_GT32(txfm_params->tx_mode_search_type, bsize))
-    tx_size = TX_SIZE_FOR_BSIZE_GT32;
-
-  return AOMMIN(tx_size, TX_16X16);
-}
-
-static void block_variance(const uint8_t *src, int src_stride,
-                           const uint8_t *ref, int ref_stride, int w, int h,
-                           unsigned int *sse, int *sum, int block_size,
-                           uint32_t *sse8x8, int *sum8x8, uint32_t *var8x8) {
-  int k = 0;
-  *sse = 0;
-  *sum = 0;
-
-  // This function is called for block sizes >= BLOCK_32x32. As per the design
-  // the aom_get_var_sse_sum_8x8_quad() processes four 8x8 blocks (in a 8x32)
-  // per call. Hence the width and height of the block need to be at least 8 and
-  // 32 samples respectively.
-  assert(w >= 32);
-  assert(h >= 8);
-  for (int row = 0; row < h; row += block_size) {
-    for (int col = 0; col < w; col += 32) {
-      aom_get_var_sse_sum_8x8_quad(src + src_stride * row + col, src_stride,
-                                   ref + ref_stride * row + col, ref_stride,
-                                   &sse8x8[k], &sum8x8[k], sse, sum,
-                                   &var8x8[k]);
-      k += 4;
-    }
-  }
-}
-
-static void block_variance_16x16_dual(const uint8_t *src, int src_stride,
-                                      const uint8_t *ref, int ref_stride, int w,
-                                      int h, unsigned int *sse, int *sum,
-                                      int block_size, uint32_t *sse16x16,
-                                      uint32_t *var16x16) {
-  int k = 0;
-  *sse = 0;
-  *sum = 0;
-  // This function is called for block sizes >= BLOCK_32x32. As per the design
-  // the aom_get_var_sse_sum_16x16_dual() processes four 16x16 blocks (in a
-  // 16x32) per call. Hence the width and height of the block need to be at
-  // least 16 and 32 samples respectively.
-  assert(w >= 32);
-  assert(h >= 16);
-  for (int row = 0; row < h; row += block_size) {
-    for (int col = 0; col < w; col += 32) {
-      aom_get_var_sse_sum_16x16_dual(src + src_stride * row + col, src_stride,
-                                     ref + ref_stride * row + col, ref_stride,
-                                     &sse16x16[k], sse, sum, &var16x16[k]);
-      k += 2;
-    }
-  }
-}
-
-static void calculate_variance(int bw, int bh, TX_SIZE tx_size,
-                               unsigned int *sse_i, int *sum_i,
-                               unsigned int *var_o, unsigned int *sse_o,
-                               int *sum_o) {
-  const BLOCK_SIZE unit_size = txsize_to_bsize[tx_size];
-  const int nw = 1 << (bw - b_width_log2_lookup[unit_size]);
-  const int nh = 1 << (bh - b_height_log2_lookup[unit_size]);
-  int row, col, k = 0;
-
-  for (row = 0; row < nh; row += 2) {
-    for (col = 0; col < nw; col += 2) {
-      sse_o[k] = sse_i[row * nw + col] + sse_i[row * nw + col + 1] +
-                 sse_i[(row + 1) * nw + col] + sse_i[(row + 1) * nw + col + 1];
-      sum_o[k] = sum_i[row * nw + col] + sum_i[row * nw + col + 1] +
-                 sum_i[(row + 1) * nw + col] + sum_i[(row + 1) * nw + col + 1];
-      var_o[k] = sse_o[k] - (uint32_t)(((int64_t)sum_o[k] * sum_o[k]) >>
-                                       (b_width_log2_lookup[unit_size] +
-                                        b_height_log2_lookup[unit_size] + 6));
-      k++;
-    }
-  }
-}
-
-// Adjust the ac_thr according to speed, width, height and normalized sum
-static int ac_thr_factor(int speed, int width, int height, int norm_sum) {
-  if (speed >= 8 && norm_sum < 5) {
-    if (width <= 640 && height <= 480)
-      return 4;
-    else
-      return 2;
-  }
-  return 1;
-}
-
-// Sets early_term flag based on chroma planes prediction
-static INLINE void set_early_term_based_on_uv_plane(
-    AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bsize, MACROBLOCKD *xd, int mi_row,
-    int mi_col, int *early_term, int num_blk, const unsigned int *sse_tx,
-    const unsigned int *var_tx, int sum, unsigned int var, unsigned int sse) {
-  AV1_COMMON *const cm = &cpi->common;
-  struct macroblock_plane *const p = &x->plane[AOM_PLANE_Y];
-  const uint32_t dc_quant = p->dequant_QTX[0];
-  const uint32_t ac_quant = p->dequant_QTX[1];
-  const int64_t dc_thr = dc_quant * dc_quant >> 6;
-  int64_t ac_thr = ac_quant * ac_quant >> 6;
-  const int bw = b_width_log2_lookup[bsize];
-  const int bh = b_height_log2_lookup[bsize];
-  int ac_test = 1;
-  int dc_test = 1;
-  const int norm_sum = abs(sum) >> (bw + bh);
-
-#if CONFIG_AV1_TEMPORAL_DENOISING
-  if (cpi->oxcf.noise_sensitivity > 0 && denoise_svc(cpi) &&
-      cpi->oxcf.speed > 5)
-    ac_thr = av1_scale_acskip_thresh(ac_thr, cpi->denoiser.denoising_level,
-                                     norm_sum, cpi->svc.temporal_layer_id);
-  else
-    ac_thr *= ac_thr_factor(cpi->oxcf.speed, cm->width, cm->height, norm_sum);
-#else
-  ac_thr *= ac_thr_factor(cpi->oxcf.speed, cm->width, cm->height, norm_sum);
-
-#endif
-
-  for (int k = 0; k < num_blk; k++) {
-    // Check if all ac coefficients can be quantized to zero.
-    if (!(var_tx[k] < ac_thr || var == 0)) {
-      ac_test = 0;
-      break;
-    }
-    // Check if dc coefficient can be quantized to zero.
-    if (!(sse_tx[k] - var_tx[k] < dc_thr || sse == var)) {
-      dc_test = 0;
-      break;
-    }
-  }
-
-  // Check if chroma can be skipped based on ac and dc test flags.
-  if (ac_test && dc_test) {
-    int skip_uv[2] = { 0 };
-    unsigned int var_uv[2];
-    unsigned int sse_uv[2];
-    // Transform skipping test in UV planes.
-    for (int plane = AOM_PLANE_U; plane <= AOM_PLANE_V; plane++) {
-      int j = plane - 1;
-      skip_uv[j] = 1;
-      if (x->color_sensitivity[COLOR_SENS_IDX(plane)]) {
-        skip_uv[j] = 0;
-        struct macroblock_plane *const puv = &x->plane[plane];
-        struct macroblockd_plane *const puvd = &xd->plane[plane];
-        const BLOCK_SIZE uv_bsize = get_plane_block_size(
-            bsize, puvd->subsampling_x, puvd->subsampling_y);
-        // Adjust these thresholds for UV.
-        const int64_t uv_dc_thr =
-            (puv->dequant_QTX[0] * puv->dequant_QTX[0]) >> 3;
-        const int64_t uv_ac_thr =
-            (puv->dequant_QTX[1] * puv->dequant_QTX[1]) >> 3;
-        av1_enc_build_inter_predictor(cm, xd, mi_row, mi_col, NULL, bsize,
-                                      plane, plane);
-        var_uv[j] = cpi->ppi->fn_ptr[uv_bsize].vf(puv->src.buf, puv->src.stride,
-                                                  puvd->dst.buf,
-                                                  puvd->dst.stride, &sse_uv[j]);
-        if ((var_uv[j] < uv_ac_thr || var_uv[j] == 0) &&
-            (sse_uv[j] - var_uv[j] < uv_dc_thr || sse_uv[j] == var_uv[j]))
-          skip_uv[j] = 1;
-        else
-          break;
-      }
-    }
-    if (skip_uv[0] & skip_uv[1]) {
-      *early_term = 1;
-    }
-  }
-}
-
-static INLINE void calc_rate_dist_block_param(AV1_COMP *cpi, MACROBLOCK *x,
-                                              RD_STATS *rd_stats,
-                                              int calculate_rd, int *early_term,
-                                              BLOCK_SIZE bsize,
-                                              unsigned int sse) {
-  if (calculate_rd) {
-    if (!*early_term) {
-      const int bw = block_size_wide[bsize];
-      const int bh = block_size_high[bsize];
-
-      model_rd_with_curvfit(cpi, x, bsize, AOM_PLANE_Y, rd_stats->sse, bw * bh,
-                            &rd_stats->rate, &rd_stats->dist);
-    }
-
-    if (*early_term) {
-      rd_stats->rate = 0;
-      rd_stats->dist = sse << 4;
-    }
-  }
-}
-
-static void model_skip_for_sb_y_large_64(AV1_COMP *cpi, BLOCK_SIZE bsize,
-                                         int mi_row, int mi_col, MACROBLOCK *x,
-                                         MACROBLOCKD *xd, RD_STATS *rd_stats,
-                                         int *early_term, int calculate_rd,
-                                         int64_t best_sse,
-                                         unsigned int *var_output,
-                                         unsigned int var_prune_threshold) {
-  // Note our transform coeffs are 8 times an orthogonal transform.
-  // Hence quantizer step is also 8 times. To get effective quantizer
-  // we need to divide by 8 before sending to modeling function.
-  unsigned int sse;
-  struct macroblock_plane *const p = &x->plane[AOM_PLANE_Y];
-  struct macroblockd_plane *const pd = &xd->plane[AOM_PLANE_Y];
-  int test_skip = 1;
-  unsigned int var;
-  int sum;
-  const int bw = b_width_log2_lookup[bsize];
-  const int bh = b_height_log2_lookup[bsize];
-  unsigned int sse16x16[64] = { 0 };
-  unsigned int var16x16[64] = { 0 };
-  assert(xd->mi[0]->tx_size == TX_16X16);
-  assert(bsize > BLOCK_32X32);
-
-  // Calculate variance for whole partition, and also save 16x16 blocks'
-  // variance to be used in following transform skipping test.
-  block_variance_16x16_dual(p->src.buf, p->src.stride, pd->dst.buf,
-                            pd->dst.stride, 4 << bw, 4 << bh, &sse, &sum, 16,
-                            sse16x16, var16x16);
-
-  var = sse - (unsigned int)(((int64_t)sum * sum) >> (bw + bh + 4));
-  if (var_output) {
-    *var_output = var;
-    if (*var_output > var_prune_threshold) {
-      return;
-    }
-  }
-
-  rd_stats->sse = sse;
-  // Skipping test
-  *early_term = 0;
-  set_force_skip_flag(cpi, x, sse, early_term);
-  // The code below for setting skip flag assumes transform size of at least
-  // 8x8, so force this lower limit on transform.
-  MB_MODE_INFO *const mi = xd->mi[0];
-  if (!calculate_rd && cpi->sf.rt_sf.sse_early_term_inter_search &&
-      early_term_inter_search_with_sse(
-          cpi->sf.rt_sf.sse_early_term_inter_search, bsize, sse, best_sse,
-          mi->mode))
-    test_skip = 0;
-
-  if (*early_term) test_skip = 0;
-
-  // Evaluate if the partition block is a skippable block in Y plane.
-  if (test_skip) {
-    const unsigned int *sse_tx = sse16x16;
-    const unsigned int *var_tx = var16x16;
-    const unsigned int num_block = (1 << (bw + bh - 2)) >> 2;
-    set_early_term_based_on_uv_plane(cpi, x, bsize, xd, mi_row, mi_col,
-                                     early_term, num_block, sse_tx, var_tx, sum,
-                                     var, sse);
-  }
-  calc_rate_dist_block_param(cpi, x, rd_stats, calculate_rd, early_term, bsize,
-                             sse);
-}
-
-static void model_skip_for_sb_y_large(AV1_COMP *cpi, BLOCK_SIZE bsize,
-                                      int mi_row, int mi_col, MACROBLOCK *x,
-                                      MACROBLOCKD *xd, RD_STATS *rd_stats,
-                                      int *early_term, int calculate_rd,
-                                      int64_t best_sse,
-                                      unsigned int *var_output,
-                                      unsigned int var_prune_threshold) {
-  if (x->force_zeromv_skip_for_blk) {
-    *early_term = 1;
-    rd_stats->rate = 0;
-    rd_stats->dist = 0;
-    rd_stats->sse = 0;
-    return;
-  }
-
-  // For block sizes greater than 32x32, the transform size is always 16x16.
-  // This function avoids calling calculate_variance() for tx_size 16x16 cases
-  // by directly populating variance at tx_size level from
-  // block_variance_16x16_dual() function.
-  const TxfmSearchParams *txfm_params = &x->txfm_search_params;
-  if (CAP_TX_SIZE_FOR_BSIZE_GT32(txfm_params->tx_mode_search_type, bsize)) {
-    xd->mi[0]->tx_size = TX_SIZE_FOR_BSIZE_GT32;
-    model_skip_for_sb_y_large_64(cpi, bsize, mi_row, mi_col, x, xd, rd_stats,
-                                 early_term, calculate_rd, best_sse, var_output,
-                                 var_prune_threshold);
-    return;
-  }
-
-  // Note our transform coeffs are 8 times an orthogonal transform.
-  // Hence quantizer step is also 8 times. To get effective quantizer
-  // we need to divide by 8 before sending to modeling function.
-  unsigned int sse;
-  struct macroblock_plane *const p = &x->plane[AOM_PLANE_Y];
-  struct macroblockd_plane *const pd = &xd->plane[AOM_PLANE_Y];
-  int test_skip = 1;
-  unsigned int var;
-  int sum;
-
-  const int bw = b_width_log2_lookup[bsize];
-  const int bh = b_height_log2_lookup[bsize];
-  unsigned int sse8x8[256] = { 0 };
-  int sum8x8[256] = { 0 };
-  unsigned int var8x8[256] = { 0 };
-  TX_SIZE tx_size;
-
-  // Calculate variance for whole partition, and also save 8x8 blocks' variance
-  // to be used in following transform skipping test.
-  block_variance(p->src.buf, p->src.stride, pd->dst.buf, pd->dst.stride,
-                 4 << bw, 4 << bh, &sse, &sum, 8, sse8x8, sum8x8, var8x8);
-  var = sse - (unsigned int)(((int64_t)sum * sum) >> (bw + bh + 4));
-  if (var_output) {
-    *var_output = var;
-    if (*var_output > var_prune_threshold) {
-      return;
-    }
-  }
-
-  rd_stats->sse = sse;
-  // Skipping test
-  *early_term = 0;
-  tx_size = calculate_tx_size(cpi, bsize, x, var, sse, early_term);
-  assert(tx_size <= TX_16X16);
-  // The code below for setting skip flag assumes transform size of at least
-  // 8x8, so force this lower limit on transform.
-  if (tx_size < TX_8X8) tx_size = TX_8X8;
-  xd->mi[0]->tx_size = tx_size;
-
-  MB_MODE_INFO *const mi = xd->mi[0];
-  if (!calculate_rd && cpi->sf.rt_sf.sse_early_term_inter_search &&
-      early_term_inter_search_with_sse(
-          cpi->sf.rt_sf.sse_early_term_inter_search, bsize, sse, best_sse,
-          mi->mode))
-    test_skip = 0;
-
-  if (*early_term) test_skip = 0;
-
-  // Evaluate if the partition block is a skippable block in Y plane.
-  if (test_skip) {
-    unsigned int sse16x16[64] = { 0 };
-    int sum16x16[64] = { 0 };
-    unsigned int var16x16[64] = { 0 };
-    const unsigned int *sse_tx = sse8x8;
-    const unsigned int *var_tx = var8x8;
-    unsigned int num_blks = 1 << (bw + bh - 2);
-
-    if (tx_size >= TX_16X16) {
-      calculate_variance(bw, bh, TX_8X8, sse8x8, sum8x8, var16x16, sse16x16,
-                         sum16x16);
-      sse_tx = sse16x16;
-      var_tx = var16x16;
-      num_blks = num_blks >> 2;
-    }
-    set_early_term_based_on_uv_plane(cpi, x, bsize, xd, mi_row, mi_col,
-                                     early_term, num_blks, sse_tx, var_tx, sum,
-                                     var, sse);
-  }
-  calc_rate_dist_block_param(cpi, x, rd_stats, calculate_rd, early_term, bsize,
-                             sse);
-}
-
-static void model_rd_for_sb_y(const AV1_COMP *const cpi, BLOCK_SIZE bsize,
-                              MACROBLOCK *x, MACROBLOCKD *xd,
-                              RD_STATS *rd_stats, unsigned int *var_out,
-                              int calculate_rd, int *early_term) {
-  if (x->force_zeromv_skip_for_blk && early_term != NULL) {
-    *early_term = 1;
-    rd_stats->rate = 0;
-    rd_stats->dist = 0;
-    rd_stats->sse = 0;
-  }
-
-  // Note our transform coeffs are 8 times an orthogonal transform.
-  // Hence quantizer step is also 8 times. To get effective quantizer
-  // we need to divide by 8 before sending to modeling function.
-  const int ref = xd->mi[0]->ref_frame[0];
-
-  assert(bsize < BLOCK_SIZES_ALL);
-
-  struct macroblock_plane *const p = &x->plane[AOM_PLANE_Y];
-  struct macroblockd_plane *const pd = &xd->plane[AOM_PLANE_Y];
-  unsigned int sse;
-  int rate;
-  int64_t dist;
-
-  unsigned int var = cpi->ppi->fn_ptr[bsize].vf(
-      p->src.buf, p->src.stride, pd->dst.buf, pd->dst.stride, &sse);
-  int force_skip = 0;
-  xd->mi[0]->tx_size = calculate_tx_size(cpi, bsize, x, var, sse, &force_skip);
-  if (var_out) {
-    *var_out = var;
-  }
-
-  if (calculate_rd && (!force_skip || ref == INTRA_FRAME)) {
-    const int bwide = block_size_wide[bsize];
-    const int bhigh = block_size_high[bsize];
-    model_rd_with_curvfit(cpi, x, bsize, AOM_PLANE_Y, sse, bwide * bhigh, &rate,
-                          &dist);
-  } else {
-    rate = INT_MAX;  // this will be overwritten later with block_yrd
-    dist = INT_MAX;
-  }
-  rd_stats->sse = sse;
-  x->pred_sse[ref] = (unsigned int)AOMMIN(sse, UINT_MAX);
-
-  if (force_skip && ref > INTRA_FRAME) {
-    rate = 0;
-    dist = (int64_t)sse << 4;
-  }
-
-  assert(rate >= 0);
-
-  rd_stats->skip_txfm = (rate == 0);
-  rate = AOMMIN(rate, INT_MAX);
-  rd_stats->rate = rate;
-  rd_stats->dist = dist;
-}
-
-static INLINE void aom_process_hadamard_lp_8x16(MACROBLOCK *x,
-                                                int max_blocks_high,
-                                                int max_blocks_wide,
-                                                int num_4x4_w, int step,
-                                                int block_step) {
-  struct macroblock_plane *const p = &x->plane[AOM_PLANE_Y];
-  const int bw = 4 * num_4x4_w;
-  const int num_4x4 = AOMMIN(num_4x4_w, max_blocks_wide);
-  int block = 0;
-
-  for (int r = 0; r < max_blocks_high; r += block_step) {
-    for (int c = 0; c < num_4x4; c += 2 * block_step) {
-      const int16_t *src_diff = &p->src_diff[(r * bw + c) << 2];
-      int16_t *low_coeff = (int16_t *)p->coeff + BLOCK_OFFSET(block);
-      aom_hadamard_lp_8x8_dual(src_diff, (ptrdiff_t)bw, low_coeff);
-      block += 2 * step;
-    }
-  }
-}
-
-#define DECLARE_BLOCK_YRD_BUFFERS()                      \
-  DECLARE_ALIGNED(64, tran_low_t, dqcoeff_buf[16 * 16]); \
-  DECLARE_ALIGNED(64, tran_low_t, qcoeff_buf[16 * 16]);  \
-  DECLARE_ALIGNED(64, tran_low_t, coeff_buf[16 * 16]);   \
-  uint16_t eob[1];
-
-#define DECLARE_BLOCK_YRD_VARS()                                          \
-  /* When is_tx_8x8_dual_applicable is true, we compute the txfm for the  \
-   * entire bsize and write macroblock_plane::coeff. So low_coeff is kept \
-   * as a non-const so we can reassign it to macroblock_plane::coeff. */  \
-  int16_t *low_coeff = (int16_t *)coeff_buf;                              \
-  int16_t *const low_qcoeff = (int16_t *)qcoeff_buf;                      \
-  int16_t *const low_dqcoeff = (int16_t *)dqcoeff_buf;                    \
-  const int diff_stride = bw;
-
-#define DECLARE_LOOP_VARS_BLOCK_YRD() \
-  const int16_t *src_diff = &p->src_diff[(r * diff_stride + c) << 2];
-
-#if CONFIG_AV1_HIGHBITDEPTH
-#define DECLARE_BLOCK_YRD_HBD_VARS()     \
-  tran_low_t *const coeff = coeff_buf;   \
-  tran_low_t *const qcoeff = qcoeff_buf; \
-  tran_low_t *const dqcoeff = dqcoeff_buf;
-
-static AOM_FORCE_INLINE void update_yrd_loop_vars_hbd(
-    MACROBLOCK *x, int *skippable, int step, int ncoeffs,
-    tran_low_t *const coeff, tran_low_t *const qcoeff,
-    tran_low_t *const dqcoeff, RD_STATS *this_rdc, int *eob_cost,
-    int tx_blk_id) {
-  const int is_txfm_skip = (ncoeffs == 0);
-  *skippable &= is_txfm_skip;
-  x->txfm_search_info.blk_skip[tx_blk_id] = is_txfm_skip;
-  *eob_cost += get_msb(ncoeffs + 1);
-
-  int64_t dummy;
-  if (ncoeffs == 1)
-    this_rdc->rate += (int)abs(qcoeff[0]);
-  else if (ncoeffs > 1)
-    this_rdc->rate += aom_satd(qcoeff, step << 4);
-
-  this_rdc->dist += av1_block_error(coeff, dqcoeff, step << 4, &dummy) >> 2;
-}
-#endif
-static AOM_FORCE_INLINE void update_yrd_loop_vars(
-    MACROBLOCK *x, int *skippable, int step, int ncoeffs,
-    int16_t *const low_coeff, int16_t *const low_qcoeff,
-    int16_t *const low_dqcoeff, RD_STATS *this_rdc, int *eob_cost,
-    int tx_blk_id) {
-  const int is_txfm_skip = (ncoeffs == 0);
-  *skippable &= is_txfm_skip;
-  x->txfm_search_info.blk_skip[tx_blk_id] = is_txfm_skip;
-  *eob_cost += get_msb(ncoeffs + 1);
-  if (ncoeffs == 1)
-    this_rdc->rate += (int)abs(low_qcoeff[0]);
-  else if (ncoeffs > 1)
-    this_rdc->rate += aom_satd_lp(low_qcoeff, step << 4);
-
-  this_rdc->dist += av1_block_error_lp(low_coeff, low_dqcoeff, step << 4) >> 2;
-}
-
-/*!\brief Calculates RD Cost using Hadamard transform.
- *
- * \ingroup nonrd_mode_search
- * \callgraph
- * \callergraph
- * Calculates RD Cost using Hadamard transform. For low bit depth this function
- * uses low-precision set of functions (16-bit) and 32 bit for high bit depth
- * \param[in]    x              Pointer to structure holding all the data for
-                                the current macroblock
- * \param[in]    this_rdc       Pointer to calculated RD Cost
- * \param[in]    skippable      Pointer to a flag indicating possible tx skip
- * \param[in]    bsize          Current block size
- * \param[in]    tx_size        Transform size
- * \param[in]    is_inter_mode  Flag to indicate inter mode
- *
- * \remark Nothing is returned. Instead, calculated RD cost is placed to
- * \c this_rdc. \c skippable flag is set if there is no non-zero quantized
- * coefficients for Hadamard transform
- */
-static void block_yrd(MACROBLOCK *x, RD_STATS *this_rdc, int *skippable,
-                      BLOCK_SIZE bsize, TX_SIZE tx_size, int is_inter_mode) {
-  MACROBLOCKD *xd = &x->e_mbd;
-  const struct macroblockd_plane *pd = &xd->plane[AOM_PLANE_Y];
-  struct macroblock_plane *const p = &x->plane[AOM_PLANE_Y];
-  assert(bsize < BLOCK_SIZES_ALL);
-  const int num_4x4_w = mi_size_wide[bsize];
-  const int num_4x4_h = mi_size_high[bsize];
-  const int step = 1 << (tx_size << 1);
-  const int block_step = (1 << tx_size);
-  const int row_step = step * num_4x4_w >> tx_size;
-  int block = 0;
-  const int max_blocks_wide =
-      num_4x4_w + (xd->mb_to_right_edge >= 0 ? 0 : xd->mb_to_right_edge >> 5);
-  const int max_blocks_high =
-      num_4x4_h + (xd->mb_to_bottom_edge >= 0 ? 0 : xd->mb_to_bottom_edge >> 5);
-  int eob_cost = 0;
-  const int bw = 4 * num_4x4_w;
-  const int bh = 4 * num_4x4_h;
-  const int use_hbd = is_cur_buf_hbd(xd);
-  int num_blk_skip_w = num_4x4_w;
-  int sh_blk_skip = 0;
-  if (is_inter_mode) {
-    num_blk_skip_w = num_4x4_w >> 1;
-    sh_blk_skip = 1;
-  }
-
-#if CONFIG_AV1_HIGHBITDEPTH
-  if (use_hbd) {
-    aom_highbd_subtract_block(bh, bw, p->src_diff, bw, p->src.buf,
-                              p->src.stride, pd->dst.buf, pd->dst.stride);
-  } else {
-    aom_subtract_block(bh, bw, p->src_diff, bw, p->src.buf, p->src.stride,
-                       pd->dst.buf, pd->dst.stride);
-  }
-#else
-  aom_subtract_block(bh, bw, p->src_diff, bw, p->src.buf, p->src.stride,
-                     pd->dst.buf, pd->dst.stride);
-#endif
-
-  // Keep the intermediate value on the stack here. Writing directly to
-  // skippable causes speed regression due to load-and-store issues in
-  // update_yrd_loop_vars.
-  int temp_skippable = 1;
-  this_rdc->dist = 0;
-  this_rdc->rate = 0;
-  // For block sizes 8x16 or above, Hadamard txfm of two adjacent 8x8 blocks
-  // can be done per function call. Hence the call of Hadamard txfm is
-  // abstracted here for the specified cases.
-  int is_tx_8x8_dual_applicable =
-      (tx_size == TX_8X8 && block_size_wide[bsize] >= 16 &&
-       block_size_high[bsize] >= 8);
-
-#if CONFIG_AV1_HIGHBITDEPTH
-  // As of now, dual implementation of hadamard txfm is available for low
-  // bitdepth.
-  if (use_hbd) is_tx_8x8_dual_applicable = 0;
-#endif
-
-  if (is_tx_8x8_dual_applicable) {
-    aom_process_hadamard_lp_8x16(x, max_blocks_high, max_blocks_wide, num_4x4_w,
-                                 step, block_step);
-  }
-
-  const SCAN_ORDER *const scan_order = &av1_scan_orders[tx_size][DCT_DCT];
-  DECLARE_BLOCK_YRD_BUFFERS()
-  DECLARE_BLOCK_YRD_VARS()
-#if CONFIG_AV1_HIGHBITDEPTH
-  DECLARE_BLOCK_YRD_HBD_VARS()
-#else
-  (void)use_hbd;
-#endif
-
-  // Keep track of the row and column of the blocks we use so that we know
-  // if we are in the unrestricted motion border.
-  for (int r = 0; r < max_blocks_high; r += block_step) {
-    for (int c = 0, s = 0; c < max_blocks_wide; c += block_step, s += step) {
-      DECLARE_LOOP_VARS_BLOCK_YRD()
-
-      switch (tx_size) {
-#if CONFIG_AV1_HIGHBITDEPTH
-        case TX_16X16:
-          if (use_hbd) {
-            aom_hadamard_16x16(src_diff, diff_stride, coeff);
-            av1_quantize_fp(coeff, 16 * 16, p->zbin_QTX, p->round_fp_QTX,
-                            p->quant_fp_QTX, p->quant_shift_QTX, qcoeff,
-                            dqcoeff, p->dequant_QTX, eob,
-                            // default_scan_fp_16x16_transpose and
-                            // av1_default_iscan_fp_16x16_transpose have to be
-                            // used together.
-                            default_scan_fp_16x16_transpose,
-                            av1_default_iscan_fp_16x16_transpose);
-          } else {
-            aom_hadamard_lp_16x16(src_diff, diff_stride, low_coeff);
-            av1_quantize_lp(low_coeff, 16 * 16, p->round_fp_QTX,
-                            p->quant_fp_QTX, low_qcoeff, low_dqcoeff,
-                            p->dequant_QTX, eob,
-                            // default_scan_lp_16x16_transpose and
-                            // av1_default_iscan_lp_16x16_transpose have to be
-                            // used together.
-                            default_scan_lp_16x16_transpose,
-                            av1_default_iscan_lp_16x16_transpose);
-          }
-          break;
-        case TX_8X8:
-          if (use_hbd) {
-            aom_hadamard_8x8(src_diff, diff_stride, coeff);
-            av1_quantize_fp(
-                coeff, 8 * 8, p->zbin_QTX, p->round_fp_QTX, p->quant_fp_QTX,
-                p->quant_shift_QTX, qcoeff, dqcoeff, p->dequant_QTX, eob,
-                default_scan_8x8_transpose, av1_default_iscan_8x8_transpose);
-          } else {
-            if (is_tx_8x8_dual_applicable) {
-              // The coeffs are pre-computed for the whole block, so re-assign
-              // low_coeff to the appropriate location.
-              const int block_offset = BLOCK_OFFSET(block + s);
-              low_coeff = (int16_t *)p->coeff + block_offset;
-            } else {
-              aom_hadamard_lp_8x8(src_diff, diff_stride, low_coeff);
-            }
-            av1_quantize_lp(
-                low_coeff, 8 * 8, p->round_fp_QTX, p->quant_fp_QTX, low_qcoeff,
-                low_dqcoeff, p->dequant_QTX, eob,
-                // default_scan_8x8_transpose and
-                // av1_default_iscan_8x8_transpose have to be used together.
-                default_scan_8x8_transpose, av1_default_iscan_8x8_transpose);
-          }
-          break;
-        default:
-          assert(tx_size == TX_4X4);
-          // In tx_size=4x4 case, aom_fdct4x4 and aom_fdct4x4_lp generate
-          // normal coefficients order, so we don't need to change the scan
-          // order here.
-          if (use_hbd) {
-            aom_fdct4x4(src_diff, coeff, diff_stride);
-            av1_quantize_fp(coeff, 4 * 4, p->zbin_QTX, p->round_fp_QTX,
-                            p->quant_fp_QTX, p->quant_shift_QTX, qcoeff,
-                            dqcoeff, p->dequant_QTX, eob, scan_order->scan,
-                            scan_order->iscan);
-          } else {
-            aom_fdct4x4_lp(src_diff, low_coeff, diff_stride);
-            av1_quantize_lp(low_coeff, 4 * 4, p->round_fp_QTX, p->quant_fp_QTX,
-                            low_qcoeff, low_dqcoeff, p->dequant_QTX, eob,
-                            scan_order->scan, scan_order->iscan);
-          }
-          break;
-#else
-        case TX_16X16:
-          aom_hadamard_lp_16x16(src_diff, diff_stride, low_coeff);
-          av1_quantize_lp(low_coeff, 16 * 16, p->round_fp_QTX, p->quant_fp_QTX,
-                          low_qcoeff, low_dqcoeff, p->dequant_QTX, eob,
-                          default_scan_lp_16x16_transpose,
-                          av1_default_iscan_lp_16x16_transpose);
-          break;
-        case TX_8X8:
-          if (is_tx_8x8_dual_applicable) {
-            // The coeffs are pre-computed for the whole block, so re-assign
-            // low_coeff to the appropriate location.
-            const int block_offset = BLOCK_OFFSET(block + s);
-            low_coeff = (int16_t *)p->coeff + block_offset;
-          } else {
-            aom_hadamard_lp_8x8(src_diff, diff_stride, low_coeff);
-          }
-          av1_quantize_lp(low_coeff, 8 * 8, p->round_fp_QTX, p->quant_fp_QTX,
-                          low_qcoeff, low_dqcoeff, p->dequant_QTX, eob,
-                          default_scan_8x8_transpose,
-                          av1_default_iscan_8x8_transpose);
-          break;
-        default:
-          aom_fdct4x4_lp(src_diff, low_coeff, diff_stride);
-          av1_quantize_lp(low_coeff, 4 * 4, p->round_fp_QTX, p->quant_fp_QTX,
-                          low_qcoeff, low_dqcoeff, p->dequant_QTX, eob,
-                          scan_order->scan, scan_order->iscan);
-          break;
-#endif
-      }
-      assert(*eob <= 1024);
-#if CONFIG_AV1_HIGHBITDEPTH
-      if (use_hbd)
-        update_yrd_loop_vars_hbd(x, &temp_skippable, step, *eob, coeff, qcoeff,
-                                 dqcoeff, this_rdc, &eob_cost,
-                                 (r * num_blk_skip_w + c) >> sh_blk_skip);
-      else
-#endif
-        update_yrd_loop_vars(x, &temp_skippable, step, *eob, low_coeff,
-                             low_qcoeff, low_dqcoeff, this_rdc, &eob_cost,
-                             (r * num_blk_skip_w + c) >> sh_blk_skip);
-    }
-    block += row_step;
-  }
-
-  this_rdc->skip_txfm = *skippable = temp_skippable;
-  if (this_rdc->sse < INT64_MAX) {
-    this_rdc->sse = (this_rdc->sse << 6) >> 2;
-    if (temp_skippable) {
-      this_rdc->dist = 0;
-      this_rdc->dist = this_rdc->sse;
-      return;
-    }
-  }
-
-  // If skippable is set, rate gets clobbered later.
-  this_rdc->rate <<= (2 + AV1_PROB_COST_SHIFT);
-  this_rdc->rate += (eob_cost << AV1_PROB_COST_SHIFT);
-}
-
-// Explicitly enumerate the cases so the compiler can generate SIMD for the
-// function. According to the disassembler, gcc generates SSE codes for each of
-// the possible block sizes. The hottest case is tx_width 16, which takes up
-// about 8% of the self cycle of av1_nonrd_pick_inter_mode_sb. Since
-// av1_nonrd_pick_inter_mode_sb takes up about 3% of total encoding time, the
-// potential room of improvement for writing AVX2 optimization is only 3% * 8% =
-// 0.24% of total encoding time.
-static AOM_INLINE void scale_square_buf_vals(int16_t *dst, int tx_width,
-                                             const int16_t *src,
-                                             int src_stride) {
-#define DO_SCALING                                                   \
-  do {                                                               \
-    for (int idy = 0; idy < tx_width; ++idy) {                       \
-      for (int idx = 0; idx < tx_width; ++idx) {                     \
-        dst[idy * tx_width + idx] = src[idy * src_stride + idx] * 8; \
-      }                                                              \
-    }                                                                \
-  } while (0)
-
-  if (tx_width == 4) {
-    DO_SCALING;
-  } else if (tx_width == 8) {
-    DO_SCALING;
-  } else if (tx_width == 16) {
-    DO_SCALING;
-  } else {
-    assert(0);
-  }
-
-#undef DO_SCALING
-}
-
-/*!\brief Calculates RD Cost when the block uses Identity transform.
- * Note that thie function is only for low bit depth encoding, since it
- * is called in real-time mode for now, which sets high bit depth to 0:
- * -DCONFIG_AV1_HIGHBITDEPTH=0
- *
- * \ingroup nonrd_mode_search
- * \callgraph
- * \callergraph
- * Calculates RD Cost. For low bit depth this function
- * uses low-precision set of functions (16-bit) and 32 bit for high bit depth
- * \param[in]    x              Pointer to structure holding all the data for
-                                the current macroblock
- * \param[in]    this_rdc       Pointer to calculated RD Cost
- * \param[in]    skippable      Pointer to a flag indicating possible tx skip
- * \param[in]    bsize          Current block size
- * \param[in]    tx_size        Transform size
- *
- * \remark Nothing is returned. Instead, calculated RD cost is placed to
- * \c this_rdc. \c skippable flag is set if all coefficients are zero.
- */
-static void block_yrd_idtx(MACROBLOCK *x, RD_STATS *this_rdc, int *skippable,
-                           BLOCK_SIZE bsize, TX_SIZE tx_size) {
-  MACROBLOCKD *xd = &x->e_mbd;
-  const struct macroblockd_plane *pd = &xd->plane[AOM_PLANE_Y];
-  struct macroblock_plane *const p = &x->plane[AOM_PLANE_Y];
-  assert(bsize < BLOCK_SIZES_ALL);
-  const int num_4x4_w = mi_size_wide[bsize];
-  const int num_4x4_h = mi_size_high[bsize];
-  const int step = 1 << (tx_size << 1);
-  const int block_step = (1 << tx_size);
-  const int max_blocks_wide =
-      num_4x4_w + (xd->mb_to_right_edge >= 0 ? 0 : xd->mb_to_right_edge >> 5);
-  const int max_blocks_high =
-      num_4x4_h + (xd->mb_to_bottom_edge >= 0 ? 0 : xd->mb_to_bottom_edge >> 5);
-  int eob_cost = 0;
-  const int bw = 4 * num_4x4_w;
-  const int bh = 4 * num_4x4_h;
-  const int num_blk_skip_w = num_4x4_w >> 1;
-  const int sh_blk_skip = 1;
-  // Keep the intermediate value on the stack here. Writing directly to
-  // skippable causes speed regression due to load-and-store issues in
-  // update_yrd_loop_vars.
-  int temp_skippable = 1;
-  int tx_wd = 0;
-  const SCAN_ORDER *scan_order = NULL;
-  switch (tx_size) {
-    case TX_64X64:
-      assert(0);  // Not implemented
-      break;
-    case TX_32X32:
-      assert(0);  // Not used
-      break;
-    case TX_16X16:
-      scan_order = &av1_fast_idtx_scan_order_16x16;
-      tx_wd = 16;
-      break;
-    case TX_8X8:
-      scan_order = &av1_fast_idtx_scan_order_8x8;
-      tx_wd = 8;
-      break;
-    default:
-      assert(tx_size == TX_4X4);
-      scan_order = &av1_fast_idtx_scan_order_4x4;
-      tx_wd = 4;
-      break;
-  }
-  assert(scan_order != NULL);
-
-  this_rdc->dist = 0;
-  this_rdc->rate = 0;
-  aom_subtract_block(bh, bw, p->src_diff, bw, p->src.buf, p->src.stride,
-                     pd->dst.buf, pd->dst.stride);
-  // Keep track of the row and column of the blocks we use so that we know
-  // if we are in the unrestricted motion border.
-  DECLARE_BLOCK_YRD_BUFFERS()
-  DECLARE_BLOCK_YRD_VARS()
-  for (int r = 0; r < max_blocks_high; r += block_step) {
-    for (int c = 0, s = 0; c < max_blocks_wide; c += block_step, s += step) {
-      DECLARE_LOOP_VARS_BLOCK_YRD()
-      scale_square_buf_vals(low_coeff, tx_wd, src_diff, diff_stride);
-      av1_quantize_lp(low_coeff, tx_wd * tx_wd, p->round_fp_QTX,
-                      p->quant_fp_QTX, low_qcoeff, low_dqcoeff, p->dequant_QTX,
-                      eob, scan_order->scan, scan_order->iscan);
-      assert(*eob <= 1024);
-      update_yrd_loop_vars(x, &temp_skippable, step, *eob, low_coeff,
-                           low_qcoeff, low_dqcoeff, this_rdc, &eob_cost,
-                           (r * num_blk_skip_w + c) >> sh_blk_skip);
-    }
-  }
-  this_rdc->skip_txfm = *skippable = temp_skippable;
-  if (this_rdc->sse < INT64_MAX) {
-    this_rdc->sse = (this_rdc->sse << 6) >> 2;
-    if (temp_skippable) {
-      this_rdc->dist = 0;
-      this_rdc->dist = this_rdc->sse;
-      return;
-    }
-  }
-  // If skippable is set, rate gets clobbered later.
-  this_rdc->rate <<= (2 + AV1_PROB_COST_SHIFT);
-  this_rdc->rate += (eob_cost << AV1_PROB_COST_SHIFT);
-}
-
-static INLINE void init_mbmi(MB_MODE_INFO *mbmi, PREDICTION_MODE pred_mode,
-                             MV_REFERENCE_FRAME ref_frame0,
-                             MV_REFERENCE_FRAME ref_frame1,
-                             const AV1_COMMON *cm) {
-  PALETTE_MODE_INFO *const pmi = &mbmi->palette_mode_info;
-  mbmi->ref_mv_idx = 0;
-  mbmi->mode = pred_mode;
-  mbmi->uv_mode = UV_DC_PRED;
-  mbmi->ref_frame[0] = ref_frame0;
-  mbmi->ref_frame[1] = ref_frame1;
-  pmi->palette_size[PLANE_TYPE_Y] = 0;
-  pmi->palette_size[PLANE_TYPE_UV] = 0;
-  mbmi->filter_intra_mode_info.use_filter_intra = 0;
-  mbmi->mv[0].as_int = mbmi->mv[1].as_int = 0;
-  mbmi->motion_mode = SIMPLE_TRANSLATION;
-  mbmi->num_proj_ref = 1;
-  mbmi->interintra_mode = 0;
-  set_default_interp_filters(mbmi, cm->features.interp_filter);
-}
-
-#if CONFIG_INTERNAL_STATS
-static void store_coding_context(MACROBLOCK *x, PICK_MODE_CONTEXT *ctx,
-                                 int mode_index) {
-#else
-static void store_coding_context(MACROBLOCK *x, PICK_MODE_CONTEXT *ctx) {
-#endif  // CONFIG_INTERNAL_STATS
-  MACROBLOCKD *const xd = &x->e_mbd;
-  TxfmSearchInfo *txfm_info = &x->txfm_search_info;
-
-  // Take a snapshot of the coding context so it can be
-  // restored if we decide to encode this way
-  ctx->rd_stats.skip_txfm = txfm_info->skip_txfm;
-
-  ctx->skippable = txfm_info->skip_txfm;
-#if CONFIG_INTERNAL_STATS
-  ctx->best_mode_index = mode_index;
-#endif  // CONFIG_INTERNAL_STATS
-  ctx->mic = *xd->mi[0];
-  ctx->skippable = txfm_info->skip_txfm;
-  av1_copy_mbmi_ext_to_mbmi_ext_frame(&ctx->mbmi_ext_best, &x->mbmi_ext,
-                                      av1_ref_frame_type(xd->mi[0]->ref_frame));
-}
-
-static int get_pred_buffer(PRED_BUFFER *p, int len) {
-  for (int buf_idx = 0; buf_idx < len; buf_idx++) {
-    if (!p[buf_idx].in_use) {
-      p[buf_idx].in_use = 1;
-      return buf_idx;
-    }
-  }
-  return -1;
-}
-
-static void free_pred_buffer(PRED_BUFFER *p) {
-  if (p != NULL) p->in_use = 0;
-}
-
 static INLINE int get_drl_cost(PREDICTION_MODE this_mode, int ref_mv_idx,
                                const MB_MODE_INFO_EXT *mbmi_ext,
                                const int (*const drl_mode_cost0)[2],
@@ -1541,122 +507,6 @@ static void newmv_diff_bias(MACROBLOCKD *xd, PREDICTION_MODE this_mode,
   }
 }
 
-static int64_t model_rd_for_sb_uv(AV1_COMP *cpi, BLOCK_SIZE plane_bsize,
-                                  MACROBLOCK *x, MACROBLOCKD *xd,
-                                  RD_STATS *this_rdc, int start_plane,
-                                  int stop_plane) {
-  // Note our transform coeffs are 8 times an orthogonal transform.
-  // Hence quantizer step is also 8 times. To get effective quantizer
-  // we need to divide by 8 before sending to modeling function.
-  unsigned int sse;
-  int rate;
-  int64_t dist;
-  int plane;
-  int64_t tot_sse = 0;
-
-  this_rdc->rate = 0;
-  this_rdc->dist = 0;
-  this_rdc->skip_txfm = 0;
-
-  for (plane = start_plane; plane <= stop_plane; ++plane) {
-    struct macroblock_plane *const p = &x->plane[plane];
-    struct macroblockd_plane *const pd = &xd->plane[plane];
-    const uint32_t dc_quant = p->dequant_QTX[0];
-    const uint32_t ac_quant = p->dequant_QTX[1];
-    const BLOCK_SIZE bs = plane_bsize;
-    unsigned int var;
-    if (!x->color_sensitivity[COLOR_SENS_IDX(plane)]) continue;
-
-    var = cpi->ppi->fn_ptr[bs].vf(p->src.buf, p->src.stride, pd->dst.buf,
-                                  pd->dst.stride, &sse);
-    assert(sse >= var);
-    tot_sse += sse;
-
-    av1_model_rd_from_var_lapndz(sse - var, num_pels_log2_lookup[bs],
-                                 dc_quant >> 3, &rate, &dist);
-
-    this_rdc->rate += rate >> 1;
-    this_rdc->dist += dist << 3;
-
-    av1_model_rd_from_var_lapndz(var, num_pels_log2_lookup[bs], ac_quant >> 3,
-                                 &rate, &dist);
-
-    this_rdc->rate += rate;
-    this_rdc->dist += dist << 4;
-  }
-
-  if (this_rdc->rate == 0) {
-    this_rdc->skip_txfm = 1;
-  }
-
-  if (RDCOST(x->rdmult, this_rdc->rate, this_rdc->dist) >=
-      RDCOST(x->rdmult, 0, tot_sse << 4)) {
-    this_rdc->rate = 0;
-    this_rdc->dist = tot_sse << 4;
-    this_rdc->skip_txfm = 1;
-  }
-
-  return tot_sse;
-}
-
-/*!\brief Estimation of RD cost of an intra mode for Non-RD optimized case.
- *
- * \ingroup nonrd_mode_search
- * \callgraph
- * \callergraph
- * Calculates RD Cost for an intra mode for a single TX block using Hadamard
- * transform.
- * \param[in]    plane          Color plane
- * \param[in]    block          Index of a TX block in a prediction block
- * \param[in]    row            Row of a current TX block
- * \param[in]    col            Column of a current TX block
- * \param[in]    plane_bsize    Block size of a current prediction block
- * \param[in]    tx_size        Transform size
- * \param[in]    arg            Pointer to a structure that holds parameters
- *                              for intra mode search
- *
- * \remark Nothing is returned. Instead, best mode and RD Cost of the best mode
- * are set in \c args->rdc and \c args->mode
- */
-static void estimate_block_intra(int plane, int block, int row, int col,
-                                 BLOCK_SIZE plane_bsize, TX_SIZE tx_size,
-                                 void *arg) {
-  struct estimate_block_intra_args *const args = arg;
-  AV1_COMP *const cpi = args->cpi;
-  AV1_COMMON *const cm = &cpi->common;
-  MACROBLOCK *const x = args->x;
-  MACROBLOCKD *const xd = &x->e_mbd;
-  struct macroblock_plane *const p = &x->plane[plane];
-  struct macroblockd_plane *const pd = &xd->plane[plane];
-  const BLOCK_SIZE bsize_tx = txsize_to_bsize[tx_size];
-  uint8_t *const src_buf_base = p->src.buf;
-  uint8_t *const dst_buf_base = pd->dst.buf;
-  const int64_t src_stride = p->src.stride;
-  const int64_t dst_stride = pd->dst.stride;
-  RD_STATS this_rdc;
-
-  (void)block;
-  (void)plane_bsize;
-
-  av1_predict_intra_block_facade(cm, xd, plane, col, row, tx_size);
-  av1_invalid_rd_stats(&this_rdc);
-
-  p->src.buf = &src_buf_base[4 * (row * src_stride + col)];
-  pd->dst.buf = &dst_buf_base[4 * (row * dst_stride + col)];
-
-  if (plane == 0) {
-    block_yrd(x, &this_rdc, &args->skippable, bsize_tx,
-              AOMMIN(tx_size, TX_16X16), 0);
-  } else {
-    model_rd_for_sb_uv(cpi, bsize_tx, x, xd, &this_rdc, plane, plane);
-  }
-
-  p->src.buf = src_buf_base;
-  pd->dst.buf = dst_buf_base;
-  args->rdc->rate += this_rdc.rate;
-  args->rdc->dist += this_rdc.dist;
-}
-
 static INLINE void update_thresh_freq_fact(AV1_COMP *cpi, MACROBLOCK *x,
                                            BLOCK_SIZE bsize,
                                            MV_REFERENCE_FRAME ref_frame,
@@ -1725,7 +575,7 @@ static void recheck_zeromv_after_denoising(
     xd->plane[AOM_PLANE_Y].pre[0] = yv12_mb[LAST_FRAME][AOM_PLANE_Y];
     av1_enc_build_inter_predictor_y(xd, mi_row, mi_col);
     unsigned int var;
-    model_rd_for_sb_y(cpi, bsize, x, xd, &this_rdc, &var, 1, NULL);
+    av1_model_rd_for_sb_y(cpi, bsize, x, xd, &this_rdc, &var, 1, NULL);
 
     const int16_t mode_ctx =
         av1_mode_context_analyzer(mbmi_ext->mode_context, mi->ref_frame);
@@ -1851,12 +701,12 @@ static void search_filter_ref(AV1_COMP *cpi, MACROBLOCK *x, RD_STATS *this_rdc,
                                     AOM_PLANE_Y, AOM_PLANE_Y);
     unsigned int curr_var = UINT_MAX;
     if (use_model_yrd_large)
-      model_skip_for_sb_y_large(cpi, bsize, mi_row, mi_col, x, xd,
-                                &pf_rd_stats[filter_idx], this_early_term, 1,
-                                best_sse, &curr_var, UINT_MAX);
+      av1_model_skip_for_sb_y_large(cpi, bsize, mi_row, mi_col, x, xd,
+                                    &pf_rd_stats[filter_idx], this_early_term,
+                                    1, best_sse, &curr_var, UINT_MAX);
     else
-      model_rd_for_sb_y(cpi, bsize, x, xd, &pf_rd_stats[filter_idx], &curr_var,
-                        1, NULL);
+      av1_model_rd_for_sb_y(cpi, bsize, x, xd, &pf_rd_stats[filter_idx],
+                            &curr_var, 1, NULL);
     pf_rd_stats[filter_idx].rate += av1_get_switchable_rate(
         x, xd, cm->features.interp_filter, cm->seq_params->enable_dual_filter);
     cost = RDCOST(x->rdmult, pf_rd_stats[filter_idx].rate,
@@ -2002,12 +852,12 @@ static void search_motion_mode(AV1_COMP *cpi, MACROBLOCK *x, RD_STATS *this_rdc,
       av1_enc_build_inter_predictor(cm, xd, mi_row, mi_col, NULL, bsize,
                                     AOM_PLANE_Y, AOM_PLANE_Y);
       if (use_model_yrd_large)
-        model_skip_for_sb_y_large(cpi, bsize, mi_row, mi_col, x, xd,
-                                  &pf_rd_stats[mode_index], this_early_term, 1,
-                                  best_sse, NULL, UINT_MAX);
+        av1_model_skip_for_sb_y_large(cpi, bsize, mi_row, mi_col, x, xd,
+                                      &pf_rd_stats[mode_index], this_early_term,
+                                      1, best_sse, NULL, UINT_MAX);
       else
-        model_rd_for_sb_y(cpi, bsize, x, xd, &pf_rd_stats[mode_index], NULL, 1,
-                          NULL);
+        av1_model_rd_for_sb_y(cpi, bsize, x, xd, &pf_rd_stats[mode_index], NULL,
+                              1, NULL);
       pf_rd_stats[mode_index].rate +=
           av1_get_switchable_rate(x, xd, cm->features.interp_filter,
                                   cm->seq_params->enable_dual_filter);
@@ -2067,12 +917,12 @@ static void search_motion_mode(AV1_COMP *cpi, MACROBLOCK *x, RD_STATS *this_rdc,
         av1_enc_build_inter_predictor(cm, xd, mi_row, mi_col, NULL, bsize,
                                       AOM_PLANE_Y, av1_num_planes(cm) - 1);
         if (use_model_yrd_large)
-          model_skip_for_sb_y_large(cpi, bsize, mi_row, mi_col, x, xd,
-                                    &pf_rd_stats[mode_index], this_early_term,
-                                    1, best_sse, NULL, UINT_MAX);
+          av1_model_skip_for_sb_y_large(
+              cpi, bsize, mi_row, mi_col, x, xd, &pf_rd_stats[mode_index],
+              this_early_term, 1, best_sse, NULL, UINT_MAX);
         else
-          model_rd_for_sb_y(cpi, bsize, x, xd, &pf_rd_stats[mode_index], NULL,
-                            1, NULL);
+          av1_model_rd_for_sb_y(cpi, bsize, x, xd, &pf_rd_stats[mode_index],
+                                NULL, 1, NULL);
 
         pf_rd_stats[mode_index].rate +=
             mode_costs->motion_mode_cost[bsize][mi->motion_mode];
@@ -2194,159 +1044,6 @@ static void print_time(const mode_search_stat *const ms_stat, BLOCK_SIZE bsize,
   }
 }
 #endif  // COLLECT_PICK_MODE_STAT
-
-static void compute_intra_yprediction(const AV1_COMMON *cm,
-                                      PREDICTION_MODE mode, BLOCK_SIZE bsize,
-                                      MACROBLOCK *x, MACROBLOCKD *xd) {
-  const SequenceHeader *seq_params = cm->seq_params;
-  struct macroblockd_plane *const pd = &xd->plane[AOM_PLANE_Y];
-  struct macroblock_plane *const p = &x->plane[AOM_PLANE_Y];
-  uint8_t *const src_buf_base = p->src.buf;
-  uint8_t *const dst_buf_base = pd->dst.buf;
-  const int src_stride = p->src.stride;
-  const int dst_stride = pd->dst.stride;
-  int plane = 0;
-  int row, col;
-  // block and transform sizes, in number of 4x4 blocks log 2 ("*_b")
-  // 4x4=0, 8x8=2, 16x16=4, 32x32=6, 64x64=8
-  // transform size varies per plane, look it up in a common way.
-  const TX_SIZE tx_size = max_txsize_lookup[bsize];
-  const BLOCK_SIZE plane_bsize =
-      get_plane_block_size(bsize, pd->subsampling_x, pd->subsampling_y);
-  // If mb_to_right_edge is < 0 we are in a situation in which
-  // the current block size extends into the UMV and we won't
-  // visit the sub blocks that are wholly within the UMV.
-  const int max_blocks_wide = max_block_wide(xd, plane_bsize, plane);
-  const int max_blocks_high = max_block_high(xd, plane_bsize, plane);
-  // Keep track of the row and column of the blocks we use so that we know
-  // if we are in the unrestricted motion border.
-  for (row = 0; row < max_blocks_high; row += (1 << tx_size)) {
-    // Skip visiting the sub blocks that are wholly within the UMV.
-    for (col = 0; col < max_blocks_wide; col += (1 << tx_size)) {
-      p->src.buf = &src_buf_base[4 * (row * (int64_t)src_stride + col)];
-      pd->dst.buf = &dst_buf_base[4 * (row * (int64_t)dst_stride + col)];
-      av1_predict_intra_block(
-          xd, seq_params->sb_size, seq_params->enable_intra_edge_filter,
-          block_size_wide[bsize], block_size_high[bsize], tx_size, mode, 0, 0,
-          FILTER_INTRA_MODES, pd->dst.buf, dst_stride, pd->dst.buf, dst_stride,
-          0, 0, plane);
-    }
-  }
-  p->src.buf = src_buf_base;
-  pd->dst.buf = dst_buf_base;
-}
-
-static bool should_prune_intra_modes_using_neighbors(
-    const MACROBLOCKD *xd, bool enable_intra_mode_pruning_using_neighbors,
-    PREDICTION_MODE this_mode, PREDICTION_MODE above_mode,
-    PREDICTION_MODE left_mode) {
-  if (!enable_intra_mode_pruning_using_neighbors) return false;
-
-  // Avoid pruning of DC_PRED as it is the most probable mode to win as per the
-  // statistics generated for nonrd intra mode evaluations.
-  if (this_mode == DC_PRED) return false;
-
-  // Enable the pruning for current mode only if it is not the winner mode of
-  // both the neighboring blocks (left/top).
-  return xd->up_available && this_mode != above_mode && xd->left_available &&
-         this_mode != left_mode;
-}
-
-void av1_nonrd_pick_intra_mode(AV1_COMP *cpi, MACROBLOCK *x, RD_STATS *rd_cost,
-                               BLOCK_SIZE bsize, PICK_MODE_CONTEXT *ctx) {
-  AV1_COMMON *const cm = &cpi->common;
-  MACROBLOCKD *const xd = &x->e_mbd;
-  MB_MODE_INFO *const mi = xd->mi[0];
-  RD_STATS this_rdc, best_rdc;
-  struct estimate_block_intra_args args = { cpi, x, DC_PRED, 1, 0 };
-  const TxfmSearchParams *txfm_params = &x->txfm_search_params;
-  const TX_SIZE intra_tx_size =
-      AOMMIN(max_txsize_lookup[bsize],
-             tx_mode_to_biggest_tx_size[txfm_params->tx_mode_search_type]);
-  int *bmode_costs;
-  PREDICTION_MODE best_mode = DC_PRED;
-  const MB_MODE_INFO *above_mi = xd->above_mbmi;
-  const MB_MODE_INFO *left_mi = xd->left_mbmi;
-  const PREDICTION_MODE A = av1_above_block_mode(above_mi);
-  const PREDICTION_MODE L = av1_left_block_mode(left_mi);
-  const int above_ctx = intra_mode_context[A];
-  const int left_ctx = intra_mode_context[L];
-  const unsigned int source_variance = x->source_variance;
-  bmode_costs = x->mode_costs.y_mode_costs[above_ctx][left_ctx];
-
-  av1_invalid_rd_stats(&best_rdc);
-  av1_invalid_rd_stats(&this_rdc);
-
-  init_mbmi(mi, DC_PRED, INTRA_FRAME, NONE_FRAME, cm);
-  mi->mv[0].as_int = mi->mv[1].as_int = INVALID_MV;
-
-  // Change the limit of this loop to add other intra prediction
-  // mode tests.
-  for (int mode_index = 0; mode_index < RTC_INTRA_MODES; ++mode_index) {
-    PREDICTION_MODE this_mode = intra_mode_list[mode_index];
-
-    // As per the statistics generated for intra mode evaluation in the nonrd
-    // path, it is found that the probability of H_PRED mode being the winner is
-    // very low when the best mode so far is V_PRED (out of DC_PRED and V_PRED).
-    // If V_PRED is the winner mode out of DC_PRED and V_PRED, it could imply
-    // the presence of a vertically dominant pattern. Hence, H_PRED mode is not
-    // evaluated.
-    if (cpi->sf.rt_sf.prune_h_pred_using_best_mode_so_far &&
-        this_mode == H_PRED && best_mode == V_PRED)
-      continue;
-
-    if (should_prune_intra_modes_using_neighbors(
-            xd, cpi->sf.rt_sf.enable_intra_mode_pruning_using_neighbors,
-            this_mode, A, L)) {
-      // Prune V_PRED and H_PRED if source variance of the block is less than
-      // or equal to 50. The source variance threshold is obtained empirically.
-      if ((this_mode == V_PRED || this_mode == H_PRED) && source_variance <= 50)
-        continue;
-
-      // As per the statistics, probability of SMOOTH_PRED being the winner is
-      // low when best mode so far is DC_PRED (out of DC_PRED, V_PRED and
-      // H_PRED). Hence, SMOOTH_PRED mode is not evaluated.
-      if (best_mode == DC_PRED && this_mode == SMOOTH_PRED) continue;
-    }
-
-    this_rdc.dist = this_rdc.rate = 0;
-    args.mode = this_mode;
-    args.skippable = 1;
-    args.rdc = &this_rdc;
-    mi->tx_size = intra_tx_size;
-    mi->mode = this_mode;
-    av1_foreach_transformed_block_in_plane(xd, bsize, AOM_PLANE_Y,
-                                           estimate_block_intra, &args);
-    const int skip_ctx = av1_get_skip_txfm_context(xd);
-    if (args.skippable) {
-      this_rdc.rate = x->mode_costs.skip_txfm_cost[skip_ctx][1];
-    } else {
-      this_rdc.rate += x->mode_costs.skip_txfm_cost[skip_ctx][0];
-    }
-    this_rdc.rate += bmode_costs[this_mode];
-    this_rdc.rdcost = RDCOST(x->rdmult, this_rdc.rate, this_rdc.dist);
-
-    if (this_rdc.rdcost < best_rdc.rdcost) {
-      best_rdc = this_rdc;
-      best_mode = this_mode;
-      if (!this_rdc.skip_txfm) {
-        memset(ctx->blk_skip, 0,
-               sizeof(x->txfm_search_info.blk_skip[0]) * ctx->num_4x4_blk);
-      }
-    }
-  }
-
-  mi->mode = best_mode;
-  // Keep DC for UV since mode test is based on Y channel only.
-  mi->uv_mode = UV_DC_PRED;
-  *rd_cost = best_rdc;
-
-#if CONFIG_INTERNAL_STATS
-  store_coding_context(x, ctx, mi->mode);
-#else
-  store_coding_context(x, ctx);
-#endif  // CONFIG_INTERNAL_STATS
-}
 
 static AOM_INLINE int is_same_gf_and_last_scale(AV1_COMMON *cm) {
   struct scale_factors *const sf_last = get_ref_scale_factors(cm, LAST_FRAME);
@@ -2473,294 +1170,6 @@ static AOM_INLINE void get_ref_frame_use_mask(AV1_COMP *cpi, MACROBLOCK *x,
   assert(use_last_ref_frame || use_golden_ref_frame || use_alt_ref_frame);
 }
 
-// Checks whether Intra mode needs to be pruned based on
-// 'intra_y_mode_bsize_mask_nrd' and 'prune_hv_pred_modes_using_blksad'
-// speed features.
-static INLINE bool is_prune_intra_mode(
-    AV1_COMP *cpi, int mode_index, int force_intra_check, BLOCK_SIZE bsize,
-    uint8_t segment_id, SOURCE_SAD source_sad_nonrd,
-    uint8_t color_sensitivity[MAX_MB_PLANE - 1]) {
-  const PREDICTION_MODE this_mode = intra_mode_list[mode_index];
-  if (mode_index > 2 || force_intra_check == 0) {
-    if (!((1 << this_mode) & cpi->sf.rt_sf.intra_y_mode_bsize_mask_nrd[bsize]))
-      return true;
-
-    if (this_mode == DC_PRED) return false;
-
-    if (!cpi->sf.rt_sf.prune_hv_pred_modes_using_src_sad) return false;
-
-    const bool has_color_sensitivity =
-        color_sensitivity[COLOR_SENS_IDX(AOM_PLANE_U)] &&
-        color_sensitivity[COLOR_SENS_IDX(AOM_PLANE_V)];
-    if (has_color_sensitivity &&
-        (cpi->rc.frame_source_sad > 1.1 * cpi->rc.avg_source_sad ||
-         cyclic_refresh_segment_id_boosted(segment_id) ||
-         source_sad_nonrd > kMedSad))
-      return false;
-
-    return true;
-  }
-  return false;
-}
-
-/*!\brief Estimates best intra mode for inter mode search
- *
- * \ingroup nonrd_mode_search
- * \callgraph
- * \callergraph
- *
- * Using heuristics based on best inter mode, block size, and other decides
- * whether to check intra modes. If so, estimates and selects best intra mode
- * from the reduced set of intra modes (max 4 intra modes checked)
- *
- * \param[in]    cpi                      Top-level encoder structure
- * \param[in]    x                        Pointer to structure holding all the
- *                                        data for the current macroblock
- * \param[in]    bsize                    Current block size
- * \param[in]    best_early_term          Flag, indicating that TX for the
- *                                        best inter mode was skipped
- * \param[in]    ref_cost_intra           Cost of signalling intra mode
- * \param[in]    reuse_prediction         Flag, indicating prediction re-use
- * \param[in]    orig_dst                 Original destination buffer
- * \param[in]    tmp_buffers              Pointer to a temporary buffers for
- *                                        prediction re-use
- * \param[out]   this_mode_pred           Pointer to store prediction buffer
- *                                        for prediction re-use
- * \param[in]    best_rdc                 Pointer to RD cost for the best
- *                                        selected intra mode
- * \param[in]    best_pickmode            Pointer to a structure containing
- *                                        best mode picked so far
- * \param[in]    ctx                      Pointer to structure holding coding
- *                                        contexts and modes for the block
- *
- * \remark Nothing is returned. Instead, calculated RD cost is placed to
- * \c best_rdc and best selected mode is placed to \c best_pickmode
- */
-static void estimate_intra_mode(
-    AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bsize, int best_early_term,
-    unsigned int ref_cost_intra, int reuse_prediction, struct buf_2d *orig_dst,
-    PRED_BUFFER *tmp_buffers, PRED_BUFFER **this_mode_pred, RD_STATS *best_rdc,
-    BEST_PICKMODE *best_pickmode, PICK_MODE_CONTEXT *ctx) {
-  AV1_COMMON *const cm = &cpi->common;
-  MACROBLOCKD *const xd = &x->e_mbd;
-  MB_MODE_INFO *const mi = xd->mi[0];
-  const TxfmSearchParams *txfm_params = &x->txfm_search_params;
-  const unsigned char segment_id = mi->segment_id;
-  const int *const rd_threshes = cpi->rd.threshes[segment_id][bsize];
-  const int *const rd_thresh_freq_fact = x->thresh_freq_fact[bsize];
-  const bool is_screen_content =
-      cpi->oxcf.tune_cfg.content == AOM_CONTENT_SCREEN;
-  struct macroblockd_plane *const pd = &xd->plane[AOM_PLANE_Y];
-  const REAL_TIME_SPEED_FEATURES *const rt_sf = &cpi->sf.rt_sf;
-
-  const CommonQuantParams *quant_params = &cm->quant_params;
-
-  RD_STATS this_rdc;
-
-  int intra_cost_penalty = av1_get_intra_cost_penalty(
-      quant_params->base_qindex, quant_params->y_dc_delta_q,
-      cm->seq_params->bit_depth);
-  int64_t inter_mode_thresh =
-      RDCOST(x->rdmult, ref_cost_intra + intra_cost_penalty, 0);
-  int perform_intra_pred = rt_sf->check_intra_pred_nonrd;
-  int force_intra_check = 0;
-  // For spatial enhancement layer: turn off intra prediction if the
-  // previous spatial layer as golden ref is not chosen as best reference.
-  // only do this for temporal enhancement layer and on non-key frames.
-  if (cpi->svc.spatial_layer_id > 0 &&
-      best_pickmode->best_ref_frame != GOLDEN_FRAME &&
-      cpi->svc.temporal_layer_id > 0 &&
-      !cpi->svc.layer_context[cpi->svc.temporal_layer_id].is_key_frame)
-    perform_intra_pred = 0;
-
-  int do_early_exit_rdthresh = 1;
-
-  uint32_t spatial_var_thresh = 50;
-  int motion_thresh = 32;
-  // Adjust thresholds to make intra mode likely tested if the other
-  // references (golden, alt) are skipped/not checked. For now always
-  // adjust for svc mode.
-  if (cpi->ppi->use_svc || (rt_sf->use_nonrd_altref_frame == 0 &&
-                            rt_sf->nonrd_prune_ref_frame_search > 0)) {
-    spatial_var_thresh = 150;
-    motion_thresh = 0;
-  }
-
-  // Some adjustments to checking intra mode based on source variance.
-  if (x->source_variance < spatial_var_thresh) {
-    // If the best inter mode is large motion or non-LAST ref reduce intra cost
-    // penalty, so intra mode is more likely tested.
-    if (best_rdc->rdcost != INT64_MAX &&
-        (best_pickmode->best_ref_frame != LAST_FRAME ||
-         abs(mi->mv[0].as_mv.row) >= motion_thresh ||
-         abs(mi->mv[0].as_mv.col) >= motion_thresh)) {
-      intra_cost_penalty = intra_cost_penalty >> 2;
-      inter_mode_thresh =
-          RDCOST(x->rdmult, ref_cost_intra + intra_cost_penalty, 0);
-      do_early_exit_rdthresh = 0;
-    }
-    if ((x->source_variance < AOMMAX(50, (spatial_var_thresh >> 1)) &&
-         x->content_state_sb.source_sad_nonrd >= kHighSad) ||
-        (is_screen_content && x->source_variance < 50 &&
-         ((bsize >= BLOCK_32X32 &&
-           x->content_state_sb.source_sad_nonrd != kZeroSad) ||
-          x->color_sensitivity[COLOR_SENS_IDX(AOM_PLANE_U)] == 1 ||
-          x->color_sensitivity[COLOR_SENS_IDX(AOM_PLANE_V)] == 1)))
-      force_intra_check = 1;
-    // For big blocks worth checking intra (since only DC will be checked),
-    // even if best_early_term is set.
-    if (bsize >= BLOCK_32X32) best_early_term = 0;
-  } else if (rt_sf->source_metrics_sb_nonrd &&
-             x->content_state_sb.source_sad_nonrd <= kLowSad) {
-    perform_intra_pred = 0;
-  }
-
-  if (best_rdc->skip_txfm && best_pickmode->best_mode_initial_skip_flag) {
-    if (rt_sf->skip_intra_pred == 1 && best_pickmode->best_mode != NEWMV)
-      perform_intra_pred = 0;
-    else if (rt_sf->skip_intra_pred == 2)
-      perform_intra_pred = 0;
-  }
-
-  if (!(best_rdc->rdcost == INT64_MAX || force_intra_check ||
-        (perform_intra_pred && !best_early_term &&
-         bsize <= cpi->sf.part_sf.max_intra_bsize))) {
-    return;
-  }
-
-  // Early exit based on RD cost calculated using known rate. When
-  // is_screen_content is true, more bias is given to intra modes. Hence,
-  // considered conservative threshold in early exit for the same.
-  const int64_t known_rd = is_screen_content
-                               ? CALC_BIASED_RDCOST(inter_mode_thresh)
-                               : inter_mode_thresh;
-  if (known_rd > best_rdc->rdcost) return;
-
-  struct estimate_block_intra_args args = { cpi, x, DC_PRED, 1, 0 };
-  TX_SIZE intra_tx_size = AOMMIN(
-      AOMMIN(max_txsize_lookup[bsize],
-             tx_mode_to_biggest_tx_size[txfm_params->tx_mode_search_type]),
-      TX_16X16);
-  if (is_screen_content && cpi->rc.high_source_sad &&
-      x->source_variance > spatial_var_thresh && bsize <= BLOCK_16X16)
-    intra_tx_size = TX_4X4;
-
-  PRED_BUFFER *const best_pred = best_pickmode->best_pred;
-  if (reuse_prediction && best_pred != NULL) {
-    const int bh = block_size_high[bsize];
-    const int bw = block_size_wide[bsize];
-    if (best_pred->data == orig_dst->buf) {
-      *this_mode_pred = &tmp_buffers[get_pred_buffer(tmp_buffers, 3)];
-      aom_convolve_copy(best_pred->data, best_pred->stride,
-                        (*this_mode_pred)->data, (*this_mode_pred)->stride, bw,
-                        bh);
-      best_pickmode->best_pred = *this_mode_pred;
-    }
-  }
-  pd->dst = *orig_dst;
-
-  for (int midx = 0; midx < RTC_INTRA_MODES; ++midx) {
-    const PREDICTION_MODE this_mode = intra_mode_list[midx];
-    const THR_MODES mode_index = mode_idx[INTRA_FRAME][mode_offset(this_mode)];
-    const int64_t mode_rd_thresh = rd_threshes[mode_index];
-
-    if (is_prune_intra_mode(cpi, midx, force_intra_check, bsize, segment_id,
-                            x->content_state_sb.source_sad_nonrd,
-                            x->color_sensitivity))
-      continue;
-
-    if (is_screen_content && rt_sf->source_metrics_sb_nonrd) {
-      // For spatially flat blocks with zero motion only check
-      // DC mode.
-      if (x->content_state_sb.source_sad_nonrd == kZeroSad &&
-          x->source_variance == 0 && this_mode != DC_PRED)
-        continue;
-      // Only test Intra for big blocks if spatial_variance is small.
-      else if (bsize > BLOCK_32X32 && x->source_variance > 50)
-        continue;
-    }
-
-    if (rd_less_than_thresh(best_rdc->rdcost, mode_rd_thresh,
-                            rd_thresh_freq_fact[mode_index]) &&
-        (do_early_exit_rdthresh || this_mode == SMOOTH_PRED)) {
-      continue;
-    }
-    const BLOCK_SIZE uv_bsize =
-        get_plane_block_size(bsize, xd->plane[AOM_PLANE_U].subsampling_x,
-                             xd->plane[AOM_PLANE_U].subsampling_y);
-
-    mi->mode = this_mode;
-    mi->ref_frame[0] = INTRA_FRAME;
-    mi->ref_frame[1] = NONE_FRAME;
-
-    av1_invalid_rd_stats(&this_rdc);
-    args.mode = this_mode;
-    args.skippable = 1;
-    args.rdc = &this_rdc;
-    mi->tx_size = intra_tx_size;
-    compute_intra_yprediction(cm, this_mode, bsize, x, xd);
-    // Look into selecting tx_size here, based on prediction residual.
-    block_yrd(x, &this_rdc, &args.skippable, bsize, mi->tx_size, 0);
-    // TODO(kyslov@) Need to account for skippable
-    if (x->color_sensitivity[COLOR_SENS_IDX(AOM_PLANE_U)]) {
-      av1_foreach_transformed_block_in_plane(xd, uv_bsize, AOM_PLANE_U,
-                                             estimate_block_intra, &args);
-    }
-    if (x->color_sensitivity[COLOR_SENS_IDX(AOM_PLANE_V)]) {
-      av1_foreach_transformed_block_in_plane(xd, uv_bsize, AOM_PLANE_V,
-                                             estimate_block_intra, &args);
-    }
-
-    int mode_cost = 0;
-    if (av1_is_directional_mode(this_mode) && av1_use_angle_delta(bsize)) {
-      mode_cost +=
-          x->mode_costs.angle_delta_cost[this_mode - V_PRED]
-                                        [MAX_ANGLE_DELTA +
-                                         mi->angle_delta[PLANE_TYPE_Y]];
-    }
-    if (this_mode == DC_PRED && av1_filter_intra_allowed_bsize(cm, bsize)) {
-      mode_cost += x->mode_costs.filter_intra_cost[bsize][0];
-    }
-    this_rdc.rate += ref_cost_intra;
-    this_rdc.rate += intra_cost_penalty;
-    this_rdc.rate += mode_cost;
-    this_rdc.rdcost = RDCOST(x->rdmult, this_rdc.rate, this_rdc.dist);
-
-    if (is_screen_content && rt_sf->source_metrics_sb_nonrd) {
-      // For blocks with low spatial variance and color sad,
-      // favor the intra-modes, only on scene/slide change.
-      if (cpi->rc.high_source_sad && x->source_variance < 800 &&
-          (x->color_sensitivity[COLOR_SENS_IDX(AOM_PLANE_U)] ||
-           x->color_sensitivity[COLOR_SENS_IDX(AOM_PLANE_V)]))
-        this_rdc.rdcost = CALC_BIASED_RDCOST(this_rdc.rdcost);
-      // Otherwise bias against intra for blocks with zero
-      // motion and no color, on non-scene/slide changes.
-      else if (!cpi->rc.high_source_sad && x->source_variance > 0 &&
-               x->content_state_sb.source_sad_nonrd == kZeroSad &&
-               x->color_sensitivity[COLOR_SENS_IDX(AOM_PLANE_U)] == 0 &&
-               x->color_sensitivity[COLOR_SENS_IDX(AOM_PLANE_V)] == 0)
-        this_rdc.rdcost = (3 * this_rdc.rdcost) >> 1;
-    }
-
-    if (this_rdc.rdcost < best_rdc->rdcost) {
-      *best_rdc = this_rdc;
-      best_pickmode->best_mode = this_mode;
-      best_pickmode->best_tx_size = mi->tx_size;
-      best_pickmode->best_ref_frame = INTRA_FRAME;
-      best_pickmode->best_second_ref_frame = NONE;
-      best_pickmode->best_mode_skip_txfm = this_rdc.skip_txfm;
-      if (!this_rdc.skip_txfm) {
-        memcpy(ctx->blk_skip, x->txfm_search_info.blk_skip,
-               sizeof(x->txfm_search_info.blk_skip[0]) * ctx->num_4x4_blk);
-      }
-      mi->uv_mode = this_mode;
-      mi->mv[0].as_int = INVALID_MV;
-      mi->mv[1].as_int = INVALID_MV;
-    }
-  }
-  mi->tx_size = best_pickmode->best_tx_size;
-}
-
 static AOM_INLINE int is_filter_search_enabled_blk(
     AV1_COMP *cpi, MACROBLOCK *x, int mi_row, int mi_col, BLOCK_SIZE bsize,
     int segment_id, int cb_pred_filter_search, InterpFilter *filt_select) {
@@ -2866,57 +1275,6 @@ static AOM_INLINE int skip_mode_by_bsize_and_ref_frame(
     if (more_prune && bsize >= BLOCK_32X32 && mode == NEARMV) return 1;
   }
   return 0;
-}
-
-static void set_color_sensitivity(AV1_COMP *cpi, MACROBLOCK *x,
-                                  BLOCK_SIZE bsize, int y_sad,
-                                  unsigned int source_variance,
-                                  struct buf_2d yv12_mb[MAX_MB_PLANE]) {
-  const int subsampling_x = cpi->common.seq_params->subsampling_x;
-  const int subsampling_y = cpi->common.seq_params->subsampling_y;
-  int factor = (bsize >= BLOCK_32X32) ? 2 : 3;
-  int shift = 3;
-  if (cpi->oxcf.tune_cfg.content == AOM_CONTENT_SCREEN &&
-      cpi->rc.high_source_sad) {
-    factor = 1;
-    shift = 6;
-  }
-  NOISE_LEVEL noise_level = kLow;
-  int norm_sad =
-      y_sad >> (b_width_log2_lookup[bsize] + b_height_log2_lookup[bsize]);
-  unsigned int thresh_spatial = (cpi->common.width > 1920) ? 5000 : 1000;
-  // If the spatial source variance is high and the normalized y_sad
-  // is low, then y-channel is likely good for mode estimation, so keep
-  // color_sensitivity off. For low noise content for now, since there is
-  // some bdrate regression for noisy color clip.
-  if (cpi->noise_estimate.enabled)
-    noise_level = av1_noise_estimate_extract_level(&cpi->noise_estimate);
-  if (noise_level == kLow && source_variance > thresh_spatial &&
-      cpi->oxcf.tune_cfg.content != AOM_CONTENT_SCREEN && norm_sad < 50) {
-    x->color_sensitivity[COLOR_SENS_IDX(AOM_PLANE_U)] = 0;
-    x->color_sensitivity[COLOR_SENS_IDX(AOM_PLANE_V)] = 0;
-    return;
-  }
-  const int num_planes = av1_num_planes(&cpi->common);
-
-  for (int plane = AOM_PLANE_U; plane < num_planes; ++plane) {
-    if (x->color_sensitivity[COLOR_SENS_IDX(plane)] == 2 ||
-        source_variance < 50) {
-      struct macroblock_plane *const p = &x->plane[plane];
-      const BLOCK_SIZE bs =
-          get_plane_block_size(bsize, subsampling_x, subsampling_y);
-
-      const int uv_sad = cpi->ppi->fn_ptr[bs].sdf(
-          p->src.buf, p->src.stride, yv12_mb[plane].buf, yv12_mb[plane].stride);
-
-      const int norm_uv_sad =
-          uv_sad >> (b_width_log2_lookup[bs] + b_height_log2_lookup[bs]);
-      x->color_sensitivity[COLOR_SENS_IDX(plane)] =
-          uv_sad > (factor * (y_sad >> shift)) && norm_uv_sad > 40;
-      if (source_variance < 50 && norm_uv_sad > 100)
-        x->color_sensitivity[COLOR_SENS_IDX(plane)] = 1;
-    }
-  }
 }
 
 static void setup_compound_prediction(const AV1_COMMON *cm, MACROBLOCK *x,
@@ -3519,10 +1877,10 @@ static AOM_FORCE_INLINE bool handle_inter_mode_nonrd(
   if (idx == 0 && !skip_pred_mv) {
     // Set color sensitivity on first tested mode only.
     // Use y-sad already computed in find_predictors: take the sad with motion
-    // vector closest to 0; the uv-sad computed below in set_color_sensitivity
-    // is for zeromv.
-    // For screen: first check if golden reference is being used, if so,
-    // force color_sensitivity on if the color sensitivity for sb_g is on.
+    // vector closest to 0; the uv-sad computed below in
+    // av1_set_color_sensitivity is for zeromv.
+    // For screen: first check if golden reference is being used, if so, force
+    // color_sensitivity on if the color sensitivity for sb_g is on.
     if (cpi->oxcf.tune_cfg.content == AOM_CONTENT_SCREEN &&
         search_state->use_ref_frame_mask[GOLDEN_FRAME]) {
       if (x->color_sensitivity_sb_g[COLOR_SENS_IDX(AOM_PLANE_U)] == 1)
@@ -3537,8 +1895,8 @@ static AOM_FORCE_INLINE bool handle_inter_mode_nonrd(
               (abs(search_state->frame_mv[NEARESTMV][LAST_FRAME].as_mv.col) +
                abs(search_state->frame_mv[NEARESTMV][LAST_FRAME].as_mv.row)))
         y_sad = x->pred_mv1_sad[LAST_FRAME];
-      set_color_sensitivity(cpi, x, bsize, y_sad, x->source_variance,
-                            search_state->yv12_mb[LAST_FRAME]);
+      av1_set_color_sensitivity(cpi, x, bsize, y_sad, x->source_variance,
+                                search_state->yv12_mb[LAST_FRAME]);
     }
   }
 
@@ -3624,12 +1982,12 @@ static AOM_FORCE_INLINE bool handle_inter_mode_nonrd(
     }
 
     if (use_model_yrd_large) {
-      model_skip_for_sb_y_large(cpi, bsize, mi_row, mi_col, x, xd,
-                                &search_state->this_rdc, &this_early_term, 0,
-                                best_pickmode->best_sse, &var, var_threshold);
+      av1_model_skip_for_sb_y_large(
+          cpi, bsize, mi_row, mi_col, x, xd, &search_state->this_rdc,
+          &this_early_term, 0, best_pickmode->best_sse, &var, var_threshold);
     } else {
-      model_rd_for_sb_y(cpi, bsize, x, xd, &search_state->this_rdc, &var, 0,
-                        &this_early_term);
+      av1_model_rd_for_sb_y(cpi, bsize, x, xd, &search_state->this_rdc, &var, 0,
+                            &this_early_term);
     }
 #if COLLECT_PICK_MODE_STAT
     aom_usec_timer_mark(&ms_stat.timer2);
@@ -3684,7 +2042,8 @@ static AOM_FORCE_INLINE bool handle_inter_mode_nonrd(
     aom_usec_timer_start(&ms_stat.timer2);
 #endif
     // Calculates RD Cost using Hadamard transform.
-    block_yrd(x, &search_state->this_rdc, &is_skippable, bsize, mi->tx_size, 1);
+    av1_block_yrd(x, &search_state->this_rdc, &is_skippable, bsize, mi->tx_size,
+                  1);
     if (search_state->this_rdc.skip_txfm ||
         RDCOST(x->rdmult, search_state->this_rdc.rate,
                search_state->this_rdc.dist) >=
@@ -3718,8 +2077,8 @@ static AOM_FORCE_INLINE bool handle_inter_mode_nonrd(
                                       AOM_PLANE_V, AOM_PLANE_V);
       }
       // Compute sse for chroma planes.
-      const int64_t sse_uv = model_rd_for_sb_uv(cpi, uv_bsize, x, xd, &rdc_uv,
-                                                AOM_PLANE_U, AOM_PLANE_V);
+      const int64_t sse_uv = av1_model_rd_for_sb_uv(
+          cpi, uv_bsize, x, xd, &rdc_uv, AOM_PLANE_U, AOM_PLANE_V);
       search_state->this_rdc.sse += sse_uv;
       // Restore Y rdc if UV rdc disallows txfm skip
       if (search_state->this_rdc.skip_txfm && !rdc_uv.skip_txfm &&
@@ -3879,7 +2238,7 @@ static AOM_FORCE_INLINE void handle_screen_content_mode_nonrd(
     // transform.
     av1_enc_build_inter_predictor(cm, xd, mi_row, mi_col, NULL, bsize,
                                   AOM_PLANE_Y, AOM_PLANE_Y);
-    block_yrd_idtx(x, &idtx_rdc, &is_skippable, bsize, mi->tx_size);
+    av1_block_yrd_idtx(x, &idtx_rdc, &is_skippable, bsize, mi->tx_size);
     int64_t idx_rdcost = RDCOST(x->rdmult, idtx_rdc.rate, idtx_rdc.dist);
     if (idx_rdcost < search_state->best_rdc.rdcost) {
       // Keep the skip_txfm off if the color_sensitivity is set.
@@ -4086,7 +2445,7 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
 #if COLLECT_PICK_MODE_STAT
   ms_stat.num_blocks[bsize]++;
 #endif
-  init_mbmi(mi, DC_PRED, NONE_FRAME, NONE_FRAME, cm);
+  init_mbmi_nonrd(mi, DC_PRED, NONE_FRAME, NONE_FRAME, cm);
   mi->tx_size = AOMMIN(
       AOMMIN(max_txsize_lookup[bsize],
              tx_mode_to_biggest_tx_size[txfm_params->tx_mode_search_type]),
@@ -4193,11 +2552,11 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
 
   // Evaluate Intra modes in inter frame
   if (!x->force_zeromv_skip_for_blk)
-    estimate_intra_mode(cpi, x, bsize, best_early_term,
-                        search_state.ref_costs_single[INTRA_FRAME],
-                        reuse_inter_pred, &orig_dst, tmp_buffer,
-                        &this_mode_pred, &search_state.best_rdc, best_pickmode,
-                        ctx);
+    av1_estimate_intra_mode(cpi, x, bsize, best_early_term,
+                            search_state.ref_costs_single[INTRA_FRAME],
+                            reuse_inter_pred, &orig_dst, tmp_buffer,
+                            &this_mode_pred, &search_state.best_rdc,
+                            best_pickmode, ctx);
 
   int skip_idtx_palette = (x->color_sensitivity[COLOR_SENS_IDX(AOM_PLANE_U)] ||
                            x->color_sensitivity[COLOR_SENS_IDX(AOM_PLANE_V)]) &&
@@ -4297,9 +2656,9 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
   }
 
 #if CONFIG_INTERNAL_STATS
-  store_coding_context(x, ctx, mi->mode);
+  av1_store_coding_context(x, ctx, mi->mode);
 #else
-  store_coding_context(x, ctx);
+  av1_store_coding_context(x, ctx);
 #endif  // CONFIG_INTERNAL_STATS
 
 #if COLLECT_PICK_MODE_STAT
