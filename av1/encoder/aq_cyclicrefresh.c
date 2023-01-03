@@ -538,7 +538,9 @@ void av1_cyclic_refresh_setup(AV1_COMP *const cpi) {
       cm->prev_frame && (cm->width != cm->prev_frame->width ||
                          cm->height != cm->prev_frame->height);
 
-  if (resolution_change) av1_cyclic_refresh_reset_resize(cpi);
+  if (resolution_change &&
+      cpi->svc.prev_number_spatial_layers == cpi->svc.number_spatial_layers)
+    av1_cyclic_refresh_reset_resize(cpi);
   if (!cr->apply_cyclic_refresh) {
     // Set segmentation map to 0 and disable.
     unsigned char *const seg_map = cpi->enc_seg.map;

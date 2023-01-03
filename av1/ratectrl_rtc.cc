@@ -305,6 +305,8 @@ int *AV1RateControlRTC::GetDeltaQ() const {
 
 void AV1RateControlRTC::PostEncodeUpdate(uint64_t encoded_frame_size) {
   cpi_->common.current_frame.frame_number++;
+  if (cpi_->svc.spatial_layer_id == cpi_->svc.number_spatial_layers - 1)
+    cpi_->svc.prev_number_spatial_layers = cpi_->svc.number_spatial_layers;
   av1_rc_postencode_update(cpi_, encoded_frame_size);
   if (cpi_->svc.number_spatial_layers > 1 ||
       cpi_->svc.number_temporal_layers > 1)
