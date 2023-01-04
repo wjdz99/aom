@@ -1,6 +1,23 @@
 {
   "comments": [
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "16c15456_c6e63de7",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-01-04T21:18:33Z",
+      "side": 1,
+      "message": "Rachel: patchset 8 looks good except for the two comment issues in aom_scale/yv12config.h.",
+      "revId": "7fe3173efcc7d006aa3bd7e9d2f5694193019f55",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "7561c53a_e57a8ee9",
@@ -20,6 +37,23 @@
         "endLine": 131,
         "endChar": 9
       },
+      "revId": "7fe3173efcc7d006aa3bd7e9d2f5694193019f55",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6808b238_cd2c8291",
+        "filename": "aom_scale/yv12config.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-01-04T21:18:33Z",
+      "side": 1,
+      "message": "Did you mean \"unlikely\"?\n\nThis paragraph apparently describes the following code in `aom_alloc_frame_buffer()`:\n\n```\n  if (ybf) {\n    aom_free_frame_buffer(ybf);\n    return aom_realloc_frame_buffer(ybf, width, height, ss_x, ss_y,\n                                    use_highbitdepth, border, byte_alignment,\n                                    NULL, NULL, NULL, num_pyramid_levels,\n                                    alloc_y_plane_only);\n  }\n```\n\nSo I think this sentence is intended to suggest calling `aom_realloc_frame_buffer()` directly if the `aom_free_frame_buffer(ybf)` call is not needed.",
       "revId": "7fe3173efcc7d006aa3bd7e9d2f5694193019f55",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
