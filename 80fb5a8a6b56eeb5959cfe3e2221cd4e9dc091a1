@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "acec79ad_f15a073a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2023-01-04T15:25:05Z",
+      "side": 1,
+      "message": "Hi Wan-Teh, Frank, \n\nSuperblock size of 128x128 may not be required during allintra encoding since maximum partition size is 32x32 for speed\u003e\u003d6. In this CL, SB size of 64X64 is forced to improve the multi thread performance, by reducing top-right delay and thread sync wastage. \n\nThis setting is enabled only for speed\u003e\u003d9 and resolutions less than 4k due to the below reasons:\n1. For speed\u003c9, cost update happens at a superblock level(INTERNAL_COST_UPD_SB). Hence, reducing the SB size seems to increase the frequency of update and result in an increase in encode time.\n2. For speed\u003d9 and resolutions \u003e\u003d 4k, cost update happens at SB row level(INTERNAL_COST_UPD_SBROW). Though the single-thread encode time impact is negligible in this case, the calls to av1_avg_cdf_symbols() which happens at a superblock level (during MT) increase and therefore results in an overall encode time increase.\n\nHowever, we tried extending the speed features coeff_cost_upd_level and mode_cost_upd_level from speed 9 to speed 6, 7 and 8, and then applied the setting of SB size to 64X64. But results of extending the speed features were not in trade-off. Hence, we enabled this setting only for speed\u003e\u003d9.\n\nFor AVIF image encode with speed\u003d9\n```\n                 HEAP Memory reduction(%)\nResolution   threads\u003d1    threads\u003d4\n768x512         5.100       8.515\n1280x720        2.615       3.130\n```\n\nThis CL doesn’t have any impact for resolutions \u003c\u003d480p, as SB size is already set to 64X64 for these resolutions. The heap memory reduction is mainly due to the buffer size reduction of thread_data-\u003etd-\u003evt64x64, thread_data-\u003etd-\u003eshared_coeff_buf etc.\n\nHEAP memory reduction was measured using the following command:\n$valgrind --tool\u003dmassif ./avifenc ...\n\nFor libaom AV1 video encode, bit-match is verified (w.r.t. parent commit) for \u0027GOOD\u0027 and \u0027RT\u0027 encoding modes for a few contents with different encoding configurations. It is verified that the CL is bit-exact for allintra encode, speed \u003c 9 with no speed impact.\n\nPlease review.\n\nRegards,\nMudassir",
+      "revId": "80fb5a8a6b56eeb5959cfe3e2221cd4e9dc091a1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
