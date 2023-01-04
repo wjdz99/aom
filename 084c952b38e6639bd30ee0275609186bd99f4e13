@@ -22,6 +22,30 @@
       },
       "revId": "084c952b38e6639bd30ee0275609186bd99f4e13",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7fac6679_656780b9",
+        "filename": "av1/encoder/aq_cyclicrefresh.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 516,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2023-01-04T17:14:16Z",
+      "side": 1,
+      "message": "The flag indicates if the number of spatial layers has changed. Its set after encoding the whole superframe (at end of encoding of last spatial layer).\n\nSo right after 3-\u003e2, the condition (#spatial layers has changed) is true for both SLO and SL1 (since its set at end of encoding current superframe).\n\nThere is cyclic refresh running for each spatial layer, so if number of spatial layers has changed we should reset the CRD (to avoid for example having a QVGA SL0 CR continuing into a VGA SLO CR).",
+      "parentUuid": "908f9cac_398b3180",
+      "range": {
+        "startLine": 516,
+        "startChar": 15,
+        "endLine": 516,
+        "endChar": 41
+      },
+      "revId": "084c952b38e6639bd30ee0275609186bd99f4e13",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
