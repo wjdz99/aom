@@ -33,6 +33,24 @@
       "message": "I don\u0027t think it makes sense to move static functions in nonrd_pickmode.c (which are only used in that file) to nonrd_utils.{h,c} and add av1_ prefix to their names.",
       "revId": "fcc6f14ba168dc80dda9d0565522613cd5ace841",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ce2d24cc_312b4bad",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 31022
+      },
+      "writtenOn": "2023-01-05T12:56:05Z",
+      "side": 1,
+      "message": "Hi Jerome, Yunqing\n\nWe have reverted few static functions that were moved to the new source file. The functions are now separated based on below criteria.\n- High-level functions and utility functions used in intra mode search\n- Utility functions used in both intra and inter mode search\n \nIn the updated patch \u0027static\u0027 keyword is removed for below functions.\n- av1_estimate_block_intra\n- av1_estimate_intra_mode\n- av1_model_rd_for_sb_uv\n- av1_block_yrd\n- av1_block_yrd_idtx\n- av1_store_coding_context_nonrd\n\nThe listed functions are either used as high-level entry points or used in both intra and inter mode search. Except these for other functions the \u0027static\u0027 keyword is intact.\n\nWe hope the modified patch is fine. Please let us know if you have any suggestions.",
+      "parentUuid": "76337432_d20ff2e2",
+      "revId": "fcc6f14ba168dc80dda9d0565522613cd5ace841",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
