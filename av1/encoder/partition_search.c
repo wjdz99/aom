@@ -5188,6 +5188,16 @@ static AOM_INLINE void set_sms_tree_partitioning(
   sms_tree->partitioning = partition;
 }
 
+// Prune rectangular partitions if the variance deviation of 4x4 sub-blocks
+// within the block is less than a threshold (derived empirically).
+static AOM_INLINE bool should_prune_rect_part_using_var_deviation(
+    double var_min, double var_max, int must_find_valid_partition,
+    bool prune_rect_part_using_4x4_var_deviation) {
+  if (must_find_valid_partition || !prune_rect_part_using_4x4_var_deviation)
+    return false;
+  return (var_max - var_min < 3.0);
+}
+
 /*!\brief AV1 block partition search (full search).
 *
 * \ingroup partition_search
@@ -5373,27 +5383,32 @@ BEGIN_PARTITION_SEARCH:
   start_timing(cpi, none_partition_search_time);
 #endif
 
-  // Further pruning or in some cases reverse pruning when allintra is set
-  // This code helps visual and in some cases metrics quality where the current
-  // block comprises at least one very low variance sub-block and at least one
-  // where the variance is much higher.
-  //
-  // The idea is that in such cases there is danger of ringing and other visual
-  // artifacts from a high variance feature such as an edge into a very low
-  // variance region.
-  //
-  // The approach taken is to force break down / split to a smaller block size
-  // to try and separate out the low variance and well predicted blocks from the
-  // more complex ones and to prevent propagation of ringing over a large
-  // region.
-  if ((cpi->oxcf.mode == ALLINTRA) && (bsize >= BLOCK_16X16)) {
+  if (cpi->oxcf.mode == ALLINTRA) {
     double var_min, var_max;
     log_sub_block_var(cpi, x, bsize, &var_min, &var_max);
 
-    if ((var_min < 0.272) && ((var_max - var_min) > 3.0)) {
+    // Further pruning or in some cases reverse pruning when allintra is set
+    // This code helps visual and in some cases metrics quality where the
+    // current block comprises at least one very low variance sub-block and at
+    // least one where the variance is much higher.
+    //
+    // The idea is that in such cases there is danger of ringing and other
+    // visual artifacts from a high variance feature such as an edge into a very
+    // low variance region.
+    //
+    // The approach taken is to force break down / split to a smaller block size
+    // to try and separate out the low variance and well predicted blocks from
+    // the more complex ones and to prevent propagation of ringing over a large
+    // region.
+    if ((bsize >= BLOCK_16X16) && (var_min < 0.272) &&
+        ((var_max - var_min) > 3.0)) {
       part_search_state.partition_none_allowed = 0;
       part_search_state.terminate_partition_search = 0;
       part_search_state.do_square_split = 1;
+    } else if (should_prune_rect_part_using_var_deviation(
+                   var_min, var_max, x->must_find_valid_partition,
+                   cpi->sf.part_sf.prune_rect_part_using_4x4_var_deviation)) {
+      part_search_state.do_rectangular_split = 0;
     }
   }
 
