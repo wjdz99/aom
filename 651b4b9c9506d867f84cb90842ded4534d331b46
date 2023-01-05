@@ -18,6 +18,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "5318b67d_df3e0613",
+        "filename": "av1/encoder/speed_features.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 728,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2023-01-05T21:59:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "eb94f923_4301d4de",
+      "revId": "651b4b9c9506d867f84cb90842ded4534d331b46",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ba2dde64_cf6b0cf7",
@@ -31,6 +49,24 @@
       "writtenOn": "2023-01-05T21:09:20Z",
       "side": 1,
       "message": "doesn\u0027t int_pro_motion_estimation already test zero MV?",
+      "revId": "651b4b9c9506d867f84cb90842ded4534d331b46",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2b5bc43a_588c6b25",
+        "filename": "av1/encoder/var_based_part.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 1283,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2023-01-05T21:59:47Z",
+      "side": 1,
+      "message": "No, it doesn\u0027t.",
+      "parentUuid": "ba2dde64_cf6b0cf7",
       "revId": "651b4b9c9506d867f84cb90842ded4534d331b46",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -52,6 +88,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a8fca803_9b23421b",
+        "filename": "av1/encoder/var_based_part.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 1298,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2023-01-05T21:59:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bf1e3c7e_777c5358",
+      "revId": "651b4b9c9506d867f84cb90842ded4534d331b46",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d4559c17_0608dac6",
@@ -65,6 +119,30 @@
       "writtenOn": "2023-01-05T21:09:20Z",
       "side": 1,
       "message": "since this is at superblock level, what does the above/left-\u003embmi refer to, the top-leftmost coding block ?(since above/left superblocks may be partitioned).",
+      "range": {
+        "startLine": 1316,
+        "startChar": 23,
+        "endLine": 1316,
+        "endChar": 24
+      },
+      "revId": "651b4b9c9506d867f84cb90842ded4534d331b46",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "dc775a06_bf295c90",
+        "filename": "av1/encoder/var_based_part.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 1316,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2023-01-05T21:59:47Z",
+      "side": 1,
+      "message": "They are the first block above or left to this SB. I thought to use all above/left blocks, but the complexity would be higher. Anyway, using one of them is better than using none.",
+      "parentUuid": "d4559c17_0608dac6",
       "range": {
         "startLine": 1316,
         "startChar": 23,
