@@ -1,0 +1,78 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "eb94f923_4301d4de",
+        "filename": "av1/encoder/speed_features.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 728,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2023-01-05T21:09:20Z",
+      "side": 1,
+      "message": "Isn\u0027t it better to place this under the existing speed feature: \"estimate_motion_for_var_based_partition\"\n\nlike level 0 is int motion and level 1 is neighbor-subpel motion?",
+      "revId": "651b4b9c9506d867f84cb90842ded4534d331b46",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ba2dde64_cf6b0cf7",
+        "filename": "av1/encoder/var_based_part.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 1283,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2023-01-05T21:09:20Z",
+      "side": 1,
+      "message": "doesn\u0027t int_pro_motion_estimation already test zero MV?",
+      "revId": "651b4b9c9506d867f84cb90842ded4534d331b46",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bf1e3c7e_777c5358",
+        "filename": "av1/encoder/var_based_part.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 1298,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2023-01-05T21:09:20Z",
+      "side": 1,
+      "message": "move this block of code to a new function?",
+      "revId": "651b4b9c9506d867f84cb90842ded4534d331b46",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d4559c17_0608dac6",
+        "filename": "av1/encoder/var_based_part.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 1316,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2023-01-05T21:09:20Z",
+      "side": 1,
+      "message": "since this is at superblock level, what does the above/left-\u003embmi refer to, the top-leftmost coding block ?(since above/left superblocks may be partitioned).",
+      "range": {
+        "startLine": 1316,
+        "startChar": 23,
+        "endLine": 1316,
+        "endChar": 24
+      },
+      "revId": "651b4b9c9506d867f84cb90842ded4534d331b46",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
