@@ -35,6 +35,23 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "5318cf1c_2e7dd007",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2023-01-06T14:51:51Z",
+      "side": 1,
+      "message": "Hi Wan-Teh,\n\nPlease let us know your opinion on our response.\n\nRegards,\nMudassir",
+      "revId": "80fb5a8a6b56eeb5959cfe3e2221cd4e9dc091a1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "eccd63f9_23df85b2",
@@ -54,6 +71,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "54bf1726_e36ea5fe",
+        "filename": "av1/encoder/encoder_utils.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 834,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2023-01-06T14:51:51Z",
+      "side": 1,
+      "message": "The  buffers like txb_buf, shared_coeff_buf and sms_tree etc are allocated (please see alloc_compressor_data()) based on the superblock size set by av1_select_sb_size() during control calls. As speed features are not correctly set by this time, using speed features may not be a feasible solution.",
+      "parentUuid": "eccd63f9_23df85b2",
+      "revId": "80fb5a8a6b56eeb5959cfe3e2221cd4e9dc091a1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "919c5c98_efca2b9a",
         "filename": "av1/encoder/encoder_utils.c",
         "patchSetId": 1
@@ -65,6 +100,24 @@
       "writtenOn": "2023-01-04T22:39:50Z",
       "side": 1,
       "message": "This test assumes `width` is `cm-\u003ewidth` and `height` is `cm-\u003eheight`. This is not always true when this function is called. For example, this function may be called with `width\u003doxcf-\u003efrm_dim_cfg.width` and `height\u003doxcf-\u003efrm_dim_cfg.height`.\n\nIs this a problem?",
+      "revId": "80fb5a8a6b56eeb5959cfe3e2221cd4e9dc091a1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ab825c21_79f68064",
+        "filename": "av1/encoder/encoder_utils.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 835,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2023-01-06T14:51:51Z",
+      "side": 1,
+      "message": "Since this setting is enabled only when superres_mode is AOM_SUPERRES_NONE and resize_mode is RESIZE_NONE (please check line 817), both oxcf-\u003efrm_dim_cfg.width/height and cm-\u003ewidth/height would be the same. Hence this shouldn’t be a problem.",
+      "parentUuid": "919c5c98_efca2b9a",
       "revId": "80fb5a8a6b56eeb5959cfe3e2221cd4e9dc091a1",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
