@@ -71,6 +71,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "d0d7f5f2_d946bf99",
+        "filename": "av1/encoder/var_based_part.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 1283,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2023-01-06T16:49:18Z",
+      "side": 1,
+      "message": "Can you add comments to explain this, since it may be confusing to reader why int_pro_motion doesn\u0027t properly test zero-mv?",
+      "parentUuid": "2b5bc43a_588c6b25",
+      "revId": "651b4b9c9506d867f84cb90842ded4534d331b46",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "bf1e3c7e_777c5358",
@@ -143,6 +161,30 @@
       "side": 1,
       "message": "They are the first block above or left to this SB. I thought to use all above/left blocks, but the complexity would be higher. Anyway, using one of them is better than using none.",
       "parentUuid": "d4559c17_0608dac6",
+      "range": {
+        "startLine": 1316,
+        "startChar": 23,
+        "endLine": 1316,
+        "endChar": 24
+      },
+      "revId": "651b4b9c9506d867f84cb90842ded4534d331b46",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1686ff02_187a3112",
+        "filename": "av1/encoder/var_based_part.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 1316,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2023-01-06T16:49:18Z",
+      "side": 1,
+      "message": "Ok, good to add comments on this here.",
+      "parentUuid": "dc775a06_bf295c90",
       "range": {
         "startLine": 1316,
         "startChar": 23,
