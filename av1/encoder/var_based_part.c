@@ -1338,7 +1338,10 @@ static void setup_planes(AV1_COMP *cpi, MACROBLOCK *x, unsigned int *y_sad,
     mi->bsize = cm->seq_params->sb_size;
     mi->mv[0].as_int = 0;
     mi->interp_filters = av1_broadcast_interp_filter(BILINEAR);
-    if (cpi->sf.rt_sf.estimate_motion_for_var_based_partition) {
+
+    const int est_motion =
+        cpi->sf.rt_sf.estimate_motion_for_var_based_partition;
+    if (est_motion == 1 || est_motion == 2) {
       if (xd->mb_to_right_edge >= 0 && xd->mb_to_bottom_edge >= 0) {
         const MV dummy_mv = { 0, 0 };
         *y_sad = av1_int_pro_motion_estimation(cpi, x, cm->seq_params->sb_size,
@@ -1356,8 +1359,7 @@ static void setup_planes(AV1_COMP *cpi, MACROBLOCK *x, unsigned int *y_sad,
     // Evaluate if neighbours' MVs give better predictions. Zero MV is tested
     // already, so only non-zero MVs are tested here. Here the neighbour blocks
     // are the first block above or left to this superblock.
-    if (cpi->sf.rt_sf.estimate_motion_for_var_based_partition == 2 &&
-        (xd->up_available || xd->left_available))
+    if (est_motion >= 2 && (xd->up_available || xd->left_available))
       evaluate_neighbour_mvs(cpi, x, y_sad, is_small_sb);
 
     *y_sad_last = *y_sad;
