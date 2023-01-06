@@ -24,6 +24,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ec73d06f_a455d5fd",
+        "filename": "av1/encoder/aq_cyclicrefresh.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 428,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2023-01-06T20:24:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "30bacd51_4e95646f",
+      "range": {
+        "startLine": 428,
+        "startChar": 6,
+        "endLine": 428,
+        "endChar": 7
+      },
+      "revId": "c61165b5c19526631ad43890bca85c07ed4b4f38",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "dded51f6_03a57384",
@@ -47,6 +71,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "b492b8de_e52e6a61",
+        "filename": "av1/encoder/aq_cyclicrefresh.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 545,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2023-01-06T20:24:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "dded51f6_03a57384",
+      "range": {
+        "startLine": 545,
+        "startChar": 6,
+        "endLine": 545,
+        "endChar": 7
+      },
+      "revId": "c61165b5c19526631ad43890bca85c07ed4b4f38",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "251be564_7ccdf6ec",
@@ -60,6 +108,30 @@
       "writtenOn": "2023-01-06T19:32:04Z",
       "side": 1,
       "message": "there\u0027s no need for this pair of ()",
+      "range": {
+        "startLine": 147,
+        "startChar": 11,
+        "endLine": 147,
+        "endChar": 12
+      },
+      "revId": "c61165b5c19526631ad43890bca85c07ed4b4f38",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7d9971e2_5ddbddd1",
+        "filename": "av1/encoder/svc_layercontext.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 147,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2023-01-06T20:24:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "251be564_7ccdf6ec",
       "range": {
         "startLine": 147,
         "startChar": 11,
