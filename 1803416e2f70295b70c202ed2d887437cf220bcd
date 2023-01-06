@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "63a7958e_f0a4ba40",
+        "filename": "av1/encoder/var_based_part.c",
+        "patchSetId": 16
+      },
+      "lineNbr": 1349,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2023-01-06T20:53:20Z",
+      "side": 1,
+      "message": "Still surprised on this \"doesn\u0027t test zero MV\". What is the bdrate/speed change with only this code for re-test of zero-MV here (without the evaluate_neighbour_mvs) for speed 8?",
+      "revId": "1803416e2f70295b70c202ed2d887437cf220bcd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
