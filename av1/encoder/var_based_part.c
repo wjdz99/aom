@@ -1463,19 +1463,14 @@ int av1_choose_var_based_partitioning(AV1_COMP *cpi, const TileInfo *const tile,
   memset(x->part_search_info.variance_low, 0,
          sizeof(x->part_search_info.variance_low));
 
-  // Check if LAST frame is NULL or if the resolution of LAST is
-  // different than the current frame resolution, and if so, treat this frame
+  // Check if LAST frame is NULL, and if so, treat this frame
   // as a key frame, for the purpose of the superblock partitioning.
   // LAST == NULL can happen in cases where enhancement spatial layers are
   // enabled dyanmically and the only reference is the spatial(GOLDEN).
-  // TODO(marpan): Check se of scaled references for the different resoln.
   if (!frame_is_intra_only(cm)) {
     const YV12_BUFFER_CONFIG *const ref =
         get_ref_frame_yv12_buf(cm, LAST_FRAME);
-    if (ref == NULL || ref->y_crop_height != cm->height ||
-        ref->y_crop_width != cm->width) {
-      is_key_frame = true;
-    }
+    if (ref == NULL) is_key_frame = true;
   }
 
   if (!is_key_frame) {
