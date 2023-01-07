@@ -93,11 +93,8 @@ TEST(EC_TEST, random_ec_test) {
       int dec_method;
       unsigned int sym = data[j] + 1;  // Initialize sym to an invalid value.
 
-      if (CDF_SHIFT == 0) {
-        dec_method = 3 + (rand() & 1);
-      } else {
-        dec_method = enc_method[j];
-      }
+      dec_method = 3 + (rand() & 1);
+
       switch (dec_method) {
         case 3: {
           sym = od_ec_decode_bool_q15(
