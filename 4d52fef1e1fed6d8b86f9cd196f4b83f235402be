@@ -33,6 +33,24 @@
       "message": "1. Optional: It took me a while to figure out the purpose of this check. I suggest adding a comment to say this checks for invalid `AOM_SCALING_MODE` values.\n\n2. We should also return -1 if `horiz_mode \u003c AOME_NORMAL || vert_mode \u003c AOME_NORMAL`. We can make this change in a separate CL.",
       "revId": "4d52fef1e1fed6d8b86f9cd196f4b83f235402be",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "073a8c0c_2238988f",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 5078,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2023-01-07T00:24:32Z",
+      "side": 1,
+      "message": "Ok, added 1. Lets leave 2 for another CL.",
+      "parentUuid": "84b508e9_015eedae",
+      "revId": "4d52fef1e1fed6d8b86f9cd196f4b83f235402be",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
