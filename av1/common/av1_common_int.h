@@ -1048,6 +1048,10 @@ typedef struct AV1Common {
    */
   int spatial_layer_id;
 
+  int sub_gop_offset;
+  int avg_qindex;
+  int frame_cnt;
+
 #if TXCOEFF_TIMER
   int64_t cum_txcoeff_timer;
   int64_t txcoeff_timer;

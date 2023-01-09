@@ -612,6 +612,9 @@ static void init_config(struct AV1_COMP *cpi, const AV1EncoderConfig *oxcf) {
   cm->width = oxcf->frm_dim_cfg.width;
   cm->height = oxcf->frm_dim_cfg.height;
   cpi->is_dropped_frame = false;
+  cm->sub_gop_offset = 0;
+  cm->avg_qindex = 0;
+  cm->frame_cnt = 0;
 
   alloc_compressor_data(cpi);
 
@@ -2826,6 +2829,60 @@ static int encode_with_recode_loop(AV1_COMP *cpi, size_t *size, uint8_t *dest) {
         av1_scale_references(cpi, EIGHTTAP_REGULAR, 0, 0);
       }
     }
+
+    const int frames_since_key =
+        cm->current_frame.display_order_hint - cpi->rc.frames_since_key;
+    const FIRSTPASS_STATS *stats = av1_firstpass_info_peek(
+        &cpi->ppi->twopass.firstpass_info, frames_since_key);
+
+    if (cpi->refresh_frame.alt_ref_frame) {
+      double avg_intra_error =
+          exp(cpi->ppi->twopass.firstpass_info.total_stats.log_intra_error /
+              cpi->ppi->twopass.firstpass_info.total_stats.count);
+      double avg_inter_error =
+          exp(cpi->ppi->twopass.firstpass_info.total_stats.log_coded_error /
+              cpi->ppi->twopass.firstpass_info.total_stats.count);
+      double intra_error = stats->intra_error;
+      double inter_error = stats->coded_error;
+      double beta = 1;
+
+      beta = avg_intra_error / fmax(1, intra_error);
+      beta = AOMMIN(beta, 3);
+      beta = AOMMAX(beta, 0.8);
+
+      cm->sub_gop_offset =
+          av1_get_deltaq_offset(cm->seq_params->bit_depth, q, beta);
+    }
+
+    if (cpi->oxcf.rc_cfg.mode == AOM_Q) {
+      int qindex;
+      int offset = cm->sub_gop_offset;
+      int avg_qindex_so_far = 0;
+      bool force_qp_bump = false;
+
+      if (cm->frame_cnt > 0) {
+        avg_qindex_so_far = cm->avg_qindex / cm->frame_cnt;
+      }
+
+      if (stats->intra_error >= 200 && q < (avg_qindex_so_far >> 1)) {
+        offset = fmax((avg_qindex_so_far >> 1) - q, (q >> 1));
+        force_qp_bump = true;
+      }
+
+      if (cpi->refresh_frame.alt_ref_frame && !force_qp_bump && offset > 0) {
+        qindex = q;
+      } else {
+        qindex = q + offset;
+      }
+
+      qindex = AOMMIN(qindex, MAXQ);
+      qindex = AOMMAX(qindex, MINQ);
+
+      q = qindex;
+    }
+
+    cm->avg_qindex += q;
+    cm->frame_cnt++;
 
 #if CONFIG_TUNE_VMAF
     if (oxcf->tune_cfg.tuning >= AOM_TUNE_VMAF_WITH_PREPROCESSING &&

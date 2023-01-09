@@ -91,6 +91,8 @@ void av1_twopass_zero_stats(FIRSTPASS_STATS *section) {
   section->frame = 0.0;
   section->weight = 0.0;
   section->intra_error = 0.0;
+  section->log_intra_error = 0.0;
+  section->log_coded_error = 0.0;
   section->frame_avg_wavelet_energy = 0.0;
   section->coded_error = 0.0;
   section->sr_coded_error = 0.0;
@@ -121,6 +123,8 @@ void av1_accumulate_stats(FIRSTPASS_STATS *section,
   section->frame += frame->frame;
   section->weight += frame->weight;
   section->intra_error += frame->intra_error;
+  section->log_intra_error += log(frame->intra_error);
+  section->log_coded_error += log(frame->coded_error);
   section->frame_avg_wavelet_energy += frame->frame_avg_wavelet_energy;
   section->coded_error += frame->coded_error;
   section->sr_coded_error += frame->sr_coded_error;
