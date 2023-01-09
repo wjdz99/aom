@@ -133,7 +133,8 @@ static void apply_temporal_filter(
     const int *subblock_mses, unsigned int *accumulator, uint16_t *count,
     uint16_t *frame_sse, uint32_t *luma_sse_sum,
     const double inv_num_ref_pixels, const double decay_factor,
-    const double inv_factor, const double weight_factor, double *d_factor) {
+    const double inv_factor, const double weight_factor, double *d_factor,
+    int weight_calc_level_in_tf) {
   assert(((block_width == 16) || (block_width == 32)) &&
          ((block_height == 16) || (block_height == 32)));
 
@@ -198,23 +199,59 @@ static void apply_temporal_filter(
     subblock_mses_scaled[idx] = subblock_mses[idx] * inv_factor;
     d_factor_decayed[idx] = d_factor[idx] * decay_factor;
   }
-  for (int i = 0, k = 0; i < block_height; i++) {
-    const int y_blk_raster_offset = (i >= block_height / 2) * 2;
-    for (int j = 0; j < block_width; j++, k++) {
-      const int pixel_value = frame2[i * stride2 + j];
-      uint32_t diff_sse = acc_5x5_sse[i][j] + luma_sse_sum[i * BW + j];
+#if 0
+  printf("\n");
+  for (int i = 0; i <= 994; i++) {
+    double val = (double)i/142;
+    int val1 = (int)(exp(-val) * TF_WEIGHT_SCALE);
+    printf("%d, ", val1);
+  }
+  printf("\n");
+  //exit(0);
+#endif
+  if (weight_calc_level_in_tf == 0) {
+    for (int i = 0, k = 0; i < block_height; i++) {
+      const int y_blk_raster_offset = (i >= block_height / 2) * 2;
+      for (int j = 0; j < block_width; j++, k++) {
+        const int pixel_value = frame2[i * stride2 + j];
+        uint32_t diff_sse = acc_5x5_sse[i][j] + luma_sse_sum[i * BW + j];
 
-      const double window_error = diff_sse * inv_num_ref_pixels;
-      const int subblock_idx = y_blk_raster_offset + (j >= block_width / 2);
-      const double combined_error =
-          weight_factor * window_error + subblock_mses_scaled[subblock_idx];
+        const double window_error = diff_sse * inv_num_ref_pixels;
+        const int subblock_idx = y_blk_raster_offset + (j >= block_width / 2);
+        const double combined_error =
+            weight_factor * window_error + subblock_mses_scaled[subblock_idx];
 
-      double scaled_error = combined_error * d_factor_decayed[subblock_idx];
-      scaled_error = AOMMIN(scaled_error, 7);
-      const int weight = (int)(exp(-scaled_error) * TF_WEIGHT_SCALE);
+        double scaled_error = combined_error * d_factor_decayed[subblock_idx];
+        scaled_error = AOMMIN(scaled_error, 7);
+        const int weight = (int)(exp(-scaled_error) * TF_WEIGHT_SCALE);
 
-      count[k] += weight;
-      accumulator[k] += weight * pixel_value;
+        count[k] += weight;
+        accumulator[k] += weight * pixel_value;
+      }
+    }
+  } else {
+    for (int i = 0, k = 0; i < block_height; i++) {
+      const int y_blk_raster_offset = (i >= block_height / 2) * 2;
+      for (int j = 0; j < block_width; j++, k++) {
+        const int pixel_value = frame2[i * stride2 + j];
+        uint32_t diff_sse = acc_5x5_sse[i][j] + luma_sse_sum[i * BW + j];
+
+        const double window_error = diff_sse * inv_num_ref_pixels;
+        const int subblock_idx = y_blk_raster_offset + (j >= block_width / 2);
+        const double combined_error =
+            weight_factor * window_error + subblock_mses_scaled[subblock_idx];
+
+        double scaled_error = combined_error * d_factor_decayed[subblock_idx];
+        scaled_error = AOMMIN(scaled_error, 7);
+        const int weight_index =
+            (int)(scaled_error * NUM_INDICES_PER_UNIT_ERROR + .5);
+        assert(weight_index >= 0 &&
+               weight_index < (NUM_INDICES_PER_UNIT_ERROR * 7 + 1));
+        const int weight = weight_exp_lookup[weight_index];
+
+        count[k] += weight;
+        accumulator[k] += weight * pixel_value;
+      }
     }
   }
 }
@@ -224,7 +261,8 @@ void av1_apply_temporal_filter_avx2(
     const BLOCK_SIZE block_size, const int mb_row, const int mb_col,
     const int num_planes, const double *noise_levels, const MV *subblock_mvs,
     const int *subblock_mses, const int q_factor, const int filter_strength,
-    const uint8_t *pred, uint32_t *accum, uint16_t *count) {
+    const uint8_t *pred, uint32_t *accum, uint16_t *count,
+    int weight_calc_level_in_tf) {
   const int is_high_bitdepth = frame_to_filter->flags & YV12_FLAG_HIGHBITDEPTH;
   assert(block_size == BLOCK_32X32 && "Only support 32x32 block with avx2!");
   assert(TF_WINDOW_LENGTH == 5 && "Only support window length 5 with avx2!");
@@ -312,7 +350,7 @@ void av1_apply_temporal_filter_avx2(
                           plane_w, plane_h, subblock_mses, accum + plane_offset,
                           count + plane_offset, frame_sse, luma_sse_sum,
                           inv_num_ref_pixels, decay_factor, inv_factor,
-                          weight_factor, d_factor);
+                          weight_factor, d_factor, weight_calc_level_in_tf);
     plane_offset += plane_h * plane_w;
   }
 }

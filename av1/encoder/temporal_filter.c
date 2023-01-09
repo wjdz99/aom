@@ -559,7 +559,8 @@ void av1_apply_temporal_filter_c(
     const BLOCK_SIZE block_size, const int mb_row, const int mb_col,
     const int num_planes, const double *noise_levels, const MV *subblock_mvs,
     const int *subblock_mses, const int q_factor, const int filter_strength,
-    const uint8_t *pred, uint32_t *accum, uint16_t *count) {
+    const uint8_t *pred, uint32_t *accum, uint16_t *count,
+    int weight_calc_level_in_tf) {
   // Block information.
   const int mb_height = block_size_high[block_size];
   const int mb_width = block_size_wide[block_size];
@@ -689,7 +690,16 @@ void av1_apply_temporal_filter_c(
         double scaled_error =
             combined_error * d_factor[subblock_idx] * decay_factor[plane];
         scaled_error = AOMMIN(scaled_error, 7);
-        const int weight = (int)(exp(-scaled_error) * TF_WEIGHT_SCALE);
+        int weight;
+        if (weight_calc_level_in_tf == 0) {
+          weight = (int)(exp(-scaled_error) * TF_WEIGHT_SCALE);
+        } else {
+          const int weight_index =
+              (int)(scaled_error * NUM_INDICES_PER_UNIT_ERROR + .5);
+          assert(weight_index >= 0 &&
+                 weight_index < (NUM_INDICES_PER_UNIT_ERROR * 7 + 1));
+          weight = weight_exp_lookup[weight_index];
+        }
 
         const int idx = plane_offset + pred_idx;  // Index with plane shift.
         const int pred_value = is_high_bitdepth ? pred16[idx] : pred[idx];
@@ -716,7 +726,7 @@ void av1_highbd_apply_temporal_filter_c(
   av1_apply_temporal_filter_c(frame_to_filter, mbd, block_size, mb_row, mb_col,
                               num_planes, noise_levels, subblock_mvs,
                               subblock_mses, q_factor, filter_strength, pred,
-                              accum, count);
+                              accum, count, 0);
 }
 #endif  // CONFIG_AV1_HIGHBITDEPTH
 /*!\brief Normalizes the accumulated filtering result to produce the filtered
@@ -867,7 +877,7 @@ void av1_tf_do_filtering_row(AV1_COMP *cpi, ThreadData *td, int mb_row) {
             av1_apply_temporal_filter_c(
                 frame_to_filter, mbd, block_size, mb_row, mb_col, num_planes,
                 noise_levels, subblock_mvs, subblock_mses, q_factor,
-                filter_strength, pred, accum, count);
+                filter_strength, pred, accum, count, 0);
 #if CONFIG_AV1_HIGHBITDEPTH
           }
 #endif            // CONFIG_AV1_HIGHBITDEPTH
@@ -876,12 +886,14 @@ void av1_tf_do_filtering_row(AV1_COMP *cpi, ThreadData *td, int mb_row) {
             av1_apply_temporal_filter(frame_to_filter, mbd, block_size, mb_row,
                                       mb_col, num_planes, noise_levels,
                                       subblock_mvs, subblock_mses, q_factor,
-                                      filter_strength, pred, accum, count);
+                                      filter_strength, pred, accum, count,
+                                      cpi->sf.hl_sf.weight_calc_level_in_tf);
           } else {
             av1_apply_temporal_filter_c(
                 frame_to_filter, mbd, block_size, mb_row, mb_col, num_planes,
                 noise_levels, subblock_mvs, subblock_mses, q_factor,
-                filter_strength, pred, accum, count);
+                filter_strength, pred, accum, count,
+                cpi->sf.hl_sf.weight_calc_level_in_tf);
           }
         }
       }

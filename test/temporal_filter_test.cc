@@ -51,7 +51,8 @@ typedef void (*TemporalFilterFunc)(
     const BLOCK_SIZE block_size, const int mb_row, const int mb_col,
     const int num_planes, const double *noise_level, const MV *subblock_mvs,
     const int *subblock_mses, const int q_factor, const int filter_strenght,
-    const uint8_t *pred, uint32_t *accum, uint16_t *count);
+    const uint8_t *pred, uint32_t *accum, uint16_t *count,
+    int weight_calc_level_in_tf);
 typedef libaom_test::FuncParam<TemporalFilterFunc> TemporalFilterFuncParam;
 
 typedef std::tuple<TemporalFilterFuncParam, int> TemporalFilterWithParam;
@@ -208,10 +209,10 @@ void TemporalFilterTest::RunTest(int isRandom, int run_times,
 
     params_.ref_func(ref_frame.get(), mbd.get(), block_size, mb_row, mb_col,
                      num_planes, sigma, subblock_mvs, subblock_mses, q_factor,
-                     filter_strength, src2_, accumulator_ref, count_ref);
+                     filter_strength, src2_, accumulator_ref, count_ref, 0);
     params_.tst_func(ref_frame.get(), mbd.get(), block_size, mb_row, mb_col,
                      num_planes, sigma, subblock_mvs, subblock_mses, q_factor,
-                     filter_strength, src2_, accumulator_mod, count_mod);
+                     filter_strength, src2_, accumulator_mod, count_mod, 0);
 
     if (run_times > 1) {
       aom_usec_timer_start(&ref_timer);
@@ -219,7 +220,7 @@ void TemporalFilterTest::RunTest(int isRandom, int run_times,
         params_.ref_func(ref_frame.get(), mbd.get(), block_size, mb_row, mb_col,
                          num_planes, sigma, subblock_mvs, subblock_mses,
                          q_factor, filter_strength, src2_, accumulator_ref,
-                         count_ref);
+                         count_ref, 0);
       }
       aom_usec_timer_mark(&ref_timer);
       const int elapsed_time_c =
@@ -230,7 +231,7 @@ void TemporalFilterTest::RunTest(int isRandom, int run_times,
         params_.tst_func(ref_frame.get(), mbd.get(), block_size, mb_row, mb_col,
                          num_planes, sigma, subblock_mvs, subblock_mses,
                          q_factor, filter_strength, src2_, accumulator_mod,
-                         count_mod);
+                         count_mod, 0);
       }
       aom_usec_timer_mark(&test_timer);
       const int elapsed_time_simd =

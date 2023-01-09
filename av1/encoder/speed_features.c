@@ -1177,6 +1177,8 @@ static void set_good_speed_features_framesize_independent(
   }
 
   if (speed >= 5) {
+    sf->hl_sf.weight_calc_level_in_tf = use_hbd ? 0 : 1;
+
     sf->fp_sf.reduce_mv_step_param = 4;
 
     sf->part_sf.simple_motion_search_prune_agg =
@@ -1805,6 +1807,7 @@ static AOM_INLINE void init_hl_sf(HIGH_LEVEL_SPEED_FEATURES *hl_sf) {
   hl_sf->second_alt_ref_filtering = 1;
   hl_sf->num_frames_used_in_tf = INT_MAX;
   hl_sf->accurate_bit_estimate = 0;
+  hl_sf->weight_calc_level_in_tf = 0;
 }
 
 static AOM_INLINE void init_fp_sf(FIRST_PASS_SPEED_FEATURES *fp_sf) {
