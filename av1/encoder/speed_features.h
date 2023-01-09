@@ -1588,6 +1588,9 @@ typedef struct REAL_TIME_SPEED_FEATURES {
   // The value can be 1 or 2, which indicates the threshold to use.
   int use_rtc_tf;
 
+  // Disable palette in nonrd pickmode;
+  int prune_palette_nonrd;
+
   // Prune the use of the identity transform in nonrd_pickmode,
   // used for screen content mode: only for smaller blocks
   // and higher spatial variance, and when skip_txfm is not
