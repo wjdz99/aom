@@ -3861,7 +3861,7 @@ static AOM_FORCE_INLINE void handle_screen_content_mode_nonrd(
   // is set.
   // TODO(marpan): Only allow for 8 bit-depth for now, re-enable for 10/12 bit
   // when issue 3359 is fixed.
-  if (cm->seq_params->bit_depth == 8 &&
+  if (cm->seq_params->bit_depth == 8 && !rt_sf->disable_idtx_nonrd &&
       cpi->oxcf.tune_cfg.content == AOM_CONTENT_SCREEN && !skip_idtx_palette &&
       !cpi->oxcf.txfm_cfg.use_inter_dct_only && !x->force_zeromv_skip_for_blk &&
       is_inter_mode(best_pickmode->best_mode) &&
@@ -4204,7 +4204,7 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
                           x->content_state_sb.source_sad_nonrd != kZeroSad &&
                           !cpi->rc.high_source_sad;
 
-  int try_palette =
+  int try_palette = !rt_sf->disable_palette_nonrd &&
       !skip_idtx_palette && cpi->oxcf.tool_cfg.enable_palette &&
       av1_allow_palette(cpi->common.features.allow_screen_content_tools,
                         mi->bsize);

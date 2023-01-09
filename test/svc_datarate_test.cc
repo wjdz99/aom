@@ -2068,7 +2068,7 @@ TEST_P(DatarateTestSVC, BasicRateTargetingRPS1TL1SLDropFrames) {
 
 AV1_INSTANTIATE_TEST_SUITE(DatarateTestSVC,
                            ::testing::Values(::libaom_test::kRealTime),
-                           ::testing::Range(7, 11), ::testing::Values(0, 3),
+                           ::testing::Range(7, 12), ::testing::Values(0, 3),
                            ::testing::Values(0, 1));
 
 }  // namespace
