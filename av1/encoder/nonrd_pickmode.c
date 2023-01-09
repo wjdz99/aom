@@ -3844,13 +3844,20 @@ static AOM_FORCE_INLINE void handle_screen_content_mode_nonrd(
   // is set.
   // TODO(marpan): Only allow for 8 bit-depth for now, re-enable for 10/12 bit
   // when issue 3359 is fixed.
-  if (cm->seq_params->bit_depth == 8 &&
-      cpi->oxcf.tune_cfg.content == AOM_CONTENT_SCREEN && !skip_idtx_palette &&
-      !cpi->oxcf.txfm_cfg.use_inter_dct_only && !x->force_zeromv_skip_for_blk &&
-      is_inter_mode(best_pickmode->best_mode) &&
+  int try_idtx = cm->seq_params->bit_depth == 8 &&
+                 cpi->oxcf.tune_cfg.content == AOM_CONTENT_SCREEN &&
+                 !skip_idtx_palette && !cpi->oxcf.txfm_cfg.use_inter_dct_only &&
+                 !x->force_zeromv_skip_for_blk &&
+                 is_inter_mode(best_pickmode->best_mode);
+  // Pruning for IDTX:
+  try_idtx =
+      try_idtx &&
       (!rt_sf->prune_idtx_nonrd ||
-       (rt_sf->prune_idtx_nonrd && bsize <= BLOCK_32X32 &&
-        best_pickmode->best_mode_skip_txfm != 1 && x->source_variance > 200))) {
+       (rt_sf->prune_idtx_nonrd >= 1 && bsize <= BLOCK_32X32 &&
+        best_pickmode->best_mode_skip_txfm != 1 && x->source_variance > 200 &&
+        (rt_sf->prune_idtx_nonrd == 1 || cpi->rc.high_source_sad)));
+
+  if (try_idtx) {
     RD_STATS idtx_rdc;
     av1_init_rd_stats(&idtx_rdc);
     int is_skippable;
@@ -4225,6 +4232,12 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
       (is_mode_intra(best_pickmode->best_mode) || force_palette_test) &&
       x->source_variance > 0 && !x->force_zeromv_skip_for_blk &&
       (cpi->rc.high_source_sad || x->source_variance > 500);
+
+  // For prune_palette: disable palette testing on non-scene changes and
+  // for big blocks.
+  if (try_palette && rt_sf->prune_palette_nonrd) {
+    if (!cpi->rc.high_source_sad || bsize > BLOCK_32X32) try_palette = 0;
+  }
 
   // Perform screen content mode evaluation for non-rd
   handle_screen_content_mode_nonrd(cpi, x, &search_state, this_mode_pred, ctx,
