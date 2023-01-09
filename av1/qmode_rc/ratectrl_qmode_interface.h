@@ -229,6 +229,9 @@ struct GopStruct {
   // TODO(jingning): This can be removed once the framework is up running.
   int display_tracker;  // Track the number of frames displayed proceeding a
                         // current coding frame.
+  double
+      base_q_ratio;  // The adjustment ratio, based on which the base q of this
+                     // Gop will be adjusted from rc_params.base_q_index.
   std::vector<GopFrame> gop_frame_list;
 };
 
