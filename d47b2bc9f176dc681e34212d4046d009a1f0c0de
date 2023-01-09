@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "623258d5_5f09a84b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-01-09T23:36:35Z",
+      "side": 1,
+      "message": "LGTM.",
+      "revId": "d47b2bc9f176dc681e34212d4046d009a1f0c0de",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "284889ce_6bb4db4d",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 3981,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-01-09T23:36:35Z",
+      "side": 1,
+      "message": "I am curious why this condition isn\u0027t written as `cpi-\u003emt_info.num_workers \u003d\u003d 1`. Can `cpi-\u003emt_info.num_workers` be 0 or negative?",
+      "revId": "d47b2bc9f176dc681e34212d4046d009a1f0c0de",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
