@@ -612,6 +612,7 @@ static void init_config(struct AV1_COMP *cpi, const AV1EncoderConfig *oxcf) {
   cm->width = oxcf->frm_dim_cfg.width;
   cm->height = oxcf->frm_dim_cfg.height;
   cpi->is_dropped_frame = false;
+  cm->sub_gop_offset = 0;
 
   alloc_compressor_data(cpi);
 
@@ -2825,6 +2826,84 @@ static int encode_with_recode_loop(AV1_COMP *cpi, size_t *size, uint8_t *dest) {
         }
         av1_scale_references(cpi, EIGHTTAP_REGULAR, 0, 0);
       }
+    }
+
+    int frames_since_key =
+        cm->current_frame.display_order_hint - cpi->rc.frames_since_key;
+    FRAME_UPDATE_TYPE type =
+        cpi->ppi->gf_group.update_type[cpi->gf_frame_index];
+    const FIRSTPASS_STATS *cur_stats = av1_firstpass_info_peek(
+        &cpi->ppi->twopass.firstpass_info, frames_since_key);
+
+    double sub_gop_avg_coded_error = 0;
+    if (cpi->refresh_frame.alt_ref_frame && type) {
+      for (int i = cm->current_frame.display_order_hint;
+           i >= cpi->ppi->gf_group.display_idx[cpi->ppi->gf_group.size - 1];
+           i--) {
+        const FIRSTPASS_STATS *stats = av1_firstpass_info_peek(
+            &cpi->ppi->twopass.firstpass_info, frames_since_key);
+
+        sub_gop_avg_coded_error += log(stats->coded_error);
+        frames_since_key--;
+      }
+    }
+
+    const int gf_group_length =
+        cm->current_frame.display_order_hint -
+        cpi->ppi->gf_group.display_idx[cpi->ppi->gf_group.size - 1] + 1;
+    sub_gop_avg_coded_error /= gf_group_length;
+    sub_gop_avg_coded_error = exp(sub_gop_avg_coded_error);
+
+    double error_stdev = 0;
+    const double avg_error =
+        cpi->ppi->twopass.firstpass_info.total_stats.intra_error /
+        cpi->ppi->twopass.firstpass_info.total_stats.count;
+    for (int i = 0; i < cpi->ppi->twopass.firstpass_info.total_stats.count;
+         i++) {
+      const FIRSTPASS_STATS *stats =
+          &cpi->ppi->twopass.firstpass_info.stats_buf[i];
+      error_stdev +=
+          (stats->intra_error - avg_error) * (stats->intra_error - avg_error);
+    }
+    error_stdev =
+        sqrt(error_stdev / cpi->ppi->twopass.firstpass_info.total_stats.count);
+
+    const double avg_intra_error =
+        exp(cpi->ppi->twopass.firstpass_info.total_stats.log_intra_error /
+            cpi->ppi->twopass.firstpass_info.total_stats.count);
+    const double avg_inter_error =
+        exp(cpi->ppi->twopass.firstpass_info.total_stats.log_coded_error /
+            cpi->ppi->twopass.firstpass_info.total_stats.count);
+
+    if (cpi->refresh_frame.alt_ref_frame) {
+      double inter_error = 0;
+      if (type == 0) {
+        inter_error = cur_stats->coded_error;
+      } else {
+        inter_error = sub_gop_avg_coded_error;
+      }
+      double beta = 1;
+
+      beta = avg_inter_error / fmax(1, inter_error);
+      beta = AOMMIN(beta, 3);
+      beta = AOMMAX(beta, 0.8);
+
+      cm->sub_gop_offset =
+          av1_get_deltaq_offset(cm->seq_params->bit_depth, q, beta);
+    }
+
+    if (cpi->oxcf.rc_cfg.mode == AOM_Q) {
+      int qindex;
+      int offset = 0;
+      if (error_stdev / avg_intra_error > 0.1) {
+        offset = cm->sub_gop_offset;
+      }
+
+      qindex = q + offset;
+      qindex = AOMMIN(qindex, MAXQ);
+      qindex = AOMMAX(qindex, MINQ);
+
+      q = qindex;
     }
 
 #if CONFIG_TUNE_VMAF
