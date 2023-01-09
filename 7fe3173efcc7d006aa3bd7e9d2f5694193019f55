@@ -41,6 +41,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "2ff201bd_e1ba03e8",
+        "filename": "aom_scale/yv12config.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 29052
+      },
+      "writtenOn": "2023-01-09T13:08:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7561c53a_e57a8ee9",
+      "range": {
+        "startLine": 131,
+        "startChar": 6,
+        "endLine": 131,
+        "endChar": 9
+      },
+      "revId": "7fe3173efcc7d006aa3bd7e9d2f5694193019f55",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "6808b238_cd2c8291",
@@ -54,6 +78,24 @@
       "writtenOn": "2023-01-04T21:18:33Z",
       "side": 1,
       "message": "Did you mean \"unlikely\"?\n\nThis paragraph apparently describes the following code in `aom_alloc_frame_buffer()`:\n\n```\n  if (ybf) {\n    aom_free_frame_buffer(ybf);\n    return aom_realloc_frame_buffer(ybf, width, height, ss_x, ss_y,\n                                    use_highbitdepth, border, byte_alignment,\n                                    NULL, NULL, NULL, num_pyramid_levels,\n                                    alloc_y_plane_only);\n  }\n```\n\nSo I think this sentence is intended to suggest calling `aom_realloc_frame_buffer()` directly if the `aom_free_frame_buffer(ybf)` call is not needed.",
+      "revId": "7fe3173efcc7d006aa3bd7e9d2f5694193019f55",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "aba52982_d6430c34",
+        "filename": "aom_scale/yv12config.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 29052
+      },
+      "writtenOn": "2023-01-09T13:08:10Z",
+      "side": 1,
+      "message": "I\u0027ve rewritten this comment to be less ambiguous now",
+      "parentUuid": "6808b238_cd2c8291",
       "revId": "7fe3173efcc7d006aa3bd7e9d2f5694193019f55",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
