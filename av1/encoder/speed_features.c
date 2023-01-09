@@ -1487,6 +1487,10 @@ static void set_rt_speed_feature_framesize_dependent(const AV1_COMP *const cpi,
       sf->rt_sf.part_early_exit_zeromv = 1;
       sf->rt_sf.nonrd_aggressive_skip = 1;
     }
+    if (speed >= 11) {
+      sf->rt_sf.prune_palette_nonrd = 1;
+      sf->rt_sf.skip_lf_screen = 2;
+    }
     sf->rt_sf.use_nonrd_altref_frame = 0;
     sf->rt_sf.skip_cdef_sb = 1;
     sf->rt_sf.use_rtc_tf = 0;
@@ -1504,7 +1508,7 @@ static void set_rt_speed_feature_framesize_dependent(const AV1_COMP *const cpi,
     }
     if (cpi->rc.max_block_source_sad > 20000 &&
         cpi->rc.frame_source_sad > 100 &&
-        cpi->rc.percent_blocks_with_motion > 1 && speed >= 6) {
+        cpi->rc.percent_blocks_with_motion > 1 && speed >= 6 && speed < 11) {
       sf->mv_sf.search_method = NSTEP;
       sf->rt_sf.fullpel_search_step_param = 2;
     }
@@ -2124,6 +2128,7 @@ static AOM_INLINE void init_rt_sf(REAL_TIME_SPEED_FEATURES *rt_sf) {
   rt_sf->var_part_split_threshold_shift = 7;
   rt_sf->gf_refresh_based_on_qp = 0;
   rt_sf->use_rtc_tf = 0;
+  rt_sf->prune_palette_nonrd = 0;
   rt_sf->prune_idtx_nonrd = 0;
   rt_sf->part_early_exit_zeromv = 0;
   rt_sf->sse_early_term_inter_search = EARLY_TERM_DISABLED;
