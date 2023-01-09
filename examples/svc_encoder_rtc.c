@@ -317,7 +317,7 @@ static void parse_command_line(int argc, const char **argv_,
       svc_params->number_temporal_layers = arg_parse_uint(&arg);
     } else if (arg_match(&arg, &speed_arg, argi)) {
       app_input->speed = arg_parse_uint(&arg);
-      if (app_input->speed > 10) {
+      if (app_input->speed > 11) {
         aom_tools_warn("Mapping speed %d to speed 10.\n", app_input->speed);
       }
     } else if (arg_match(&arg, &aqmode_arg, argi)) {
