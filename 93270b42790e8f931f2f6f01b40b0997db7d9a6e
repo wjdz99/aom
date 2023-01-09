@@ -22,6 +22,30 @@
       },
       "revId": "93270b42790e8f931f2f6f01b40b0997db7d9a6e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8fccd702_a16d16c7",
+        "filename": "av1/qmode_rc/ratectrl_qmode_interface.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 232,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2023-01-09T19:16:33Z",
+      "side": 1,
+      "message": "Fixed the typo and clarified a bit more in the comments. The usage of this is a bit more complicated than in that CL, though. See this follow up CL: https://aomedia-review.googlesource.com/c/aom/+/169142",
+      "parentUuid": "6b157929_b0452b53",
+      "range": {
+        "startLine": 232,
+        "startChar": 67,
+        "endLine": 232,
+        "endChar": 73
+      },
+      "revId": "93270b42790e8f931f2f6f01b40b0997db7d9a6e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
