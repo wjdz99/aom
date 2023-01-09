@@ -1459,6 +1459,7 @@ static void set_rt_speed_feature_framesize_dependent(const AV1_COMP *const cpi,
     if (speed >= 7) {
       sf->rt_sf.reduce_mv_pel_precision_highmotion = 1;
       sf->mv_sf.use_bsize_dependent_search_method = 0;
+      sf->rt_sf.skip_cdef_sb = 1;
     }
     if (speed >= 8) {
       sf->rt_sf.nonrd_check_partition_merge_mode = 3;
@@ -1487,8 +1488,12 @@ static void set_rt_speed_feature_framesize_dependent(const AV1_COMP *const cpi,
       sf->rt_sf.part_early_exit_zeromv = 1;
       sf->rt_sf.nonrd_aggressive_skip = 1;
     }
+    if (speed >= 11) {
+      sf->rt_sf.skip_lf_screen = 2;
+      sf->rt_sf.skip_cdef_sb = 2;
+      sf->rt_sf.part_early_exit_zeromv = 2;
+    }
     sf->rt_sf.use_nonrd_altref_frame = 0;
-    sf->rt_sf.skip_cdef_sb = 1;
     sf->rt_sf.use_rtc_tf = 0;
     sf->rt_sf.use_comp_ref_nonrd = 0;
     sf->rt_sf.source_metrics_sb_nonrd = 1;
