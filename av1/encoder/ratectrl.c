@@ -480,13 +480,12 @@ static int adjust_q_cbr(const AV1_COMP *cpi, int q, int active_worst_quality,
   const PRIMARY_RATE_CONTROL *const p_rc = &cpi->ppi->p_rc;
   const AV1_COMMON *const cm = &cpi->common;
   const RefreshFrameInfo *const refresh_frame = &cpi->refresh_frame;
-  const int max_delta_down = (cpi->oxcf.tune_cfg.content == AOM_CONTENT_SCREEN)
-                                 ? AOMMIN(8, AOMMAX(1, rc->q_1_frame / 16))
-                                 : AOMMIN(16, AOMMAX(1, rc->q_1_frame / 8));
+  int max_delta_down = AOMMIN(16, AOMMAX(1, rc->q_1_frame / 8));
   const int max_delta_up = 20;
   const int change_avg_frame_bandwidth =
       abs(rc->avg_frame_bandwidth - rc->prev_avg_frame_bandwidth) >
       0.1 * (rc->avg_frame_bandwidth);
+
   // If resolution changes or avg_frame_bandwidth significantly changed,
   // then set this flag to indicate change in target bits per macroblock.
   const int change_target_bits_mb =
@@ -498,6 +497,20 @@ static int adjust_q_cbr(const AV1_COMP *cpi, int q, int active_worst_quality,
       rc->frames_since_key > 1 && !change_target_bits_mb &&
       (!cpi->oxcf.rc_cfg.gf_cbr_boost_pct ||
        !(refresh_frame->alt_ref_frame || refresh_frame->golden_frame))) {
+
+    const int use_cyclic_refresh =
+        cpi->oxcf.q_cfg.aq_mode == CYCLIC_REFRESH_AQ &&
+        cpi->cyclic_refresh->apply_cyclic_refresh;
+
+    // For static screen content limit the Q drop till the start of the next
+    // refresh cycle.
+    if (use_cyclic_refresh && cpi->is_screen_content_type) {
+      CYCLIC_REFRESH *const cr = cpi->cyclic_refresh;
+      if (cr->sb_index > cr->last_sb_index) {
+        max_delta_down = AOMMIN(8, AOMMAX(1, rc->q_1_frame / 32));
+      }
+    }
+
     // Make sure q is between oscillating Qs to prevent resonance.
     if (rc->rc_1_frame * rc->rc_2_frame == -1 &&
         rc->q_1_frame != rc->q_2_frame) {
