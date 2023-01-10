@@ -1,6 +1,23 @@
 {
   "comments": [
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "89b6192e_f8f5350c",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-01-10T21:56:26Z",
+      "side": 1,
+      "message": "Nit: lesser \u003d\u003e less than a threshold",
+      "revId": "2961f21f095d9a64edb4609b9aebfba641d3e22a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "083308f3_42f63486",
@@ -14,6 +31,91 @@
       "writtenOn": "2023-01-10T15:04:54Z",
       "side": 1,
       "message": "Hi Wan-Teh, Frank, \n\nIn this CL, we introduced a speed feature ‘prune_rect_part_using_4x4_var_deviation’ to prune rectangular partitions based on variance of 4x4 sub-blocks in the block. The function should_prune_rect_part_using_var_deviation() checks if the difference between the maximum and minimum sub-block variances within the block is less than a threshold(derived empirically). If true, splitting the block further might not be required and hence rectangular partition evaluations are pruned by setting \u0027part_search_state.do_rectangular_split\u0027 to 0. This change is applicable only for --allintra speed\u003d6.\n\nFor AVIF still-image encode with tune\u003dssim,\n\n```\n               Encode Time           BD-Rate Loss(%)\ncpu-used       Reduction(%)         psnr         ssim\n    6             8.140            0.1537       0.3797\n```\n\nFollowing are the instruction count reduction results when libaom allintra frame encoding (50 frames) was tested for a borg setup.\n\n```\n            Instruction Count         BD-Rate Loss(%)\ncpu-used       Reduction(%)      avg.psnr   ovr.psnr   ssim\n    6             6.452           0.2379     0.2366   0.4512\n``` \n\nFor libaom AV1 video encode, bit-match is verified (w.r.t. parent commit) for \u0027GOOD\u0027 and \u0027RT\u0027 encoding modes for a few contents with different encoding configurations. It is verified that the CL is bit-exact for allintra encode, speed \u003e 6, with no speed impact.\n\nPlease review.\n\nRegards,\nNeha.",
+      "revId": "2961f21f095d9a64edb4609b9aebfba641d3e22a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9451b82f_ebeb94df",
+        "filename": "av1/encoder/partition_search.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 5193,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-01-10T21:56:26Z",
+      "side": 1,
+      "message": "Nit: add \"4x4_\" to the function name: should_prune_rect_part_using_4x4_var_deviation",
+      "revId": "2961f21f095d9a64edb4609b9aebfba641d3e22a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "170355d5_0acd96b9",
+        "filename": "av1/encoder/partition_search.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 5198,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-01-10T21:56:26Z",
+      "side": 1,
+      "message": "Nit/optional: This can be written as one conditonal expression:\n```\n  return !must_find_valid_partition \u0026\u0026 prune_rect_part_using_4x4_var_deviation \u0026\u0026\n         (var_max - var_min \u003c 3.0);\n```\n\nBut I think it is clearer to manually inline this function at line 5408. See also my comment at line 5386, which suggests checking `!must_find_valid_partition \u0026\u0026 prune_rect_part_using_4x4_var_deviation` at line 5386.",
+      "revId": "2961f21f095d9a64edb4609b9aebfba641d3e22a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f3277655_64a77eeb",
+        "filename": "av1/encoder/partition_search.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 5386,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-01-10T21:56:26Z",
+      "side": 1,
+      "message": "If bsize \u003c BLOCK_16X16 and prune_rect_part_using_4x4_var_deviation is false, the new code will call `log_sub_block_var(cpi, x, bsize, \u0026var_min, \u0026var_max)` unnecessarily. Is this a problem?\n\nThis can be avoided by changing this line to:\n\n```\n  if ((cpi-\u003eoxcf.mode \u003d\u003d ALLINTRA) \u0026\u0026 ((bsize \u003e\u003d BLOCK_16X16) ||\n      (!must_find_valid_partition \u0026\u0026 prune_rect_part_using_4x4_var_deviation))) {\n```",
+      "revId": "2961f21f095d9a64edb4609b9aebfba641d3e22a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0bf93dad_220e2be6",
+        "filename": "av1/encoder/partition_search.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 5390,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-01-10T21:56:26Z",
+      "side": 1,
+      "message": "Add a period (.) at the end of this line?",
+      "revId": "2961f21f095d9a64edb4609b9aebfba641d3e22a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4f388979_f34fbedc",
+        "filename": "av1/encoder/speed_features.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 658,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-01-10T21:56:26Z",
+      "side": 1,
+      "message": "Nit/optional: \"applicable to\" seems to sound better than \"applicable for\"",
       "revId": "2961f21f095d9a64edb4609b9aebfba641d3e22a",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
