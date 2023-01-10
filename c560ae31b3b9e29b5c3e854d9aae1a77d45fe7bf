@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "35a7dcd7_003ce26e",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2729,
+      "author": {
+        "id": 29052
+      },
+      "writtenOn": "2023-01-10T19:34:09Z",
+      "side": 0,
+      "message": "Note: This change isn\u0027t part of the fix, just a thing I noticed while fixing the main issue:\n\nThis #if !CONFIG_REALTIME_ONLY here is redundant because the entire encode_with_recode_loop() function is enclosed in a #if !CONFIG_REALTIME_ONLY block",
+      "revId": "c560ae31b3b9e29b5c3e854d9aae1a77d45fe7bf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
