@@ -73,6 +73,58 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "f8916f4e_64feb99c",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2545,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-01-10T17:32:47Z",
+      "side": 1,
+      "message": "Thank you for the info. The iterative malloc failure test won\u0027t detect this for two reasons.\n\n1. We ignore the return value of the `pthread_mutex_destroy()` calls. (See my annotations.)\n\n2. On Linux (with glibc), `pthread_mutex_destroy()` on a zero-initialized `pthread_mutex_t` object returns 0. Here is a small test program that shows this:\n\n```\n$ cat mutex.c\n#include \u003cpthread.h\u003e\n#include \u003cstdio.h\u003e\n#include \u003cstring.h\u003e\n\nint main() {\n  int rv;\n  pthread_mutex_t mutex;\n\n  memset(\u0026mutex, 0, sizeof(mutex));\n  rv \u003d pthread_mutex_destroy(\u0026mutex);\n  printf(\"pthread_mutex_destroy() returned %d\\n\", rv);\n  return 0;\n}\n$ clang -Weverything -std\u003dc99 -pthread mutex.c\n$ ./a.out\npthread_mutex_destroy() returned 0\n$\n```",
+      "parentUuid": "a2a4cb15_58e1b803",
+      "revId": "3dc9e8ac2f260cf3fa6a258e204de74567bb02df",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6eed1b0a_c29cd8eb",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2690,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-01-10T17:32:47Z",
+      "side": 1,
+      "message": "Note that the return value of `pthread_mutex_destroy()` is ignored.",
+      "revId": "3dc9e8ac2f260cf3fa6a258e204de74567bb02df",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ac25fd61_64e65515",
+        "filename": "av1/av1_dx_iface.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 141,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-01-10T17:32:47Z",
+      "side": 1,
+      "message": "Note that the return value of `pthread_mutex_destroy()` is ignored.",
+      "revId": "3dc9e8ac2f260cf3fa6a258e204de74567bb02df",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "fe66464d_7c43156c",
         "filename": "av1/av1_dx_iface.c",
         "patchSetId": 2
