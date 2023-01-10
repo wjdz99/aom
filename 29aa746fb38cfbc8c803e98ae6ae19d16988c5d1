@@ -18,6 +18,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "7b2884d4_f30d2636",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 6
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2023-01-10T21:50:19Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "4c837b60_b91c294f",
+      "revId": "29aa746fb38cfbc8c803e98ae6ae19d16988c5d1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "7308e162_48e200fe",
@@ -31,6 +49,24 @@
       "writtenOn": "2023-01-10T17:33:57Z",
       "side": 1,
       "message": "The motion estimation below based on row/col projection often does output (0, 0), so we can avoid the sad computation here, and only check for (0, 0) if it\u0027s not selected (i.e., check it after 2052, along with the sad checks for +/-1 shift)",
+      "revId": "29aa746fb38cfbc8c803e98ae6ae19d16988c5d1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b73cb37e_7054e0ff",
+        "filename": "av1/encoder/mcomp.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 2004,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2023-01-10T21:50:19Z",
+      "side": 1,
+      "message": "Sounds good. Will write a cl.",
+      "parentUuid": "7308e162_48e200fe",
       "revId": "29aa746fb38cfbc8c803e98ae6ae19d16988c5d1",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
