@@ -36,6 +36,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "aefb4330_b425f8b9",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 29052
+      },
+      "writtenOn": "2023-01-10T20:25:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7e82e2ef_29153386",
+      "revId": "6c40753b8e54f27bfa8bfa79d45d4119f0a5ea9b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e6b5fcd9_ab8cfbe2",
@@ -73,6 +91,30 @@
       "side": 1,
       "message": "True. The \"else\" block was there originally, before commit 9ebf92c3. Would you like me to remove it anyway?",
       "parentUuid": "e6b5fcd9_ab8cfbe2",
+      "range": {
+        "startLine": 1424,
+        "startChar": 3,
+        "endLine": 1424,
+        "endChar": 10
+      },
+      "revId": "6c40753b8e54f27bfa8bfa79d45d4119f0a5ea9b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d720936c_7b4c7a16",
+        "filename": "av1/common/resize.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1424,
+      "author": {
+        "id": 29052
+      },
+      "writtenOn": "2023-01-10T20:25:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "24c09ad1_ca828e4c",
       "range": {
         "startLine": 1424,
         "startChar": 3,
