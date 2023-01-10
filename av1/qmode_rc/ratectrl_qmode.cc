@@ -1681,8 +1681,12 @@ StatusOr<GopEncodeInfo> AV1RateControlQMode::GetGopEncodeInfoWithNoStats(
     param.q_index = rc_param_.base_q_index;
     param.rdmult = av1_compute_rd_mult_based_on_qindex(AOM_BITS_8, LF_UPDATE,
                                                        rc_param_.base_q_index);
-    // TODO(jingning): gop_frame is needed in two pass tpl later.
-    (void)gop_frame;
+    if (gop_frame.update_type == GopFrameType::kRegularGolden ||
+        gop_frame.update_type == GopFrameType::kRegularKey ||
+        gop_frame.update_type == GopFrameType::kRegularArf) {
+      param.rdmult = av1_compute_rd_mult_based_on_qindex(AOM_BITS_8, ARF_UPDATE,
+                                                         kSecondTplPassQp);
+    }
 
     if (rc_param_.tpl_pass_index) {
       if (gop_frame.update_type == GopFrameType::kRegularGolden ||
