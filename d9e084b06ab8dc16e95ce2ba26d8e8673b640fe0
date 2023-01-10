@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "346caf53_a2453574",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-01-10T19:31:13Z",
+      "side": 1,
+      "message": "James: We need a way to detect at compile time whether speed 11 can be used. Do you have any suggestions?\n\nOne possible approach is to define a new macro in aom/aomcx.h near the `AOM_CTRL_AOME_SET_CPUUSED` macro, for example,\n\n```\n AOM_CTRL_USE_TYPE(AOME_SET_CPUUSED, int)\n #define AOM_CTRL_AOME_SET_CPUUSED\n+#define AOME_CPUUSED_MAX 11\n```",
+      "revId": "d9e084b06ab8dc16e95ce2ba26d8e8673b640fe0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e0bd8ca9_a00c6e64",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 707,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-01-10T19:31:13Z",
+      "side": 1,
+      "message": "The documentation of cpu used needs to be updated:\n\n1. In aom/aomcx.h, the comments for `AOME_SET_CPUUSED` need to be updated:\n\n```\n   * Valid range: 0..10. 0 runs the slowest, and 10 runs the fastest;\n   * quality improves as speed decreases (since more compression\n   * possibilities are explored).\n   *\n   * NOTE: 10 is only allowed in AOM_USAGE_REALTIME. In AOM_USAGE_GOOD_QUALITY\n   * and AOM_USAGE_ALL_INTRA, 9 is the highest allowed value. However,\n   * AOM_USAGE_GOOD_QUALITY treats 7..9 the same as 6. Also, AOM_USAGE_REALTIME\n   * treats 0..4 the same as 5.\n```\n\n2. In av1/arg_defs.c, the help message for \"cpu-used\" needs to be updated:\n\n```\n  .cpu_used_av1 \u003d ARG_DEF(NULL, \"cpu-used\", 1,\n                          \"Speed setting (0..6 in good mode, 5..10 in realtime \"\n                          \"mode, 0..9 in all intra mode)\"),\n```",
+      "revId": "d9e084b06ab8dc16e95ce2ba26d8e8673b640fe0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "57941d3f_66d8a7c1",
+        "filename": "av1/encoder/speed_features.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 1570,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-01-10T19:31:13Z",
+      "side": 1,
+      "message": "Nit: delete \"for\"?",
+      "revId": "d9e084b06ab8dc16e95ce2ba26d8e8673b640fe0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2540dac0_f9609ab3",
+        "filename": "av1/encoder/speed_features.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 1573,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-01-10T19:31:13Z",
+      "side": 1,
+      "message": "Nit: This file uses the `bool` type. I suggest we declare new boolean speed features as `bool` and use `true` and `false` as their values.",
+      "revId": "d9e084b06ab8dc16e95ce2ba26d8e8673b640fe0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "44a3e9cc_432859fe",
+        "filename": "examples/svc_encoder_rtc.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 321,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-01-10T19:31:13Z",
+      "side": 1,
+      "message": "The warning message should also say speed 11 now.\n\nAlso, it seems that we should actually map to speed 11 by adding the following line (after this line):\n\n```\n        app_input-\u003espeed \u003d 11;\n```\n\nOtherwise, the `aom_codec_control(\u0026codec, AOME_SET_CPUUSED, app_input.speed)` call will fail because of the following check in av1/av1_cx_iface.c:\n\n```\n  RANGE_CHECK(extra_cfg, cpu_used, 0,\n              (cfg-\u003eg_usage \u003d\u003d AOM_USAGE_REALTIME) ? 11 : 9);\n```",
+      "revId": "d9e084b06ab8dc16e95ce2ba26d8e8673b640fe0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
