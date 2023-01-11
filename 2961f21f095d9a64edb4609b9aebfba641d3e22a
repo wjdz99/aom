@@ -20,6 +20,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "21876485_49b7bd4c",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 31567
+      },
+      "writtenOn": "2023-01-11T17:34:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "89b6192e_f8f5350c",
+      "revId": "2961f21f095d9a64edb4609b9aebfba641d3e22a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "083308f3_42f63486",
         "filename": "/PATCHSET_LEVEL",
         "patchSetId": 1
@@ -52,6 +70,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ace7ee04_640c1aaf",
+        "filename": "av1/encoder/partition_search.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 5193,
+      "author": {
+        "id": 31567
+      },
+      "writtenOn": "2023-01-11T17:34:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9451b82f_ebeb94df",
+      "revId": "2961f21f095d9a64edb4609b9aebfba641d3e22a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "170355d5_0acd96b9",
@@ -65,6 +101,24 @@
       "writtenOn": "2023-01-10T21:56:26Z",
       "side": 1,
       "message": "Nit/optional: This can be written as one conditonal expression:\n```\n  return !must_find_valid_partition \u0026\u0026 prune_rect_part_using_4x4_var_deviation \u0026\u0026\n         (var_max - var_min \u003c 3.0);\n```\n\nBut I think it is clearer to manually inline this function at line 5408. See also my comment at line 5386, which suggests checking `!must_find_valid_partition \u0026\u0026 prune_rect_part_using_4x4_var_deviation` at line 5386.",
+      "revId": "2961f21f095d9a64edb4609b9aebfba641d3e22a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "327ed01f_399c3102",
+        "filename": "av1/encoder/partition_search.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 5198,
+      "author": {
+        "id": 31567
+      },
+      "writtenOn": "2023-01-11T17:34:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "170355d5_0acd96b9",
       "revId": "2961f21f095d9a64edb4609b9aebfba641d3e22a",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -86,6 +140,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "06c94119_ee44480e",
+        "filename": "av1/encoder/partition_search.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 5386,
+      "author": {
+        "id": 31567
+      },
+      "writtenOn": "2023-01-11T17:34:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f3277655_64a77eeb",
+      "revId": "2961f21f095d9a64edb4609b9aebfba641d3e22a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "0bf93dad_220e2be6",
@@ -103,6 +175,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a7591144_3cfe86c8",
+        "filename": "av1/encoder/partition_search.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 5390,
+      "author": {
+        "id": 31567
+      },
+      "writtenOn": "2023-01-11T17:34:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0bf93dad_220e2be6",
+      "revId": "2961f21f095d9a64edb4609b9aebfba641d3e22a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "4f388979_f34fbedc",
@@ -116,6 +206,24 @@
       "writtenOn": "2023-01-10T21:56:26Z",
       "side": 1,
       "message": "Nit/optional: \"applicable to\" seems to sound better than \"applicable for\"",
+      "revId": "2961f21f095d9a64edb4609b9aebfba641d3e22a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "860c4f66_3bfa356a",
+        "filename": "av1/encoder/speed_features.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 658,
+      "author": {
+        "id": 31567
+      },
+      "writtenOn": "2023-01-11T17:34:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4f388979_f34fbedc",
       "revId": "2961f21f095d9a64edb4609b9aebfba641d3e22a",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
