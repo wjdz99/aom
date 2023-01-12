@@ -16,6 +16,24 @@
       "message": "Hi Yunqing,\nIn this CL, we optimized the code related to temporal filtering. In the parent version, weight is calculated using exp(). exp() is called ‘tf_ctx-\u003enum_frames’ times for each pixel in the frame to be filtered. In this CL, we replaced exp() by a lookup and enabled this optimization for speed\u003d5,6. \n\nFor exp(x) in parent version, x is in the range of 0 to 7. Initially, we implemented a lookup table with 1000 entries. Hence the index for lookup would be x*1000/7. To avoid this division, we created the lookup with 995 (7 * 142 +1)  entries that maps to 0 to 7 range. Thus, index can be calculated x * 142. \n\nWe also modified TemporalFilterTest unit-test accordingly. As second argument parameter of this unit-test is unused/ignored, we modified the same as different speed feature settings.  \n\nPlease check the borg results for good encoding mode below:\n\n```\n                    Instruction Count      BD-Rate Loss(%)\n   cpu   Testset       Reduction(%)    avg.psnr   ovr.psnr    ssim\n    5     LOWRES2       3.236            0.0255    0.0357    0.0511\n    5     MIDRES2       4.315            0.0054   -0.0004   -0.0203\n    5      HDRES2       5.293           -0.0779   -0.0723   -0.1114\n    6     LOWRES2       1.833            0.0375    0.0335    0.0362\n    6     MIDRES2       4.014            0.0231    0.0242    0.0711\n    6      HDRES2       4.876           -0.0128   -0.0131   -0.0003\n```\n\nThe instruction count reduction specified has been measured using command:\n $ perf stat -e instructions:u ./aomenc …\n\nWe verified that CL is bit-exact for speed\u003d4 with a minor instruction count increase of 0.02%. This minor increase could be due to the if () condition introduced in apply_temporal_filter() function based on speed feature setting.\n\nPlease let us know your opinion on this CL\n\nRegards,\nRanjit",
       "revId": "45d6ea6327d968e0f9debaabe6ab6cda397aa2c2",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "71905f96_d074a0f1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2023-01-12T19:52:54Z",
+      "side": 1,
+      "message": "Sounds like a good optimization! Need some time to go over the details. You mentioned \"For exp(x) in parent version, x is in the range of 0 to 7.\" Can you explain the calculation for that?\n\nAlso, other speeds could also benefit from this.",
+      "parentUuid": "10c75f29_d37a3d3d",
+      "revId": "45d6ea6327d968e0f9debaabe6ab6cda397aa2c2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
