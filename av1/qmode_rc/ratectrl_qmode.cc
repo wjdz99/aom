@@ -1948,18 +1948,22 @@ StatusOr<GopEncodeInfo> AV1RateControlQMode::GetGopEncodeInfoWithTpl(
     const TplGopStats &tpl_gop_stats,
     const std::vector<LookaheadStats> &lookahead_stats,
     const RefFrameTable &ref_frame_table_snapshot_init) {
-  const std::vector<RefFrameTable> ref_frame_table_list = GetRefFrameTableList(
-      gop_struct, lookahead_stats, ref_frame_table_snapshot_init);
+  assert(tpl_gop_stats.frame_stats_list.size() ==
+         gop_struct.gop_frame_list.size());
+  const int frame_count =
+      static_cast<int>(tpl_gop_stats.frame_stats_list.size());
 
   GopEncodeInfo gop_encode_info;
-  gop_encode_info.final_snapshot = ref_frame_table_list.back();
+
+  const std::vector<RefFrameTable> ref_frame_table_list = GetRefFrameTableList(
+      gop_struct, lookahead_stats, ref_frame_table_snapshot_init);
+  gop_encode_info.final_snapshot = ref_frame_table_list[frame_count - 1];
+
   StatusOr<TplGopDepStats> gop_dep_stats = ComputeTplGopDepStats(
       tpl_gop_stats, lookahead_stats, ref_frame_table_list);
   if (!gop_dep_stats.ok()) {
     return gop_dep_stats.status();
   }
-  const int frame_count =
-      static_cast<int>(tpl_gop_stats.frame_stats_list.size());
 
   const int stats_size = static_cast<int>(firstpass_info.stats_list.size());
 
