@@ -53,6 +53,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "d03232ef_2a329b2e",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 483,
+      "author": {
+        "id": 5610
+      },
+      "writtenOn": "2023-01-12T15:57:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "26c652f5_a42207a8",
+      "revId": "22a8a2b1c0e723a3eee3a64b43a5fa9c45009864",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "14a56a87_24cbdfad",
@@ -84,6 +102,24 @@
       "side": 1,
       "message": "I will review and retest along with change re aq mode 0.",
       "parentUuid": "14a56a87_24cbdfad",
+      "revId": "22a8a2b1c0e723a3eee3a64b43a5fa9c45009864",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f1dc2d68_cc6132bc",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 500,
+      "author": {
+        "id": 5610
+      },
+      "writtenOn": "2023-01-12T15:57:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "991c7f09_9f998305",
       "revId": "22a8a2b1c0e723a3eee3a64b43a5fa9c45009864",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
