@@ -36,6 +36,12 @@ enum class TplPassCount {
   kTwoTplPasses = 2,
 };
 
+enum BitDepth {
+  kEightBits = 8,
+  kTenBits = 10,
+  kTwelveBits = 12,
+};
+
 struct RateControlParam {
   // Range of allowed GOP sizes (number of displayed frames).
   int max_gop_show_frame_count;
@@ -64,6 +70,9 @@ struct RateControlParam {
   TplPassCount tpl_pass_count = TplPassCount::kOneTplPass;
   // Current TPL pass number, 0 or 1 (for GetTplPassGopEncodeInfo).
   int tpl_pass_index = 0;
+
+  // Bitdepth of the input video.
+  BitDepth bit_depth = BitDepth::kEightBits;
 };
 
 struct TplBlockStats {
