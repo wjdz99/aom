@@ -34,6 +34,23 @@
       "parentUuid": "10c75f29_d37a3d3d",
       "revId": "45d6ea6327d968e0f9debaabe6ab6cda397aa2c2",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7b4c6b00_5ae4108c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2023-01-12T22:13:58Z",
+      "side": 1,
+      "message": "Alternatively, we could use the approx_exp function in aom/av1/encoder/ml.c instead of a look up table. Which one performs better will depend on how the LUT is cached and the accuracy of the linear approximation.",
+      "revId": "45d6ea6327d968e0f9debaabe6ab6cda397aa2c2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
