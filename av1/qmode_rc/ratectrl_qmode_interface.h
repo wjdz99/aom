@@ -64,6 +64,9 @@ struct RateControlParam {
   TplPassCount tpl_pass_count = TplPassCount::kOneTplPass;
   // Current TPL pass number, 0 or 1 (for GetTplPassGopEncodeInfo).
   int tpl_pass_index = 0;
+
+  // Bitdepth of the input video.
+  aom_bit_depth_t bit_depth = AOM_BITS_8;
 };
 
 struct TplBlockStats {

@@ -1038,7 +1038,8 @@ TEST_F(RateControlQModeTest, TestGetGopEncodeInfo) {
   const aom::VideoInfo input_video = {
     kFrameWidth, kFrameHeight,
     frame_rate,  AOM_IMG_FMT_I420,
-    50,          libaom_test::GetDataPath() + "/hantro_collage_w352h288.yuv"
+    50,          libaom_test::GetDataPath() + "/hantro_collage_w352h288.yuv",
+    AOM_BITS_8
   };
   DuckyEncode ducky_encode(input_video, BLOCK_64X64, rc_param_.max_ref_frames,
                            3, rc_param_.base_q_index);

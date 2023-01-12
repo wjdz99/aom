@@ -30,6 +30,7 @@ struct VideoInfo {
   aom_img_fmt_t img_fmt;
   int frame_count;
   std::string file_path;
+  aom_bit_depth_t bit_depth;
 };
 
 struct EncodeFrameResult {

@@ -1437,6 +1437,7 @@ StatusOr<TplGopDepStats> ComputeTplGopDepStats(
 }
 
 static std::vector<uint8_t> SetupDeltaQ(const TplFrameDepStats &frame_dep_stats,
+                                        const aom_bit_depth_t bitdepth,
                                         int frame_width, int frame_height,
                                         int base_qindex,
                                         double frame_importance,
@@ -1523,7 +1524,7 @@ static std::vector<uint8_t> SetupDeltaQ(const TplFrameDepStats &frame_dep_stats,
         beta = r0 / rk;
         assert(beta > 0.0);
       }
-      int offset = av1_get_deltaq_offset(AOM_BITS_8, base_qindex, beta);
+      int offset = av1_get_deltaq_offset(bitdepth, base_qindex, beta);
       offset = std::min(offset, delta_q_res * 9 - 1);
       offset = std::max(offset, -delta_q_res * 9 + 1);
       int qindex = offset + base_qindex;
@@ -1598,19 +1599,20 @@ std::unordered_map<int, int> KMeans(std::vector<uint8_t> qindices, int k) {
 }
 }  // namespace internal
 
-static int GetRDMult(const GopFrame &gop_frame, int q_index) {
+static int GetRDMult(const GopFrame &gop_frame, const aom_bit_depth_t bitdepth,
+                     int q_index) {
   // TODO(angiebird):
   // 1) Check if these rdmult rules are good in our use case.
   // 2) Support high-bit-depth mode
   if (gop_frame.is_golden_frame) {
     // Assume ARF_UPDATE/GF_UPDATE share the same remult rule.
-    return av1_compute_rd_mult_based_on_qindex(AOM_BITS_8, GF_UPDATE, q_index);
+    return av1_compute_rd_mult_based_on_qindex(bitdepth, GF_UPDATE, q_index);
   } else if (gop_frame.is_key_frame) {
-    return av1_compute_rd_mult_based_on_qindex(AOM_BITS_8, KF_UPDATE, q_index);
+    return av1_compute_rd_mult_based_on_qindex(bitdepth, KF_UPDATE, q_index);
   } else {
     // Assume LF_UPDATE/OVERLAY_UPDATE/INTNL_OVERLAY_UPDATE/INTNL_ARF_UPDATE
     // share the same remult rule.
-    return av1_compute_rd_mult_based_on_qindex(AOM_BITS_8, LF_UPDATE, q_index);
+    return av1_compute_rd_mult_based_on_qindex(bitdepth, LF_UPDATE, q_index);
   }
 }
 
@@ -1710,7 +1712,7 @@ StatusOr<GopEncodeInfo> AV1RateControlQMode::GetGopEncodeInfoWithNoStats(
   GopEncodeInfo gop_encode_info;
   const int frame_count = static_cast<int>(gop_struct.gop_frame_list.size());
   const int base_offset = av1_get_deltaq_offset(
-      AOM_BITS_8, rc_param_.base_q_index, gop_struct.base_q_ratio);
+      rc_param_.bit_depth, rc_param_.base_q_index, gop_struct.base_q_ratio);
   const int base_q_index = rc_param_.base_q_index + base_offset;
   for (int i = 0; i < frame_count; ++i) {
     FrameEncodeParameters param;
@@ -1718,15 +1720,15 @@ StatusOr<GopEncodeInfo> AV1RateControlQMode::GetGopEncodeInfoWithNoStats(
     // Use constant QP for TPL pass encoding. Keep the functionality
     // that allows QP changes across sub-gop.
     param.q_index = base_q_index;
-    param.rdmult = av1_compute_rd_mult_based_on_qindex(AOM_BITS_8, LF_UPDATE,
-                                                       base_q_index);
+    param.rdmult = av1_compute_rd_mult_based_on_qindex(rc_param_.bit_depth,
+                                                       LF_UPDATE, base_q_index);
     if (rc_param_.tpl_pass_count == TplPassCount::kTwoTplPasses) {
       if (gop_frame.update_type == GopFrameType::kRegularGolden ||
           gop_frame.update_type == GopFrameType::kRegularKey ||
           gop_frame.update_type == GopFrameType::kRegularArf) {
         if (rc_param_.tpl_pass_index) param.q_index = kSecondTplPassQp;
         param.rdmult = av1_compute_rd_mult_based_on_qindex(
-            AOM_BITS_8, ARF_UPDATE, kSecondTplPassQp);
+            rc_param_.bit_depth, ARF_UPDATE, kSecondTplPassQp);
       }
     }
     gop_encode_info.param_list.push_back(param);
@@ -1893,9 +1895,8 @@ StatusOr<GopEncodeInfo> AV1RateControlQMode::GetGopEncodeInfoWithFp(
 
   GopFrame arf_frame = GopFrameInvalid();
   const int frame_count = static_cast<int>(gop_struct.gop_frame_list.size());
-
   const int base_offset = av1_get_deltaq_offset(
-      AOM_BITS_8, rc_param_.base_q_index, gop_struct.base_q_ratio);
+      rc_param_.bit_depth, rc_param_.base_q_index, gop_struct.base_q_ratio);
   const int base_q_index = rc_param_.base_q_index + base_offset;
   const int active_worst_quality = base_q_index;
   int active_best_quality = base_q_index;
@@ -1923,8 +1924,8 @@ StatusOr<GopEncodeInfo> AV1RateControlQMode::GetGopEncodeInfoWithFp(
           std::max(sqrt(score), 1.0),
           gop_frame.update_type == GopFrameType::kRegularKey ? 6.0 : 4.0);
       const double qstep_ratio = 1.0 / boost;
-      param.q_index = av1_get_q_index_from_qstep_ratio(base_q_index,
-                                                       qstep_ratio, AOM_BITS_8);
+      param.q_index = av1_get_q_index_from_qstep_ratio(
+          base_q_index, qstep_ratio, rc_param_.bit_depth);
 
       if (base_q_index) param.q_index = std::max(param.q_index, 1);
       active_best_quality = param.q_index;
@@ -1937,7 +1938,7 @@ StatusOr<GopEncodeInfo> AV1RateControlQMode::GetGopEncodeInfoWithFp(
                                  ref_frame_table_list, arf_frame, gop_frame,
                                  active_best_quality, active_worst_quality);
     }
-    param.rdmult = GetRDMult(gop_frame, param.q_index);
+    param.rdmult = GetRDMult(gop_frame, rc_param_.bit_depth, param.q_index);
     gop_encode_info.param_list.push_back(param);
   }
   return gop_encode_info;
@@ -1976,7 +1977,7 @@ StatusOr<GopEncodeInfo> AV1RateControlQMode::GetGopEncodeInfoWithTpl(
   }
 
   const int base_offset = av1_get_deltaq_offset(
-      AOM_BITS_8, rc_param_.base_q_index, gop_struct.base_q_ratio);
+      rc_param_.bit_depth, rc_param_.base_q_index, gop_struct.base_q_ratio);
   const int base_q_index = rc_param_.base_q_index + base_offset;
 
   const int active_worst_quality = base_q_index;
@@ -2037,8 +2038,8 @@ StatusOr<GopEncodeInfo> AV1RateControlQMode::GetGopEncodeInfoWithTpl(
 
       // Imitate the behavior of av1_tpl_get_qstep_ratio()
       const double qstep_ratio = sqrt(1 / frame_importance);
-      param.q_index = av1_get_q_index_from_qstep_ratio(base_q_index,
-                                                       qstep_ratio, AOM_BITS_8);
+      param.q_index = av1_get_q_index_from_qstep_ratio(
+          base_q_index, qstep_ratio, rc_param_.bit_depth);
 
       if (base_q_index) param.q_index = AOMMAX(param.q_index, 1);
       active_best_quality = param.q_index;
@@ -2046,8 +2047,8 @@ StatusOr<GopEncodeInfo> AV1RateControlQMode::GetGopEncodeInfoWithTpl(
       if (rc_param_.max_distinct_q_indices_per_frame > 1) {
         std::vector<uint8_t> superblock_q_indices;
         superblock_q_indices = SetupDeltaQ(
-            frame_dep_stats, rc_param_.frame_width, rc_param_.frame_height,
-            param.q_index, frame_importance,
+            frame_dep_stats, rc_param_.bit_depth, rc_param_.frame_width,
+            rc_param_.frame_height, param.q_index, frame_importance,
             rc_param_.tpl_pass_count == TplPassCount::kTwoTplPasses);
         std::unordered_map<int, int> qindex_centroids = internal::KMeans(
             superblock_q_indices, rc_param_.max_distinct_q_indices_per_frame);
@@ -2058,7 +2059,8 @@ StatusOr<GopEncodeInfo> AV1RateControlQMode::GetGopEncodeInfoWithTpl(
           const int adjusted_qindex =
               param.q_index +
               (curr_sb_qindex - param.q_index) / delta_q_res * delta_q_res;
-          const int rd_mult = GetRDMult(gop_frame, adjusted_qindex);
+          const int rd_mult =
+              GetRDMult(gop_frame, rc_param_.bit_depth, adjusted_qindex);
           param.superblock_encode_params.push_back(
               { static_cast<uint8_t>(adjusted_qindex), rd_mult });
         }
@@ -2072,7 +2074,7 @@ StatusOr<GopEncodeInfo> AV1RateControlQMode::GetGopEncodeInfoWithTpl(
           (active_worst_quality * (depth_factor - 1) + active_best_quality) /
           depth_factor;
     }
-    param.rdmult = GetRDMult(gop_frame, param.q_index);
+    param.rdmult = GetRDMult(gop_frame, rc_param_.bit_depth, param.q_index);
     gop_encode_info.param_list.push_back(param);
   }
   return gop_encode_info;

@@ -94,7 +94,7 @@ static AV1EncoderConfig GetEncoderConfig(const VideoInfo &video_info,
   AV1EncoderConfig oxcf = av1_get_encoder_config(&cfg);
   // TODO(angiebird): Why didn't we init use_highbitdepth in
   // av1_get_encoder_config()?
-  oxcf.use_highbitdepth = 0;
+  oxcf.use_highbitdepth = !(video_info.bit_depth == AOM_BITS_8);
 
   // TODO(jingning): Change this to 35 when the baseline rate control
   // logic is in place.
@@ -254,6 +254,7 @@ void DuckyEncode::InitEncoder(aom_enc_pass pass,
   const AV1_COMP *cpi = ppi->cpi;
   SequenceHeader *seq_params = ppi->cpi->common.seq_params;
   set_sb_size(seq_params, impl_ptr_->sb_size);
+  seq_params->bit_depth = impl_ptr_->video_info.bit_depth;
   ppi->seq_params_locked = 1;
   assert(ppi->lookahead == nullptr);
 
