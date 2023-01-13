@@ -1322,14 +1322,14 @@ void TplFrameDepStatsPropagate(int coding_idx,
               const double overlap_ratio =
                   overlap_area * 1.0 / (unit_size * unit_size);
               const double propagation_fraction =
-                  GetPropagationFraction(unit_dep_stats);
+                  std::pow(GetPropagationFraction(unit_dep_stats), 0.3);
               const double propagation_ratio =
-                  1.0 / ref_frame_count * overlap_ratio * propagation_fraction;
+                  1.0 / ref_frame_count * overlap_ratio;
               TplUnitDepStats &ref_unit_stats =
                   ref_frame_dep_stats.unit_stats[ref_unit_row][ref_unit_col];
               ref_unit_stats.propagation_cost +=
-                  (unit_dep_stats.intra_cost +
-                   unit_dep_stats.propagation_cost) *
+                  (unit_dep_stats.intra_cost - unit_dep_stats.inter_cost +
+                   unit_dep_stats.propagation_cost * propagation_fraction) *
                   propagation_ratio;
             }
           }
