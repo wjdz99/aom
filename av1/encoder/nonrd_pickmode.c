@@ -291,7 +291,7 @@ static int combined_motion_search(AV1_COMP *cpi, MACROBLOCK *x,
     // adaptively downgrade subpel search method based on block properties
     if (use_aggressive_subpel_search_method(
             x, sf->rt_sf.use_adaptive_subpel_search, fullpel_performed_well))
-      av1_find_best_sub_pixel_tree_pruned_more(xd, cm, &ms_params,
+      fractional_mv_search[sf->rt_sf.use_adaptive_subpel_search - 1](xd, cm, &ms_params,
                                                subpel_start_mv, &tmp_mv->as_mv,
                                                &dis, &x->pred_sse[ref], NULL);
     else

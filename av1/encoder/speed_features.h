@@ -131,12 +131,6 @@ enum {
 } UENUM1BYTE(RECODE_LOOP_TYPE);
 
 enum {
-  SUBPEL_TREE = 0,
-  SUBPEL_TREE_PRUNED = 1,       // Prunes 1/2-pel searches
-  SUBPEL_TREE_PRUNED_MORE = 2,  // Prunes 1/2-pel searches more aggressively
-} UENUM1BYTE(SUBPEL_SEARCH_METHODS);
-
-enum {
   // Try the full image with different values.
   LPF_PICK_FROM_FULL_IMAGE,
   // Try the full image filter search with non-dual filter only.
@@ -755,7 +749,7 @@ typedef struct MV_SPEED_FEATURES {
   // logarithmic search that keeps stepping at 1/2 pixel units until
   // you stop getting a gain, and then goes on to 1/4 and repeats
   // the same process. Along the way it skips many diagonals.
-  SUBPEL_SEARCH_METHODS subpel_search_method;
+  SUBPEL_SEARCH_METHOD subpel_search_method;
 
   // Maximum number of steps in logarithmic subpel search before giving up.
   int subpel_iters_per_step;
@@ -1686,10 +1680,11 @@ typedef struct REAL_TIME_SPEED_FEATURES {
   // 2: If source sad <= kVeryLowSad
   int set_zeromv_skip_based_on_source_sad;
 
-  // Downgrades the block-level subpel motion search to
-  // av1_find_best_sub_pixel_tree_pruned_more for higher QP and when fullpel
-  // search performed well, zeromv has low sad or low source_var
-  bool use_adaptive_subpel_search;
+  // Downgrades the block-level subpel motion search for higher QP and when
+  // fullpel search performed well, zeromv has low sad or low source_var.
+  // Feature value = 0: disabled this feature
+  // Feature value > 0: use (value - 1) subpel search method
+  int use_adaptive_subpel_search;
 
   // A flag used in RTC case to control frame_refs_short_signaling. Note that
   // the final decision is made in check_frame_refs_short_signaling(). The flag

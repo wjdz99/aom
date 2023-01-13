@@ -1303,7 +1303,7 @@ static void set_rt_speed_feature_framesize_dependent(const AV1_COMP *const cpi,
       }
 #endif
 #endif
-      sf->rt_sf.use_adaptive_subpel_search = false;
+      sf->rt_sf.use_adaptive_subpel_search = 0;
     }
     if (speed >= 10) {
       // TODO(yunqingwang@google.com): To be conservative, disable
@@ -1346,7 +1346,7 @@ static void set_rt_speed_feature_framesize_dependent(const AV1_COMP *const cpi,
       sf->rt_sf.skip_cdef_sb = 1;
       sf->rt_sf.sad_based_adp_altref_lag = 2;
       sf->rt_sf.reduce_mv_pel_precision_highmotion = 2;
-      sf->rt_sf.use_adaptive_subpel_search = true;
+      sf->rt_sf.use_adaptive_subpel_search = SUBPEL_TREE_PRUNED_MORE + 1;
       sf->interp_sf.cb_pred_filter_search = 1;
     }
     if (speed >= 10) {
@@ -1354,7 +1354,7 @@ static void set_rt_speed_feature_framesize_dependent(const AV1_COMP *const cpi,
       sf->rt_sf.sad_based_adp_altref_lag = 4;
       sf->rt_sf.tx_size_level_based_on_qstep = 0;
       sf->rt_sf.reduce_mv_pel_precision_highmotion = 3;
-      sf->rt_sf.use_adaptive_subpel_search = false;
+      sf->rt_sf.use_adaptive_subpel_search = 0;
       sf->interp_sf.cb_pred_filter_search = 2;
     }
   }
@@ -1764,7 +1764,7 @@ static void set_rt_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->rt_sf.prune_compoundmode_with_singlecompound_var = true;
     sf->rt_sf.prune_compoundmode_with_singlemode_var = true;
     sf->rt_sf.skip_compound_based_on_var = true;
-    sf->rt_sf.use_adaptive_subpel_search = true;
+    sf->rt_sf.use_adaptive_subpel_search = SUBPEL_TREE_PRUNED_MORE + 1;
   }
 
   if (speed >= 8) {
@@ -1794,7 +1794,7 @@ static void set_rt_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->rt_sf.frame_level_mode_cost_update = true;
     sf->rt_sf.check_only_zero_zeromv_on_large_blocks = true;
     sf->rt_sf.reduce_mv_pel_precision_highmotion = 0;
-    sf->rt_sf.use_adaptive_subpel_search = true;
+    sf->rt_sf.use_adaptive_subpel_search = SUBPEL_TREE_PRUNED_MORE + 1;
     sf->mv_sf.use_bsize_dependent_search_method = 0;
   }
   if (speed >= 10) {
@@ -2139,7 +2139,7 @@ static AOM_INLINE void init_rt_sf(REAL_TIME_SPEED_FEATURES *rt_sf) {
   rt_sf->prune_compoundmode_with_singlemode_var = false;
   rt_sf->skip_compound_based_on_var = false;
   rt_sf->set_zeromv_skip_based_on_source_sad = 1;
-  rt_sf->use_adaptive_subpel_search = false;
+  rt_sf->use_adaptive_subpel_search = 0;
   rt_sf->screen_content_cdef_filter_qindex_thresh = 0;
   rt_sf->enable_ref_short_signaling = false;
   rt_sf->check_globalmv_on_single_ref = true;
@@ -2150,18 +2150,9 @@ static AOM_INLINE void init_rt_sf(REAL_TIME_SPEED_FEATURES *rt_sf) {
 static void set_subpel_search_method(
     MotionVectorSearchParams *mv_search_params,
     unsigned int motion_vector_unit_test,
-    SUBPEL_SEARCH_METHODS subpel_search_method) {
-  if (subpel_search_method == SUBPEL_TREE) {
-    mv_search_params->find_fractional_mv_step = av1_find_best_sub_pixel_tree;
-  } else if (subpel_search_method == SUBPEL_TREE_PRUNED) {
-    mv_search_params->find_fractional_mv_step =
-        av1_find_best_sub_pixel_tree_pruned;
-  } else if (subpel_search_method == SUBPEL_TREE_PRUNED_MORE) {
-    mv_search_params->find_fractional_mv_step =
-        av1_find_best_sub_pixel_tree_pruned_more;
-  } else {
-    assert(0);
-  }
+    SUBPEL_SEARCH_METHOD subpel_search_method) {
+  if (subpel_search_method > SUBPEL_TREE_PRUNED_MORE) assert(0);
+  mv_search_params->find_fractional_mv_step = fractional_mv_search[subpel_search_method];
 
   // This is only used in motion vector unit test.
   if (motion_vector_unit_test == 1)

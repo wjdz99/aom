@@ -330,6 +330,19 @@ extern fractional_mv_step_fp av1_return_max_sub_pixel_mv;
 extern fractional_mv_step_fp av1_return_min_sub_pixel_mv;
 extern fractional_mv_step_fp av1_find_best_obmc_sub_pixel_tree_up;
 
+enum {
+  SUBPEL_TREE = 0,
+  SUBPEL_TREE_PRUNED = 1,       // Prunes 1/2-pel searches
+  SUBPEL_TREE_PRUNED_MORE = 2,  // Prunes 1/2-pel searches more aggressively
+  SUBPEL_SEARCH_METHODS
+} UENUM1BYTE(SUBPEL_SEARCH_METHOD);
+
+static fractional_mv_step_fp *const fractional_mv_search[SUBPEL_SEARCH_METHODS] = {
+    av1_find_best_sub_pixel_tree,             // SUBPEL_TREE = 0
+    av1_find_best_sub_pixel_tree_pruned,      // SUBPEL_TREE_PRUNED = 1
+    av1_find_best_sub_pixel_tree_pruned_more  // SUBPEL_TREE_PRUNED_MORE = 2
+};
+
 unsigned int av1_refine_warped_mv(MACROBLOCKD *xd, const AV1_COMMON *const cm,
                                   const SUBPEL_MOTION_SEARCH_PARAMS *ms_params,
                                   BLOCK_SIZE bsize, const int *pts0,
