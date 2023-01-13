@@ -51,6 +51,59 @@
       "message": "Alternatively, we could use the approx_exp function in aom/av1/encoder/ml.c instead of a look up table. Which one performs better will depend on how the LUT is cached and the accuracy of the linear approximation.",
       "revId": "45d6ea6327d968e0f9debaabe6ab6cda397aa2c2",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "66b028b3_625bd92f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 6245
+      },
+      "writtenOn": "2023-01-13T15:14:01Z",
+      "side": 1,
+      "message": "Ack. We did a quick test by using approx_exp() from ml.c after typecasting input to float (scaled_error is of type double). The speed and quality data is summarized below. \n\n```\n               Instruction Count        BD-Rate Loss(%)       \ncpu Resolution   Reduction(%)    avg.psnr   ovr.psnr    ssim  \n 5     LOWRES2      3.147         0.0724     0.0666    0.0914\n 5     MIDRES2      4.197         0.0673     0.0344    0.0145\n 5      HDRES2      5.258         0.0208     0.0212    0.0099\n 6     LOWRES2      1.815         0.0167     0.0053   -0.0009\n 6     MIDRES2      3.893        -0.0127    -0.0093    0.0219\n 6      HDRES2      4.762         0.0010    -0.0089   -0.0178\n```\n\nThe speed-up seems to be on par with current CL with a slightly higher BD-Rate loss. When we tested for few specific values of scaled_error, we observed that approx_exp() has more error w.r.t exp() than current CL (overall) as given below.\n\n```\nscaled_error\u003d0.12186102972877232\nExpected value    - 885\napprox_exp method - 908\ncurrent CL        - 887\n\nscaled_error\u003d0.0035000000000000001 (little lesser than 1/142/2 where maximum error is possible with current CL)\nExpected value    - 996\napprox_exp method - 993\ncurrent CL        - 1000\n\nscaled_error\u003d0.5\nExpected value    - 606\napprox_exp method - 635\ncurrent CL        - 606\n\n```",
+      "parentUuid": "7b4c6b00_5ae4108c",
+      "revId": "45d6ea6327d968e0f9debaabe6ab6cda397aa2c2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1b02f47f_eb90c323",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 6245
+      },
+      "writtenOn": "2023-01-13T15:14:01Z",
+      "side": 1,
+      "message": "Hi Yunqing, Chi-Yo,\n\nBased on the results, we observe that the current approach gives good gains. \nHowever based on the suggestions and few more ideas such as range reduction algorithm and algorithmic modifications to reduce exp() calls for better SIMD performance (SSE and AVX2), we have plans to further study quality/speed impact, feasibility of SIMD implementation (SSE and AVX2) and C vs SIMD mismatch (due to floating point implementation) to assess the further gains/fine tuning possible for speed\u003d5,6 and other presets as well.\nPlease let us know your opinion.\n\nRegards,\nRanjit",
+      "revId": "45d6ea6327d968e0f9debaabe6ab6cda397aa2c2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ed6c92ed_eec17160",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 6245
+      },
+      "writtenOn": "2023-01-13T15:14:01Z",
+      "side": 1,
+      "message": "Ack. The weight is calculated as exp(-scaled_error) - Refer to code snippet A. scaled_error is obtained by weighing different SSE values and is clipped to 7 - Refer to code snippet B. From the code study we understood that scaled_error is positive and should be between 0 and 7. Hence we added an assert on the final index accordingly.",
+      "parentUuid": "71905f96_d074a0f1",
+      "revId": "45d6ea6327d968e0f9debaabe6ab6cda397aa2c2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
