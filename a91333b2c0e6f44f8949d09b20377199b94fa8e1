@@ -16,6 +16,24 @@
       "message": "There are MSVC warnings here:\n```\nC:\\src\\aom.1\\aom\\av1\\qmode_rc\\ratectrl_qmode.cc(968): warning C4244: \u0027\u003d\u0027: conversion from \u0027const int64_t\u0027 to \u0027double\u0027, possible loss of data\nC:\\src\\aom.1\\aom\\av1\\qmode_rc\\ratectrl_qmode.cc(969): warning C4244: \u0027\u003d\u0027: conversion from \u0027const int64_t\u0027 to \u0027double\u0027, possible loss of data\nC:\\src\\aom.1\\aom\\av1\\qmode_rc\\ratectrl_qmode.cc(971): warning C4244: \u0027\u003d\u0027: conversion from \u0027const int64_t\u0027 to \u0027double\u0027, possible loss of data\nC:\\src\\aom.1\\aom\\av1\\qmode_rc\\ratectrl_qmode.cc(972): warning C4244: \u0027\u003d\u0027: conversion from \u0027const int64_t\u0027 to \u0027double\u0027, possible loss of data\n```",
       "revId": "a91333b2c0e6f44f8949d09b20377199b94fa8e1",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9b36a1e5_1c92f88f",
+        "filename": "av1/qmode_rc/ratectrl_qmode.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 968,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2023-01-14T10:20:27Z",
+      "side": 1,
+      "message": "Thanks. https://aomedia-review.googlesource.com/c/aom/+/169341 ought to fix this.",
+      "parentUuid": "3c6ce879_466087ee",
+      "revId": "a91333b2c0e6f44f8949d09b20377199b94fa8e1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ],
   "submitRequirementResults": [
