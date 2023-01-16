@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "53f2b554_d7d96d3a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 31567
+      },
+      "writtenOn": "2023-01-16T23:12:14Z",
+      "side": 1,
+      "message": "Fix unsigned integer overflow in sse computation\nhttps://aomedia-review.googlesource.com/c/aom/+/169361 \nReviewers: Wan-Teh, Frank, \nCc: Ranjit, Harish, Vikas, Yunqing, Remya\n\nHi Wan-Teh, Frank, \n\nThe functions, encoder_variance() and encoder_highbd_8_variance(), compute the sse value for the area beyond that of width and height aligned to 16. As the sse value computed in these functions was stored in an unsigned integer format, this value could exceed the unsigned integer limit. In this CL, the possible data overflow is avoided by changing the datatype of the relevant variables to uint64_t.\nFor example, we observed an erroneous result for the AVIF encode recipe below, when tested for one of the 12-bit test inputs, \n```\n./avifenc -y 420 --min 0 --max 63 -s 8 -j 1 --tilerowslog2 2 --tilecolslog2 2 -a end-usage\u003dq -a cq-level\u003d63 -a tune\u003dssim -o \u003coutput.avif\u003e \u003cinput.y4m\u003e\n```\nFrom the code study, we understand that this fix is required for 8-bit encode as well. Hence we have applied this fix for both encoder_variance() and encoder_highbd_8_variance() functions.\n\nPlease review.\n\nRegards,\nNeha.",
+      "revId": "0e14386b02a2b2ed1531f845255caff2cb8181fc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
