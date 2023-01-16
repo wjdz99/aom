@@ -27,7 +27,7 @@ double aom_sse_to_psnr(double samples, double peak, double sse) {
 }
 
 static void encoder_variance(const uint8_t *a, int a_stride, const uint8_t *b,
-                             int b_stride, int w, int h, unsigned int *sse,
+                             int b_stride, int w, int h, uint64_t *sse,
                              int *sum) {
   int i, j;
 
@@ -71,12 +71,12 @@ static void encoder_highbd_variance64(const uint8_t *a8, int a_stride,
 
 static void encoder_highbd_8_variance(const uint8_t *a8, int a_stride,
                                       const uint8_t *b8, int b_stride, int w,
-                                      int h, unsigned int *sse, int *sum) {
+                                      int h, uint64_t *sse, int *sum) {
   uint64_t sse_long = 0;
   int64_t sum_long = 0;
   encoder_highbd_variance64(a8, a_stride, b8, b_stride, w, h, &sse_long,
                             &sum_long);
-  *sse = (unsigned int)sse_long;
+  *sse = sse_long;
   *sum = (int)sum_long;
 }
 #endif  // CONFIG_AV1_HIGHBITDEPTH
@@ -86,23 +86,24 @@ static int64_t get_sse(const uint8_t *a, int a_stride, const uint8_t *b,
   const int dw = width % 16;
   const int dh = height % 16;
   int64_t total_sse = 0;
-  unsigned int sse = 0;
   int sum = 0;
   int x, y;
 
   if (dw > 0) {
+    uint64_t sse = 0;
     encoder_variance(&a[width - dw], a_stride, &b[width - dw], b_stride, dw,
                      height, &sse, &sum);
     total_sse += sse;
   }
 
   if (dh > 0) {
+    uint64_t sse = 0;
     encoder_variance(&a[(height - dh) * a_stride], a_stride,
                      &b[(height - dh) * b_stride], b_stride, width - dw, dh,
                      &sse, &sum);
     total_sse += sse;
   }
-
+  unsigned int sse = 0;
   for (y = 0; y < height / 16; ++y) {
     const uint8_t *pa = a;
     const uint8_t *pb = b;
@@ -147,19 +148,21 @@ static int64_t highbd_get_sse(const uint8_t *a, int a_stride, const uint8_t *b,
   int x, y;
   const int dw = width % 16;
   const int dh = height % 16;
-  unsigned int sse = 0;
   int sum = 0;
   if (dw > 0) {
+    uint64_t sse = 0;
     encoder_highbd_8_variance(&a[width - dw], a_stride, &b[width - dw],
                               b_stride, dw, height, &sse, &sum);
     total_sse += sse;
   }
   if (dh > 0) {
+    uint64_t sse = 0;
     encoder_highbd_8_variance(&a[(height - dh) * a_stride], a_stride,
                               &b[(height - dh) * b_stride], b_stride,
                               width - dw, dh, &sse, &sum);
     total_sse += sse;
   }
+  unsigned int sse = 0;
   for (y = 0; y < height / 16; ++y) {
     const uint8_t *pa = a;
     const uint8_t *pb = b;
