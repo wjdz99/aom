@@ -2261,6 +2261,8 @@ void av1_nonrd_pick_intra_mode(AV1_COMP *cpi, MACROBLOCK *x, RD_STATS *rd_cost,
 
   init_mbmi(mi, DC_PRED, INTRA_FRAME, NONE_FRAME, cm);
   mi->mv[0].as_int = mi->mv[1].as_int = INVALID_MV;
+  mi->tx_size = intra_tx_size;
+  const BLOCK_SIZE bsize_tx = txsize_to_bsize[mi->tx_size];
 
   // Change the limit of this loop to add other intra prediction
   // mode tests.
@@ -2295,10 +2297,17 @@ void av1_nonrd_pick_intra_mode(AV1_COMP *cpi, MACROBLOCK *x, RD_STATS *rd_cost,
     args.mode = this_mode;
     args.skippable = 1;
     args.rdc = &this_rdc;
-    mi->tx_size = intra_tx_size;
     mi->mode = this_mode;
-    av1_foreach_transformed_block_in_plane(xd, bsize, AOM_PLANE_Y,
-                                           estimate_block_intra, &args);
+
+    if (bsize == bsize_tx) {
+      // Avoid call to av1_foreach_transformed_block_in_plane() if the current
+      // block size is same as transform block size.
+      estimate_block_intra(AOM_PLANE_Y, 0, 0, 0, bsize, mi->tx_size, &args);
+    } else {
+      av1_foreach_transformed_block_in_plane(xd, bsize, AOM_PLANE_Y,
+                                             estimate_block_intra, &args);
+    }
+
     const int skip_ctx = av1_get_skip_txfm_context(xd);
     if (args.skippable) {
       this_rdc.rate = x->mode_costs.skip_txfm_cost[skip_ctx][1];
