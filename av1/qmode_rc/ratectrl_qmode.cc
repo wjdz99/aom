@@ -1759,9 +1759,11 @@ StatusOr<GopEncodeInfo> AV1RateControlQMode::GetGopEncodeInfoWithNoStats(
       if (gop_frame.update_type == GopFrameType::kRegularGolden ||
           gop_frame.update_type == GopFrameType::kRegularKey ||
           gop_frame.update_type == GopFrameType::kRegularArf) {
-        if (rc_param_.tpl_pass_index) param.q_index = kSecondTplPassQp;
-        param.rdmult = av1_compute_rd_mult_based_on_qindex(
-            AOM_BITS_8, ARF_UPDATE, kSecondTplPassQp);
+        if (rc_param_.tpl_pass_index) {
+          param.q_index = kSecondTplPassQp;
+          param.rdmult = av1_compute_rd_mult_based_on_qindex(
+              AOM_BITS_8, ARF_UPDATE, kSecondTplPassQp);
+        }
       }
     }
     gop_encode_info.param_list.push_back(param);
