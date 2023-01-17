@@ -556,6 +556,7 @@ void av1_foreach_transformed_block_in_plane(
   // 4x4=0, 8x8=2, 16x16=4, 32x32=6, 64x64=8
   // transform size varies per plane, look it up in a common way.
   const TX_SIZE tx_size = av1_get_tx_size(plane, xd);
+  const BLOCK_SIZE tx_bsize = txsize_to_bsize[tx_size];
   const uint8_t txw_unit = tx_size_wide_unit[tx_size];
   const uint8_t txh_unit = tx_size_high_unit[tx_size];
   const int step = txw_unit * txh_unit;
@@ -571,6 +572,13 @@ void av1_foreach_transformed_block_in_plane(
       AOMMIN(mi_size_wide[max_unit_bsize], max_blocks_wide);
   const int mu_blocks_high =
       AOMMIN(mi_size_high[max_unit_bsize], max_blocks_high);
+
+  // Call visit() directly with zero offsets if the current block size is same
+  // as the transform block size.
+  if (plane_bsize == tx_bsize) {
+    visit(plane, 0, 0, 0, plane_bsize, tx_size, arg);
+    return;
+  }
 
   // Keep track of the row and column of the blocks we use so that we know
   // if we are in the unrestricted motion border.
@@ -588,6 +596,8 @@ void av1_foreach_transformed_block_in_plane(
       }
     }
   }
+  // Check if visit() is invoked atleast once.
+  assert(i >= 1);
 }
 
 typedef struct encode_block_pass1_args {
