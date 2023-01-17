@@ -140,6 +140,30 @@
       },
       "revId": "f012c451a07b24924cbf514764a22dae32b8b05f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "54eb4708_90dcf6b0",
+        "filename": "av1/qmode_rc/ratectrl_qmode.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 1331,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2023-01-17T21:07:50Z",
+      "side": 1,
+      "message": "I see, but I mean the propagation_cost really is the (intra_cost - inter_cost) from previous blocks in the trajectory. It feels strange that the propagation cost is not boosted enough, while intra_cost-inter_cost is. This is essentially saying, for this block\u0027s reference block, the influence of the cost of this block itself is not as important as the influence of the cost propagated to this block, which feels not that convincing (or maybe there is a reason but I fail to see that). In my opinion they should be boosted altogether for the reference block here.",
+      "parentUuid": "bf05de06_6cb34f17",
+      "range": {
+        "startLine": 1331,
+        "startChar": 19,
+        "endLine": 1331,
+        "endChar": 73
+      },
+      "revId": "f012c451a07b24924cbf514764a22dae32b8b05f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
