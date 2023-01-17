@@ -1,6 +1,23 @@
 {
   "comments": [
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "6ebb1e9f_23c4a240",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-01-17T20:32:01Z",
+      "side": 1,
+      "message": "Optional: We should file a bug report because this seems like a serious bug.",
+      "revId": "0e14386b02a2b2ed1531f845255caff2cb8181fc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "53f2b554_d7d96d3a",
@@ -14,6 +31,125 @@
       "writtenOn": "2023-01-16T23:12:14Z",
       "side": 1,
       "message": "Fix unsigned integer overflow in sse computation\nhttps://aomedia-review.googlesource.com/c/aom/+/169361 \nReviewers: Wan-Teh, Frank, \nCc: Ranjit, Harish, Vikas, Yunqing, Remya\n\nHi Wan-Teh, Frank, \n\nThe functions, encoder_variance() and encoder_highbd_8_variance(), compute the sse value for the area beyond that of width and height aligned to 16. As the sse value computed in these functions was stored in an unsigned integer format, this value could exceed the unsigned integer limit. In this CL, the possible data overflow is avoided by changing the datatype of the relevant variables to uint64_t.\nFor example, we observed an erroneous result for the AVIF encode recipe below, when tested for one of the 12-bit test inputs, \n```\n./avifenc -y 420 --min 0 --max 63 -s 8 -j 1 --tilerowslog2 2 --tilecolslog2 2 -a end-usage\u003dq -a cq-level\u003d63 -a tune\u003dssim -o \u003coutput.avif\u003e \u003cinput.y4m\u003e\n```\nFrom the code study, we understand that this fix is required for 8-bit encode as well. Hence we have applied this fix for both encoder_variance() and encoder_highbd_8_variance() functions.\n\nPlease review.\n\nRegards,\nNeha.",
+      "revId": "0e14386b02a2b2ed1531f845255caff2cb8181fc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a0a83168_7fbb5baf",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-01-17T20:32:01Z",
+      "side": 1,
+      "message": "Hi Neha,\n\nThank you very much for the bug fix. I studied the code carefully and would like to suggest some further cleanups.",
+      "revId": "0e14386b02a2b2ed1531f845255caff2cb8181fc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "82e1b1b7_bfa1f0fe",
+        "filename": "aom_dsp/psnr.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-01-17T20:32:01Z",
+      "side": 1,
+      "message": "The caller of `encoder_variance()` ignores the value returned in the output paramrter `sum`. I suggest we remove the `sum` parameter.\n\n\nNOTE: This issue described in this note is moot if we remove the `sum` parameter.\n\nI found that `sum` should also be changed to `int64_t`.\n\nFor example, if `w` and `h` are both 4096 and `a` is all 255 and `b` is all 0, then the sum of `diff` will exceed `INT_MAX`.",
+      "revId": "0e14386b02a2b2ed1531f845255caff2cb8181fc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e9a03566_64c01eac",
+        "filename": "aom_dsp/psnr.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-01-17T20:32:01Z",
+      "side": 1,
+      "message": "It\u0027d be good to find out why `lsum` is used. It seems that we can directly add `diff` to `tsum` in line 61 and delete line 64.\n\nThe `lsum` variable was introduced in https://aomedia-review.googlesource.com/c/aom/+/54761.",
+      "revId": "0e14386b02a2b2ed1531f845255caff2cb8181fc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cb874891_b035c536",
+        "filename": "aom_dsp/psnr.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-01-17T20:32:01Z",
+      "side": 1,
+      "message": "Remove the `sum` parameter because the caller of this function ignores this output parameter.\n\nOnce we do that, `encoder_highbd_variance64` and `encoder_highbd_8_variance` are exactly the same and we just need to keep `encoder_highbd_8_variance`.",
+      "revId": "0e14386b02a2b2ed1531f845255caff2cb8181fc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "040408f4_44216001",
+        "filename": "aom_dsp/psnr.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-01-17T20:32:01Z",
+      "side": 1,
+      "message": "`sum` does not need to be initialized. Since we are removing `sum`, this issue is moot.",
+      "revId": "0e14386b02a2b2ed1531f845255caff2cb8181fc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ccf7577c_5091bb4c",
+        "filename": "aom_dsp/psnr.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-01-17T20:32:01Z",
+      "side": 1,
+      "message": "Note: My comments for this function also apply to the `highbd_get_sse()` function.\n\nNit: The three `sse` variables do not need to be initialized, because they are passed as output parameters to `encoder_variance()` and `aom_mse16x16()`.",
+      "revId": "0e14386b02a2b2ed1531f845255caff2cb8181fc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a4b4eeaf_a432ec75",
+        "filename": "aom_dsp/psnr.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-01-17T20:32:01Z",
+      "side": 1,
+      "message": "Nit: I suggest moving line 106 into this scope.",
       "revId": "0e14386b02a2b2ed1531f845255caff2cb8181fc",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
