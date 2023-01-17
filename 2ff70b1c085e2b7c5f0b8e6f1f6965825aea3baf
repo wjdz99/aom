@@ -39,6 +39,30 @@
       },
       "revId": "2ff70b1c085e2b7c5f0b8e6f1f6965825aea3baf",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "323389a4_0b82322b",
+        "filename": "av1/encoder/mcomp.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1494,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2023-01-17T20:55:08Z",
+      "side": 1,
+      "message": "If we put this before, we might run diamond_search_sad with n \u003e\u003d further_steps, which will cause a stats difference.",
+      "parentUuid": "f9e73079_005a2da4",
+      "range": {
+        "startLine": 1490,
+        "startChar": 4,
+        "endLine": 1494,
+        "endChar": 5
+      },
+      "revId": "2ff70b1c085e2b7c5f0b8e6f1f6965825aea3baf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
