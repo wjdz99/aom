@@ -88,6 +88,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "05e21fec_a5833065",
+        "filename": "aom_dsp/psnr.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-01-17T21:49:23Z",
+      "side": 1,
+      "message": "If we remove the output parameter `sum`, then this function will have only one output parameter. We should rename the function `encoder_sse`.\n\nOptional: We can also change the output parameter to the return value:\n\n```\nstatic uint64_t encoder_sse(const uint8_t *a, int a_stride, const uint8_t *b,\n                            int b_stride, int w, int h) {\n```",
+      "parentUuid": "82e1b1b7_bfa1f0fe",
+      "revId": "0e14386b02a2b2ed1531f845255caff2cb8181fc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "e9a03566_64c01eac",
         "filename": "aom_dsp/psnr.c",
         "patchSetId": 2
@@ -116,6 +134,24 @@
       "writtenOn": "2023-01-17T20:32:01Z",
       "side": 1,
       "message": "Remove the `sum` parameter because the caller of this function ignores this output parameter.\n\nOnce we do that, `encoder_highbd_variance64` and `encoder_highbd_8_variance` are exactly the same and we just need to keep `encoder_highbd_8_variance`.",
+      "revId": "0e14386b02a2b2ed1531f845255caff2cb8181fc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "87fb3c40_e5b469f3",
+        "filename": "aom_dsp/psnr.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-01-17T21:49:23Z",
+      "side": 1,
+      "message": "Similarly we should rename the function `encoder_highbd_8_sse`, and can optionally change the output parameter to the return value.",
+      "parentUuid": "cb874891_b035c536",
       "revId": "0e14386b02a2b2ed1531f845255caff2cb8181fc",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
