@@ -45,6 +45,30 @@
       },
       "revId": "765515abb436c539cd43c2d70e104233c886a32a",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8af7c255_a77009a7",
+        "filename": "av1/encoder/mcomp.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1704,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2023-01-17T21:32:41Z",
+      "side": 1,
+      "message": "`run_mesh_search` is only enabled for temporal filtering.\nI added an assertion in `full_pixel_exhaustive` to catch any accidental usage.",
+      "parentUuid": "0dfdc5f7_647e19da",
+      "range": {
+        "startLine": 1704,
+        "startChar": 24,
+        "endLine": 1704,
+        "endChar": 50
+      },
+      "revId": "765515abb436c539cd43c2d70e104233c886a32a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
