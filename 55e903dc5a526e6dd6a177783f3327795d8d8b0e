@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8d991654_f3998ab8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-01-18T17:54:03Z",
+      "side": 1,
+      "message": "Jonathan, thank you very much for the fix.\n\nSetting Code-Review+1 only because I\u0027d like James to review this.\n\nI verified this CL fixes the ASan error. But I have two questions.",
+      "revId": "55e903dc5a526e6dd6a177783f3327795d8d8b0e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "873fc78f_d530c3be",
+        "filename": "av1/common/arm/jnt_convolve_neon.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 384,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-01-18T17:54:03Z",
+      "side": 1,
+      "message": "Jonathan, James: `dist_wtd_convolve_2d_horiz_neon()` reads four rows at a time from the `src` buffer. This seems to imply `im_h` should be a multiple of 4. But the caller passes `im_h` that is one less than a multiple of 4. See line 1166:\n\n```\n  const int im_h \u003d h + filter_params_y-\u003etaps - 1;\n```\n\nShould we fix this?",
+      "revId": "55e903dc5a526e6dd6a177783f3327795d8d8b0e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "81dda4fd_d1bf2662",
+        "filename": "av1/common/arm/jnt_convolve_neon.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1188,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-01-18T17:54:03Z",
+      "side": 1,
+      "message": "Our NEON/AV1Convolve2DCompoundTest.* tests do not seem to check for expected results. If I change the first argument to say `im_block` or `im_block + 2 * im_stride` or the second argument to `im_stride / 2`, the NEON/AV1Convolve2DCompoundTest.* tests still pass.",
+      "revId": "55e903dc5a526e6dd6a177783f3327795d8d8b0e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
