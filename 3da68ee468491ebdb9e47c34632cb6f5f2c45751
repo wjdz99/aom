@@ -46,6 +46,30 @@
       },
       "revId": "3da68ee468491ebdb9e47c34632cb6f5f2c45751",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "97a1af3b_4d342352",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2023-01-18T23:00:29Z",
+      "side": 1,
+      "message": "Did not check sw encoder yet, but I\u0027ll do that to see what happens.\n\nI\u0027m currently formatting a change to output things around these blocks of interest, and I\u0027ll report back here whether these blocks now refer to arf or not. From the delta q results I suspect at least part of them do, but I\u0027ll double check to be sure.",
+      "parentUuid": "ce17d012_94a52850",
+      "range": {
+        "startLine": 7,
+        "startChar": 45,
+        "endLine": 7,
+        "endChar": 53
+      },
+      "revId": "3da68ee468491ebdb9e47c34632cb6f5f2c45751",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ],
   "submitRequirementResults": [
