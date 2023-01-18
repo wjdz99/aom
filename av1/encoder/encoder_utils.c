@@ -1096,7 +1096,8 @@ void av1_determine_sc_tools_with_encoding(AV1_COMP *cpi, const int q_orig) {
 #endif  // CONFIG_REALTIME_ONLY
 
 static void fix_interp_filter(InterpFilter *const interp_filter,
-                              const FRAME_COUNTS *const counts) {
+                              const FRAME_COUNTS *const counts,
+                              int allow_free_reset) {
   if (*interp_filter == SWITCHABLE) {
     // Check to see if only one of the filters is actually used
     int count[SWITCHABLE_FILTERS] = { 0 };
@@ -1110,7 +1111,7 @@ static void fix_interp_filter(InterpFilter *const interp_filter,
       // Only one filter is used. So set the filter at frame level
       for (int i = 0; i < SWITCHABLE_FILTERS; ++i) {
         if (count[i]) {
-          if (i == EIGHTTAP_REGULAR) *interp_filter = i;
+          if (allow_free_reset || i == EIGHTTAP_REGULAR) *interp_filter = i;
           break;
         }
       }
@@ -1160,7 +1161,16 @@ void av1_finalize_encoded_frame(AV1_COMP *const cpi) {
     }
   }
 
-  fix_interp_filter(&cm->features.interp_filter, cpi->td.counts);
+  // When the frame interp filter is SWITCHABLE, several cases that always use
+  // EIGHTTAP_REGULAR are described in av1_is_interp_needed(). Namely, if these
+  // modes are allowed, we couldn't reset the frame interp filter unless it is
+  // EIGHTTAP_REGULAR.
+  const int allow_free_reset =
+      !(cm->current_frame.skip_mode_info.skip_mode_flag ||
+        cm->features.allow_warped_motion ||
+        cpi->oxcf.tool_cfg.enable_global_motion);
+  fix_interp_filter(&cm->features.interp_filter, cpi->td.counts,
+                    allow_free_reset);
 }
 
 int av1_is_integer_mv(const YV12_BUFFER_CONFIG *cur_picture,
