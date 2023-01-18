@@ -1,0 +1,188 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "297f1218_af5aad0f",
+        "filename": "aom_dsp/flow_estimation/disflow.c",
+        "patchSetId": 13
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2023-01-18T22:01:57Z",
+      "side": 1,
+      "message": "include here may need re-ordering",
+      "range": {
+        "startLine": 16,
+        "startChar": 11,
+        "endLine": 19,
+        "endChar": 43
+      },
+      "revId": "19aa18feb8659c033ec1d09d7a9667f3b39179ab",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3aa41f6f_d3c56e56",
+        "filename": "aom_dsp/flow_estimation/disflow.c",
+        "patchSetId": 13
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2023-01-18T22:01:57Z",
+      "side": 1,
+      "message": "Maybe not use camel case here and in some other function names? (I wonder why it was used before too)",
+      "range": {
+        "startLine": 64,
+        "startChar": 19,
+        "endLine": 64,
+        "endChar": 37
+      },
+      "revId": "19aa18feb8659c033ec1d09d7a9667f3b39179ab",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b8e4420e_23be4e53",
+        "filename": "aom_dsp/flow_estimation/disflow.c",
+        "patchSetId": 13
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2023-01-18T22:01:57Z",
+      "side": 1,
+      "message": "This is somewhat repetitive to getCubicKernel_dbl. We can probably just reuse it and round to integer",
+      "range": {
+        "startLine": 69,
+        "startChar": 0,
+        "endLine": 72,
+        "endChar": 35
+      },
+      "revId": "19aa18feb8659c033ec1d09d7a9667f3b39179ab",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0b757cd3_1c63844b",
+        "filename": "aom_dsp/flow_estimation/disflow.c",
+        "patchSetId": 13
+      },
+      "lineNbr": 395,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2023-01-18T22:01:57Z",
+      "side": 1,
+      "message": "Q: Could Euclidean distance be better?",
+      "range": {
+        "startLine": 395,
+        "startChar": 8,
+        "endLine": 395,
+        "endChar": 35
+      },
+      "revId": "19aa18feb8659c033ec1d09d7a9667f3b39179ab",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1bd14d52_f5b97cb1",
+        "filename": "aom_dsp/flow_estimation/disflow.c",
+        "patchSetId": 13
+      },
+      "lineNbr": 467,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2023-01-18T22:01:57Z",
+      "side": 1,
+      "message": "These and some of the following variables can be const",
+      "range": {
+        "startLine": 465,
+        "startChar": 4,
+        "endLine": 467,
+        "endChar": 39
+      },
+      "revId": "19aa18feb8659c033ec1d09d7a9667f3b39179ab",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3c8ee416_8d08ea20",
+        "filename": "aom_dsp/flow_estimation/disflow.c",
+        "patchSetId": 13
+      },
+      "lineNbr": 562,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2023-01-18T22:01:57Z",
+      "side": 1,
+      "message": "Prefer sizeof(\\*flow) to this. I believe the rationale is that with sizeof(\\*var) it avoids the possible bug when we need to change the type of var.",
+      "range": {
+        "startLine": 562,
+        "startChar": 51,
+        "endLine": 562,
+        "endChar": 60
+      },
+      "revId": "19aa18feb8659c033ec1d09d7a9667f3b39179ab",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6c0501ca_04d6ed26",
+        "filename": "aom_dsp/flow_estimation/disflow.c",
+        "patchSetId": 13
+      },
+      "lineNbr": 571,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2023-01-18T22:01:57Z",
+      "side": 1,
+      "message": "Same here.",
+      "range": {
+        "startLine": 571,
+        "startChar": 41,
+        "endLine": 571,
+        "endChar": 47
+      },
+      "revId": "19aa18feb8659c033ec1d09d7a9667f3b39179ab",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "dc1840ae_432605f3",
+        "filename": "aom_dsp/flow_estimation/disflow.c",
+        "patchSetId": 13
+      },
+      "lineNbr": 591,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2023-01-18T22:01:57Z",
+      "side": 1,
+      "message": "Maybe add a comment on the direction of the optical flow calculated?",
+      "range": {
+        "startLine": 591,
+        "startChar": 49,
+        "endLine": 591,
+        "endChar": 52
+      },
+      "revId": "19aa18feb8659c033ec1d09d7a9667f3b39179ab",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
