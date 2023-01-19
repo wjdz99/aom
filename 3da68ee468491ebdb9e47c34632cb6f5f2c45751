@@ -70,6 +70,23 @@
       },
       "revId": "3da68ee468491ebdb9e47c34632cb6f5f2c45751",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5b819f4d_b3dc6a16",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2023-01-19T00:24:14Z",
+      "side": 1,
+      "message": "I also see huge improvement on one-pass tpl\nqmode_test set\navg_psnr:ovr_psnr:ssim:\tvmaf:\n-8.155\t-7.075\t-5.881\t-21.531",
+      "revId": "3da68ee468491ebdb9e47c34632cb6f5f2c45751",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ],
   "submitRequirementResults": [
