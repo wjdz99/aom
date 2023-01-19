@@ -20,6 +20,23 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "bbff0a0c_a5561a77",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2023-01-19T16:45:23Z",
+      "side": 1,
+      "message": "Hi Chi Yo, any comments on the new preset?",
+      "revId": "794ce48e9d750e7c7ca41c279b8f444fb1e85406",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "71ace58b_030eef94",
         "filename": "av1/encoder/arm/neon/temporal_filter_neon.c",
         "patchSetId": 6
@@ -55,6 +72,30 @@
       "side": 1,
       "message": "0.5f is the offset added to round the result to a nearest integer.\n\nWhen approx_exp((float)-scaled_error) * TF_WEIGHT_SCALE  evaluates to 0.9f, weight would be zero in the absence of rounding offset.\nWhen rounding offset id added, the result would be 1 which is closer to 0.9f.\n\nWe feel that approx_exp() does not need any modification as it returns floating point value and this requirement is from the calling function.",
       "parentUuid": "71ace58b_030eef94",
+      "range": {
+        "startLine": 184,
+        "startChar": 71,
+        "endLine": 184,
+        "endChar": 75
+      },
+      "revId": "794ce48e9d750e7c7ca41c279b8f444fb1e85406",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1e937c29_e25c9fa1",
+        "filename": "av1/encoder/arm/neon/temporal_filter_neon.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 184,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2023-01-19T16:45:23Z",
+      "side": 1,
+      "message": "Ok, this makes sense now. It would make it more clear if using a function like lroundf(). This can be done separately.",
+      "parentUuid": "c2270c61_a21e98a5",
       "range": {
         "startLine": 184,
         "startChar": 71,
@@ -102,6 +143,30 @@
       "side": 1,
       "message": "Currently, the implementation is not handled for HBD encode. We shall plan the relevant modifications in a separate CL.",
       "parentUuid": "e8382e25_b92c247f",
+      "range": {
+        "startLine": 1186,
+        "startChar": 4,
+        "endLine": 1186,
+        "endChar": 56
+      },
+      "revId": "794ce48e9d750e7c7ca41c279b8f444fb1e85406",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "023de7f3_156165a1",
+        "filename": "av1/encoder/speed_features.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 1186,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2023-01-19T16:45:23Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "7550a8a1_9da0c679",
       "range": {
         "startLine": 1186,
         "startChar": 4,
