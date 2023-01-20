@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9fe83c00_257c26dd",
+        "filename": "aom_dsp/arm/obmc_variance_neon.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 137,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-01-20T20:57:02Z",
+      "side": 1,
+      "message": "This and the line below can merged `(--h !\u003d 0)`. There are a few instances like this.",
+      "revId": "e6255b69446594bb5de3a0abd601a7af8cf12ab0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "60d41121_ffd38679",
+        "filename": "aom_dsp/arm/obmc_variance_neon.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-01-20T20:57:02Z",
+      "side": 1,
+      "message": "This path fails some tests, try -DCMAKE_TOOLCHAIN_FILE\u003d.../build/cmake/toolchains/armv7-linux-gcc.cmake\n\n```\n[  FAILED  ] 15 tests, listed below:\n[  FAILED  ] NEON/ObmcVarianceTest.RandomValues/0, where GetParam() \u003d bit_depth:0 function:0x405654cd function:0x405af8e1\n[  FAILED  ] NEON/ObmcVarianceTest.RandomValues/1, where GetParam() \u003d bit_depth:0 function:0x405653ad function:0x405af7d1\n[  FAILED  ] NEON/ObmcVarianceTest.RandomValues/2, where GetParam() \u003d bit_depth:0 function:0x4056528d function:0x405af4dd\n[  FAILED  ] NEON/ObmcVarianceTest.RandomValues/3, where GetParam() \u003d bit_depth:0 function:0x40565171 function:0x405af1e9\n[  FAILED  ] NEON/ObmcVarianceTest.RandomValues/4, where GetParam() \u003d bit_depth:0 function:0x40565055 function:0x405aeef5\n[  FAILED  ] NEON/ObmcVarianceTest.RandomValues/5, where GetParam() \u003d bit_depth:0 function:0x40564f41 function:0x405aed59\n[  FAILED  ] NEON/ObmcVarianceTest.RandomValues/6, where GetParam() \u003d bit_depth:0 function:0x40564e3d function:0x405aebbd\n[  FAILED  ] NEON/ObmcVarianceTest.RandomValues/7, where GetParam() \u003d bit_depth:0 function:0x40564d3d function:0x405aea21\n[  FAILED  ] NEON/ObmcVarianceTest.RandomValues/8, where GetParam() \u003d bit_depth:0 function:0x40564c3d function:0x405ae931\n[  FAILED  ] NEON/ObmcVarianceTest.RandomValues/9, where GetParam() \u003d bit_depth:0 function:0x40564b45 function:0x405ae841\n[  FAILED  ] NEON/ObmcVarianceTest.RandomValues/10, where GetParam() \u003d bit_depth:0 function:0x40564a4d function:0x405ae751\n[  FAILED  ] NEON/ObmcVarianceTest.RandomValues/16, where GetParam() \u003d bit_depth:0 function:0x40565ca9 function:0x405b0341\n[  FAILED  ] NEON/ObmcVarianceTest.RandomValues/17, where GetParam() \u003d bit_depth:0 function:0x40565ba1 function:0x405b0251\n[  FAILED  ] NEON/ObmcVarianceTest.RandomValues/18, where GetParam() \u003d bit_depth:0 function:0x40565aa9 function:0x405b00b5\n[  FAILED  ] NEON/ObmcVarianceTest.RandomValues/20, where GetParam() \u003d bit_depth:0 function:0x40565771 function:0x405afd41\n```",
+      "revId": "e6255b69446594bb5de3a0abd601a7af8cf12ab0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
