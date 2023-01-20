@@ -3409,7 +3409,9 @@ static AOM_FORCE_INLINE bool handle_inter_mode_nonrd(
   struct macroblockd_plane *const pd = &xd->plane[AOM_PLANE_Y];
   const int bw = block_size_wide[bsize];
   const InterpFilter filter_ref = cm->features.interp_filter;
-  const InterpFilter default_interp_filter = EIGHTTAP_REGULAR;
+  const InterpFilter default_interp_filter =
+      (cpi->oxcf.tune_cfg.content == AOM_CONTENT_SCREEN) ? MULTITAP_SHARP
+                                                         : EIGHTTAP_REGULAR;
   TxfmSearchInfo *txfm_info = &x->txfm_search_info;
   const ModeCosts *mode_costs = &x->mode_costs;
   const REAL_TIME_SPEED_FEATURES *const rt_sf = &cpi->sf.rt_sf;
