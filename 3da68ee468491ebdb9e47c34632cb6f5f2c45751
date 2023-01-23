@@ -146,6 +146,30 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "b84cdf9a_7309e22c",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2023-01-23T21:10:15Z",
+      "side": 1,
+      "message": "Thanks for the update. That seems to align with the expectation.",
+      "parentUuid": "402291f4_d337f158",
+      "range": {
+        "startLine": 7,
+        "startChar": 45,
+        "endLine": 7,
+        "endChar": 53
+      },
+      "revId": "3da68ee468491ebdb9e47c34632cb6f5f2c45751",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "5b819f4d_b3dc6a16",
         "filename": "/PATCHSET_LEVEL",
         "patchSetId": 2
