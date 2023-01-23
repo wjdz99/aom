@@ -31,8 +31,15 @@ void av1_set_ssim_rdmult(const AV1_COMP *const cpi, int *errorperbit,
   const int num_brows = (mi_size_high[bsize] + num_mi_h - 1) / num_mi_h;
   int row, col;
   double num_of_mi = 0.0;
-  double geom_mean_of_scale = 0.0;
+  double geom_mean_of_scale = 1.0;
 
+  // For bsize_base=BLOCK_16X16, the num_bcols and num_brows max will be 8,
+  // leading to the worst case calculation of geom_mean_of_scale pow(84.527656,
+  // 64), which is in the range of DBL_MAX. If the bsize_base is changed to the
+  // min value, i.e., bsize_base=BLOCK_4X4, the num_bcols and num_brows max will
+  // be 32, so for the worst case calculation, it will be pow(84.527656, 1024),
+  // which will create the overflow for the calculation of geom_mean_of_scale.
+  assert(bsize_base == BLOCK_16X16);
   assert(cpi->oxcf.tune_cfg.tuning == AOM_TUNE_SSIM);
 
   for (row = mi_row / num_mi_w;
@@ -41,11 +48,11 @@ void av1_set_ssim_rdmult(const AV1_COMP *const cpi, int *errorperbit,
          col < num_cols && col < mi_col / num_mi_h + num_bcols; ++col) {
       const int index = row * num_cols + col;
       assert(cpi->ssim_rdmult_scaling_factors[index] != 0.0);
-      geom_mean_of_scale += log(cpi->ssim_rdmult_scaling_factors[index]);
+      geom_mean_of_scale *= cpi->ssim_rdmult_scaling_factors[index];
       num_of_mi += 1.0;
     }
   }
-  geom_mean_of_scale = exp(geom_mean_of_scale / num_of_mi);
+  geom_mean_of_scale = pow(geom_mean_of_scale, (1 / num_of_mi));
 
   *rdmult = (int)((double)(*rdmult) * geom_mean_of_scale + 0.5);
   *rdmult = AOMMAX(*rdmult, 0);
