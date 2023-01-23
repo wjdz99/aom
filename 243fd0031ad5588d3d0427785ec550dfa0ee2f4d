@@ -1,6 +1,23 @@
 {
   "comments": [
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "8643fa09_6ebbfb59",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-01-23T19:20:51Z",
+      "side": 1,
+      "message": "I haven\u0027t checked this on 2017 or 2019 yet.",
+      "revId": "243fd0031ad5588d3d0427785ec550dfa0ee2f4d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "33e7e589_5b59280e",
@@ -14,6 +31,24 @@
       "writtenOn": "2023-01-23T17:44:57Z",
       "side": 1,
       "message": "1934 is the value of `_MSC_VER` in Visual Studio 2022 version 17.4.\n\nAlternatively, we can test `_MSC_VER \u003c 1940`, assuming future versions of Visual Studio 2022 have `_MSC_VER` equal to 193*. Would that be better?",
+      "revId": "243fd0031ad5588d3d0427785ec550dfa0ee2f4d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "be662dcd_8e781976",
+        "filename": "av1/common/cdef_block_simd.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 267,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-01-23T19:20:51Z",
+      "side": 1,
+      "message": "\u003e 1934 is the value of `_MSC_VER` in Visual Studio 2022 version 17.4.\n\u003e \n\u003e Alternatively, we can test `_MSC_VER \u003c 1940`, assuming future versions of Visual Studio 2022 have `_MSC_VER` equal to 193*. Would that be better?\n\nIt\u0027s probably safer to check `\u003c 1940` for now assuming the bug will continue through those versions.",
+      "parentUuid": "33e7e589_5b59280e",
       "revId": "243fd0031ad5588d3d0427785ec550dfa0ee2f4d",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
