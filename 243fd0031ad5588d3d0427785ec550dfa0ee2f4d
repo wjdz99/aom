@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "33e7e589_5b59280e",
+        "filename": "av1/common/cdef_block_simd.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 267,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-01-23T17:44:57Z",
+      "side": 1,
+      "message": "1934 is the value of `_MSC_VER` in Visual Studio 2022 version 17.4.\n\nAlternatively, we can test `_MSC_VER \u003c 1940`, assuming future versions of Visual Studio 2022 have `_MSC_VER` equal to 193*. Would that be better?",
+      "revId": "243fd0031ad5588d3d0427785ec550dfa0ee2f4d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e9c986bd_93845cc0",
+        "filename": "av1/common/cdef_block_simd.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 270,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-01-23T17:44:57Z",
+      "side": 1,
+      "message": "In aom_dsp/aom_simd_inline.h, `SIMD_INLINE` is defined as follows:\n\n```\n#ifndef SIMD_INLINE\n#define SIMD_INLINE static AOM_FORCE_INLINE\n#endif\n```",
+      "revId": "243fd0031ad5588d3d0427785ec550dfa0ee2f4d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2e9408c7_0b93180d",
+        "filename": "av1/common/cdef_block_simd.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 691,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-01-23T17:44:57Z",
+      "side": 1,
+      "message": "Note that `filter_block_8x8()` and `filter_block_4x4()` are called these `cdef_filter_d_n` functions, where `d` \u003d 8, 16 and `n` \u003d 0, 1, 2. So there are six calls to each of `filter_block_8x8()` and `filter_block_4x4()`.\n\nIf these `filter_block_8x8()` and `filter_block_4x4()` calls are all inlined, MSVC runs out of heap space in x86 release builds.",
+      "revId": "243fd0031ad5588d3d0427785ec550dfa0ee2f4d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
