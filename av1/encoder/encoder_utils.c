@@ -1328,10 +1328,20 @@ void av1_set_mb_ssim_rdmult_scaling(AV1_COMP *cpi) {
       // Curve fitting with an exponential model on all 16x16 blocks from the
       // midres dataset.
       var = 67.035434 * (1 - exp(-0.0021489 * var)) + 17.492222;
+
+      // Var after the above computation should be between 17.492222
+      // and 84.527656, assuming the data type is of infinite precision.The
+      // following assert conservatively checks if var is between 17 and 85 to
+      // avoid any issues due to the precision of the relevant data type.
+      assert(var > 17 && var < 85);
       cpi->ssim_rdmult_scaling_factors[index] = var;
       log_sum += log(var);
     }
   }
+
+  // As log_sum calculates the geometric mean, it should be between 17 and 85,
+  // so in the below loop, cpi->ssim_rdmult_scaling_factors[index]
+  // will be bounded by 0.2069 and 4.8322.
   log_sum = exp(log_sum / (double)(num_rows * num_cols));
 
   for (int row = 0; row < num_rows; ++row) {
