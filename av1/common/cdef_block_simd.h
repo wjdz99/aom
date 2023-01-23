@@ -262,11 +262,21 @@ SIMD_INLINE v256 get_max_secondary(const int is_lowbd, v256 *tap, v256 max,
   return max;
 }
 
-SIMD_INLINE void filter_block_4x4(const int is_lowbd, void *dest, int dstride,
-                                  const uint16_t *in, int pri_strength,
-                                  int sec_strength, int dir, int pri_damping,
-                                  int sec_damping, int coeff_shift, int height,
-                                  int enable_primary, int enable_secondary) {
+// Work around compiler out of memory issues with Win32 builds. This issue has
+// been observed with Visual Studio 2017, 2019, and 2022 (version 17.4).
+#if defined(_MSC_VER) && defined(_M_IX86) && _MSC_VER < 1940
+#define FILTER_BLOCK_INLINE static INLINE
+#else
+#define FILTER_BLOCK_INLINE SIMD_INLINE
+#endif
+
+FILTER_BLOCK_INLINE void filter_block_4x4(const int is_lowbd, void *dest,
+                                          int dstride, const uint16_t *in,
+                                          int pri_strength, int sec_strength,
+                                          int dir, int pri_damping,
+                                          int sec_damping, int coeff_shift,
+                                          int height, int enable_primary,
+                                          int enable_secondary) {
   uint8_t *dst8 = (uint8_t *)dest;
   uint16_t *dst16 = (uint16_t *)dest;
   const int clipping_required = enable_primary && enable_secondary;
@@ -454,11 +464,13 @@ SIMD_INLINE void filter_block_4x4(const int is_lowbd, void *dest, int dstride,
   }
 }
 
-SIMD_INLINE void filter_block_8x8(const int is_lowbd, void *dest, int dstride,
-                                  const uint16_t *in, int pri_strength,
-                                  int sec_strength, int dir, int pri_damping,
-                                  int sec_damping, int coeff_shift, int height,
-                                  int enable_primary, int enable_secondary) {
+FILTER_BLOCK_INLINE void filter_block_8x8(const int is_lowbd, void *dest,
+                                          int dstride, const uint16_t *in,
+                                          int pri_strength, int sec_strength,
+                                          int dir, int pri_damping,
+                                          int sec_damping, int coeff_shift,
+                                          int height, int enable_primary,
+                                          int enable_secondary) {
   uint8_t *dst8 = (uint8_t *)dest;
   uint16_t *dst16 = (uint16_t *)dest;
   const int clipping_required = enable_primary && enable_secondary;
