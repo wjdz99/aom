@@ -2003,10 +2003,31 @@ static int vector_match(int16_t *ref, int16_t *src, int bwl) {
   return (center - (bw >> 1));
 }
 
+static AOM_FORCE_INLINE int mv_distance(const FULLPEL_MV *mv0,
+                                        const FULLPEL_MV *mv1) {
+  return abs(mv0->row - mv1->row) + abs(mv0->col - mv1->col);
+}
+
+static AOM_FORCE_INLINE void add_mv(FULLPEL_MV *mv_cand, int *cnt,
+                                    const FULLPEL_MV *mv) {
+  int unique = 1;
+  for (int i = 0; i < (*cnt); ++i) {
+    if (mv_distance(&mv_cand[i], mv) == 0) {
+      unique = 0;
+      break;
+    }
+  }
+  if (unique) {
+    mv_cand[*cnt] = *mv;
+    (*cnt)++;
+  }
+}
+
 // A special fast version of motion search used in rt mode
 unsigned int av1_int_pro_motion_estimation(const AV1_COMP *cpi, MACROBLOCK *x,
                                            BLOCK_SIZE bsize, int mi_row,
-                                           int mi_col, const MV *ref_mv) {
+                                           int mi_col, const MV *ref_mv,
+                                           const FULLPEL_MV *nb_mvs) {
   MACROBLOCKD *xd = &x->e_mbd;
   MB_MODE_INFO *mi = xd->mi[0];
   struct buf_2d backup_yv12[MAX_MB_PLANE] = { { 0, 0, 0, 0, 0 } };
@@ -2023,7 +2044,7 @@ unsigned int av1_int_pro_motion_estimation(const AV1_COMP *cpi, MACROBLOCK *x,
   const int ref_stride = xd->plane[0].pre[0].stride;
   uint8_t const *ref_buf, *src_buf;
   int_mv *best_int_mv = &xd->mi[0]->mv[0];
-  unsigned int best_sad, tmp_sad, this_sad[4];
+  unsigned int best_sad = UINT_MAX, tmp_sad, this_sad[4];
   const int row_norm_factor = mi_size_high_log2[bsize] + 1;
   const int col_norm_factor = 3 + (bw >> 5);
   const YV12_BUFFER_CONFIG *scaled_ref_frame =
@@ -2057,6 +2078,17 @@ unsigned int av1_int_pro_motion_estimation(const AV1_COMP *cpi, MACROBLOCK *x,
     return best_sad;
   }
 
+  FULLPEL_MV mv_cand[4];
+  int cnt = 1;
+  mv_cand[0] = kZeroFullMv;
+  if (nb_mvs != NULL) {
+    // Add this mv to mv_cand if it is a different mv.
+    add_mv(mv_cand, &cnt, &nb_mvs[0]);
+    add_mv(mv_cand, &cnt, &nb_mvs[1]);
+  }
+
+  av1_set_mv_search_range(&x->mv_limits, ref_mv);
+
   // Set up prediction 1-D reference set
   ref_buf = xd->plane[0].pre[0].buf - (bw >> 1);
   aom_int_pro_row(hbuf, ref_buf, ref_stride, search_width, bh, row_norm_factor);
@@ -2071,30 +2103,32 @@ unsigned int av1_int_pro_motion_estimation(const AV1_COMP *cpi, MACROBLOCK *x,
   aom_int_pro_col(src_vbuf, src_buf, src_stride, bw, bh, col_norm_factor);
 
   // Find the best match per 1-D search
-  best_int_mv->as_fullmv.col =
-      vector_match(hbuf, src_hbuf, mi_size_wide_log2[bsize]);
-  best_int_mv->as_fullmv.row =
-      vector_match(vbuf, src_vbuf, mi_size_high_log2[bsize]);
+  FULLPEL_MV this_mv;
+  this_mv.col = vector_match(hbuf, src_hbuf, mi_size_wide_log2[bsize]);
+  this_mv.row = vector_match(vbuf, src_vbuf, mi_size_high_log2[bsize]);
 
-  FULLPEL_MV this_mv = best_int_mv->as_fullmv;
-  src_buf = x->plane[0].src.buf;
-  ref_buf = get_buf_from_fullmv(&xd->plane[0].pre[0], &this_mv);
-  best_sad =
-      cpi->ppi->fn_ptr[bsize].sdf(src_buf, src_stride, ref_buf, ref_stride);
+  clamp_fullmv(&this_mv, &x->mv_limits);
 
-  // Evaluate zero MV if found MV is non-zero.
-  if (best_int_mv->as_int != 0) {
-    tmp_sad = cpi->ppi->fn_ptr[bsize].sdf(x->plane[0].src.buf, src_stride,
-                                          xd->plane[0].pre[0].buf, ref_stride);
+  //  convert_fullmv_to_mv(best_int_mv);
+  //  clamp_mv(&best_int_mv->as_mv, &subpel_mv_limits);
+  //  best_int_mv->as_fullmv = get_fullmv_from_mv(&best_int_mv->as_mv);
+
+  add_mv(mv_cand, &cnt, &this_mv);
+
+  for (int i = 0; i < cnt; ++i) {
+    uint8_t const *tmp_buf =
+        get_buf_from_fullmv(&xd->plane[0].pre[0], &mv_cand[i]);
+    tmp_sad =
+        cpi->ppi->fn_ptr[bsize].sdf(src_buf, src_stride, tmp_buf, ref_stride);
 
     if (tmp_sad < best_sad) {
-      best_int_mv->as_fullmv = kZeroFullMv;
-      this_mv = best_int_mv->as_fullmv;
-      ref_buf = xd->plane[0].pre[0].buf;
+      best_int_mv->as_fullmv = mv_cand[i];
+      ref_buf = tmp_buf;
       best_sad = tmp_sad;
     }
   }
 
+  this_mv = best_int_mv->as_fullmv;
   {
     const uint8_t *const pos[4] = {
       ref_buf - ref_stride,
@@ -2108,10 +2142,13 @@ unsigned int av1_int_pro_motion_estimation(const AV1_COMP *cpi, MACROBLOCK *x,
   }
 
   for (idx = 0; idx < 4; ++idx) {
+    const FULLPEL_MV tmp = { search_pos[idx].row + this_mv.row,
+                             search_pos[idx].col + this_mv.col };
+    if (!av1_is_fullmv_in_range(&x->mv_limits, tmp)) continue;
+
     if (this_sad[idx] < best_sad) {
       best_sad = this_sad[idx];
-      best_int_mv->as_fullmv.row = search_pos[idx].row + this_mv.row;
-      best_int_mv->as_fullmv.col = search_pos[idx].col + this_mv.col;
+      best_int_mv->as_fullmv = tmp;
     }
   }
 
@@ -2125,20 +2162,19 @@ unsigned int av1_int_pro_motion_estimation(const AV1_COMP *cpi, MACROBLOCK *x,
   else
     this_mv.col += 1;
 
-  ref_buf = get_buf_from_fullmv(&xd->plane[0].pre[0], &this_mv);
+  if (av1_is_fullmv_in_range(&x->mv_limits, this_mv)) {
+    ref_buf = get_buf_from_fullmv(&xd->plane[0].pre[0], &this_mv);
 
-  tmp_sad =
-      cpi->ppi->fn_ptr[bsize].sdf(src_buf, src_stride, ref_buf, ref_stride);
-  if (best_sad > tmp_sad) {
-    best_int_mv->as_fullmv = this_mv;
-    best_sad = tmp_sad;
+    tmp_sad =
+        cpi->ppi->fn_ptr[bsize].sdf(src_buf, src_stride, ref_buf, ref_stride);
+    if (best_sad > tmp_sad) {
+      best_int_mv->as_fullmv = this_mv;
+      best_sad = tmp_sad;
+    }
   }
 
+  // clamp_fullmv(&best_int_mv->as_fullmv, &x->mv_limits);
   convert_fullmv_to_mv(best_int_mv);
-
-  SubpelMvLimits subpel_mv_limits;
-  av1_set_subpel_mv_search_range(&subpel_mv_limits, &x->mv_limits, ref_mv);
-  clamp_mv(&best_int_mv->as_mv, &subpel_mv_limits);
 
   if (scaled_ref_frame) {
     int i;
