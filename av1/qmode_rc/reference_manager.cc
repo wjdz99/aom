@@ -230,7 +230,7 @@ void RefFrameManager::UpdateOrder(int global_order_idx) {
     // If the last (stack top) of last_queue_ is an arf frame, then move it to
     // the backward_queue_ so it will become the golden frame of future leaf
     // frames.
-    if (this_gf_frame.is_arf_frame) {
+    if (this_gf_frame.is_golden_frame) {
       last_queue_.pop_back();
       backward_queue_.push_back(this_ref_idx);
     }
