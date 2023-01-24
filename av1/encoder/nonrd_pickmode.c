@@ -2514,6 +2514,7 @@ static INLINE bool is_prune_intra_mode(
  *                                        best mode picked so far
  * \param[in]    ctx                      Pointer to structure holding coding
  *                                        contexts and modes for the block
+ * \param[in]    force_intra_palette      Flag to force checking of intra mode
  *
  * \remark Nothing is returned. Instead, calculated RD cost is placed to
  * \c best_rdc and best selected mode is placed to \c best_pickmode
@@ -2522,7 +2523,8 @@ static void estimate_intra_mode(
     AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bsize, int best_early_term,
     unsigned int ref_cost_intra, int reuse_prediction, struct buf_2d *orig_dst,
     PRED_BUFFER *tmp_buffers, PRED_BUFFER **this_mode_pred, RD_STATS *best_rdc,
-    BEST_PICKMODE *best_pickmode, PICK_MODE_CONTEXT *ctx) {
+    BEST_PICKMODE *best_pickmode, PICK_MODE_CONTEXT *ctx ,
+    int force_intra_palette) {
   AV1_COMMON *const cm = &cpi->common;
   MACROBLOCKD *const xd = &x->e_mbd;
   MB_MODE_INFO *const mi = xd->mi[0];
@@ -2603,6 +2605,8 @@ static void estimate_intra_mode(
     else if (rt_sf->skip_intra_pred == 2)
       perform_intra_pred = 0;
   }
+
+  if (force_intra_palette) force_intra_check = 1;
 
   if (!(best_rdc->rdcost == INT64_MAX || force_intra_check ||
         (perform_intra_pred && !best_early_term &&
@@ -3894,7 +3898,10 @@ static AOM_FORCE_INLINE void handle_screen_content_mode_nonrd(
   if (search_state->this_rdc.rdcost < search_state->best_rdc.rdcost) {
     best_pickmode->pmi = mi->palette_mode_info;
     best_pickmode->best_mode = DC_PRED;
-    mi->mv[0].as_int = 0;
+    mi->mv[0].as_int = INVALID_MV;
+    mi->mv[1].as_int = INVALID_MV;
+    best_pickmode->best_ref_frame = INTRA_FRAME;
+    best_pickmode->best_second_ref_frame = NONE;
     search_state->best_rdc.rate = search_state->this_rdc.rate;
     search_state->best_rdc.dist = search_state->this_rdc.dist;
     search_state->best_rdc.rdcost = search_state->this_rdc.rdcost;
@@ -4175,13 +4182,24 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
   x->ms_stat_nonrd.num_nonskipped_searches[bsize][DC_PRED]++;
 #endif
 
+  int force_intra_palette = 0;
+  if (cpi->oxcf.tune_cfg.content == AOM_CONTENT_SCREEN &&
+      cpi->rc.high_source_sad && bsize <= BLOCK_16X16 &&
+      x->content_state_sb.source_sad_nonrd != kZeroSad &&
+      x->source_variance > 200) {
+    unsigned int best_sse_inter_motion =
+        (unsigned int)(search_state.best_rdc.sse >> (b_width_log2_lookup[bsize] +
+        b_height_log2_lookup[bsize]));
+    if (best_sse_inter_motion > 50000) force_intra_palette = 1;
+  }
+
   // Evaluate Intra modes in inter frame
   if (!x->force_zeromv_skip_for_blk)
     estimate_intra_mode(cpi, x, bsize, best_early_term,
                         search_state.ref_costs_single[INTRA_FRAME],
                         reuse_inter_pred, &orig_dst, tmp_buffer,
                         &this_mode_pred, &search_state.best_rdc, best_pickmode,
-                        ctx);
+                        ctx, force_intra_palette);
 
   int skip_idtx_palette = (x->color_sensitivity[COLOR_SENS_IDX(AOM_PLANE_U)] ||
                            x->color_sensitivity[COLOR_SENS_IDX(AOM_PLANE_V)]) &&
@@ -4192,7 +4210,8 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
       !skip_idtx_palette && cpi->oxcf.tool_cfg.enable_palette &&
       av1_allow_palette(cpi->common.features.allow_screen_content_tools,
                         mi->bsize);
-  try_palette = try_palette && is_mode_intra(best_pickmode->best_mode) &&
+  try_palette = try_palette &&
+                (is_mode_intra(best_pickmode->best_mode) || force_intra_palette) &&
                 x->source_variance > 0 && !x->force_zeromv_skip_for_blk &&
                 (cpi->rc.high_source_sad || x->source_variance > 500);
 
