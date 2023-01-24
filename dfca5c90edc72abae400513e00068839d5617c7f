@@ -33,6 +33,24 @@
       "message": "It should be easy to add a test for this check.",
       "revId": "dfca5c90edc72abae400513e00068839d5617c7f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1c3c3962_57a48382",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 772,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2023-01-24T00:33:08Z",
+      "side": 1,
+      "message": "I just noticed that our encoder cannot handle parameters of the form \"--foo\" with its set_option API. Let me fix that first before adding a test.",
+      "parentUuid": "df896cf3_44f015dd",
+      "revId": "dfca5c90edc72abae400513e00068839d5617c7f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ],
   "submitRequirementResults": [
