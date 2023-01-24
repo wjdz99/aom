@@ -1210,6 +1210,32 @@ static AOM_INLINE void set_ref_frame_for_partition(
   }
 }
 
+static AOM_INLINE void find_neighbour_mvs(MACROBLOCK *x, FULLPEL_MV *nb_mvs) {
+  MACROBLOCKD *xd = &x->e_mbd;
+  SubpelMvLimits subpel_mv_limits;
+  const MV dummy_mv = { 0, 0 };
+  av1_set_subpel_mv_search_range(&subpel_mv_limits, &x->mv_limits, &dummy_mv);
+
+  if (xd->up_available) {
+    const MB_MODE_INFO *above_mbmi = xd->above_mbmi;
+    if (above_mbmi->mode >= INTRA_MODE_END &&
+        above_mbmi->ref_frame[0] == LAST_FRAME) {
+      MV temp = above_mbmi->mv[0].as_mv;
+      clamp_mv(&temp, &subpel_mv_limits);
+      nb_mvs[0] = get_fullmv_from_mv(&temp);
+    }
+  }
+  if (xd->left_available) {
+    const MB_MODE_INFO *left_mbmi = xd->left_mbmi;
+    if (left_mbmi->mode >= INTRA_MODE_END &&
+        left_mbmi->ref_frame[0] == LAST_FRAME) {
+      MV temp = left_mbmi->mv[0].as_mv;
+      clamp_mv(&temp, &subpel_mv_limits);
+      nb_mvs[1] = get_fullmv_from_mv(&temp);
+    }
+  }
+}
+
 static AOM_FORCE_INLINE int mv_distance(const FULLPEL_MV *mv0,
                                         const FULLPEL_MV *mv1) {
   return abs(mv0->row - mv1->row) + abs(mv0->col - mv1->col);
@@ -1218,7 +1244,7 @@ static AOM_FORCE_INLINE int mv_distance(const FULLPEL_MV *mv0,
 static AOM_INLINE void evaluate_neighbour_mvs(AV1_COMP *cpi, MACROBLOCK *x,
                                               unsigned int *y_sad,
                                               bool is_small_sb,
-                                              int est_motion) {
+                                              int est_motion, FULLPEL_MV *nb_mvs) {
   const int source_sad_nonrd = x->content_state_sb.source_sad_nonrd;
   // TODO(yunqingwang@google.com): test if this condition works with other
   // speeds.
@@ -1230,8 +1256,6 @@ static AOM_INLINE void evaluate_neighbour_mvs(AV1_COMP *cpi, MACROBLOCK *x,
 
   unsigned int above_y_sad = UINT_MAX;
   unsigned int left_y_sad = UINT_MAX;
-  FULLPEL_MV above_mv = kZeroFullMv;
-  FULLPEL_MV left_mv = kZeroFullMv;
   SubpelMvLimits subpel_mv_limits;
   const MV dummy_mv = { 0, 0 };
   av1_set_subpel_mv_search_range(&subpel_mv_limits, &x->mv_limits, &dummy_mv);
@@ -1240,50 +1264,31 @@ static AOM_INLINE void evaluate_neighbour_mvs(AV1_COMP *cpi, MACROBLOCK *x,
   FULLPEL_MV best_mv = get_fullmv_from_mv(&mi->mv[0].as_mv);
   const int multi = (est_motion > 2 && source_sad_nonrd > kLowSad) ? 7 : 8;
 
-  if (xd->up_available) {
-    const MB_MODE_INFO *above_mbmi = xd->above_mbmi;
-    if (above_mbmi->mode >= INTRA_MODE_END &&
-        above_mbmi->ref_frame[0] == LAST_FRAME) {
-      MV temp = above_mbmi->mv[0].as_mv;
-      clamp_mv(&temp, &subpel_mv_limits);
-      above_mv = get_fullmv_from_mv(&temp);
-
-      if (mv_distance(&best_mv, &above_mv) > 0) {
+      if (mv_distance(&best_mv, &nb_mvs[0]) > 0) {
         uint8_t const *ref_buf =
-            get_buf_from_fullmv(&xd->plane[0].pre[0], &above_mv);
+            get_buf_from_fullmv(&xd->plane[0].pre[0], &nb_mvs[0]);
         above_y_sad = cpi->ppi->fn_ptr[bsize].sdf(
             x->plane[0].src.buf, x->plane[0].src.stride, ref_buf,
             xd->plane[0].pre[0].stride);
       }
-    }
-  }
-  if (xd->left_available) {
-    const MB_MODE_INFO *left_mbmi = xd->left_mbmi;
-    if (left_mbmi->mode >= INTRA_MODE_END &&
-        left_mbmi->ref_frame[0] == LAST_FRAME) {
-      MV temp = left_mbmi->mv[0].as_mv;
-      clamp_mv(&temp, &subpel_mv_limits);
-      left_mv = get_fullmv_from_mv(&temp);
 
-      if (mv_distance(&best_mv, &left_mv) > 0 &&
-          mv_distance(&above_mv, &left_mv) > 0) {
+      if (mv_distance(&best_mv, &nb_mvs[1]) > 0 &&
+          mv_distance(&nb_mvs[0], &nb_mvs[1]) > 0) {
         uint8_t const *ref_buf =
-            get_buf_from_fullmv(&xd->plane[0].pre[0], &left_mv);
+            get_buf_from_fullmv(&xd->plane[0].pre[0], &nb_mvs[1]);
         left_y_sad = cpi->ppi->fn_ptr[bsize].sdf(
             x->plane[0].src.buf, x->plane[0].src.stride, ref_buf,
             xd->plane[0].pre[0].stride);
       }
-    }
-  }
 
   if (above_y_sad < ((multi * *y_sad) >> 3) && above_y_sad < left_y_sad) {
     *y_sad = above_y_sad;
-    mi->mv[0].as_mv = get_mv_from_fullmv(&above_mv);
+    mi->mv[0].as_mv = get_mv_from_fullmv(&nb_mvs[0]);
     clamp_mv(&mi->mv[0].as_mv, &subpel_mv_limits);
   }
   if (left_y_sad < ((multi * *y_sad) >> 3) && left_y_sad < above_y_sad) {
     *y_sad = left_y_sad;
-    mi->mv[0].as_mv = get_mv_from_fullmv(&left_mv);
+    mi->mv[0].as_mv = get_mv_from_fullmv(&nb_mvs[1]);
     clamp_mv(&mi->mv[0].as_mv, &subpel_mv_limits);
   }
 }
@@ -1362,11 +1367,15 @@ static void setup_planes(AV1_COMP *cpi, MACROBLOCK *x, unsigned int *y_sad,
 
     const int est_motion =
         cpi->sf.rt_sf.estimate_motion_for_var_based_partition;
+
+    // above and left neighbour MVs
+    FULLPEL_MV nb_mvs[2] = {kZeroFullMv, kZeroFullMv};
+    if(est_motion >= 2) find_neighbour_mvs(x, nb_mvs);
     if (est_motion == 1 || est_motion == 2) {
       if (xd->mb_to_right_edge >= 0 && xd->mb_to_bottom_edge >= 0) {
         const MV dummy_mv = { 0, 0 };
         *y_sad = av1_int_pro_motion_estimation(cpi, x, cm->seq_params->sb_size,
-                                               mi_row, mi_col, &dummy_mv);
+                                               mi_row, mi_col, &dummy_mv, nb_mvs);
       }
     }
 
@@ -1380,8 +1389,8 @@ static void setup_planes(AV1_COMP *cpi, MACROBLOCK *x, unsigned int *y_sad,
     // Evaluate if neighbours' MVs give better predictions. Zero MV is tested
     // already, so only non-zero MVs are tested here. Here the neighbour blocks
     // are the first block above or left to this superblock.
-    if (est_motion >= 2 && (xd->up_available || xd->left_available))
-      evaluate_neighbour_mvs(cpi, x, y_sad, is_small_sb, est_motion);
+    if (est_motion == 3 || (est_motion == 2 && !(xd->mb_to_right_edge >= 0 && xd->mb_to_bottom_edge >= 0)))
+      evaluate_neighbour_mvs(cpi, x, y_sad, is_small_sb, est_motion, nb_mvs);
 
     *y_sad_last = *y_sad;
   }

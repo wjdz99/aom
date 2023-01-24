@@ -253,7 +253,7 @@ int av1_init_search_range(int size);
 unsigned int av1_int_pro_motion_estimation(const struct AV1_COMP *cpi,
                                            MACROBLOCK *x, BLOCK_SIZE bsize,
                                            int mi_row, int mi_col,
-                                           const MV *ref_mv);
+                                           const MV *ref_mv, const FULLPEL_MV *nb_mvs);
 
 int av1_refining_search_8p_c(const FULLPEL_MOTION_SEARCH_PARAMS *ms_params,
                              const FULLPEL_MV start_mv, FULLPEL_MV *best_mv);

@@ -2006,7 +2006,7 @@ static int vector_match(int16_t *ref, int16_t *src, int bwl) {
 // A special fast version of motion search used in rt mode
 unsigned int av1_int_pro_motion_estimation(const AV1_COMP *cpi, MACROBLOCK *x,
                                            BLOCK_SIZE bsize, int mi_row,
-                                           int mi_col, const MV *ref_mv) {
+                                           int mi_col, const MV *ref_mv, const FULLPEL_MV *nb_mvs) {
   MACROBLOCKD *xd = &x->e_mbd;
   MB_MODE_INFO *mi = xd->mi[0];
   struct buf_2d backup_yv12[MAX_MB_PLANE] = { { 0, 0, 0, 0, 0 } };
@@ -2091,6 +2091,29 @@ unsigned int av1_int_pro_motion_estimation(const AV1_COMP *cpi, MACROBLOCK *x,
       best_int_mv->as_fullmv = kZeroFullMv;
       this_mv = best_int_mv->as_fullmv;
       ref_buf = xd->plane[0].pre[0].buf;
+      best_sad = tmp_sad;
+    }
+  }
+  if (nb_mvs != NULL) {
+    //FULLPEL_MV this_mv = nb_mvs[0];
+    //src_buf = x->plane[0].src.buf;
+    uint8_t const *ref_buf0 = get_buf_from_fullmv(&xd->plane[0].pre[0], &nb_mvs[0]);
+    tmp_sad =
+        cpi->ppi->fn_ptr[bsize].sdf(src_buf, src_stride, ref_buf0, ref_stride);
+    if (tmp_sad < best_sad) {
+      best_int_mv->as_fullmv = nb_mvs[0];
+      this_mv = best_int_mv->as_fullmv;
+      ref_buf = get_buf_from_fullmv(&xd->plane[0].pre[0], &nb_mvs[0]);
+      best_sad = tmp_sad;
+    }
+
+    ref_buf0 = get_buf_from_fullmv(&xd->plane[0].pre[0], &nb_mvs[1]);
+    tmp_sad =
+        cpi->ppi->fn_ptr[bsize].sdf(src_buf, src_stride, ref_buf0, ref_stride);
+    if (tmp_sad < best_sad) {
+      best_int_mv->as_fullmv = nb_mvs[1];
+      this_mv = best_int_mv->as_fullmv;
+      ref_buf = get_buf_from_fullmv(&xd->plane[0].pre[0], &nb_mvs[1]);
       best_sad = tmp_sad;
     }
   }
