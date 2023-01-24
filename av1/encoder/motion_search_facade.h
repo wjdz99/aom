@@ -74,6 +74,9 @@ static AOM_INLINE const search_site_config *av1_get_search_site_config(
     search_site_config *ss_cfg_buf,
     const MotionVectorSearchParams *mv_search_params,
     SEARCH_METHODS search_method, const int ref_stride) {
+  // search_site_cfg under mv_search_params comes from cpi, which is shared by
+  // all threads. When the resolution is fixed, we can usually directly fetch
+  // from it.
   if (ref_stride == mv_search_params->search_site_cfg[SS_CFG_SRC]->stride) {
     return mv_search_params->search_site_cfg[SS_CFG_SRC];
   } else if (ref_stride ==
@@ -81,12 +84,10 @@ static AOM_INLINE const search_site_config *av1_get_search_site_config(
     return mv_search_params->search_site_cfg[SS_CFG_LOOKAHEAD];
   }
 
+  // If we cannot fetch directly from the cache, then we use ss_cfg_buf as the
+  // back up. We assume that ss_cfg_buf is safe to write to.
   if (ref_stride != ss_cfg_buf[search_method].stride) {
-    const int level =
-        search_method == NSTEP_8PT || search_method == CLAMPED_DIAMOND;
-    search_method = search_method_lookup[search_method];
-    av1_init_motion_compensation[search_method](&ss_cfg_buf[search_method],
-                                                ref_stride, level);
+    av1_refresh_search_site_config(ss_cfg_buf, search_method, ref_stride);
   }
 
   return ss_cfg_buf;
