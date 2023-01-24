@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fb2a9a61_73f0dced",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-01-24T01:21:09Z",
+      "side": 1,
+      "message": "Hi Chi Yo,\n\nThis unit test emulates how libavif calls libaom to encode a progressive AVIF image. An assertion you added in https://aomedia-review.googlesource.com/c/aom/+/158301 failed. Please take a look. Thanks.",
+      "revId": "fa40dc5164c6ad34c40ab36d4924ff403146eaef",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
