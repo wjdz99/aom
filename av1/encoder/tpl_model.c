@@ -279,8 +279,8 @@ static uint32_t motion_estimation(AV1_COMP *cpi, MACROBLOCK *x,
   av1_make_default_fullpel_ms_params(&full_ms_params, cpi, x, bsize, &center_mv,
                                      search_site_cfg,
                                      /*fine_search_interval=*/0);
-  av1_set_mv_search_method(&full_ms_params, search_site_cfg,
-                           tpl_sf->search_method);
+  av1_set_mv_search_method(&full_ms_params, tpl_sf->search_method,
+                           search_site_cfg, x->search_site_cfg_buf);
 
   av1_full_pixel_search(start_mv, &full_ms_params, step_param,
                         cond_cost_list(cpi, cost_list), &best_mv->as_fullmv,

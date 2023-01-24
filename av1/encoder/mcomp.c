@@ -94,7 +94,7 @@ void av1_init_obmc_buffer(OBMCBuffer *obmc_buffer) {
 
 void av1_make_default_fullpel_ms_params(
     FULLPEL_MOTION_SEARCH_PARAMS *ms_params, const struct AV1_COMP *cpi,
-    const MACROBLOCK *x, BLOCK_SIZE bsize, const MV *ref_mv,
+    MACROBLOCK *x, BLOCK_SIZE bsize, const MV *ref_mv,
     const search_site_config search_sites[NUM_DISTINCT_SEARCH_METHODS],
     int fine_search_interval) {
   const MV_SPEED_FEATURES *mv_sf = &cpi->sf.mv_sf;
@@ -117,7 +117,8 @@ void av1_make_default_fullpel_ms_params(
     search_method = get_faster_search_method(search_method);
   }
 
-  av1_set_mv_search_method(ms_params, search_sites, search_method);
+  av1_set_mv_search_method(ms_params, search_method, search_sites,
+                           x->search_site_cfg_buf);
 
   const int use_downsampled_sad =
       mv_sf->use_downsampled_sad && block_size_high[bsize] >= 16;

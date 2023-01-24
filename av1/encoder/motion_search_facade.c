@@ -220,11 +220,12 @@ void av1_single_motion_search(const AV1_COMP *const cpi, MACROBLOCK *x,
   // the stride of the reference frame can be different from indicated by
   // MotionVectorSearchParams::search_site_cfg. When this happens, we need to
   // readjust the stride.
-  const SEARCH_METHODS search_method = cpi->sf.mv_sf.search_method;
   const int ref_stride = xd->plane[0].pre[0].stride;
   const search_site_config *src_search_site_cfg = av1_get_search_site_config(
-      x->search_site_cfg_buf, mv_search_params, search_method, ref_stride);
+      x->search_site_cfg_buf, mv_search_params, ref_stride);
 
+  // TODO(chiyotsai@google.com): This should be done after
+  // av1_make_default_fullpel_ms_params as it can modify the search method used.
   // Further reduce the search range.
   if (search_range < INT_MAX) {
     const search_site_config *search_site_cfg =
@@ -596,11 +597,9 @@ int av1_joint_motion_search(const AV1_COMP *cpi, MACROBLOCK *x,
 
     // Make motion search params
     FULLPEL_MOTION_SEARCH_PARAMS full_ms_params;
-    const SEARCH_METHODS search_method = cpi->sf.mv_sf.search_method;
     const int ref_stride = xd->plane[0].pre[0].stride;
     const search_site_config *src_search_sites = av1_get_search_site_config(
-        x->search_site_cfg_buf, &cpi->mv_search_params, search_method,
-        ref_stride);
+        x->search_site_cfg_buf, &cpi->mv_search_params, ref_stride);
     av1_make_default_fullpel_ms_params(&full_ms_params, cpi, x, bsize,
                                        &ref_mv[id].as_mv, src_search_sites,
                                        /*fine_search_interval=*/0);
@@ -751,11 +750,9 @@ int av1_compound_single_motion_search(const AV1_COMP *cpi, MACROBLOCK *x,
 
   // Make motion search params
   FULLPEL_MOTION_SEARCH_PARAMS full_ms_params;
-  const SEARCH_METHODS search_method = cpi->sf.mv_sf.search_method;
   const int ref_stride = xd->plane[0].pre[0].stride;
-  const search_site_config *src_search_sites =
-      av1_get_search_site_config(x->search_site_cfg_buf, &cpi->mv_search_params,
-                                 search_method, ref_stride);
+  const search_site_config *src_search_sites = av1_get_search_site_config(
+      x->search_site_cfg_buf, &cpi->mv_search_params, ref_stride);
   av1_make_default_fullpel_ms_params(&full_ms_params, cpi, x, bsize,
                                      &ref_mv.as_mv, src_search_sites,
                                      /*fine_search_interval=*/0);
@@ -973,11 +970,9 @@ int_mv av1_simple_motion_search(AV1_COMP *const cpi, MACROBLOCK *x, int mi_row,
   // Allow more mesh searches for screen content type on the ARF.
   const int fine_search_interval = use_fine_search_interval(cpi);
   FULLPEL_MOTION_SEARCH_PARAMS full_ms_params;
-  const SEARCH_METHODS search_method = cpi->sf.mv_sf.search_method;
   const int ref_stride = xd->plane[0].pre[0].stride;
-  const search_site_config *src_search_sites =
-      av1_get_search_site_config(x->search_site_cfg_buf, &cpi->mv_search_params,
-                                 search_method, ref_stride);
+  const search_site_config *src_search_sites = av1_get_search_site_config(
+      x->search_site_cfg_buf, &cpi->mv_search_params, ref_stride);
   av1_make_default_fullpel_ms_params(&full_ms_params, cpi, x, bsize, &ref_mv,
                                      src_search_sites, fine_search_interval);
 

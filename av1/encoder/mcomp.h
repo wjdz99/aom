@@ -144,7 +144,7 @@ void av1_init_obmc_buffer(OBMCBuffer *obmc_buffer);
 
 void av1_make_default_fullpel_ms_params(
     FULLPEL_MOTION_SEARCH_PARAMS *ms_params, const struct AV1_COMP *cpi,
-    const MACROBLOCK *x, BLOCK_SIZE bsize, const MV *ref_mv,
+    MACROBLOCK *x, BLOCK_SIZE bsize, const MV *ref_mv,
     const search_site_config search_sites[NUM_DISTINCT_SEARCH_METHODS],
     int fine_search_interval);
 
@@ -201,14 +201,34 @@ static const SEARCH_METHODS search_method_lookup[NUM_SEARCH_METHODS] = {
   BIGDIA            // VFAST_DIAMOND
 };
 
-// Mv beyond the range do not produce new/different prediction block.
-static INLINE void av1_set_mv_search_method(
-    FULLPEL_MOTION_SEARCH_PARAMS *ms_params,
+static AOM_INLINE const search_site_config *av1_refresh_search_site_config(
+    search_site_config *ss_cfg_buf, SEARCH_METHODS search_method,
+    const int ref_stride) {
+  const int level =
+      search_method == NSTEP_8PT || search_method == CLAMPED_DIAMOND;
+  search_method = search_method_lookup[search_method];
+  av1_init_motion_compensation[search_method](&ss_cfg_buf[search_method],
+                                              ref_stride, level);
+  return &ss_cfg_buf[search_method];
+}
+
+// search_sites can come from AV1_COMP, which is shared by multiple threads so
+// it is marked as const. In contrast, thread_search_sites should be unique to
+// each thread, so we are safe to modify it if the strides don't match.
+static AOM_INLINE void av1_set_mv_search_method(
+    FULLPEL_MOTION_SEARCH_PARAMS *ms_params, SEARCH_METHODS search_method,
     const search_site_config search_sites[NUM_DISTINCT_SEARCH_METHODS],
-    SEARCH_METHODS search_method) {
+    search_site_config thread_search_sites[NUM_DISTINCT_SEARCH_METHODS]) {
   ms_params->search_method = search_method;
-  ms_params->search_sites =
-      &search_sites[search_method_lookup[ms_params->search_method]];
+
+  const int ref_stride = ms_params->ms_buffers.ref->stride;
+  if (ref_stride == search_sites[search_method].stride) {
+    ms_params->search_sites =
+        &search_sites[search_method_lookup[search_method]];
+  } else {
+    ms_params->search_sites = av1_refresh_search_site_config(
+        thread_search_sites, search_method, ref_stride);
+  }
 }
 
 // Set up limit values for MV components.

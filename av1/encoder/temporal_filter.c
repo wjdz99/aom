@@ -112,7 +112,7 @@ static void tf_motion_search(AV1_COMP *cpi, MACROBLOCK *mb,
   SUBPEL_MOTION_SEARCH_PARAMS ms_params;
   const SEARCH_METHODS search_method = NSTEP;
   const search_site_config *search_site_cfg = av1_get_search_site_config(
-      mb->search_site_cfg_buf, &cpi->mv_search_params, search_method, y_stride);
+      mb->search_site_cfg_buf, &cpi->mv_search_params, y_stride);
   const int step_param = av1_init_search_range(
       AOMMAX(frame_to_filter->y_crop_width, frame_to_filter->y_crop_height));
   const SUBPEL_SEARCH_TYPE subpel_search_type = USE_8_TAPS;
@@ -146,7 +146,8 @@ static void tf_motion_search(AV1_COMP *cpi, MACROBLOCK *mb,
   av1_make_default_fullpel_ms_params(&full_ms_params, cpi, mb, block_size,
                                      &baseline_mv, search_site_cfg,
                                      /*fine_search_interval=*/0);
-  av1_set_mv_search_method(&full_ms_params, search_site_cfg, search_method);
+  av1_set_mv_search_method(&full_ms_params, search_method, search_site_cfg,
+                           mb->search_site_cfg_buf);
   full_ms_params.run_mesh_search = 1;
   full_ms_params.mv_cost_params.mv_cost_type = mv_cost_type;
 
@@ -204,8 +205,8 @@ static void tf_motion_search(AV1_COMP *cpi, MACROBLOCK *mb,
                                            subblock_size, &baseline_mv,
                                            search_site_cfg,
                                            /*fine_search_interval=*/0);
-        av1_set_mv_search_method(&full_ms_params, search_site_cfg,
-                                 search_method);
+        av1_set_mv_search_method(&full_ms_params, search_method,
+                                 search_site_cfg, mb->search_site_cfg_buf);
         full_ms_params.run_mesh_search = 1;
         full_ms_params.mv_cost_params.mv_cost_type = mv_cost_type;
 
