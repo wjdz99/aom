@@ -2057,44 +2057,45 @@ unsigned int av1_int_pro_motion_estimation(const AV1_COMP *cpi, MACROBLOCK *x,
     return best_sad;
   }
 
-  // Set up prediction 1-D reference set
-  ref_buf = xd->plane[0].pre[0].buf - (bw >> 1);
-  aom_int_pro_row(hbuf, ref_buf, ref_stride, search_width, bh, row_norm_factor);
-
-  ref_buf = xd->plane[0].pre[0].buf - (bh >> 1) * ref_stride;
-  aom_int_pro_col(vbuf, ref_buf, ref_stride, bw, search_height,
-                  col_norm_factor);
-
-  // Set up src 1-D reference set
-  src_buf = x->plane[0].src.buf;
-  aom_int_pro_row(src_hbuf, src_buf, src_stride, bw, bh, row_norm_factor);
-  aom_int_pro_col(src_vbuf, src_buf, src_stride, bw, bh, col_norm_factor);
-
-  // Find the best match per 1-D search
-  best_int_mv->as_fullmv.col =
-      vector_match(hbuf, src_hbuf, mi_size_wide_log2[bsize]);
-  best_int_mv->as_fullmv.row =
-      vector_match(vbuf, src_vbuf, mi_size_high_log2[bsize]);
-
-  FULLPEL_MV this_mv = best_int_mv->as_fullmv;
-  src_buf = x->plane[0].src.buf;
-  ref_buf = get_buf_from_fullmv(&xd->plane[0].pre[0], &this_mv);
-  best_sad =
-      cpi->ppi->fn_ptr[bsize].sdf(src_buf, src_stride, ref_buf, ref_stride);
+//  // Set up prediction 1-D reference set
+//  ref_buf = xd->plane[0].pre[0].buf - (bw >> 1);
+//  aom_int_pro_row(hbuf, ref_buf, ref_stride, search_width, bh, row_norm_factor);
+//
+//  ref_buf = xd->plane[0].pre[0].buf - (bh >> 1) * ref_stride;
+//  aom_int_pro_col(vbuf, ref_buf, ref_stride, bw, search_height,
+//                  col_norm_factor);
+//
+//  // Set up src 1-D reference set
+//  src_buf = x->plane[0].src.buf;
+//  aom_int_pro_row(src_hbuf, src_buf, src_stride, bw, bh, row_norm_factor);
+//  aom_int_pro_col(src_vbuf, src_buf, src_stride, bw, bh, col_norm_factor);
+//
+//  // Find the best match per 1-D search
+//  best_int_mv->as_fullmv.col =
+//      vector_match(hbuf, src_hbuf, mi_size_wide_log2[bsize]);
+//  best_int_mv->as_fullmv.row =
+//      vector_match(vbuf, src_vbuf, mi_size_high_log2[bsize]);
+//
+//  FULLPEL_MV this_mv = best_int_mv->as_fullmv;
+//  src_buf = x->plane[0].src.buf;
+//  ref_buf = get_buf_from_fullmv(&xd->plane[0].pre[0], &this_mv);
+//  best_sad =
+//      cpi->ppi->fn_ptr[bsize].sdf(src_buf, src_stride, ref_buf, ref_stride);
 
   // Evaluate zero MV if found MV is non-zero.
-  if (best_int_mv->as_int != 0) {
-    tmp_sad = cpi->ppi->fn_ptr[bsize].sdf(x->plane[0].src.buf, src_stride,
+  //if (best_int_mv->as_int != 0) {
+    best_sad = cpi->ppi->fn_ptr[bsize].sdf(x->plane[0].src.buf, src_stride,
                                           xd->plane[0].pre[0].buf, ref_stride);
 
-    if (tmp_sad < best_sad) {
+    //if (tmp_sad < best_sad) {
       best_int_mv->as_fullmv = kZeroFullMv;
-      this_mv = best_int_mv->as_fullmv;
+      //this_mv = best_int_mv->as_fullmv;
       ref_buf = xd->plane[0].pre[0].buf;
-      best_sad = tmp_sad;
-    }
-  }
-
+      //best_sad = tmp_sad;
+    //}
+ // }
+  FULLPEL_MV this_mv = best_int_mv->as_fullmv;
+  src_buf = x->plane[0].src.buf;
   {
     const uint8_t *const pos[4] = {
       ref_buf - ref_stride,
