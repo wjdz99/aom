@@ -1,6 +1,40 @@
 {
   "comments": [
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "386a274d_7bd2f971",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2023-01-25T21:23:05Z",
+      "side": 1,
+      "message": "To make it work for svc you\u0027ll need to add in av1_update_layer_context_change_config():\n      //\n      lrc-\u003eworst_quality \u003d av1_quantizer_to_qindex(lc-\u003emax_q);\n      lrc-\u003ebest_quality \u003d av1_quantizer_to_qindex(lc-\u003emin_q);\n      if (rc-\u003euse_fixed_qp_one_pass) {\n+       lrc-\u003eworst_quality \u003d rc-\u003eworst_quality; \n+       lrc-\u003ebest_quality \u003d rc-\u003ebest_quality;\n      }\n      //",
+      "revId": "8ecb9117d817a4f73355ca416f99b3d4d17dc4eb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "dc7f2e37_6030004e",
+        "filename": "aom/aomcx.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 1482,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2023-01-25T21:23:05Z",
+      "side": 1,
+      "message": "this also now applies to spatial layers?",
+      "revId": "8ecb9117d817a4f73355ca416f99b3d4d17dc4eb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "4b305410_810ffce5",
