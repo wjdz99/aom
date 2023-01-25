@@ -1032,11 +1032,21 @@ static int calc_active_worst_quality_no_stats_cbr(const AV1_COMP *cpi) {
   ambient_qp = (cm->current_frame.frame_number < num_frames_weight_key)
                    ? AOMMIN(p_rc->avg_frame_qindex[INTER_FRAME], avg_qindex_key)
                    : p_rc->avg_frame_qindex[INTER_FRAME];
-  active_worst_quality = AOMMIN(rc->worst_quality, ambient_qp * 5 / 4);
+
+  if (cpi->cyclic_refresh->apply_cyclic_refresh && !cpi->ppi->use_svc)
+    active_worst_quality = AOMMIN(rc->worst_quality, ambient_qp);
+  else
+    active_worst_quality = AOMMIN(rc->worst_quality, ambient_qp * 5 / 4);
+
   if (p_rc->buffer_level > p_rc->optimal_buffer_level) {
     // Adjust down.
-    // Maximum limit for down adjustment, ~30%.
-    int max_adjustment_down = active_worst_quality / 3;
+    int max_adjustment_down;  // Maximum adjustment down for Q
+
+    if (cpi->cyclic_refresh->apply_cyclic_refresh && !cpi->ppi->use_svc)
+      max_adjustment_down = AOMMIN(4, active_worst_quality / 16);
+    else
+      max_adjustment_down = active_worst_quality / 3;
+
     if (max_adjustment_down) {
       buff_lvl_step =
           ((p_rc->maximum_buffer_size - p_rc->optimal_buffer_level) /
@@ -1055,7 +1065,7 @@ static int calc_active_worst_quality_no_stats_cbr(const AV1_COMP *cpi) {
                            (p_rc->optimal_buffer_level - p_rc->buffer_level) /
                            buff_lvl_step);
       }
-      active_worst_quality = ambient_qp + adjustment;
+      active_worst_quality += adjustment;
     }
   } else {
     // Set to worst_quality if buffer is below critical level.
