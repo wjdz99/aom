@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1d7602d8_c8dd84c5",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 31322
+      },
+      "writtenOn": "2023-01-25T16:52:46Z",
+      "side": 1,
+      "message": "Hi Wan-Teh, Frank, \n\nThe function av1_set_ssim_rdmult() is invoked to set ‘x-\u003erdmult’ and ‘x-\u003eerrorperbit’ for the given block when --tune\u003dssim is configured.\n\nIn the parent commit, this function calculates `geom_mean_of_scale` by taking the sum of log(cpi-\u003essim_rdmult_scaling_factors[index]) for each BLOCK_16X16(bsize_base) block in the given block and later taking the exponent of the normalized log sum. In this CL, we have simplified the calculation of `geom_mean_of_scale` by using the product rule of logarithm. We expected this CL to have a slight BD-Rate impact due to the possibility of precision error. However, we observed that the CL produces bit-exact output (speed\u003d0 to speed\u003d9).\n\nTo ensure that this change wouldn’t result in data overflow, we have added necessary asserts along with comments in the functions `av1_set_ssim_rdmult()` and `av1_set_mb_ssim_rdmult_scaling()`.\nSimilar optimization was not pursued in `av1_set_mb_ssim_rdmult_scaling()`, as there is the possibility of overflow due to the accumulation at frame level.\n\nFor AVIF still-image encode with tune\u003dssim,\n\ncpu-used     Encode Time Reduction(%)       \n   6                     0.140\n   7                     0.353\n   8                     0.131\n   9                     0.372\n\nFor speed 0 to 5, we observed instruction count reduction in the range of 0.045% to 0.137%.\n\nFollowing are the instruction count reduction results when libaom allintra frame encoding (50 frames) was tested for a borg setup:\n \n                 Instruction Count\ncpu-used            Reduction (%)\n  \n    6                  0.400\n    7                  0.712\n    8                  0.395\n    9                  1.007\n     \n```\nFor libaom AV1 video encode, bit-match is verified (w.r.t. parent commit) for \u0027GOOD\u0027, \u0027RT\u0027 and \u0027ALLINTRA\u0027 encoding modes for a few contents with different encoding configurations. It is verified that the CL is bit-exact for AVIF still-image encode for a typical image dataset.\n\nLibavif commit used for testing: 62f8095bddc360dc4be879a13f7ff94280389fe0\n\nPlease review the CL. \n\nRegards,\nApurve",
+      "revId": "a6b5d5c4faaf5344bdfdb2a4373a9b40c7ffc06d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
