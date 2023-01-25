@@ -1,6 +1,23 @@
 {
   "comments": [
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "8d2907e4_49723c85",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-01-25T18:25:26Z",
+      "side": 1,
+      "message": "James: I made the changes you suggested (except one) in https://aomedia-review.googlesource.com/c/aom/+/169525. Thank you.",
+      "revId": "94c7e1ed77b7f09e630056837445c87893c7401c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "4e1662c1_acce0eb5",
@@ -18,6 +35,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "71c39fb5_2f9c4c1f",
+        "filename": "test/avif_progressive_test.cc",
+        "patchSetId": 8
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-01-25T18:25:26Z",
+      "side": 1,
+      "message": "This is not needed. I will remove it.\n\nI added it in case we add `#if !CONFIG_REALTIME_ONLY` to this file in the future. We don\u0027t use `\"-Wundef` in our _test.cc files, so this kind of mistake can\u0027t be caught at compile time.",
+      "parentUuid": "4e1662c1_acce0eb5",
+      "revId": "94c7e1ed77b7f09e630056837445c87893c7401c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "eac7fe74_7a7d4360",
@@ -31,6 +66,30 @@
       "writtenOn": "2023-01-25T01:33:17Z",
       "side": 1,
       "message": "you should include stddef.h for size_t",
+      "range": {
+        "startLine": 29,
+        "startChar": 12,
+        "endLine": 29,
+        "endChar": 18
+      },
+      "revId": "94c7e1ed77b7f09e630056837445c87893c7401c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "172eae44_e9c94f22",
+        "filename": "test/avif_progressive_test.cc",
+        "patchSetId": 8
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-01-25T18:25:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "eac7fe74_7a7d4360",
       "range": {
         "startLine": 29,
         "startChar": 12,
@@ -66,6 +125,30 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "042d2cd4_2302e214",
+        "filename": "test/avif_progressive_test.cc",
+        "patchSetId": 8
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-01-25T18:25:26Z",
+      "side": 1,
+      "message": "I will make this change in a separate CL, because this change would obscure the other changes if made in the same CL.",
+      "parentUuid": "a2d40fb4_029b545f",
+      "range": {
+        "startLine": 51,
+        "startChar": 12,
+        "endLine": 51,
+        "endChar": 24
+      },
+      "revId": "94c7e1ed77b7f09e630056837445c87893c7401c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "1e6b354d_add2e105",
         "filename": "test/avif_progressive_test.cc",
         "patchSetId": 8
@@ -77,6 +160,24 @@
       "writtenOn": "2023-01-25T01:33:17Z",
       "side": 1,
       "message": "these 2 lines could be merged with the declaration",
+      "revId": "94c7e1ed77b7f09e630056837445c87893c7401c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0317d385_068de38f",
+        "filename": "test/avif_progressive_test.cc",
+        "patchSetId": 8
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-01-25T18:25:26Z",
+      "side": 1,
+      "message": "Done.",
+      "parentUuid": "1e6b354d_add2e105",
       "revId": "94c7e1ed77b7f09e630056837445c87893c7401c",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
