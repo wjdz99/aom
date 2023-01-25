@@ -72,6 +72,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "4fa450d5_c4ff2638",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-01-25T04:40:43Z",
+      "side": 1,
+      "message": "James: 2017 works for me if I use x64_x86 cross tools, although my laptop does struggle while compiling av1\\common\\x86\\cdef_block_avx2.c.\n\nDid you use x64_x86 cross tools or x86 native tools?",
+      "parentUuid": "d89ef0da_ec6166bb",
+      "revId": "243fd0031ad5588d3d0427785ec550dfa0ee2f4d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "33e7e589_5b59280e",
