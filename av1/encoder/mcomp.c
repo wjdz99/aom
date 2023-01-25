@@ -110,9 +110,9 @@ void av1_make_default_fullpel_ms_params(
   const int min_dim = AOMMIN(block_size_wide[bsize], block_size_high[bsize]);
   const int qband = x->qindex >> (QINDEX_BITS - 2);
   const bool use_faster_search_method =
-      (sf_blk_search_method == 1 && min_dim >= 32) ||
-      (sf_blk_search_method >= 2 && min_dim >= 16 &&
-       x->content_state_sb.source_sad_nonrd <= kMedSad && qband < 3);
+      x->content_state_sb.source_sad_nonrd <= kMedSad && qband < 3 &&
+      ((sf_blk_search_method == 1 && min_dim >= 32) ||
+       (sf_blk_search_method >= 2 && min_dim >= 16));
 
   if (use_faster_search_method) {
     search_method = get_faster_search_method(search_method);
