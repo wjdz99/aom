@@ -324,7 +324,6 @@ class DatarateTestFrameDropLarge
     cfg_.rc_buf_sz = 1000;
     cfg_.rc_undershoot_pct = 20;
     cfg_.rc_undershoot_pct = 20;
-    cfg_.rc_dropframe_thresh = 10;
     cfg_.rc_min_quantizer = 0;
     cfg_.rc_max_quantizer = 50;
     cfg_.rc_end_usage = AOM_CBR;
@@ -423,7 +422,7 @@ class DatarateTestSpeedChangeRealtime
       public DatarateTest {
  public:
   DatarateTestSpeedChangeRealtime() : DatarateTest(GET_PARAM(0)) {
-    aq_mode_ = GET_PARAM(1);
+    aq_mode_ = GET_PARAM(2);
     speed_change_test_ = true;
   }
 
@@ -441,7 +440,6 @@ class DatarateTestSpeedChangeRealtime
     cfg_.rc_buf_sz = 1000;
     cfg_.rc_undershoot_pct = 20;
     cfg_.rc_undershoot_pct = 20;
-    cfg_.rc_dropframe_thresh = 10;
     cfg_.rc_min_quantizer = 0;
     cfg_.rc_max_quantizer = 50;
     cfg_.rc_end_usage = AOM_CBR;
