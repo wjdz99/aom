@@ -3826,7 +3826,7 @@ static AOM_FORCE_INLINE void handle_screen_content_mode_nonrd(
     AV1_COMP *cpi, MACROBLOCK *x, InterModeSearchStateNonrd *search_state,
     PRED_BUFFER *this_mode_pred, PICK_MODE_CONTEXT *ctx,
     PRED_BUFFER *tmp_buffer, struct buf_2d *orig_dst, int skip_idtx_palette,
-    int try_palette, BLOCK_SIZE bsize, int reuse_inter_pred) {
+    int try_palette, BLOCK_SIZE bsize) {
   AV1_COMMON *const cm = &cpi->common;
   const REAL_TIME_SPEED_FEATURES *const rt_sf = &cpi->sf.rt_sf;
   MACROBLOCKD *const xd = &x->e_mbd;
@@ -3835,7 +3835,6 @@ static AOM_FORCE_INLINE void handle_screen_content_mode_nonrd(
   const int mi_row = xd->mi_row;
   const int mi_col = xd->mi_col;
   const int bw = block_size_wide[bsize];
-  const int bh = block_size_high[bsize];
   const int num_8x8_blocks = ctx->num_4x4_blk / 4;
   TxfmSearchInfo *txfm_info = &x->txfm_search_info;
   BEST_PICKMODE *const best_pickmode = &search_state->best_pickmode;
@@ -3887,18 +3886,6 @@ static AOM_FORCE_INLINE void handle_screen_content_mode_nonrd(
   const unsigned int intra_ref_frame_cost =
       search_state->ref_costs_single[INTRA_FRAME];
 
-  if (!is_mode_intra(best_pickmode->best_mode)) {
-    PRED_BUFFER *const best_pred = best_pickmode->best_pred;
-    if (reuse_inter_pred && best_pred != NULL) {
-      if (best_pred->data == orig_dst->buf) {
-        this_mode_pred = &tmp_buffer[get_pred_buffer(tmp_buffer, 3)];
-        aom_convolve_copy(best_pred->data, best_pred->stride,
-                          this_mode_pred->data, this_mode_pred->stride, bw, bh);
-        best_pickmode->best_pred = this_mode_pred;
-      }
-    }
-    pd->dst = *orig_dst;
-  }
   // Search palette mode for Luma plane in inter frame.
   av1_search_palette_mode_luma(cpi, x, bsize, intra_ref_frame_cost, ctx,
                                &search_state->this_rdc,
@@ -4229,7 +4216,7 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
   // Perform screen content mode evaluation for non-rd
   handle_screen_content_mode_nonrd(cpi, x, &search_state, this_mode_pred, ctx,
                                    tmp_buffer, &orig_dst, skip_idtx_palette,
-                                   try_palette, bsize, reuse_inter_pred);
+                                   try_palette, bsize);
 
 #if COLLECT_NONRD_PICK_MODE_STAT
   aom_usec_timer_mark(&x->ms_stat_nonrd.timer1);
