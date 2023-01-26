@@ -20,6 +20,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "a76a7753_6518b6cb",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2023-01-26T22:28:16Z",
+      "side": 1,
+      "message": "This bug has always been there.\nThe function `av1_get_search_site_config` was added as an attempt to fix it, but it didn\u0027t consider the case where the search method gets changed again in `av1_make_default_fullpel_ms_params`",
+      "parentUuid": "e454687e_514c6c43",
+      "revId": "8c338793d4862006382b755f0fe3094fec35449a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "0fe11493_5f3396a4",
         "filename": "/PATCHSET_LEVEL",
         "patchSetId": 4
@@ -52,6 +70,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "1fbeab1f_8598ba30",
+        "filename": "av1/encoder/mcomp.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2023-01-26T22:28:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "32416818_44e9448f",
+      "revId": "8c338793d4862006382b755f0fe3094fec35449a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "aa380bed_4a2ebef8",
@@ -65,6 +101,24 @@
       "writtenOn": "2023-01-26T20:50:37Z",
       "side": 1,
       "message": "What\u0027s the difference between `search_sites` and `ms_params-\u003esearch_sites`?\n\nIt\u0027s strange that we check the former in line 123 and update the latter in line 124.",
+      "revId": "8c338793d4862006382b755f0fe3094fec35449a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2cdef53f_dd1507b3",
+        "filename": "av1/encoder/mcomp.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2023-01-26T22:28:16Z",
+      "side": 1,
+      "message": "I have updated search_sites to `x-\u003esearch_site_cfg_buf`.\nThis does not affect the test case because we only hit this case when resize mode is on. And when this happens `av1_get_search_site_config` will always return the pointer `x-\u003esearch_site_cfg_buf`, which is then passed into this function as `search_sites`.\n\nI will try to make the relationship more explicit in a separate commit.",
+      "parentUuid": "aa380bed_4a2ebef8",
       "revId": "8c338793d4862006382b755f0fe3094fec35449a",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -92,6 +146,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "17d63cce_2d0f2cb2",
+        "filename": "av1/encoder/motion_search_facade.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2023-01-26T22:28:16Z",
+      "side": 1,
+      "message": "I have changed the function\u0027s signature to `const search_site_config *av1_get_search_site_config(MACROBLOCK *x, const AV1_COMP *cpi, SEARCH_METHODS search_method)` so the user cannot pass in the incorrect search site configs.\n\nThe comments are also updated here.",
+      "parentUuid": "85e56234_3a3574d0",
+      "range": {
+        "startLine": 87,
+        "startChar": 38,
+        "endLine": 87,
+        "endChar": 47
+      },
+      "revId": "8c338793d4862006382b755f0fe3094fec35449a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "6957d5d5_694bbeb5",
@@ -105,6 +183,24 @@
       "writtenOn": "2023-01-26T20:50:37Z",
       "side": 1,
       "message": "Nit: back up \u003d\u003e backup",
+      "revId": "8c338793d4862006382b755f0fe3094fec35449a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8caf4952_5482d255",
+        "filename": "av1/encoder/motion_search_facade.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2023-01-26T22:28:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6957d5d5_694bbeb5",
       "revId": "8c338793d4862006382b755f0fe3094fec35449a",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
