@@ -192,6 +192,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "bd749c00_a71b4a93",
+        "filename": "av1/encoder/encodeframe_utils.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-01-26T19:20:38Z",
+      "side": 1,
+      "message": "Thanks. It seems wrong for one of the values to be zero when calculating a geometric mean. So I agree this assertion still makes sense in the new code.",
+      "parentUuid": "68f2e53c_b0cf1981",
+      "revId": "a6b5d5c4faaf5344bdfdb2a4373a9b40c7ffc06d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "85a2697e_877248cd",
