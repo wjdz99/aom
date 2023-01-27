@@ -1228,14 +1228,12 @@ void TplFrameDepStatsBackTrace(int coding_idx, GopFrameType update_type,
             tpl_gop_dep_stats->frame_dep_stats_list[ref_coding_idx_list[i]];
         assert(!ref_frame_dep_stats.alt_unit_stats.empty());
         const auto &mv = base_mv[i];
-        const int mv_row = GetFullpelValue(mv.row, mv.subpel_bits);
-        const int mv_col = GetFullpelValue(mv.col, mv.subpel_bits);
-        const int ref_pixel_r = unit_row * unit_size + mv_row;
-        const int ref_pixel_c = unit_col * unit_size + mv_col;
+        const int ref_pixel_r = unit_row * unit_size + mv.row;
+        const int ref_pixel_c = unit_col * unit_size + mv.col;
         const int ref_unit_row_low =
-            (unit_row * unit_size + mv_row) / unit_size;
+            (unit_row * unit_size + mv.row) / unit_size;
         const int ref_unit_col_low =
-            (unit_col * unit_size + mv_col) / unit_size;
+            (unit_col * unit_size + mv.col) / unit_size;
 
         for (int j = 0; j < 2; ++j) {
           for (int k = 0; k < 2; ++k) {
@@ -1303,14 +1301,12 @@ void TplFrameDepStatsPropagate(int coding_idx,
             tpl_gop_dep_stats->frame_dep_stats_list[ref_coding_idx_list[i]];
         assert(!ref_frame_dep_stats.unit_stats.empty());
         const auto &mv = unit_dep_stats.mv[i];
-        const int mv_row = GetFullpelValue(mv.row, mv.subpel_bits);
-        const int mv_col = GetFullpelValue(mv.col, mv.subpel_bits);
-        const int ref_pixel_r = unit_row * unit_size + mv_row;
-        const int ref_pixel_c = unit_col * unit_size + mv_col;
+        const int ref_pixel_r = unit_row * unit_size + mv.row;
+        const int ref_pixel_c = unit_col * unit_size + mv.col;
         const int ref_unit_row_low =
-            (unit_row * unit_size + mv_row) / unit_size;
+            (unit_row * unit_size + mv.row) / unit_size;
         const int ref_unit_col_low =
-            (unit_col * unit_size + mv_col) / unit_size;
+            (unit_col * unit_size + mv.col) / unit_size;
 
         for (int j = 0; j < 2; ++j) {
           for (int k = 0; k < 2; ++k) {
