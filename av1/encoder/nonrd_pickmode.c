@@ -1636,10 +1636,24 @@ static void estimate_block_intra(int plane, int block, int row, int col,
   RD_STATS this_rdc;
 
   (void)block;
-  (void)plane_bsize;
 
   av1_predict_intra_block_facade(cm, xd, plane, col, row, tx_size);
   av1_invalid_rd_stats(&this_rdc);
+
+  if (args->prune_mode_based_on_sad) {
+    unsigned int this_sad = cpi->ppi->fn_ptr[plane_bsize].sdf(
+        p->src.buf, p->src.stride, pd->dst.buf, pd->dst.stride);
+    const unsigned int sad_threshold =
+        args->best_sad != UINT_MAX ? args->best_sad + (args->best_sad >> 4)
+                                   : UINT_MAX;
+    // Skip the evaluation of current mode if its SAD is more than a threshold.
+    if (this_sad > sad_threshold) {
+      args->rdc->rate = INT_MAX;
+      return;
+    } else if (this_sad < args->best_sad) {
+      args->best_sad = this_sad;
+    }
+  }
 
   p->src.buf = &src_buf_base[4 * (row * src_stride + col)];
   pd->dst.buf = &dst_buf_base[4 * (row * dst_stride + col)];
@@ -2240,11 +2254,19 @@ void av1_nonrd_pick_intra_mode(AV1_COMP *cpi, MACROBLOCK *x, RD_STATS *rd_cost,
   MACROBLOCKD *const xd = &x->e_mbd;
   MB_MODE_INFO *const mi = xd->mi[0];
   RD_STATS this_rdc, best_rdc;
-  struct estimate_block_intra_args args = { cpi, x, DC_PRED, 1, 0 };
+  struct estimate_block_intra_args args = { cpi, x,        DC_PRED, 1,
+                                            0,   UINT_MAX, false };
   const TxfmSearchParams *txfm_params = &x->txfm_search_params;
-  const TX_SIZE intra_tx_size =
+  mi->tx_size =
       AOMMIN(max_txsize_lookup[bsize],
              tx_mode_to_biggest_tx_size[txfm_params->tx_mode_search_type]);
+  const BLOCK_SIZE tx_bsize = txsize_to_bsize[mi->tx_size];
+
+  // If the current block size is the same as the transform block size, enable
+  // mode pruning based on the best SAD so far.
+  if (cpi->sf.rt_sf.prune_intra_mode_using_best_sad_so_far && bsize == tx_bsize)
+    args.prune_mode_based_on_sad = true;
+
   int *bmode_costs;
   PREDICTION_MODE best_mode = DC_PRED;
   const MB_MODE_INFO *above_mi = xd->above_mbmi;
@@ -2295,10 +2317,12 @@ void av1_nonrd_pick_intra_mode(AV1_COMP *cpi, MACROBLOCK *x, RD_STATS *rd_cost,
     args.mode = this_mode;
     args.skippable = 1;
     args.rdc = &this_rdc;
-    mi->tx_size = intra_tx_size;
     mi->mode = this_mode;
     av1_foreach_transformed_block_in_plane(xd, bsize, AOM_PLANE_Y,
                                            estimate_block_intra, &args);
+
+    if (this_rdc.rate == INT_MAX) continue;
+
     const int skip_ctx = av1_get_skip_txfm_context(xd);
     if (args.skippable) {
       this_rdc.rate = x->mode_costs.skip_txfm_cost[skip_ctx][1];
@@ -2618,7 +2642,8 @@ static void estimate_intra_mode(
                                : inter_mode_thresh;
   if (known_rd > best_rdc->rdcost) return;
 
-  struct estimate_block_intra_args args = { cpi, x, DC_PRED, 1, 0 };
+  struct estimate_block_intra_args args = { cpi, x,        DC_PRED, 1,
+                                            0,   UINT_MAX, false };
   TX_SIZE intra_tx_size = AOMMIN(
       AOMMIN(max_txsize_lookup[bsize],
              tx_mode_to_biggest_tx_size[txfm_params->tx_mode_search_type]),
