@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e688f86f_08fe08c0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2023-01-27T15:41:37Z",
+      "side": 1,
+      "message": "Hi Wan-Teh, Frank, \n\nIn this CL, we have introduced a speed feature ‘prune_intra_mode_using_best_sad_so_far’ to prune intra modes in nonrd path based on prediction error (using SAD metric). If the prediction error exceeds the ‘sad_threshold’ (based on the best SAD so far), further steps (transform and quantization) are skipped.\nTo facilitate this change, the variables ‘best_sad’ and ‘prune_mode_based_on_sad’ are introduced in the structure ‘estimate_block_intra_args’. This optimization is enabled only if the transform block size is the same as the current block size. This speed feature is enabled for allintra, speed 9.\n```\nFor AVIF still-image encode with tune\u003dssim,\n\n               Encode Time          BD-Rate Loss(%)\ncpu-used       Reduction(%)       psnr         ssim\n   9              1.869           0.1608       0.0878\n\nFollowing are the Borg test results for all-intra encoding for 50 frames.\n\n             Instruction Count          BD-Rate Loss(%)\ncpu-used       Reduction(%)        avg.psnr    ovr.psnr    ssim\n   9              3.050            0.2372      0.2379      0.1840 \n```\n\nFor libaom AV1 video encode, bit-match is verified (w.r.t. parent commit) for \u0027GOOD\u0027 and \u0027RT\u0027 encoding modes for a few contents with different encoding configurations. It is verified that the CL is bit-exact for allintra encode, speed \u003c 9 with no speed impact.\n\nIn the commit message, BD rate impact column:\n[+] sign is for BD-Rate drop\n[-] sign is for BD-Rate improvement\nThe instruction count reduction specified has been measured using the command:\n$ perf stat -e instructions:u ./aomenc …\n\nLibavif commit used for testing: d642004c9992df7cf7870408066198eb7c4dd632\n\nPlease review the CL. \n\nRegards,\nMudassir",
+      "revId": "0b6f316c079206c263c49a7e8f038064a71014f5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
