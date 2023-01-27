@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "895d9085_9e0c0858",
+        "filename": "CMakeLists.txt",
+        "patchSetId": 1
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-01-27T21:11:02Z",
+      "side": 1,
+      "message": "https://cmake.org/cmake/help/latest/variable/MSVC_VERSION.html#variable:MSVC_VERSION",
+      "revId": "d8c444963c8549b63d14ff7f04f1405c723b1571",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "73f5b425_63e50ba4",
+        "filename": "CMakeLists.txt",
+        "patchSetId": 1
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-01-27T21:11:02Z",
+      "side": 1,
+      "message": "we can go further and fail or break the build by removing some checks on `_MSC_VER`.",
+      "revId": "d8c444963c8549b63d14ff7f04f1405c723b1571",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
