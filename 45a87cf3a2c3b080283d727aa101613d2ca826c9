@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d11d7856_5c279257",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-01-28T03:20:55Z",
+      "side": 1,
+      "message": "I\u0027ll come back around to this since I realized midway through that the difference in offsets is likely OK. It was just a bit confusing to read between the diffs at first.",
+      "revId": "45a87cf3a2c3b080283d727aa101613d2ca826c9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "643a1afd_461d93e5",
+        "filename": "av1/common/arm/convolve_neon.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 727,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-01-28T03:20:55Z",
+      "side": 1,
+      "message": "this only makes sense when `h \u003e 4`, no?",
+      "revId": "45a87cf3a2c3b080283d727aa101613d2ca826c9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bb3f7009_95959426",
+        "filename": "av1/common/arm/convolve_neon.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 990,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-01-28T03:20:55Z",
+      "side": 1,
+      "message": "same here, this would only be true with `h \u003e 2`. Maybe we\u0027re missing some test coverage for these sizes. We have the full complement in libgav1:\n\nhttps://chromium.googlesource.com/codecs/libgav1/+/493c8dd206aecfbe9ebe1c93059d0c7223e1489b/src/dsp/convolve_test.cc#59",
+      "revId": "45a87cf3a2c3b080283d727aa101613d2ca826c9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "03496d4e_d25cece6",
+        "filename": "av1/common/arm/convolve_neon.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1088,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-01-28T03:20:55Z",
+      "side": 1,
+      "message": "another discrepancy with 2/4, but looking a little closer, maybe it is ok since we\u0027ll fall out of the loop and not use dst again",
+      "revId": "45a87cf3a2c3b080283d727aa101613d2ca826c9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
