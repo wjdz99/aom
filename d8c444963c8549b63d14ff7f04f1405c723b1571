@@ -68,6 +68,24 @@
       "parentUuid": "1a3d1286_4fe72f6a",
       "revId": "d8c444963c8549b63d14ff7f04f1405c723b1571",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c407276b_00aa5fa9",
+        "filename": "README.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 233,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-01-28T02:54:45Z",
+      "side": 1,
+      "message": "\u003e \u003e We should add the cmake command lines for Visual Studio 2022. We can do that in a separate CL.\n\u003e \n\u003e I debated doing it in this change, but at first I thought one example would be enough given they\u0027re similar. It\u0027s OK to explicitly show both, though. I\u0027ll send something.\n\nhttps://aomedia-review.googlesource.com/c/aom/+/169530",
+      "parentUuid": "d6ae359d_7517c2b8",
+      "revId": "d8c444963c8549b63d14ff7f04f1405c723b1571",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
