@@ -224,6 +224,14 @@ generating projects and a solution for the Microsoft IDE:
     # This does not require a bash shell; Command Prompt (cmd.exe) is fine.
     # This assumes the build host is a Windows x64 computer.
 
+    # To build with Visual Studio 2022 for the x64 target:
+    $ cmake path/to/aom -G "Visual Studio 17 2022"
+    $ cmake --build .
+
+    # To build with Visual Studio 2022 for the 32-bit x86 target:
+    $ cmake path/to/aom -G "Visual Studio 17 2022" -A Win32
+    $ cmake --build .
+
     # To build with Visual Studio 2019 for the x64 target:
     $ cmake path/to/aom -G "Visual Studio 16 2019"
     $ cmake --build .
