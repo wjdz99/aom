@@ -439,8 +439,9 @@ static INLINE void find_best_non_dual_interp_filter(
 
   uint16_t interp_filter_search_mask =
       interp_search_flags->interp_filter_search_mask;
-
-  if (cpi->sf.interp_sf.adaptive_interp_filter_search == 2) {
+  const int adaptive_interp_filter_search =
+      cpi->sf.interp_sf.adaptive_interp_filter_search;
+  if (adaptive_interp_filter_search >= 2) {
     const FRAME_UPDATE_TYPE update_type =
         get_frame_update_type(&cpi->ppi->gf_group, cpi->gf_frame_index);
     const int ctx0 = av1_get_pred_context_switchable_interp(xd, 0);
@@ -465,8 +466,29 @@ static INLINE void find_best_non_dual_interp_filter(
           cpi->ppi->frame_probs.switchable_interp_probs[update_type][ctx1];
     }
     static const int thr[7] = { 0, 8, 8, 8, 8, 0, 8 };
-    const int thresh = thr[update_type];
-    for (i = 0; i < SWITCHABLE_FILTERS; i++) {
+    int thresh = thr[update_type];
+    if (adaptive_interp_filter_search == 3) {
+      if (update_type == 1) {
+        if (x->qindex > 240) thresh = 250;
+        else if (x->qindex > 200) thresh = 200;
+        else if (x->qindex > 160) thresh = 100;
+        else thresh = 50;
+      }
+      if (update_type == 6) {
+        if (x->qindex > 240) thresh = 150;
+        else if (x->qindex > 200) thresh = 70;
+        else thresh = 30;
+      }
+      if (update_type == 3) {
+        if (x->qindex > 240) thresh = 60;
+        else if (x->qindex > 200) thresh = 30;
+        else thresh = 15;
+      }
+    }
+
+    // Regular filter is always checked, and setting its mask bit doesn't do
+    // anything. So here start from smooth filter.
+    for (i = 1; i < SWITCHABLE_FILTERS; i++) {
       // For non-dual case, the 2 dir's prob should be identical.
       assert(switchable_interp_p0[i] == switchable_interp_p1[i]);
       if (switchable_interp_p0[i] < thresh &&
@@ -492,7 +514,7 @@ static INLINE void find_best_non_dual_interp_filter(
       // This assert tells that (filter_x == filter_y) for non-dual filter case
       assert(filter_sets[filter_idx].as_filters.x_filter ==
              filter_sets[filter_idx].as_filters.y_filter);
-      if (cpi->sf.interp_sf.adaptive_interp_filter_search &&
+      if (adaptive_interp_filter_search &&
           !(get_interp_filter_allowed_mask(interp_filter_search_mask,
                                            filter_idx))) {
         return;
@@ -527,7 +549,7 @@ static INLINE void find_best_non_dual_interp_filter(
     // REG_REG filter type is evaluated beforehand, hence skip it
     set_interp_filter_allowed_mask(&allowed_interp_mask, SHARP_SHARP);
     set_interp_filter_allowed_mask(&allowed_interp_mask, SMOOTH_SMOOTH);
-    if (cpi->sf.interp_sf.adaptive_interp_filter_search)
+    if (adaptive_interp_filter_search)
       allowed_interp_mask &= interp_filter_search_mask;
 
     find_best_interp_rd_facade(x, cpi, tile_data, bsize, orig_dst, rd,
@@ -541,7 +563,7 @@ static INLINE void find_best_non_dual_interp_filter(
       // This assert tells that (filter_x == filter_y) for non-dual filter case
       assert(filter_sets[i].as_filters.x_filter ==
              filter_sets[i].as_filters.y_filter);
-      if (cpi->sf.interp_sf.adaptive_interp_filter_search &&
+      if (adaptive_interp_filter_search &&
           !(get_interp_filter_allowed_mask(interp_filter_search_mask, i))) {
         continue;
       }
