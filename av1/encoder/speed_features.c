@@ -1201,6 +1201,8 @@ static void set_good_speed_features_framesize_independent(
     // Enable fast search for all valid compound modes.
     sf->inter_sf.enable_fast_compound_mode_search = 2;
 
+    sf->interp_sf.adaptive_interp_filter_search = 3;
+
     sf->intra_sf.chroma_intra_pruning_with_hog = 3;
 
     // TODO(any): Extend multi-winner mode processing support for inter frames
