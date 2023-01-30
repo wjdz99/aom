@@ -52,6 +52,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "700b5f00_7af6d8ed",
+        "filename": "av1/encoder/encodeframe_utils.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 31322
+      },
+      "writtenOn": "2023-01-30T11:58:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "81e1614d_0540589e",
+      "revId": "7a4a00d00239f6614c93b4f9b0d97334099dc414",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ed03ab6d_aa5b4ecc",
@@ -71,6 +89,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "86a29d35_ee244d3e",
+        "filename": "av1/encoder/encoder_utils.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1326,
+      "author": {
+        "id": 31322
+      },
+      "writtenOn": "2023-01-30T11:58:49Z",
+      "side": 1,
+      "message": "Yes, var is non-negative as it is calculated for a block by taking the average of the sum of squared deviation of each pixel from the block mean.",
+      "parentUuid": "ed03ab6d_aa5b4ecc",
+      "revId": "7a4a00d00239f6614c93b4f9b0d97334099dc414",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "29432faf_b94f3e20",
         "filename": "av1/encoder/encoder_utils.c",
         "patchSetId": 4
@@ -82,6 +118,24 @@
       "writtenOn": "2023-01-26T19:20:38Z",
       "side": 1,
       "message": "I think 0.2069 \u003d 17.492222 / 84.527656, and 4.8322 \u003d 84.527656 / 17.492222, right?\n\nBut 84.527656 / 17.492222 is equal to 4.83229952147. So the upper bound is closer to 4.8323. Could you make sure 4.8323^256 does not exceed DBL_MAX?",
+      "revId": "7a4a00d00239f6614c93b4f9b0d97334099dc414",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4c11be08_48335b34",
+        "filename": "av1/encoder/encoder_utils.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1346,
+      "author": {
+        "id": 31322
+      },
+      "writtenOn": "2023-01-30T11:58:49Z",
+      "side": 1,
+      "message": "Ack. 4.8323^256 \u003c 10^256 \u003c DBL_MAX.",
+      "parentUuid": "29432faf_b94f3e20",
       "revId": "7a4a00d00239f6614c93b4f9b0d97334099dc414",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
