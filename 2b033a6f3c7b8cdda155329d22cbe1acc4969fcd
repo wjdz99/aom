@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d93bd729_ccbed2d7",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 31592
+      },
+      "writtenOn": "2023-01-30T13:47:27Z",
+      "side": 1,
+      "message": "Hi Yunqing,\nAs per your suggestion in the following CL, we have abstracted the round operation in apply_temporal_filter() in a function for better readability.\nhttps://aomedia-review.googlesource.com/c/aom/+/169065\n\nWe verified that CL produces bit-exact output for speed\u003d5,6 with no speed impact.\n\nPlease review the CL. \n\nThank you\nNarayan",
+      "revId": "2b033a6f3c7b8cdda155329d22cbe1acc4969fcd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
