@@ -1074,6 +1074,9 @@ typedef struct INTERP_FILTER_SPEED_FEATURES {
   int cb_pred_filter_search;
 
   // adaptive interp_filter search to allow skip of certain filter types.
+  // 0: No adaptive interp_filter search
+  // 1: frame level adaptive interp_filter search
+  // > 1: block level adaptive interp_filter search
   int adaptive_interp_filter_search;
 } INTERP_FILTER_SPEED_FEATURES;
 
