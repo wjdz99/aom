@@ -1983,7 +1983,7 @@ static AOM_INLINE void encode_frame_internal(AV1_COMP *cpi) {
          cpi->sf.inter_sf.prune_warped_prob_thresh > 0);
     cpi->do_update_frame_probs_interpfilter[cpi->num_frame_recode] =
         (cm->current_frame.frame_type != KEY_FRAME &&
-         cpi->sf.interp_sf.adaptive_interp_filter_search == 2 &&
+         cpi->sf.interp_sf.adaptive_interp_filter_search >= 2 &&
          features->interp_filter == SWITCHABLE);
   }
 
@@ -2135,7 +2135,7 @@ static AOM_INLINE void encode_frame_internal(AV1_COMP *cpi) {
   }
 
   if (cm->current_frame.frame_type != KEY_FRAME &&
-      cpi->sf.interp_sf.adaptive_interp_filter_search == 2 &&
+      cpi->sf.interp_sf.adaptive_interp_filter_search >= 2 &&
       features->interp_filter == SWITCHABLE) {
     const FRAME_UPDATE_TYPE update_type =
         get_frame_update_type(&cpi->ppi->gf_group, cpi->gf_frame_index);
