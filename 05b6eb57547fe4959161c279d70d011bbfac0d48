@@ -1,0 +1,95 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f4056b86_ebfc9b46",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-01-31T22:34:01Z",
+      "side": 1,
+      "message": "Nit: It would be good to describe what the issue was and how you fixed it.",
+      "revId": "05b6eb57547fe4959161c279d70d011bbfac0d48",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a2d44925_b101b86f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-01-31T22:34:01Z",
+      "side": 1,
+      "message": "Cheng: Thank you very much for the fix. I have some questions and suggested changes.",
+      "revId": "05b6eb57547fe4959161c279d70d011bbfac0d48",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5c529d73_6baeac85",
+        "filename": "av1/encoder/allintra_vis.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 244,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-01-31T22:34:01Z",
+      "side": 1,
+      "message": "IMPORTANT: Delete these four lines (241-244)? Are they replaced by lines 542-545?",
+      "range": {
+        "startLine": 241,
+        "startChar": 0,
+        "endLine": 244,
+        "endChar": 21
+      },
+      "revId": "05b6eb57547fe4959161c279d70d011bbfac0d48",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cea00533_70db532c",
+        "filename": "av1/encoder/allintra_vis.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 545,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-01-31T22:34:01Z",
+      "side": 1,
+      "message": "Nit: Perhaps add a comment to explain that `av1_frame_init_quantizer()` uses `xd-\u003emi[0]`, so we need to set up a temporary `xd-\u003emi[0]` here.\n\n```\nvoid av1_frame_init_quantizer(AV1_COMP *cpi) {\n  MACROBLOCK *const x \u003d \u0026cpi-\u003etd.mb; \n  MACROBLOCKD *const xd \u003d \u0026x-\u003ee_mbd; \n  x-\u003eprev_segment_id \u003d -1;\n  av1_init_plane_quantizers(cpi, x, xd-\u003emi[0]-\u003esegment_id, 1);\n}\n```",
+      "revId": "05b6eb57547fe4959161c279d70d011bbfac0d48",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bd1565c3_b9f46dd4",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 2326,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-01-31T22:34:01Z",
+      "side": 1,
+      "message": "This is unrelated to this CL. I am just wondering if we should also add the following to this function, as you did at lines 2501-2503:\n\n```\n    if (thread_data-\u003etd !\u003d \u0026cpi-\u003etd) {\n      thread_data-\u003etd-\u003emb \u003d cpi-\u003etd.mb;\n    }\n```",
+      "revId": "05b6eb57547fe4959161c279d70d011bbfac0d48",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
