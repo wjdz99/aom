@@ -54,6 +54,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "19caa98f_6f0d001a",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1647,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2023-01-31T16:11:52Z",
+      "side": 1,
+      "message": "\u003e  Could you explain what is args-\u003ebest_sad + (args-\u003ebest_sad \u003e\u003e 4)?\n\nTo skip the evaluation of modes conservatively, we have set \u0027sad_threshold\u0027 to 1.0625 times best_sad. This was derived empirically. \n\n\u003e Can this sum overflow unsigned int? See also my comment at line 1650.\n\nConsidering block size of 128X128 for bit-depth\u003d12, maximum possible value for sad is (2^14) * (2^12), the sad_threshold (1.0625 * args-\u003ebest_sad) is within UINT_MAX. The sad_threshold computation can result in overflow only when args-\u003ebest_sad is UINT_MAX (possible in the first iteration as args-\u003ebest_sad is initialized with UINT_MAX), which is currently handled. Hence we are retaining the current check, please let us know your opinion.",
+      "parentUuid": "f3d692dc_8a00136d",
+      "revId": "0b6f316c079206c263c49a7e8f038064a71014f5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "76a3b36b_1e8c2f0b",
         "filename": "av1/encoder/nonrd_pickmode.c",
         "patchSetId": 3
@@ -65,6 +83,24 @@
       "writtenOn": "2023-01-31T02:45:45Z",
       "side": 1,
       "message": "Optional: One way to avoid the `unsigned int` overflow issues that I asked about at line 1647 is to rewrite this line as follows:\n\n```\n    if (this_sad \u003e args-\u003ebest_sad \u0026\u0026 (this_sad - args-\u003ebest_sad) \u003e (args-\u003ebest_sad \u003e\u003e 4)) {\n```",
+      "revId": "0b6f316c079206c263c49a7e8f038064a71014f5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1c9882d1_1c099e80",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1650,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2023-01-31T16:11:52Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "76a3b36b_1e8c2f0b",
       "revId": "0b6f316c079206c263c49a7e8f038064a71014f5",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -103,6 +139,42 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "8cd72303_a2e89182",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1651,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2023-01-31T16:11:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3d3cb623_68223466",
+      "revId": "0b6f316c079206c263c49a7e8f038064a71014f5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "307b3a3a_67508dc3",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1651,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2023-01-31T16:11:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ce9fce66_38d89b11",
+      "revId": "0b6f316c079206c263c49a7e8f038064a71014f5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "cf6ebd76_58fcb5a7",
@@ -120,6 +192,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "d8eb9bc8_c50c7a59",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1653,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2023-01-31T16:11:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cf6ebd76_58fcb5a7",
+      "revId": "0b6f316c079206c263c49a7e8f038064a71014f5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "5d31de52_c21bd2d7",
@@ -133,6 +223,24 @@
       "writtenOn": "2023-01-31T02:45:45Z",
       "side": 1,
       "message": "I guess this means the best SAD is the smallest SAD, right?",
+      "revId": "0b6f316c079206c263c49a7e8f038064a71014f5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3987d429_32ac17c0",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1654,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2023-01-31T16:11:52Z",
+      "side": 1,
+      "message": "Yes.",
+      "parentUuid": "5d31de52_c21bd2d7",
       "revId": "0b6f316c079206c263c49a7e8f038064a71014f5",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -156,6 +264,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "3e3eb1ea_db7034e0",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1670,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2023-01-31T16:11:52Z",
+      "side": 1,
+      "message": "For a given block, when estimate_block_intra() is invoked from av1_nonrd_pick_intra_mode(), args-\u003erdc-\u003erate and args-\u003erdc-\u003edist are initialized to zero (please see lines 2316-2319). However, we have added an assertion to check the same, as estimate_block_intra() is also called for intra modes in inter frames.",
+      "parentUuid": "977ed118_e39b2302",
+      "revId": "0b6f316c079206c263c49a7e8f038064a71014f5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "664891cb_8c793dfb",
         "filename": "av1/encoder/nonrd_pickmode.c",
         "patchSetId": 3
@@ -167,6 +293,24 @@
       "writtenOn": "2023-01-31T02:45:45Z",
       "side": 1,
       "message": "Nit/optional: This initializer is difficult to understand. We probably should add an initialization function. (See also line 2645.)",
+      "revId": "0b6f316c079206c263c49a7e8f038064a71014f5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d84397c6_53962617",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 2258,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2023-01-31T16:11:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "664891cb_8c793dfb",
       "revId": "0b6f316c079206c263c49a7e8f038064a71014f5",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -184,6 +328,24 @@
       "writtenOn": "2023-01-31T02:45:45Z",
       "side": 1,
       "message": "Please confirm you intend to make this change.\n\nIn the original code this function updates `mi-\u003etx_size` only under certain conditions. In the new code this function always updates `mi-\u003etx_size`.",
+      "revId": "0b6f316c079206c263c49a7e8f038064a71014f5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ade433b2_b5c00d9c",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 2260,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2023-01-31T16:11:52Z",
+      "side": 1,
+      "message": "In the parent version, mi-\u003etx_size was initialized inside the for-loop with \u0027intra_tx_size\u0027 (which is fixed for a given block size). In this CL, we moved this initialization outside the loop and cleaned up the variable \u0027intra_tx_size\u0027. We validated that this refactoring is bit-exact with the parent version as at least one mode will always be evaluated.",
+      "parentUuid": "793379ec_7766dde2",
       "revId": "0b6f316c079206c263c49a7e8f038064a71014f5",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
