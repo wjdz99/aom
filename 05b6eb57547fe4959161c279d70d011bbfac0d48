@@ -20,6 +20,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "b1a7179c_8532254d",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2023-01-31T23:15:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f4056b86_ebfc9b46",
+      "revId": "05b6eb57547fe4959161c279d70d011bbfac0d48",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "a2d44925_b101b86f",
         "filename": "/PATCHSET_LEVEL",
         "patchSetId": 1
@@ -58,6 +76,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ab5a6751_260748d6",
+        "filename": "av1/encoder/allintra_vis.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 244,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2023-01-31T23:15:25Z",
+      "side": 1,
+      "message": "Let\u0027s keep this.\nLine 542-545 prepare xd-\u003emi, which is used in av1_frame_init_quantizer.\n\nHere, av1_calc_mb_wiener_var_row could be called from ethread.c, where xd-\u003emi might not be initialized.",
+      "parentUuid": "5c529d73_6baeac85",
+      "range": {
+        "startLine": 241,
+        "startChar": 0,
+        "endLine": 244,
+        "endChar": 21
+      },
+      "revId": "05b6eb57547fe4959161c279d70d011bbfac0d48",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "cea00533_70db532c",
@@ -75,6 +117,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "288a8460_91c27572",
+        "filename": "av1/encoder/allintra_vis.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 545,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2023-01-31T23:15:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cea00533_70db532c",
+      "revId": "05b6eb57547fe4959161c279d70d011bbfac0d48",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "bd1565c3_b9f46dd4",
@@ -88,6 +148,24 @@
       "writtenOn": "2023-01-31T22:34:01Z",
       "side": 1,
       "message": "This is unrelated to this CL. I am just wondering if we should also add the following to this function, as you did at lines 2501-2503:\n\n```\n    if (thread_data-\u003etd !\u003d \u0026cpi-\u003etd) {\n      thread_data-\u003etd-\u003emb \u003d cpi-\u003etd.mb;\n    }\n```",
+      "revId": "05b6eb57547fe4959161c279d70d011bbfac0d48",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "39b62359_7ae90479",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 2326,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2023-01-31T23:15:25Z",
+      "side": 1,
+      "message": "Perhaps global motion does not use it.",
+      "parentUuid": "bd1565c3_b9f46dd4",
       "revId": "05b6eb57547fe4959161c279d70d011bbfac0d48",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
