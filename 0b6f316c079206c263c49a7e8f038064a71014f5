@@ -16,6 +16,176 @@
       "message": "Hi Wan-Teh, Frank, \n\nIn this CL, we have introduced a speed feature ‘prune_intra_mode_using_best_sad_so_far’ to prune intra modes in nonrd path based on prediction error (using SAD metric). If the prediction error exceeds the ‘sad_threshold’ (based on the best SAD so far), further steps (transform and quantization) are skipped.\nTo facilitate this change, the variables ‘best_sad’ and ‘prune_mode_based_on_sad’ are introduced in the structure ‘estimate_block_intra_args’. This optimization is enabled only if the transform block size is the same as the current block size. This speed feature is enabled for allintra, speed 9.\n```\nFor AVIF still-image encode with tune\u003dssim,\n\n               Encode Time          BD-Rate Loss(%)\ncpu-used       Reduction(%)       psnr         ssim\n   9              1.869           0.1608       0.0878\n\nFollowing are the Borg test results for all-intra encoding for 50 frames.\n\n             Instruction Count          BD-Rate Loss(%)\ncpu-used       Reduction(%)        avg.psnr    ovr.psnr    ssim\n   9              3.050            0.2372      0.2379      0.1840 \n```\n\nFor libaom AV1 video encode, bit-match is verified (w.r.t. parent commit) for \u0027GOOD\u0027 and \u0027RT\u0027 encoding modes for a few contents with different encoding configurations. It is verified that the CL is bit-exact for allintra encode, speed \u003c 9 with no speed impact.\n\nIn the commit message, BD rate impact column:\n[+] sign is for BD-Rate drop\n[-] sign is for BD-Rate improvement\nThe instruction count reduction specified has been measured using the command:\n$ perf stat -e instructions:u ./aomenc …\n\nLibavif commit used for testing: d642004c9992df7cf7870408066198eb7c4dd632\n\nPlease review the CL. \n\nRegards,\nMudassir",
       "revId": "0b6f316c079206c263c49a7e8f038064a71014f5",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a9b039ea_287811ee",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1635,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-01-31T02:45:45Z",
+      "side": 1,
+      "message": "Note to self: these two should be declared as `ptrdiff_t` or `size_t`.",
+      "revId": "0b6f316c079206c263c49a7e8f038064a71014f5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f3d692dc_8a00136d",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1647,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-01-31T02:45:45Z",
+      "side": 1,
+      "message": "Could you explain what is `args-\u003ebest_sad + (args-\u003ebest_sad \u003e\u003e 4)`?\n\nCan this sum overflow `unsigned int`? See also my comment at line 1650.",
+      "revId": "0b6f316c079206c263c49a7e8f038064a71014f5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "76a3b36b_1e8c2f0b",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1650,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-01-31T02:45:45Z",
+      "side": 1,
+      "message": "Optional: One way to avoid the `unsigned int` overflow issues that I asked about at line 1647 is to rewrite this line as follows:\n\n```\n    if (this_sad \u003e args-\u003ebest_sad \u0026\u0026 (this_sad - args-\u003ebest_sad) \u003e (args-\u003ebest_sad \u003e\u003e 4)) {\n```",
+      "revId": "0b6f316c079206c263c49a7e8f038064a71014f5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3d3cb623_68223466",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1651,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-01-31T02:45:45Z",
+      "side": 1,
+      "message": "Nit: might be good to document that the `INT_MAX` value has a special meaning (see line 2324.",
+      "revId": "0b6f316c079206c263c49a7e8f038064a71014f5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ce9fce66_38d89b11",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1651,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-01-31T02:45:45Z",
+      "side": 1,
+      "message": "Should we also set `args-\u003erdc-\u003edist` to `INT64_MAX`?\n\nNote that at lines 1670-1671 we update `rate` and `dist` together.",
+      "revId": "0b6f316c079206c263c49a7e8f038064a71014f5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cf6ebd76_58fcb5a7",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1653,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-01-31T02:45:45Z",
+      "side": 1,
+      "message": "Nit: omit `else` after a return statement.",
+      "revId": "0b6f316c079206c263c49a7e8f038064a71014f5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5d31de52_c21bd2d7",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1654,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-01-31T02:45:45Z",
+      "side": 1,
+      "message": "I guess this means the best SAD is the smallest SAD, right?",
+      "revId": "0b6f316c079206c263c49a7e8f038064a71014f5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "977ed118_e39b2302",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1670,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-01-31T02:45:45Z",
+      "side": 1,
+      "message": "IMPORTANT: Should we check if `args-\u003erdc-\u003erate` is equal to `INT_MAX` before updating it?\n\nI.e., it is possible to reach here after we set `args-\u003erdc-\u003erate` to `INT_MAX` for an earlier block?",
+      "revId": "0b6f316c079206c263c49a7e8f038064a71014f5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "664891cb_8c793dfb",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 2258,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-01-31T02:45:45Z",
+      "side": 1,
+      "message": "Nit/optional: This initializer is difficult to understand. We probably should add an initialization function. (See also line 2645.)",
+      "revId": "0b6f316c079206c263c49a7e8f038064a71014f5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "793379ec_7766dde2",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 2260,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-01-31T02:45:45Z",
+      "side": 1,
+      "message": "Please confirm you intend to make this change.\n\nIn the original code this function updates `mi-\u003etx_size` only under certain conditions. In the new code this function always updates `mi-\u003etx_size`.",
+      "revId": "0b6f316c079206c263c49a7e8f038064a71014f5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
