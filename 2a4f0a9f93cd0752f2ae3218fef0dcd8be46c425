@@ -22,6 +22,30 @@
       },
       "revId": "2a4f0a9f93cd0752f2ae3218fef0dcd8be46c425",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "46e42648_912dd868",
+        "filename": "av1/encoder/mcomp.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2023-01-31T01:43:30Z",
+      "side": 1,
+      "message": "In good quality mode, source_sad_nonrd is always 0, so this statement here is always true.\nAlternatively, I could change it so that source_sad_nonrd is check iff we are in realtime mode.",
+      "parentUuid": "691fa5f6_72c16e2f",
+      "range": {
+        "startLine": 113,
+        "startChar": 6,
+        "endLine": 113,
+        "endChar": 42
+      },
+      "revId": "2a4f0a9f93cd0752f2ae3218fef0dcd8be46c425",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
