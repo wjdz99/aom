@@ -76,17 +76,21 @@ static INLINE int pthread_create(pthread_t *const thread, const void *attr,
 }
 
 static INLINE int pthread_join(pthread_t thread, void **value_ptr) {
-  (void)value_ptr;
-  return (WaitForSingleObjectEx(thread, INFINITE, FALSE /*bAlertable*/) !=
-              WAIT_OBJECT_0 ||
-          CloseHandle(thread) == 0);
+  if (WaitForSingleObject(thread, INFINITE) == WAIT_FAILED) return 1;
+  if (value_ptr) {
+    DWORD value;
+    if (!GetExitCodeThread(thread, &value)) return 1;
+
+    *(DWORD *)valueptr = value;
+  }
+  return CloseHandle(thread) == 0;
 }
 
 // Mutex
 static INLINE int pthread_mutex_init(pthread_mutex_t *const mutex,
                                      void *mutexattr) {
   (void)mutexattr;
-  InitializeCriticalSectionEx(mutex, 0 /*dwSpinCount*/, 0 /*Flags*/);
+  InitializeCriticalSection(mutex, 0);
   return 0;
 }
 
