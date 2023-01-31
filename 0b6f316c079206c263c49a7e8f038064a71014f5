@@ -70,6 +70,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "02d22b19_7896147b",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1647,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-01-31T23:09:29Z",
+      "side": 1,
+      "message": "Thank you.",
+      "parentUuid": "19caa98f_6f0d001a",
+      "revId": "0b6f316c079206c263c49a7e8f038064a71014f5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "76a3b36b_1e8c2f0b",
@@ -280,6 +298,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "5c14c21f_2f0e392c",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1670,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-01-31T23:09:29Z",
+      "side": 1,
+      "message": "Thank you.",
+      "parentUuid": "3e3eb1ea_db7034e0",
+      "revId": "0b6f316c079206c263c49a7e8f038064a71014f5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "664891cb_8c793dfb",
@@ -346,6 +382,24 @@
       "side": 1,
       "message": "In the parent version, mi-\u003etx_size was initialized inside the for-loop with \u0027intra_tx_size\u0027 (which is fixed for a given block size). In this CL, we moved this initialization outside the loop and cleaned up the variable \u0027intra_tx_size\u0027. We validated that this refactoring is bit-exact with the parent version as at least one mode will always be evaluated.",
       "parentUuid": "793379ec_7766dde2",
+      "revId": "0b6f316c079206c263c49a7e8f038064a71014f5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "42280b9e_fec10f97",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 2260,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-01-31T23:09:29Z",
+      "side": 1,
+      "message": "Thank you.",
+      "parentUuid": "ade433b2_b5c00d9c",
       "revId": "0b6f316c079206c263c49a7e8f038064a71014f5",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
