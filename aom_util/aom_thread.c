@@ -69,7 +69,9 @@ static THREADFN thread_loop(void *ptr) {
       pthread_cond_wait(&worker->impl_->condition_, &worker->impl_->mutex_);
     }
     if (worker->status_ == WORK) {
+      pthread_mutex_unlock(&worker->impl_->mutex_);
       execute(worker);
+      pthread_mutex_lock(&worker->impl_->mutex_);
       worker->status_ = OK;
     } else if (worker->status_ == NOT_OK) {  // finish the worker
       done = 1;
