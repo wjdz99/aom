@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "671dc36d_7cda97d5",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-01-31T23:30:00Z",
+      "side": 1,
+      "message": "LGTM. I am going to test the CL now.",
+      "revId": "d4311cb1fa9074192840e1c9b8afcbdd99be4823",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "65a6e0aa_b091ea42",
+        "filename": "av1/encoder/allintra_vis.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 244,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-01-31T23:30:00Z",
+      "side": 1,
+      "message": "Please see my comment at line 548. We should reset `xd-\u003emi` to `NULL` after we have finished using it, otherwise it will be pointing to invalid memory after this function returns.\n\nIf it\u0027s not clear where is the last use of `xd-\u003emi` in this function, we can reset `xd-\u003emi` to `NULL` at the end of the function.",
+      "revId": "d4311cb1fa9074192840e1c9b8afcbdd99be4823",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d4d8cff7_516a2a0d",
+        "filename": "av1/encoder/allintra_vis.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 548,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-01-31T23:30:00Z",
+      "side": 1,
+      "message": "To avoid pointing to invalid memory, it would be good to reset `xd-\u003emi` to `NULL` after we have finished using it.",
+      "revId": "d4311cb1fa9074192840e1c9b8afcbdd99be4823",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "54d1dc0e_19f76d75",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2492,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-01-31T23:30:00Z",
+      "side": 1,
+      "message": "Nit: add \"because the preprocessing stage does not have tiles\"",
+      "revId": "d4311cb1fa9074192840e1c9b8afcbdd99be4823",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
