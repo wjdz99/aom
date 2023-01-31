@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "04eeae62_ccb593d4",
+        "filename": "av1/encoder/av1_fwd_txfm2d.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-01-31T06:21:49Z",
+      "side": 1,
+      "message": "The `row_buffer` array is passed as the first argument to the `av1_round_shift_array()` call at line 114. `av1_round_shift_array` has two SIMD specializations:\n\n```\n# Helper functions.\nadd_proto qw/void av1_round_shift_array/, \"int32_t *arr, int size, int bit\";\nspecialize \"av1_round_shift_array\", qw/sse4_1 neon/;\n```\n\n`av1_round_shift_array_sse4_1()` casts its first parameter to `__m128i *`:\n```\nvoid av1_round_shift_array_sse4_1(int32_t *arr, int size, int bit) {\n  __m128i *const vec \u003d (__m128i *)arr;\n  const int vec_size \u003d size \u003e\u003e 2;\n  av1_round_shift_array_32_sse4_1(vec, vec, vec_size, bit);\n}\n```\n\nSo `row_buffer` needs to be 16-byte aligned. This is apparently the cause of bug aomedia:3375. I will write a CL to fix this.",
+      "revId": "7bb4c54c1ed12c0191865a680267b466e39cdcd4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
