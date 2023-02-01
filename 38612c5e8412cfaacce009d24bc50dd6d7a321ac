@@ -16,6 +16,23 @@
       "message": "LGTM.",
       "revId": "38612c5e8412cfaacce009d24bc50dd6d7a321ac",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6a52f64c_c3fbaaeb",
+        "filename": "av1/encoder/allintra_vis.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 411,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-02-01T00:48:44Z",
+      "side": 1,
+      "message": "Note that if `xd-\u003emi` is used after this function returns, we will first have trouble with `mbmi_ptr` (see line 244). We may not even be able to dereference `mbmi_ptr` to get `mbmi`.",
+      "revId": "38612c5e8412cfaacce009d24bc50dd6d7a321ac",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
