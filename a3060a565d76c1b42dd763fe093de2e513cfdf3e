@@ -16,6 +16,23 @@
       "message": "Hi Wan-Teh,\n\nWe have taken care of your comments in the latest patch set. Please review.\n\nRegards,\nMudassir",
       "revId": "a3060a565d76c1b42dd763fe093de2e513cfdf3e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cc5aaab8_7c1759fd",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-02-01T07:48:29Z",
+      "side": 1,
+      "message": "LGTM.",
+      "revId": "a3060a565d76c1b42dd763fe093de2e513cfdf3e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
