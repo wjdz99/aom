@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c1240e20_3a5ce7c4",
+        "filename": "av1/encoder/allintra_vis.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 201,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-02-01T19:40:26Z",
+      "side": 1,
+      "message": "Note that I had to create this cherry-pick CL manually because the main branch has a `rate_estimator()` function before this function, which caused a merge conflict.\n\n(The `rate_estimator()` function was added to the main branch in https://aomedia-review.googlesource.com/c/aom/+/169529.)",
+      "revId": "de7f631f5e7421e0a9c19266239327c6fa4f2d83",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
