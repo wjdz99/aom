@@ -1314,6 +1314,9 @@ static AOM_INLINE void init_mc_flow_dispenser(AV1_COMP *cpi, int frame_idx,
 
   // Initialize x->mbmi_ext when compound predictions are enabled.
   if (cpi->sf.tpl_sf.allow_compound_pred) av1_zero(x->mbmi_ext);
+
+  // Set the pointer to null since mbmi is only allocated inside this function.
+  xd->mi = NULL;
 }
 
 // This function stores the motion estimation dependencies of all the blocks in
