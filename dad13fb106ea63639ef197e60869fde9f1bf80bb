@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a0d5e647_d707024d",
+        "filename": "av1/encoder/tpl_model.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1281,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-02-01T02:53:02Z",
+      "side": 1,
+      "message": "Note that we set `xd-\u003emi` to `\u0026mbmi_ptr` here, and `mbmi_ptr` is a local variable.",
+      "revId": "dad13fb106ea63639ef197e60869fde9f1bf80bb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
