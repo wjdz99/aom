@@ -1034,6 +1034,8 @@ static int calc_active_worst_quality_no_stats_cbr(const AV1_COMP *cpi) {
                    ? AOMMIN(p_rc->avg_frame_qindex[INTER_FRAME], avg_qindex_key)
                    : p_rc->avg_frame_qindex[INTER_FRAME];
 
+  ambient_qp = AOMMIN(rc->worst_quality, ambient_qp);
+
   if (p_rc->buffer_level > p_rc->optimal_buffer_level) {
     // Adjust down.
     int max_adjustment_down;  // Maximum adjustment down for Q
