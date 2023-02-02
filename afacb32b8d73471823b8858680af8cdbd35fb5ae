@@ -18,6 +18,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "d027f7e6_baf1fd3a",
+        "filename": "av1/common/arm/convolve_neon.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 333,
+      "author": {
+        "id": 31392
+      },
+      "writtenOn": "2023-02-02T15:07:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "48e48d4e_53153d3e",
+      "revId": "afacb32b8d73471823b8858680af8cdbd35fb5ae",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "5a864ed0_1a1a6dba",
@@ -41,6 +59,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "8cef9ff6_da9c61a5",
+        "filename": "av1/common/arm/convolve_neon.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 336,
+      "author": {
+        "id": 31392
+      },
+      "writtenOn": "2023-02-02T15:07:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5a864ed0_1a1a6dba",
+      "range": {
+        "startLine": 336,
+        "startChar": 19,
+        "endLine": 336,
+        "endChar": 23
+      },
+      "revId": "afacb32b8d73471823b8858680af8cdbd35fb5ae",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "7e10a2de_f7a66b5e",
@@ -54,6 +96,30 @@
       "writtenOn": "2023-02-02T03:13:28Z",
       "side": 1,
       "message": "the inner ()s can be removed",
+      "range": {
+        "startLine": 342,
+        "startChar": 55,
+        "endLine": 342,
+        "endChar": 56
+      },
+      "revId": "afacb32b8d73471823b8858680af8cdbd35fb5ae",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d099fb9e_3c27c818",
+        "filename": "av1/common/arm/convolve_neon.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 342,
+      "author": {
+        "id": 31392
+      },
+      "writtenOn": "2023-02-02T15:07:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7e10a2de_f7a66b5e",
       "range": {
         "startLine": 342,
         "startChar": 55,
