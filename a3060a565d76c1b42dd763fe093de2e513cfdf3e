@@ -69,6 +69,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f8108e07_78e66e08",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 1652,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2023-02-02T12:45:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c33a27e1_3e1fd310",
+      "revId": "a3060a565d76c1b42dd763fe093de2e513cfdf3e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "58d34914_ac11918b",
@@ -82,6 +100,24 @@
       "writtenOn": "2023-02-02T02:58:46Z",
       "side": 1,
       "message": "I still don\u0027t understand why we will never reach here if we set `args-\u003erdc-\u003erate` to `INT_MAX` and return from line 1668 for an earlier block during the same `av1_foreach_transformed_block_in_plane()` call.\n\nHere is the relevant code in `av1_foreach_transformed_block_in_plane()`:\n\n```\n582   // Keep track of the row and column of the blocks we use so that we know\n583   // if we are in the unrestricted motion border.\n584   int i \u003d 0;\n585   for (int r \u003d 0; r \u003c max_blocks_high; r +\u003d mu_blocks_high) {\n586     const int unit_height \u003d AOMMIN(mu_blocks_high + r, max_blocks_high);\n587     // Skip visiting the sub blocks that are wholly within the UMV.\n588     for (int c \u003d 0; c \u003c max_blocks_wide; c +\u003d mu_blocks_wide) {\n589       const int unit_width \u003d AOMMIN(mu_blocks_wide + c, max_blocks_wide);\n590       for (int blk_row \u003d r; blk_row \u003c unit_height; blk_row +\u003d txh_unit) {\n591         for (int blk_col \u003d c; blk_col \u003c unit_width; blk_col +\u003d txw_unit) {\n592           visit(plane, i, blk_row, blk_col, plane_bsize, tx_size, arg);\n593           i +\u003d step;\n594         }\n595       }\n596     }\n597   }\n```\n\nNote that we pass the same `arg` to `visit()` at line 592 inside the nested for loop. So if a previous `visit()` call set the rate in `arg` to `INT_MAX`, how can we be assured that all later `visit()` calls won\u0027t do `args-\u003erdc-\u003erate +\u003d this_rdc.rate`?",
+      "revId": "a3060a565d76c1b42dd763fe093de2e513cfdf3e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c1ef3720_e40bebe0",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 1687,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2023-02-02T12:45:47Z",
+      "side": 1,
+      "message": "As this optimization is enabled only when the transform block size is the same as the current block size (please see line 2286 in av1_nonrd_pick_intra_mode()), visit() will be called only once from av1_foreach_transformed_block_in_plane() (please see line 563). \n```\n562  if (plane_bsize \u003d\u003d tx_bsize) {\n563    visit(plane, 0, 0, 0, plane_bsize, tx_size, arg);\n564    return;\n565  }\n```\nIn other (i.e., plane_bsize !\u003d tx_bsize) calls to visit(), this optimization is not applicable and hence this assert at line 1688 should always hold good.\n\nIn future, if this optimization is extended for other cases (i.e., plane_bsize !\u003d tx_bsize), the accumulated SAD across tx_bsize (within the plane_bsize) can be used to skip subsequent tx_bsize evaluations. As appropriate early exit would have been handled by the caller function, args-\u003erdc-\u003erate\u003dINT_MAX should not be encountered. Please let us know your opinion.",
+      "parentUuid": "58d34914_ac11918b",
       "revId": "a3060a565d76c1b42dd763fe093de2e513cfdf3e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
