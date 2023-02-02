@@ -16,6 +16,40 @@
       "message": "Hi Wan-Teh,\n\nWe have taken care of your comments in the latest patch-set. Please review.\n\nRegards,\nMudassir",
       "revId": "7f678b6acfdc4414bcd51a533f4302bb289a0698",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "12f69405_53e62711",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-02-02T15:09:58Z",
+      "side": 1,
+      "message": "LGTM.",
+      "revId": "7f678b6acfdc4414bcd51a533f4302bb289a0698",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "947b595d_59744758",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 2282,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-02-02T15:09:58Z",
+      "side": 1,
+      "message": "Could you explain why the value of `mi-\u003etx_size` here must be equal to the the value of `tx_size` in `av1_foreach_transformed_block_in_plane()`?\n\nIn `av1_foreach_transformed_block_in_plane()`, `tx_size` is defined as follows:\n\n```\n  // transform size varies per plane, look it up in a common way.\n  const TX_SIZE tx_size \u003d av1_get_tx_size(plane, xd);\n```\n\nIn this case `plane` is `AOM_PLANE_Y` (0). `av1_get_tx_size()` is defined as follows:\n\n```\n1385 static INLINE TX_SIZE av1_get_tx_size(int plane, const MACROBLOCKD *xd) {\n1386   const MB_MODE_INFO *mbmi \u003d xd-\u003emi[0];\n1387   if (xd-\u003elossless[mbmi-\u003esegment_id]) return TX_4X4;\n1388   if (plane \u003d\u003d 0) return mbmi-\u003etx_size;\n1389   const MACROBLOCKD_PLANE *pd \u003d \u0026xd-\u003eplane[plane];\n1390   return av1_get_max_uv_txsize(mbmi-\u003ebsize, pd-\u003esubsampling_x,\n1391                                pd-\u003esubsampling_y);\n1392 }\n```\n\nSo we are relying on `av1_get_tx_size()` returning from line 1388, i.e., we assume `xd-\u003elossless[mbmi-\u003esegment_id]` is false. Why can we assume that?\n\nShould we add the following here (before line 2282)?\n```\n  if (xd-\u003elossless[mi-\u003esegment_id]) mi-\u003etx_size \u003d TX_4X4;\n```\n\nOr assert it\u0027s false?\n\n```\n  assert(!xd-\u003elossless[mi-\u003esegment_id]);\n```",
+      "revId": "7f678b6acfdc4414bcd51a533f4302bb289a0698",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
