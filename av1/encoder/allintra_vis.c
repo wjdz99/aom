@@ -500,7 +500,10 @@ static void ext_rate_guided_quantization(AV1_COMP *cpi) {
       float val;
       const int fields_converted = fscanf(pfile, "%f", &val);
       if (fields_converted != 1) {
-        assert(fields_converted == 1);
+        fprintf(stderr,
+                "Can't read file %s. Please check file format. "
+                "Default deltaq-mode=3 will be used.\n",
+                filename);
         fclose(pfile);
         return;
       }
