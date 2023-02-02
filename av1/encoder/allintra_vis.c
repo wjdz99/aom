@@ -488,9 +488,8 @@ static void ext_rate_guided_quantization(AV1_COMP *cpi) {
   const char *filename = cpi->oxcf.rate_distribution_info;
   FILE *pfile = fopen(filename, "r");
   if (pfile == NULL) {
-    printf("Can't open file %s. Default deltaq-mode=3 will be used.\n",
-           filename);
-    fclose(pfile);
+    fprintf(stderr, "Can't open file %s. Default deltaq-mode=3 will be used.\n",
+            filename);
     return;
   }
 
@@ -498,7 +497,13 @@ static void ext_rate_guided_quantization(AV1_COMP *cpi) {
   for (int row = 0; row < cpi->frame_info.mi_rows; row += block_step) {
     for (int col = 0; col < cpi->frame_info.mi_cols; col += block_step) {
       float val;
-      fscanf(pfile, "%f", &val);
+      if (fscanf(pfile, "%f", &val) != 1) {
+        fprintf(stderr,
+                "%s is malformed. Default deltaq-mode=3 will be used.\n",
+                filename);
+        fclose(pfile);
+        return;
+      }
       ext_rate_sum += val;
       cpi->ext_rate_distribution[(row / mb_step) * cpi->frame_info.mi_cols +
                                  (col / mb_step)] = val;
