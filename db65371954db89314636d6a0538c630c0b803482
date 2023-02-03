@@ -36,6 +36,23 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "b9e66805_18367a30",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 7025
+      },
+      "writtenOn": "2023-02-03T22:03:51Z",
+      "side": 1,
+      "message": "looks good to me.\n\njust curious, is it just a debugging benefit for tsan errors? Or would there be a performance implication as well?",
+      "revId": "db65371954db89314636d6a0538c630c0b803482",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "3606c5cf_490324e0",
