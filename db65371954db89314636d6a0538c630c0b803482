@@ -53,6 +53,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "2501c40a_ac2c1f6c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-02-03T22:33:59Z",
+      "side": 1,
+      "message": "Reducing noise in TSan error messages is just one reason for this change. I mentioned TSan error messages because that\u0027s what brought me to inspect this code.\n\nI think the main reason for this change is the general principle of holding a mutex only when accessing the shared data guarded by the mutex. The `worker-\u003ehook` function does not access the shared data guarded by the mutex, so we don\u0027t need to hold the mutex while executing the `worker-\u003ehook` function.\n\nThis general principle helps reduce lock contention and may avoid deadlocks in some cases. But I think the biggest benefit is to make it clearer that this mutex is only used to guard access to the shared data (`worker-\u003estatus_`).",
+      "parentUuid": "b9e66805_18367a30",
+      "revId": "db65371954db89314636d6a0538c630c0b803482",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "3606c5cf_490324e0",
