@@ -35,6 +35,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "60ebb751_e01f342b",
+        "filename": "av1/encoder/allintra_vis.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 263,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2023-02-03T23:43:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "71f3ff50_97c8c998",
+      "revId": "e3c621be301a0d77a953b794924cd5cf9ec0d159",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "0b7a8d3a_66ee74ac",
@@ -48,6 +66,24 @@
       "writtenOn": "2023-02-03T22:47:03Z",
       "side": 1,
       "message": "Just curious: Does `av1_calc_mb_wiener_var_mt()` also have top-right dependency?",
+      "revId": "e3c621be301a0d77a953b794924cd5cf9ec0d159",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "417de369_b6a9b603",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 1429,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2023-02-03T23:43:57Z",
+      "side": 1,
+      "message": "Yes. Intra prediction needs the top right block.",
+      "parentUuid": "0b7a8d3a_66ee74ac",
       "revId": "e3c621be301a0d77a953b794924cd5cf9ec0d159",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -69,6 +105,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a6a9e54b_c7c05c66",
+        "filename": "av1/encoder/ethread.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2023-02-03T23:43:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7de51c96_033764b5",
+      "revId": "e3c621be301a0d77a953b794924cd5cf9ec0d159",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e05e718f_d63e56d8",
@@ -82,6 +136,24 @@
       "writtenOn": "2023-02-03T22:47:03Z",
       "side": 1,
       "message": "Please undo this change. This change has been replaced by the code below (lines 136-143).\n\nThe reason I added the code below is that our Jenkins TSan builds only run the tests that contain \"Thread\", \"Parallel\", etc. in their names. So I added a test suite named \"AV1MultiThreaded\" so that it will be run by our Jenkins TSan builds. (I copied this solution from test/test_vector_test.cc.)",
+      "revId": "e3c621be301a0d77a953b794924cd5cf9ec0d159",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "16cc7b34_f31a1e88",
+        "filename": "test/allintra_end_to_end_test.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2023-02-03T23:43:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e05e718f_d63e56d8",
       "revId": "e3c621be301a0d77a953b794924cd5cf9ec0d159",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
