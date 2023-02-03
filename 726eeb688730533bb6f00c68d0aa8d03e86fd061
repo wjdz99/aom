@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5108bc72_ad573b96",
+        "filename": "aom_util/aom_thread.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-02-03T23:53:40Z",
+      "side": 1,
+      "message": "Note that the word \"done\" is used with two meanings in this function.\n\n1. In the comment at line 82, \"done\" means the `execute(worker)` call is done.\n\n2. In this line, the `done` variable means the woker should exit its `thread_loop()` function.\n\nIn a future CL, I will replace the `done` variable with a `break` statement. So we don\u0027t need to address this potential confusion now.",
+      "revId": "726eeb688730533bb6f00c68d0aa8d03e86fd061",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a2598bd4_6e7f983b",
+        "filename": "aom_util/aom_thread.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-02-03T23:53:40Z",
+      "side": 1,
+      "message": "This is the wait that corresponds to the signal in `thread_loop()`. Note that this waits until `worker-\u003estatus_` becomes `OK`. Therefore `thread_loop()` only needs to signal when it changes `worker-\u003estatus_` to `OK`.",
+      "revId": "726eeb688730533bb6f00c68d0aa8d03e86fd061",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
