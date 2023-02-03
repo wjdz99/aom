@@ -73,6 +73,15 @@ void av1_tpl_dealloc(AV1TplRowMultiThreadSync *tpl_sync);
 
 #endif  // !CONFIG_REALTIME_ONLY
 
+void av1_allintra_row_mt_sync_read(
+    AV1EncAllIntraRowMultiThreadSync *row_mt_sync, int r, int c);
+void av1_allintra_row_mt_sync_write(
+    AV1EncAllIntraRowMultiThreadSync *row_mt_sync, int r, int c, int cols);
+
+void av1_allintra_row_mt_sync_read_dummy(
+    AV1EncAllIntraRowMultiThreadSync *row_mt_sync, int r, int c);
+void av1_allintra_row_mt_sync_write_dummy(
+    AV1EncAllIntraRowMultiThreadSync *row_mt_sync, int r, int c, int cols);
 void av1_calc_mb_wiener_var_mt(AV1_COMP *cpi, int num_workers,
                                double *sum_rec_distortion,
                                double *sum_est_rate);
