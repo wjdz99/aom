@@ -557,6 +557,9 @@ void av1_foreach_transformed_block_in_plane(
   // transform size varies per plane, look it up in a common way.
   const TX_SIZE tx_size = av1_get_tx_size(plane, xd);
   const BLOCK_SIZE tx_bsize = txsize_to_bsize[tx_size];
+  const MB_MODE_INFO *mbmi = xd->mi[0];
+  assert(IMPLIES(xd->lossless[mbmi->segment_id] == 1, mbmi->tx_size == TX_4X4));
+  assert(mbmi->tx_size == tx_size);
   // Call visit() directly with zero offsets if the current block size is the
   // same as the transform block size.
   if (plane_bsize == tx_bsize) {
