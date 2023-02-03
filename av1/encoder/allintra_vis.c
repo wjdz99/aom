@@ -263,6 +263,8 @@ void av1_calc_mb_wiener_var_row(AV1_COMP *const cpi, MACROBLOCK *x,
   const int mt_unit_cols = (mi_cols + (mt_unit_step >> 1)) / mt_unit_step;
   int mt_unit_col = 0;
 
+  DECLARE_ALIGNED(32, uint8_t, dst_buffer[128 * 128]);
+  const int dst_buffer_stride = 128;
   for (int mi_col = 0; mi_col < mi_cols; mi_col += mb_step) {
     if (mi_col % mt_unit_step == 0) {
       enc_row_mt->sync_read_ptr(row_mt_sync, mt_thread_id, mt_unit_col);
@@ -280,10 +282,6 @@ void av1_calc_mb_wiener_var_row(AV1_COMP *const cpi, MACROBLOCK *x,
                  av1_num_planes(cm));
     xd->mi[0]->bsize = bsize;
     xd->mi[0]->motion_mode = SIMPLE_TRANSLATION;
-    av1_setup_dst_planes(xd->plane, bsize, &cm->cur_frame->buf, mi_row, mi_col,
-                         0, av1_num_planes(cm));
-    int dst_buffer_stride = xd->plane[0].dst.stride;
-    uint8_t *dst_buffer = xd->plane[0].dst.buf;
     uint8_t *mb_buffer =
         buffer + mi_row * MI_SIZE * buf_stride + mi_col * MI_SIZE;
     for (PREDICTION_MODE mode = INTRA_MODE_START; mode < INTRA_MODE_END;
@@ -563,10 +561,7 @@ void av1_set_mb_wiener_variance(AV1_COMP *cpi) {
   AV1EncRowMultiThreadInfo *const enc_row_mt = &mt_info->enc_row_mt;
   enc_row_mt->sync_read_ptr = av1_row_mt_sync_read_dummy;
   enc_row_mt->sync_write_ptr = av1_row_mt_sync_write_dummy;
-  // Calculate differential contrast for each block for the entire image.
-  // TODO(aomedia:3376): Remove " && 0" when there are no data races in
-  // av1_calc_mb_wiener_var_mt(). See also bug aomedia:3380.
-  if (num_workers > 1 && 0) {
+  if (num_workers > 1) {
     enc_row_mt->sync_read_ptr = av1_row_mt_sync_read;
     enc_row_mt->sync_write_ptr = av1_row_mt_sync_write;
     av1_calc_mb_wiener_var_mt(cpi, num_workers, &sum_rec_distortion,

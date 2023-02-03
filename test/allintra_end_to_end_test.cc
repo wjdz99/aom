@@ -130,7 +130,7 @@ TEST_P(AllIntraEndToEndTest, EndToEndNoFailure) { DoTest(); }
 AV1_INSTANTIATE_TEST_SUITE(AllIntraEndToEndTest,
                            ::testing::ValuesIn(kTestVectors),
                            ::testing::Range(5, 9), ::testing::Range(0, 4),
-                           ::testing::Values(1), ::testing::Values(1),
+                           ::testing::Values(1, 10), ::testing::Values(1),
                            ::testing::Values(0, 1));
 
 INSTANTIATE_TEST_SUITE_P(

@@ -274,15 +274,18 @@ void av1_row_mt_mem_dealloc(AV1_COMP *cpi) {
   const int tile_rows = enc_row_mt->allocated_tile_rows;
   int tile_col, tile_row;
 
-  // Free row based multi-threading sync memory
-  for (tile_row = 0; tile_row < tile_rows; tile_row++) {
-    for (tile_col = 0; tile_col < tile_cols; tile_col++) {
-      int tile_index = tile_row * tile_cols + tile_col;
-      TileDataEnc *const this_tile = &cpi->tile_data[tile_index];
+  if (cpi->tile_data != NULL) {
+    // Free row based multi-threading sync memory
+    for (tile_row = 0; tile_row < tile_rows; tile_row++) {
+      for (tile_col = 0; tile_col < tile_cols; tile_col++) {
+        int tile_index = tile_row * tile_cols + tile_col;
+        TileDataEnc *const this_tile = &cpi->tile_data[tile_index];
+        if (this_tile != NULL) {
+          row_mt_sync_mem_dealloc(&this_tile->row_mt_sync);
 
-      row_mt_sync_mem_dealloc(&this_tile->row_mt_sync);
-
-      if (cpi->oxcf.algo_cfg.cdf_update_mode) aom_free(this_tile->row_ctx);
+          if (cpi->oxcf.algo_cfg.cdf_update_mode) aom_free(this_tile->row_ctx);
+        }
+      }
     }
   }
   aom_free(enc_row_mt->num_tile_cols_done);
@@ -1694,7 +1697,6 @@ void av1_encode_tiles_row_mt(AV1_COMP *cpi) {
   if (alloc_tile_data) {
     av1_alloc_tile_data(cpi);
   }
-
   assert(IMPLIES(alloc_tile_data, alloc_row_mt_mem));
   if (alloc_row_mt_mem) {
     row_mt_mem_alloc(cpi, max_sb_rows_in_tile, max_sb_cols_in_tile,
@@ -2571,7 +2573,6 @@ void av1_calc_mb_wiener_var_mt(AV1_COMP *cpi, int num_workers,
   CHECK_MEM_ERROR(
       cm, cpi->tile_data,
       aom_memalign(32, tile_cols * tile_rows * sizeof(*cpi->tile_data)));
-  cpi->allocated_tiles = tile_cols * tile_rows;
   cpi->tile_data->tile_info.mi_row_end = cm->mi_params.mi_rows;
   AV1EncRowMultiThreadSync *const row_mt_sync = &cpi->tile_data[0].row_mt_sync;
 
@@ -2590,6 +2591,10 @@ void av1_calc_mb_wiener_var_mt(AV1_COMP *cpi, int num_workers,
   sync_enc_workers(mt_info, cm, num_workers);
 
   wiener_var_sync_mem_dealloc(row_mt_sync);
+  aom_free(cpi->tile_data);
+  cpi->tile_data = NULL;
+  cpi->allocated_tiles = 0;
+  av1_row_mt_mem_dealloc(cpi);
 }
 
 // Compare and order tiles based on absolute sum of tx coeffs.
