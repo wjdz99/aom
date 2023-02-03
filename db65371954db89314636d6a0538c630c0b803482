@@ -16,6 +16,47 @@
       "message": "See https://build.aomedia.org/jenkins/job/libaom__per_commit-unit_test-sanitizers/24838/GTEST_SHARD_INDEX\u003d0,sanitizer\u003dthread/consoleFull for a recent example of this. Search for \"(mutexes:\" in that page. Those mutexes are all instances of `worker-\u003eimpl_-\u003emutex_` in the `thread_loop()` function in aom_util/aom_thread.c.",
       "revId": "db65371954db89314636d6a0538c630c0b803482",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bd498ede_4657b2fe",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-02-03T21:57:02Z",
+      "side": 1,
+      "message": "\u003e See https://build.aomedia.org/jenkins/job/libaom__per_commit-unit_test-sanitizers/24838/GTEST_SHARD_INDEX\u003d0,sanitizer\u003dthread/consoleFull for a recent example of this. Search for \"(mutexes:\" in that page. Those mutexes are all instances of `worker-\u003eimpl_-\u003emutex_` in the `thread_loop()` function in aom_util/aom_thread.c.\n\nIt\u0027s funny, until you pointed it out I think I\u0027ve just scanned past that part of the message.",
+      "parentUuid": "158037f1_14a05566",
+      "revId": "db65371954db89314636d6a0538c630c0b803482",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3606c5cf_490324e0",
+        "filename": "aom_util/aom_thread.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-02-03T21:57:02Z",
+      "side": 1,
+      "message": "reacquires",
+      "range": {
+        "startLine": 75,
+        "startChar": 64,
+        "endLine": 75,
+        "endChar": 73
+      },
+      "revId": "db65371954db89314636d6a0538c630c0b803482",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
