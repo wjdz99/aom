@@ -51,6 +51,24 @@
       "parentUuid": "94de746a_628c857d",
       "revId": "7be63cef996e6b09c0bfa0057334a5cba5d027c8",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "368d2dce_7301bc6b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-02-04T23:58:10Z",
+      "side": 1,
+      "message": "\u003e I also wondered why the Code-Review+2 vote was not copied. Is it because there are both a trivial rebase and a completely different commit message?\n\n(copy condition: \"changekind:NO_CHANGE OR changekind:NO_CODE_CHANGE OR changekind:TRIVIAL_REBASE OR is:MIN\")\n\nI think NO_CODE_CHANGE includes the commit message. I\u0027ll double check the options we have next week. Chrome is more permissive, but we want want to warn the group if we make that change.",
+      "parentUuid": "1155effe_e7911f2e",
+      "revId": "7be63cef996e6b09c0bfa0057334a5cba5d027c8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ],
   "submitRequirementResults": [
