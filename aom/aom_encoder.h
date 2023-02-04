@@ -84,7 +84,8 @@ extern "C" {
  * This structure is able to hold a reference to any fixed size buffer.
  */
 typedef struct aom_fixed_buf {
-  void *buf;       /**< Pointer to the data. Does NOT own the data! */
+  void *buf;       /**< Pointer to the data. Does NOT own the data except when
+                      returned by aom_codec_get_global_headers()! */
   size_t sz;       /**< Length of the buffer, in chars */
 } aom_fixed_buf_t; /**< alias for struct aom_fixed_buf */
 
