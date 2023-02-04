@@ -62,8 +62,9 @@ TEST(EncodeAPI, InvalidParams) {
   EXPECT_EQ(nullptr, aom_codec_get_global_headers(nullptr));
 
   aom_fixed_buf_t *glob_headers = aom_codec_get_global_headers(&enc);
-  EXPECT_NE(glob_headers->buf, nullptr);
+  EXPECT_NE(glob_headers, nullptr);
   if (glob_headers) {
+    EXPECT_NE(glob_headers->buf, nullptr);
     free(glob_headers->buf);
     free(glob_headers);
   }
