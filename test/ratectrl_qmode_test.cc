@@ -486,6 +486,10 @@ struct ZeroMotionPropagationTestParams {
   std::vector<double> expected_fraction;
 };
 
+void PrintTo(const ZeroMotionPropagationTestParams& params, std::ostream* os) {
+  *os << params.name;
+}
+
 std::vector<ZeroMotionPropagationTestParams>
 CreateZeroMotionPropagationTestParams() {
   return {
