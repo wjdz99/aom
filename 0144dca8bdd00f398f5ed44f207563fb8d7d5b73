@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1c481a50_e384c3e2",
+        "filename": "av1/qmode_rc/ratectrl_qmode.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 901,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2023-02-06T20:13:46Z",
+      "side": 1,
+      "message": "Might be good to write a function for this.\nGetAvgCodedError(analyzed_fp_info.stats_list, start_idx, end_idx);",
+      "range": {
+        "startLine": 894,
+        "startChar": 2,
+        "endLine": 901,
+        "endChar": 60
+      },
+      "revId": "0144dca8bdd00f398f5ed44f207563fb8d7d5b73",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d704e058_2d0ec401",
+        "filename": "av1/qmode_rc/ratectrl_qmode.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 934,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2023-02-06T20:13:46Z",
+      "side": 1,
+      "message": "The can use the same function mentioned above.",
+      "range": {
+        "startLine": 926,
+        "startChar": 0,
+        "endLine": 934,
+        "endChar": 63
+      },
+      "revId": "0144dca8bdd00f398f5ed44f207563fb8d7d5b73",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
