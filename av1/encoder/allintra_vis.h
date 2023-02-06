@@ -22,12 +22,12 @@
 
 void av1_init_mb_wiener_var_buffer(AV1_COMP *cpi);
 
-void av1_calc_mb_wiener_var_row(AV1_COMP *const cpi, MACROBLOCK *x,
-                                MACROBLOCKD *xd, const int mi_row,
-                                int16_t *src_diff, tran_low_t *coeff,
-                                tran_low_t *qcoeff, tran_low_t *dqcoeff,
-                                double *sum_rec_distortion,
-                                double *sum_est_rate);
+void av1_calc_mb_wiener_var_row(
+    AV1_COMP *const cpi,
+    AV1EncAllIntraRowMultiThreadSync *const intra_row_mt_sync, MACROBLOCK *x,
+    MACROBLOCKD *xd, const int mi_row, int16_t *src_diff, tran_low_t *coeff,
+    tran_low_t *qcoeff, tran_low_t *dqcoeff, double *sum_rec_distortion,
+    double *sum_est_rate);
 
 void av1_set_mb_wiener_variance(AV1_COMP *cpi);
 

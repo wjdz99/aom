@@ -1419,6 +1419,54 @@ typedef struct {
   int num_threads_working;
 } AV1EncRowMultiThreadSync;
 
+/*!
+ * \brief Encoder parameters for synchronization of row based multi-threading
+ * used in allintra mode when --deltaq-mode=3
+ */
+typedef struct {
+#if CONFIG_MULTITHREAD
+  /**
+   * \name Synchronization objects for top-right dependency.
+   */
+  /**@{*/
+  pthread_mutex_t *mutex_; /*!< Mutex lock object */
+  pthread_cond_t *cond_;   /*!< Condition variable */
+  /**@}*/
+#endif  // CONFIG_MULTITHREAD
+  /*!
+   * Buffer to store the superblock whose encoding is complete.
+   * num_finished_cols[i] stores the number of superblocks which finished
+   * encoding in the ith superblock row.
+   */
+  int *num_finished_cols;
+  /*!
+   * Denotes the superblock interval at which conditional signalling should
+   * happen. Also denotes the minimum number of extra superblocks of the top row
+   * to be complete to start encoding the current superblock. A value of 1
+   * indicates top-right dependency.
+   */
+  int sync_range;
+  /*!
+   * Denotes the additional number of superblocks in the previous row to be
+   * complete to start encoding the current superblock when intraBC tool is
+   * enabled. This additional top-right delay is required to satisfy the
+   * hardware constraints for intraBC tool when row multithreading is enabled.
+   */
+  int intrabc_extra_top_right_sb_delay;
+  /*!
+   * Number of superblock rows.
+   */
+  int rows;
+  /*!
+   * The superblock row (in units of MI blocks) to be processed next.
+   */
+  int next_mi_row;
+  /*!
+   * Number of threads processing the current tile.
+   */
+  int num_threads_working;
+} AV1EncAllIntraRowMultiThreadSync;
+
 /*!\cond */
 
 // TODO(jingning) All spatially adaptive variables should go to TileDataEnc.
@@ -1552,6 +1600,22 @@ typedef struct {
    * Writer.
    */
   void (*sync_write_ptr)(AV1EncRowMultiThreadSync *const, int, int, int);
+  /**@}*/
+
+  /**
+   * \name Row synchronization related function pointers for all intra mode
+   */
+  /**@{*/
+  /*!
+   * Reader.
+   */
+  void (*intra_sync_read_ptr)(AV1EncAllIntraRowMultiThreadSync *const, int,
+                              int);
+  /*!
+   * Writer.
+   */
+  void (*intra_sync_write_ptr)(AV1EncAllIntraRowMultiThreadSync *const, int,
+                               int, int);
   /**@}*/
 } AV1EncRowMultiThreadInfo;
 
