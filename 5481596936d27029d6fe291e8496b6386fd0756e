@@ -35,6 +35,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "40932d76_9b4ed041",
+        "filename": "test/ratectrl_qmode_test.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 489,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2023-02-06T07:51:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "184350dc_6093d614",
+      "revId": "5481596936d27029d6fe291e8496b6386fd0756e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "3e864d4b_60270f05",
@@ -48,6 +66,24 @@
       "writtenOn": "2023-02-06T03:23:53Z",
       "side": 1,
       "message": "If I understand this problem correctly, we have been solving it by overloading the `\u003c\u003c` operator. It would be good to use the same solution for this class.\n\n```\naom/test$ grep PrintTo *\naom/test$ grep \"operator\u003c\u003c\" *\nallintra_end_to_end_test.cc:std::ostream \u0026operator\u003c\u003c(std::ostream \u0026os, const TestVideoParam \u0026test_arg) {\naltref_test.cc:std::ostream \u0026operator\u003c\u003c(std::ostream \u0026os, const AltRefTestParams \u0026test_arg) {\nav1_convolve_test.cc:std::ostream \u0026operator\u003c\u003c(std::ostream \u0026os, const TestParam\u003cT\u003e \u0026test_arg) {\n\n...\n\naom/test$\n```\n\nPlease see if that also solves this problem. Thanks.",
+      "revId": "5481596936d27029d6fe291e8496b6386fd0756e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "72582378_84109c62",
+        "filename": "test/ratectrl_qmode_test.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 491,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2023-02-06T07:51:54Z",
+      "side": 1,
+      "message": "It does. Thanks for pointing that out.",
+      "parentUuid": "3e864d4b_60270f05",
       "revId": "5481596936d27029d6fe291e8496b6386fd0756e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
