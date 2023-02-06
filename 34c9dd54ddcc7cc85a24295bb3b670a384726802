@@ -33,6 +33,24 @@
       "message": "I am wondering why gtest needs to print `ZeroMotionPropagationTestParams`. I had only need to overload `operator\u003c\u003c` for test params when I debugged a test failure, because gtest prints the test params in test failure messages. In this case there are no test failures. So I don\u0027t know why gtest still prints `ZeroMotionPropagationTestParams`.",
       "revId": "34c9dd54ddcc7cc85a24295bb3b670a384726802",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1c0ab64d_e3e0a845",
+        "filename": "test/ratectrl_qmode_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 494,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2023-02-06T19:58:48Z",
+      "side": 1,
+      "message": "Yeah, good question. I saw that `RegisterTest` unconditionally prints the test\u0027s value parameter to pass as the value_param arg to `MakeAndRegisterTestInfo`, but I didn\u0027t look into the reason for it. My immediate concern was figuring out how to make valgrind happy.",
+      "parentUuid": "fd6119b0_422ea351",
+      "revId": "34c9dd54ddcc7cc85a24295bb3b670a384726802",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
