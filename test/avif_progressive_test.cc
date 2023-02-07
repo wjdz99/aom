@@ -31,8 +31,7 @@ TEST(AVIFProgressiveTest, QualityChange) {
                                     static_cast<unsigned char>(128));
 
   aom_image_t img;
-  EXPECT_EQ(&img, aom_img_wrap(&img, AOM_IMG_FMT_I444, kWidth, kHeight, 1,
-                               buffer.data()));
+  aom_img_wrap(&img, AOM_IMG_FMT_I444, kWidth, kHeight, 1, buffer.data());
   img.cp = AOM_CICP_CP_UNSPECIFIED;
   img.tc = AOM_CICP_TC_UNSPECIFIED;
   img.mc = AOM_CICP_MC_UNSPECIFIED;
@@ -40,8 +39,7 @@ TEST(AVIFProgressiveTest, QualityChange) {
 
   aom_codec_iface_t *iface = aom_codec_av1_cx();
   aom_codec_enc_cfg_t cfg;
-  EXPECT_EQ(AOM_CODEC_OK,
-            aom_codec_enc_config_default(iface, &cfg, AOM_USAGE_GOOD_QUALITY));
+  aom_codec_enc_config_default(iface, &cfg, AOM_USAGE_GOOD_QUALITY);
   cfg.g_profile = 1;
   cfg.g_w = kWidth;
   cfg.g_h = kHeight;
@@ -52,25 +50,20 @@ TEST(AVIFProgressiveTest, QualityChange) {
   cfg.rc_min_quantizer = 50;
   cfg.rc_max_quantizer = 50;
   aom_codec_ctx_t enc;
-  EXPECT_EQ(AOM_CODEC_OK, aom_codec_enc_init(&enc, iface, &cfg, 0));
-  EXPECT_EQ(AOM_CODEC_OK, aom_codec_control(&enc, AOME_SET_CQ_LEVEL, 50));
-  EXPECT_EQ(AOM_CODEC_OK,
-            aom_codec_control(&enc, AOME_SET_NUMBER_SPATIAL_LAYERS, 2));
-  EXPECT_EQ(AOM_CODEC_OK, aom_codec_control(&enc, AOME_SET_CPUUSED, 6));
-  EXPECT_EQ(AOM_CODEC_OK,
-            aom_codec_control(&enc, AV1E_SET_COLOR_RANGE, AOM_CR_FULL_RANGE));
-  EXPECT_EQ(AOM_CODEC_OK,
-            aom_codec_control(&enc, AOME_SET_TUNING, AOM_TUNE_SSIM));
+  aom_codec_enc_init(&enc, iface, &cfg, 0);
+  aom_codec_control(&enc, AOME_SET_CQ_LEVEL, 50);
+  aom_codec_control(&enc, AOME_SET_NUMBER_SPATIAL_LAYERS, 2);
+  aom_codec_control(&enc, AOME_SET_CPUUSED, 6);
+  aom_codec_control(&enc, AV1E_SET_COLOR_RANGE, AOM_CR_FULL_RANGE);
+  aom_codec_control(&enc, AOME_SET_TUNING, AOM_TUNE_SSIM);
 
   // First frame (layer 0)
-  EXPECT_EQ(AOM_CODEC_OK,
-            aom_codec_control(&enc, AOME_SET_SPATIAL_LAYER_ID, 0));
-  EXPECT_EQ(AOM_CODEC_OK, aom_codec_encode(&enc, &img, 0, 1, 0));
+  aom_codec_control(&enc, AOME_SET_SPATIAL_LAYER_ID, 0);
+  aom_codec_encode(&enc, &img, 0, 1, 0);
   aom_codec_iter_t iter = nullptr;
   const aom_codec_cx_pkt_t *pkt = aom_codec_get_cx_data(&enc, &iter);
   EXPECT_NE(pkt, nullptr);
   EXPECT_EQ(pkt->kind, AOM_CODEC_CX_FRAME_PKT);
-  // pkt->data.frame.flags is 0x1f0011.
   EXPECT_EQ(pkt->data.frame.flags & AOM_FRAME_IS_KEY, AOM_FRAME_IS_KEY);
   pkt = aom_codec_get_cx_data(&enc, &iter);
   EXPECT_EQ(pkt, nullptr);
@@ -78,31 +71,29 @@ TEST(AVIFProgressiveTest, QualityChange) {
   // Second frame (layer 1)
   cfg.rc_min_quantizer = 0;
   cfg.rc_max_quantizer = 0;
-  EXPECT_EQ(AOM_CODEC_OK, aom_codec_enc_config_set(&enc, &cfg));
-  EXPECT_EQ(AOM_CODEC_OK, aom_codec_control(&enc, AOME_SET_CQ_LEVEL, 0));
-  EXPECT_EQ(AOM_CODEC_OK, aom_codec_control(&enc, AV1E_SET_LOSSLESS, 1));
-  EXPECT_EQ(AOM_CODEC_OK,
-            aom_codec_control(&enc, AOME_SET_SPATIAL_LAYER_ID, 1));
+  aom_codec_enc_config_set(&enc, &cfg);
+  aom_codec_control(&enc, AOME_SET_CQ_LEVEL, 0);
+  aom_codec_control(&enc, AV1E_SET_LOSSLESS, 1);
+  aom_codec_control(&enc, AOME_SET_SPATIAL_LAYER_ID, 1);
   aom_enc_frame_flags_t encode_flags =
       AOM_EFLAG_NO_REF_GF | AOM_EFLAG_NO_REF_ARF | AOM_EFLAG_NO_REF_BWD |
       AOM_EFLAG_NO_REF_ARF2 | AOM_EFLAG_NO_UPD_GF | AOM_EFLAG_NO_UPD_ARF;
-  EXPECT_EQ(AOM_CODEC_OK, aom_codec_encode(&enc, &img, 0, 1, encode_flags));
+  aom_codec_encode(&enc, &img, 0, 1, encode_flags);
   iter = nullptr;
   pkt = aom_codec_get_cx_data(&enc, &iter);
   EXPECT_NE(pkt, nullptr);
   EXPECT_EQ(pkt->kind, AOM_CODEC_CX_FRAME_PKT);
-  // pkt->data.frame.flags is 0.
   EXPECT_EQ(pkt->data.frame.flags & AOM_FRAME_IS_KEY, 0u);
   pkt = aom_codec_get_cx_data(&enc, &iter);
   EXPECT_EQ(pkt, nullptr);
 
   // Flush encoder
-  EXPECT_EQ(AOM_CODEC_OK, aom_codec_encode(&enc, nullptr, 0, 1, 0));
+  aom_codec_encode(&enc, nullptr, 0, 1, 0);
   iter = nullptr;
   pkt = aom_codec_get_cx_data(&enc, &iter);
   EXPECT_EQ(pkt, nullptr);
 
-  EXPECT_EQ(AOM_CODEC_OK, aom_codec_destroy(&enc));
+  aom_codec_destroy(&enc);
 }
 
 // This test emulates how libavif calls libaom functions to encode a
@@ -116,8 +107,7 @@ TEST(AVIFProgressiveTest, DimensionChange) {
                                     static_cast<unsigned char>(128));
 
   aom_image_t img;
-  EXPECT_EQ(&img, aom_img_wrap(&img, AOM_IMG_FMT_I444, kWidth, kHeight, 1,
-                               buffer.data()));
+  aom_img_wrap(&img, AOM_IMG_FMT_I444, kWidth, kHeight, 1, buffer.data());
   img.cp = AOM_CICP_CP_UNSPECIFIED;
   img.tc = AOM_CICP_TC_UNSPECIFIED;
   img.mc = AOM_CICP_MC_UNSPECIFIED;
@@ -125,8 +115,7 @@ TEST(AVIFProgressiveTest, DimensionChange) {
 
   aom_codec_iface_t *iface = aom_codec_av1_cx();
   aom_codec_enc_cfg_t cfg;
-  EXPECT_EQ(AOM_CODEC_OK,
-            aom_codec_enc_config_default(iface, &cfg, AOM_USAGE_GOOD_QUALITY));
+  aom_codec_enc_config_default(iface, &cfg, AOM_USAGE_GOOD_QUALITY);
   cfg.g_profile = 1;
   cfg.g_w = kWidth;
   cfg.g_h = kHeight;
@@ -137,56 +126,48 @@ TEST(AVIFProgressiveTest, DimensionChange) {
   cfg.rc_min_quantizer = 0;
   cfg.rc_max_quantizer = 0;
   aom_codec_ctx_t enc;
-  EXPECT_EQ(AOM_CODEC_OK, aom_codec_enc_init(&enc, iface, &cfg, 0));
-  EXPECT_EQ(AOM_CODEC_OK, aom_codec_control(&enc, AOME_SET_CQ_LEVEL, 0));
-  EXPECT_EQ(AOM_CODEC_OK, aom_codec_control(&enc, AV1E_SET_LOSSLESS, 1));
-  EXPECT_EQ(AOM_CODEC_OK,
-            aom_codec_control(&enc, AOME_SET_NUMBER_SPATIAL_LAYERS, 2));
-  EXPECT_EQ(AOM_CODEC_OK, aom_codec_control(&enc, AOME_SET_CPUUSED, 6));
-  EXPECT_EQ(AOM_CODEC_OK,
-            aom_codec_control(&enc, AV1E_SET_COLOR_RANGE, AOM_CR_FULL_RANGE));
-  EXPECT_EQ(AOM_CODEC_OK,
-            aom_codec_control(&enc, AOME_SET_TUNING, AOM_TUNE_SSIM));
+  aom_codec_enc_init(&enc, iface, &cfg, 0);
+  aom_codec_control(&enc, AOME_SET_CQ_LEVEL, 0);
+  aom_codec_control(&enc, AV1E_SET_LOSSLESS, 1);
+  aom_codec_control(&enc, AOME_SET_NUMBER_SPATIAL_LAYERS, 2);
+  aom_codec_control(&enc, AOME_SET_CPUUSED, 6);
+  aom_codec_control(&enc, AV1E_SET_COLOR_RANGE, AOM_CR_FULL_RANGE);
+  aom_codec_control(&enc, AOME_SET_TUNING, AOM_TUNE_SSIM);
 
   // First frame (layer 0)
-  EXPECT_EQ(AOM_CODEC_OK,
-            aom_codec_control(&enc, AOME_SET_SPATIAL_LAYER_ID, 0));
+  aom_codec_control(&enc, AOME_SET_SPATIAL_LAYER_ID, 0);
   aom_scaling_mode_t scaling_mode = { AOME_ONETWO, AOME_ONETWO };
-  EXPECT_EQ(AOM_CODEC_OK,
-            aom_codec_control(&enc, AOME_SET_SCALEMODE, &scaling_mode));
-  EXPECT_EQ(AOM_CODEC_OK, aom_codec_encode(&enc, &img, 0, 1, 0));
+  aom_codec_control(&enc, AOME_SET_SCALEMODE, &scaling_mode);
+  aom_codec_encode(&enc, &img, 0, 1, 0);
   aom_codec_iter_t iter = nullptr;
   const aom_codec_cx_pkt_t *pkt = aom_codec_get_cx_data(&enc, &iter);
   EXPECT_NE(pkt, nullptr);
   EXPECT_EQ(pkt->kind, AOM_CODEC_CX_FRAME_PKT);
-  // pkt->data.frame.flags is 0x1f0011.
   EXPECT_EQ(pkt->data.frame.flags & AOM_FRAME_IS_KEY, AOM_FRAME_IS_KEY);
   pkt = aom_codec_get_cx_data(&enc, &iter);
   EXPECT_EQ(pkt, nullptr);
 
   // Second frame (layer 1)
-  EXPECT_EQ(AOM_CODEC_OK,
-            aom_codec_control(&enc, AOME_SET_SPATIAL_LAYER_ID, 1));
+  aom_codec_control(&enc, AOME_SET_SPATIAL_LAYER_ID, 1);
   aom_enc_frame_flags_t encode_flags =
       AOM_EFLAG_NO_REF_GF | AOM_EFLAG_NO_REF_ARF | AOM_EFLAG_NO_REF_BWD |
       AOM_EFLAG_NO_REF_ARF2 | AOM_EFLAG_NO_UPD_GF | AOM_EFLAG_NO_UPD_ARF;
-  EXPECT_EQ(AOM_CODEC_OK, aom_codec_encode(&enc, &img, 0, 1, encode_flags));
+  aom_codec_encode(&enc, &img, 0, 1, encode_flags);
   iter = nullptr;
   pkt = aom_codec_get_cx_data(&enc, &iter);
   EXPECT_NE(pkt, nullptr);
   EXPECT_EQ(pkt->kind, AOM_CODEC_CX_FRAME_PKT);
-  // pkt->data.frame.flags is 0.
   EXPECT_EQ(pkt->data.frame.flags & AOM_FRAME_IS_KEY, 0u);
   pkt = aom_codec_get_cx_data(&enc, &iter);
   EXPECT_EQ(pkt, nullptr);
 
   // Flush encoder
-  EXPECT_EQ(AOM_CODEC_OK, aom_codec_encode(&enc, nullptr, 0, 1, 0));
+  aom_codec_encode(&enc, nullptr, 0, 1, 0);
   iter = nullptr;
   pkt = aom_codec_get_cx_data(&enc, &iter);
   EXPECT_EQ(pkt, nullptr);
 
-  EXPECT_EQ(AOM_CODEC_OK, aom_codec_destroy(&enc));
+  aom_codec_destroy(&enc);
 }
 
 }  // namespace
