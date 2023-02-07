@@ -564,6 +564,15 @@ static int adjust_q_cbr(const AV1_COMP *cpi, int q, int active_worst_quality,
   if (!cpi->ppi->use_svc && cm->prev_frame &&
       (width * height > 1.5 * cm->prev_frame->width * cm->prev_frame->height))
     q = (q + active_worst_quality) >> 1;
+  // For singler layer RPS: Bias Q based on distance of closest reference.
+  if (cpi->ppi->rtc_ref.set_ref_frame_config &&
+      cpi->ppi->rtc_ref.bias_recovery_frame &&
+      cpi->svc.number_temporal_layers == 1 &&
+      cpi->svc.number_spatial_layers == 1 &&
+      cpi->ppi->rtc_ref.reference_was_previous_frame) {
+    int min_dist = av1_svc_get_min_ref_dist(cpi);
+    if (min_dist != INT_MAX && min_dist > 4) q = q - AOMMIN(min_dist, 20);
+  }
   return AOMMAX(AOMMIN(q, cpi->rc.worst_quality), cpi->rc.best_quality);
 }
 
@@ -3263,6 +3272,9 @@ void av1_get_one_pass_rt_params(AV1_COMP *cpi, FRAME_TYPE *const frame_type,
     av1_update_temporal_layer_framerate(cpi);
     av1_restore_layer_context(cpi);
   }
+  // Set this flag to bias encoding on recovery frame for single layer RPS.
+  // May be exposed to the user for better control in the future.
+  cpi->ppi->rtc_ref.bias_recovery_frame = 1;
   // Set frame type.
   if (set_key_frame(cpi, frame_flags)) {
     *frame_type = KEY_FRAME;

@@ -1456,6 +1456,20 @@ static void set_rt_speed_feature_framesize_dependent(const AV1_COMP *const cpi,
     if (sf->rt_sf.estimate_motion_for_var_based_partition == 2)
       sf->rt_sf.estimate_motion_for_var_based_partition = 1;
     if (speed >= 9) sf->rt_sf.estimate_motion_for_var_based_partition = 0;
+
+    // For single layers RPS: increase motion search if closest reference
+    // is further than 4 frames.
+    if (cpi->ppi->rtc_ref.set_ref_frame_config &&
+        cpi->ppi->rtc_ref.bias_recovery_frame &&
+        cpi->svc.number_temporal_layers == 1 &&
+        cpi->svc.number_spatial_layers == 1) {
+      int min_dist = av1_svc_get_min_ref_dist(cpi);
+      if (min_dist > 4) {
+        sf->mv_sf.search_method = NSTEP;
+        sf->mv_sf.subpel_search_method = SUBPEL_TREE;
+        sf->rt_sf.fullpel_search_step_param = 2;
+      }
+    }
   }
   // Screen settings.
   if (cpi->oxcf.tune_cfg.content == AOM_CONTENT_SCREEN) {
