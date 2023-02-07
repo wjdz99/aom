@@ -1,6 +1,92 @@
 {
   "comments": [
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "973827c2_b4217fb1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2023-02-07T21:59:35Z",
+      "side": 1,
+      "message": "The change overall looks good. I left a few comments, mostly minor, but in general we should keep our naming convention the same, and check for allocation / free failures. \n\nAlso as a general suggestion (maybe for future improvements), this CL contains a lot of allocations within functions, which can slow down encoding a lot. It would be better to consider pre-allocating the necessary buffers and re-use when possible",
+      "revId": "f8665a3e7cf01b67628831929204072efb0922ac",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2f448f00_eae16273",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1392,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2023-02-07T21:59:35Z",
+      "side": 1,
+      "message": "Should we only allocate when we will use it (when tuning \u003d AOM_TUNE_VMAF_SALIENCY_AMP)?",
+      "range": {
+        "startLine": 1390,
+        "startChar": 2,
+        "endLine": 1392,
+        "endChar": 72
+      },
+      "revId": "f8665a3e7cf01b67628831929204072efb0922ac",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bd5f56c5_8e55ebed",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 3723,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2023-02-07T21:59:35Z",
+      "side": 1,
+      "message": "Better to change to else if here",
+      "range": {
+        "startLine": 3723,
+        "startChar": 2,
+        "endLine": 3723,
+        "endChar": 5
+      },
+      "revId": "f8665a3e7cf01b67628831929204072efb0922ac",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bf6018bd_278b320e",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 3728,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2023-02-07T21:59:35Z",
+      "side": 1,
+      "message": "else too",
+      "range": {
+        "startLine": 3728,
+        "startChar": 2,
+        "endLine": 3728,
+        "endChar": 5
+      },
+      "revId": "f8665a3e7cf01b67628831929204072efb0922ac",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ee4b956c_ac2ca6e1",
@@ -26,6 +112,535 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "6b5f59eb_84988114",
+        "filename": "av1/encoder/saliency_map.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2023-02-07T21:59:35Z",
+      "side": 1,
+      "message": "Should we check what will happen if the source is monochrome?",
+      "range": {
+        "startLine": 20,
+        "startChar": 12,
+        "endLine": 20,
+        "endChar": 35
+      },
+      "revId": "f8665a3e7cf01b67628831929204072efb0922ac",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3b306171_dbcdd2a0",
+        "filename": "av1/encoder/saliency_map.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2023-02-07T21:59:35Z",
+      "side": 1,
+      "message": "If static, we can just call it get_color_intensity",
+      "range": {
+        "startLine": 20,
+        "startChar": 12,
+        "endLine": 20,
+        "endChar": 16
+      },
+      "revId": "f8665a3e7cf01b67628831929204072efb0922ac",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f85308b8_47cd7732",
+        "filename": "av1/encoder/saliency_map.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2023-02-07T21:59:35Z",
+      "side": 1,
+      "message": "What it input is high bitdepth (\u003e8bits)? May need to handle them too. Maybe we can leave a TODO here, and make sure saliency map is not used for hbd setting, and also yuv444 setting as well, and implement these later.",
+      "range": {
+        "startLine": 22,
+        "startChar": 17,
+        "endLine": 22,
+        "endChar": 18
+      },
+      "revId": "f8665a3e7cf01b67628831929204072efb0922ac",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5531571c_888714b1",
+        "filename": "av1/encoder/saliency_map.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2023-02-07T21:59:35Z",
+      "side": 1,
+      "message": "This seems to assume YUV420. Will it work for others like YUV444?",
+      "range": {
+        "startLine": 35,
+        "startChar": 38,
+        "endLine": 35,
+        "endChar": 68
+      },
+      "revId": "f8665a3e7cf01b67628831929204072efb0922ac",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2ec53784_314cb7c8",
+        "filename": "av1/encoder/saliency_map.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2023-02-07T21:59:35Z",
+      "side": 1,
+      "message": "Nit/optional: With fclamp, these asserts feel abundant. But it might be beneficial to leave here if you think they serve as good reminders.",
+      "range": {
+        "startLine": 47,
+        "startChar": 6,
+        "endLine": 49,
+        "endChar": 69
+      },
+      "revId": "f8665a3e7cf01b67628831929204072efb0922ac",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bb3880e1_a5c030e6",
+        "filename": "av1/encoder/saliency_map.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2023-02-07T21:59:35Z",
+      "side": 1,
+      "message": "Not necessary as Cr, Cg and Cb are double.",
+      "range": {
+        "startLine": 52,
+        "startChar": 10,
+        "endLine": 52,
+        "endChar": 18
+      },
+      "revId": "f8665a3e7cf01b67628831929204072efb0922ac",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3bd6f87a_96d16e92",
+        "filename": "av1/encoder/saliency_map.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2023-02-07T21:59:35Z",
+      "side": 1,
+      "message": "3.0 so it is more clear the result is a double",
+      "range": {
+        "startLine": 54,
+        "startChar": 10,
+        "endLine": 54,
+        "endChar": 11
+      },
+      "revId": "f8665a3e7cf01b67628831929204072efb0922ac",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6415c824_5d362d06",
+        "filename": "av1/encoder/saliency_map.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2023-02-07T21:59:35Z",
+      "side": 1,
+      "message": "Optional: Convolution usually should reflect the filter and then sum of multiplication. This is OK here as the filter we use is symmetric, but maybe better to leave a comment on this.",
+      "range": {
+        "startLine": 66,
+        "startChar": 21,
+        "endLine": 66,
+        "endChar": 33
+      },
+      "revId": "f8665a3e7cf01b67628831929204072efb0922ac",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fed440d2_f78ae0f7",
+        "filename": "av1/encoder/saliency_map.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2023-02-07T21:59:35Z",
+      "side": 1,
+      "message": "const",
+      "range": {
+        "startLine": 77,
+        "startChar": 32,
+        "endLine": 77,
+        "endChar": 43
+      },
+      "revId": "f8665a3e7cf01b67628831929204072efb0922ac",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cfe7107e_c4482c97",
+        "filename": "av1/encoder/saliency_map.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2023-02-07T21:59:35Z",
+      "side": 1,
+      "message": "Optional: consider using clamp here for conciseness?",
+      "range": {
+        "startLine": 94,
+        "startChar": 23,
+        "endLine": 94,
+        "endChar": 25
+      },
+      "revId": "f8665a3e7cf01b67628831929204072efb0922ac",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fe1db0be_343319b7",
+        "filename": "av1/encoder/saliency_map.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2023-02-07T21:59:35Z",
+      "side": 1,
+      "message": "const",
+      "range": {
+        "startLine": 112,
+        "startChar": 31,
+        "endLine": 112,
+        "endChar": 44
+      },
+      "revId": "f8665a3e7cf01b67628831929204072efb0922ac",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fcf57340_a3767575",
+        "filename": "av1/encoder/saliency_map.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2023-02-07T21:59:35Z",
+      "side": 1,
+      "message": "Same for others in this file too: consider using aom_malloc, and we should check for failures.",
+      "range": {
+        "startLine": 120,
+        "startChar": 18,
+        "endLine": 120,
+        "endChar": 24
+      },
+      "revId": "f8665a3e7cf01b67628831929204072efb0922ac",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cbd30dcb_cdc7ae72",
+        "filename": "av1/encoder/saliency_map.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2023-02-07T21:59:35Z",
+      "side": 1,
+      "message": "Prefer using sizeof(*original) here to avoid bugs when changing the type of the variable.",
+      "range": {
+        "startLine": 120,
+        "startChar": 57,
+        "endLine": 120,
+        "endChar": 63
+      },
+      "revId": "f8665a3e7cf01b67628831929204072efb0922ac",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bbcf23e8_d5ac399e",
+        "filename": "av1/encoder/saliency_map.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 155,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2023-02-07T21:59:35Z",
+      "side": 1,
+      "message": "consider using aom_free",
+      "range": {
+        "startLine": 155,
+        "startChar": 6,
+        "endLine": 155,
+        "endChar": 10
+      },
+      "revId": "f8665a3e7cf01b67628831929204072efb0922ac",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "764270d8_163e44ab",
+        "filename": "av1/encoder/saliency_map.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 165,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2023-02-07T21:59:35Z",
+      "side": 1,
+      "message": "center?",
+      "range": {
+        "startLine": 165,
+        "startChar": 12,
+        "endLine": 165,
+        "endChar": 18
+      },
+      "revId": "f8665a3e7cf01b67628831929204072efb0922ac",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3c17aa7a_081156a2",
+        "filename": "av1/encoder/saliency_map.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 165,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2023-02-07T21:59:35Z",
+      "side": 1,
+      "message": "const",
+      "range": {
+        "startLine": 165,
+        "startChar": 33,
+        "endLine": 165,
+        "endChar": 39
+      },
+      "revId": "f8665a3e7cf01b67628831929204072efb0922ac",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bf8e0f7c_2da53d53",
+        "filename": "av1/encoder/saliency_map.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 210,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2023-02-07T21:59:35Z",
+      "side": 1,
+      "message": "center",
+      "range": {
+        "startLine": 210,
+        "startChar": 12,
+        "endLine": 210,
+        "endChar": 18
+      },
+      "revId": "f8665a3e7cf01b67628831929204072efb0922ac",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cea5e6ca_0f2ce082",
+        "filename": "av1/encoder/saliency_map.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 210,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2023-02-07T21:59:35Z",
+      "side": 1,
+      "message": "const",
+      "range": {
+        "startLine": 210,
+        "startChar": 37,
+        "endLine": 210,
+        "endChar": 43
+      },
+      "revId": "f8665a3e7cf01b67628831929204072efb0922ac",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d3d7f145_6f23ba02",
+        "filename": "av1/encoder/saliency_map.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 256,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2023-02-07T21:59:35Z",
+      "side": 1,
+      "message": "const?",
+      "range": {
+        "startLine": 256,
+        "startChar": 59,
+        "endLine": 256,
+        "endChar": 65
+      },
+      "revId": "f8665a3e7cf01b67628831929204072efb0922ac",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9bea8d28_629a254f",
+        "filename": "av1/encoder/saliency_map.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 256,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2023-02-07T21:59:35Z",
+      "side": 1,
+      "message": "gaussian_pyramid, and the naming of some other functions names in the file too.",
+      "range": {
+        "startLine": 256,
+        "startChar": 12,
+        "endLine": 256,
+        "endChar": 28
+      },
+      "revId": "f8665a3e7cf01b67628831929204072efb0922ac",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4bc4e713_952ee7d0",
+        "filename": "av1/encoder/saliency_map.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 294,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2023-02-07T21:59:35Z",
+      "side": 1,
+      "message": "gaussian_map",
+      "range": {
+        "startLine": 294,
+        "startChar": 10,
+        "endLine": 294,
+        "endChar": 21
+      },
+      "revId": "f8665a3e7cf01b67628831929204072efb0922ac",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "655af018_2983e84a",
+        "filename": "av1/encoder/saliency_map.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 526,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2023-02-07T21:59:35Z",
+      "side": 1,
+      "message": "const?",
+      "range": {
+        "startLine": 526,
+        "startChar": 37,
+        "endLine": 526,
+        "endChar": 57
+      },
+      "revId": "f8665a3e7cf01b67628831929204072efb0922ac",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "274213f7_a621260c",
+        "filename": "av1/encoder/saliency_map.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 621,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2023-02-07T21:59:35Z",
+      "side": 1,
+      "message": "normalize_fm or normalize_FM",
+      "range": {
+        "startLine": 621,
+        "startChar": 12,
+        "endLine": 621,
+        "endChar": 23
+      },
+      "revId": "f8665a3e7cf01b67628831929204072efb0922ac",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "89ede6b3_776547aa",
         "filename": "av1/encoder/saliency_map.c",
         "patchSetId": 1
@@ -42,6 +657,92 @@
         "startChar": 17,
         "endLine": 781,
         "endChar": 23
+      },
+      "revId": "f8665a3e7cf01b67628831929204072efb0922ac",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b93be7dd_7050c9f5",
+        "filename": "av1/encoder/saliency_map.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2023-02-07T21:59:35Z",
+      "side": 1,
+      "message": "Optional: Could consider changing this to a 3-d array.",
+      "range": {
+        "startLine": 22,
+        "startChar": 20,
+        "endLine": 22,
+        "endChar": 32
+      },
+      "revId": "f8665a3e7cf01b67628831929204072efb0922ac",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e723713e_70d064a5",
+        "filename": "av1/encoder/saliency_map.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2023-02-07T21:59:35Z",
+      "side": 1,
+      "message": "Nit: Are these blank lines necessary?",
+      "revId": "f8665a3e7cf01b67628831929204072efb0922ac",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6c778cac_a4291c60",
+        "filename": "av1/encoder/saliency_map.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2023-02-07T21:59:35Z",
+      "side": 1,
+      "message": "Maybe add a comment on what this buf is for?",
+      "range": {
+        "startLine": 123,
+        "startChar": 9,
+        "endLine": 123,
+        "endChar": 14
+      },
+      "revId": "f8665a3e7cf01b67628831929204072efb0922ac",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2ec65a65_219b030e",
+        "filename": "av1/encoder/saliency_map.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 128,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2023-02-07T21:59:35Z",
+      "side": 1,
+      "message": "Global functions usually start with av1_. Please change this to av1_set_saliency_map.",
+      "range": {
+        "startLine": 128,
+        "startChar": 5,
+        "endLine": 128,
+        "endChar": 21
       },
       "revId": "f8665a3e7cf01b67628831929204072efb0922ac",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
