@@ -2400,6 +2400,9 @@ typedef struct RTC_REF {
   int non_reference_frame;
   int ref_frame_comp[3];
   int gld_idx_1layer;
+  unsigned int buffer_time_index[REF_FRAMES];
+  unsigned char buffer_spatial_layer[REF_FRAMES];
+  int reference_was_previous_frame;
 } RTC_REF;
 /*!\endcond */
 
