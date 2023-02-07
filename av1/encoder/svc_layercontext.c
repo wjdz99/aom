@@ -265,6 +265,20 @@ void av1_save_layer_context(AV1_COMP *const cpi) {
   lc->group_index = cpi->gf_frame_index;
   lc->max_mv_magnitude = cpi->mv_search_params.max_mv_magnitude;
   if (svc->spatial_layer_id == 0) svc->base_framerate = cpi->framerate;
+  // Check if the encoded frame had some reference that was the
+  // previous frame.
+  svc->reference_was_previous_frame = 1;
+  if (cpi->ppi->rtc_ref.set_ref_frame_config && svc->current_superframe > 0) {
+    svc->reference_was_previous_frame = 0;
+    for (unsigned int i = 0; i < INTER_REFS_PER_FRAME; i++) {
+      if (cpi->ppi->rtc_ref.reference[i]) {
+        int ref_frame_map_idx = cpi->ppi->rtc_ref.ref_idx[i];
+        if (svc->buffer_time_index[ref_frame_map_idx] ==
+            svc->current_superframe - 1)
+          svc->reference_was_previous_frame = 1;
+      }
+    }
+  }
   // For spatial-svc, allow cyclic-refresh to be applied on the spatial layers,
   // for the base temporal layer.
   if (cpi->oxcf.q_cfg.aq_mode == CYCLIC_REFRESH_AQ &&
@@ -592,4 +606,17 @@ void av1_svc_set_last_source(AV1_COMP *const cpi, EncodeFrameInput *frame_input,
     else
       frame_input->last_source = NULL;
   }
+}
+
+int av1_svc_get_min_ref_dist(const AV1_COMP *cpi) {
+  int min_dist = INT_MAX;
+  for (unsigned int i = 0; i < INTER_REFS_PER_FRAME; i++) {
+    if (cpi->ppi->rtc_ref.reference[i]) {
+      int ref_frame_map_idx = cpi->ppi->rtc_ref.ref_idx[i];
+      int dist = cpi->svc.current_superframe -
+                 cpi->svc.buffer_time_index[ref_frame_map_idx];
+      if (dist < min_dist) min_dist = dist;
+    }
+  }
+  return min_dist;
 }

@@ -138,6 +138,11 @@ typedef struct SVC {
    * Force zero-mv in mode search for the spatial/inter-layer reference.
    */
   int force_zero_mode_spatial_ref;
+
+  /*!
+   * Flag to indicate reference was the previous frame.
+   */
+  int reference_was_previous_frame;
 } SVC;
 
 struct AV1_COMP;
@@ -286,6 +291,8 @@ void av1_svc_check_reset_layer_rc_flag(struct AV1_COMP *const cpi);
 void av1_svc_set_last_source(struct AV1_COMP *const cpi,
                              struct EncodeFrameInput *frame_input,
                              YV12_BUFFER_CONFIG *prev_source);
+
+int av1_svc_get_min_ref_dist(const struct AV1_COMP *cpi);
 
 #ifdef __cplusplus
 }  // extern "C"

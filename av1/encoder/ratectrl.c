@@ -564,6 +564,14 @@ static int adjust_q_cbr(const AV1_COMP *cpi, int q, int active_worst_quality,
   if (!cpi->ppi->use_svc && cm->prev_frame &&
       (width * height > 1.5 * cm->prev_frame->width * cm->prev_frame->height))
     q = (q + active_worst_quality) >> 1;
+  // For singler layer RPS: Bias Q based on distance of closest reference.
+  if (cpi->ppi->rtc_ref.set_ref_frame_config &&
+      cpi->svc.number_temporal_layers == 1 &&
+      cpi->svc.number_spatial_layers == 1 &&
+      cpi->svc.reference_was_previous_frame) {
+    int min_dist = av1_svc_get_min_ref_dist(cpi);
+    if (min_dist != INT_MAX && min_dist > 4) q = q - AOMMIN(min_dist, 20);
+  }
   return AOMMAX(AOMMIN(q, cpi->rc.worst_quality), cpi->rc.best_quality);
 }
 
