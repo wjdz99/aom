@@ -217,6 +217,7 @@ static int get_var_perceptual_ai(AV1_COMP *const cpi, BLOCK_SIZE bsize,
   return sb_wiener_var;
 }
 
+<<<<<<< HEAD   (9d6250 Move dst16_ptr inside #if CONFIG_AV1_HIGHBITDEPTH)
 static int rate_estimator(const tran_low_t *qcoeff, int eob, TX_SIZE tx_size) {
   const SCAN_ORDER *const scan_order = &av1_scan_orders[tx_size][DCT_DCT];
 
@@ -231,6 +232,8 @@ static int rate_estimator(const tran_low_t *qcoeff, int eob, TX_SIZE tx_size) {
   return (rate_cost << AV1_PROB_COST_SHIFT);
 }
 
+=======
+>>>>>>> BRANCH (3c6517 Add VOD peak compression efficiency improvement)
 void av1_calc_mb_wiener_var_row(AV1_COMP *const cpi, MACROBLOCK *x,
                                 MACROBLOCKD *xd, const int mi_row,
                                 int16_t *src_diff, tran_low_t *coeff,

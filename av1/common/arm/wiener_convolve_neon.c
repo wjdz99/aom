@@ -314,11 +314,29 @@ void av1_wiener_convolve_add_src_neon(const uint8_t *src, ptrdiff_t src_stride,
       uint8x8_t t0;
       int16x8_t s0, s1, s2, s3, s4, s5, s6, s7;
       s = src_tmp_ptr;
+<<<<<<< HEAD   (9d6250 Move dst16_ptr inside #if CONFIG_AV1_HIGHBITDEPTH)
       d = dst_tmp_ptr;
 
       load_s16_8x7(s, src_stride, &s0, &s1, &s2, &s3, &s4, &s5, &s6);
       s += 7 * src_stride;
 
+=======
+      s0 = vld1q_s16(s);
+      s += src_stride;
+      s1 = vld1q_s16(s);
+      s += src_stride;
+      s2 = vld1q_s16(s);
+      s += src_stride;
+      s3 = vld1q_s16(s);
+      s += src_stride;
+      s4 = vld1q_s16(s);
+      s += src_stride;
+      s5 = vld1q_s16(s);
+      s += src_stride;
+      s6 = vld1q_s16(s);
+      s += src_stride;
+      d = dst_tmp_ptr;
+>>>>>>> BRANCH (3c6517 Add VOD peak compression efficiency improvement)
       height = h;
       PROCESS_ROW_FOR_VERTICAL_FILTER
 
