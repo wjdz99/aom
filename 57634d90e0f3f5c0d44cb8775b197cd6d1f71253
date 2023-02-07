@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fc9d662e_a92c29c2",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-02-07T20:42:31Z",
+      "side": 1,
+      "message": "this isn\u0027t really a config (set with option()/set_aom_option_var()), just a normal variable.",
+      "revId": "57634d90e0f3f5c0d44cb8775b197cd6d1f71253",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2991ec4c_d95e5e67",
+        "filename": "test/test.cmake",
+        "patchSetId": 4
+      },
+      "lineNbr": 612,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-02-07T20:42:31Z",
+      "side": 1,
+      "message": "This should be OK as long as setup_aom_test_targets() is called after the definition in CMakeLists.txt",
+      "range": {
+        "startLine": 612,
+        "startChar": 5,
+        "endLine": 612,
+        "endChar": 18
+      },
+      "revId": "57634d90e0f3f5c0d44cb8775b197cd6d1f71253",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
