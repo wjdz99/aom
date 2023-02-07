@@ -600,7 +600,7 @@ static void set_layer_pattern(
     int spatial_layer_id, int is_key_frame, int ksvc_mode, int speed) {
   // Setting this flag to 1 enables simplex example of
   // RPS (Reference Picture Selection) for 1 layer.
-  int use_rps_example = 0;
+  int use_rps_example = 1;
   int i;
   int enable_longterm_temporal_ref = 1;
   int shift = (layering_mode == 8) ? 2 : 0;
@@ -1248,7 +1248,7 @@ int main(int argc, const char **argv) {
 
   cfg.rc_end_usage = AOM_CBR;
   cfg.rc_min_quantizer = 2;
-  cfg.rc_max_quantizer = 58;
+  cfg.rc_max_quantizer = 52;
   cfg.rc_undershoot_pct = 50;
   cfg.rc_overshoot_pct = 50;
   cfg.rc_buf_initial_sz = 600;
