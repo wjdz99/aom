@@ -182,6 +182,7 @@ set_aom_option_var(ENABLE_TOOLS "Enable applications in tools sub directory."
                    ON)
 set_aom_option_var(ENABLE_WERROR "Converts warnings to errors at compile time."
                    OFF)
+set_aom_option_var(ENABLE_RC_LIB "Enables the rate control library." ON)
 
 # ARM assembly/intrinsics flags.
 set_aom_option_var(ENABLE_NEON "Enables NEON optimizations on ARM targets." ON)
