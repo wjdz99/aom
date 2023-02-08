@@ -35,6 +35,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "74c5cb91_88882718",
+        "filename": "av1/encoder/allintra_vis.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 265,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2023-02-08T23:32:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7eac6def_b49fd263",
+      "revId": "8da362b88dd5f9641384a24231797471d179c09c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "4fe6d44b_b5f8dd52",
@@ -48,6 +66,24 @@
       "writtenOn": "2023-02-08T21:49:38Z",
       "side": 1,
       "message": "Have you tested if `buf_width` can be 128 + 2 * offset, i.e., the stride plus borders on both side?",
+      "revId": "8da362b88dd5f9641384a24231797471d179c09c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "02452ea2_9dd7331c",
+        "filename": "av1/encoder/allintra_vis.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 271,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2023-02-08T23:32:32Z",
+      "side": 1,
+      "message": "Yes. I tested with the smaller size. It works. Changes are made.",
+      "parentUuid": "4fe6d44b_b5f8dd52",
       "revId": "8da362b88dd5f9641384a24231797471d179c09c",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -69,6 +105,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "0ecf319e_fac88288",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 2790,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2023-02-08T23:32:32Z",
+      "side": 1,
+      "message": "Thanks for the test. I think we can do it in the next cl.",
+      "parentUuid": "c422616d_c2b16326",
+      "revId": "8da362b88dd5f9641384a24231797471d179c09c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b6c1b18a_f1b9a9c5",
@@ -82,6 +136,24 @@
       "writtenOn": "2023-02-08T22:22:33Z",
       "side": 1,
       "message": "One more simplication: delete `wiener_var_sync_mem_alloc()` and `wiener_var_sync_mem_dealloc()`. They are exactly the same as `row_mt_sync_mem_alloc()` and `row_mt_sync_mem_dealloc()`.",
+      "revId": "8da362b88dd5f9641384a24231797471d179c09c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e75b4046_5152d86b",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 2431,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2023-02-08T23:32:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b6c1b18a_f1b9a9c5",
       "revId": "8da362b88dd5f9641384a24231797471d179c09c",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
