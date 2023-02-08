@@ -18,6 +18,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "90aa2115_b7e5d550",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 31132
+      },
+      "writtenOn": "2023-02-08T23:07:00Z",
+      "side": 1,
+      "message": "Hi Bohan, thanks for the suggestions on memory allocations. I was planning to make a new CL to address it as you mentioned in my previous CL. Yes, some of them can be avoided or taken out of the function. I\u0027ll see if the changes could fit in this CL, or open a new one.",
+      "parentUuid": "0651a445_41a53e7c",
+      "revId": "c017c43fc4c46d35d2fb3dea0843d1510606bc59",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "1ba35638_10be49c7",
