@@ -123,6 +123,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "21fa04f5_e1976feb",
+        "filename": "aom/aomcx.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 1601,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-02-08T20:54:11Z",
+      "side": 1,
+      "message": "Sorry, my previous comment was not clear. What I requested is to mention in the commit message that this CL restores the original value of AOM_TUNE_BUTTERAUGLI for backward compatibility.",
+      "parentUuid": "61859953_b007a3d2",
+      "revId": "a73f4873e43a27049c4954750ab82f2929c25b9c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a8ae3b3c_c3982882",
