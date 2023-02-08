@@ -1387,9 +1387,11 @@ AV1_COMP *av1_create_compressor(AV1_PRIMARY *ppi, const AV1EncoderConfig *oxcf,
 
   cpi->refresh_frame.alt_ref_frame = false;
 
-  CHECK_MEM_ERROR(
-      cm, cpi->saliency_map,
-      (double *)aom_calloc((cm->height) * (cm->width), sizeof(double)));
+  if (oxcf->tune_cfg.tuning == AOM_TUNE_VMAF_SALIENCY_MAP) {
+    CHECK_MEM_ERROR(
+        cm, cpi->saliency_map,
+        (uint8_t *)aom_calloc(cm->height * cm->width, sizeof(uint8_t)));
+  }
 
 #if CONFIG_SPEED_STATS
   cpi->tx_search_count = 0;
@@ -3718,19 +3720,18 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
 
   if (oxcf->tune_cfg.tuning == AOM_TUNE_SSIM) {
     av1_set_mb_ssim_rdmult_scaling(cpi);
-  }
-
-  if (oxcf->tune_cfg.tuning == AOM_TUNE_VMAF_SALIENCY_MAP) {
-    set_saliency_map(cpi);
-  }
-
+  } else if (oxcf->tune_cfg.tuning == AOM_TUNE_VMAF_SALIENCY_MAP &&
+             !(cpi->source->flags & YV12_FLAG_HIGHBITDEPTH)) {
+    av1_set_saliency_map(cpi);
+  } else {
 #if CONFIG_TUNE_VMAF
-  if (oxcf->tune_cfg.tuning == AOM_TUNE_VMAF_WITHOUT_PREPROCESSING ||
-      oxcf->tune_cfg.tuning == AOM_TUNE_VMAF_MAX_GAIN ||
-      oxcf->tune_cfg.tuning == AOM_TUNE_VMAF_NEG_MAX_GAIN) {
-    av1_set_mb_vmaf_rdmult_scaling(cpi);
-  }
+    if (oxcf->tune_cfg.tuning == AOM_TUNE_VMAF_WITHOUT_PREPROCESSING ||
+        oxcf->tune_cfg.tuning == AOM_TUNE_VMAF_MAX_GAIN ||
+        oxcf->tune_cfg.tuning == AOM_TUNE_VMAF_NEG_MAX_GAIN) {
+      av1_set_mb_vmaf_rdmult_scaling(cpi);
+    }
 #endif
+  }
 
   if (cpi->oxcf.q_cfg.deltaq_mode == DELTA_Q_PERCEPTUAL_AI &&
       cpi->sf.rt_sf.use_nonrd_pick_mode == 0) {
