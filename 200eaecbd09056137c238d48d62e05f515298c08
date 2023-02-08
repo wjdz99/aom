@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ed634e5d_0f1a98e7",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-02-08T23:50:32Z",
+      "side": 1,
+      "message": "LGTM.",
+      "revId": "200eaecbd09056137c238d48d62e05f515298c08",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "86fc5359_61a665b1",
+        "filename": "av1/encoder/allintra_vis.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 270,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-02-08T23:50:32Z",
+      "side": 1,
+      "message": "Delete the `dst_buffer_stride` variable. It is not used now.",
+      "revId": "200eaecbd09056137c238d48d62e05f515298c08",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
