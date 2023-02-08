@@ -18,6 +18,23 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e29560fe_f6e3ef6f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2023-02-08T19:55:18Z",
+      "side": 1,
+      "message": "Thanks for the review. I addressed the comments. Please take another look.",
+      "revId": "fcc67aedf73d4dac6780553f580d98a407ed879d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a7c19cc4_bc50cbaf",
@@ -31,6 +48,24 @@
       "writtenOn": "2023-02-08T00:01:34Z",
       "side": 1,
       "message": "It would be good to make `pred_buffer` as small as possible. Also please add comments to explain the buffer size, offset, and stride here.",
+      "revId": "fcc67aedf73d4dac6780553f580d98a407ed879d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7609f2fc_959a6fd6",
+        "filename": "av1/encoder/allintra_vis.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 267,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2023-02-08T19:55:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a7c19cc4_bc50cbaf",
       "revId": "fcc67aedf73d4dac6780553f580d98a407ed879d",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -52,6 +87,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e4d2cae0_18873ba8",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 1424,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2023-02-08T19:55:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8334a124_b1c8db7e",
+      "revId": "fcc67aedf73d4dac6780553f580d98a407ed879d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a6c7b65c_a93ea92e",
@@ -65,6 +118,24 @@
       "writtenOn": "2023-02-08T00:01:34Z",
       "side": 1,
       "message": "The `AV1EncRowMultiThreadSync` struct and this struct are exactly the same. So we can use the same struct type for both cases. We just need two distinct variables of this type.\n\nOn the other hand, if you think these two structs may become different in the future, then it\u0027s fine to define two struct types.",
+      "revId": "fcc67aedf73d4dac6780553f580d98a407ed879d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "df4e88bf_f04c312c",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 1468,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2023-02-08T19:55:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a6c7b65c_a93ea92e",
       "revId": "fcc67aedf73d4dac6780553f580d98a407ed879d",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -86,6 +157,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a4c1ef43_5fcb8536",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 1620,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2023-02-08T19:55:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c8a7faee_e383f3d0",
+      "revId": "fcc67aedf73d4dac6780553f580d98a407ed879d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "5d184751_289c62dd",
@@ -99,6 +188,24 @@
       "writtenOn": "2023-02-08T00:01:34Z",
       "side": 1,
       "message": "If we have a new struct for wiener variance calculation, add a data member (say `intra_enc_row_mt` of that struct type here.",
+      "revId": "fcc67aedf73d4dac6780553f580d98a407ed879d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d21fb631_ee1fd085",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 1739,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2023-02-08T19:55:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5d184751_289c62dd",
       "revId": "fcc67aedf73d4dac6780553f580d98a407ed879d",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -122,6 +229,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "37c996c9_1ccc4e2a",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 290,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2023-02-08T19:55:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e45d0158_bb3887b1",
+      "revId": "fcc67aedf73d4dac6780553f580d98a407ed879d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "ccf86d4a_7e2d7c0a",
         "filename": "av1/encoder/ethread.c",
         "patchSetId": 4
@@ -133,6 +258,24 @@
       "writtenOn": "2023-02-08T00:01:34Z",
       "side": 1,
       "message": "This function is essentially the same as `get_next_job()`. The two functions differ only in the function prototypes but have the same internal logic.",
+      "revId": "fcc67aedf73d4dac6780553f580d98a407ed879d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "682abc10_6979a5b4",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 2432,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2023-02-08T19:55:18Z",
+      "side": 1,
+      "message": "This one is kept because of the difference in function prototype.\nget_next_job() relies on tile_data, which we don\u0027t want to touch here.",
+      "parentUuid": "ccf86d4a_7e2d7c0a",
       "revId": "fcc67aedf73d4dac6780553f580d98a407ed879d",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -154,6 +297,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "65c24c2d_3ef91c92",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 2502,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2023-02-08T19:55:18Z",
+      "side": 1,
+      "message": "Removed.",
+      "parentUuid": "173813e2_04754d1c",
+      "revId": "fcc67aedf73d4dac6780553f580d98a407ed879d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "4be79a70_500cefdf",
@@ -167,6 +328,24 @@
       "writtenOn": "2023-02-08T00:01:34Z",
       "side": 1,
       "message": "Use `intra_row_mt_sync` as the first argument. See line 2604.",
+      "revId": "fcc67aedf73d4dac6780553f580d98a407ed879d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f0a855e6_e90784cd",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 2623,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2023-02-08T19:55:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4be79a70_500cefdf",
       "revId": "fcc67aedf73d4dac6780553f580d98a407ed879d",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
