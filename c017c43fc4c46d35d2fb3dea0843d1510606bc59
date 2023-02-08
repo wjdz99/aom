@@ -1,0 +1,113 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0651a445_41a53e7c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2023-02-08T21:43:05Z",
+      "side": 1,
+      "message": "Thanks for the change, Lin! I left some comments. One thing that is important is that it feels like many allocations in the code can be avoided / reduced. So please check my comments and see if it is feasible to do that.",
+      "revId": "c017c43fc4c46d35d2fb3dea0843d1510606bc59",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1ba35638_10be49c7",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 1393,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2023-02-08T21:43:05Z",
+      "side": 1,
+      "message": "*cpi-\u003esaliency_map",
+      "range": {
+        "startLine": 1393,
+        "startChar": 61,
+        "endLine": 1393,
+        "endChar": 68
+      },
+      "revId": "c017c43fc4c46d35d2fb3dea0843d1510606bc59",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d2da58c6_1790f1be",
+        "filename": "av1/encoder/saliency_map.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 789,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2023-02-08T21:43:05Z",
+      "side": 1,
+      "message": "Do you think we can redesign this function (and funtions calling this) to just chang input in place?",
+      "range": {
+        "startLine": 787,
+        "startChar": 8,
+        "endLine": 789,
+        "endChar": 32
+      },
+      "revId": "c017c43fc4c46d35d2fb3dea0843d1510606bc59",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e0cb169c_9e8fb8b3",
+        "filename": "av1/encoder/saliency_map.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 993,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2023-02-08T21:43:05Z",
+      "side": 1,
+      "message": "Also consider turning into an array to be precise",
+      "range": {
+        "startLine": 990,
+        "startChar": 24,
+        "endLine": 993,
+        "endChar": 34
+      },
+      "revId": "c017c43fc4c46d35d2fb3dea0843d1510606bc59",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "172df38d_a177cb54",
+        "filename": "av1/encoder/saliency_map.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 1003,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2023-02-08T21:43:05Z",
+      "side": 1,
+      "message": "In general it\u0027s better to avoid allocating in a function, when you can do that outside of it and just pass in the pointer",
+      "range": {
+        "startLine": 1003,
+        "startChar": 2,
+        "endLine": 1003,
+        "endChar": 32
+      },
+      "revId": "c017c43fc4c46d35d2fb3dea0843d1510606bc59",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}

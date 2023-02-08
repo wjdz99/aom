@@ -248,6 +248,75 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "809750ba_cde0622a",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 3728,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2023-02-08T21:43:05Z",
+      "side": 1,
+      "message": "We can just put this in the following #if as:\n```\n    else if (oxcf-\u003etune_cfg.tuning \u003d\u003d AOM_TUNE_VMAF_WITHOUT_PREPROCESSING ||\n        oxcf-\u003etune_cfg.tuning \u003d\u003d AOM_TUNE_VMAF_MAX_GAIN ||\n        oxcf-\u003etune_cfg.tuning \u003d\u003d AOM_TUNE_VMAF_NEG_MAX_GAIN) {\n      av1_set_mb_vmaf_rdmult_scaling(cpi);\n    }\n```",
+      "range": {
+        "startLine": 3728,
+        "startChar": 4,
+        "endLine": 3728,
+        "endChar": 10
+      },
+      "revId": "a73f4873e43a27049c4954750ab82f2929c25b9c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8c134b0e_8311576b",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 3736,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2023-02-08T21:43:05Z",
+      "side": 1,
+      "message": "And remove this too",
+      "range": {
+        "startLine": 3736,
+        "startChar": 2,
+        "endLine": 3736,
+        "endChar": 3
+      },
+      "revId": "a73f4873e43a27049c4954750ab82f2929c25b9c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5cad7cca_697aed3d",
+        "filename": "av1/encoder/saliency_map.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2023-02-08T21:43:05Z",
+      "side": 1,
+      "message": "Please add a comment on the angle related to the indices 0-3 here",
+      "range": {
+        "startLine": 25,
+        "startChar": 33,
+        "endLine": 25,
+        "endChar": 34
+      },
+      "revId": "a73f4873e43a27049c4954750ab82f2929c25b9c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "1ee2d537_880d2319",
         "filename": "av1/encoder/saliency_map.c",
         "patchSetId": 4
@@ -294,6 +363,144 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "94e4e97b_6db05c92",
+        "filename": "av1/encoder/saliency_map.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 204,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2023-02-08T21:43:05Z",
+      "side": 1,
+      "message": "Is this conversion needed?",
+      "range": {
+        "startLine": 204,
+        "startChar": 51,
+        "endLine": 204,
+        "endChar": 59
+      },
+      "revId": "a73f4873e43a27049c4954750ab82f2929c25b9c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "49734454_1c27d598",
+        "filename": "av1/encoder/saliency_map.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 221,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2023-02-08T21:43:05Z",
+      "side": 1,
+      "message": "Should check for mem errors. Also for other allocations too",
+      "range": {
+        "startLine": 221,
+        "startChar": 18,
+        "endLine": 221,
+        "endChar": 28
+      },
+      "revId": "a73f4873e43a27049c4954750ab82f2929c25b9c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2d4b41d2_89881bbd",
+        "filename": "av1/encoder/saliency_map.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 227,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2023-02-08T21:43:05Z",
+      "side": 1,
+      "message": "This original array may not need to be allocated. You can have \n```\ndouble *original \u003d level \u003d\u003d in_level ? input : output\n```\nand it feels to me everything should work?",
+      "range": {
+        "startLine": 220,
+        "startChar": 4,
+        "endLine": 227,
+        "endChar": 5
+      },
+      "revId": "a73f4873e43a27049c4954750ab82f2929c25b9c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c8953864_e783c64a",
+        "filename": "av1/encoder/saliency_map.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 229,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2023-02-08T21:43:05Z",
+      "side": 1,
+      "message": "Will it be possible when level \u003c\u003d 0? In the for loop the condition is level \u003e out_level, is it possible for out_level to be \u003c 0? It might be better to change this into an assertion if level \u003c\u003d 0 is not expected.",
+      "range": {
+        "startLine": 229,
+        "startChar": 4,
+        "endLine": 229,
+        "endChar": 20
+      },
+      "revId": "a73f4873e43a27049c4954750ab82f2929c25b9c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ea414c6e_e9539ece",
+        "filename": "av1/encoder/saliency_map.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 235,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2023-02-08T21:43:05Z",
+      "side": 1,
+      "message": "Optional: it should be ok to remove this explicit conversion.",
+      "range": {
+        "startLine": 235,
+        "startChar": 10,
+        "endLine": 235,
+        "endChar": 20
+      },
+      "revId": "a73f4873e43a27049c4954750ab82f2929c25b9c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f067cf0f_b86b8ee6",
+        "filename": "av1/encoder/saliency_map.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 256,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2023-02-08T21:43:05Z",
+      "side": 1,
+      "message": "calculates",
+      "range": {
+        "startLine": 256,
+        "startChar": 17,
+        "endLine": 256,
+        "endChar": 29
+      },
+      "revId": "a73f4873e43a27049c4954750ab82f2929c25b9c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "31c39bf2_74192183",
         "filename": "av1/encoder/saliency_map.c",
         "patchSetId": 4
@@ -317,6 +524,75 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "efa9f0fd_b09ae2e9",
+        "filename": "av1/encoder/saliency_map.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 257,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2023-02-08T21:43:05Z",
+      "side": 1,
+      "message": "Do you mean the feature map is then the output? Maybe change to \"yielding the feature map\"?",
+      "range": {
+        "startLine": 257,
+        "startChar": 18,
+        "endLine": 257,
+        "endChar": 40
+      },
+      "revId": "a73f4873e43a27049c4954750ab82f2929c25b9c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cec8d8b7_2dfb983b",
+        "filename": "av1/encoder/saliency_map.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 260,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2023-02-08T21:43:05Z",
+      "side": 1,
+      "message": "Consider ordering this output param to the last of the list. From go/cstyle#Inputs_and_Outputs, \"When ordering function parameters, put all input-only parameters before any output parameters. In particular, do not add new parameters to the end of the function just because they are new; place new input-only parameters before the output parameters.\"",
+      "range": {
+        "startLine": 260,
+        "startChar": 33,
+        "endLine": 260,
+        "endChar": 64
+      },
+      "revId": "a73f4873e43a27049c4954750ab82f2929c25b9c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1fe1c545_30165f54",
+        "filename": "av1/encoder/saliency_map.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 267,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2023-02-08T21:43:05Z",
+      "side": 1,
+      "message": "Optional: maybe it is possible to save this allocation too? We can just use output[j] or output[j+1], and do something like \n```\n    output[j]-\u003ebuf[r * cur_width + c] \u003d\n            fabs((double)(input[k][r * cur_width + c] -\n                          output[j]-\u003ebuf[r * cur_width + c]));\n```",
+      "range": {
+        "startLine": 267,
+        "startChar": 12,
+        "endLine": 267,
+        "endChar": 28
+      },
+      "revId": "a73f4873e43a27049c4954750ab82f2929c25b9c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "ff40018f_4b3a14b6",
         "filename": "av1/encoder/saliency_map.c",
         "patchSetId": 4
@@ -333,6 +609,98 @@
         "startChar": 39,
         "endLine": 304,
         "endChar": 45
+      },
+      "revId": "a73f4873e43a27049c4954750ab82f2929c25b9c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d2277f82_8f0599b9",
+        "filename": "av1/encoder/saliency_map.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 305,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2023-02-08T21:43:05Z",
+      "side": 1,
+      "message": "This is very similar to center_surround_diff. If we pass input_1 and input_2 as the same pointer, is it true that this is exactly center_surround_diff? Maybe consider combining the two functions, or find better ways to reduce redundancy here.",
+      "range": {
+        "startLine": 305,
+        "startChar": 12,
+        "endLine": 305,
+        "endChar": 36
+      },
+      "revId": "a73f4873e43a27049c4954750ab82f2929c25b9c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cf028a59_969b9ec9",
+        "filename": "av1/encoder/saliency_map.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 307,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2023-02-08T21:43:05Z",
+      "side": 1,
+      "message": "Please reorder to the last in the list",
+      "range": {
+        "startLine": 307,
+        "startChar": 37,
+        "endLine": 307,
+        "endChar": 69
+      },
+      "revId": "a73f4873e43a27049c4954750ab82f2929c25b9c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7d2cc5a1_47228fa4",
+        "filename": "av1/encoder/saliency_map.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 378,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2023-02-08T21:43:05Z",
+      "side": 1,
+      "message": "We can extract this part so it can be used for gaussian_pyramid_rgb too",
+      "range": {
+        "startLine": 366,
+        "startChar": 4,
+        "endLine": 378,
+        "endChar": 31
+      },
+      "revId": "a73f4873e43a27049c4954750ab82f2929c25b9c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "afdd4d2a_dbbdf92b",
+        "filename": "av1/encoder/saliency_map.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 449,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2023-02-08T21:43:05Z",
+      "side": 1,
+      "message": "sizeof(*r)",
+      "range": {
+        "startLine": 449,
+        "startChar": 51,
+        "endLine": 449,
+        "endChar": 57
       },
       "revId": "a73f4873e43a27049c4954750ab82f2929c25b9c",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
@@ -369,6 +737,190 @@
       "side": 1,
       "message": "Done",
       "parentUuid": "29edfcf1_eb5be16a",
+      "revId": "a73f4873e43a27049c4954750ab82f2929c25b9c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0f39cd45_fc8051ae",
+        "filename": "av1/encoder/saliency_map.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 460,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2023-02-08T21:43:05Z",
+      "side": 1,
+      "message": "the arrays r, g, b, y are not really needed. We can just have local variables double r, g, b, y here inside the loop.",
+      "range": {
+        "startLine": 460,
+        "startChar": 6,
+        "endLine": 460,
+        "endChar": 22
+      },
+      "revId": "a73f4873e43a27049c4954750ab82f2929c25b9c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f849fe89_2f5910d5",
+        "filename": "av1/encoder/saliency_map.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 546,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2023-02-08T21:43:05Z",
+      "side": 1,
+      "message": "These seem to use the same logic as in get_feature_map_rgb. Maybe re-use a function?",
+      "range": {
+        "startLine": 535,
+        "startChar": 5,
+        "endLine": 546,
+        "endChar": 31
+      },
+      "revId": "a73f4873e43a27049c4954750ab82f2929c25b9c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a665dd3c_6d3a22ec",
+        "filename": "av1/encoder/saliency_map.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 550,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2023-02-08T21:43:05Z",
+      "side": 1,
+      "message": "Consider making this into an array of double*, so it is easier to iterate over it in the following lines.",
+      "range": {
+        "startLine": 549,
+        "startChar": 2,
+        "endLine": 550,
+        "endChar": 58
+      },
+      "revId": "a73f4873e43a27049c4954750ab82f2929c25b9c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "96b23fc2_bb7f76ec",
+        "filename": "av1/encoder/saliency_map.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 579,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2023-02-08T21:43:05Z",
+      "side": 1,
+      "message": "Maybe change this into an array too",
+      "range": {
+        "startLine": 579,
+        "startChar": 2,
+        "endLine": 579,
+        "endChar": 66
+      },
+      "revId": "a73f4873e43a27049c4954750ab82f2929c25b9c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "39b7da97_79f56525",
+        "filename": "av1/encoder/saliency_map.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 613,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2023-02-08T21:43:05Z",
+      "side": 1,
+      "message": "Maybe use something like max_value and min_value",
+      "range": {
+        "startLine": 613,
+        "startChar": 75,
+        "endLine": 613,
+        "endChar": 79
+      },
+      "revId": "a73f4873e43a27049c4954750ab82f2929c25b9c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d98c8620_570361f5",
+        "filename": "av1/encoder/saliency_map.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 634,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2023-02-08T21:43:05Z",
+      "side": 1,
+      "message": "*local_map.buf",
+      "range": {
+        "startLine": 634,
+        "startChar": 68,
+        "endLine": 634,
+        "endChar": 74
+      },
+      "revId": "a73f4873e43a27049c4954750ab82f2929c25b9c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5351a063_0636ade6",
+        "filename": "av1/encoder/saliency_map.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 641,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2023-02-08T21:43:05Z",
+      "side": 1,
+      "message": "Optional: This copy can be optimized out, if we pass the stride, and starting point of the local window to the function find_min_max.",
+      "range": {
+        "startLine": 640,
+        "startChar": 10,
+        "endLine": 641,
+        "endChar": 57
+      },
+      "revId": "a73f4873e43a27049c4954750ab82f2929c25b9c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8328fdf5_d69eebf7",
+        "filename": "av1/encoder/saliency_map.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 664,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2023-02-08T21:43:05Z",
+      "side": 1,
+      "message": "*result",
+      "range": {
+        "startLine": 664,
+        "startChar": 48,
+        "endLine": 664,
+        "endChar": 68
+      },
       "revId": "a73f4873e43a27049c4954750ab82f2929c25b9c",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
