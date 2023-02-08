@@ -1383,12 +1383,14 @@ typedef struct {
   /**@{*/
   pthread_mutex_t *mutex_; /*!< Mutex lock object */
   pthread_cond_t *cond_;   /*!< Condition variable */
+  // mutex_ and cond_ are arrays of `rows` elements. mutex_[i] guards cond_[i]
+  // and num_finished_cols[i].
   /**@}*/
 #endif  // CONFIG_MULTITHREAD
   /*!
-   * Buffer to store the superblock whose encoding is complete.
-   * num_finished_cols[i] stores the number of superblocks which finished
-   * encoding in the ith superblock row.
+   * An array of `rows` elements to store the superblock whose encoding is
+   * complete. num_finished_cols[i] stores the number of superblocks which
+   * finished encoding in the ith superblock row.
    */
   int *num_finished_cols;
   /*!
@@ -1411,10 +1413,12 @@ typedef struct {
   int rows;
   /*!
    * The superblock row (in units of MI blocks) to be processed next.
+   * guarded by enc_row_mt->mutex_.
    */
   int next_mi_row;
   /*!
    * Number of threads processing the current tile.
+   * guarded by enc_row_mt->mutex_.
    */
   int num_threads_working;
 } AV1EncRowMultiThreadSync;
