@@ -1,0 +1,174 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f8a9a24b_5a0c6afd",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-02-08T00:01:34Z",
+      "side": 1,
+      "message": "Cheng: I understand your solution. I think it is correct, although I don\u0027t know the code well enough to see if you add the new data member to the right struct.\n\nI suggest a few changes.",
+      "revId": "fcc67aedf73d4dac6780553f580d98a407ed879d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a7c19cc4_bc50cbaf",
+        "filename": "av1/encoder/allintra_vis.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 267,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-02-08T00:01:34Z",
+      "side": 1,
+      "message": "It would be good to make `pred_buffer` as small as possible. Also please add comments to explain the buffer size, offset, and stride here.",
+      "revId": "fcc67aedf73d4dac6780553f580d98a407ed879d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8334a124_b1c8db7e",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 1424,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-02-08T00:01:34Z",
+      "side": 1,
+      "message": "Nit: It would be good to explain better what this struct is used for. It is only used in calculating mb wiener variance right now. That seems very different from \"row based multi-threading\".",
+      "revId": "fcc67aedf73d4dac6780553f580d98a407ed879d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a6c7b65c_a93ea92e",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 1468,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-02-08T00:01:34Z",
+      "side": 1,
+      "message": "The `AV1EncRowMultiThreadSync` struct and this struct are exactly the same. So we can use the same struct type for both cases. We just need two distinct variables of this type.\n\nOn the other hand, if you think these two structs may become different in the future, then it\u0027s fine to define two struct types.",
+      "revId": "fcc67aedf73d4dac6780553f580d98a407ed879d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c8a7faee_e383f3d0",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 1620,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-02-08T00:01:34Z",
+      "side": 1,
+      "message": "Instead of adding `intra_sync_read_ptr` and `intra_sync_write_ptr` to the `AV1EncRowMultiThreadInfo` struct, I think it\u0027s cleaner to add a new struct for wiener variance calculation. See also my comment at line 1739.",
+      "revId": "fcc67aedf73d4dac6780553f580d98a407ed879d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5d184751_289c62dd",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 1739,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-02-08T00:01:34Z",
+      "side": 1,
+      "message": "If we have a new struct for wiener variance calculation, add a data member (say `intra_enc_row_mt` of that struct type here.",
+      "revId": "fcc67aedf73d4dac6780553f580d98a407ed879d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e45d0158_bb3887b1",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 290,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-02-08T00:01:34Z",
+      "side": 1,
+      "message": "Undo the changes to `av1_row_mt_mem_dealloc()` here (lines 277-290). They are not necessary.",
+      "revId": "fcc67aedf73d4dac6780553f580d98a407ed879d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ccf86d4a_7e2d7c0a",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 2432,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-02-08T00:01:34Z",
+      "side": 1,
+      "message": "This function is essentially the same as `get_next_job()`. The two functions differ only in the function prototypes but have the same internal logic.",
+      "revId": "fcc67aedf73d4dac6780553f580d98a407ed879d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "173813e2_04754d1c",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 2502,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-02-08T00:01:34Z",
+      "side": 1,
+      "message": "These four `av1_allintra_row_mt_sync_*` functions are the same as the `av1_row_mt_sync_*` functions, except for the type of the first argument.",
+      "revId": "fcc67aedf73d4dac6780553f580d98a407ed879d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4be79a70_500cefdf",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 2623,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-02-08T00:01:34Z",
+      "side": 1,
+      "message": "Use `intra_row_mt_sync` as the first argument. See line 2604.",
+      "revId": "fcc67aedf73d4dac6780553f580d98a407ed879d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
