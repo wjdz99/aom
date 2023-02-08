@@ -20,6 +20,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "02420df9_4b5e1936",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 31132
+      },
+      "writtenOn": "2023-02-08T20:42:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "44cad3d3_e80f8625",
+      "revId": "a73f4873e43a27049c4954750ab82f2929c25b9c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "5a0660f5_db9392ee",
         "filename": "/PATCHSET_LEVEL",
         "patchSetId": 4
@@ -52,6 +70,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "692e4a39_1946c7df",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 31132
+      },
+      "writtenOn": "2023-02-08T20:42:25Z",
+      "side": 1,
+      "message": "Hi, Wan-Teh,\nThanks for your comments. Yes, it is a follow-up CL to address the comments in https://aomedia-review.googlesource.com/c/aom/+/170101.",
+      "parentUuid": "9d2c8e10_c4246ff8",
+      "revId": "a73f4873e43a27049c4954750ab82f2929c25b9c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "147a222d_0bbf9bee",
@@ -65,6 +101,24 @@
       "writtenOn": "2023-02-08T18:04:32Z",
       "side": 1,
       "message": "It would be good to mention this change in the commit message.",
+      "revId": "a73f4873e43a27049c4954750ab82f2929c25b9c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "61859953_b007a3d2",
+        "filename": "aom/aomcx.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 1601,
+      "author": {
+        "id": 31132
+      },
+      "writtenOn": "2023-02-08T20:42:25Z",
+      "side": 1,
+      "message": "This tune mode has not been fully implemented yet. I\u0027ll add this change in the commit message when I check in the algorithm improvement.",
+      "parentUuid": "147a222d_0bbf9bee",
       "revId": "a73f4873e43a27049c4954750ab82f2929c25b9c",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -86,6 +140,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "565e622a_daa5b126",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1393,
+      "author": {
+        "id": 31132
+      },
+      "writtenOn": "2023-02-08T20:42:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a8ae3b3c_c3982882",
+      "revId": "a73f4873e43a27049c4954750ab82f2929c25b9c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "128d3318_6a76d628",
@@ -103,6 +175,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "fd2a472c_0bed46c5",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1681,
+      "author": {
+        "id": 31132
+      },
+      "writtenOn": "2023-02-08T20:42:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "128d3318_6a76d628",
+      "revId": "a73f4873e43a27049c4954750ab82f2929c25b9c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "29edfcf1_eb5be16a",
@@ -116,6 +206,24 @@
       "writtenOn": "2023-02-08T18:04:32Z",
       "side": 1,
       "message": "Nit: It\u0027d be clearer to initialize these variables in their declarations:\n\n```\n  double *r \u003d (double *)aom_malloc(height * width * sizeof(double));\n  double *g \u003d (double *)aom_malloc(height * width * sizeof(double));\n  double *b \u003d (double *)aom_malloc(height * width * sizeof(double));\n  double *y \u003d (double *)aom_malloc(height * width * sizeof(double));\n  double *rg_mat \u003d (double *)aom_malloc(height * width * sizeof(double));\n  double *by_mat \u003d (double *)aom_malloc(height * width * sizeof(double));\n  double *gr_mat \u003d (double *)aom_malloc(height * width * sizeof(double));\n  double *yb_mat \u003d (double *)aom_malloc(height * width * sizeof(double));\n```",
+      "revId": "a73f4873e43a27049c4954750ab82f2929c25b9c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "80bcebb1_0e940786",
+        "filename": "av1/encoder/saliency_map.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 456,
+      "author": {
+        "id": 31132
+      },
+      "writtenOn": "2023-02-08T20:42:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "29edfcf1_eb5be16a",
       "revId": "a73f4873e43a27049c4954750ab82f2929c25b9c",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
