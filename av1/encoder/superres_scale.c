@@ -25,6 +25,7 @@ static void analyze_hor_freq(const AV1_COMP *cpi, double *energy) {
   DECLARE_ALIGNED(16, int32_t, coeff[16 * 4]);
   int n = 0;
   memset(freq_energy, 0, sizeof(freq_energy));
+#if CONFIG_AV1_HIGHBITDEPTH
   if (buf->flags & YV12_FLAG_HIGHBITDEPTH) {
     const int16_t *src16 = (const int16_t *)CONVERT_TO_SHORTPTR(buf->y_buffer);
     for (int i = 0; i < height - 4; i += 4) {
@@ -43,7 +44,9 @@ static void analyze_hor_freq(const AV1_COMP *cpi, double *energy) {
       }
     }
   } else {
+#endif  // CONFIG_AV1_HIGHBITDEPTH
     assert(bd == 8);
+    assert(!(buf->flags & YV12_FLAG_HIGHBITDEPTH));
     DECLARE_ALIGNED(16, int16_t, src16[16 * 4]);
     for (int i = 0; i < height - 4; i += 4) {
       for (int j = 0; j < width - 16; j += 16) {
@@ -63,7 +66,9 @@ static void analyze_hor_freq(const AV1_COMP *cpi, double *energy) {
         n++;
       }
     }
+#if CONFIG_AV1_HIGHBITDEPTH
   }
+#endif
   if (n) {
     for (int k = 1; k < 16; ++k) energy[k] = (double)freq_energy[k] / n;
     // Convert to cumulative energy
