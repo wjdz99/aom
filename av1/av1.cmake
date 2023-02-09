@@ -286,7 +286,7 @@ list(APPEND AOM_AV1_COMMON_INTRIN_SSE4_1
             "${AOM_ROOT}/av1/common/x86/av1_txfm_sse4.h"
             "${AOM_ROOT}/av1/common/x86/cdef_block_sse4.c"
             "${AOM_ROOT}/av1/common/x86/filterintra_sse4.c"
-            "${AOM_ROOT}/av1/common/x86/highbd_inv_txfm_sse4.c"
+            "${AOM_ROOT}/av1/common/x86/av1_inv_txfm_sse4.c"
             "${AOM_ROOT}/av1/common/x86/intra_edge_sse4.c"
             "${AOM_ROOT}/av1/common/x86/reconinter_sse4.c"
             "${AOM_ROOT}/av1/common/x86/selfguided_sse4.c"
@@ -299,7 +299,6 @@ list(APPEND AOM_AV1_COMMON_INTRIN_AVX2
             "${AOM_ROOT}/av1/common/x86/cfl_avx2.c"
             "${AOM_ROOT}/av1/common/x86/convolve_2d_avx2.c"
             "${AOM_ROOT}/av1/common/x86/convolve_avx2.c"
-            "${AOM_ROOT}/av1/common/x86/highbd_inv_txfm_avx2.c"
             "${AOM_ROOT}/av1/common/x86/jnt_convolve_avx2.c"
             "${AOM_ROOT}/av1/common/x86/reconinter_avx2.c"
             "${AOM_ROOT}/av1/common/x86/selfguided_avx2.c"
@@ -332,7 +331,6 @@ list(APPEND AOM_AV1_ENCODER_INTRIN_SSE4_1
             "${AOM_ROOT}/av1/encoder/x86/av1_fwd_txfm1d_sse4.c"
             "${AOM_ROOT}/av1/encoder/x86/av1_fwd_txfm2d_sse4.c"
             "${AOM_ROOT}/av1/encoder/x86/encodetxb_sse4.c"
-            "${AOM_ROOT}/av1/encoder/x86/highbd_fwd_txfm_sse4.c"
             "${AOM_ROOT}/av1/encoder/x86/rdopt_sse4.c"
             "${AOM_ROOT}/av1/encoder/x86/pickrst_sse4.c")
 
@@ -341,7 +339,6 @@ list(APPEND AOM_AV1_ENCODER_INTRIN_AVX2
             "${AOM_ROOT}/av1/encoder/x86/error_intrin_avx2.c"
             "${AOM_ROOT}/av1/encoder/x86/av1_fwd_txfm_avx2.h"
             "${AOM_ROOT}/av1/encoder/x86/av1_fwd_txfm2d_avx2.c"
-            "${AOM_ROOT}/av1/encoder/x86/highbd_fwd_txfm_avx2.c"
             "${AOM_ROOT}/av1/encoder/x86/wedge_utils_avx2.c"
             "${AOM_ROOT}/av1/encoder/x86/encodetxb_avx2.c"
             "${AOM_ROOT}/av1/encoder/x86/rdopt_avx2.c"
@@ -360,7 +357,6 @@ list(APPEND AOM_AV1_ENCODER_INTRIN_NEON
             "${AOM_ROOT}/av1/encoder/arm/neon/encodetxb_neon.c"
             "${AOM_ROOT}/av1/encoder/arm/neon/hybrid_fwd_txfm_neon.c"
             "${AOM_ROOT}/av1/encoder/arm/neon/av1_fwd_txfm2d_neon.c"
-            "${AOM_ROOT}/av1/encoder/arm/neon/highbd_fwd_txfm_neon.c"
             "${AOM_ROOT}/av1/encoder/arm/neon/wedge_utils_neon.c"
             "${AOM_ROOT}/av1/encoder/arm/neon/temporal_filter_neon.c")
 
@@ -377,7 +373,6 @@ list(APPEND AOM_AV1_COMMON_INTRIN_NEON
             "${AOM_ROOT}/av1/common/arm/cfl_neon.c"
             "${AOM_ROOT}/av1/common/arm/convolve_neon.c"
             "${AOM_ROOT}/av1/common/arm/convolve_neon.h"
-            "${AOM_ROOT}/av1/common/arm/highbd_inv_txfm_neon.c"
             "${AOM_ROOT}/av1/common/arm/jnt_convolve_neon.c"
             "${AOM_ROOT}/av1/common/arm/reconinter_neon.c"
             "${AOM_ROOT}/av1/common/arm/reconintra_neon.c"
@@ -430,11 +425,13 @@ if(CONFIG_AV1_HIGHBITDEPTH)
 
   list(APPEND AOM_AV1_COMMON_INTRIN_SSE4_1
               "${AOM_ROOT}/av1/common/x86/highbd_convolve_2d_sse4.c"
+              "${AOM_ROOT}/av1/common/x86/highbd_inv_txfm_sse4.c"
               "${AOM_ROOT}/av1/common/x86/highbd_jnt_convolve_sse4.c"
               "${AOM_ROOT}/av1/common/x86/highbd_warp_plane_sse4.c")
 
   list(APPEND AOM_AV1_COMMON_INTRIN_AVX2
               "${AOM_ROOT}/av1/common/x86/highbd_convolve_2d_avx2.c"
+              "${AOM_ROOT}/av1/common/x86/highbd_inv_txfm_avx2.c"
               "${AOM_ROOT}/av1/common/x86/highbd_jnt_convolve_avx2.c"
               "${AOM_ROOT}/av1/common/x86/highbd_wiener_convolve_avx2.c"
               "${AOM_ROOT}/av1/common/x86/highbd_warp_affine_avx2.c")
@@ -444,12 +441,20 @@ if(CONFIG_AV1_HIGHBITDEPTH)
               "${AOM_ROOT}/av1/encoder/x86/highbd_temporal_filter_sse2.c")
 
   list(APPEND AOM_AV1_ENCODER_INTRIN_SSE4_1
+              "${AOM_ROOT}/av1/encoder/x86/highbd_fwd_txfm_sse4.c"
               "${AOM_ROOT}/av1/encoder/x86/av1_highbd_quantize_sse4.c")
 
   list(APPEND AOM_AV1_ENCODER_INTRIN_AVX2
               "${AOM_ROOT}/av1/encoder/x86/av1_highbd_quantize_avx2.c"
               "${AOM_ROOT}/av1/encoder/x86/highbd_block_error_intrin_avx2.c"
+              "${AOM_ROOT}/av1/encoder/x86/highbd_fwd_txfm_avx2.c"
               "${AOM_ROOT}/av1/encoder/x86/highbd_temporal_filter_avx2.c")
+
+  list(APPEND AOM_AV1_COMMON_INTRIN_NEON
+              "${AOM_ROOT}/av1/common/arm/highbd_inv_txfm_neon.c")
+
+  list(APPEND AOM_AV1_ENCODER_INTRIN_NEON
+              "${AOM_ROOT}/av1/encoder/arm/neon/highbd_fwd_txfm_neon.c")
 endif()
 
 if(CONFIG_ACCOUNTING)
