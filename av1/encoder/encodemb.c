@@ -633,10 +633,13 @@ static void encode_block_pass1(int plane, int block, int blk_row, int blk_col,
 
   if (p->eobs[block] > 0) {
     txfm_param.eob = p->eobs[block];
+#if CONFIG_AV1_HIGHBITDEPTH
     if (txfm_param.is_hbd) {
       av1_highbd_inv_txfm_add(dqcoeff, dst, pd->dst.stride, &txfm_param);
       return;
     }
+#endif
+    assert(!txfm_param.is_hbd);
     av1_inv_txfm_add(dqcoeff, dst, pd->dst.stride, &txfm_param);
   }
 }
