@@ -291,8 +291,8 @@ void av1_inv_txfm_add_c(const tran_low_t *dqcoeff, uint8_t *dst, int stride,
     }
   }
 
-  av1_highbd_inv_txfm_add(dqcoeff, CONVERT_TO_BYTEPTR(tmp), tmp_stride,
-                          txfm_param);
+  av1_highbd_inv_txfm_add_c(dqcoeff, CONVERT_TO_BYTEPTR(tmp), tmp_stride,
+                            txfm_param);
 
   for (int r = 0; r < h; ++r) {
     for (int c = 0; c < w; ++c) {
@@ -314,9 +314,12 @@ void av1_inverse_transform_block(const MACROBLOCKD *xd,
                   &txfm_param);
   assert(av1_ext_tx_used[txfm_param.tx_set_type][txfm_param.tx_type]);
 
+#if CONFIG_AV1_HIGHBITDEPTH
   if (txfm_param.is_hbd) {
     av1_highbd_inv_txfm_add(dqcoeff, dst, stride, &txfm_param);
-  } else {
-    av1_inv_txfm_add(dqcoeff, dst, stride, &txfm_param);
+    return;
   }
+#endif
+  assert(!txfm_param.is_hbd);
+  av1_inv_txfm_add(dqcoeff, dst, stride, &txfm_param);
 }
