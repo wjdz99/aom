@@ -138,82 +138,6 @@ static INLINE void load_buffer_32bit_input(const int32_t *in, int stride,
   }
 }
 
-static INLINE void load_buffer_4x4(const int32_t *coeff, __m128i *in) {
-  in[0] = _mm_load_si128((const __m128i *)(coeff + 0));
-  in[1] = _mm_load_si128((const __m128i *)(coeff + 4));
-  in[2] = _mm_load_si128((const __m128i *)(coeff + 8));
-  in[3] = _mm_load_si128((const __m128i *)(coeff + 12));
-}
-
-void av1_highbd_iwht4x4_16_add_sse4_1(const tran_low_t *input, uint8_t *dest8,
-                                      int stride, int bd) {
-  /* 4-point reversible, orthonormal inverse Walsh-Hadamard in 3.5 adds,
-     0.5 shifts per pixel. */
-  __m128i op[4];
-  uint16_t *dest = CONVERT_TO_SHORTPTR(dest8);
-
-  load_buffer_4x4(input, op);
-
-  // Shift before-hand.
-  op[0] = _mm_srai_epi32(op[0], UNIT_QUANT_SHIFT);
-  op[1] = _mm_srai_epi32(op[1], UNIT_QUANT_SHIFT);
-  op[2] = _mm_srai_epi32(op[2], UNIT_QUANT_SHIFT);
-  op[3] = _mm_srai_epi32(op[3], UNIT_QUANT_SHIFT);
-
-  for (int i = 0; i < 2; ++i) {
-    __m128i a1 = op[0];
-    __m128i c1 = op[1];
-    __m128i d1 = op[2];
-    __m128i b1 = op[3];
-    a1 = _mm_add_epi32(a1, c1);          // a1 += c1
-    d1 = _mm_sub_epi32(d1, b1);          // d1 -= b1
-    __m128i e1 = _mm_sub_epi32(a1, d1);  // e1 = (a1 - d1) >> 1
-    e1 = _mm_srai_epi32(e1, 1);
-    b1 = _mm_sub_epi32(e1, b1);  // b1 = e1 - b1
-    c1 = _mm_sub_epi32(e1, c1);  // c1 = e1 - c1
-    a1 = _mm_sub_epi32(a1, b1);  // a1 -= b1
-    d1 = _mm_add_epi32(d1, c1);  // d1 += c1
-
-    op[0] = a1;
-    op[1] = b1;
-    op[2] = c1;
-    op[3] = d1;
-    if (i == 0) {
-      transpose_32bit_4x4(op, op);
-    }
-  }
-
-  // Convert to int16_t. The C code checks that we are in range.
-  op[0] = _mm_packs_epi32(op[0], op[1]);
-  op[1] = _mm_packs_epi32(op[2], op[3]);
-
-  // Load uint16_t.
-  __m128i dst[2];
-  __m128i tmp[4];
-  tmp[0] = _mm_loadl_epi64((const __m128i *)(dest + 0 * stride));
-  tmp[1] = _mm_loadl_epi64((const __m128i *)(dest + 1 * stride));
-  dst[0] = _mm_unpacklo_epi64(tmp[0], tmp[1]);
-  tmp[2] = _mm_loadl_epi64((const __m128i *)(dest + 2 * stride));
-  tmp[3] = _mm_loadl_epi64((const __m128i *)(dest + 3 * stride));
-  dst[1] = _mm_unpacklo_epi64(tmp[2], tmp[3]);
-
-  // Add to the previous results.
-  dst[0] = _mm_add_epi16(dst[0], op[0]);
-  dst[1] = _mm_add_epi16(dst[1], op[1]);
-
-  // Clamp.
-  dst[0] = highbd_clamp_epi16(dst[0], bd);
-  dst[1] = highbd_clamp_epi16(dst[1], bd);
-
-  // Store.
-  _mm_storel_epi64((__m128i *)(dest + 0 * stride), dst[0]);
-  dst[0] = _mm_srli_si128(dst[0], 8);
-  _mm_storel_epi64((__m128i *)(dest + 1 * stride), dst[0]);
-  _mm_storel_epi64((__m128i *)(dest + 2 * stride), dst[1]);
-  dst[1] = _mm_srli_si128(dst[1], 8);
-  _mm_storel_epi64((__m128i *)(dest + 3 * stride), dst[1]);
-}
-
 static void addsub_sse4_1(const __m128i in0, const __m128i in1, __m128i *out0,
                           __m128i *out1, const __m128i *clamp_lo,
                           const __m128i *clamp_hi) {
@@ -718,8 +642,8 @@ static void iidentity4_sse4_1(__m128i *in, __m128i *out, int bit, int do_cols,
     highbd_clamp_epi32_sse4_1(out, out, &clamp_lo, &clamp_hi, 4);
   }
 }
-void av1_inv_txfm2d_add_4x4_sse4_1(const int32_t *input, uint16_t *output,
-                                   int stride, TX_TYPE tx_type, int bd) {
+static void inv_txfm2d_add_4x4_sse4_1(const int32_t *input, uint16_t *output,
+                                      int stride, TX_TYPE tx_type, int bd) {
   __m128i in[4];
   const int8_t *shift = av1_inv_txfm_shift_ls[TX_4X4];
 
@@ -1394,8 +1318,8 @@ static void write_buffer_8x8(__m128i *in, uint16_t *output, int stride,
   _mm_store_si128((__m128i *)(output + 7 * stride), u7);
 }
 
-void av1_inv_txfm2d_add_8x8_sse4_1(const int32_t *input, uint16_t *output,
-                                   int stride, TX_TYPE tx_type, int bd) {
+static void inv_txfm2d_add_8x8_sse4_1(const int32_t *input, uint16_t *output,
+                                      int stride, TX_TYPE tx_type, int bd) {
   __m128i in[16], out[16];
   const int8_t *shift = av1_inv_txfm_shift_ls[TX_8X8];
 
@@ -5144,8 +5068,8 @@ void av1_highbd_inv_txfm_add_8x8_sse4_1(const tran_low_t *input, uint8_t *dest,
                                                 txfm_param->eob, bd);
       break;
     default:
-      av1_inv_txfm2d_add_8x8_sse4_1(src, CONVERT_TO_SHORTPTR(dest), stride,
-                                    tx_type, bd);
+      inv_txfm2d_add_8x8_sse4_1(src, CONVERT_TO_SHORTPTR(dest), stride, tx_type,
+                                bd);
       break;
   }
 }
@@ -5163,8 +5087,8 @@ void av1_highbd_inv_txfm_add_4x4_sse4_1(const tran_low_t *input, uint8_t *dest,
     av1_highbd_iwht4x4_add(input, dest, stride, eob, bd);
     return;
   }
-  av1_inv_txfm2d_add_4x4_sse4_1(src, CONVERT_TO_SHORTPTR(dest), stride, tx_type,
-                                bd);
+  inv_txfm2d_add_4x4_sse4_1(src, CONVERT_TO_SHORTPTR(dest), stride, tx_type,
+                            bd);
 }
 static void iidentity32_sse4_1(__m128i *in, __m128i *out, int bit, int do_cols,
                                int bd, int out_shift) {

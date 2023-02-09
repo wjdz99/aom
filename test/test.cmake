@@ -301,9 +301,11 @@ if(NOT BUILD_SHARED_LIBS)
   if(HAVE_SSE4_1 OR HAVE_NEON)
     list(APPEND AOM_UNIT_TEST_COMMON_SOURCES
                 "${AOM_ROOT}/test/filterintra_test.cc")
+  endif()
 
+  if(CONFIG_AV1_HIGHBITDEPTH AND (HAVE_SSE4_1 OR HAVE_NEON))
     list(APPEND AOM_UNIT_TEST_ENCODER_SOURCES
-                "${AOM_ROOT}/test/av1_highbd_iht_test.cc")
+         "${AOM_ROOT}/test/av1_highbd_iht_test.cc")
   endif()
 
   if(HAVE_AVX2)
