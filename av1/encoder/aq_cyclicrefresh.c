@@ -647,9 +647,9 @@ int av1_cyclic_refresh_disable_lf_cdef(AV1_COMP *const cpi) {
   // TODO(marpan): Tune these conditons, add QP dependence.
   if (cpi->sf.rt_sf.skip_lf_screen > 1 && !cpi->rc.high_source_sad)
     return 1;
-  else if (cpi->rc.frames_since_key > 30 && cr->percent_refresh > 0 &&
-           cr->counter_encode_maxq_scene_change > 300 / cr->percent_refresh &&
-           cpi->rc.frame_source_sad < 1000)
+  if (cpi->rc.frames_since_key > 30 && cr->percent_refresh > 0 &&
+      cr->counter_encode_maxq_scene_change > 300 / cr->percent_refresh &&
+      cpi->rc.frame_source_sad < 1000)
     return 1;
   return 0;
 }
