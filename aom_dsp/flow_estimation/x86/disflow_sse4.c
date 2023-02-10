@@ -461,6 +461,9 @@ static INLINE void compute_flow_matrix(const int16_t *dx, int dx_stride,
   __m128i partial_sum_1 = _mm_hadd_epi32(acc[1], acc[3]);
   __m128i result = _mm_hadd_epi32(partial_sum_0, partial_sum_1);
 
+  // Apply regularization
+  result = _mm_add_epi32(result, _mm_set_epi32(1, 0, 0, 1));
+
 #if CHECK_RESULTS
   int tmp[4] = { 0 };
 
@@ -472,6 +475,11 @@ static INLINE void compute_flow_matrix(const int16_t *dx, int dx_stride,
       tmp[3] += dy[i * dy_stride + j] * dy[i * dy_stride + j];
     }
   }
+
+  // Apply regularization
+  // This helps to avoid situations where det M = 0
+  tmp[0] += 1;
+  tmp[3] += 1;
 
   tmp[2] = tmp[1];
 
@@ -492,9 +500,10 @@ static INLINE void compute_flow_matrix(const int16_t *dx, int dx_stride,
 // false => M is degenerate (or too close to it), and could not be inverted
 static INLINE bool invert_2x2(const double *M, double *M_inv) {
   double det = (M[0] * M[3]) - (M[1] * M[2]);
-  if (fabs(det) < 1e-5) {
-    return false;
-  }
+  // Note: The determinant of a least squares system is always >= 0,
+  // and the regularization applied in compute_flow_matrix should ensure that
+  // it is in fact always >= 1
+  assert(det >= 1);
   const double det_inv = 1 / det;
 
   M_inv[0] = M[3] * det_inv;
