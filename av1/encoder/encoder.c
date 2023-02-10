@@ -1397,8 +1397,8 @@ AV1_COMP *av1_create_compressor(AV1_PRIMARY *ppi, const AV1EncoderConfig *oxcf,
 
   if (oxcf->tune_cfg.tuning == AOM_TUNE_VMAF_SALIENCY_MAP) {
     CHECK_MEM_ERROR(cm, cpi->saliency_map,
-                    (double *)aom_calloc((cm->height) * (cm->width),
-                                         sizeof(*cpi->saliency_map)));
+                    (uint8_t *)aom_calloc((cm->height) * (cm->width),
+                                          sizeof(*cpi->saliency_map)));
   }
 
 #if CONFIG_SPEED_STATS
