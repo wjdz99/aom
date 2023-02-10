@@ -153,6 +153,24 @@
       "message": "A library should avoid writing a message to stdout or stderr. It is fine to do that in a program such as aomenc, but it is not appropriate to do that in the libaom library.\n\nCan this be avoided?\n\nAlso, ideally the function should fail rather than falling back on the default deltaq-mode\u003d3, so that the user can investigate what is wrong with the rate_distribution_info file. If we automatically fall back, the user may not notice this issue.",
       "revId": "d633329311fcc38b3724ab433b90555405330870",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fada2719_668405a7",
+        "filename": "av1/encoder/allintra_vis.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 506,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-02-10T21:56:46Z",
+      "side": 1,
+      "message": "Just to wanted to elaborate on the comment \"A library should avoid writing a message to stdout or stderr.\"\n\nstdout and stderr are shared by everything in the process. This kind of process-wide resource should be controlled by the application. In this case, any message that libaom writes to stdout or stderr may interfere with the application\u0027s use of stdout or stderr.",
+      "parentUuid": "167397db_4222ec3e",
+      "revId": "d633329311fcc38b3724ab433b90555405330870",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
