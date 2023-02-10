@@ -71,6 +71,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "7ee42c25_cb296922",
+        "filename": "aom/aomcx.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 1504,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-02-10T19:00:24Z",
+      "side": 1,
+      "message": "IMPORTANT: It seems that we should divide by 16, not 4, because there is a float value for each 16x16 block. Here is the code:\n\n```\nstatic void ext_rate_guided_quantization(AV1_COMP *cpi) {\n  ...\n  // Accumuate to 16x16\n  const int block_step \u003d mi_size_wide[BLOCK_16X16];\n  ...\n  for (int row \u003d 0; row \u003c cpi-\u003eframe_info.mi_rows; row +\u003d block_step) {\n    for (int col \u003d 0; col \u003c cpi-\u003eframe_info.mi_cols; col +\u003d block_step) {\n      float val;\n      const int fields_converted \u003d fscanf(pfile, \"%f\", \u0026val);\n```\n\n`block_step` is equal to 4, but note that we are dividing `mi_rows` and `mi_cols` by 4 here.",
+      "parentUuid": "516c6a26_11691111",
+      "revId": "d633329311fcc38b3724ab433b90555405330870",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "c6054385_b8d83548",
         "filename": "aom/aomcx.h",
         "patchSetId": 1
@@ -99,6 +117,23 @@
       "writtenOn": "2023-02-10T18:50:20Z",
       "side": 1,
       "message": "Nit: requires to read \u003d\u003e requires reading\n\nOr we can say \"it requires an input file specified by --rate-distribution-info.\"",
+      "revId": "d633329311fcc38b3724ab433b90555405330870",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bdd4a46b_60fa743c",
+        "filename": "av1/encoder/allintra_vis.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 488,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-02-10T19:00:24Z",
+      "side": 1,
+      "message": "Nit/optional: Since `BLOCK_16X16` is a constant, I probably would just use the constant 4 here, rather than look it up from the `mi_size_wide` table. This assumes the size of `mi` is 4x4 and will never change.",
       "revId": "d633329311fcc38b3724ab433b90555405330870",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
