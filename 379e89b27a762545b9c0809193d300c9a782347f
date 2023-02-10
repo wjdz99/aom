@@ -18,6 +18,23 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "28123087_eacde9d9",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-02-10T19:14:39Z",
+      "side": 1,
+      "message": "Nit: mention \"saliency_map\" in this paragraph. Otherwise this sounds very generic.\n\nYou can also be more specific about the data type change and say it\u0027s from double to uint8_t. I personally would also be interested in knowing why you made this change (e.g., to save memory) and why uint8_t is big enough.",
+      "revId": "379e89b27a762545b9c0809193d300c9a782347f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "7c668b64_73bf7dd8",
@@ -31,6 +48,23 @@
       "writtenOn": "2023-02-10T14:48:07Z",
       "side": 1,
       "message": "This CL mainly addresses the memory allocation error check and function/param renaming following the convention. \n\nThe function re-use and memory allocation optimization, as well as changing all intermediate maps\u0027 value type from double to integer will be addressed in separate CLs.",
+      "revId": "379e89b27a762545b9c0809193d300c9a782347f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6777c012_18081e78",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-02-10T19:14:39Z",
+      "side": 1,
+      "message": "Lin: Please consider my review as supplemental. I only took a quick look at a few random places in this CL.",
       "revId": "379e89b27a762545b9c0809193d300c9a782347f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -54,6 +88,74 @@
         "endLine": 1400,
         "endChar": 54
       },
+      "revId": "379e89b27a762545b9c0809193d300c9a782347f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3c15ee40_187d1403",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1400,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-02-10T19:14:39Z",
+      "side": 1,
+      "message": "Nit: Omit the parentheses `()` around `cm-\u003eheight` and `cm-\u003ewidth`.",
+      "revId": "379e89b27a762545b9c0809193d300c9a782347f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "016a6866_e68b49a0",
+        "filename": "av1/encoder/saliency_map.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 171,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-02-10T19:14:39Z",
+      "side": 1,
+      "message": "Since the old values of `intensity`, `cr`, `cg`, and `cb` are all at most 255, if we divide by 256 here, the new values will never be equal to 1.0. Is this intended?\n\nI am wondering if we should divide by 255 instead.",
+      "revId": "379e89b27a762545b9c0809193d300c9a782347f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3a9b7586_1d210773",
+        "filename": "av1/encoder/saliency_map.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 235,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-02-10T19:14:39Z",
+      "side": 1,
+      "message": "A library such as libaom should not print a message in general. It is fine for a program such as `aomenc` to print a message, but it is not appropriate to do that in a library. The reason is that a library can also be used by other programs, such as Chrome. Some of these programs may not be able to display error messages written to stdout or stderr.",
+      "revId": "379e89b27a762545b9c0809193d300c9a782347f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ec3fa5f1_53b65f24",
+        "filename": "av1/encoder/saliency_map.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 236,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-02-10T19:14:39Z",
+      "side": 1,
+      "message": "IMPORTANT: In general we need to modify a function to return a value that indicates success/failure, and return a failure status here. Then we modify the caller of this function to check the return value and handle a failure appropriately.\n\nDoing this properly will potentially add a lot of error-handling code, but we cannot avoid that if we want to handle memory allocation failures.",
       "revId": "379e89b27a762545b9c0809193d300c9a782347f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
