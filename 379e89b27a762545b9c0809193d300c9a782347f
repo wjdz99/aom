@@ -145,6 +145,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "4b1b7f53_58836eb8",
+        "filename": "av1/encoder/saliency_map.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 235,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-02-10T21:51:49Z",
+      "side": 1,
+      "message": "I just realized that the reason I gave above is just a secondary reason. The main reason a library should not print a message to stdout or stderr is that stdout and stderr are shared by everything in the process. This kind of process-wide resource should be controlled by the application. In this case, any message that libaom writes to stdout or stderr may interfere with the application\u0027s use of stdout or stderr.",
+      "parentUuid": "3a9b7586_1d210773",
+      "revId": "379e89b27a762545b9c0809193d300c9a782347f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "ec3fa5f1_53b65f24",
         "filename": "av1/encoder/saliency_map.c",
         "patchSetId": 1
