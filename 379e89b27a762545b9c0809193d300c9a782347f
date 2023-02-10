@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7c668b64_73bf7dd8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 31132
+      },
+      "writtenOn": "2023-02-10T14:48:07Z",
+      "side": 1,
+      "message": "This CL mainly addresses the memory allocation error check and function/param renaming following the convention. \n\nThe function re-use and memory allocation optimization, as well as changing all intermediate maps\u0027 value type from double to integer will be addressed in separate CLs.",
+      "revId": "379e89b27a762545b9c0809193d300c9a782347f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
