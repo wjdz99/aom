@@ -35,6 +35,42 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "00871792_90638013",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 31132
+      },
+      "writtenOn": "2023-02-11T00:35:17Z",
+      "side": 1,
+      "message": "Yes, you are right. I under-estimated the size of the change set...but I\u0027d like to keep this CL as is this time to save some split efforts:)",
+      "parentUuid": "601f5e2b_a19cd17c",
+      "revId": "379e89b27a762545b9c0809193d300c9a782347f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f7b5ff2a_00e06869",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 31132
+      },
+      "writtenOn": "2023-02-11T00:35:17Z",
+      "side": 1,
+      "message": "The data type change is suggested by Jingning, since floating point might cause different behaviours across platforms. Ideally, all intermediate maps is preferred to use integer values, but it needs some additional efforts to evaluate the impact. I will take it as a side task later.\n\nuint8_t should be good enough depends on the final normalization. Thanks for bringing it up, I just spotted a bug there and fixed it.",
+      "parentUuid": "28123087_eacde9d9",
+      "revId": "379e89b27a762545b9c0809193d300c9a782347f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "7c668b64_73bf7dd8",
@@ -109,6 +145,48 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "18d2eb89_9f4a9c5b",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1400,
+      "author": {
+        "id": 31132
+      },
+      "writtenOn": "2023-02-11T00:35:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3c15ee40_187d1403",
+      "revId": "379e89b27a762545b9c0809193d300c9a782347f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9e01ae89_21ad6958",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1400,
+      "author": {
+        "id": 31132
+      },
+      "writtenOn": "2023-02-11T00:35:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1cf09207_aef286d9",
+      "range": {
+        "startLine": 1400,
+        "startChar": 53,
+        "endLine": 1400,
+        "endChar": 54
+      },
+      "revId": "379e89b27a762545b9c0809193d300c9a782347f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "016a6866_e68b49a0",
@@ -122,6 +200,24 @@
       "writtenOn": "2023-02-10T19:14:39Z",
       "side": 1,
       "message": "Since the old values of `intensity`, `cr`, `cg`, and `cb` are all at most 255, if we divide by 256 here, the new values will never be equal to 1.0. Is this intended?\n\nI am wondering if we should divide by 255 instead.",
+      "revId": "379e89b27a762545b9c0809193d300c9a782347f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "624afaf4_2dacdd03",
+        "filename": "av1/encoder/saliency_map.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 171,
+      "author": {
+        "id": 31132
+      },
+      "writtenOn": "2023-02-11T00:35:17Z",
+      "side": 1,
+      "message": "The normalization factor doesn\u0027t really matter here, it\u0027s not necessary to reach 1.0. I use 256 just for easy division. When I start the intermediate map data type conversion later, I will need to re-normalize them to integer.",
+      "parentUuid": "016a6866_e68b49a0",
       "revId": "379e89b27a762545b9c0809193d300c9a782347f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -161,6 +257,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "85199ed4_3c3052b2",
+        "filename": "av1/encoder/saliency_map.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 235,
+      "author": {
+        "id": 31132
+      },
+      "writtenOn": "2023-02-11T00:35:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4b1b7f53_58836eb8",
+      "revId": "379e89b27a762545b9c0809193d300c9a782347f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ec3fa5f1_53b65f24",
@@ -174,6 +288,24 @@
       "writtenOn": "2023-02-10T19:14:39Z",
       "side": 1,
       "message": "IMPORTANT: In general we need to modify a function to return a value that indicates success/failure, and return a failure status here. Then we modify the caller of this function to check the return value and handle a failure appropriately.\n\nDoing this properly will potentially add a lot of error-handling code, but we cannot avoid that if we want to handle memory allocation failures.",
+      "revId": "379e89b27a762545b9c0809193d300c9a782347f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0b46ac06_1dbfd953",
+        "filename": "av1/encoder/saliency_map.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 236,
+      "author": {
+        "id": 31132
+      },
+      "writtenOn": "2023-02-11T00:35:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ec3fa5f1_53b65f24",
       "revId": "379e89b27a762545b9c0809193d300c9a782347f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -195,6 +327,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "85342e7c_cc21289d",
+        "filename": "av1/encoder/saliency_map.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 239,
+      "author": {
+        "id": 31132
+      },
+      "writtenOn": "2023-02-11T00:35:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a6a5a0db_dc5a04d9",
+      "revId": "379e89b27a762545b9c0809193d300c9a782347f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "036d8eba_0a7b57c5",
@@ -208,6 +358,24 @@
       "writtenOn": "2023-02-10T19:11:22Z",
       "side": 1,
       "message": "you should include string.h for `memcpy`, `memset`, etc.\n\nhttps://google.github.io/styleguide/cppguide.html#Include_What_You_Use",
+      "revId": "379e89b27a762545b9c0809193d300c9a782347f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1a3f1a92_62b34eae",
+        "filename": "av1/encoder/saliency_map.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 250,
+      "author": {
+        "id": 31132
+      },
+      "writtenOn": "2023-02-11T00:35:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "036d8eba_0a7b57c5",
       "revId": "379e89b27a762545b9c0809193d300c9a782347f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -229,6 +397,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "83f7ad0c_5592c29b",
+        "filename": "av1/encoder/saliency_map.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 272,
+      "author": {
+        "id": 31132
+      },
+      "writtenOn": "2023-02-11T00:35:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "79c665fe_e85b75fe",
+      "revId": "379e89b27a762545b9c0809193d300c9a782347f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "db34587a_358d2f2d",
@@ -242,6 +428,30 @@
       "writtenOn": "2023-02-10T19:11:22Z",
       "side": 1,
       "message": "Capitals in the comment are fine. This is mismatched with the previous line now.",
+      "range": {
+        "startLine": 307,
+        "startChar": 19,
+        "endLine": 307,
+        "endChar": 22
+      },
+      "revId": "379e89b27a762545b9c0809193d300c9a782347f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8d44237a_96912c08",
+        "filename": "av1/encoder/saliency_map.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 307,
+      "author": {
+        "id": 31132
+      },
+      "writtenOn": "2023-02-11T00:35:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "db34587a_358d2f2d",
       "range": {
         "startLine": 307,
         "startChar": 19,
