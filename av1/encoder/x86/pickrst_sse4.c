@@ -11,6 +11,7 @@
 
 #include <assert.h>
 #include <emmintrin.h>
+#include "aom_dsp/x86/mem_sse2.h"
 #include "aom_dsp/x86/synonyms.h"
 
 #include "config/av1_rtcd.h"
@@ -62,7 +63,7 @@ static INLINE void acc_stat_win7_one_line_sse4_1(
         M_int[k][l] += D1 * X1 + D2 * X2;
 
         const __m128i kl =
-            _mm_cvtepu8_epi16(_mm_set1_epi16(*((int16_t *)(dgd_ijk + l))));
+            _mm_cvtepu8_epi16(_mm_set1_epi16(loadu_int16(dgd_ijk + l)));
         acc_stat_sse41(H_ + 0 * 8, dgd_ij + 0 * dgd_stride, shuffle, &kl);
         acc_stat_sse41(H_ + 1 * 8, dgd_ij + 1 * dgd_stride, shuffle, &kl);
         acc_stat_sse41(H_ + 2 * 8, dgd_ij + 2 * dgd_stride, shuffle, &kl);
@@ -574,7 +575,7 @@ static INLINE void acc_stat_win5_one_line_sse4_1(
         M_int[k][l] += D1 * X1 + D2 * X2;
 
         const __m128i kl =
-            _mm_cvtepu8_epi16(_mm_set1_epi16(*((int16_t *)(dgd_ijk + l))));
+            _mm_cvtepu8_epi16(_mm_set1_epi16(loadu_int16(dgd_ijk + l)));
         acc_stat_sse41(H_ + 0 * 8, dgd_ij + 0 * dgd_stride, shuffle, &kl);
         acc_stat_sse41(H_ + 1 * 8, dgd_ij + 1 * dgd_stride, shuffle, &kl);
         acc_stat_sse41(H_ + 2 * 8, dgd_ij + 2 * dgd_stride, shuffle, &kl);
