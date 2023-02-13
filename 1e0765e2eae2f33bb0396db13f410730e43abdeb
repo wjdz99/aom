@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9851cda1_ac06b6cd",
+        "filename": "av1/encoder/saliency_map.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 410,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2023-02-13T18:53:01Z",
+      "side": 1,
+      "message": "If return 0 here, then gaussian_map will not be freed",
+      "range": {
+        "startLine": 410,
+        "startChar": 4,
+        "endLine": 410,
+        "endChar": 13
+      },
+      "revId": "1e0765e2eae2f33bb0396db13f410730e43abdeb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "02324bb7_adacf029",
+        "filename": "av1/encoder/saliency_map.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 462,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2023-02-13T18:53:01Z",
+      "side": 1,
+      "message": "Same here",
+      "range": {
+        "startLine": 462,
+        "startChar": 4,
+        "endLine": 462,
+        "endChar": 13
+      },
+      "revId": "1e0765e2eae2f33bb0396db13f410730e43abdeb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4e413798_bfa29eee",
+        "filename": "av1/encoder/saliency_map.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 626,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2023-02-13T18:53:01Z",
+      "side": 1,
+      "message": "And here",
+      "range": {
+        "startLine": 626,
+        "startChar": 6,
+        "endLine": 626,
+        "endChar": 15
+      },
+      "revId": "1e0765e2eae2f33bb0396db13f410730e43abdeb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "83f84135_193b01b3",
+        "filename": "av1/encoder/saliency_map.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1029,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2023-02-13T18:53:01Z",
+      "side": 1,
+      "message": "This too",
+      "range": {
+        "startLine": 1029,
+        "startChar": 4,
+        "endLine": 1029,
+        "endChar": 13
+      },
+      "revId": "1e0765e2eae2f33bb0396db13f410730e43abdeb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d80abe8b_00c416fe",
+        "filename": "av1/encoder/saliency_map.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1069,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2023-02-13T18:53:01Z",
+      "side": 1,
+      "message": "Please double check whether the locally allocated variable are freed in this CL",
+      "range": {
+        "startLine": 1069,
+        "startChar": 4,
+        "endLine": 1069,
+        "endChar": 13
+      },
+      "revId": "1e0765e2eae2f33bb0396db13f410730e43abdeb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
