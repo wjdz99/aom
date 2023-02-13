@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3e53bfa1_7a290c0b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 30842
+      },
+      "writtenOn": "2023-02-13T15:12:19Z",
+      "side": 1,
+      "message": "This change seems to reinsert some of the previously pruned functions back into the binary (at least for x86). Some functions fdct/idst4/8/16/32/64 stick around, regardless of whether lto is on or not. Should probably do remove the high bd path completely and other refactoring, so that all that stuff disappears.",
+      "revId": "3a090c30381157f93bb6749961ddfb00071d7d08",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
