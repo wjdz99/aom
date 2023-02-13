@@ -24,6 +24,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "85531125_ab8e6f4c",
+        "filename": "av1/encoder/saliency_map.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 410,
+      "author": {
+        "id": 31132
+      },
+      "writtenOn": "2023-02-13T23:08:21Z",
+      "side": 1,
+      "message": "Done. Thanks Bohan. I\u0027m also preparing another CL to optimize the memory allocations. There are indeed a few memory allocations could be saved, or allocated in a better place.",
+      "parentUuid": "9851cda1_ac06b6cd",
+      "range": {
+        "startLine": 410,
+        "startChar": 4,
+        "endLine": 410,
+        "endChar": 13
+      },
+      "revId": "1e0765e2eae2f33bb0396db13f410730e43abdeb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "02324bb7_adacf029",
@@ -37,6 +61,30 @@
       "writtenOn": "2023-02-13T18:53:01Z",
       "side": 1,
       "message": "Same here",
+      "range": {
+        "startLine": 462,
+        "startChar": 4,
+        "endLine": 462,
+        "endChar": 13
+      },
+      "revId": "1e0765e2eae2f33bb0396db13f410730e43abdeb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5e4a5eb3_73f669d5",
+        "filename": "av1/encoder/saliency_map.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 462,
+      "author": {
+        "id": 31132
+      },
+      "writtenOn": "2023-02-13T23:08:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "02324bb7_adacf029",
       "range": {
         "startLine": 462,
         "startChar": 4,
@@ -70,6 +118,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f34e5304_106fceb4",
+        "filename": "av1/encoder/saliency_map.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 626,
+      "author": {
+        "id": 31132
+      },
+      "writtenOn": "2023-02-13T23:08:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4e413798_bfa29eee",
+      "range": {
+        "startLine": 626,
+        "startChar": 6,
+        "endLine": 626,
+        "endChar": 15
+      },
+      "revId": "1e0765e2eae2f33bb0396db13f410730e43abdeb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "83f84135_193b01b3",
@@ -93,6 +165,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "d460a2df_f5c664db",
+        "filename": "av1/encoder/saliency_map.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1029,
+      "author": {
+        "id": 31132
+      },
+      "writtenOn": "2023-02-13T23:08:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "83f84135_193b01b3",
+      "range": {
+        "startLine": 1029,
+        "startChar": 4,
+        "endLine": 1029,
+        "endChar": 13
+      },
+      "revId": "1e0765e2eae2f33bb0396db13f410730e43abdeb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d80abe8b_00c416fe",
@@ -106,6 +202,30 @@
       "writtenOn": "2023-02-13T18:53:01Z",
       "side": 1,
       "message": "Please double check whether the locally allocated variable are freed in this CL",
+      "range": {
+        "startLine": 1069,
+        "startChar": 4,
+        "endLine": 1069,
+        "endChar": 13
+      },
+      "revId": "1e0765e2eae2f33bb0396db13f410730e43abdeb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4c700e4c_390d6273",
+        "filename": "av1/encoder/saliency_map.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1069,
+      "author": {
+        "id": 31132
+      },
+      "writtenOn": "2023-02-13T23:08:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d80abe8b_00c416fe",
       "range": {
         "startLine": 1069,
         "startChar": 4,
