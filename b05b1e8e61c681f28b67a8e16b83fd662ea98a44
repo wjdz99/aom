@@ -24,6 +24,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "7d5d1957_fab55aeb",
+        "filename": "av1/encoder/x86/pickrst_avx2.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 792,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-02-13T21:11:25Z",
+      "side": 1,
+      "message": "Thanks for the suggestion. We can\u0027t use `SGRPROJ_SGR` here because it is not equal to `(1 \u003c\u003c SGRPROJ_RST_BITS)`.\n\nHere are the four relevant macro definitions in av1/common/restoration.h:\n```\n// Precision bits for projection\n#define SGRPROJ_PRJ_BITS 7\n// Restoration precision bits generated higher than source before projection\n#define SGRPROJ_RST_BITS 4\n// Internal precision bits for core selfguided_restoration\n#define SGRPROJ_SGR_BITS 8\n#define SGRPROJ_SGR (1 \u003c\u003c SGRPROJ_SGR_BITS)\n```",
+      "parentUuid": "3d02bebe_063ddf4d",
+      "range": {
+        "startLine": 792,
+        "startChar": 53,
+        "endLine": 792,
+        "endChar": 69
+      },
+      "revId": "b05b1e8e61c681f28b67a8e16b83fd662ea98a44",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c4e15f4f_e90303ca",
@@ -37,6 +61,30 @@
       "writtenOn": "2023-02-13T18:44:13Z",
       "side": 1,
       "message": "is xq_active always negative or can it vary?",
+      "range": {
+        "startLine": 783,
+        "startChar": 35,
+        "endLine": 783,
+        "endChar": 44
+      },
+      "revId": "b05b1e8e61c681f28b67a8e16b83fd662ea98a44",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cf098302_95c77a0b",
+        "filename": "av1/encoder/x86/pickrst_sse4.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 783,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-02-13T21:11:25Z",
+      "side": 1,
+      "message": "Apparently `xq_active` is usually positive or zero. That\u0027s why we only see the undefined behavior in pickrst_neon.c in the `CodingPathSync.SearchForHbdLbdMismatch` test, where `xq_active` is -53.\n\nNote: I also wondered whether it is an error if `xq_active` is negative. I looked at the code briefly. `xq` is decoded from `xqd`. It seems that under some conditions `xq` can be negative. I can ask Debargha about this. He seems to be the original author of this code: https://aomedia-review.googlesource.com/c/aom/+/5594\n\nSearch for \"decode_xq\" in av1/encoder/pickrst.c in that CL.",
+      "parentUuid": "c4e15f4f_e90303ca",
       "range": {
         "startLine": 783,
         "startChar": 35,
