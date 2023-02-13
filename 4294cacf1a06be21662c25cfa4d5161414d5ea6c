@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4e096129_c1f87be7",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2023-02-13T22:05:24Z",
+      "side": 1,
+      "message": "These changes are based on external documentation I had started writing; it occurred to me that this level of doc really belongs in the header.",
+      "revId": "4294cacf1a06be21662c25cfa4d5161414d5ea6c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
