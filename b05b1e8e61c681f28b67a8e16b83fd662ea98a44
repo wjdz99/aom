@@ -117,6 +117,30 @@
       },
       "revId": "b05b1e8e61c681f28b67a8e16b83fd662ea98a44",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "092f6362_a432cfb7",
+        "filename": "av1/encoder/x86/pickrst_sse4.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 783,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-02-13T21:43:56Z",
+      "side": 1,
+      "message": "I just did an experiment. I added a line to print `xq_active` after it is initialized:\n\n```\ndiff --git a/av1/encoder/x86/pickrst_sse4.c b/av1/encoder/x86/pickrst_sse4.c\nindex be132ea65..3657b4f79 100644\n--- a/av1/encoder/x86/pickrst_sse4.c\n+++ b/av1/encoder/x86/pickrst_sse4.c\n@@ -780,6 +780,7 @@ int64_t av1_lowbd_pixel_proj_error_sse4_1(\n     }\n   } else if (params-\u003er[0] \u003e 0 || params-\u003er[1] \u003e 0) {\n     const int xq_active \u003d (params-\u003er[0] \u003e 0) ? xq[0] : xq[1];\n+    fprintf(stderr, \"xq_active\u003d%d\\n\", xq_active);\n     const __m128i xq_coeff \u003d\n         pair_set_epi16(xq_active, -xq_active * (1 \u003c\u003c SGRPROJ_RST_BITS));\n     const int32_t *flt \u003d (params-\u003er[0] \u003e 0) ? flt0 : flt1;\n```\n\nI then ran the CodingPathSync.SearchForHbdLbdMismatch test with `AOM_SIMD_CAPS_MASK` set to sse4_1:\n\n```\nexport AOM_SIMD_CAPS_MASK\u003d0x3f\n./test_libaom --gtest_filter\u003dCodingPathSync.SearchForHbdLbdMismatch\n```\n\nThe first few lines of the output are pasted below. It shows -53 is merely the first negative value the test hits. I guess UBSan only reports the first instance of each error. Negative values of `xq_active` are also observed in the `CodingPathSyncLarge.SearchForHbdLbdMismatchLarge` test.\n\n```\n[\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d] Running 1 test from 1 test suite.\n[----------] Global test environment set-up.\n[----------] 1 test from CodingPathSync\n[ RUN      ] CodingPathSync.SearchForHbdLbdMismatch\nxq_active\u003d160\nxq_active\u003d158\nxq_active\u003d156\nxq_active\u003d154\nxq_active\u003d152\nxq_active\u003d155\nxq_active\u003d148\nxq_active\u003d150\nxq_active\u003d152\nxq_active\u003d154\nxq_active\u003d156\nxq_active\u003d158\nxq_active\u003d160\nxq_active\u003d159\nxq_active\u003d104\nxq_active\u003d106\nxq_active\u003d108\nxq_active\u003d110\nxq_active\u003d112\nxq_active\u003d114\nxq_active\u003d113\nxq_active\u003d77\nxq_active\u003d79\nxq_active\u003d75\nxq_active\u003d73\nxq_active\u003d71\nxq_active\u003d69\nxq_active\u003d67\nxq_active\u003d65\nxq_active\u003d63\nxq_active\u003d61\nxq_active\u003d59\nxq_active\u003d57\nxq_active\u003d55\nxq_active\u003d53\nxq_active\u003d56\nxq_active\u003d-53\nxq_active\u003d-55\nxq_active\u003d-57\nxq_active\u003d-59\nxq_active\u003d-58\nxq_active\u003d-56\nxq_active\u003d-32\nxq_active\u003d-34\nxq_active\u003d-36\nxq_active\u003d-38\nxq_active\u003d-40\nxq_active\u003d-42\nxq_active\u003d-44\nxq_active\u003d-46\nxq_active\u003d-48\nxq_active\u003d-50\nxq_active\u003d-49\nxq_active\u003d160\nxq_active\u003d158\nxq_active\u003d156\nxq_active\u003d154\nxq_active\u003d152\nxq_active\u003d155\nxq_active\u003d160\nxq_active\u003d158\nxq_active\u003d156\n...\n```",
+      "parentUuid": "cf098302_95c77a0b",
+      "range": {
+        "startLine": 783,
+        "startChar": 35,
+        "endLine": 783,
+        "endChar": 44
+      },
+      "revId": "b05b1e8e61c681f28b67a8e16b83fd662ea98a44",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ],
   "submitRequirementResults": [
