@@ -54,6 +54,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "f09a30ad_cbb2ee18",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 31022
+      },
+      "writtenOn": "2023-02-14T10:10:10Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nAs per your suggestion we have removed few newly added files. Since many functions are specific to inter, we have moved them to nonrd_utils.c instead of intra_mode_search_nonrd.c. We hope this approach is fine.",
+      "parentUuid": "d8c28f16_80e0021e",
+      "revId": "f647fd5002419c111913ab67ec993f5710da3b60",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "f979909e_2325ff64",
         "filename": "av1/av1.cmake",
         "patchSetId": 3
@@ -65,6 +83,30 @@
       "writtenOn": "2023-02-10T19:17:14Z",
       "side": 1,
       "message": "Put nonrd in the front as in other nonrd file name?",
+      "range": {
+        "startLine": 249,
+        "startChar": 55,
+        "endLine": 249,
+        "endChar": 60
+      },
+      "revId": "f647fd5002419c111913ab67ec993f5710da3b60",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6d2422e5_fe37464f",
+        "filename": "av1/av1.cmake",
+        "patchSetId": 3
+      },
+      "lineNbr": 249,
+      "author": {
+        "id": 31022
+      },
+      "writtenOn": "2023-02-14T10:10:10Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "f979909e_2325ff64",
       "range": {
         "startLine": 249,
         "startChar": 55,
@@ -98,6 +140,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "5317ec26_53481cdd",
+        "filename": "av1/encoder/nonrd_utils.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 31022
+      },
+      "writtenOn": "2023-02-14T10:10:10Z",
+      "side": 1,
+      "message": "These functions are used in inter path as well. Hence, in the updated patch all the functions are moved to nonrd_utils.c",
+      "parentUuid": "a916e226_6e4082a7",
+      "range": {
+        "startLine": 125,
+        "startChar": 5,
+        "endLine": 125,
+        "endChar": 18
+      },
+      "revId": "f647fd5002419c111913ab67ec993f5710da3b60",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ea9ef476_113c4513",
@@ -121,6 +187,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a8d47e52_d1761787",
+        "filename": "av1/encoder/nonrd_utils.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 31022
+      },
+      "writtenOn": "2023-02-14T10:10:10Z",
+      "side": 1,
+      "message": "We moved this function to nonrd_opt.h as it is common between nonrd_pickmode.c and nonrd_utils.c",
+      "parentUuid": "ea9ef476_113c4513",
+      "range": {
+        "startLine": 36,
+        "startChar": 19,
+        "endLine": 36,
+        "endChar": 49
+      },
+      "revId": "f647fd5002419c111913ab67ec993f5710da3b60",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ae87d36e_78f9ff2c",
@@ -134,6 +224,30 @@
       "writtenOn": "2023-02-10T19:17:14Z",
       "side": 1,
       "message": "Might be ok to move the definition in the header since this function is short?",
+      "range": {
+        "startLine": 62,
+        "startChar": 0,
+        "endLine": 66,
+        "endChar": 32
+      },
+      "revId": "f647fd5002419c111913ab67ec993f5710da3b60",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bfbbfa87_2aaac64a",
+        "filename": "av1/encoder/nonrd_utils.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 31022
+      },
+      "writtenOn": "2023-02-14T10:10:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ae87d36e_78f9ff2c",
       "range": {
         "startLine": 62,
         "startChar": 0,
