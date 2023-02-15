@@ -73,6 +73,42 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "1643835b_09cfaabf",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 31132
+      },
+      "writtenOn": "2023-02-15T23:58:02Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "f7b5ff2a_00e06869",
+      "revId": "379e89b27a762545b9c0809193d300c9a782347f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "25281d02_0a6f4f86",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 31132
+      },
+      "writtenOn": "2023-02-15T23:58:02Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "00871792_90638013",
+      "revId": "379e89b27a762545b9c0809193d300c9a782347f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "7c668b64_73bf7dd8",
         "filename": "/PATCHSET_LEVEL",
         "patchSetId": 1
@@ -218,6 +254,24 @@
       "side": 1,
       "message": "The normalization factor doesn\u0027t really matter here, it\u0027s not necessary to reach 1.0. I use 256 just for easy division. When I start the intermediate map data type conversion later, I will need to re-normalize them to integer.",
       "parentUuid": "016a6866_e68b49a0",
+      "revId": "379e89b27a762545b9c0809193d300c9a782347f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fb5dc32a_b7a08574",
+        "filename": "av1/encoder/saliency_map.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 171,
+      "author": {
+        "id": 31132
+      },
+      "writtenOn": "2023-02-15T23:58:02Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "624afaf4_2dacdd03",
       "revId": "379e89b27a762545b9c0809193d300c9a782347f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
