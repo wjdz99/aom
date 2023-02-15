@@ -37,9 +37,10 @@ struct TplUnitDepStats {
 };
 
 struct TplFrameDepStats {
-  int unit_size;      // equivalent to min_block_size
-  double rdcost;      // overall rate-distortion cost
-  double alt_rdcost;  // rate-distortion cost in the second tpl pass
+  int unit_size;           // equivalent to min_block_size
+  double rdcost;           // overall rate-distortion cost
+  double alt_rdcost;       // rate-distortion cost in the second tpl pass
+  bool rate_dist_present;  // True if recrf_rate and recrf_dist are populated.
   std::vector<std::vector<TplUnitDepStats>> unit_stats;
   std::vector<std::vector<TplUnitDepStats>> alt_unit_stats;
   std::vector<int> ref_frame_indices;

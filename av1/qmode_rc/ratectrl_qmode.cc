@@ -1102,6 +1102,7 @@ StatusOr<TplFrameDepStats> CreateTplFrameDepStatsWithoutPropagation(
       frame_stats.frame_height, frame_stats.frame_width, min_block_size,
       !frame_stats.alternate_block_stats_list.empty());
   frame_dep_stats.ref_frame_indices = frame_stats.ref_frame_indices;
+  frame_dep_stats.rate_dist_present = frame_stats.rate_dist_present;
 
   Status status = FillTplUnitDepStats(frame_dep_stats.unit_stats, frame_stats,
                                       frame_stats.block_stats_list);
@@ -1331,16 +1332,19 @@ void TplFrameDepStatsPropagate(int coding_idx,
                   ref_unit_col * unit_size, unit_size);
               const double overlap_ratio =
                   overlap_area * 1.0 / (unit_size * unit_size);
-              const double propagation_fraction_power = 0.3;
-              // We apply propagation_fraction with power of 0.3 to improve
-              // propagation rate. The power coefficient is tuned from empirical
-              // practice due to the fact that the inter/intra cost is RD cost
-              // not prediction error which is used in the original design. This
-              // action will increase the propagation_fraction when the
-              // difference between intra_cost and inter_cost are reasonably big
-              // but not enough for propagation.
-              // TODO(angiebird): Check this part again when we use prediction
-              // error for inter/intra cost.
+              double propagation_fraction_power = 1.0;
+              if(!frame_dep_stats->rate_dist_present) {
+                // We apply propagation_fraction with power of 0.3 to improve
+                // propagation rate. The power coefficient is tuned from empirical
+                // practice due to the fact that the inter/intra cost is RD cost
+                // not prediction error which is used in the original design. This
+                // action will increase the propagation_fraction when the
+                // difference between intra_cost and inter_cost are reasonably big
+                // but not enough for propagation.
+                // TODO(angiebird): Check this part again when we use prediction
+                // error for inter/intra cost.
+                propagation_fraction_power = 0.3;
+              }
               const double propagation_fraction =
                   std::pow(GetPropagationFraction(unit_dep_stats),
                            propagation_fraction_power);
