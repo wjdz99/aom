@@ -18,6 +18,23 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "262576e4_6d1da825",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2023-02-16T00:35:55Z",
+      "side": 1,
+      "message": "Thanks for the review. PTAL.",
+      "revId": "d633329311fcc38b3724ab433b90555405330870",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "15e05823_2e7289cc",
@@ -35,6 +52,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "7ac73a46_18e0f77c",
+        "filename": "aom/aomcx.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 1495,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2023-02-16T00:35:55Z",
+      "side": 1,
+      "message": "Done\n.txt suffix makes sense. I also changed related .csv suffix to .txt.",
+      "parentUuid": "15e05823_2e7289cc",
+      "revId": "d633329311fcc38b3724ab433b90555405330870",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "071bfcba_c2919ab9",
@@ -48,6 +83,24 @@
       "writtenOn": "2023-02-10T18:50:20Z",
       "side": 1,
       "message": "Please add \"const char * parameter\" to this comment.\n\nThe reason we document the type of the \"value\" parameter is that the `aom_codec_control()` function\u0027s prototype is missing the third parameter:\n\n```\n/*!\\brief Algorithm Control\n *\n * aom_codec_control takes a context, a control ID, and a third parameter\n * (with varying type). If the context is non-null and an error occurs,\n...\naom_codec_err_t aom_codec_control(aom_codec_ctx_t *ctx, int ctrl_id, ...);\n```",
+      "revId": "d633329311fcc38b3724ab433b90555405330870",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "23cc74fc_996e9f1a",
+        "filename": "aom/aomcx.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 1500,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2023-02-16T00:35:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "071bfcba_c2919ab9",
       "revId": "d633329311fcc38b3724ab433b90555405330870",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -87,6 +140,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "5e03ec75_2db458b6",
+        "filename": "aom/aomcx.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 1504,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2023-02-16T00:35:55Z",
+      "side": 1,
+      "message": "Note that ROUND_POWER_OF_TWO(frame_height + 3, 2) / 4 is equal to \n((frame_height + 3) / 4) / 4.\n\nI will change it to ALIGN_POWER_OF_TWO(frame_height, 2) / 4",
+      "parentUuid": "7ee42c25_cb296922",
+      "revId": "d633329311fcc38b3724ab433b90555405330870",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c6054385_b8d83548",
@@ -100,6 +171,24 @@
       "writtenOn": "2023-02-10T18:50:20Z",
       "side": 1,
       "message": "Nit: the word \"requires\" is duplicated. Remove one.",
+      "revId": "d633329311fcc38b3724ab433b90555405330870",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5cccf1fd_86464fa6",
+        "filename": "aom/aomcx.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 1506,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2023-02-16T00:35:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c6054385_b8d83548",
       "revId": "d633329311fcc38b3724ab433b90555405330870",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -121,6 +210,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "70e14e64_b92924fc",
+        "filename": "av1/arg_defs.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 508,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2023-02-16T00:35:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "60d68b3e_db475afc",
+      "revId": "d633329311fcc38b3724ab433b90555405330870",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "bdd4a46b_60fa743c",
@@ -134,6 +241,24 @@
       "writtenOn": "2023-02-10T19:00:24Z",
       "side": 1,
       "message": "Nit/optional: Since `BLOCK_16X16` is a constant, I probably would just use the constant 4 here, rather than look it up from the `mi_size_wide` table. This assumes the size of `mi` is 4x4 and will never change.",
+      "revId": "d633329311fcc38b3724ab433b90555405330870",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "69c02251_e3fa488e",
+        "filename": "av1/encoder/allintra_vis.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 488,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2023-02-16T00:35:55Z",
+      "side": 1,
+      "message": "Done\nUsed a constant 4 with description to step size.",
+      "parentUuid": "bdd4a46b_60fa743c",
       "revId": "d633329311fcc38b3724ab433b90555405330870",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -169,6 +294,24 @@
       "side": 1,
       "message": "Just to wanted to elaborate on the comment \"A library should avoid writing a message to stdout or stderr.\"\n\nstdout and stderr are shared by everything in the process. This kind of process-wide resource should be controlled by the application. In this case, any message that libaom writes to stdout or stderr may interfere with the application\u0027s use of stdout or stderr.",
       "parentUuid": "167397db_4222ec3e",
+      "revId": "d633329311fcc38b3724ab433b90555405330870",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c6c840c2_0b64bb34",
+        "filename": "av1/encoder/allintra_vis.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 506,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2023-02-16T00:35:55Z",
+      "side": 1,
+      "message": "Done\nThanks for the suggestion and explanation.\nI will let the assertion fail.",
+      "parentUuid": "fada2719_668405a7",
       "revId": "d633329311fcc38b3724ab433b90555405330870",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
