@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "820c2ca7_c2bf35b9",
+        "filename": "av1/encoder/allintra_vis.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 272,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-02-16T22:29:37Z",
+      "side": 1,
+      "message": "I think we need to handle the high bit depth case here (if `is_cur_buf_hbd(xd)` is true).\n\nIn the high bit depth case, I think `pred_buffer` needs to be allocated twice as large. And then we need to convert `dst_buffer` from short pointer to byte pointer before passing it to the functions below.",
+      "revId": "3b6d6b52206558696afc8158be97616a24ad67f6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cbfed92d_a7948c34",
+        "filename": "av1/encoder/allintra_vis.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 276,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-02-16T22:29:37Z",
+      "side": 1,
+      "message": "This buffer is (128 + 8 * 2) * (128 + 8) \u003d 19584 bytes. It would be good to avoid zero-initializing the entire buffer.\n\nIt would also be good to add a comment to explain why we need to initialize the buffer, and whether it matters what value we initialize the buffer to. Any information you know will be valuable.",
+      "revId": "3b6d6b52206558696afc8158be97616a24ad67f6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
