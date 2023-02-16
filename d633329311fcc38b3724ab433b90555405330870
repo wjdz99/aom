@@ -194,6 +194,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "90705f4b_561b4f05",
+        "filename": "aom/aomcx.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 1504,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2023-02-16T19:21:33Z",
+      "side": 1,
+      "message": "I misunderstand ALIGN_POWER_OF_TWO. It does not right shift as ROUND_POWER_OF_TWO.\nSo, the correct formula should be:\nrows \u003d ROUND_POWER_OF_TWO(frame_height + 3, 2) / 4 (1)\n\nOr:\nrows \u003d ALIGN_POWER_OF_TWO(frame_height, 2) / 16  (2)\n\nAnd NOT equal to the following equation:\nrows \u003d (frame_height + 15) / 16 (3)\n\nExample:\nConsider frame_height in binary format 0b11000010.\nEquation (1) and (2) will produce rows \u003d 0b1100.\nBut equation (3) will produce rows \u003d 0b1101.",
+      "parentUuid": "52ea22fe_a1e30646",
+      "revId": "d633329311fcc38b3724ab433b90555405330870",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c6054385_b8d83548",
