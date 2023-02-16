@@ -160,6 +160,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "a985ce49_7af08244",
+        "filename": "aom/aomcx.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 1504,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-02-16T02:28:37Z",
+      "side": 1,
+      "message": "\u003e Note that ROUND_POWER_OF_TWO(frame_height + 3, 2) / 4 is equal to \n\u003e ((frame_height + 3) / 4) / 4.\n\nYou are right. Sorry about my mistake.\n\nMy two suggestions in my previous comment are equivalent. So they are both different from `ROUND_POWER_OF_TWO(frame_height + 3, 2) / 4`. I am don\u0027t know what is the correct value. I will need to work out the formula from the for loops in the `ext_rate_guided_quantization()` function.",
+      "parentUuid": "5e03ec75_2db458b6",
+      "revId": "d633329311fcc38b3724ab433b90555405330870",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "c6054385_b8d83548",
         "filename": "aom/aomcx.h",
         "patchSetId": 1
