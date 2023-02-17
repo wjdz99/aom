@@ -19,6 +19,16 @@
 #include "aom_dsp/aom_dsp_common.h"
 #include "aom_mem/aom_mem.h"
 
+static INLINE double clampf(double v, double min, double max) {
+  if (v < min) {
+    return min;
+  } else if (v > max) {
+    return max;
+  } else {
+    return v;
+  }
+}
+
 static const double TINY_NEAR_ZERO = 1.0E-16;
 
 // Solves Ax = b, where x and b are column vectors of size nx1 and A is nxn
