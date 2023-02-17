@@ -63,6 +63,14 @@ typedef struct FIRSTPASS_STATS {
    */
   double coded_error;
   /*!
+   * log of intra_error
+   */
+  double log_intra_error;
+  /*!
+   * log of coded_error
+   */
+  double log_coded_error;
+  /*!
    * Best of intra pred error and inter pred error using golden frame as ref.
    */
   double sr_coded_error;
