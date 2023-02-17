@@ -20,6 +20,58 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "2d9dfc49_0274ad08",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-02-17T22:22:37Z",
+      "side": 1,
+      "message": "Yes, in the current CL, the `ENABLE_RC_LIB` variable is just a way to avoid repeating a common conditional expression. It is used internally.",
+      "parentUuid": "fc9d662e_a92c29c2",
+      "revId": "57634d90e0f3f5c0d44cb8775b197cd6d1f71253",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "04ac469c_16d9ce7f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-02-17T22:22:37Z",
+      "side": 1,
+      "message": "Jerome: I somehow missed this CL. Sorry about the late review.",
+      "revId": "57634d90e0f3f5c0d44cb8775b197cd6d1f71253",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7e9e2203_7afc8ad2",
+        "filename": "CMakeLists.txt",
+        "patchSetId": 4
+      },
+      "lineNbr": 315,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-02-17T22:22:37Z",
+      "side": 1,
+      "message": "Nit: Maybe we can rename this variable to make it clear that it is not a cmake variable that you can set on the cmake command line. For example, \"RC_LIB_ENABLED` or \"BUILDING_RC_LIB\".",
+      "revId": "57634d90e0f3f5c0d44cb8775b197cd6d1f71253",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "2991ec4c_d95e5e67",
         "filename": "test/test.cmake",
         "patchSetId": 4
