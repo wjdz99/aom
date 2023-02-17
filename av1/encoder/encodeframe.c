@@ -1850,6 +1850,8 @@ static AOM_INLINE void encode_frame_internal(AV1_COMP *cpi) {
         oxcf->tool_cfg.enable_deltalf_mode;
     cm->delta_q_info.delta_lf_multi = DEFAULT_DELTA_LF_MULTI;
 
+    cm->delta_q_info.delta_q_present_flag = 1;
+
     // update delta_q_present_flag and delta_lf_present_flag based on
     // base_qindex
     cm->delta_q_info.delta_q_present_flag &= quant_params->base_qindex > 0;
