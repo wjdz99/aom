@@ -1,0 +1,106 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e71e9431_d0c13a5c",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-02-17T22:15:12Z",
+      "side": 1,
+      "message": "Nit: I am wondering if you meant to use a colon (:) at the end of this line. Should that be a period (.)?",
+      "revId": "b11f043117c5fbb4464221f0e9c003ca9fe3afb6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1b50e830_6a6b7db1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-02-17T22:15:12Z",
+      "side": 1,
+      "message": "LGTM. I suggest some small changes. I also have some questions because I am curious about your solution.",
+      "revId": "b11f043117c5fbb4464221f0e9c003ca9fe3afb6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "dc633203_075f89c8",
+        "filename": "aom_dsp/flow_estimation/disflow.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 333,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-02-17T22:15:12Z",
+      "side": 1,
+      "message": "I am curious why this technique is called (weak) regularization.",
+      "revId": "b11f043117c5fbb4464221f0e9c003ca9fe3afb6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "dfe598cd_10e31971",
+        "filename": "aom_dsp/flow_estimation/disflow.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 366,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-02-17T22:15:12Z",
+      "side": 1,
+      "message": "I am not familiar with least squares systems. Is this a well-known theorem?",
+      "revId": "b11f043117c5fbb4464221f0e9c003ca9fe3afb6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "22304a51_c0738adb",
+        "filename": "aom_dsp/flow_estimation/disflow.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 368,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-02-17T22:15:12Z",
+      "side": 1,
+      "message": "I can prove this follows from the above.",
+      "revId": "b11f043117c5fbb4464221f0e9c003ca9fe3afb6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b082086c_507a9a82",
+        "filename": "aom_dsp/flow_estimation/x86/disflow_sse4.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 464,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-02-17T22:15:12Z",
+      "side": 1,
+      "message": "Nit: Also add the comment:\n```\n  // This helps to avoid situations where det M \u003d 0\n```\n\nIn case we ever remove the `#if CHECK_RESULTS` block of code below, this comment will still be complete.",
+      "revId": "b11f043117c5fbb4464221f0e9c003ca9fe3afb6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
