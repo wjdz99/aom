@@ -640,6 +640,19 @@ static int cfl_pick_plane_parameter(const AV1_COMP *const cpi, MACROBLOCK *x,
   return est_best_cfl_idx;
 }
 
+// Set invalid CfL parameters as CfL mode is invalid.
+static AOM_INLINE void set_invalid_cfl_parameters(
+    CFL_CTX *cfl, uint8_t *best_cfl_alpha_idx, int8_t *best_cfl_alpha_signs) {
+  *best_cfl_alpha_idx = 0;
+  *best_cfl_alpha_signs = 0;
+
+  // Clear the following flags to avoid the unintentional usage of cached dc
+  // pred data.
+  cfl->use_dc_pred_cache = 0;
+  cfl->dc_pred_is_cached[0] = 0;
+  cfl->dc_pred_is_cached[1] = 0;
+}
+
 static void cfl_pick_plane_rd(const AV1_COMP *const cpi, MACROBLOCK *x,
                               int plane, TX_SIZE tx_size, int cfl_search_range,
                               RD_STATS cfl_rd_arr[CFL_MAGS_SIZE],
@@ -729,16 +742,31 @@ static int cfl_rd_pick_alpha(MACROBLOCK *const x, const AV1_COMP *const cpi,
   // CfL index=0 for both the chroma planes implies invalid CfL mode.
   if (cfl_search_range == 1 && est_best_cfl_idx_u == CFL_INDEX_ZERO &&
       est_best_cfl_idx_v == CFL_INDEX_ZERO) {
-    // Set invalid CfL parameters here as CfL mode is invalid.
-    *best_cfl_alpha_idx = 0;
-    *best_cfl_alpha_signs = 0;
-
-    // Clear the following flags to avoid the unintentional usage of cached dc
-    // pred data.
-    xd->cfl.use_dc_pred_cache = 0;
-    xd->cfl.dc_pred_is_cached[0] = 0;
-    xd->cfl.dc_pred_is_cached[1] = 0;
+    set_invalid_cfl_parameters(&xd->cfl, best_cfl_alpha_idx,
+                               best_cfl_alpha_signs);
     return 0;
+  }
+
+  if (cfl_search_range == 1) {
+    int cfl_alpha_u, cfl_alpha_v;
+    CFL_SIGN_TYPE cfl_sign_u, cfl_sign_v;
+    const MB_MODE_INFO *mbmi = xd->mi[0];
+    cfl_idx_to_sign_and_alpha(est_best_cfl_idx_u, &cfl_sign_u, &cfl_alpha_u);
+    cfl_idx_to_sign_and_alpha(est_best_cfl_idx_v, &cfl_sign_v, &cfl_alpha_v);
+    const int joint_sign = cfl_sign_u * CFL_SIGNS + cfl_sign_v - 1;
+    // Compute alpha and mode signaling rate.
+    const int rate_overhead =
+        mode_costs->cfl_cost[joint_sign][CFL_PRED_U][cfl_alpha_u] +
+        mode_costs->cfl_cost[joint_sign][CFL_PRED_V][cfl_alpha_v] +
+        mode_costs
+            ->intra_uv_mode_cost[is_cfl_allowed(xd)][mbmi->mode][UV_CFL_PRED];
+    // Skip the Cfl mode evaluation if its header RD cost (derived using alpha
+    // and mode signaling rates) exceeds the ref_best_rd.
+    if (RDCOST(x->rdmult, rate_overhead, 0) > ref_best_rd) {
+      set_invalid_cfl_parameters(&xd->cfl, best_cfl_alpha_idx,
+                                 best_cfl_alpha_signs);
+      return 0;
+    }
   }
 
   // Compute the rd cost of each chroma plane using the alpha parameters which
@@ -856,6 +884,13 @@ int64_t av1_rd_pick_intra_sbuv_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
     int this_rate;
     RD_STATS tokenonly_rd_stats;
     UV_PREDICTION_MODE mode = uv_rd_search_mode_order[mode_idx];
+
+    // Skip the current mode evaluation if its header RD cost (derived using
+    // mode signaling rate) exceeds the best_rd so far.
+    const int mode_rate =
+        mode_costs->intra_uv_mode_cost[is_cfl_allowed(xd)][mbmi->mode][mode];
+    if (RDCOST(x->rdmult, mode_rate, 0) > best_rd) continue;
+
     const int is_diagonal_mode = av1_is_diagonal_mode(get_uv_mode(mode));
     const int is_directional_mode = av1_is_directional_mode(get_uv_mode(mode));
 
