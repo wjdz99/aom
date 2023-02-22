@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "86043143_24615142",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2023-02-22T14:17:28Z",
+      "side": 1,
+      "message": "Hi Wan-Teh, Frank, \n\nIn this CL we have introduced an early exit in av1_rd_pick_intra_sbuv_mode() and cfl_rd_pick_alpha() to skip the rd evaluation of chroma modes based on pre-calculated rdcost values derived from known rates. \n\nIn av1_rd_pick_intra_sbuv_mode(), the chroma mode evaluation is skipped if its rdcost computed using the respective mode signalling rate exceeds the best_rd so far. In cfl_rd_pick_alpha(), both the alpha parameter and mode signalling rates are considered to compute the rdcost and further evaluations are skipped if this rdcost exceeds ref_best_rd. Currently this early termination for CfL is enabled only when cfl_search_range is set to 1. We have also abstracted the code which sets invalid CfL parameters to a function set_invalid_cfl_parameters(). This CL has no impact for speed\u003d9 as this optimization is not applicable for nonrd path. \n\nFor AVIF still-image encode with tune\u003dssim,\n```\n          Instruction Count\n           / Encode Time\ncpu-used    Reduction(%)\n   0           3.156\n   1           4.829\n   2           6.124\n   3           3.564\n   4           1.197\n   5           1.329\n   6           1.480\n   7           2.389\n   8           2.602\n```\n\nIn the above data, instruction count reduction is quoted for speed \u003c6 and encode-time reduction is quoted for speed\u003e\u003d6.\n\nFollowing are the Borg test results for all-intra encoding for 50 frames.\n```\n           Instruction Count         \ncpu-used     Reduction(%)       \n   3           3.635\n   6           1.571\n   7           2.995\n   8           3.545 \n```\nFor libaom AV1 video encode, bit-match is verified (w.r.t. parent commit) for \u0027GOOD\u0027, ‘ALLINTRA’  and \u0027RT\u0027 encoding modes for a few contents with different encoding configurations. It is verified that the CL is bit-exact for AVIF still-image encode for a typical image dataset.\n\nLibavif commit used for testing: dfbaa989166e1d5e95837738c3b67e0019578f63\n\nPlease review the CL. \n\nRegards,\nMudassir",
+      "revId": "a9221d5bd1ba51323b06a7070083d22b440b70c2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
