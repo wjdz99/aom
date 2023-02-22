@@ -12,6 +12,7 @@
 #include "av1/encoder/context_tree.h"
 #include "av1/encoder/encoder.h"
 #include "av1/encoder/rd.h"
+#include <assert.h>
 
 void av1_copy_tree_context(PICK_MODE_CONTEXT *dst_ctx,
                            PICK_MODE_CONTEXT *src_ctx) {
@@ -157,28 +158,6 @@ PC_TREE *av1_alloc_pc_tree_node(BLOCK_SIZE bsize) {
   pc_tree->block_size = bsize;
   pc_tree->index = 0;
 
-  pc_tree->none = NULL;
-  for (int i = 0; i < 2; ++i) {
-    pc_tree->horizontal[i] = NULL;
-    pc_tree->vertical[i] = NULL;
-  }
-
-#if !CONFIG_REALTIME_ONLY
-  for (int i = 0; i < 3; ++i) {
-    pc_tree->horizontala[i] = NULL;
-    pc_tree->horizontalb[i] = NULL;
-    pc_tree->verticala[i] = NULL;
-    pc_tree->verticalb[i] = NULL;
-  }
-  for (int i = 0; i < 4; ++i) {
-    pc_tree->horizontal4[i] = NULL;
-    pc_tree->vertical4[i] = NULL;
-  }
-#endif
-  for (int i = 0; i < 4; ++i) {
-    pc_tree->split[i] = NULL;
-  }
-
   return pc_tree;
 }
 
@@ -189,48 +168,81 @@ PC_TREE *av1_alloc_pc_tree_node(BLOCK_SIZE bsize) {
   } while (0)
 
 void av1_free_pc_tree_recursive(PC_TREE *pc_tree, int num_planes, int keep_best,
-                                int keep_none) {
+                                int keep_none, bool is_var_based_partition) {
   if (pc_tree == NULL) return;
 
-  const PARTITION_TYPE partition = pc_tree->partitioning;
-
-  if (!keep_none && (!keep_best || (partition != PARTITION_NONE)))
+  if (is_var_based_partition && !keep_best && !keep_none) {
     FREE_PMC_NODE(pc_tree->none);
 
-  for (int i = 0; i < 2; ++i) {
-    if (!keep_best || (partition != PARTITION_HORZ))
+    assert((pc_tree->horizontala[0] == NULL) &&
+           (pc_tree->horizontala[1] == NULL) &&
+           (pc_tree->horizontala[2] == NULL));
+    assert((pc_tree->horizontalb[0] == NULL) &&
+           (pc_tree->horizontalb[1] == NULL) &&
+           (pc_tree->horizontalb[2] == NULL));
+    assert((pc_tree->verticala[0] == NULL) && (pc_tree->verticala[1] == NULL) &&
+           (pc_tree->verticala[2] == NULL));
+    assert((pc_tree->verticalb[0] == NULL) && (pc_tree->verticalb[1] == NULL) &&
+           (pc_tree->verticalb[2] == NULL));
+    assert((pc_tree->horizontal4[0] == NULL) &&
+           (pc_tree->horizontal4[1] == NULL) &&
+           (pc_tree->horizontal4[2] == NULL) &&
+           (pc_tree->horizontal4[3] == NULL));
+    assert((pc_tree->vertical4[0] == NULL) && (pc_tree->vertical4[1] == NULL) &&
+           (pc_tree->vertical4[2] == NULL) && (pc_tree->vertical4[3] == NULL));
+
+    for (int i = 0; i < 2; ++i) {
       FREE_PMC_NODE(pc_tree->horizontal[i]);
-    if (!keep_best || (partition != PARTITION_VERT))
       FREE_PMC_NODE(pc_tree->vertical[i]);
-  }
-#if !CONFIG_REALTIME_ONLY
-  for (int i = 0; i < 3; ++i) {
-    if (!keep_best || (partition != PARTITION_HORZ_A))
-      FREE_PMC_NODE(pc_tree->horizontala[i]);
-    if (!keep_best || (partition != PARTITION_HORZ_B))
-      FREE_PMC_NODE(pc_tree->horizontalb[i]);
-    if (!keep_best || (partition != PARTITION_VERT_A))
-      FREE_PMC_NODE(pc_tree->verticala[i]);
-    if (!keep_best || (partition != PARTITION_VERT_B))
-      FREE_PMC_NODE(pc_tree->verticalb[i]);
-  }
-  for (int i = 0; i < 4; ++i) {
-    if (!keep_best || (partition != PARTITION_HORZ_4))
-      FREE_PMC_NODE(pc_tree->horizontal4[i]);
-    if (!keep_best || (partition != PARTITION_VERT_4))
-      FREE_PMC_NODE(pc_tree->vertical4[i]);
-  }
-#endif
-  if (!keep_best || (partition != PARTITION_SPLIT)) {
+    }
     for (int i = 0; i < 4; ++i) {
       if (pc_tree->split[i] != NULL) {
-        av1_free_pc_tree_recursive(pc_tree->split[i], num_planes, 0, 0);
+        av1_free_pc_tree_recursive(pc_tree->split[i], num_planes, 0, 0,
+                                   is_var_based_partition);
         pc_tree->split[i] = NULL;
       }
     }
-  }
+    aom_free(pc_tree);
+  } else {
+    const PARTITION_TYPE partition = pc_tree->partitioning;
+    if (!keep_none && (!keep_best || (partition != PARTITION_NONE)))
+      FREE_PMC_NODE(pc_tree->none);
 
-  if (!keep_best && !keep_none) aom_free(pc_tree);
+    for (int i = 0; i < 2; ++i) {
+      if (!keep_best || (partition != PARTITION_HORZ))
+        FREE_PMC_NODE(pc_tree->horizontal[i]);
+      if (!keep_best || (partition != PARTITION_VERT))
+        FREE_PMC_NODE(pc_tree->vertical[i]);
+    }
+#if !CONFIG_REALTIME_ONLY
+    for (int i = 0; i < 3; ++i) {
+      if (!keep_best || (partition != PARTITION_HORZ_A))
+        FREE_PMC_NODE(pc_tree->horizontala[i]);
+      if (!keep_best || (partition != PARTITION_HORZ_B))
+        FREE_PMC_NODE(pc_tree->horizontalb[i]);
+      if (!keep_best || (partition != PARTITION_VERT_A))
+        FREE_PMC_NODE(pc_tree->verticala[i]);
+      if (!keep_best || (partition != PARTITION_VERT_B))
+        FREE_PMC_NODE(pc_tree->verticalb[i]);
+    }
+    for (int i = 0; i < 4; ++i) {
+      if (!keep_best || (partition != PARTITION_HORZ_4))
+        FREE_PMC_NODE(pc_tree->horizontal4[i]);
+      if (!keep_best || (partition != PARTITION_VERT_4))
+        FREE_PMC_NODE(pc_tree->vertical4[i]);
+    }
+#endif
+    if (!keep_best || (partition != PARTITION_SPLIT)) {
+      for (int i = 0; i < 4; ++i) {
+        if (pc_tree->split[i] != NULL) {
+          av1_free_pc_tree_recursive(pc_tree->split[i], num_planes, 0, 0,
+                                     is_var_based_partition);
+          pc_tree->split[i] = NULL;
+        }
+      }
+    }
+    if (!keep_best && !keep_none) aom_free(pc_tree);
+  }
 }
 
 void av1_setup_sms_tree(AV1_COMP *const cpi, ThreadData *td) {
