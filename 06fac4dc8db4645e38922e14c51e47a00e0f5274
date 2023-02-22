@@ -18,6 +18,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "bf1fd73b_ad6b7a50",
+        "filename": "av1/encoder/av1_fwd_txfm2d.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-02-22T20:24:46Z",
+      "side": 1,
+      "message": "\u003e This and line 50 look like an earlier attempt at fixing this warning. They were added in https://aomedia-review.googlesource.com/c/aom/+/17640.\n\u003e \n\u003e They were also added to av1/common/av1_inv_txfm2d.c.\n\nI missed this. It\u0027s one way around it, but the check should be redundant so we\u0027re adding unnecessary overhead.",
+      "parentUuid": "bcf28032_76c3ee1b",
+      "revId": "06fac4dc8db4645e38922e14c51e47a00e0f5274",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "efd7bd36_8f0dcc58",
@@ -60,6 +78,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "bc305600_4330b9dc",
+        "filename": "av1/encoder/av1_fwd_txfm2d.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 405,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-02-22T20:24:46Z",
+      "side": 1,
+      "message": "\u003e This line should be moved into the if block at line 406. See the corresponding line 416 for `range_mult2_row`.\n\nIt\u0027s used at line 420. So there\u0027s an assumption that this is 2D, but that may not be true.",
+      "parentUuid": "dc4043e8_537e7bb8",
+      "revId": "06fac4dc8db4645e38922e14c51e47a00e0f5274",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "66479127_f41d81c3",
         "filename": "av1/encoder/av1_fwd_txfm2d.c",
         "patchSetId": 1
@@ -71,6 +107,30 @@
       "writtenOn": "2023-02-22T19:53:47Z",
       "side": 1,
       "message": "These two lines should be guarded by checks similar to line 406 and line 413. The `av1_txfm_type_ls` array contains some `TXFM_TYPE_INVALID` entries, so `cfg-\u003etxfm_type_col` and `cfg-\u003etxfm_type_row` may potentially be equal to `TXFM_TYPE_INVALID`.\n\nA good way to do that is to move these two lines into `set_fwd_txfm_non_scale_range()`. If `cfg-\u003etxfm_type_col` is invalid, we probably should set `cfg-\u003estage_num_col` to 0. Similarly for `cfg-\u003estage_num_row`.",
+      "range": {
+        "startLine": 444,
+        "startChar": 0,
+        "endLine": 445,
+        "endChar": 67
+      },
+      "revId": "06fac4dc8db4645e38922e14c51e47a00e0f5274",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "362b3d36_60a0a3ab",
+        "filename": "av1/encoder/av1_fwd_txfm2d.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 445,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-02-22T20:24:46Z",
+      "side": 1,
+      "message": "\u003e These two lines should be guarded by checks similar to line 406 and line 413. The `av1_txfm_type_ls` array contains some `TXFM_TYPE_INVALID` entries, so `cfg-\u003etxfm_type_col` and `cfg-\u003etxfm_type_row` may potentially be equal to `TXFM_TYPE_INVALID`.\n\u003e \n\u003e A good way to do that is to move these two lines into `set_fwd_txfm_non_scale_range()`. If `cfg-\u003etxfm_type_col` is invalid, we probably should set `cfg-\u003estage_num_col` to 0. Similarly for `cfg-\u003estage_num_row`.\n\nThis is unfortunate.",
+      "parentUuid": "66479127_f41d81c3",
       "range": {
         "startLine": 444,
         "startChar": 0,
