@@ -390,6 +390,14 @@ static const int8_t *fwd_txfm_range_mult2_list[TXFM_TYPES] = {
   fidtx8_range_mult2, fidtx16_range_mult2, fidtx32_range_mult2
 };
 
+// Disable stringop-overflow warnings for stage_range_col[] and
+// stage_range_row[], which are of type int8_t. The stores are covered by
+// asserts within the function which cover static analysis.
+#if defined(__GNUC__) && __GNUC__ >= 7
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wstringop-overflow"
+#endif
+
 static INLINE void set_fwd_txfm_non_scale_range(TXFM_2D_FLIP_CFG *cfg) {
   av1_zero(cfg->stage_range_col);
   av1_zero(cfg->stage_range_row);
@@ -397,12 +405,14 @@ static INLINE void set_fwd_txfm_non_scale_range(TXFM_2D_FLIP_CFG *cfg) {
   const int8_t *range_mult2_col = fwd_txfm_range_mult2_list[cfg->txfm_type_col];
   if (cfg->txfm_type_col != TXFM_TYPE_INVALID) {
     int stage_num_col = cfg->stage_num_col;
+    assert(stage_num_col <= MAX_TXFM_STAGE_NUM);
     for (int i = 0; i < stage_num_col; ++i)
       cfg->stage_range_col[i] = (range_mult2_col[i] + 1) >> 1;
   }
 
   if (cfg->txfm_type_row != TXFM_TYPE_INVALID) {
     int stage_num_row = cfg->stage_num_row;
+    assert(stage_num_row <= MAX_TXFM_STAGE_NUM);
     const int8_t *range_mult2_row =
         fwd_txfm_range_mult2_list[cfg->txfm_type_row];
     for (int i = 0; i < stage_num_row; ++i) {
@@ -412,6 +422,10 @@ static INLINE void set_fwd_txfm_non_scale_range(TXFM_2D_FLIP_CFG *cfg) {
     }
   }
 }
+
+#if defined(__GNUC__) && __GNUC__ >= 7
+#pragma GCC diagnostic pop
+#endif
 
 void av1_get_fwd_txfm_cfg(TX_TYPE tx_type, TX_SIZE tx_size,
                           TXFM_2D_FLIP_CFG *cfg) {
