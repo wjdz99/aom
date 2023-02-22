@@ -52,6 +52,24 @@
       "parentUuid": "34cbfda6_2d7d689c",
       "revId": "3cb86cce7ea2ac150f17fd001499f6ffa0768a13",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cc54427d_a12cd91e",
+        "filename": "av1/common/arm/convolve_neon.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1854,
+      "author": {
+        "id": 31392
+      },
+      "writtenOn": "2023-02-22T21:58:20Z",
+      "side": 1,
+      "message": "Moved back the implementation to av1_convolve_y_sr_neon function.",
+      "parentUuid": "5195ff46_6ae228ab",
+      "revId": "3cb86cce7ea2ac150f17fd001499f6ffa0768a13",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
