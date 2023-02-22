@@ -16,6 +16,24 @@
       "message": "Hi, James, I added two new stats in FIRSTPASS_STATS data structure. Could you please help to take a look the API compatibility? Thank you.",
       "revId": "b481c791ee8defd1ac36e2c4e7c63c2f3ee4ab42",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "db7c6a12_fb8f3f2a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-02-22T18:21:36Z",
+      "side": 1,
+      "message": "\u003e Hi, James, I added two new stats in FIRSTPASS_STATS data structure. Could you please help to take a look the API compatibility? Thank you.\n\nFIRSTPASS_STATS isn\u0027t public, the encoder wrapper outputs it as an opaque blob. The only compatibility issue would be trying to reuse first pass stats from an earlier version.",
+      "parentUuid": "3c6b6003_58c4e2fe",
+      "revId": "b481c791ee8defd1ac36e2c4e7c63c2f3ee4ab42",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }

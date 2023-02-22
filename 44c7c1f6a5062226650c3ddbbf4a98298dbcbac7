@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "114fe79b_79741657",
+        "filename": "build/cmake/aom_config_defaults.cmake",
+        "patchSetId": 4
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-02-22T18:21:36Z",
+      "side": 1,
+      "message": "Unless we add another config, this won\u0027t be compiled:\n  https://build.aomedia.org/jenkins/job/libaom__compile/\n  \nMarking it as an experiment would work (see the examples below, the description should contain \u0027AV1 experiment\u0027):\n  https://build.aomedia.org/jenkins/job/libaom__compile_experiments/\n \nIf this is more of a permanent feature then can it be bundled under CONFIG_TUNE_VMAF?",
+      "revId": "44c7c1f6a5062226650c3ddbbf4a98298dbcbac7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
