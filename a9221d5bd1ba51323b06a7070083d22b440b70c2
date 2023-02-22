@@ -16,6 +16,159 @@
       "message": "Hi Wan-Teh, Frank, \n\nIn this CL we have introduced an early exit in av1_rd_pick_intra_sbuv_mode() and cfl_rd_pick_alpha() to skip the rd evaluation of chroma modes based on pre-calculated rdcost values derived from known rates. \n\nIn av1_rd_pick_intra_sbuv_mode(), the chroma mode evaluation is skipped if its rdcost computed using the respective mode signalling rate exceeds the best_rd so far. In cfl_rd_pick_alpha(), both the alpha parameter and mode signalling rates are considered to compute the rdcost and further evaluations are skipped if this rdcost exceeds ref_best_rd. Currently this early termination for CfL is enabled only when cfl_search_range is set to 1. We have also abstracted the code which sets invalid CfL parameters to a function set_invalid_cfl_parameters(). This CL has no impact for speed\u003d9 as this optimization is not applicable for nonrd path. \n\nFor AVIF still-image encode with tune\u003dssim,\n```\n          Instruction Count\n           / Encode Time\ncpu-used    Reduction(%)\n   0           3.156\n   1           4.829\n   2           6.124\n   3           3.564\n   4           1.197\n   5           1.329\n   6           1.480\n   7           2.389\n   8           2.602\n```\n\nIn the above data, instruction count reduction is quoted for speed \u003c6 and encode-time reduction is quoted for speed\u003e\u003d6.\n\nFollowing are the Borg test results for all-intra encoding for 50 frames.\n```\n           Instruction Count         \ncpu-used     Reduction(%)       \n   3           3.635\n   6           1.571\n   7           2.995\n   8           3.545 \n```\nFor libaom AV1 video encode, bit-match is verified (w.r.t. parent commit) for \u0027GOOD\u0027, ‘ALLINTRA’  and \u0027RT\u0027 encoding modes for a few contents with different encoding configurations. It is verified that the CL is bit-exact for AVIF still-image encode for a typical image dataset.\n\nLibavif commit used for testing: dfbaa989166e1d5e95837738c3b67e0019578f63\n\nPlease review the CL. \n\nRegards,\nMudassir",
       "revId": "a9221d5bd1ba51323b06a7070083d22b440b70c2",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e93d74ea_ef5ddc75",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-02-22T23:34:44Z",
+      "side": 1,
+      "message": "Chi Yo: PTAL.\n\nMudassir: Thank you for the CL. I have some questions and suggested changes.",
+      "revId": "a9221d5bd1ba51323b06a7070083d22b440b70c2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8bfc75ba_d49f4f29",
+        "filename": "av1/encoder/intra_mode_search.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 643,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-02-22T23:34:44Z",
+      "side": 1,
+      "message": "Nit: Delete \"as CfL mode is invalid\" because it describes the condition of the caller. Then we might as well delete the entire comment because the remaining comment \"Set invalid CfL parameters\" merely repeats the function name.",
+      "revId": "a9221d5bd1ba51323b06a7070083d22b440b70c2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "51cc814d_495cd22a",
+        "filename": "av1/encoder/intra_mode_search.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 653,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-02-22T23:34:44Z",
+      "side": 1,
+      "message": "Nit/optional: Should we use `CFL_PRED_U` and `CFL_PRED_V` as the indexes? See the last two lines in `cfl_init()`.",
+      "revId": "a9221d5bd1ba51323b06a7070083d22b440b70c2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "738605d1_98412fe1",
+        "filename": "av1/encoder/intra_mode_search.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 750,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-02-22T23:34:44Z",
+      "side": 1,
+      "message": "Nit/optional: The previous if statement and this if statement have a common condition `cfl_search_range \u003d\u003d 1`, so it is possible to merge them.",
+      "revId": "a9221d5bd1ba51323b06a7070083d22b440b70c2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d7f97ba9_3d0ee479",
+        "filename": "av1/encoder/intra_mode_search.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 762,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-02-22T23:34:44Z",
+      "side": 1,
+      "message": "Could you explain why we consider intra_uv_mode_cost here?\n\nThe code below (lines 802-805) only considers `cfl_cost`, not `intra_uv_mode_cost`.",
+      "revId": "a9221d5bd1ba51323b06a7070083d22b440b70c2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4d7e2c87_7455b3db",
+        "filename": "av1/encoder/intra_mode_search.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 763,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-02-22T23:34:44Z",
+      "side": 1,
+      "message": "Nit/optional: The word \"header\" is not clear to me here. Does it mean the sequence/frame headers?\n\nI wonder if we could rephrase it, e.g., \"the rate needed to signal the CFL mode\".",
+      "revId": "a9221d5bd1ba51323b06a7070083d22b440b70c2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4d733a4d_035e045a",
+        "filename": "av1/encoder/intra_mode_search.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 783,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-02-22T23:34:44Z",
+      "side": 1,
+      "message": "Nit/optional: It seems that these three lines could be a function. They also appear at the end of `cfl_init()`.",
+      "revId": "a9221d5bd1ba51323b06a7070083d22b440b70c2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "95b9bbf2_6b398a3b",
+        "filename": "av1/encoder/intra_mode_search.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 821,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-02-22T23:34:44Z",
+      "side": 1,
+      "message": "Nit/optional: As the code here shows, it seems that \"CFL parameters\" is only referring to `best_cfl_alpha_idx` and `best_cfl_alpha_signs`.\n\nSo the new function `set_invalid_cfl_parameters()` can be a little confusing because it does more.",
+      "revId": "a9221d5bd1ba51323b06a7070083d22b440b70c2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "41e23b9a_93f1db57",
+        "filename": "av1/encoder/intra_mode_search.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 891,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-02-22T23:34:44Z",
+      "side": 1,
+      "message": "Nit: We should save the return value of `is_cfl_allowed(xd)` in a local variable, rather than call it repeatedly. For example,\n\n```\n  const CFL_ALLOWED_TYPE cfl_allowed \u003d is_cfl_allowed(xd);\n```",
+      "revId": "a9221d5bd1ba51323b06a7070083d22b440b70c2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
