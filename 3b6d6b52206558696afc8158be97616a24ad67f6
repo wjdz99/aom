@@ -36,6 +36,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f5094465_6b1187d3",
+        "filename": "av1/encoder/allintra_vis.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 272,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2023-02-22T00:58:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d134519c_b451b936",
+      "revId": "3b6d6b52206558696afc8158be97616a24ad67f6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "cbfed92d_a7948c34",
@@ -49,6 +67,24 @@
       "writtenOn": "2023-02-16T22:29:37Z",
       "side": 1,
       "message": "This buffer is (128 + 8 * 2) * (128 + 8) \u003d 19584 bytes. It would be good to avoid zero-initializing the entire buffer.\n\nIt would also be good to add a comment to explain why we need to initialize the buffer, and whether it matters what value we initialize the buffer to. Any information you know will be valuable.",
+      "revId": "3b6d6b52206558696afc8158be97616a24ad67f6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d536e5be_e66a3aa6",
+        "filename": "av1/encoder/allintra_vis.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 276,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2023-02-22T00:58:56Z",
+      "side": 1,
+      "message": "For intra prediction, we use the source pixels as reference now.\nThen we could avoid initialization.",
+      "parentUuid": "cbfed92d_a7948c34",
       "revId": "3b6d6b52206558696afc8158be97616a24ad67f6",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
