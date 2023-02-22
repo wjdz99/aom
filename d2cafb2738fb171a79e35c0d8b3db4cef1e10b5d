@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7f4804f8_1976c3ac",
+        "filename": "av1/common/cfl.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-02-22T22:43:03Z",
+      "side": 0,
+      "message": "`PLANE_TYPE` is defined as follows:\n\n```\nenum { PLANE_TYPE_Y, PLANE_TYPE_UV, PLANE_TYPES } UENUM1BYTE(PLANE_TYPE);\n```\n\nSo the U and V planes are not distinct. The return type `CFL_PRED_TYPE` distinguishes between U and V:\n\n```\nenum { CFL_PRED_U, CFL_PRED_V, CFL_PRED_PLANES } UENUM1BYTE(CFL_PRED_TYPE);\n```",
+      "revId": "d2cafb2738fb171a79e35c0d8b3db4cef1e10b5d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
