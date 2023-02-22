@@ -88,6 +88,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "2d8c8bc0_6acb7f59",
+        "filename": "aom_dsp/flow_estimation/disflow.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 333,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-02-22T17:20:03Z",
+      "side": 1,
+      "message": "Thank you for the explanation.",
+      "parentUuid": "f7672206_b73ad5d3",
+      "revId": "b11f043117c5fbb4464221f0e9c003ca9fe3afb6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ece5f3ec_56397bbc",
@@ -166,6 +184,24 @@
       "side": 1,
       "message": "This is an extremely common method of regularization, and it kind of relies on what I\u0027m saying here being true. But I\u0027m not sure how well known the actual proof is. On the other hand, the actual proof is quite long and technical. So I\u0027m not sure it\u0027s useful to add a comment explaining it, especially as it\u0027s a standard method.\n\nHowever, maybe I should add some more comments to just tell readers that we\u0027re using this method of regularization as opposed to any other method?",
       "parentUuid": "dfe598cd_10e31971",
+      "revId": "b11f043117c5fbb4464221f0e9c003ca9fe3afb6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "db85e659_2ee8f28b",
+        "filename": "aom_dsp/flow_estimation/disflow.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 366,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-02-22T17:20:03Z",
+      "side": 1,
+      "message": "I was only wondering about the `det M \u003e\u003d 0` part.\n\nI think I would appreciate some more comments, but I understand we shouldn\u0027t get too verbose here. Maybe your comments can target a reader whose knowledge of this is halfway between Bohan and me.",
+      "parentUuid": "0353e477_b6158a65",
       "revId": "b11f043117c5fbb4464221f0e9c003ca9fe3afb6",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
