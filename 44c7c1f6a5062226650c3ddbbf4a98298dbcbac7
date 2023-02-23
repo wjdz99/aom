@@ -3,6 +3,23 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "101fa2b7_fe3aafa4",
+        "filename": "av1/arg_defs.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-02-23T00:37:29Z",
+      "side": 1,
+      "message": "The other tuning modes use underscores as word separators, it\u0027s good to be consistent here. Should this be named `vmaf_...` if the intent is to tune for vmaf using a saliency map?",
+      "revId": "44c7c1f6a5062226650c3ddbbf4a98298dbcbac7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "114fe79b_79741657",
         "filename": "build/cmake/aom_config_defaults.cmake",
         "patchSetId": 4
@@ -50,6 +67,24 @@
       "side": 1,
       "message": "Thanks James and Jingning. I will update the code.",
       "parentUuid": "f89f3431_141e964f",
+      "revId": "44c7c1f6a5062226650c3ddbbf4a98298dbcbac7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d8e7c637_64b7dde9",
+        "filename": "build/cmake/aom_config_defaults.cmake",
+        "patchSetId": 4
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-02-23T00:37:29Z",
+      "side": 1,
+      "message": "\u003e Probably a good idea to move it as a standalone experiment, and get unit tests coverage.\n\nThat\u0027s compile coverage, not unit test, for any experiment.",
+      "parentUuid": "b26fa226_ed646c91",
       "revId": "44c7c1f6a5062226650c3ddbbf4a98298dbcbac7",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
