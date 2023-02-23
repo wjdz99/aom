@@ -724,7 +724,9 @@ static int cfl_rd_pick_alpha(MACROBLOCK *const x, const AV1_COMP *const cpi,
   av1_invalid_rd_stats(best_rd_stats);
 
   // As the dc pred data is same for different values of alpha, enable the
-  // caching of dc pred data.
+  // caching of dc pred data. clear_cfl_dc_pred_cache_flags() must be called
+  // before returning from this function to avoid the unintentional usage of
+  // cached dc pred data.
   xd->cfl.use_dc_pred_cache = 1;
   // Evaluate alpha parameter of each chroma plane.
   est_best_cfl_idx_u =
