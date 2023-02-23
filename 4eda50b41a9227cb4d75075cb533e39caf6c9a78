@@ -56,6 +56,23 @@
       "message": "I filed a GCC bug report:\nhttps://gcc.gnu.org/bugzilla/show_bug.cgi?id\u003d108912",
       "revId": "4eda50b41a9227cb4d75075cb533e39caf6c9a78",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "88fa865d_2ed71603",
+        "filename": "av1/encoder/av1_fwd_txfm2d.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 400,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-02-23T23:30:16Z",
+      "side": 1,
+      "message": "We can link to the GCC bug report: https://gcc.gnu.org/bugzilla/show_bug.cgi?id\u003d108912",
+      "revId": "4eda50b41a9227cb4d75075cb533e39caf6c9a78",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
