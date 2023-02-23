@@ -1,0 +1,95 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d424f5bc_9d270e7f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-02-23T18:18:49Z",
+      "side": 1,
+      "message": "Cheng: I think it\u0027s important to figure out why the single-threaded version and multithreaded version produce different results. I suggest some simplifications to the pred_buffer allocation code.",
+      "revId": "f20a534eb14e7c50cae8ae5ff8d21de2bae4a406",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8cda279e_3bc63265",
+        "filename": "av1/encoder/allintra_vis.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 267,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-02-23T18:18:49Z",
+      "side": 1,
+      "message": "I think we should delete these three lines (265-267) now, because `pred_buffer` is no longer used as the reference.",
+      "range": {
+        "startLine": 265,
+        "startChar": 0,
+        "endLine": 267,
+        "endChar": 79
+      },
+      "revId": "f20a534eb14e7c50cae8ae5ff8d21de2bae4a406",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c825d8e6_178d9291",
+        "filename": "av1/encoder/allintra_vis.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 270,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-02-23T18:18:49Z",
+      "side": 1,
+      "message": "Delete `offset`.",
+      "revId": "f20a534eb14e7c50cae8ae5ff8d21de2bae4a406",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0b3b630c_6494cb32",
+        "filename": "av1/encoder/allintra_vis.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 276,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-02-23T18:18:49Z",
+      "side": 1,
+      "message": "Nit/optional: I suggest the following (which requires removing the `const`):\n\n```\n  size_t buf_size \u003d buf_width * buf_height * sizeof(*pred_buffer);\n  if (is_high_bitdepth) {\n    buf_size *\u003d 2;\n  }\n```\n\nor\n\n```\n  const size_t buf_size \u003d (buf_width * buf_height * sizeof(*pred_buffer)) \u003c\u003c is_high_bitdepth;\n```",
+      "revId": "f20a534eb14e7c50cae8ae5ff8d21de2bae4a406",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1cd76b77_e938682d",
+        "filename": "av1/encoder/allintra_vis.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 286,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-02-23T18:18:49Z",
+      "side": 1,
+      "message": "I believe this if-else statement can be simplified to:\n\n```\n  if (is_high_bitdepth) {\n    uint16_t *pred_buffer_16 \u003d (uint16_t *)pred_buffer;\n    dst_buffer \u003d CONVERT_TO_BYTEPTR(pred_buffer_16);\n  } else {\n    dst_buffer \u003d pred_buffer;\n  }\n```\n\nNote: In the high bitdepth case, the use of `tmp_pred` is not necessary. We can convert `pred_buffer` to `pred_buffer_16` with a type cast directly.",
+      "revId": "f20a534eb14e7c50cae8ae5ff8d21de2bae4a406",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
