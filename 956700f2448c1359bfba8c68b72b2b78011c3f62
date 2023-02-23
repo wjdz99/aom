@@ -72,6 +72,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "f0abeb9f_7a45bc2f",
+        "filename": "av1/encoder/av1_fwd_txfm2d.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 400,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-02-23T19:13:13Z",
+      "side": 1,
+      "message": "\u003e \u003e Optional: We don\u0027t need to add these assertions unless some static analyzer needs them.\n\u003e \u003e \n\u003e \u003e If these assertions are for our (programmers\u0027) own benefit, I probably would add them after line 435, immediately after we assign values to `cfg-\u003estage_num_col` and `cfg-\u003estage_num_row`, because that\u0027ll catch bugs as soon as they occur.\n\u003e \n\nIn the follow up where I removed the TXFM_TYPE_INVALID check I added those asserts to that location. In this case, they are unnecessary for now. The visibility of the look up table might cause static analysis issues in the future (especially if the loop checks are removed), but none are present currently.",
+      "parentUuid": "2e775efe_d1546f4f",
+      "revId": "956700f2448c1359bfba8c68b72b2b78011c3f62",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "e3a5b863_1af625d7",
         "filename": "av1/encoder/av1_fwd_txfm2d.c",
         "patchSetId": 2
@@ -83,6 +101,24 @@
       "writtenOn": "2023-02-23T15:53:45Z",
       "side": 1,
       "message": "This `-Wstringop-overflow` false positive looks like a GCC bug. It is not present in the GCC 12.2.0 for x86-64 that we have in our Linux desktops (which has a slightly newer version \"Debian 12.2.0-10\"). And if I increase the size of the `cfg-\u003estage_range_col` and `cfg-\u003estage_range_row` arrays to 15, the warning goes away. It seems that GCC thinks `cfg-\u003estage_num_col` and `cfg-\u003estage_num_row` can be as high as 15, but I couldn\u0027t figure out why GCC thinks that.\n\nAlso GCC only warns if `range_mult2_col[i]` is used as the source of the assignment.",
+      "revId": "956700f2448c1359bfba8c68b72b2b78011c3f62",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2a8abe1d_cbc4ebc9",
+        "filename": "av1/encoder/av1_fwd_txfm2d.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 403,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-02-23T19:13:13Z",
+      "side": 1,
+      "message": "\u003e This `-Wstringop-overflow` false positive looks like a GCC bug. It is not present in the GCC 12.2.0 for x86-64 that we have in our Linux desktops (which has a slightly newer version \"Debian 12.2.0-10\"). And if I increase the size of the `cfg-\u003estage_range_col` and `cfg-\u003estage_range_row` arrays to 15, the warning goes away. It seems that GCC thinks `cfg-\u003estage_num_col` and `cfg-\u003estage_num_row` can be as high as 15, but I couldn\u0027t figure out why GCC thinks that.\n\u003e \n\nThis is a warning that\u0027s dependent on optimizations, so it\u0027s not guaranteed that some combination might cause it for x86-64 like it does for aarch64. In the end I think it would be better to explicitly suppress the warnings instead of adding unnecessary checks.\n\n\u003e Also GCC only warns if `range_mult2_col[i]` is used as the source of the assignment.",
+      "parentUuid": "e3a5b863_1af625d7",
       "revId": "956700f2448c1359bfba8c68b72b2b78011c3f62",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
