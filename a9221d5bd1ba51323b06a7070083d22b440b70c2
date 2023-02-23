@@ -52,6 +52,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "01479583_708b116d",
+        "filename": "av1/encoder/intra_mode_search.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 643,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2023-02-23T14:19:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8bfc75ba_d49f4f29",
+      "revId": "a9221d5bd1ba51323b06a7070083d22b440b70c2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "51cc814d_495cd22a",
@@ -69,6 +87,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "42b62103_b5f4661f",
+        "filename": "av1/encoder/intra_mode_search.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 653,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2023-02-23T14:19:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "51cc814d_495cd22a",
+      "revId": "a9221d5bd1ba51323b06a7070083d22b440b70c2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "738605d1_98412fe1",
@@ -82,6 +118,24 @@
       "writtenOn": "2023-02-22T23:34:44Z",
       "side": 1,
       "message": "Nit/optional: The previous if statement and this if statement have a common condition `cfl_search_range \u003d\u003d 1`, so it is possible to merge them.",
+      "revId": "a9221d5bd1ba51323b06a7070083d22b440b70c2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0260dcc5_b3dbad38",
+        "filename": "av1/encoder/intra_mode_search.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 750,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2023-02-23T14:19:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "738605d1_98412fe1",
       "revId": "a9221d5bd1ba51323b06a7070083d22b440b70c2",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -105,6 +159,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "a087bc7e_798af6d8",
+        "filename": "av1/encoder/intra_mode_search.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 762,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2023-02-23T14:19:07Z",
+      "side": 1,
+      "message": "intra_uv_mode_cost is eventually considered by the caller function av1_rd_pick_intra_sbuv_mode(), hence we considered the same for early gating.",
+      "parentUuid": "d7f97ba9_3d0ee479",
+      "revId": "a9221d5bd1ba51323b06a7070083d22b440b70c2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "4d7e2c87_7455b3db",
         "filename": "av1/encoder/intra_mode_search.c",
         "patchSetId": 1
@@ -116,6 +188,24 @@
       "writtenOn": "2023-02-22T23:34:44Z",
       "side": 1,
       "message": "Nit/optional: The word \"header\" is not clear to me here. Does it mean the sequence/frame headers?\n\nI wonder if we could rephrase it, e.g., \"the rate needed to signal the CFL mode\".",
+      "revId": "a9221d5bd1ba51323b06a7070083d22b440b70c2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "dddb1b17_2ac2f8ae",
+        "filename": "av1/encoder/intra_mode_search.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 763,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2023-02-23T14:19:07Z",
+      "side": 1,
+      "message": "Ack. Rephrased the comment as suggested.",
+      "parentUuid": "4d7e2c87_7455b3db",
       "revId": "a9221d5bd1ba51323b06a7070083d22b440b70c2",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -137,6 +227,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "4de19d75_1adf9287",
+        "filename": "av1/encoder/intra_mode_search.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 783,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2023-02-23T14:19:07Z",
+      "side": 1,
+      "message": "Done. Abstracted into a function clear_cfl_dc_pred_flags() and used the same in cfl_init().",
+      "parentUuid": "4d733a4d_035e045a",
+      "revId": "a9221d5bd1ba51323b06a7070083d22b440b70c2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "95b9bbf2_6b398a3b",
@@ -154,6 +262,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "21713d60_c06fc3f7",
+        "filename": "av1/encoder/intra_mode_search.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 821,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2023-02-23T14:19:07Z",
+      "side": 1,
+      "message": "Done. Abstracted the extra code into a new function clear_cfl_dc_pred_flags().",
+      "parentUuid": "95b9bbf2_6b398a3b",
+      "revId": "a9221d5bd1ba51323b06a7070083d22b440b70c2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "41e23b9a_93f1db57",
@@ -167,6 +293,24 @@
       "writtenOn": "2023-02-22T23:34:44Z",
       "side": 1,
       "message": "Nit: We should save the return value of `is_cfl_allowed(xd)` in a local variable, rather than call it repeatedly. For example,\n\n```\n  const CFL_ALLOWED_TYPE cfl_allowed \u003d is_cfl_allowed(xd);\n```",
+      "revId": "a9221d5bd1ba51323b06a7070083d22b440b70c2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "679be681_82507800",
+        "filename": "av1/encoder/intra_mode_search.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 891,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2023-02-23T14:19:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "41e23b9a_93f1db57",
       "revId": "a9221d5bd1ba51323b06a7070083d22b440b70c2",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
