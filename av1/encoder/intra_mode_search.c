@@ -725,7 +725,7 @@ static int cfl_rd_pick_alpha(MACROBLOCK *const x, const AV1_COMP *const cpi,
 
   // As the dc pred data is same for different values of alpha, enable the
   // caching of dc pred data.
-  xd->cfl.use_dc_pred_cache = 1;
+  xd->cfl.use_dc_pred_cache = true;
   // Evaluate alpha parameter of each chroma plane.
   est_best_cfl_idx_u =
       cfl_pick_plane_parameter(cpi, x, 1, tx_size, cfl_search_range);
