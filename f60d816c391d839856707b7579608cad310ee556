@@ -16,6 +16,29 @@
       "message": "Chi Yo: PTAL.\n\nIt would be good to review the whole CL. If you want to save time, you can just review the diffs between patchsets 2 and 3 (which are my edits). Thanks.",
       "revId": "f60d816c391d839856707b7579608cad310ee556",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "85798c0e_1f0b0942",
+        "filename": "av1/encoder/intra_mode_search.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 870,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2023-02-23T19:40:30Z",
+      "side": 1,
+      "message": "You don\u0027t have to change it in this CL, but it seems a bit weird that we have CFL_ALLOWED_TYPE that\u0027s only used as a boolean.",
+      "range": {
+        "startLine": 870,
+        "startChar": 8,
+        "endLine": 870,
+        "endChar": 24
+      },
+      "revId": "f60d816c391d839856707b7579608cad310ee556",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
