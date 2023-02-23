@@ -18,6 +18,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "1bb04542_3ff00fa3",
+        "filename": "av1/arg_defs.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 31132
+      },
+      "writtenOn": "2023-02-23T15:16:58Z",
+      "side": 1,
+      "message": "Thanks for noticing it James. The reasons not to follow the \"vmaf...\" name convention are:\n\n1) Actually this saliency_map tuning for vmaf algorithm is very different from the existing vmaf tuning modes. Although all of them are optimizing vmaf score, but they do it in different approaches.\n\nOn one hand, the existing \"vmaf_...\" tuning modes require to include vmaf model to trigger vmaf calculation on the fly. \n\nOn the other hand, this saliency_map tuning is more like ssim tuning approach -- neither need to set vmaf model path nor initialize the vmaf tuning mode exclusive data structures (this is why we didn\u0027t combine it with CONFIG_TUNE_VMAF referring to your earlier comments). \n\n2) Since the existing tune vmaf modes require to set vmaf model path, in the Borg testing script, we need some special handlings for \"vmaf_...\" tuning mode: \n\nhttps://source.corp.google.com/piper///depot/google3/third_party/libvpx/tools/encode.sh;l\u003d665?q\u003dvmaf-model-path\u0026sq\u003dpackage:piper%20file:%2F%2Fdepot%2Fgoogle3%20-file:google3%2Fexperimental\n\nHowever, it won\u0027t be applied to our saliency_map tuning mode. If we name it following \"vmaf_...\", the existing script doesn\u0027t work as is.\n\n3) Therefore, to distinguish this mode from the existing \"vmaf_...\" tuning modes, as well as to keep the existing script working, we chose to rename this mode not to follow the \"vmaf_...\" convention.",
+      "parentUuid": "101fa2b7_fe3aafa4",
+      "revId": "44c7c1f6a5062226650c3ddbbf4a98298dbcbac7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "114fe79b_79741657",
