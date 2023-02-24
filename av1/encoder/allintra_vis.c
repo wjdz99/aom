@@ -566,7 +566,10 @@ void av1_set_mb_wiener_variance(AV1_COMP *cpi) {
   // Calculate differential contrast for each block for the entire image.
   // TODO(aomedia:3376): Remove " && 0" when there are no data races in
   // av1_calc_mb_wiener_var_mt(). See also bug aomedia:3380.
-  if (num_workers > 1 && 0) {
+  // TODO(chengchen): properly accumulate the distortion and rate in
+  // av1_calc_mb_wiener_var_mt(). Until then, call calc_mb_wiener_var() if
+  // auto_intra_tools_off is true.
+  if (num_workers > 1 && 0 && !cpi->oxcf.intra_mode_cfg.auto_intra_tools_off) {
     enc_row_mt->sync_read_ptr = av1_row_mt_sync_read;
     enc_row_mt->sync_write_ptr = av1_row_mt_sync_write;
     av1_calc_mb_wiener_var_mt(cpi, num_workers, &sum_rec_distortion,
