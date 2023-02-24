@@ -1,6 +1,23 @@
 {
   "comments": [
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "757ab9ed_8a83e065",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-02-24T23:16:46Z",
+      "side": 1,
+      "message": "Cheng: This LGTM, but I am setting +1 only because the single-thread and multithreaded versions produce different results. I think we need to fix that.\n\nIf I understand it correctly, even the single-thread version produces different reuslts than before because it uses the source buffer instead of the reconstructed buffer as the reference for the prediction, right?",
+      "revId": "af5f7dbee406f942934eba88418281aa6813b89b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c4c7236f_ecde6742",
