@@ -2562,7 +2562,7 @@ void av1_calc_mb_wiener_var_mt(AV1_COMP *cpi, int num_workers,
       cm, cpi->tile_data,
       aom_memalign(32, tile_cols * tile_rows * sizeof(*cpi->tile_data)));
   cpi->allocated_tiles = tile_cols * tile_rows;
-  cpi->tile_data->tile_info.mi_row_end = cm->mi_params.mi_rows;
+  cpi->tile_data[0].tile_info.mi_row_end = cpi->frame_info.mi_rows;
   AV1EncRowMultiThreadSync *const row_mt_sync = &cpi->tile_data[0].row_mt_sync;
 
   // TODO(chengchen): the memory usage could be improved.
