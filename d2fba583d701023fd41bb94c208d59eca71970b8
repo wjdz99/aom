@@ -24,6 +24,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "d85fb02d_d07360d8",
+        "filename": "av1/qmode_rc/ducky_encode.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 553,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2023-02-24T19:17:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "428bdd5d_58df324e",
+      "range": {
+        "startLine": 549,
+        "startChar": 0,
+        "endLine": 553,
+        "endChar": 3
+      },
+      "revId": "d2fba583d701023fd41bb94c208d59eca71970b8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "6c5c4920_7a37c131",
@@ -37,6 +61,30 @@
       "writtenOn": "2023-02-23T19:17:13Z",
       "side": 1,
       "message": "If there are no more key frames",
+      "range": {
+        "startLine": 554,
+        "startChar": 5,
+        "endLine": 554,
+        "endChar": 42
+      },
+      "revId": "d2fba583d701023fd41bb94c208d59eca71970b8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d19671fb_d3c3c3cd",
+        "filename": "av1/qmode_rc/ducky_encode.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 554,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2023-02-24T19:17:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6c5c4920_7a37c131",
       "range": {
         "startLine": 554,
         "startChar": 5,
@@ -70,6 +118,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ef6e43e0_c5914972",
+        "filename": "av1/qmode_rc/ducky_encode.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 567,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2023-02-24T19:17:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d9119c48_d9be2481",
+      "range": {
+        "startLine": 561,
+        "startChar": 0,
+        "endLine": 567,
+        "endChar": 0
+      },
+      "revId": "d2fba583d701023fd41bb94c208d59eca71970b8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a783f3d5_df4cd7ff",
@@ -83,6 +155,30 @@
       "writtenOn": "2023-02-23T19:17:13Z",
       "side": 1,
       "message": "Please use a const reference instead of passing by value.",
+      "range": {
+        "startLine": 581,
+        "startChar": 46,
+        "endLine": 581,
+        "endChar": 62
+      },
+      "revId": "d2fba583d701023fd41bb94c208d59eca71970b8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3a3bcd20_70e29b26",
+        "filename": "av1/qmode_rc/ducky_encode.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 581,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2023-02-24T19:17:39Z",
+      "side": 1,
+      "message": "Good catch. Thanks!",
+      "parentUuid": "a783f3d5_df4cd7ff",
       "range": {
         "startLine": 581,
         "startChar": 46,
