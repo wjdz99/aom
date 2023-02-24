@@ -511,8 +511,8 @@ static int adjust_q_cbr(const AV1_COMP *cpi, int q, int active_worst_quality,
       (width != cm->prev_frame->width || height != cm->prev_frame->height ||
        change_avg_frame_bandwidth);
   // Apply some control/clamp to QP under certain conditions.
-  if (cm->current_frame.frame_type != KEY_FRAME && !cpi->ppi->use_svc &&
-      rc->frames_since_key > 1 && !change_target_bits_mb &&
+  if (cm->current_frame.frame_type != KEY_FRAME && rc->frames_since_key > 1 &&
+      !change_target_bits_mb &&
       (!cpi->oxcf.rc_cfg.gf_cbr_boost_pct ||
        !(refresh_frame->alt_ref_frame || refresh_frame->golden_frame))) {
     // Make sure q is between oscillating Qs to prevent resonance.
@@ -531,7 +531,7 @@ static int adjust_q_cbr(const AV1_COMP *cpi, int q, int active_worst_quality,
     // Adjust Q base on source content change from scene detection.
     if (cpi->sf.rt_sf.check_scene_detection && rc->prev_avg_source_sad > 0 &&
         rc->frames_since_key > 10 && rc->frame_source_sad > 0 &&
-        !cpi->ppi->use_svc) {
+        !cpi->rc.rtc_external_ratectrl) {
       const int bit_depth = cm->seq_params->bit_depth;
       double delta =
           (double)rc->avg_source_sad / (double)rc->prev_avg_source_sad - 1.0;
@@ -742,6 +742,7 @@ void av1_rc_update_rate_correction_factors(AV1_COMP *cpi, int is_encode_stage,
     projected_size_based_on_q = av1_estimate_bits_at_q(
         cpi, cm->quant_params.base_qindex, rate_correction_factor);
   }
+
   // Work out a size correction factor.
   if (projected_size_based_on_q > FRAME_OVERHEAD_BITS)
     correction_factor = (double)cpi->rc.projected_frame_size /
@@ -772,7 +773,6 @@ void av1_rc_update_rate_correction_factors(AV1_COMP *cpi, int is_encode_stage,
   } else {
     adjustment_limit = 0.75;
   }
-
   // Adjustment to delta Q and number of blocks updated in cyclic refressh
   // based on over or under shoot of target in current frame.
   if (cyclic_refresh_active && cpi->rc.this_frame_target > 0) {
@@ -1024,10 +1024,8 @@ static int calc_active_worst_quality_no_stats_cbr(const AV1_COMP *cpi) {
     int layer = LAYER_IDS_TO_IDX(0, 0, svc->number_temporal_layers);
     const LAYER_CONTEXT *lc = &svc->layer_context[layer];
     const PRIMARY_RATE_CONTROL *const lp_rc = &lc->p_rc;
-    avg_qindex_key = lp_rc->avg_frame_qindex[KEY_FRAME];
-    if (svc->temporal_layer_id == 0)
-      avg_qindex_key =
-          AOMMIN(lp_rc->avg_frame_qindex[KEY_FRAME], lp_rc->last_q[KEY_FRAME]);
+    avg_qindex_key =
+        AOMMIN(lp_rc->avg_frame_qindex[KEY_FRAME], lp_rc->last_q[KEY_FRAME]);
   }
   ambient_qp = (cm->current_frame.frame_number < num_frames_weight_key)
                    ? AOMMIN(p_rc->avg_frame_qindex[INTER_FRAME], avg_qindex_key)
