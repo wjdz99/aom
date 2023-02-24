@@ -41,6 +41,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "4d59558e_05bd413c",
+        "filename": "av1/encoder/allintra_vis.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 267,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2023-02-24T02:07:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8cda279e_3bc63265",
+      "range": {
+        "startLine": 265,
+        "startChar": 0,
+        "endLine": 267,
+        "endChar": 79
+      },
+      "revId": "f20a534eb14e7c50cae8ae5ff8d21de2bae4a406",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c825d8e6_178d9291",
@@ -54,6 +78,24 @@
       "writtenOn": "2023-02-23T18:18:49Z",
       "side": 1,
       "message": "Delete `offset`.",
+      "revId": "f20a534eb14e7c50cae8ae5ff8d21de2bae4a406",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a93ffd14_d77b48c6",
+        "filename": "av1/encoder/allintra_vis.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 270,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2023-02-24T02:07:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c825d8e6_178d9291",
       "revId": "f20a534eb14e7c50cae8ae5ff8d21de2bae4a406",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -75,6 +117,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "0f1d1489_a4b68cf4",
+        "filename": "av1/encoder/allintra_vis.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 276,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2023-02-24T02:07:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0b3b630c_6494cb32",
+      "revId": "f20a534eb14e7c50cae8ae5ff8d21de2bae4a406",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "1cd76b77_e938682d",
@@ -88,6 +148,24 @@
       "writtenOn": "2023-02-23T18:18:49Z",
       "side": 1,
       "message": "I believe this if-else statement can be simplified to:\n\n```\n  if (is_high_bitdepth) {\n    uint16_t *pred_buffer_16 \u003d (uint16_t *)pred_buffer;\n    dst_buffer \u003d CONVERT_TO_BYTEPTR(pred_buffer_16);\n  } else {\n    dst_buffer \u003d pred_buffer;\n  }\n```\n\nNote: In the high bitdepth case, the use of `tmp_pred` is not necessary. We can convert `pred_buffer` to `pred_buffer_16` with a type cast directly.",
+      "revId": "f20a534eb14e7c50cae8ae5ff8d21de2bae4a406",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "24e7d2a2_d1562c21",
+        "filename": "av1/encoder/allintra_vis.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 286,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2023-02-24T02:07:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1cd76b77_e938682d",
       "revId": "f20a534eb14e7c50cae8ae5ff8d21de2bae4a406",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
