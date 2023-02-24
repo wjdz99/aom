@@ -185,6 +185,24 @@
       "message": "Cheng: I compared the code in `av1_calc_mb_wiener_var_mt()` and `calc_mb_wiener_var()`. I only noticed two minor differences:\n\n1. `cpi-\u003eframe_info.mi_rows` vs. `cpi-\u003ecommon.mi_params.mi_rows`: I believe these two should be equal.\n\n2. `av1_calc_mb_wiener_var_mt()` ignores its `sum_rec_distortion` and `sum_est_rate` output parameters: this only matters when `cpi-\u003eoxcf.intra_mode_cfg.auto_intra_tools_off` is true.\n\nSo I still don\u0027t see why `av1_calc_mb_wiener_var_mt()` and `calc_mb_wiener_var()` calculate different results.",
       "revId": "f20a534eb14e7c50cae8ae5ff8d21de2bae4a406",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9c8f8fc6_a0932de7",
+        "filename": "av1/encoder/allintra_vis.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 592,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2023-02-24T02:19:44Z",
+      "side": 1,
+      "message": "I don\u0027t have a clear answer yet. I suspect something related to internal states are different, leading to subtle difference.",
+      "parentUuid": "99dff45e_e433bf2b",
+      "revId": "f20a534eb14e7c50cae8ae5ff8d21de2bae4a406",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
