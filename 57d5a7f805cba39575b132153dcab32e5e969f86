@@ -1,0 +1,234 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f4130f38_f1759666",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 22
+      },
+      "lineNbr": 2403,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2023-02-24T17:38:10Z",
+      "side": 1,
+      "message": "could you please add some comments for these new fields?",
+      "range": {
+        "startLine": 2403,
+        "startChar": 15,
+        "endLine": 2403,
+        "endChar": 32
+      },
+      "revId": "57d5a7f805cba39575b132153dcab32e5e969f86",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1833c934_8bad1c1f",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 22
+      },
+      "lineNbr": 2406,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2023-02-24T17:38:10Z",
+      "side": 1,
+      "message": "I think you can use bool in libaom",
+      "range": {
+        "startLine": 2406,
+        "startChar": 2,
+        "endLine": 2406,
+        "endChar": 5
+      },
+      "revId": "57d5a7f805cba39575b132153dcab32e5e969f86",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a059cd5c_0f3f9872",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 22
+      },
+      "lineNbr": 569,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2023-02-24T17:38:10Z",
+      "side": 1,
+      "message": "const",
+      "range": {
+        "startLine": 569,
+        "startChar": 4,
+        "endLine": 569,
+        "endChar": 7
+      },
+      "revId": "57d5a7f805cba39575b132153dcab32e5e969f86",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a44c0205_26901255",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 22
+      },
+      "lineNbr": 3269,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2023-02-24T17:38:10Z",
+      "side": 1,
+      "message": "this branch is not needed right? it\u0027ll just go to line 3271 and return 0.\n\nor you can just \n\n```\nreturn min_dist !\u003d INT_MAX \u0026\u0026 min_dist \u003e 4;\n```",
+      "range": {
+        "startLine": 3268,
+        "startChar": 4,
+        "endLine": 3269,
+        "endChar": 15
+      },
+      "revId": "57d5a7f805cba39575b132153dcab32e5e969f86",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7a5b9aa3_a593a464",
+        "filename": "av1/encoder/svc_layercontext.c",
+        "patchSetId": 22
+      },
+      "lineNbr": 263,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2023-02-24T17:38:10Z",
+      "side": 1,
+      "message": "this pair of () is not needed",
+      "range": {
+        "startLine": 263,
+        "startChar": 6,
+        "endLine": 263,
+        "endChar": 7
+      },
+      "revId": "57d5a7f805cba39575b132153dcab32e5e969f86",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d3970000_975bf9cb",
+        "filename": "av1/encoder/svc_layercontext.c",
+        "patchSetId": 22
+      },
+      "lineNbr": 275,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2023-02-24T17:38:10Z",
+      "side": 1,
+      "message": "this should be const",
+      "range": {
+        "startLine": 275,
+        "startChar": 6,
+        "endLine": 275,
+        "endChar": 9
+      },
+      "revId": "57d5a7f805cba39575b132153dcab32e5e969f86",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "eb778f04_e99da854",
+        "filename": "av1/encoder/svc_layercontext.c",
+        "patchSetId": 22
+      },
+      "lineNbr": 613,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2023-02-24T17:38:10Z",
+      "side": 1,
+      "message": "this pair of () is not needed",
+      "range": {
+        "startLine": 613,
+        "startChar": 6,
+        "endLine": 613,
+        "endChar": 7
+      },
+      "revId": "57d5a7f805cba39575b132153dcab32e5e969f86",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "69147ad4_5a220ffa",
+        "filename": "av1/encoder/svc_layercontext.c",
+        "patchSetId": 22
+      },
+      "lineNbr": 618,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2023-02-24T17:38:10Z",
+      "side": 1,
+      "message": "this and ```ref_frame_map_idx``` can be const",
+      "range": {
+        "startLine": 618,
+        "startChar": 6,
+        "endLine": 618,
+        "endChar": 9
+      },
+      "revId": "57d5a7f805cba39575b132153dcab32e5e969f86",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "90c7c29f_5ba5dbdc",
+        "filename": "av1/encoder/svc_layercontext.c",
+        "patchSetId": 22
+      },
+      "lineNbr": 631,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2023-02-24T17:38:10Z",
+      "side": 1,
+      "message": "same here, not needed",
+      "range": {
+        "startLine": 631,
+        "startChar": 6,
+        "endLine": 631,
+        "endChar": 7
+      },
+      "revId": "57d5a7f805cba39575b132153dcab32e5e969f86",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "821fdcba_27554e25",
+        "filename": "av1/encoder/svc_layercontext.c",
+        "patchSetId": 22
+      },
+      "lineNbr": 638,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2023-02-24T17:38:10Z",
+      "side": 1,
+      "message": "const",
+      "range": {
+        "startLine": 638,
+        "startChar": 8,
+        "endLine": 638,
+        "endChar": 11
+      },
+      "revId": "57d5a7f805cba39575b132153dcab32e5e969f86",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
