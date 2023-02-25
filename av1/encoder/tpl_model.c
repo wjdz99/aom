@@ -360,8 +360,7 @@ static void get_rate_distortion(
     xd->cur_buf->uv_stride,
   };
 
-  const int_interpfilters kernel =
-      av1_broadcast_interp_filter(EIGHTTAP_REGULAR);
+  const int_interpfilters kernel = av1_broadcast_interp_filter(MULTITAP_SHARP2);
 
   for (int plane = 0; plane < num_planes; ++plane) {
     struct macroblockd_plane *pd = &xd->plane[plane];
@@ -455,8 +454,7 @@ static AOM_INLINE void mode_estimation(AV1_COMP *cpi,
 
   const int bw = 4 << mi_size_wide_log2[bsize];
   const int bh = 4 << mi_size_high_log2[bsize];
-  const int_interpfilters kernel =
-      av1_broadcast_interp_filter(EIGHTTAP_REGULAR);
+  const int_interpfilters kernel = av1_broadcast_interp_filter(MULTITAP_SHARP2);
 
   int frame_offset = tpl_data->frame_idx - cpi->gf_frame_index;
 
