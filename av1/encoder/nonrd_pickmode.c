@@ -3161,6 +3161,28 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
   inter_pred_params_sr.conv_params =
       get_conv_params(/*do_average=*/0, AOM_PLANE_Y, xd->bd);
 
+  // For big blocks: if the color_sensitivity flag at superblock level
+  // is set for either golden or altref, then force it on for the mode
+  // selection. Check that the reference is used, for either single mode
+  // or compound mode.
+  if (bsize > BLOCK_16X16) {
+    if (search_state.use_ref_frame_mask[GOLDEN_FRAME] ||
+        (cpi->sf.rt_sf.use_comp_ref_nonrd &&
+         cpi->sf.rt_sf.ref_frame_comp_nonrd[0] == 1)) {
+      if (x->color_sensitivity_sb_g[COLOR_SENS_IDX(AOM_PLANE_U)] == 1)
+        x->color_sensitivity[COLOR_SENS_IDX(AOM_PLANE_U)] = 1;
+      if (x->color_sensitivity_sb_g[COLOR_SENS_IDX(AOM_PLANE_V)] == 1)
+        x->color_sensitivity[COLOR_SENS_IDX(AOM_PLANE_V)] = 1;
+    } if (search_state.use_ref_frame_mask[ALTREF_FRAME] ||
+         (cpi->sf.rt_sf.use_comp_ref_nonrd &&
+          cpi->sf.rt_sf.ref_frame_comp_nonrd[2] == 1)) {
+       if (x->color_sensitivity_sb_alt[COLOR_SENS_IDX(AOM_PLANE_U)] == 1)
+        x->color_sensitivity[COLOR_SENS_IDX(AOM_PLANE_U)] = 1;
+      if (x->color_sensitivity_sb_alt[COLOR_SENS_IDX(AOM_PLANE_V)] == 1)
+        x->color_sensitivity[COLOR_SENS_IDX(AOM_PLANE_V)] = 1;
+    }
+  }
+
   for (int idx = 0; idx < num_inter_modes + tot_num_comp_modes; ++idx) {
     // If we are at the first compound mode, and the single modes already
     // perform well, then end the search.
