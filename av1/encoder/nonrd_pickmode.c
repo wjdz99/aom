@@ -1754,6 +1754,12 @@ static AOM_INLINE void get_ref_frame_use_mask(AV1_COMP *cpi, MACROBLOCK *x,
        x->color_sensitivity_sb_g[COLOR_SENS_IDX(AOM_PLANE_V)] == 1))
     use_golden_ref_frame = 0;
 
+  // Skip altref reference if color is set for flat blocks.
+  if ((x->color_sensitivity_sb_alt[COLOR_SENS_IDX(AOM_PLANE_U)] == 1 ||
+       x->color_sensitivity_sb_alt[COLOR_SENS_IDX(AOM_PLANE_V)] == 1) &&
+      x->source_variance < 500)
+    use_alt_ref_frame = 0;
+
   // For non-screen: if golden and altref are not being selected as references
   // (use_golden_ref_frame/use_alt_ref_frame = 0) check to allow golden back
   // based on the sad of nearest/nearmv of LAST ref. If this block sad is large,
@@ -2085,6 +2091,12 @@ static AOM_INLINE int setup_compound_params_from_comp_idx(
     const int *use_ref_frame_mask, int comp_index,
     bool comp_use_zero_zeromv_only, MV_REFERENCE_FRAME *last_comp_ref_frame) {
   const MV_REFERENCE_FRAME *rf = comp_ref_mode_set[comp_index].ref_frame;
+  const int color_set_g =
+      (x->color_sensitivity_sb_g[COLOR_SENS_IDX(AOM_PLANE_U)] == 1 ||
+       x->color_sensitivity_sb_g[COLOR_SENS_IDX(AOM_PLANE_V)] == 1);
+  const int color_set_alt =
+      (x->color_sensitivity_sb_alt[COLOR_SENS_IDX(AOM_PLANE_U)] == 1 ||
+       x->color_sensitivity_sb_alt[COLOR_SENS_IDX(AOM_PLANE_V)] == 1);
   *this_mode = comp_ref_mode_set[comp_index].pred_mode;
   *ref_frame = rf[0];
   *ref_frame2 = rf[1];
@@ -2094,7 +2106,7 @@ static AOM_INLINE int setup_compound_params_from_comp_idx(
     return 0;
   }
   if (*ref_frame2 == GOLDEN_FRAME &&
-      (cpi->sf.rt_sf.ref_frame_comp_nonrd[0] == 0 ||
+      (cpi->sf.rt_sf.ref_frame_comp_nonrd[0] == 0 || color_set_g ||
        !(cpi->ref_frame_flags & AOM_GOLD_FLAG))) {
     return 0;
   } else if (*ref_frame2 == LAST2_FRAME &&
@@ -2102,7 +2114,7 @@ static AOM_INLINE int setup_compound_params_from_comp_idx(
               !(cpi->ref_frame_flags & AOM_LAST2_FLAG))) {
     return 0;
   } else if (*ref_frame2 == ALTREF_FRAME &&
-             (cpi->sf.rt_sf.ref_frame_comp_nonrd[2] == 0 ||
+             (cpi->sf.rt_sf.ref_frame_comp_nonrd[2] == 0 || color_set_alt ||
               !(cpi->ref_frame_flags & AOM_ALT_FLAG))) {
     return 0;
   }
