@@ -2085,6 +2085,14 @@ static AOM_INLINE int setup_compound_params_from_comp_idx(
     const int *use_ref_frame_mask, int comp_index,
     bool comp_use_zero_zeromv_only, MV_REFERENCE_FRAME *last_comp_ref_frame) {
   const MV_REFERENCE_FRAME *rf = comp_ref_mode_set[comp_index].ref_frame;
+  /*
+  if (x->color_sensitivity_sb_g[COLOR_SENS_IDX(AOM_PLANE_U)] == 1 ||
+      x->color_sensitivity_sb_alt[COLOR_SENS_IDX(AOM_PLANE_U)] == 1)
+    x->color_sensitivity[COLOR_SENS_IDX(AOM_PLANE_U)] = 1;
+  if (x->color_sensitivity_sb_g[COLOR_SENS_IDX(AOM_PLANE_V)] == 1 ||
+      x->color_sensitivity_sb_alt[COLOR_SENS_IDX(AOM_PLANE_V)] == 1)
+    x->color_sensitivity[COLOR_SENS_IDX(AOM_PLANE_V)] = 1;
+  */
   *this_mode = comp_ref_mode_set[comp_index].pred_mode;
   *ref_frame = rf[0];
   *ref_frame2 = rf[1];
