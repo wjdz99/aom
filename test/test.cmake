@@ -356,7 +356,7 @@ if(NOT BUILD_SHARED_LIBS)
 endif()
 
 if(CONFIG_AV1_ENCODER AND ENABLE_TESTS)
-  list(APPEND AOM_RC_TEST_SOURCES
+  list(APPEND AOM_RC_SOURCES
               "${AOM_ROOT}/common/tools_common.c"
               "${AOM_ROOT}/common/tools_common.h"
               "${AOM_ROOT}/common/y4minput.c"
@@ -614,7 +614,7 @@ function(setup_aom_test_targets)
      AND CONFIG_WEBM_IO
      AND NOT BUILD_SHARED_LIBS
      AND NOT CONFIG_REALTIME_ONLY)
-    add_executable(test_aom_rc ${AOM_RC_TEST_SOURCES})
+    add_executable(test_aom_rc ${AOM_RC_SOURCES})
     target_link_libraries(test_aom_rc ${AOM_LIB_LINK_TYPE} aom aom_av1_rc
                           aom_gtest aom_gmock webm)
     set_property(TARGET test_aom_rc PROPERTY FOLDER ${AOM_IDE_TEST_FOLDER})
