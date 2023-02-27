@@ -2558,11 +2558,13 @@ static AOM_FORCE_INLINE bool handle_inter_mode_nonrd(
     // For screen: first check if golden reference is being used, if so,
     // force color_sensitivity on if the color sensitivity for sb_g is on.
     if (cpi->oxcf.tune_cfg.content == AOM_CONTENT_SCREEN &&
-        search_state->use_ref_frame_mask[GOLDEN_FRAME]) {
-      if (x->color_sensitivity_sb_g[COLOR_SENS_IDX(AOM_PLANE_U)] == 1)
-        x->color_sensitivity[COLOR_SENS_IDX(AOM_PLANE_U)] = 1;
-      if (x->color_sensitivity_sb_g[COLOR_SENS_IDX(AOM_PLANE_V)] == 1)
-        x->color_sensitivity[COLOR_SENS_IDX(AOM_PLANE_V)] = 1;
+        search_state->use_ref_frame_mask[GOLDEN_FRAME] &&
+        (x->color_sensitivity_sb_g[COLOR_SENS_IDX(AOM_PLANE_U)] == 1 ||
+         x->color_sensitivity_sb_g[COLOR_SENS_IDX(AOM_PLANE_V)] == 1)) {
+        if (x->color_sensitivity_sb_g[COLOR_SENS_IDX(AOM_PLANE_U)] == 1)
+          x->color_sensitivity[COLOR_SENS_IDX(AOM_PLANE_U)] = 1;
+        if (x->color_sensitivity_sb_g[COLOR_SENS_IDX(AOM_PLANE_V)] == 1)
+          x->color_sensitivity[COLOR_SENS_IDX(AOM_PLANE_V)] = 1;
     } else {
       int y_sad = x->pred_mv0_sad[LAST_FRAME];
       if (x->pred_mv1_sad[LAST_FRAME] != INT_MAX &&
