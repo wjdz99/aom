@@ -266,6 +266,13 @@ static void pass1(aom_image_t *raw, FILE *infile, const char *outfile_name,
   if (aom_codec_control(&codec, AOME_SET_CPUUSED, 3))
     die_codec(&codec, "Failed to set cpu-used");
 
+  // Disable global motion
+  // We have to do this because the per-frame global motion data is stored
+  // in the frame header, but for lightfield mode we want all frame headers
+  // to be identical
+  if (aom_codec_control(&codec, AV1E_SET_ENABLE_GLOBAL_MOTION, 0))
+    die_codec(&codec, "Failed to disable global motion");
+
   // Note: The superblock is a sequence parameter and has to be the same for 1
   // sequence. In lightfield application, must choose the superblock size(either
   // 64x64 or 128x128) before the encoding starts. Otherwise, the default is

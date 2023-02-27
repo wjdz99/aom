@@ -736,6 +736,9 @@ static aom_codec_err_t validate_config(aom_codec_alg_priv_t *ctx,
         "Adaptive quantization are not supported in large scale tile "
         "coding.");
 
+  if (cfg->large_scale_tile && extra_cfg->enable_global_motion)
+    ERROR("Global motion is not supported in large scale tile coding.");
+
   RANGE_CHECK_HI(extra_cfg, sharpness, 7);
   RANGE_CHECK_HI(extra_cfg, arnr_max_frames, 15);
   RANGE_CHECK_HI(extra_cfg, arnr_strength, 6);
