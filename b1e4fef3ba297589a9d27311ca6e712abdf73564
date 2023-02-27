@@ -51,6 +51,24 @@
       "parentUuid": "e7b623a9_ea6c3f47",
       "revId": "b1e4fef3ba297589a9d27311ca6e712abdf73564",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fae9633a_6cf46168",
+        "filename": "common/tools_common.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-02-27T21:47:09Z",
+      "side": 1,
+      "message": "\u003e After seeing the libvpx CL https://chromium-review.googlesource.com/c/webm/libvpx/+/4292717, I guess the `const` in line 130 was not removed along with the other uses of `const` when this struct was ported from libvpx to libaom.\n\nI\u0027ll follow up on both. \u0027interface\u0027 was replaced in libvpx due to a Visual Studio compiler error at one point.",
+      "parentUuid": "b4affc53_53f636f0",
+      "revId": "b1e4fef3ba297589a9d27311ca6e712abdf73564",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
