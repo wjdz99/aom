@@ -3,6 +3,40 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "9b35e143_bcb62dd8",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-02-27T22:59:04Z",
+      "side": 1,
+      "message": "This file has other unexpected entries:\n\n```\n-c\n--c++\n--ec++\n--target\u003darm-arm-none-eabi -mcpu\u003dcortex-m3\n-c -I__does_not_exist__\n-c\n-Aa\n-D__CLASSIC_C__\n--target\u003darm-arm-none-eabi -mcpu\u003dcortex-m3\n-c -I__does_not_exist__\n...\n```",
+      "revId": "024c477a571ea41577cd143271a9b046c5a6267d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "425e1afd_0191d47e",
+        "filename": "test/test.cmake",
+        "patchSetId": 1
+      },
+      "lineNbr": 584,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-02-27T22:59:04Z",
+      "side": 1,
+      "message": "this check could be extended instead to allow `_TEST_` to remain.",
+      "revId": "024c477a571ea41577cd143271a9b046c5a6267d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "482c22ae_fa6660a0",
         "filename": "test/test.cmake",
         "patchSetId": 1
