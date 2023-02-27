@@ -834,20 +834,6 @@ int64_t av1_rd_pick_intra_sbuv_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
     return INT64_MAX;
   }
 
-  // Only store reconstructed luma when there's chroma RDO. When there's no
-  // chroma RDO, the reconstructed luma will be stored in encode_superblock().
-  xd->cfl.store_y = store_cfl_required_rdo(cm, x);
-  if (xd->cfl.store_y) {
-    // Restore reconstructed luma values.
-    // TODO(chiyotsai@google.com): right now we are re-computing the txfm in
-    // this function everytime we search through uv modes. There is some
-    // potential speed up here if we cache the result to avoid redundant
-    // computation.
-    av1_encode_intra_block_plane(cpi, x, mbmi->bsize, AOM_PLANE_Y,
-                                 DRY_RUN_NORMAL,
-                                 cpi->optimize_seg_arr[mbmi->segment_id]);
-    xd->cfl.store_y = 0;
-  }
   IntraModeSearchState intra_search_state;
   init_intra_mode_search_state(&intra_search_state);
 
@@ -887,6 +873,21 @@ int64_t av1_rd_pick_intra_sbuv_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
     if (mode == UV_CFL_PRED) {
       if (!is_cfl_allowed(xd) || !intra_mode_cfg->enable_cfl_intra) continue;
       assert(!is_directional_mode);
+      // Only store reconstructed luma when there's chroma RDO. When there's no
+      // chroma RDO, the reconstructed luma will be stored in
+      // encode_superblock().
+      xd->cfl.store_y = store_cfl_required_rdo(cm, x);
+      if (xd->cfl.store_y) {
+        // Restore reconstructed luma values.
+        // TODO(chiyotsai@google.com): right now we are re-computing the txfm in
+        // this function everytime we search through uv modes. There is some
+        // potential speed up here if we cache the result to avoid redundant
+        // computation.
+        av1_encode_intra_block_plane(cpi, x, mbmi->bsize, AOM_PLANE_Y,
+                                     DRY_RUN_NORMAL,
+                                     cpi->optimize_seg_arr[mbmi->segment_id]);
+        xd->cfl.store_y = 0;
+      }
       const TX_SIZE uv_tx_size = av1_get_tx_size(AOM_PLANE_U, xd);
       if (!cfl_rd_pick_alpha(x, cpi, uv_tx_size, best_rd,
                              sf->intra_sf.cfl_search_range, &tokenonly_rd_stats,

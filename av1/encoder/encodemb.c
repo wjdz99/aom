@@ -458,6 +458,7 @@ static void encode_block(int plane, int block, int blk_row, int blk_col,
                                 cm->features.reduced_tx_set_used);
   }
 
+#if 0
   // TODO(debargha, jingning): Temporarily disable txk_type check for eob=0
   // case. It is possible that certain collision in hash index would cause
   // the assertion failure. To further optimize the rate-distortion
@@ -478,6 +479,7 @@ static void encode_block(int plane, int block, int blk_row, int blk_col,
 #endif
     update_txk_array(xd, blk_row, blk_col, tx_size, DCT_DCT);
   }
+#endif
 
 #if CONFIG_MISMATCH_DEBUG
   if (dry_run == OUTPUT_ENABLED) {
@@ -807,6 +809,7 @@ void av1_encode_block_intra(int plane, int block, int blk_row, int blk_col,
                                 cm->features.reduced_tx_set_used);
   }
 
+#if 0
   // TODO(jingning): Temporarily disable txk_type check for eob=0 case.
   // It is possible that certain collision in hash index would cause
   // the assertion failure. To further optimize the rate-distortion
@@ -822,6 +825,7 @@ void av1_encode_block_intra(int plane, int block, int blk_row, int blk_col,
 #endif
     update_txk_array(xd, blk_row, blk_col, tx_size, DCT_DCT);
   }
+#endif
 
   // For intra mode, skipped blocks are so rare that transmitting skip=1 is
   // very expensive.
