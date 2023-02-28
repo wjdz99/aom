@@ -463,7 +463,7 @@ static void encode_block(int plane, int block, int blk_row, int blk_col,
   // the assertion failure. To further optimize the rate-distortion
   // performance, we need to re-visit this part and enable this assert
   // again.
-  if (p->eobs[block] == 0 && plane == 0) {
+  if (p->eobs[block] == 0 && plane == 0 && dry_run == OUTPUT_ENABLED) {
 #if 0
     if (args->cpi->oxcf.q_cfg.aq_mode == NO_AQ &&
         args->cpi->oxcf.q_cfg.deltaq_mode == NO_DELTA_Q) {
@@ -812,7 +812,7 @@ void av1_encode_block_intra(int plane, int block, int blk_row, int blk_col,
   // the assertion failure. To further optimize the rate-distortion
   // performance, we need to re-visit this part and enable this assert
   // again.
-  if (*eob == 0 && plane == 0) {
+  if (*eob == 0 && plane == 0 && args->dry_run == OUTPUT_ENABLED) {
 #if 0
     if (args->cpi->oxcf.q_cfg.aq_mode == NO_AQ
         && args->cpi->oxcf.q_cfg.deltaq_mode == NO_DELTA_Q) {
