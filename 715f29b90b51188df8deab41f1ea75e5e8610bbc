@@ -16,6 +16,24 @@
       "message": "Do you have an example which produces MV limits which violate the conditions you\u0027re enforcing here? Please could you walk me through the calculations which happen in that case, so that I can see what\u0027s happening?",
       "revId": "715f29b90b51188df8deab41f1ea75e5e8610bbc",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d3449a51_da03a696",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2023-02-28T19:44:57Z",
+      "side": 1,
+      "message": "The example used in\n\nhttps://b.corp.google.com/issues/270439504\n\ncan produce the issue.\n\nIn a similar flavor, one could construct a ref mv that\u0027s large enough through block by block propagation, and essentially reach a point where the ref mv is built up to point somewhere far away from the frame. The limits from the delta mv and from the effective mv might not overlap in this case.\n\nThe added clamping will make the effective mv range to be a single point. This will avoid failures in the motion search process. And afterwards, the motion vector shall be determined invalid as it is out of the allowed range.",
+      "parentUuid": "632f8e01_7d9a08ab",
+      "revId": "715f29b90b51188df8deab41f1ea75e5e8610bbc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
