@@ -20,6 +20,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "91e9b4b1_e887c010",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-02-28T01:44:31Z",
+      "side": 1,
+      "message": "\u003e This file has other unexpected entries:\n\u003e \n\u003e ```\n\u003e -c\n\u003e --c++\n\u003e --ec++\n\u003e --target\u003darm-arm-none-eabi -mcpu\u003dcortex-m3\n\u003e -c -I__does_not_exist__\n\u003e -c\n\u003e -Aa\n\u003e -D__CLASSIC_C__\n\u003e --target\u003darm-arm-none-eabi -mcpu\u003dcortex-m3\n\u003e -c -I__does_not_exist__\n\u003e ...\n\u003e ```\n\nThe match being updated is incomplete and includes `AOM_IDE_TEST_FOLDER`, `CXX_TEST_COMPILED`, `C_TEST_COMPILED`, `ENABLE_IDE_TEST_HOSTING` and  `PTHREAD_C_CXX_TEST_SOURCE`. This is harmless for now, but it probably would be better to namespace the variables we actually want to match. This negative match is fragile.",
+      "parentUuid": "9b35e143_bcb62dd8",
+      "revId": "024c477a571ea41577cd143271a9b046c5a6267d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "425e1afd_0191d47e",
         "filename": "test/test.cmake",
         "patchSetId": 1
