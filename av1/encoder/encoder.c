@@ -1528,7 +1528,10 @@ AV1_COMP *av1_create_compressor(AV1_PRIMARY *ppi, const AV1EncoderConfig *oxcf,
     CHECK_MEM_ERROR(cm, cpi->saliency_map,
                     (uint8_t *)aom_calloc(cm->height * cm->width,
                                           sizeof(*cpi->saliency_map)));
-    const int bsize = cm->seq_params->sb_size;
+    // Set bsize = BLOCK_64X64 here to insure that cpi->sm_scaling_factor buffer
+    // is allocated big enough, since we have no idea of the actual superblock
+    // size we gonna use yet.
+    const int bsize = BLOCK_64X64;
     const int w = mi_size_wide[bsize];
     const int h = mi_size_high[bsize];
     const int num_cols = (cm->mi_params.mi_cols + w - 1) / w;
