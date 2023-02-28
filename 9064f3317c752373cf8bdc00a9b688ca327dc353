@@ -43,6 +43,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "bae4b41e_39796c10",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1534,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2023-02-28T23:21:00Z",
+      "side": 1,
+      "message": "On second thought, some of these constants are already defined in libaom. Maybe you can consider using (1 \u003c\u003c MIN_MIB_SIZE_LOG2) to replace w and h?",
+      "parentUuid": "22a9eb54_ebd9fe1e",
+      "range": {
+        "startLine": 1534,
+        "startChar": 14,
+        "endLine": 1534,
+        "endChar": 19
+      },
+      "revId": "9064f3317c752373cf8bdc00a9b688ca327dc353",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "00955bcf_c84fdb71",
         "filename": "av1/encoder/encoder.c",
         "patchSetId": 1
