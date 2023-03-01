@@ -287,32 +287,33 @@ static PrimaryRefKey get_primary_ref_key(const GopFrame &cur_frame,
 // Pick primary_ref_idx for probability model.
 ReferenceFrame RefFrameManager::GetPrimaryRefFrame(
     const GopFrame &gop_frame) const {
-  assert(gop_frame.is_valid);
-  std::vector<std::pair<PrimaryRefKey, int>> candidate_list;
-  for (auto &ref_frame_in_gop_frame : gop_frame.ref_frame_list) {
-    const GopFrame &ref_frame = ref_frame_table_[ref_frame_in_gop_frame.index];
-    if (ref_frame.is_valid) {
-      assert(ref_frame_in_gop_frame.index == ref_frame.update_ref_idx);
-      PrimaryRefKey key = get_primary_ref_key(gop_frame, ref_frame);
-      std::pair<PrimaryRefKey, int> candidate = {
-        key, ref_frame_in_gop_frame.index
-      };
-      candidate_list.push_back(candidate);
-    }
-  }
+  // assert(gop_frame.is_valid);
+  // std::vector<std::pair<PrimaryRefKey, int>> candidate_list;
+  // for (auto &ref_frame_in_gop_frame : gop_frame.ref_frame_list) {
+  //   const GopFrame &ref_frame = ref_frame_table_[ref_frame_in_gop_frame.index];
+  //   if (ref_frame.is_valid) {
+  //     assert(ref_frame_in_gop_frame.index == ref_frame.update_ref_idx);
+  //     PrimaryRefKey key = get_primary_ref_key(gop_frame, ref_frame);
+  //     std::pair<PrimaryRefKey, int> candidate = {
+  //       key, ref_frame_in_gop_frame.index
+  //     };
+  //     candidate_list.push_back(candidate);
+  //   }
+  // }
 
-  std::sort(candidate_list.begin(), candidate_list.end());
+  // std::sort(candidate_list.begin(), candidate_list.end());
 
+  (void) gop_frame;
   ReferenceFrame ref_frame = { -1, ReferenceName::kNoneFrame };
-  assert(candidate_list.size() == gop_frame.ref_frame_list.size());
-  if (!candidate_list.empty()) {
-    int ref_idx = candidate_list[0].second;
-    for (const auto &frame : gop_frame.ref_frame_list) {
-      if (frame.index == ref_idx) {
-        ref_frame = frame;
-      }
-    }
-  }
+  // assert(candidate_list.size() == gop_frame.ref_frame_list.size());
+  // if (!candidate_list.empty()) {
+  //   int ref_idx = candidate_list[0].second;
+  //   for (const auto &frame : gop_frame.ref_frame_list) {
+  //     if (frame.index == ref_idx) {
+  //       ref_frame = frame;
+  //     }
+  //   }
+  // }
   return ref_frame;
 }
 
