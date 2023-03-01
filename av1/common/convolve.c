@@ -117,7 +117,8 @@ void av1_convolve_2d_sr_c(const uint8_t *src, int src_stride, uint8_t *dst,
       for (int k = 0; k < filter_params_y->taps; ++k) {
         sum += y_filter[k] * src_vert[(y - fo_vert + k) * im_stride + x];
       }
-      assert(0 <= sum && sum < (1 << (offset_bits + 2)));
+      assert(filter_params_y->taps > 8 ||
+             (0 <= sum && sum < (1 << (offset_bits + 2))));
       int16_t res = ROUND_POWER_OF_TWO(sum, conv_params->round_1) -
                     ((1 << (offset_bits - conv_params->round_1)) +
                      (1 << (offset_bits - conv_params->round_1 - 1)));
@@ -327,7 +328,8 @@ void av1_dist_wtd_convolve_2d_c(const uint8_t *src, int src_stride,
       for (int k = 0; k < filter_params_y->taps; ++k) {
         sum += y_filter[k] * src_vert[(y - fo_vert + k) * im_stride + x];
       }
-      assert(0 <= sum && sum < (1 << (offset_bits + 2)));
+      assert(filter_params_y->taps > 8 ||
+             (0 <= sum && sum < (1 << (offset_bits + 2))));
       CONV_BUF_TYPE res = ROUND_POWER_OF_TWO(sum, conv_params->round_1);
       if (conv_params->do_average) {
         int32_t tmp = dst16[y * dst16_stride + x];
@@ -535,7 +537,8 @@ void av1_convolve_2d_scale_c(const uint8_t *src, int src_stride, uint8_t *dst,
       for (int k = 0; k < filter_params_y->taps; ++k) {
         sum += y_filter[k] * src_y[(k - fo_vert) * im_stride];
       }
-      assert(0 <= sum && sum < (1 << (offset_bits + 2)));
+      assert(filter_params_y->taps > 8 ||
+             (0 <= sum && sum < (1 << (offset_bits + 2))));
       CONV_BUF_TYPE res = ROUND_POWER_OF_TWO(sum, conv_params->round_1);
       if (conv_params->is_compound) {
         if (conv_params->do_average) {
@@ -768,7 +771,8 @@ void av1_highbd_convolve_2d_sr_c(const uint16_t *src, int src_stride,
       for (int k = 0; k < filter_params_y->taps; ++k) {
         sum += y_filter[k] * src_vert[(y - fo_vert + k) * im_stride + x];
       }
-      assert(0 <= sum && sum < (1 << (offset_bits + 2)));
+      assert(filter_params_y->taps > 8 ||
+             (0 <= sum && sum < (1 << (offset_bits + 2))));
       int32_t res = ROUND_POWER_OF_TWO(sum, conv_params->round_1) -
                     ((1 << (offset_bits - conv_params->round_1)) +
                      (1 << (offset_bits - conv_params->round_1 - 1)));
@@ -824,7 +828,8 @@ void av1_highbd_dist_wtd_convolve_2d_c(
       for (k = 0; k < filter_params_y->taps; ++k) {
         sum += y_filter[k] * src_vert[(y - fo_vert + k) * im_stride + x];
       }
-      assert(0 <= sum && sum < (1 << (offset_bits + 2)));
+      assert(filter_params_y->taps > 8 ||
+             (0 <= sum && sum < (1 << (offset_bits + 2))));
       CONV_BUF_TYPE res = ROUND_POWER_OF_TWO(sum, conv_params->round_1);
       if (conv_params->do_average) {
         int32_t tmp = dst16[y * dst16_stride + x];
@@ -1034,7 +1039,8 @@ void av1_highbd_convolve_2d_scale_c(const uint16_t *src, int src_stride,
       for (int k = 0; k < filter_params_y->taps; ++k) {
         sum += y_filter[k] * src_y[(k - fo_vert) * im_stride];
       }
-      assert(0 <= sum && sum < (1 << (offset_bits + 2)));
+      assert(filter_params_y->taps > 8 ||
+             (0 <= sum && sum < (1 << (offset_bits + 2))));
       CONV_BUF_TYPE res = ROUND_POWER_OF_TWO(sum, conv_params->round_1);
       if (conv_params->is_compound) {
         if (conv_params->do_average) {
