@@ -33,6 +33,228 @@
       "message": "Hi Wan-Teh, Frank,\n\nPlease review this CL.\n\nRegards,\nNeha",
       "revId": "b7e41c520d4c293b9d3ce7c87e86b54b753bd5a6",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0da24889_21282a14",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-03-01T18:00:59Z",
+      "side": 1,
+      "message": "Hi Neha,\n\nI am sorry I forgot to review this CL. Thank you for the reminder.\n\nI suggest some changes.\n\nChi Yo: Please review.",
+      "revId": "b7e41c520d4c293b9d3ce7c87e86b54b753bd5a6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3bdf391b_82fbaaac",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-03-01T18:00:59Z",
+      "side": 1,
+      "message": "Some of your extended description here should go into either the commit message or a comment in the source code so it\u0027s easier to find. For example,\n\n\u003e In av1_alloc_pc_tree_node() even after doing a calloc, the pointers were being initialized to NULL, which is avoided in the current CL.\n\nThis could go into the commit mesage. I leave this decision to you.\n\n\u003e In av1_free_pc_tree_recursive(), the extended partitions are not supported when partition_search_type is VAR_BASED_PARTITION. Hence their freeing is avoided in this CL.\n\nPlease add an edited version of this to `av1_free_pc_tree_recursive()` as a comment for the new special case.\n\n\u003e For speed\u003d7, av1_free_pc_tree_recursive() is called at a superblock level, whereas av1_free_pc_tree_recursive() is called only once at frame level for speed\u003d8 and 9. Hence this optimization seems to have less scope for speed\u003d8 and 9.\n\nThis could go into the commit message. I defer to you.",
+      "parentUuid": "0181a426_8129fe66",
+      "revId": "b7e41c520d4c293b9d3ce7c87e86b54b753bd5a6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9f17cc78_ff6ae46c",
+        "filename": "av1/encoder/context_tree.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 157,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-03-01T18:00:59Z",
+      "side": 1,
+      "message": "Optional: This is strictly speaking also redundant. But it depends on knowing `PARTITION_NONE` is equal to 0. So it is fine to keep this for clarity.\n\nNote: The value of `PARTITION_NONE` is specified in the AV1 specification, so it will not change.",
+      "revId": "b7e41c520d4c293b9d3ce7c87e86b54b753bd5a6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cfc7c0cb_2d6f53f3",
+        "filename": "av1/encoder/context_tree.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-03-01T18:00:59Z",
+      "side": 1,
+      "message": "Omit this line because `aom_calloc()` already initializes `pc_tree-\u003eindex` to 0.",
+      "revId": "b7e41c520d4c293b9d3ce7c87e86b54b753bd5a6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9bd04035_775e01f8",
+        "filename": "av1/encoder/context_tree.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 174,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-03-01T18:00:59Z",
+      "side": 1,
+      "message": "Optional: It would be good to add a comment to describe this special case.",
+      "revId": "b7e41c520d4c293b9d3ce7c87e86b54b753bd5a6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e8296887_eca6912c",
+        "filename": "av1/encoder/context_tree.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 175,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-03-01T18:00:59Z",
+      "side": 1,
+      "message": "This line can be deleted if we move this new if statement (lines 174-208) after line 213, because this line will be covered by the if statement at lines 212-213.",
+      "revId": "b7e41c520d4c293b9d3ce7c87e86b54b753bd5a6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f3a9d2bf_d5532912",
+        "filename": "av1/encoder/context_tree.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 197,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-03-01T18:00:59Z",
+      "side": 1,
+      "message": "Put these assertions inside `#if !CONFIG_REALTIME_ONLY`.",
+      "revId": "b7e41c520d4c293b9d3ce7c87e86b54b753bd5a6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fcccb622_d3606a75",
+        "filename": "av1/encoder/context_tree.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 197,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-03-01T18:00:59Z",
+      "side": 1,
+      "message": "I suggest putting these assertions in for loops, inside an `#ifndef NDEBUG` block:\n\n```\n#if !defined(NDEBUG) \u0026\u0026 !CONFIG_REALTIME_ONLY\n  for (int i \u003d 0; i \u003c 2; ++i) {\n    assert(pc_tree-\u003ehorizontal[i] \u003d\u003d NULL);\n    assert(pc_tree-\u003evertical[i] \u003d\u003d NULL);\n  }\n  ...\n#endif\n```",
+      "revId": "b7e41c520d4c293b9d3ce7c87e86b54b753bd5a6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "162f2ffc_fc95cddc",
+        "filename": "av1/encoder/context_tree.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-03-01T18:00:59Z",
+      "side": 1,
+      "message": "Nit/optional: The code will be more readable if we pass `PARTITION_SEARCH_TYPE partition_search_type` as the new paramter. The comparison `partition_search_type \u003d\u003d VAR_BASED_PARTITION` will need to be done inside `av1_free_pc_tree_recursive()` in every recursive call, but this may be a good trade-off.",
+      "revId": "b7e41c520d4c293b9d3ce7c87e86b54b753bd5a6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "656c2910_51b9ccc9",
+        "filename": "av1/encoder/partition_search.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 4715,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-03-01T18:00:59Z",
+      "side": 1,
+      "message": "The result of a comparison is already a boolean, so this can be simplified to:\n\n```\n  bool is_var_based_partition \u003d\n      (cpi-\u003esf.part_sf.partition_search_type \u003d\u003d VAR_BASED_PARTITION);\n```\n\nNote that you didn\u0027t use the ternary operator at line 5017, for example.",
+      "revId": "b7e41c520d4c293b9d3ce7c87e86b54b753bd5a6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2b2cb1c9_b6e3e29b",
+        "filename": "av1/encoder/partition_search.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 5017,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-03-01T18:00:59Z",
+      "side": 1,
+      "message": "Nit: This can be saved in a local variable before the for loop at line 5013.",
+      "revId": "b7e41c520d4c293b9d3ce7c87e86b54b753bd5a6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "290dd31c_52f99286",
+        "filename": "av1/encoder/partition_search.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 5103,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-03-01T18:00:59Z",
+      "side": 1,
+      "message": "Nit: Omit the ternary operator.",
+      "revId": "b7e41c520d4c293b9d3ce7c87e86b54b753bd5a6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e71fdf35_1a248d9e",
+        "filename": "av1/encoder/partition_search.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 5619,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-03-01T18:00:59Z",
+      "side": 1,
+      "message": "It\u0027s not clear why `is_var_based_partition` is false here. A comment would be helpful. Also at line 5636.\n\nIf the reason is the same at both places, we can define a variable\n\n```\n  // Explain why this is false.\n  const bool is_var_based_partition \u003d false;\n```\n\nand use the variable in both places, to avoid repeating the comment.",
+      "revId": "b7e41c520d4c293b9d3ce7c87e86b54b753bd5a6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
