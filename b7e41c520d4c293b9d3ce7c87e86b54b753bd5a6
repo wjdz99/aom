@@ -16,6 +16,23 @@
       "message": "Hi Wan-Teh, Frank, \n\nIn this CL, av1_alloc_pc_tree_node() is simplified by avoiding redundant initializations and av1_free_pc_tree_recursive() is modified to handle a special case when partition_search_type is VAR_BASED_PARTITION. In av1_alloc_pc_tree_node() even after doing a calloc, the pointers were being initialized to NULL, which is avoided in the current CL. In av1_free_pc_tree_recursive(), the extended partitions are not supported when partition_search_type is VAR_BASED_PARTITION. Hence their freeing is avoided in this CL.\nFor speed\u003d7, av1_free_pc_tree_recursive() is called at a superblock level, whereas av1_free_pc_tree_recursive() is called only once at frame level for speed\u003d8 and 9. Hence this optimization seems to have less scope for speed\u003d8 and 9.\n\nFor AVIF still-image encode with tune\u003dssim,\n```\ncpu-used        Encode Time\n                Reduction(%)\n   7               0.891\n```\nFor speed 8 and 9, we observed encode time reduction in the range of ± 0.2%. However, negligible instruction count reduction is seen (for AVIF encode) as quoted below.\n```\n              Instruction Count\ncpu-used         Reduction (%)\n   7               0.427\n   8               0.003\n   9               0.001\n```\nFollowing are the instruction count reduction results when libaom allintra frame encoding (50 frames) was tested for a borg setup:\n```\n               Instruction Count\ncpu-used         Reduction (%)\n   7               0.690\n   8               0.016\n   9               0.034\n```\n\nFor libaom AV1 video encode, bit-match is verified (w.r.t. parent commit) for \u0027GOOD\u0027, \u0027RT\u0027 and \u0027ALLINTRA\u0027 encoding modes for a few contents with different encoding configurations. It is verified that the CL is bit-exact for AVIF still-image encode for a typical image dataset.\n\nLibavif commit used for testing: 20a0f7fa6268b5656fd66bdf39d0d70c8387eb51\n\nPlease review.\n\nRegards,\nNeha.",
       "revId": "b7e41c520d4c293b9d3ce7c87e86b54b753bd5a6",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "99fdd911_c4549b34",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 31567
+      },
+      "writtenOn": "2023-03-01T12:10:33Z",
+      "side": 1,
+      "message": "Hi Wan-Teh, Frank,\n\nPlease review this CL.\n\nRegards,\nNeha",
+      "revId": "b7e41c520d4c293b9d3ce7c87e86b54b753bd5a6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
