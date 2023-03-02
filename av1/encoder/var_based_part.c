@@ -471,8 +471,19 @@ static AOM_INLINE void tune_thresh_based_on_qindex(
       // moving boundary. So allow for sb with source_sad above threshold,
       // and avoid very large source_sad or high source content, to avoid
       // too many 8x8 within superblock.
-      if (is_segment_id_boosted == false && cpi->rc.avg_source_sad < 25000 &&
-          blk_sad > 25000 && blk_sad < 50000 && !lighting_change) {
+      uint64_t thresh1 = 25000;
+      uint64_t thresh2 = 25000;
+      uint64_t thresh3 = 50000;
+      if (cpi->svc.temporal_layer_id == 0 &&
+          cpi->svc.number_temporal_layers > 1) {
+        // Increase the sad thresholds for base TL0, as reference/LAST is
+        // 2/4 frames behind (for 2/3 #TL).
+        thresh1 = 35000;
+        thresh2 = 40000;
+        thresh3 = 80000;
+      }
+      if (is_segment_id_boosted == false && cpi->rc.avg_source_sad < thresh1 &&
+          blk_sad > thresh2 && blk_sad < thresh3 && !lighting_change) {
         thresholds[2] = (3 * thresholds[2]) >> 2;
         thresholds[3] = thresholds[2] << 3;
       }
@@ -1534,7 +1545,8 @@ int av1_choose_var_based_partitioning(AV1_COMP *cpi, const TileInfo *const tile,
   int variance4x4downsample[64];
   const int segment_id = xd->mi[0]->segment_id;
   uint64_t blk_sad = 0;
-  if (cpi->src_sad_blk_64x64 != NULL && !cpi->ppi->use_svc) {
+  if (cpi->src_sad_blk_64x64 != NULL &&
+      cpi->svc.spatial_layer_id == cpi->svc.number_spatial_layers - 1) {
     const int sb_size_by_mb = (cm->seq_params->sb_size == BLOCK_128X128)
                                   ? (cm->seq_params->mib_size >> 1)
                                   : cm->seq_params->mib_size;
