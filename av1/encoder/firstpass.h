@@ -161,14 +161,6 @@ typedef struct FIRSTPASS_STATS {
    * Correlation coefficient with the previous frame
    */
   double cor_coeff;
-  /*!
-   * log of intra_error
-   */
-  double log_intra_error;
-  /*!
-   * log of coded_error
-   */
-  double log_coded_error;
 } FIRSTPASS_STATS;
 
 // We want to keep one past stats for key frame detection
