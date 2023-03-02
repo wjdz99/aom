@@ -528,7 +528,7 @@ static void find_top_colors(const int *const count_buf, int bit_depth,
 }
 
 void av1_rd_pick_palette_intra_sby(
-    const AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bsize, int dc_mode_cost,
+    AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bsize, int dc_mode_cost,
     MB_MODE_INFO *best_mbmi, uint8_t *best_palette_color_map, int64_t *best_rd,
     int *rate, int *rate_tokenonly, int64_t *distortion, uint8_t *skippable,
     int *beat_best_rd, PICK_MODE_CONTEXT *ctx, uint8_t *best_blk_skip,
@@ -733,6 +733,12 @@ void av1_rd_pick_palette_intra_sby(
   if (best_mbmi->palette_mode_info.palette_size[0] > 0) {
     memcpy(color_map, best_palette_color_map,
            block_width * block_height * sizeof(best_palette_color_map[0]));
+    // Gather the stats only when it's a fast encoding pass to determine
+    // whether to use screen content tools in function
+    // av1_determine_sc_tools_with_encoding().
+    if (cpi->palette_pixel_num != -1) {
+      cpi->palette_pixel_num += (block_width * block_height);
+    }
   }
   *mbmi = *best_mbmi;
 }

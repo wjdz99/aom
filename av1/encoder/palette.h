@@ -184,7 +184,7 @@ int av1_palette_color_cost_uv(const PALETTE_MODE_INFO *const pmi,
  * This function is used in both inter and intra frame coding.
  */
 void av1_rd_pick_palette_intra_sby(
-    const struct AV1_COMP *cpi, struct macroblock *x, BLOCK_SIZE bsize,
+    struct AV1_COMP *cpi, struct macroblock *x, BLOCK_SIZE bsize,
     int dc_mode_cost, MB_MODE_INFO *best_mbmi, uint8_t *best_palette_color_map,
     int64_t *best_rd, int *rate, int *rate_tokenonly, int64_t *distortion,
     uint8_t *skippable, int *beat_best_rd, struct PICK_MODE_CONTEXT *ctx,
