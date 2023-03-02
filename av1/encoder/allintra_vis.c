@@ -270,6 +270,7 @@ void av1_calc_mb_wiener_var_row(AV1_COMP *const cpi, MACROBLOCK *x,
   const size_t buf_size = (buf_width * buf_height * sizeof(*pred_buffer))
                           << is_high_bitdepth;
   CHECK_MEM_ERROR(cm, pred_buffer, aom_memalign(32, buf_size));
+  memset(pred_buffer, 0, buf_size * sizeof(*pred_buffer));
   uint8_t *dst_buffer = pred_buffer;
   if (is_high_bitdepth) {
     uint16_t *pred_buffer_16 = (uint16_t *)pred_buffer;
