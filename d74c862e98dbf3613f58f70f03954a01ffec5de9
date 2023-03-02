@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3f5ee954_9d97c1da",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-03-02T14:31:06Z",
+      "side": 1,
+      "message": "I forgot to credit James Zern with suggesting this change.",
+      "revId": "d74c862e98dbf3613f58f70f03954a01ffec5de9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
