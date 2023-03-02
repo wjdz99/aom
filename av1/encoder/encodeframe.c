@@ -1428,9 +1428,13 @@ static AOM_INLINE void encode_tiles(AV1_COMP *cpi) {
       cpi->td.mb.e_mbd.tile_ctx = &this_tile->tctx;
       cpi->td.mb.tile_pb_ctx = &this_tile->tctx;
       av1_init_rtc_counters(&cpi->td.mb);
+      cpi->td.mb.palette_pixels = 0;
       av1_encode_tile(cpi, &cpi->td, tile_row, tile_col);
       if (!frame_is_intra_only(&cpi->common))
         av1_accumulate_rtc_counters(cpi, &cpi->td.mb);
+      if (cpi->palette_pixel_num != -1) {
+        cpi->palette_pixel_num += cpi->td.mb.palette_pixels;
+      }
       cpi->intrabc_used |= cpi->td.intrabc_used;
       cpi->deltaq_used |= cpi->td.deltaq_used;
     }

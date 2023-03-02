@@ -970,7 +970,14 @@ static void screen_content_tools_determination(
   if (pass != 1) return;
 
   const double psnr_diff = psnr[1].psnr[0] - psnr[0].psnr[0];
-  const int is_sc_encoding_much_better = psnr_diff > STRICT_PSNR_DIFF_THRESH;
+  // Calculate % of palette mode to be chosen in a frame from mode decision.
+  const double palette_ratio =
+      (double)cpi->palette_pixel_num / (double)(cm->height * cm->width);
+  const int is_sc_encoding_much_better =
+      ((psnr_diff > STRICT_PSNR_DIFF_THRESH) ||  // psnr_diff is large
+       ((palette_ratio < 0.0001) ? 0
+                                 : (psnr_diff / (palette_ratio) >
+                                    4)));  // psnr_diff/palette_ratio is large
   if (is_sc_encoding_much_better) {
     // Use screen content tools, if we get coding gain.
     features->allow_screen_content_tools = 1;
@@ -1077,6 +1084,7 @@ void av1_determine_sc_tools_with_encoding(AV1_COMP *cpi, const int q_orig) {
   // The two encoding passes aim to help determine whether to use screen
   // content tools, with a high q and fixed partition.
   for (int pass = 0; pass < 2; ++pass) {
+    cpi->palette_pixel_num = 0;
     set_encoding_params_for_screen_content(cpi, pass);
     av1_set_quantizer(cm, q_cfg->qm_minlevel, q_cfg->qm_maxlevel,
                       q_for_screen_content_quick_run,
@@ -1095,6 +1103,10 @@ void av1_determine_sc_tools_with_encoding(AV1_COMP *cpi, const int q_orig) {
         allow_intrabc_orig_decision, use_screen_content_tools_orig_decision,
         is_screen_content_type_orig_decision, pass, projected_size_pass, psnr);
   }
+
+  // After the above fast encoding passes done, reset palette_pixel_num to -1 to
+  // avoid unnecessary stats gathering in mode decision.
+  cpi->palette_pixel_num = -1;
 
   // Set partition speed feature back.
   cpi->sf.part_sf.partition_search_type = partition_search_type_orig;
