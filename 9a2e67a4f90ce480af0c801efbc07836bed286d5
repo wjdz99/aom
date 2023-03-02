@@ -51,6 +51,23 @@
       "parentUuid": "ecc480a2_0b8f3222",
       "revId": "9a2e67a4f90ce480af0c801efbc07836bed286d5",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "81cddb09_52970065",
+        "filename": "aom_dsp/flow_estimation/ransac.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 319,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-03-02T18:42:03Z",
+      "side": 1,
+      "message": "This is an preexisting issue, but if one of these fail it\u0027s likely there will be a crash in the cleanup since `motions` isn\u0027t calloc\u0027d. This can be fixed in a separate change.",
+      "revId": "9a2e67a4f90ce480af0c801efbc07836bed286d5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
