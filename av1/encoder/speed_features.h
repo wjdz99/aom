@@ -1263,6 +1263,8 @@ typedef struct TX_SPEED_FEATURES {
   // encode time by 4.65%, 9.16% and 10.45% for speed 6, 7 and 8 on a typical
   // image dataset with coding performance change less than 0.19%.
   bool prune_intra_tx_depths_using_nn;
+
+  bool use_best_rd_based_breakout_for_tx_search;
 } TX_SPEED_FEATURES;
 
 typedef struct RD_CALC_SPEED_FEATURES {
