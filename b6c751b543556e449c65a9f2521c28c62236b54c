@@ -16,6 +16,24 @@
       "message": "In the encoder path we should hit this:\nhttps://aomedia.googlesource.com/aom/+/refs/heads/main/aom/src/aom_encoder.c#136\n\nI was wondering why it didn\u0027t report an issue with the recent failures. `FE_INEXACT` will, but that\u0027s more or less expected with floating point. I think `FE_INVALID` could be added to that set, but it didn\u0027t report an issue either.",
       "revId": "b6c751b543556e449c65a9f2521c28c62236b54c",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c100eaf1_e12e3870",
+        "filename": "test/test_libaom.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-03-03T21:32:01Z",
+      "side": 1,
+      "message": "Thank you for the comment. I didn\u0027t know about the code in aom_encoder.c.\n\nIn bug aomedia:3399, the test that passed 0.0 to `log()` is FirstpassTest.FirstpassInfoTotalStats. That test doesn\u0027t call `aom_codec_encode()`.\n\nAs for the exceptions to trap, I first tried `FE_ALL_EXCEPT`, but `test_libaom` got SIGFPE from a `log2(2)` call in the Log2Test.Av1CeilLog2 test. Since I am not familiar with floating-point exceptions, I decided to only enable the exception that detects `log(0.0)`.\n\nI have switched to testing `#if HAVE_FEXCEPT`.",
+      "parentUuid": "fbd77e81_5c83ea5b",
+      "revId": "b6c751b543556e449c65a9f2521c28c62236b54c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
