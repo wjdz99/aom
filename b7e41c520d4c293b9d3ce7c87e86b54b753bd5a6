@@ -104,6 +104,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "5b833f07_a4456125",
+        "filename": "av1/encoder/context_tree.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 31567
+      },
+      "writtenOn": "2023-03-03T00:08:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cfc7c0cb_2d6f53f3",
+      "revId": "b7e41c520d4c293b9d3ce7c87e86b54b753bd5a6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "9bd04035_775e01f8",
@@ -121,6 +139,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "66c62a3b_648c327d",
+        "filename": "av1/encoder/context_tree.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 174,
+      "author": {
+        "id": 31567
+      },
+      "writtenOn": "2023-03-03T00:08:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9bd04035_775e01f8",
+      "revId": "b7e41c520d4c293b9d3ce7c87e86b54b753bd5a6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e8296887_eca6912c",
@@ -134,6 +170,24 @@
       "writtenOn": "2023-03-01T18:00:59Z",
       "side": 1,
       "message": "This line can be deleted if we move this new if statement (lines 174-208) after line 213, because this line will be covered by the if statement at lines 212-213.",
+      "revId": "b7e41c520d4c293b9d3ce7c87e86b54b753bd5a6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c3a64a48_dc9d7212",
+        "filename": "av1/encoder/context_tree.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 175,
+      "author": {
+        "id": 31567
+      },
+      "writtenOn": "2023-03-03T00:08:17Z",
+      "side": 1,
+      "message": "We accept that the suggestion improves the scope of optimisation though not applicable now (for keep_none\u003d1). However we retained the current code as it is more readable. Please let us know your suggestion.",
+      "parentUuid": "e8296887_eca6912c",
       "revId": "b7e41c520d4c293b9d3ce7c87e86b54b753bd5a6",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -172,6 +226,42 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "4faed96a_b829d560",
+        "filename": "av1/encoder/context_tree.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 197,
+      "author": {
+        "id": 31567
+      },
+      "writtenOn": "2023-03-03T00:08:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f3a9d2bf_d5532912",
+      "revId": "b7e41c520d4c293b9d3ce7c87e86b54b753bd5a6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "be8aaea3_169beba8",
+        "filename": "av1/encoder/context_tree.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 197,
+      "author": {
+        "id": 31567
+      },
+      "writtenOn": "2023-03-03T00:08:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fcccb622_d3606a75",
+      "revId": "b7e41c520d4c293b9d3ce7c87e86b54b753bd5a6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "162f2ffc_fc95cddc",
@@ -185,6 +275,24 @@
       "writtenOn": "2023-03-01T18:00:59Z",
       "side": 1,
       "message": "Nit/optional: The code will be more readable if we pass `PARTITION_SEARCH_TYPE partition_search_type` as the new paramter. The comparison `partition_search_type \u003d\u003d VAR_BASED_PARTITION` will need to be done inside `av1_free_pc_tree_recursive()` in every recursive call, but this may be a good trade-off.",
+      "revId": "b7e41c520d4c293b9d3ce7c87e86b54b753bd5a6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b6310124_6566f0c8",
+        "filename": "av1/encoder/context_tree.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 31567
+      },
+      "writtenOn": "2023-03-03T00:08:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "162f2ffc_fc95cddc",
       "revId": "b7e41c520d4c293b9d3ce7c87e86b54b753bd5a6",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -206,6 +314,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "0deaced1_2461734c",
+        "filename": "av1/encoder/partition_search.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 4715,
+      "author": {
+        "id": 31567
+      },
+      "writtenOn": "2023-03-03T00:08:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "656c2910_51b9ccc9",
+      "revId": "b7e41c520d4c293b9d3ce7c87e86b54b753bd5a6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "2b2cb1c9_b6e3e29b",
@@ -219,6 +345,24 @@
       "writtenOn": "2023-03-01T18:00:59Z",
       "side": 1,
       "message": "Nit: This can be saved in a local variable before the for loop at line 5013.",
+      "revId": "b7e41c520d4c293b9d3ce7c87e86b54b753bd5a6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "efe29fba_148b3e64",
+        "filename": "av1/encoder/partition_search.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 5017,
+      "author": {
+        "id": 31567
+      },
+      "writtenOn": "2023-03-03T00:08:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2b2cb1c9_b6e3e29b",
       "revId": "b7e41c520d4c293b9d3ce7c87e86b54b753bd5a6",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -240,6 +384,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "9f1a2492_fbb8e39f",
+        "filename": "av1/encoder/partition_search.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 5103,
+      "author": {
+        "id": 31567
+      },
+      "writtenOn": "2023-03-03T00:08:17Z",
+      "side": 1,
+      "message": "Ack. Since ```partition_search_type``` is the new parameter to the ```av1_free_pc_tree_recursive()``` function, this change is not applicable.",
+      "parentUuid": "290dd31c_52f99286",
+      "revId": "b7e41c520d4c293b9d3ce7c87e86b54b753bd5a6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e71fdf35_1a248d9e",
@@ -253,6 +415,24 @@
       "writtenOn": "2023-03-01T18:00:59Z",
       "side": 1,
       "message": "It\u0027s not clear why `is_var_based_partition` is false here. A comment would be helpful. Also at line 5636.\n\nIf the reason is the same at both places, we can define a variable\n\n```\n  // Explain why this is false.\n  const bool is_var_based_partition \u003d false;\n```\n\nand use the variable in both places, to avoid repeating the comment.",
+      "revId": "b7e41c520d4c293b9d3ce7c87e86b54b753bd5a6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1a72bdc3_8d1e8e0c",
+        "filename": "av1/encoder/partition_search.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 5619,
+      "author": {
+        "id": 31567
+      },
+      "writtenOn": "2023-03-03T00:08:17Z",
+      "side": 1,
+      "message": "Ack. Since partition_search_type is the new parameter to the av1_free_pc_tree_recursive() function, this change is not applicable.",
+      "parentUuid": "e71fdf35_1a248d9e",
       "revId": "b7e41c520d4c293b9d3ce7c87e86b54b753bd5a6",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
