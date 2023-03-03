@@ -3029,8 +3029,8 @@ static int64_t get_kf_group_bits(AV1_COMP *cpi, double kf_group_err,
       double vbr_corpus_complexity_lap =
           cpi->oxcf.rc_cfg.vbr_corpus_complexity_lap / 10.0;
       /* Get the average corpus complexity of the frame */
-      kf_group_bits = (int64_t)(
-          kf_group_bits * (kf_group_avg_error / vbr_corpus_complexity_lap));
+      kf_group_bits = (int64_t)(kf_group_bits * (kf_group_avg_error /
+                                                 vbr_corpus_complexity_lap));
     }
   } else {
     kf_group_bits = (int64_t)(twopass->bits_left *
@@ -3413,13 +3413,13 @@ static INLINE void set_twopass_params_based_on_fp_stats(
   TWO_PASS_FRAME *twopass_frame = &cpi->twopass_frame;
   // The multiplication by 256 reverses a scaling factor of (>> 8)
   // applied when combining MB error values for the frame.
-  twopass_frame->mb_av_energy = log((this_frame_ptr->intra_error) + 1.0);
+  twopass_frame->mb_av_energy = log1p(this_frame_ptr->intra_error);
 
   const FIRSTPASS_STATS *const total_stats =
       cpi->ppi->twopass.stats_buf_ctx->total_stats;
   if (is_fp_wavelet_energy_invalid(total_stats) == 0) {
     twopass_frame->frame_avg_haar_energy =
-        log((this_frame_ptr->frame_avg_wavelet_energy) + 1.0);
+        log1p(this_frame_ptr->frame_avg_wavelet_energy);
   }
 
   // Set the frame content type flag.
