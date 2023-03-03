@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8a37f570_7a78cb5a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2023-03-03T14:51:31Z",
+      "side": 1,
+      "message": "Hi Wan-Teh, Frank, \n\nThe function av1_pick_uniform_tx_size_type_yrd() is invoked by passing ref_best_rd as INT64_MAX in order to avoid rd based breakouts. In this CL, we have introduced a speed feature \u0027use_rd_based_breakout_for_intra_tx_search\u0027 which when enabled sets ref_best_rd to the available best_rd and thereby allowing rd based early termination during transform search. This speed feature also controls the rd threshold passed to av1_uniform_txfm_yrd() to aid early termination during transform size search. This is ensured by using evolved best_rd. This speed feature is enabled for allintra speed \u003e\u003d 3 and has no impact on speed \u003d 9, as this optimization is not applicable for nonrd path. The speed feature is not enabled for speed \u003c\u003d 2 due to the poor speed-quality trade-off.\n\nWe tried extending this speed feature for \u0027GOOD\u0027 and \u0027RT\u0027 encoding modes, but the results were not in trade-off. Hence, we have not enabled the speed feature for these encoding modes.\n\n\nFor AVIF still-image encode,\n```\n           Instruction Count\n            / Encode Time      BD-Rate Loss(%)\ncpu-used     Reduction(%)     psnr      ssim\n   3            0.931         0.0041    0.0188\n   4            1.460         0.0007    0.0021\n   5            1.068        -0.0009   -0.0022\n   6            0.840        -0.0036   -0.0007\n   7            0.992        -0.0085    0.0154\n   8            0.729         0.0035    0.0015\n```\nIn the above data, instruction count reduction is quoted for speed \u003c6 and encode-time reduction is quoted for speed\u003e\u003d6.\n \nFollowing are the Borg test results for all-intra encoding for 50 frames.\n``` \n          Instruction Count      BD-Rate Loss(%)\ncpu-used    Reduction(%)     avg.psnr   ovr.psnr  ssim\n   3           1.109         0.0184     0.0184    0.0274                   \n   6           1.084         0.0053     0.0064    0.0159\n   7           1.024         0.0056     0.0065    0.0105\n   8           0.927         0.0064     0.0056    0.0009\n````\nFor libaom AV1 video encode, bit-match is verified (w.r.t. parent commit) for \u0027GOOD\u0027 and \u0027RT\u0027 encoding modes for a few contents with different encoding configurations.\n\nIn the commit message, BD rate impact column:\n[+] sign is for BD-Rate drop\n[-] sign is for BD-Rate improvement\nThe instruction count reduction specified has been measured using the command:\n$ perf stat -e instructions:u ./aomenc …\n\nLibavif commit used for testing: 20a0f7fa6268b5656fd66bdf39d0d70c8387eb51\n\n\nPlease review.\n\nRegards,\nMudassir",
+      "revId": "6c72f392faf1386bbed76788d7abe1068082b02e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
