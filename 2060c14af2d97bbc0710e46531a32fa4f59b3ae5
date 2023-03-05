@@ -1,6 +1,23 @@
 {
   "comments": [
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "55893089_39c3921a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-03-05T01:08:43Z",
+      "side": 1,
+      "message": "Lin: While debugging an internal test failure caused by this CL, I studied this CL carefully. I have questions about two changes in this CL that I hope you can answer. Thanks.",
+      "revId": "2060c14af2d97bbc0710e46531a32fa4f59b3ae5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "375dfb6b_9f10c09d",
@@ -161,6 +178,23 @@
         "endLine": 901,
         "endChar": 34
       },
+      "revId": "2060c14af2d97bbc0710e46531a32fa4f59b3ae5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5fafea8a_f16f084e",
+        "filename": "av1/encoder/saliency_map.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 623,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-03-05T01:08:43Z",
+      "side": 1,
+      "message": "Why do we use `INT_MAX` and `INT_MIN` here? `*min_value` and `*max_value` are `double`, not `int`.\n\nAlso note the code at line 667:\n\n```\n// Linear normalization the values in the map to [0,1].\nstatic void minmax_normalize(saliency_feature_map *input) {\n  double max_value, min_value;\n  find_min_max(input, \u0026max_value, \u0026min_value);\n```\n\nThat seems to explain why the original code used 1 and 0. But 1 and 0 don\u0027t seem correct either.",
       "revId": "2060c14af2d97bbc0710e46531a32fa4f59b3ae5",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
