@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fc102d58_cc9281a0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 26549
+      },
+      "writtenOn": "2023-03-05T07:46:32Z",
+      "side": 1,
+      "message": "The heap overflow is caused by inconsistent superblock size between 64x64 (when reading `svc.number_spatial_layers`) and 128x128 (when reading `ppi-\u003enumber_spatial_layers`). When `av1_init_tile_thread_data()` is called the blocksize is 64x64 so related buffers are allocated as so, but then the blocksize is changed to 128x128, so the allocated buffer is insufficient and overflowed.",
+      "revId": "abc144b23f008e06d32c326deceb175c0fcdd25e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
