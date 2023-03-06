@@ -620,8 +620,8 @@ static int get_feature_map_orientation(const double *intensity, int width[9],
 static INLINE void find_min_max(const saliency_feature_map *input,
                                 double *max_value, double *min_value) {
   assert(input && input->buf);
-  *min_value = DBL_MAX;
-  *max_value = 0.0;
+  *min_value = input->buf[0];
+  *max_value = input->buf[0];
 
   for (int i = 0; i < input->height; ++i) {
     for (int j = 0; j < input->width; ++j) {
@@ -1364,6 +1364,7 @@ int av1_setup_sm_rdmult_scaling_factor(AV1_COMP *cpi, double motion_ratio) {
   return 1;
 }
 
+#if !CONFIG_REALTIME_ONLY
 // Set motion_ratio that reflects the motion quantities between two consecutive
 // frames. Motion_ratio will be used to set up saliency_map based rdmult scaling
 // factor, i.e., the less the motion quantities are, the more bits will be spent
@@ -1407,3 +1408,4 @@ double av1_setup_motion_ratio(AV1_COMP *cpi) {
 
   return motion_ratio;
 }
+#endif
