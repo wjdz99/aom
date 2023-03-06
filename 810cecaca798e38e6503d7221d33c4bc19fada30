@@ -16,6 +16,24 @@
       "message": "Why is this deleted?",
       "revId": "810cecaca798e38e6503d7221d33c4bc19fada30",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "737b0d09_befa3d14",
+        "filename": "av1/encoder/saliency_map.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 1232,
+      "author": {
+        "id": 31132
+      },
+      "writtenOn": "2023-03-06T14:40:28Z",
+      "side": 0,
+      "message": "The normalization here is optional, since we\u0027ll do normalization again when we use this saliency map, i.e., in av1_setup_sm_rdmult_scaling_factor().",
+      "parentUuid": "0312b1f4_6b000617",
+      "revId": "810cecaca798e38e6503d7221d33c4bc19fada30",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }

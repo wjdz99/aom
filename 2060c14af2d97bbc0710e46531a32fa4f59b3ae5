@@ -18,6 +18,23 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "2949b20b_30d19f9a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 31132
+      },
+      "writtenOn": "2023-03-06T14:40:28Z",
+      "side": 1,
+      "message": "Hi, Wan-Teh,\nI replied your questions as below, and resolved your comments for now. Please let me know if you have other questions. Thanks.",
+      "revId": "2060c14af2d97bbc0710e46531a32fa4f59b3ae5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "375dfb6b_9f10c09d",
@@ -195,6 +212,24 @@
       "writtenOn": "2023-03-05T01:08:43Z",
       "side": 1,
       "message": "Why do we use `INT_MAX` and `INT_MIN` here? `*min_value` and `*max_value` are `double`, not `int`.\n\nAlso note the code at line 667:\n\n```\n// Linear normalization the values in the map to [0,1].\nstatic void minmax_normalize(saliency_feature_map *input) {\n  double max_value, min_value;\n  find_min_max(input, \u0026max_value, \u0026min_value);\n```\n\nThat seems to explain why the original code used 1 and 0. But 1 and 0 don\u0027t seem correct either.",
+      "revId": "2060c14af2d97bbc0710e46531a32fa4f59b3ae5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8308e4b3_27946a77",
+        "filename": "av1/encoder/saliency_map.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 623,
+      "author": {
+        "id": 31132
+      },
+      "writtenOn": "2023-03-06T14:40:28Z",
+      "side": 1,
+      "message": "Yes, using INT_MAX and INT_MIN is confusing. I\u0027ll update the macro in another CL.\n\nThe original code using 1 and 0 was correct, because the input values are always between 0 and 1 in previous baselines. However, in this baseline, we gonna call minmax_normalize() in av1_setup_sm_rdmult_scaling_factor(), where the input values can be larger than 1, so we have to change the initial min_value and max_value correspondingly.",
+      "parentUuid": "5fafea8a_f16f084e",
       "revId": "2060c14af2d97bbc0710e46531a32fa4f59b3ae5",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
