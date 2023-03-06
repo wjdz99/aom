@@ -620,12 +620,11 @@ static int get_feature_map_orientation(const double *intensity, int width[9],
 static INLINE void find_min_max(const saliency_feature_map *input,
                                 double *max_value, double *min_value) {
   assert(input && input->buf);
-  *min_value = DBL_MAX;
-  *max_value = 0.0;
+  *min_value = input->buf[0];
+  *max_value = input->buf[0];
 
   for (int i = 0; i < input->height; ++i) {
     for (int j = 0; j < input->width; ++j) {
-      assert(input->buf[i * input->width + j] >= 0.0);
       *min_value = fmin(input->buf[i * input->width + j], *min_value);
       *max_value = fmax(input->buf[i * input->width + j], *max_value);
     }
