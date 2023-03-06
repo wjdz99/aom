@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "63853f6a_41bd413b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-03-06T21:34:25Z",
+      "side": 1,
+      "message": "LGTM. I suggest a small change.",
+      "revId": "ceb71a78b86c4d5f2c6b4f17011834ca833f5e97",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a5b30136_0a68c8ef",
+        "filename": "av1/encoder/saliency_map.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 624,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-03-06T21:34:25Z",
+      "side": 1,
+      "message": "Nit/optional: We can also initialize `*max_value` to `DBL_MIN`. Then the people who read this code don\u0027t need to know that the `input_buf` values are \u003e\u003d 0.0.\n\nAnother solution is to initialize `*min_value` and `*max_value` to the first value in `input_buf`:\n\n```\n  *min_value \u003d input-\u003ebuf[0];\n  *max_value \u003d input-\u003ebuf[0];\n```",
+      "revId": "ceb71a78b86c4d5f2c6b4f17011834ca833f5e97",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "279861bf_c446833e",
+        "filename": "av1/encoder/saliency_map.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 628,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-03-06T21:34:25Z",
+      "side": 1,
+      "message": "Nit: Use the double constant `0.0`.",
+      "revId": "ceb71a78b86c4d5f2c6b4f17011834ca833f5e97",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
