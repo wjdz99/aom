@@ -3,6 +3,23 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "aac70e84_938aedf5",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-03-06T23:55:51Z",
+      "side": 1,
+      "message": "LGTM.",
+      "revId": "2c2979c4759d50c93d5384dafe8edb8d6c04e66f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "42dafc24_4814cc0b",
         "filename": "av1/encoder/tx_search.c",
         "patchSetId": 3
