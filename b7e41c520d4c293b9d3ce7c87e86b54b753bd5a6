@@ -471,6 +471,24 @@
       "parentUuid": "1a72bdc3_8d1e8e0c",
       "revId": "b7e41c520d4c293b9d3ce7c87e86b54b753bd5a6",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8603cf29_6cb1f623",
+        "filename": "av1/encoder/partition_search.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 5619,
+      "author": {
+        "id": 31567
+      },
+      "writtenOn": "2023-03-06T10:10:29Z",
+      "side": 1,
+      "message": "The specified ```av1_free_pc_tree_recursive()``` calls are from ```av1_rd_pick_partition()``` function. As ```av1_rd_pick_partition()``` is called only when ```partition_search_type``` is ```SEARCH_PARTITION```, or specifically not ```VAR_BASED_PARTITION``` (please refer line 799 to 904 in encodeframe.c in the latest patchset), we feel that the argument could be passed as false.",
+      "parentUuid": "f93fe13c_5c542155",
+      "revId": "b7e41c520d4c293b9d3ce7c87e86b54b753bd5a6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }

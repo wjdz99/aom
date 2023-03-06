@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b050bcb1_4a976f56",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 31567
+      },
+      "writtenOn": "2023-03-06T10:10:29Z",
+      "side": 1,
+      "message": "Hi Wan-Teh,\n\nWe have taken care of your comments in the latest patchset. Please review.\n\nRegards,\nNeha",
+      "revId": "4f22edc46a15115ec78eb1f5d8e32a53c7b8a0f8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
