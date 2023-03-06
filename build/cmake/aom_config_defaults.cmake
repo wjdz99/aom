@@ -158,7 +158,7 @@ set_aom_config_var(CONFIG_THREE_PASS 0
 set_aom_config_var(CONFIG_OUTPUT_FRAME_SIZE 0
                    "AV1 experiment: Output frame size information.")
 set_aom_config_var(
-  CONFIG_SALIENCY_MAP 0
+  CONFIG_SALIENCY_MAP 1
   "AV1 experiment: Enable saliency map based encoding tuning for VMAF.")
 
 #
