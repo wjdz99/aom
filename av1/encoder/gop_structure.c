@@ -549,8 +549,8 @@ static int construct_multi_layer_gf_structure(
                            ? 0
                            : cpi->common.current_frame.frame_number;
 
-  // Initialize gf_group->frame_parallel_level and gf_group->is_frame_non_ref to
-  // 0.
+  // Initialize 'frame_parallel_level', 'is_frame_non_ref', 'src_offset' and
+  // 'is_frame_dropped' to 0.
   memset(
       gf_group->frame_parallel_level, 0,
       sizeof(gf_group->frame_parallel_level[0]) * MAX_STATIC_GF_GROUP_LENGTH);
@@ -558,6 +558,8 @@ static int construct_multi_layer_gf_structure(
          sizeof(gf_group->is_frame_non_ref[0]) * MAX_STATIC_GF_GROUP_LENGTH);
   memset(gf_group->src_offset, 0,
          sizeof(gf_group->src_offset[0]) * MAX_STATIC_GF_GROUP_LENGTH);
+  memset(gf_group->is_frame_dropped, 0,
+         sizeof(gf_group->is_frame_dropped[0]) * MAX_STATIC_GF_GROUP_LENGTH);
   // Initialize gf_group->skip_frame_refresh and gf_group->skip_frame_as_ref
   // with INVALID_IDX.
   memset(gf_group->skip_frame_refresh, INVALID_IDX,

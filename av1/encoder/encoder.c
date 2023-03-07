@@ -3736,6 +3736,7 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
       av1_rc_postencode_update_drop_frame(cpi);
       release_scaled_references(cpi);
       cpi->is_dropped_frame = true;
+      cpi->ppi->gf_group.is_frame_dropped[cpi->gf_frame_index] = 1;
       // A dropped frame might not be shown but it always
       // takes a space in the gf group. Therefore, even when
       // it is not shown, we still need to update the count down.
