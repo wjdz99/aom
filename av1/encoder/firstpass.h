@@ -397,6 +397,10 @@ typedef struct GF_GROUP {
   // 0 : frame is a reference frame.
   // 1 : frame is a non-reference frame.
   int is_frame_non_ref[MAX_STATIC_GF_GROUP_LENGTH];
+  // Indicates whether a frame is dropped.
+  // 0: frame is not dropped.
+  // 1: frame is dropped.
+  int is_frame_dropped[MAX_STATIC_GF_GROUP_LENGTH];
 
   // Stores the display order hint of the frames not to be
   // refreshed by the current frame.
