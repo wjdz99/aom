@@ -39,6 +39,30 @@
       },
       "revId": "2c2979c4759d50c93d5384dafe8edb8d6c04e66f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d5cb5a29_1d91ec3b",
+        "filename": "av1/encoder/tx_search.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 2903,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2023-03-07T13:11:38Z",
+      "side": 1,
+      "message": "For allintra, we have enabled this speed feature for speed\u003e\u003d3 as the  speed-quality trade-off was poor for speed \u003c\u003d 2 (e.g. MIDRES2 for speed\u003d2) as per the results below:\n```\nMode: ALLINTRA\n                  Instruction Count        BD-Rate Loss(%)\ncpu   Resolution   Reduction(%)    avg.psnr   ovr.psnr    ssim\n 2      LOWRES2      0.964         0.0175     0.0193    0.0218\n 2      MIDRES2      1.007         0.0289     0.0289    0.0408\n 2       HDRES2      0.923         0.0130     0.0148    0.0293\n 2      Average      0.965         0.0198     0.0210    0.0306\n```\nFor GOOD and RT encoding modes, we observed that this change resulted in either poor speed-quality trade-off or negligible instruction count impact as per the results below:\n```\nMode: RT\n                  Instruction Count        BD-Rate Loss(%)\ncpu   Resolution   Reduction(%)    avg.psnr   ovr.psnr    ssim\n9           rtc     -0.005         0.0529     0.1009    0.1299\n9      rtc_derf      0.034        -0.0613    -0.0485   -0.0728\n9       Average      0.014         0.0053     0.0386    0.0454\n \n10          rtc     -0.006        -0.0949    -0.0750   -0.0676\n10     rtc_derf     -0.010        -0.0340    -0.0592   -0.0693\n10      Average     -0.008        -0.0695    -0.0684   -0.0683\n\nMode: GOOD\n                  Instruction Count        BD-Rate Loss(%)\ncpu   Resolution   Reduction(%)    avg.psnr   ovr.psnr    ssim\n5       LOWRES2      0.262        -0.0096    -0.0096   -0.0348\n5       MIDRES2      0.245         0.0349     0.0374    0.0354\n5        HDRES2      0.279         0.0658     0.0848    0.0575\n5       Average      0.262         0.0304     0.0376    0.0193\n\n6       LOWRES2      0.193         0.0266     0.0282    0.0581\n6       MIDRES2      0.090         0.0324     0.0402    0.0375\n6        HDRES2      0.116         0.0109     0.0227    0.0673\n6       Average      0.133         0.0233     0.0304    0.0543\n``` \nHence, we have not extended the modification for above usage/preset. Please let us know your opinion.",
+      "parentUuid": "42dafc24_4814cc0b",
+      "range": {
+        "startLine": 2900,
+        "startChar": 4,
+        "endLine": 2903,
+        "endChar": 26
+      },
+      "revId": "2c2979c4759d50c93d5384dafe8edb8d6c04e66f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ],
   "submitRequirementResults": [
