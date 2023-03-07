@@ -1361,6 +1361,28 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
     }
     frame_params.show_existing_frame &= allow_show_existing(cpi, *frame_flags);
 
+    if (oxcf->rc_cfg.drop_frames_water_mark) {
+      if (gf_group->update_type[cpi->gf_frame_index] == OVERLAY_UPDATE ||
+          gf_group->update_type[cpi->gf_frame_index] == INTNL_OVERLAY_UPDATE) {
+        int cur_disp_idx = gf_group->display_idx[cpi->gf_frame_index];
+        for (int idx = 0; idx < cpi->gf_frame_index; idx++) {
+          if (cur_disp_idx == gf_group->display_idx[idx]) {
+            assert(IMPLIES(
+                gf_group->update_type[cpi->gf_frame_index] == OVERLAY_UPDATE,
+                gf_group->update_type[idx] == ARF_UPDATE));
+            assert(IMPLIES(gf_group->update_type[cpi->gf_frame_index] ==
+                               INTNL_OVERLAY_UPDATE,
+                           gf_group->update_type[idx] == INTNL_ARF_UPDATE));
+            // Set show_existing_frame to 0 if the frame was dropped during its
+            // first encode.
+            if (gf_group->is_frame_dropped[idx])
+              frame_params.show_existing_frame = 0;
+            break;
+          }
+        }
+      }
+    }
+
     // Reset show_existing_alt_ref decision to 0 after it is used.
     if (gf_group->update_type[cpi->gf_frame_index] == OVERLAY_UPDATE) {
       cpi->ppi->show_existing_alt_ref = 0;
