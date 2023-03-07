@@ -54,6 +54,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "dc57d991_00300e86",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 29052
+      },
+      "writtenOn": "2023-03-07T21:33:48Z",
+      "side": 1,
+      "message": "Good point. I have added the tag here.\n\nI submitted the other patch before I saw your comment here, so I\u0027ll go and manually add a comment about that patch on the bug.",
+      "parentUuid": "f16d0fa2_d68506b6",
+      "revId": "25df8fd6c8d321efe5294e3f2de48137c3032548",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b63b2159_35bcc923",
