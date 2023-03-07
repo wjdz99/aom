@@ -41,6 +41,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "5ca31c43_dbcd3af6",
+        "filename": "aom_dsp/flow_estimation/disflow.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 29052
+      },
+      "writtenOn": "2023-03-07T15:14:39Z",
+      "side": 1,
+      "message": "No longer needed now that we\u0027re using fclamp",
+      "parentUuid": "a1c6c15f_90228117",
+      "range": {
+        "startLine": 23,
+        "startChar": 0,
+        "endLine": 23,
+        "endChar": 30
+      },
+      "revId": "3ce0f92a13242a0a1e62254dbb9ff9529b7b153b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ef723740_dcaf57f4",
@@ -54,6 +78,30 @@
       "writtenOn": "2023-03-02T21:59:47Z",
       "side": 1,
       "message": "Can we use the existing fclamp?",
+      "range": {
+        "startLine": 22,
+        "startChar": 21,
+        "endLine": 22,
+        "endChar": 27
+      },
+      "revId": "3ce0f92a13242a0a1e62254dbb9ff9529b7b153b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "96c3e8c1_698904f1",
+        "filename": "aom_dsp/mathutils.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 29052
+      },
+      "writtenOn": "2023-03-07T15:14:39Z",
+      "side": 1,
+      "message": "Oops! I searched for \"clampf\" but didn\u0027t think to look for \"fclamp\". Changed now.",
+      "parentUuid": "ef723740_dcaf57f4",
       "range": {
         "startLine": 22,
         "startChar": 21,
