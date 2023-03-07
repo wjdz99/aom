@@ -3736,6 +3736,13 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
       av1_rc_postencode_update_drop_frame(cpi);
       release_scaled_references(cpi);
       cpi->is_dropped_frame = true;
+      // A dropped frame might not be shown but it always
+      // takes a space in the gf group. Therefore, even when
+      // it is not shown, we still need to update the count down.
+      if (cm->show_frame) {
+        update_frame_index_set(&cpi->frame_index_set, cm->show_frame);
+        ++current_frame->frame_number;
+      }
       return AOM_CODEC_OK;
     }
   }
@@ -3946,9 +3953,6 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
   cm->seg.update_data = 0;
   cm->lf.mode_ref_delta_update = 0;
 
-  // A droppable frame might not be shown but it always
-  // takes a space in the gf group. Therefore, even when
-  // it is not shown, we still need update the count down.
   if (cm->show_frame) {
     update_frame_index_set(&cpi->frame_index_set, cm->show_frame);
     ++current_frame->frame_number;
