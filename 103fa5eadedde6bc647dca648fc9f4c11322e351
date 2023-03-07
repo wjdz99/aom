@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2473133f_507dc02e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-03-07T03:14:38Z",
+      "side": 1,
+      "message": "LGTM. I suggest two changes.",
+      "revId": "103fa5eadedde6bc647dca648fc9f4c11322e351",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f0ef9046_6cc6b0be",
+        "filename": "av1/encoder/saliency_map.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1367,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-03-07T03:14:38Z",
+      "side": 1,
+      "message": "Nit: change \"in the case of\" to \"when\" or \"if\".\n\n\"in the case where\" also works, but is a little verbose.",
+      "revId": "103fa5eadedde6bc647dca648fc9f4c11322e351",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c565a9f6_2bc253ea",
+        "filename": "av1/encoder/saliency_map.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1414,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-03-07T03:14:38Z",
+      "side": 1,
+      "message": "Nit: Add a comment:\n\n```\n#endif  // !CONFIG_REALTIME_ONLY\n```\n\nThis kind of comment can be omitted when the `#endif` is near the `#if`. In this case, the `#if` is quite far, so a comment is helpful.",
+      "revId": "103fa5eadedde6bc647dca648fc9f4c11322e351",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
