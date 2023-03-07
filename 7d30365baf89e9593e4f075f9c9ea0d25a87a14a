@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "948f4bc1_1ae5e938",
+        "filename": "test/test_libaom.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-03-07T19:54:43Z",
+      "side": 1,
+      "message": "%x since it will be a bitmask with other flags?",
+      "range": {
+        "startLine": 56,
+        "startChar": 37,
+        "endLine": 56,
+        "endChar": 38
+      },
+      "revId": "7d30365baf89e9593e4f075f9c9ea0d25a87a14a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
