@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3274e3a6_469121ac",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 32097
+      },
+      "writtenOn": "2023-03-08T01:15:50Z",
+      "side": 1,
+      "message": "Here\u0027s the requested patch, hopefully it\u0027s arrived in one piece 😊",
+      "revId": "0ef8dd39f8a20e40ebe4909241c4e2066e4f9af7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
