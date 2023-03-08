@@ -16,6 +16,23 @@
       "message": "Here\u0027s the requested patch, hopefully it\u0027s arrived in one piece 😊",
       "revId": "0ef8dd39f8a20e40ebe4909241c4e2066e4f9af7",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d6e35936_ac62c019",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-03-08T02:50:09Z",
+      "side": 1,
+      "message": "Thanks for the patch and signing the CLA. Your first change is expected to fail, a committer will need to rebase this one before we land it.",
+      "revId": "0ef8dd39f8a20e40ebe4909241c4e2066e4f9af7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
