@@ -3609,16 +3609,13 @@ static aom_codec_err_t ctrl_get_active_map(aom_codec_alg_priv_t *ctx,
 static aom_codec_err_t ctrl_set_scale_mode(aom_codec_alg_priv_t *ctx,
                                            va_list args) {
   aom_scaling_mode_t *const mode = va_arg(args, aom_scaling_mode_t *);
-
-  if (mode) {
-    const int res = av1_set_internal_size(
-        &ctx->ppi->cpi->oxcf, &ctx->ppi->cpi->resize_pending_params,
-        mode->h_scaling_mode, mode->v_scaling_mode);
-    av1_check_fpmt_config(ctx->ppi, &ctx->ppi->cpi->oxcf);
-    return (res == 0) ? AOM_CODEC_OK : AOM_CODEC_INVALID_PARAM;
-  } else {
+  if (!mode ||
+      av1_set_internal_size(&ctx->oxcf, &ctx->ppi->cpi->resize_pending_params,
+                            mode->h_scaling_mode, mode->v_scaling_mode) != 0) {
     return AOM_CODEC_INVALID_PARAM;
   }
+  struct av1_extracfg extra_cfg = ctx->extra_cfg;
+  return update_extra_cfg(ctx, &extra_cfg);
 }
 
 static aom_codec_err_t ctrl_set_spatial_layer_id(aom_codec_alg_priv_t *ctx,
@@ -3636,7 +3633,8 @@ static aom_codec_err_t ctrl_set_number_spatial_layers(aom_codec_alg_priv_t *ctx,
   if (number_spatial_layers > MAX_NUM_SPATIAL_LAYERS)
     return AOM_CODEC_INVALID_PARAM;
   ctx->ppi->number_spatial_layers = number_spatial_layers;
-  return AOM_CODEC_OK;
+  struct av1_extracfg extra_cfg = ctx->extra_cfg;
+  return update_extra_cfg(ctx, &extra_cfg);
 }
 
 static aom_codec_err_t ctrl_set_layer_id(aom_codec_alg_priv_t *ctx,
