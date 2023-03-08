@@ -33,6 +33,40 @@
       "message": "LGTM.\n\nMarco, could you also take a look? Thanks.\n\nIt is tempting to modify AOME_SET_NUMBER_SPATIAL_LAYERS to also set svc.number_spatial_layers. I tried it, and apparently it created inconsistency with related fields. I could not make it work.\n\nMy only concern is that if someone adds a new set_sb_size() call, the wrong number_spatial_layers may be used. Hopefully it is unlikely that a new set_sb_size() call will be added. We can also think about how to add tests to defend against this.",
       "revId": "abc144b23f008e06d32c326deceb175c0fcdd25e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "48baa2b7_7b1700f3",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 719,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-03-08T03:27:26Z",
+      "side": 1,
+      "message": "Yuan: I think there is a deeper problem.\n\nAs an alternative fix, we should be able to change this `ppi-\u003enumber_spatial_layers` to `ppi-\u003ecpi-\u003esvc.number_spatial_layers`. We need to handle the `ppi-\u003ecpi \u003d\u003d NULL` case.\n\n```\ndiff --git a/av1/encoder/encoder.c b/av1/encoder/encoder.c\nindex de07728ea..845133221 100644\n--- a/av1/encoder/encoder.c\n+++ b/av1/encoder/encoder.c\n@@ -714,9 +714,11 @@ void av1_change_config_seq(struct AV1_PRIMARY *ppi,\n   int sb_size \u003d seq_params-\u003esb_size;\n   // Superblock size should not be updated after the first key frame.\n   if (!ppi-\u003eseq_params_locked) {\n+    int number_spatial_layers \u003d ppi-\u003ecpi ?\n+        ppi-\u003ecpi-\u003esvc.number_spatial_layers : ppi-\u003enumber_spatial_layers;\n     set_sb_size(seq_params, av1_select_sb_size(oxcf, frm_dim_cfg-\u003ewidth,\n                                                frm_dim_cfg-\u003eheight,\n-                                               ppi-\u003enumber_spatial_layers));\n+                                               number_spatial_layers));\n     for (int i \u003d 0; i \u003c MAX_NUM_OPERATING_POINTS; ++i)\n       seq_params-\u003etier[i] \u003d (oxcf-\u003etier_mask \u003e\u003e i) \u0026 1;\n   }\n```\n\nWith this change, I verified that we always pass `number_spatial_layers\u003d1` to `av1_select_sb_size()`.\n\nBut this doesn\u0027t fix the memory errors.\n\nThe reason seems to be that, when we call `av1_setup_shared_coeff_buffer()`, the `seq_params_locked` is still false, so `seq_params-\u003esb_size` can still change.",
+      "revId": "abc144b23f008e06d32c326deceb175c0fcdd25e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a5b4aafc_e1e22761",
+        "filename": "test/avif_progressive_test.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 192,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-03-08T03:27:26Z",
+      "side": 1,
+      "message": "Yuan: Could you document the aspects of this test that are important to reproduce the bug?\n\nI think the following are important:\n1. The width and height. The smaller of width and height must be \u003e 720 and \u003c\u003d 1080.\n2. cfg.g_threads \u003e 1\n3. Row MT is enabled.",
+      "revId": "abc144b23f008e06d32c326deceb175c0fcdd25e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
