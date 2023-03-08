@@ -16,6 +16,23 @@
       "message": "The heap overflow is caused by inconsistent superblock size between 64x64 (when reading `svc.number_spatial_layers`) and 128x128 (when reading `ppi-\u003enumber_spatial_layers`). When `av1_init_tile_thread_data()` is called the blocksize is 64x64 so related buffers are allocated as so, but then the blocksize is changed to 128x128, so the allocated buffer is insufficient and overflowed.",
       "revId": "abc144b23f008e06d32c326deceb175c0fcdd25e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "44b56984_fc1bfe25",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-03-08T00:51:36Z",
+      "side": 1,
+      "message": "LGTM.\n\nMarco, could you also take a look? Thanks.\n\nIt is tempting to modify AOME_SET_NUMBER_SPATIAL_LAYERS to also set svc.number_spatial_layers. I tried it, and apparently it created inconsistency with related fields. I could not make it work.\n\nMy only concern is that if someone adds a new set_sb_size() call, the wrong number_spatial_layers may be used. Hopefully it is unlikely that a new set_sb_size() call will be added. We can also think about how to add tests to defend against this.",
+      "revId": "abc144b23f008e06d32c326deceb175c0fcdd25e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
