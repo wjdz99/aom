@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1107f789_82120760",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9616
+      },
+      "writtenOn": "2023-03-09T11:49:47Z",
+      "side": 1,
+      "message": "When a frame of type ARF_UPDATE/INTNL_ARF_UPDATE is dropped from being encoded, it will not occupy a slot in ‘cm-\u003eref_frame_map[REF_FRAMES]’. However, ‘cm-\u003eshow_existing_frame’ is still being set to 1 for its corresponding OVERLAY_UPDATE/INTNL_OVERLAY_UPDATE frame. In this case, when av1_finalize_encoded_frame() is invoked from encode_frame_to_data_rate(),  ‘cpi-\u003eexisting_fb_idx_to_show’ remains INVALID_IDX resulting in the reported segmentation fault (https://bugs.chromium.org/p/aomedia/issues/detail?id\u003d3372).\n\nThis CL fixes the above mentioned issue by resetting the show_existing_frame of an OVERLAY_UPDATE/INTNL_OVERLAY_UPDATE frame if the corresponding ARF_UPDATE/INTNL_ARF_UPDATE frame was dropped.",
+      "revId": "28ce3ff69370052a262cc429907a51dd8df6d676",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
