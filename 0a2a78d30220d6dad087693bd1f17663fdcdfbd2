@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7d374d12_c89bf758",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2023-03-09T03:16:35Z",
+      "side": 1,
+      "message": "on latest code for screen speed 10 I get: -1.481, -1.719, so maybe rebase?",
+      "revId": "0a2a78d30220d6dad087693bd1f17663fdcdfbd2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c40c6cfe_040ea98a",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 501,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2023-03-09T03:16:35Z",
+      "side": 1,
+      "message": "should this be (!cpi-\u003eppi-\u003euse_svc \u0026\u0026 cpi-\u003eis_screen_content_type), to make it specific to screen?",
+      "revId": "0a2a78d30220d6dad087693bd1f17663fdcdfbd2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
