@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fa93c213_3b3e7d6d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9616
+      },
+      "writtenOn": "2023-03-09T11:40:02Z",
+      "side": 1,
+      "message": "While reproducing the issue reported in https://bugs.chromium.org/p/aomedia/issues/detail?id\u003d3372 in debug mode, we observed that the below assertion in init_gop_frames_for_tpl() was failing:\nassert(buf-\u003edisplay_idx \u003d\u003d cpi-\u003eframe_index_set.show_frame_count + lookahead_index). This assertion fails as the update of ‘cm-\u003ecurrent_frame.frame_number’ and\n‘cpi-\u003eframe_index_set.show_frame_count’ was not correctly handled when a frame is dropped. \n\nThis CL ensures that the above mentioned frame counters are updated correctly even when a frame is dropped as it still takes a slot in the gf group. We have also abstracted the code which updates these frame counters into a new function ‘update_counters_for_show_frame’ and cleaned up the function update_frame_index_set().",
+      "revId": "09060793d1dd2bc03d8ec0784b2d0b3a7cce5595",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
