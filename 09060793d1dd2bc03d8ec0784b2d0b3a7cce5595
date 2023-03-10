@@ -20,6 +20,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "906cb7d4_2a467502",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 9616
+      },
+      "writtenOn": "2023-03-10T12:43:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d90c1723_93af38fd",
+      "revId": "09060793d1dd2bc03d8ec0784b2d0b3a7cce5595",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "fa93c213_3b3e7d6d",
         "filename": "/PATCHSET_LEVEL",
         "patchSetId": 2
@@ -52,6 +70,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "7a66a73e_6535a418",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9616
+      },
+      "writtenOn": "2023-03-10T12:43:12Z",
+      "side": 1,
+      "message": "We shall study the feasibility of adding a unit-test that can test both this condition as well as the issue reported in the bug report and plan for a follow-up CL submission.",
+      "parentUuid": "4e14dda9_f7ae64e1",
+      "revId": "09060793d1dd2bc03d8ec0784b2d0b3a7cce5595",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "94d59426_25afc970",
@@ -71,6 +107,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "b9345b49_544a7fdc",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 3676,
+      "author": {
+        "id": 9616
+      },
+      "writtenOn": "2023-03-10T12:43:12Z",
+      "side": 1,
+      "message": "This code is under the condition `if (encode_show_existing_frame(cm)) {}` (please refer line 3612 in av1/encoder/encoder.c). When cm-\u003eshow_existing_frame\u003d1, cm-\u003eshow_frame is set to 1 as per the below code snippet in av1_encode_strategy():\n```\n if (frame_params.show_existing_frame) {\n    source \u003d av1_lookahead_peek(cpi-\u003eppi-\u003elookahead, 0, cpi-\u003ecompressor_stage);\n    *pop_lookahead \u003d 1;\n    frame_params.show_frame \u003d 1;\n  } else {\n    source \u003d choose_frame_source(cpi, \u0026flush, pop_lookahead, \u0026last_source,\n                                 \u0026frame_params.show_frame);\n  }\n```\nHence update_counters_for_show_frame() is invoked here without explicitly checking if cm-\u003eshow_frame\u003d\u003d1.",
+      "parentUuid": "94d59426_25afc970",
+      "revId": "09060793d1dd2bc03d8ec0784b2d0b3a7cce5595",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "c96cc00d_0033f740",
         "filename": "av1/encoder/encoder.c",
         "patchSetId": 2
@@ -82,6 +136,24 @@
       "writtenOn": "2023-03-09T23:13:42Z",
       "side": 1,
       "message": "Nit: \"update the count down\" sounds a little strange. I don\u0027t know why it is a \"count down\".",
+      "revId": "09060793d1dd2bc03d8ec0784b2d0b3a7cce5595",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "012f12db_af25cb9c",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 3739,
+      "author": {
+        "id": 9616
+      },
+      "writtenOn": "2023-03-10T12:43:12Z",
+      "side": 1,
+      "message": "Modified the comment. Please check.",
+      "parentUuid": "c96cc00d_0033f740",
       "revId": "09060793d1dd2bc03d8ec0784b2d0b3a7cce5595",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
