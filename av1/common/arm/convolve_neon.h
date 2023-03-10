@@ -445,7 +445,6 @@ static INLINE uint16x4_t convolve6_4_s32(const int16x4_t s0, const int16x4_t s1,
                                          const int16x4_t s2, const int16x4_t s3,
                                          const int16x4_t s4, const int16x4_t s5,
                                          const int16x8_t y_filter,
-                                         const int32x4_t round_shift_vec,
                                          const int32x4_t offset_const) {
   const int16x4_t y_filter_lo = vget_low_s16(y_filter);
   const int16x4_t y_filter_hi = vget_high_s16(y_filter);
@@ -458,15 +457,13 @@ static INLINE uint16x4_t convolve6_4_s32(const int16x4_t s0, const int16x4_t s1,
   sum = vmlal_lane_s16(sum, s4, y_filter_hi, 1);
   sum = vmlal_lane_s16(sum, s5, y_filter_hi, 2);
 
-  sum = vqrshlq_s32(sum, round_shift_vec);
-  return vqmovun_s32(sum);
+  return vqrshrun_n_s32(sum, COMPOUND_ROUND1_BITS);
 }
 
 static INLINE uint16x8_t convolve6_8_s32(const int16x8_t s0, const int16x8_t s1,
                                          const int16x8_t s2, const int16x8_t s3,
                                          const int16x8_t s4, const int16x8_t s5,
                                          const int16x8_t y_filter,
-                                         const int32x4_t round_shift_vec,
                                          const int32x4_t offset_const) {
   const int16x4_t y_filter_lo = vget_low_s16(y_filter);
   const int16x4_t y_filter_hi = vget_high_s16(y_filter);
@@ -487,9 +484,8 @@ static INLINE uint16x8_t convolve6_8_s32(const int16x8_t s0, const int16x8_t s1,
   sum1 = vmlal_lane_s16(sum1, vget_high_s16(s4), y_filter_hi, 1);
   sum1 = vmlal_lane_s16(sum1, vget_high_s16(s5), y_filter_hi, 2);
 
-  sum0 = vqrshlq_s32(sum0, round_shift_vec);
-  sum1 = vqrshlq_s32(sum1, round_shift_vec);
-  return vcombine_u16(vqmovun_s32(sum0), vqmovun_s32(sum1));
+  return vcombine_u16(vqrshrun_n_s32(sum0, COMPOUND_ROUND1_BITS),
+                      vqrshrun_n_s32(sum1, COMPOUND_ROUND1_BITS));
 }
 
 static INLINE uint16x4_t convolve8_4_s32(const int16x4_t s0, const int16x4_t s1,
@@ -497,7 +493,6 @@ static INLINE uint16x4_t convolve8_4_s32(const int16x4_t s0, const int16x4_t s1,
                                          const int16x4_t s4, const int16x4_t s5,
                                          const int16x4_t s6, const int16x4_t s7,
                                          const int16x8_t y_filter,
-                                         const int32x4_t round_shift_vec,
                                          const int32x4_t offset_const) {
   const int16x4_t y_filter_lo = vget_low_s16(y_filter);
   const int16x4_t y_filter_hi = vget_high_s16(y_filter);
@@ -512,8 +507,7 @@ static INLINE uint16x4_t convolve8_4_s32(const int16x4_t s0, const int16x4_t s1,
   sum = vmlal_lane_s16(sum, s6, y_filter_hi, 2);
   sum = vmlal_lane_s16(sum, s7, y_filter_hi, 3);
 
-  sum = vqrshlq_s32(sum, round_shift_vec);
-  return vqmovun_s32(sum);
+  return vqrshrun_n_s32(sum, COMPOUND_ROUND1_BITS);
 }
 
 static INLINE uint16x8_t convolve8_8_s32(const int16x8_t s0, const int16x8_t s1,
@@ -521,7 +515,6 @@ static INLINE uint16x8_t convolve8_8_s32(const int16x8_t s0, const int16x8_t s1,
                                          const int16x8_t s4, const int16x8_t s5,
                                          const int16x8_t s6, const int16x8_t s7,
                                          const int16x8_t y_filter,
-                                         const int32x4_t round_shift_vec,
                                          const int32x4_t offset_const) {
   const int16x4_t y_filter_lo = vget_low_s16(y_filter);
   const int16x4_t y_filter_hi = vget_high_s16(y_filter);
@@ -546,9 +539,8 @@ static INLINE uint16x8_t convolve8_8_s32(const int16x8_t s0, const int16x8_t s1,
   sum1 = vmlal_lane_s16(sum1, vget_high_s16(s6), y_filter_hi, 2);
   sum1 = vmlal_lane_s16(sum1, vget_high_s16(s7), y_filter_hi, 3);
 
-  sum0 = vqrshlq_s32(sum0, round_shift_vec);
-  sum1 = vqrshlq_s32(sum1, round_shift_vec);
-  return vcombine_u16(vqmovun_s32(sum0), vqmovun_s32(sum1));
+  return vcombine_u16(vqrshrun_n_s32(sum0, COMPOUND_ROUND1_BITS),
+                      vqrshrun_n_s32(sum1, COMPOUND_ROUND1_BITS));
 }
 
 #if !((defined(__aarch64__) && defined(__ARM_FEATURE_DOTPROD)))
