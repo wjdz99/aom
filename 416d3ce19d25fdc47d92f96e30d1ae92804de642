@@ -16,6 +16,23 @@
       "message": "Please review.",
       "revId": "416d3ce19d25fdc47d92f96e30d1ae92804de642",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ee6e1583_5368ee9b",
+        "filename": "av1/encoder/gop_structure.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 562,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-03-10T16:45:02Z",
+      "side": 1,
+      "message": "Nit: Since `gf_group-\u003eis_frame_dropped` is an array, we can take its size;\n\n```\n  memset(gf_group-\u003eis_frame_dropped, 0, sizeof(gf_group-\u003eis_frame_dropped));\n```\n\nFor consistency, it is best to change the other `memset()` calls to do the same.",
+      "revId": "416d3ce19d25fdc47d92f96e30d1ae92804de642",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
