@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "84c8036d_2ab1cee1",
+        "filename": "av1/encoder/pass2_strategy.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1039,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-03-11T05:52:05Z",
+      "side": 1,
+      "message": "this could be `*const` too, but the module might be inconsistent in that regard.",
+      "range": {
+        "startLine": 1039,
+        "startChar": 43,
+        "endLine": 1039,
+        "endChar": 56
+      },
+      "revId": "691a15232cffd5af6b4e8687724b74817e583493",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
