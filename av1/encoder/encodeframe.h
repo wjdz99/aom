@@ -31,6 +31,8 @@ struct yv12_buffer_config;
 struct AV1_COMP;
 struct ThreadData;
 
+const uint8_t *av1_var_offs(int use_hbd, int bd);
+
 void av1_init_rtc_counters(struct macroblock *const x);
 
 void av1_accumulate_rtc_counters(struct AV1_COMP *cpi,
