@@ -246,6 +246,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "fc42b645_86e3d8bf",
+        "filename": "av1/encoder/pickrst.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1214,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-03-14T22:07:24Z",
+      "side": 1,
+      "message": "The existing version is fine by me. I was just pointing out that `max_a_l \u003c scale_threshold` is equivalent to `abs(a[l]) \u003c scale_threshold for all l`.",
+      "parentUuid": "a39df24d_85fb3c88",
+      "revId": "0cccf5cd5799b10a2a83fb0e6ad97ad851f5f357",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "848a3e14_b4de675e",
@@ -277,6 +295,24 @@
       "side": 1,
       "message": "Done. I don\u0027t know if it is worth doing signed rounding here, but we could.\n\n\u003e the compiler can implement the division by WIENER_TAP_SCALE_FACTOR with a right shift. \n\n\nAre you sure? Because the numbers are signed I am not sure what the compiler will do.",
       "parentUuid": "848a3e14_b4de675e",
+      "revId": "0cccf5cd5799b10a2a83fb0e6ad97ad851f5f357",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "db0ff764_537c3a71",
+        "filename": "av1/encoder/pickrst.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1226,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-03-14T22:07:24Z",
+      "side": 1,
+      "message": "The compiler needs to handle a negative dividend before the right shift to truncate towards zero. A plain right shift truncates down.\n\nHere is an experiment. You can see the right-shift-by-16 instructions in both the unsigned and signed versions of the Divide funtion:\n\n```\n$ cat divide.c\n#define WIENER_TAP_SCALE_FACTOR (1 \u003c\u003c 16)\n\nunsigned int DivideUnsigned(unsigned int n) {\n  return n / WIENER_TAP_SCALE_FACTOR;\n}\n\nint DivideSigned(int n) {\n  return n / WIENER_TAP_SCALE_FACTOR;\n}\n$ clang -Wall -Wextra -O2 -S -c divide.c\n$ cat divide.s\n\t.text\n\t.file\t\"divide.c\"\n\t.globl\tDivideUnsigned                  # -- Begin function DivideUnsigned\n\t.p2align\t4, 0x90\n\t.type\tDivideUnsigned,@function\nDivideUnsigned:                         # @DivideUnsigned\n\t.cfi_startproc\n# %bb.0:\n\tmovl\t%edi, %eax\n\tshrl\t$16, %eax\n\tretq\n.Lfunc_end0:\n\t.size\tDivideUnsigned, .Lfunc_end0-DivideUnsigned\n\t.cfi_endproc\n                                        # -- End function\n\t.globl\tDivideSigned                    # -- Begin function DivideSigned\n\t.p2align\t4, 0x90\n\t.type\tDivideSigned,@function\nDivideSigned:                           # @DivideSigned\n\t.cfi_startproc\n# %bb.0:\n                                        # kill: def $edi killed $edi def $rdi\n\tleal\t65535(%rdi), %eax\n\ttestl\t%edi, %edi\n\tcmovnsl\t%edi, %eax\n\tsarl\t$16, %eax\n\tretq\n.Lfunc_end1:\n\t.size\tDivideSigned, .Lfunc_end1-DivideSigned\n\t.cfi_endproc\n                                        # -- End function\n\t.ident\t\"Debian clang version 14.0.6\"\n\t.section\t\".note.GNU-stack\",\"\",@progbits\n\t.addrsig\n```",
+      "parentUuid": "5b69ced3_88ddc0a6",
       "revId": "0cccf5cd5799b10a2a83fb0e6ad97ad851f5f357",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
