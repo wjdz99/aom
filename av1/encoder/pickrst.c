@@ -1197,6 +1197,22 @@ static AOM_INLINE void update_b_sep_sym(int wiener_win, int64_t **Mc,
     }
   }
 
+  // b/272139363: The compute,
+  //   Hc[i * wiener_win + j][k * wiener_win2 + l] * a[k] /
+  //          WIENER_TAP_SCALE_FACTOR * a[l] / WIENER_TAP_SCALE_FACTOR;
+  // may generate a signed-integer-overflow. Conditionally scale the terms to
+  // avoid a potential overflow. The nontrivial scaling condition,
+  // max_a_l >= scale_threshold, only gets hit in a small fraction of test
+  // vectors.
+  int32_t max_a_l = 0;
+  for (int l = 0; l < wiener_win; ++l) {
+    const int32_t abs_a_l = abs(a[l]);
+    if (abs_a_l > max_a_l) max_a_l = abs_a_l;
+  }
+  const int scale_threshold = WIENER_TAP_SCALE_FACTOR;
+  const int scale_a_l = max_a_l < scale_threshold ? 1 : 2;
+  const int scale_compound = max_a_l < scale_threshold ? 1 : 2;
+
   for (i = 0; i < wiener_win; i++) {
     for (j = 0; j < wiener_win; j++) {
       const int ii = wrap_index(i, wiener_win);
@@ -1206,7 +1222,8 @@ static AOM_INLINE void update_b_sep_sym(int wiener_win, int64_t **Mc,
         for (l = 0; l < wiener_win; ++l) {
           B[jj * wiener_halfwin1 + ii] +=
               Hc[i * wiener_win + j][k * wiener_win2 + l] * a[k] /
-              WIENER_TAP_SCALE_FACTOR * a[l] / WIENER_TAP_SCALE_FACTOR;
+              (scale_compound * WIENER_TAP_SCALE_FACTOR) * (a[l] / scale_a_l) /
+              WIENER_TAP_SCALE_FACTOR * (scale_a_l * scale_compound);
         }
       }
     }
