@@ -16,6 +16,125 @@
       "message": "Add `Bug: b/272139363`",
       "revId": "0cccf5cd5799b10a2a83fb0e6ad97ad851f5f357",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4bce11d0_5bda8d30",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-03-14T20:32:42Z",
+      "side": 1,
+      "message": "Please add the following bug link before this line:\n\nBug: b/272139363",
+      "revId": "0cccf5cd5799b10a2a83fb0e6ad97ad851f5f357",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "96ddd99f_3955bee2",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-03-14T20:32:42Z",
+      "side": 1,
+      "message": "Thanks for the patch. I have some questions.",
+      "revId": "0cccf5cd5799b10a2a83fb0e6ad97ad851f5f357",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "535db181_79d723a4",
+        "filename": "av1/encoder/pickrst.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1200,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-03-14T20:32:42Z",
+      "side": 1,
+      "message": "Nit: compute \u003d\u003e \"computation\" or \"expression\" ?",
+      "revId": "0cccf5cd5799b10a2a83fb0e6ad97ad851f5f357",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "11840bd4_c866b8b3",
+        "filename": "av1/encoder/pickrst.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1212,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-03-14T20:32:42Z",
+      "side": 1,
+      "message": "This threshold seems too low. In the bug report, `a[l]` is -536870912, so the absolute value is 0x20000000 \u003d 1 \u003c\u003c 29. `WIENER_TAP_SCALE_FACTOR` is only 1 \u003c\u003c 16.\n\nI just wanted to confirm you meant to set this threshold. If the threshold is correct, it would be good to add a comment to explain why it is the threshold.\n\nNote: I can increase `scale_threshold` to 1 \u003c\u003c 28 and still pass the reproducer testcase of b/272139363.",
+      "revId": "0cccf5cd5799b10a2a83fb0e6ad97ad851f5f357",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cd8e14b7_55c255f9",
+        "filename": "av1/encoder/pickrst.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1214,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-03-14T20:32:42Z",
+      "side": 1,
+      "message": "`scale_a_l` and `scale_compound` are equal. Do they need to be separate variables?",
+      "revId": "0cccf5cd5799b10a2a83fb0e6ad97ad851f5f357",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8169f1a8_4c6cdd10",
+        "filename": "av1/encoder/pickrst.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1214,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-03-14T20:32:42Z",
+      "side": 1,
+      "message": "Optional: It is not necessary to calculate `max_a_l`. The following is equivalent:\n\n```\n  const int scale_threshold \u003d WIENER_TAP_SCALE_FACTOR;\n  int scale_a_l \u003d 1;\n  int scale_compound \u003d 1;\n  for (int l \u003d 0; l \u003c wiener_win; ++l) {\n    const int32_t abs_a_l \u003d abs(a[l]);\n    if (abs_a_l \u003e\u003d scale_threshold) {\n      scale_a_l \u003d 2;\n      scale_compound \u003d 2;\n      break;\n    }\n  }\n```",
+      "revId": "0cccf5cd5799b10a2a83fb0e6ad97ad851f5f357",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "848a3e14_b4de675e",
+        "filename": "av1/encoder/pickrst.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1226,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-03-14T20:32:42Z",
+      "side": 1,
+      "message": "It is slightly more accurate to change this line to:\n\n```\n              (WIENER_TAP_SCALE_FACTOR / scale_a_l / scale_compound);\n```\n\nWith the current code, if `scale_a_l` and `scale_compound` are equal to 2, then the two least significant bits of the final result (on the right hand side of `+\u003d`) will always be 0.\n\nNote: `WIENER_TAP_SCALE_FACTOR` is a compile-time constant. Since it is a power of 2, the compiler can implement the division by `WIENER_TAP_SCALE_FACTOR` with a right shift. My suggested change may cause the compiler to actually do a division. We need to consider this issue if this code needs to be optimized well.",
+      "revId": "0cccf5cd5799b10a2a83fb0e6ad97ad851f5f357",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
