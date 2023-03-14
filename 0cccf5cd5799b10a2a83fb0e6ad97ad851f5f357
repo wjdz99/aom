@@ -18,6 +18,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "eef33b8a_7d6949be",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 26732
+      },
+      "writtenOn": "2023-03-14T21:33:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0274f9a9_dbc70e58",
+      "revId": "0cccf5cd5799b10a2a83fb0e6ad97ad851f5f357",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "4bce11d0_5bda8d30",
@@ -31,6 +49,24 @@
       "writtenOn": "2023-03-14T20:32:42Z",
       "side": 1,
       "message": "Please add the following bug link before this line:\n\nBug: b/272139363",
+      "revId": "0cccf5cd5799b10a2a83fb0e6ad97ad851f5f357",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "24d0dcd2_523fee01",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 26732
+      },
+      "writtenOn": "2023-03-14T21:33:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4bce11d0_5bda8d30",
       "revId": "0cccf5cd5799b10a2a83fb0e6ad97ad851f5f357",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -69,6 +105,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "c5c1949c_71c46817",
+        "filename": "av1/encoder/pickrst.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1200,
+      "author": {
+        "id": 26732
+      },
+      "writtenOn": "2023-03-14T21:33:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "535db181_79d723a4",
+      "revId": "0cccf5cd5799b10a2a83fb0e6ad97ad851f5f357",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "11840bd4_c866b8b3",
@@ -82,6 +136,24 @@
       "writtenOn": "2023-03-14T20:32:42Z",
       "side": 1,
       "message": "This threshold seems too low. In the bug report, `a[l]` is -536870912, so the absolute value is 0x20000000 \u003d 1 \u003c\u003c 29. `WIENER_TAP_SCALE_FACTOR` is only 1 \u003c\u003c 16.\n\nI just wanted to confirm you meant to set this threshold. If the threshold is correct, it would be good to add a comment to explain why it is the threshold.\n\nNote: I can increase `scale_threshold` to 1 \u003c\u003c 28 and still pass the reproducer testcase of b/272139363.",
+      "revId": "0cccf5cd5799b10a2a83fb0e6ad97ad851f5f357",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e88d15ed_7c052809",
+        "filename": "av1/encoder/pickrst.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1212,
+      "author": {
+        "id": 26732
+      },
+      "writtenOn": "2023-03-14T21:33:38Z",
+      "side": 1,
+      "message": "scale_threshold \u003d WIENER_TAP_SCALE_FACTOR is guaranteed safe in that smaller a_l will not increase the dynamic range in the initial computation. In the caller, wiener_decompose_sep_sym(), a seems to be initialized to \u003c 16 bits.\n\nThe test max_a_l are: \n536870912\n390152469\n89115\n536870912\n70126\n66560\n65992\n65902\n70786\n67546\n66594\n66312\n536870912\n536870912\n79928\n75308\n\nIf this test accurately captures the range of a_l and more importantly Hc, we can bump it up. I just bumped it to 2 * WIENER_TAP_SCALE_FACTOR, that should cover all but the largest five cases.",
+      "parentUuid": "11840bd4_c866b8b3",
       "revId": "0cccf5cd5799b10a2a83fb0e6ad97ad851f5f357",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -120,6 +192,42 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "c373a82c_41c44c8a",
+        "filename": "av1/encoder/pickrst.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1214,
+      "author": {
+        "id": 26732
+      },
+      "writtenOn": "2023-03-14T21:33:38Z",
+      "side": 1,
+      "message": "I prefer them separate but reverted to single.",
+      "parentUuid": "cd8e14b7_55c255f9",
+      "revId": "0cccf5cd5799b10a2a83fb0e6ad97ad851f5f357",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a39df24d_85fb3c88",
+        "filename": "av1/encoder/pickrst.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1214,
+      "author": {
+        "id": 26732
+      },
+      "writtenOn": "2023-03-14T21:33:38Z",
+      "side": 1,
+      "message": "The number of taps is small. IMO existing version is more readable.",
+      "parentUuid": "8169f1a8_4c6cdd10",
+      "revId": "0cccf5cd5799b10a2a83fb0e6ad97ad851f5f357",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "848a3e14_b4de675e",
@@ -133,6 +241,24 @@
       "writtenOn": "2023-03-14T20:32:42Z",
       "side": 1,
       "message": "It is slightly more accurate to change this line to:\n\n```\n              (WIENER_TAP_SCALE_FACTOR / scale_a_l / scale_compound);\n```\n\nWith the current code, if `scale_a_l` and `scale_compound` are equal to 2, then the two least significant bits of the final result (on the right hand side of `+\u003d`) will always be 0.\n\nNote: `WIENER_TAP_SCALE_FACTOR` is a compile-time constant. Since it is a power of 2, the compiler can implement the division by `WIENER_TAP_SCALE_FACTOR` with a right shift. My suggested change may cause the compiler to actually do a division. We need to consider this issue if this code needs to be optimized well.",
+      "revId": "0cccf5cd5799b10a2a83fb0e6ad97ad851f5f357",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5b69ced3_88ddc0a6",
+        "filename": "av1/encoder/pickrst.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1226,
+      "author": {
+        "id": 26732
+      },
+      "writtenOn": "2023-03-14T21:33:38Z",
+      "side": 1,
+      "message": "Done. I don\u0027t know if it is worth doing signed rounding here, but we could.\n\n\u003e the compiler can implement the division by WIENER_TAP_SCALE_FACTOR with a right shift. \n\n\nAre you sure? Because the numbers are signed I am not sure what the compiler will do.",
+      "parentUuid": "848a3e14_b4de675e",
       "revId": "0cccf5cd5799b10a2a83fb0e6ad97ad851f5f357",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
