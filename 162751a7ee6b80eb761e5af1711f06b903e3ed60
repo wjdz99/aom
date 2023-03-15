@@ -46,6 +46,30 @@
       },
       "revId": "162751a7ee6b80eb761e5af1711f06b903e3ed60",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c55b0b71_5b94a1f3",
+        "filename": "av1/encoder/encode_strategy.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 1368,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2023-03-15T16:03:40Z",
+      "side": 1,
+      "message": "Good. Thanks for making the change.",
+      "parentUuid": "bcb9c761_eb687328",
+      "range": {
+        "startLine": 1366,
+        "startChar": 4,
+        "endLine": 1368,
+        "endChar": 77
+      },
+      "revId": "162751a7ee6b80eb761e5af1711f06b903e3ed60",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
