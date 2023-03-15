@@ -140,6 +140,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e878cdd7_c2675330",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 719,
+      "author": {
+        "id": 26549
+      },
+      "writtenOn": "2023-03-15T12:21:58Z",
+      "side": 1,
+      "message": "I see the problem, and with https://aomedia-review.googlesource.com/c/aom/+/171941 there\u0027s no longer asan error. Is it correct that `seq_params_locked` should be true after encoding the first frame?",
+      "parentUuid": "549c86ca_bdb7fc07",
+      "revId": "abc144b23f008e06d32c326deceb175c0fcdd25e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a5b4aafc_e1e22761",
