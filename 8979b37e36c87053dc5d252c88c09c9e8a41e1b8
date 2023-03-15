@@ -16,6 +16,24 @@
       "message": "https://developer.arm.com/documentation/ddi0487/ia/ (DDI0487_I_a_a-profile_architecture_reference_manual.pdf) says:\n\n```\nFEAT_DotProd, Advanced SIMD dot product instructions\n...\nThis feature is OPTIONAL in Armv8.2 implementations and mandatory in Armv8.4 implementations.\n```\n\nIs this a bug with clang?",
       "revId": "8979b37e36c87053dc5d252c88c09c9e8a41e1b8",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4965aa7d_bda513bb",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 31042
+      },
+      "writtenOn": "2023-03-15T11:36:22Z",
+      "side": 1,
+      "message": "Yes, this is a bug with Clang. It\u0027s fixed in LLVM trunk[1] but not in quite recent releases e.g. the 15.0.0 release. I\u0027ll have a chat with our compiler guys to see if we can backport the fix. Annoyingly, it seems that the issue also exists for -march\u003darmv8.4-a[2], which means the armv8.4 builder will need \"+dotprod\" appended to the -march flags (if it\u0027s using Clang).\n\n[1] https://gcc.godbolt.org/z/xnTdhvP8T\n[2] https://gcc.godbolt.org/z/KaTP8c3v5",
+      "parentUuid": "5205c6a8_56553af7",
+      "revId": "8979b37e36c87053dc5d252c88c09c9e8a41e1b8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
