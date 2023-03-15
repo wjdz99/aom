@@ -70,6 +70,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "248e4dfd_13babb62",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 3456,
+      "author": {
+        "id": 26549
+      },
+      "writtenOn": "2023-03-15T12:49:28Z",
+      "side": 1,
+      "message": "`av1_set_internal_size()` set `oxcf-\u003eresize_cfg.resize_mode` which `av1_select_sb_size()` uses.",
+      "parentUuid": "cbb1eedc_df2d4249",
+      "revId": "4baf0d68cd4dff6b521c816ea5ffe0442e9cc61f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "cf37e352_bbb20f03",
@@ -89,6 +107,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "d3f60c74_014c2dc6",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 3457,
+      "author": {
+        "id": 26549
+      },
+      "writtenOn": "2023-03-15T12:49:28Z",
+      "side": 1,
+      "message": "Suggested changes done. Sorry I\u0027m not familiar with the internal codec fields.",
+      "parentUuid": "cf37e352_bbb20f03",
+      "revId": "4baf0d68cd4dff6b521c816ea5ffe0442e9cc61f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "86852065_7093b410",
         "filename": "av1/av1_cx_iface.c",
         "patchSetId": 1
@@ -100,6 +136,24 @@
       "writtenOn": "2023-03-08T23:58:30Z",
       "side": 1,
       "message": "Nit: I suggest we write this as follows:\n\n```\n  if (av1_set_internal_size(...) !\u003d 0) {\n    return AOM_CODEC_INVALID_PARAM;\n  }\n  return update_extra_cfg(ctx, \u0026ctx-\u003eextra_cfg);\n```",
+      "revId": "4baf0d68cd4dff6b521c816ea5ffe0442e9cc61f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "443f900c_460fbedc",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 3459,
+      "author": {
+        "id": 26549
+      },
+      "writtenOn": "2023-03-15T12:49:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "86852065_7093b410",
       "revId": "4baf0d68cd4dff6b521c816ea5ffe0442e9cc61f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
