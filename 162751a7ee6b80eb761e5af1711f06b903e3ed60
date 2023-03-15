@@ -22,6 +22,30 @@
       },
       "revId": "162751a7ee6b80eb761e5af1711f06b903e3ed60",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bcb9c761_eb687328",
+        "filename": "av1/encoder/encode_strategy.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 1368,
+      "author": {
+        "id": 9616
+      },
+      "writtenOn": "2023-03-15T13:13:23Z",
+      "side": 1,
+      "message": "Yes, as per patchset 5, if an ARF_UPDATE/INTNL_ARF_UPDATE frame is dropped, then the corresponding OVERLAY_UPDATE/INTNL_OVERLAY_UPDATE frame is still encoded. As suggested, we feel that dropping the corresponding OVERLAY_UPDATE/INTNL_OVERLAY_UPDATE frame would be a better fix and have pushed patchset 6 after rebasing. Please review.",
+      "parentUuid": "4e01dfb6_cae9110d",
+      "range": {
+        "startLine": 1366,
+        "startChar": 4,
+        "endLine": 1368,
+        "endChar": 77
+      },
+      "revId": "162751a7ee6b80eb761e5af1711f06b903e3ed60",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
