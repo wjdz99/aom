@@ -52,6 +52,24 @@
       "parentUuid": "e308815e_cb8f8c18",
       "revId": "6f1f28dc35865ed64c35b7aa431b09e217a01bf9",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9299ae63_8a88fd86",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 32128
+      },
+      "writtenOn": "2023-03-16T02:36:43Z",
+      "side": 1,
+      "message": "\u003e Hirozaku; I also changed InitRateControl() to return bool in this CL. Since InitRateControl() is a private method, that change doesn\u0027t affect your code.\n\nAh yeah.\n\n\u003e Your code should continue to compile successfully unless the compiler warns about not checking the return value of any function that returns bool. But it is certainly better if you can change your code to check the return value of AV1RateControlRTC::UpdateRateControl().\n\nYep.",
+      "parentUuid": "5d0d9e31_8bb0101b",
+      "revId": "6f1f28dc35865ed64c35b7aa431b09e217a01bf9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
