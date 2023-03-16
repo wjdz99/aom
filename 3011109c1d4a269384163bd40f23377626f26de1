@@ -16,6 +16,29 @@
       "message": "The performance gain looks real good.\nWhy is the encoding speed improved?\nThe cl extends the decision for using screen content tools, which usually slows down the encoding.",
       "revId": "3011109c1d4a269384163bd40f23377626f26de1",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "53e7fbf7_2c40a748",
+        "filename": "av1/encoder/intra_mode_search.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1031,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2023-03-16T17:13:28Z",
+      "side": 1,
+      "message": "This might be a way to silent the warning of const pointers.\nBut it also hides the intent of keeping cpi constant. It might be dangerous that cpi could be changed while we don\u0027t know.\nIs there a better way?",
+      "range": {
+        "startLine": 1031,
+        "startChar": 6,
+        "endLine": 1031,
+        "endChar": 18
+      },
+      "revId": "3011109c1d4a269384163bd40f23377626f26de1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
