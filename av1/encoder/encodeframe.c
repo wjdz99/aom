@@ -1152,6 +1152,7 @@ static AOM_INLINE void encode_sb_row(AV1_COMP *cpi, ThreadData *td,
     x->content_state_sb.lighting_change = 0;
     x->content_state_sb.low_sumdiff = 0;
     x->force_zeromv_skip_for_sb = 0;
+    x->allow_4x4tx_nonrd = 0;
 
     if (cpi->oxcf.mode == ALLINTRA) {
       x->intra_sb_rdmult_modifier = 128;

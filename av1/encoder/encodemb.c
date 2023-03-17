@@ -404,7 +404,7 @@ static void encode_block(int plane, int block, int blk_row, int blk_col,
 
   TX_TYPE tx_type = DCT_DCT;
   const int blk_skip_idx =
-      (cpi->sf.rt_sf.use_nonrd_pick_mode && is_inter_block(mbmi))
+      (cpi->sf.rt_sf.use_nonrd_pick_mode && is_inter_block(mbmi) && !x->allow_4x4tx_nonrd)
           ? blk_row * bw / 4 + blk_col / 2
           : blk_row * bw + blk_col;
   if (!is_blk_skip(x->txfm_search_info.blk_skip, plane, blk_skip_idx) &&
