@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f2938ded_6617ef35",
+        "filename": "aom/aomcx.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 2151,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-03-17T21:30:33Z",
+      "side": 1,
+      "message": "I seem to remember Frank sorted these `AOM_CTRL_USE_TYPE` macros in the order of the codec control id definitions when he prepared for the libaom v3.3.0 release. It is best to preserve the order.",
+      "revId": "895b2b63790f022f662004147e7c5b5abb8a28d9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
