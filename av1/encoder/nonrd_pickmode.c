@@ -77,10 +77,9 @@ static INLINE void init_best_pickmode(BEST_PICKMODE *bp) {
 // Copy best inter mode parameters to best_pickmode
 static INLINE void update_search_state_nonrd(
     InterModeSearchStateNonrd *search_state, MB_MODE_INFO *const mi,
-    TxfmSearchInfo *txfm_info, RD_STATS *nonskip_rdc, PICK_MODE_CONTEXT *ctx,
-    PREDICTION_MODE this_best_mode, const int64_t sse_y) {
+    TxfmSearchInfo *txfm_info, RD_STATS *nonskip_rdc,
+    PREDICTION_MODE this_best_mode, const int64_t sse_y, int num_blocks) {
   BEST_PICKMODE *const best_pickmode = &search_state->best_pickmode;
-  const int num_8x8_blocks = ctx->num_4x4_blk / 4;
 
   best_pickmode->best_sse = sse_y;
   best_pickmode->best_mode = this_best_mode;
@@ -96,7 +95,7 @@ static INLINE void update_search_state_nonrd(
       (nonskip_rdc->rate == INT_MAX && search_state->this_rdc.skip_txfm);
   if (!best_pickmode->best_mode_skip_txfm) {
     memcpy(best_pickmode->blk_skip, txfm_info->blk_skip,
-           sizeof(txfm_info->blk_skip[0]) * num_8x8_blocks);
+           sizeof(txfm_info->blk_skip[0]) * num_blocks);
   }
 }
 
@@ -2865,10 +2864,12 @@ static AOM_FORCE_INLINE bool handle_inter_mode_nonrd(
 
   // Copy best mode params to search state
   if (search_state->this_rdc.rdcost < search_state->best_rdc.rdcost) {
+    int num_blocks =
+      (x->allow_4x4tx_nonrd) ? ctx->num_4x4_blk : ctx->num_4x4_blk / 4;
     search_state->best_rdc = search_state->this_rdc;
     *best_early_term = this_early_term;
-    update_search_state_nonrd(search_state, mi, txfm_info, &nonskip_rdc, ctx,
-                              this_best_mode, sse_y);
+    update_search_state_nonrd(search_state, mi, txfm_info, &nonskip_rdc,
+                              this_best_mode, sse_y, num_blocks);
 
     // This is needed for the compound modes.
     search_state->frame_mv_best[this_best_mode][ref_frame].as_int =
@@ -2908,7 +2909,8 @@ static AOM_FORCE_INLINE void handle_screen_content_mode_nonrd(
   const int mi_col = xd->mi_col;
   const int bw = block_size_wide[bsize];
   const int bh = block_size_high[bsize];
-  const int num_8x8_blocks = ctx->num_4x4_blk / 4;
+  int num_blocks =
+      (x->allow_4x4tx_nonrd) ? ctx->num_4x4_blk : ctx->num_4x4_blk / 4;
   TxfmSearchInfo *txfm_info = &x->txfm_search_info;
   BEST_PICKMODE *const best_pickmode = &search_state->best_pickmode;
 
@@ -2946,7 +2948,7 @@ static AOM_FORCE_INLINE void handle_screen_content_mode_nonrd(
       best_pickmode->best_mode_skip_txfm = idtx_rdc.skip_txfm;
       if (!idtx_rdc.skip_txfm) {
         memcpy(best_pickmode->blk_skip, txfm_info->blk_skip,
-               sizeof(txfm_info->blk_skip[0]) * num_8x8_blocks);
+               sizeof(txfm_info->blk_skip[0]) * num_blocks);
       }
       xd->tx_type_map[0] = best_pickmode->tx_type;
       memset(ctx->tx_type_map, best_pickmode->tx_type, ctx->num_4x4_blk);
@@ -3060,7 +3062,7 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
   const int bh = block_size_high[bsize];
   const int bw = block_size_wide[bsize];
   const int pixels_in_block = bh * bw;
-  const int num_8x8_blocks = ctx->num_4x4_blk / 4;
+  int num_blocks = (x->allow_4x4tx_nonrd) ? ctx->num_4x4_blk : ctx->num_4x4_blk / 4;
   struct buf_2d orig_dst = pd->dst;
   const TxfmSearchParams *txfm_params = &x->txfm_search_params;
   TxfmSearchInfo *txfm_info = &x->txfm_search_info;
@@ -3084,6 +3086,8 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
   const int resize_pending = is_frame_resize_pending(cpi);
 #endif
   const ModeCosts *mode_costs = &x->mode_costs;
+
+  x->allow_4x4tx_nonrd = (cpi->oxcf.tune_cfg.content == AOM_CONTENT_SCREEN);
 
   if (reuse_inter_pred) {
     for (int buf_idx = 0; buf_idx < 3; buf_idx++) {
@@ -3212,7 +3216,7 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
     mi->ref_frame[1] = ref_frame2;
     set_ref_ptrs(cm, xd, ref_frame, ref_frame2);
     memset(txfm_info->blk_skip, 0,
-           sizeof(txfm_info->blk_skip[0]) * num_8x8_blocks);
+           sizeof(txfm_info->blk_skip[0]) * num_blocks);
 
     // Perform inter mode evaluation for non-rd
     if (!handle_inter_mode_nonrd(
@@ -3324,7 +3328,7 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
     // as best then blk_skip is already copied into the ctx.
     if (best_pickmode->best_mode >= INTRA_MODE_END)
       memcpy(ctx->blk_skip, best_pickmode->blk_skip,
-             sizeof(best_pickmode->blk_skip[0]) * num_8x8_blocks);
+             sizeof(best_pickmode->blk_skip[0]) * num_blocks);
   }
   if (has_second_ref(mi)) {
     mi->comp_group_idx = 0;
