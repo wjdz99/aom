@@ -100,6 +100,11 @@ class DatarateTestSVC
                                   ::libaom_test::Encoder *encoder) {
     int spatial_layer_id = 0;
     current_video_frame_ = video->frame();
+    // We could use AV1E_SET_SVC_PARAMS_V1 unconditionally. To add test
+    // coverage for both codec controls, use AV1E_SET_SVC_PARAMS_V1 only when
+    // necessary.
+    int set_svc_params_ctrl_id =
+        set_speed_per_layer_ ? AV1E_SET_SVC_PARAMS_V1 : AV1E_SET_SVC_PARAMS;
     // video->frame() is called every superframe, so we should condition
     // this on layer_frame_cnt_ = 0, so we only do this once on the very
     // first frame.
@@ -125,7 +130,7 @@ class DatarateTestSVC
         svc_params_.speed_per_layer[7] = 9;
         svc_params_.speed_per_layer[8] = 10;
       }
-      encoder->Control(AV1E_SET_SVC_PARAMS, &svc_params_);
+      encoder->Control(set_svc_params_ctrl_id, &svc_params_);
       // TODO(aomedia:3032): Configure KSVC in fixed mode.
       encoder->Control(AV1E_SET_ENABLE_ORDER_HINT, 0);
       encoder->Control(AV1E_SET_ENABLE_TPL_MODEL, 0);
@@ -191,7 +196,7 @@ class DatarateTestSVC
         svc_params_.layer_target_bitrate[2] = target_layer_bitrate_[2];
         cfg_.rc_target_bitrate += target_layer_bitrate_[2];
         encoder->Config(&cfg_);
-        encoder->Control(AV1E_SET_SVC_PARAMS, &svc_params_);
+        encoder->Control(set_svc_params_ctrl_id, &svc_params_);
       }
     } else if (dynamic_enable_disable_mode_ == 2) {
       if (layer_frame_cnt_ == 300 && spatial_layer_id == 0) {
@@ -199,13 +204,13 @@ class DatarateTestSVC
         svc_params_.layer_target_bitrate[2] = 0;
         cfg_.rc_target_bitrate -= target_layer_bitrate_[2];
         encoder->Config(&cfg_);
-        encoder->Control(AV1E_SET_SVC_PARAMS, &svc_params_);
+        encoder->Control(set_svc_params_ctrl_id, &svc_params_);
       } else if (layer_frame_cnt_ == 600 && spatial_layer_id == 0) {
         // Enable top spatial layer mid-stream.
         svc_params_.layer_target_bitrate[2] = target_layer_bitrate_[2];
         cfg_.rc_target_bitrate += target_layer_bitrate_[2];
         encoder->Config(&cfg_);
-        encoder->Control(AV1E_SET_SVC_PARAMS, &svc_params_);
+        encoder->Control(set_svc_params_ctrl_id, &svc_params_);
       }
     }
     layer_frame_cnt_++;
