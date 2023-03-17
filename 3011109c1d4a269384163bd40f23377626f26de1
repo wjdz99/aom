@@ -194,6 +194,30 @@
       },
       "revId": "3011109c1d4a269384163bd40f23377626f26de1",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2914c506_ec720da9",
+        "filename": "av1/encoder/intra_mode_search.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1031,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2023-03-17T22:04:42Z",
+      "side": 1,
+      "message": "Yeah you should be able to use `cnt_zeromv` as a template if you add a member to `MACROBLOCK`.\n\nYou can also try to pass in an additional pointer to that function, but then you\u0027ll need to modify the call chain starting from `av1_encode_frame`, which might be quite a bit of work.",
+      "parentUuid": "04fc3d81_fa5c950b",
+      "range": {
+        "startLine": 1031,
+        "startChar": 6,
+        "endLine": 1031,
+        "endChar": 18
+      },
+      "revId": "3011109c1d4a269384163bd40f23377626f26de1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
