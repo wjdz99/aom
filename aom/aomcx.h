@@ -1274,6 +1274,8 @@ enum aome_enc_control_id {
 
   /*!\brief Codec control function to set SVC parameters, aom_svc_params_t*
    * parameter
+   *
+   * Assumes version 0 of the aom_svc_params_t struct.
    */
   AV1E_SET_SVC_PARAMS = 132,
 
@@ -1510,6 +1512,13 @@ enum aome_enc_control_id {
    */
   AV1E_SET_RATE_DISTRIBUTION_INFO = 161,
 
+  /*!\brief Codec control function to set SVC parameters, aom_svc_params_t*
+   * parameter
+   *
+   * Assumes version 1 of the aom_svc_params_t struct.
+   */
+  AV1E_SET_SVC_PARAMS_V1 = 162,
+
   // Any new encoder control IDs should be added above.
   // Maximum allowed encoder control ID is 229.
   // No encoder control ID should be added below.
@@ -1658,7 +1667,10 @@ typedef struct aom_svc_params {
   int layer_target_bitrate[AOM_MAX_LAYERS];
   /*! Frame rate factor for each temporal layer */
   int framerate_factor[AOM_MAX_TS_LAYERS];
+  // Version 0 of the struct ends here.
+
   int speed_per_layer[AOM_MAX_LAYERS]; /**< Speed setting for each layer */
+  // Version 1 of the struct ends here.
 } aom_svc_params_t;
 
 /*!brief Parameters for setting ref frame config */
@@ -2150,6 +2162,9 @@ AOM_CTRL_USE_TYPE(AV1E_ENABLE_SB_QP_SWEEP, unsigned int)
 
 AOM_CTRL_USE_TYPE(AV1E_SET_QUANTIZER_ONE_PASS, int)
 #define AOM_CTRL_AV1E_SET_QUANTIZER_ONE_PASS
+
+AOM_CTRL_USE_TYPE(AV1E_SET_SVC_PARAMS_V1, aom_svc_params_t *)
+#define AOM_CTRL_AV1E_SET_SVC_PARAMS_V1
 
 /*!\endcond */
 /*! @} - end defgroup aom_encoder */

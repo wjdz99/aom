@@ -3495,7 +3495,7 @@ static aom_codec_err_t ctrl_set_layer_id(aom_codec_alg_priv_t *ctx,
 }
 
 static aom_codec_err_t ctrl_set_svc_params(aom_codec_alg_priv_t *ctx,
-                                           va_list args) {
+                                           va_list args, int version) {
   AV1_PRIMARY *const ppi = ctx->ppi;
   AV1_COMP *const cpi = ppi->cpi;
   AV1_COMMON *const cm = &cpi->common;
@@ -3532,7 +3532,11 @@ static aom_codec_err_t ctrl_set_svc_params(aom_codec_alg_priv_t *ctx,
         lc->framerate_factor = params->framerate_factor[tl];
         if (tl == ppi->number_temporal_layers - 1)
           target_bandwidth += lc->layer_target_bitrate;
-        lc->speed = params->speed_per_layer[layer];
+        if (version >= 1) {
+          lc->speed = params->speed_per_layer[layer];
+        } else {
+          lc->speed = 0;
+        }
       }
     }
     if (cm->current_frame.frame_number == 0) {
@@ -3551,6 +3555,16 @@ static aom_codec_err_t ctrl_set_svc_params(aom_codec_alg_priv_t *ctx,
   }
   av1_check_fpmt_config(ctx->ppi, &ctx->ppi->cpi->oxcf);
   return AOM_CODEC_OK;
+}
+
+static aom_codec_err_t ctrl_set_svc_params_v0(aom_codec_alg_priv_t *ctx,
+                                              va_list args) {
+  return ctrl_set_svc_params(ctx, args, 0);
+}
+
+static aom_codec_err_t ctrl_set_svc_params_v1(aom_codec_alg_priv_t *ctx,
+                                              va_list args) {
+  return ctrl_set_svc_params(ctx, args, 1);
 }
 
 static aom_codec_err_t ctrl_set_svc_ref_frame_config(aom_codec_alg_priv_t *ctx,
@@ -4290,7 +4304,7 @@ static aom_codec_ctrl_fn_map_t encoder_ctrl_maps[] = {
   { AV1E_SET_TIER_MASK, ctrl_set_tier_mask },
   { AV1E_SET_MIN_CR, ctrl_set_min_cr },
   { AV1E_SET_SVC_LAYER_ID, ctrl_set_layer_id },
-  { AV1E_SET_SVC_PARAMS, ctrl_set_svc_params },
+  { AV1E_SET_SVC_PARAMS, ctrl_set_svc_params_v0 },
   { AV1E_SET_SVC_REF_FRAME_CONFIG, ctrl_set_svc_ref_frame_config },
   { AV1E_SET_SVC_REF_FRAME_COMP_PRED, ctrl_set_svc_ref_frame_comp_pred },
   { AV1E_SET_VBR_CORPUS_COMPLEXITY_LAP, ctrl_set_vbr_corpus_complexity_lap },
@@ -4304,6 +4318,7 @@ static aom_codec_ctrl_fn_map_t encoder_ctrl_maps[] = {
   { AV1E_SET_AUTO_INTRA_TOOLS_OFF, ctrl_set_auto_intra_tools_off },
   { AV1E_SET_RTC_EXTERNAL_RC, ctrl_set_rtc_external_rc },
   { AV1E_SET_QUANTIZER_ONE_PASS, ctrl_set_quantizer_one_pass },
+  { AV1E_SET_SVC_PARAMS_V1, ctrl_set_svc_params_v1 },
 
   // Getters
   { AOME_GET_LAST_QUANTIZER, ctrl_get_quantizer },

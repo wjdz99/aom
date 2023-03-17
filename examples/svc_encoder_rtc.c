@@ -1424,7 +1424,7 @@ int main(int argc, const char **argv) {
     svc_params.scaling_factor_num[1] = 1;
     svc_params.scaling_factor_den[1] = 2;
   }
-  aom_codec_control(&codec, AV1E_SET_SVC_PARAMS, &svc_params);
+  aom_codec_control(&codec, AV1E_SET_SVC_PARAMS_V1, &svc_params);
   // TODO(aomedia:3032): Configure KSVC in fixed mode.
 
   // This controls the maximum target size of the key frame.
