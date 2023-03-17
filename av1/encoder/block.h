@@ -1072,6 +1072,11 @@ typedef struct macroblock {
    */
   int force_zeromv_skip_for_blk;
 
+  /*!\brief Flag to indicate 4x4 tx_size may be used in nonrd pickmode for
+   * the given coding block.
+   */
+  int allow_4x4tx_nonrd;
+
   /*! \brief Previous segment id for which qmatrices were updated.
    * This is used to bypass setting of qmatrices if no change in qindex.
    */
