@@ -20,6 +20,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "5f706b09_30dcefae",
+        "filename": "av1/encoder/var_based_part.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1102,
+      "author": {
+        "id": 31592
+      },
+      "writtenOn": "2023-03-17T13:13:37Z",
+      "side": 1,
+      "message": "Thanks for pointing it out!\nThis has been already taken care in the CL: \nhttps://aomedia-review.googlesource.com/c/aom/+/168572",
+      "parentUuid": "4a5e5d80_c2499622",
+      "revId": "d7a5241fed4c47c7841d9c6ce3ad0dca8c9a4d38",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "b7b2d016_f8550d59",
         "filename": "av1/encoder/var_based_part.c",
         "patchSetId": 4
@@ -31,6 +49,24 @@
       "writtenOn": "2023-03-16T14:20:02Z",
       "side": 1,
       "message": "This if-else statement (lines 1377-1394) sets up `dst_buf` and `dst_stride` for the `fill_variance_tree_leaves()` call below (line 1446). Since `fill_variance_tree_leaves()` ignores those two arguments when `is_key_frame` is true (see line 1110), we could set `dst_buf` to a null pointer here.",
+      "revId": "d7a5241fed4c47c7841d9c6ce3ad0dca8c9a4d38",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "571ab74f_ee1880da",
+        "filename": "av1/encoder/var_based_part.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1394,
+      "author": {
+        "id": 31592
+      },
+      "writtenOn": "2023-03-17T13:13:37Z",
+      "side": 1,
+      "message": "Yes, `dst_buf` and `dst_stride` can be reset as it is not consumed in `fill_variance_tree_leaves()` when `is_key_frame` is true.\n\nCan we submit a separate CL with this change?",
+      "parentUuid": "b7b2d016_f8550d59",
       "revId": "d7a5241fed4c47c7841d9c6ce3ad0dca8c9a4d38",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
