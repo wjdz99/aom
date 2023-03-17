@@ -52,6 +52,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "b6b10353_cb536252",
+        "filename": "test/test.cmake",
+        "patchSetId": 1
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-03-17T02:37:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e85a6827_309be25e",
+      "revId": "8cd5ac67a0d6f3974bca11978aee698939a26716",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e5f3c998_fb3e450a",
@@ -65,6 +83,24 @@
       "writtenOn": "2023-03-02T22:47:05Z",
       "side": 1,
       "message": "Is it necessary to remove duplicates here? If there are duplicates, that means some add_to_libaom_test_srcs() call above is incorrect. It seems better to detect that mistake rather than suppress that.",
+      "revId": "8cd5ac67a0d6f3974bca11978aee698939a26716",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a850cc13_8644d3c9",
+        "filename": "test/test.cmake",
+        "patchSetId": 1
+      },
+      "lineNbr": 595,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-03-17T02:37:18Z",
+      "side": 1,
+      "message": "\u003e Is it necessary to remove duplicates here? If there are duplicates, that means some add_to_libaom_test_srcs() call above is incorrect. It seems better to detect that mistake rather than suppress that.\n\nThat\u0027s fair. I added a check. The code still has a chance of putting duplicate files in the output file.",
+      "parentUuid": "e5f3c998_fb3e450a",
       "revId": "8cd5ac67a0d6f3974bca11978aee698939a26716",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
