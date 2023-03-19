@@ -1151,6 +1151,7 @@ static void fill_variance_tree_leaves(
         variance4x4downsample[lvl1_scale_idx + lvl2_idx] = 0;
         if (is_key_frame) {
           force_split[split_index] = PART_EVAL_ALL;
+          assert(dst_buf == NULL);
           // Go down to 4x4 down-sampling for variance.
           variance4x4downsample[lvl1_scale_idx + lvl2_idx] = 1;
           for (int lvl3_idx = 0; lvl3_idx < 4; lvl3_idx++) {
@@ -1646,7 +1647,7 @@ int av1_choose_var_based_partitioning(AV1_COMP *cpi, const TileInfo *const tile,
       dst_stride = xd->plane[AOM_PLANE_Y].pre[0].stride;
     }
   } else {
-    dst_buf = av1_var_offs(is_cur_buf_hbd(xd), xd->bd);
+    dst_buf = NULL;
     dst_stride = 0;
   }
 
