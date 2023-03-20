@@ -16,6 +16,40 @@
       "message": "We have made changes as suggested in https://aomedia-review.googlesource.com/c/aom/+/168566\n- The pointer `dst_buf` is set to NULL when `is_key_frame` is true. \n- Made the function `av1_var_offs()` as static and renamed as `var_offs()`.",
       "revId": "7d74679727c5ff7d07d95d485f24520fd83c85aa",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0a771ffc_9cb70854",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 155,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-03-20T17:14:51Z",
+      "side": 1,
+      "message": "Nit: I suggest adding back the `av1_` prefix, to suggest it returns `AV1_VAR_OFFS` or a similar array. I think it is okay for a static function to use the `av1_` prefix.",
+      "revId": "7d74679727c5ff7d07d95d485f24520fd83c85aa",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a989d165_b89bd230",
+        "filename": "av1/encoder/var_based_part.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1154,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-03-20T17:14:51Z",
+      "side": 1,
+      "message": "I suggest asserting this condition at the beginning of this function, and add a comment to say that this function ignores `dist_buf` when `is_key_frame` is true, so `dst_buf` should be null in that case.",
+      "revId": "7d74679727c5ff7d07d95d485f24520fd83c85aa",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
