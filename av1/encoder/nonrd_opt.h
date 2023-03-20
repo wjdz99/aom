@@ -542,7 +542,7 @@ static INLINE void store_coding_context_nonrd(MACROBLOCK *x,
 }
 
 void av1_block_yrd(MACROBLOCK *x, RD_STATS *this_rdc, int *skippable,
-                   BLOCK_SIZE bsize, TX_SIZE tx_size, int is_inter_mode);
+                   BLOCK_SIZE bsize, TX_SIZE tx_size);
 
 void av1_block_yrd_idtx(MACROBLOCK *x, RD_STATS *this_rdc, int *skippable,
                         BLOCK_SIZE bsize, TX_SIZE tx_size);
