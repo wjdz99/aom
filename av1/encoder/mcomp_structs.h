@@ -86,6 +86,8 @@ enum {
   NUM_SEARCH_METHODS,
   // Number of distinct search methods.
   NUM_DISTINCT_SEARCH_METHODS = SQUARE + 1,
+  // Default search method: use what is described by speed features
+  DEFAULT_MV_SEARCH = UINT8_MAX,
 } UENUM1BYTE(SEARCH_METHODS);
 
 typedef struct warp_search_config {
