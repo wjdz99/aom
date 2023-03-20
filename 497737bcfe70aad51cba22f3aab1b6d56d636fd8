@@ -52,6 +52,24 @@
       "parentUuid": "24b30cff_ace25390",
       "revId": "497737bcfe70aad51cba22f3aab1b6d56d636fd8",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cb5c7ce0_a2827da6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2023-03-20T17:23:22Z",
+      "side": 1,
+      "message": "I\u0027m fine we adding new setting with new control, Will revert the change,",
+      "parentUuid": "dc44c76a_87dd5675",
+      "revId": "497737bcfe70aad51cba22f3aab1b6d56d636fd8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
