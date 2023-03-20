@@ -35,6 +35,29 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "8713b820_f4e52b96",
+        "filename": "av1/encoder/var_based_part.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1157,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2023-03-20T17:32:12Z",
+      "side": 1,
+      "message": "these two should be const",
+      "range": {
+        "startLine": 1157,
+        "startChar": 12,
+        "endLine": 1157,
+        "endChar": 15
+      },
+      "revId": "cee198d46c26b36d11b45e44b8a6e3f860df61b7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "87636827_a71ba03a",
