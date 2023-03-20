@@ -144,10 +144,6 @@ void av1_block_yrd(MACROBLOCK *x, RD_STATS *this_rdc, int *skippable,
   const int use_hbd = is_cur_buf_hbd(xd);
   int num_blk_skip_w = num_4x4_w;
   int sh_blk_skip = 0;
-  if (is_inter_mode) {
-    num_blk_skip_w = num_4x4_w >> 1;
-    sh_blk_skip = 1;
-  }
 
 #if CONFIG_AV1_HIGHBITDEPTH
   if (use_hbd) {
@@ -397,8 +393,8 @@ void av1_block_yrd_idtx(MACROBLOCK *x, RD_STATS *this_rdc, int *skippable,
   int eob_cost = 0;
   const int bw = 4 * num_4x4_w;
   const int bh = 4 * num_4x4_h;
-  const int num_blk_skip_w = num_4x4_w >> 1;
-  const int sh_blk_skip = 1;
+  const int num_blk_skip_w = num_4x4_w;
+  const int sh_blk_skip = 0;
   // Keep the intermediate value on the stack here. Writing directly to
   // skippable causes speed regression due to load-and-store issues in
   // update_yrd_loop_vars.
