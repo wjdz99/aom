@@ -41,6 +41,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "27c2133a_d5b3085e",
+        "filename": "av1/encoder/palette.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 530,
+      "author": {
+        "id": 31132
+      },
+      "writtenOn": "2023-03-20T23:45:52Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "3b217b01_a8591d6b",
+      "range": {
+        "startLine": 530,
+        "startChar": 5,
+        "endLine": 530,
+        "endChar": 34
+      },
+      "revId": "bd312c2d21b42b87270c7bd4f47a5e21dfa9313a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "fadadb24_21b9fbe2",
@@ -102,6 +126,30 @@
       "side": 1,
       "message": "I think the variable in cpi is still needed to accumulate the results from multiple threads.\nBut we can remove the checks/assignments with `cpi-\u003epalette_pixel_num`",
       "parentUuid": "70bd52e5_f7815f8f",
+      "range": {
+        "startLine": 739,
+        "startChar": 4,
+        "endLine": 741,
+        "endChar": 5
+      },
+      "revId": "bd312c2d21b42b87270c7bd4f47a5e21dfa9313a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "dd8926aa_4f19f318",
+        "filename": "av1/encoder/palette.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 741,
+      "author": {
+        "id": 31132
+      },
+      "writtenOn": "2023-03-20T23:45:52Z",
+      "side": 1,
+      "message": "Thanks Chi Yo and Cheng. I ran simulations by removing the if checks in both mode decision and accumulation, and the encoding speed impact is indeed negligible. Will update the code later.",
+      "parentUuid": "5f1dfe8d_22e932b8",
       "range": {
         "startLine": 739,
         "startChar": 4,
