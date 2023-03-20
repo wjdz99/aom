@@ -3,6 +3,23 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "66373120_b6526d69",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 31592
+      },
+      "writtenOn": "2023-03-20T16:23:59Z",
+      "side": 1,
+      "message": "Fixed in the CL https://aomedia-review.googlesource.com/c/aom/+/172422",
+      "revId": "d7a5241fed4c47c7841d9c6ce3ad0dca8c9a4d38",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "4a5e5d80_c2499622",
         "filename": "av1/encoder/var_based_part.c",
         "patchSetId": 4
@@ -103,6 +120,24 @@
       "side": 1,
       "message": "Yes.\n\nNote that I corrected line 1392 for high bit depths in https://aomedia-review.googlesource.com/c/aom/+/172082. At that time I didn\u0027t know the effect of line 1392 is ignored.\n\nSo in your CL, please also make the new `av1_var_offs()` function a static function in av1/encoder/encodeframe.c. And it would be good to assert that `is_key_frame` implies `dst_buf` is null in `fill_variance_tree_leaves()`.",
       "parentUuid": "571ab74f_ee1880da",
+      "revId": "d7a5241fed4c47c7841d9c6ce3ad0dca8c9a4d38",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "43b05b62_abb806fa",
+        "filename": "av1/encoder/var_based_part.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1394,
+      "author": {
+        "id": 31592
+      },
+      "writtenOn": "2023-03-20T16:23:59Z",
+      "side": 1,
+      "message": "Done.",
+      "parentUuid": "c57005a2_b1b35d89",
       "revId": "d7a5241fed4c47c7841d9c6ce3ad0dca8c9a4d38",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
