@@ -147,8 +147,8 @@ static void tf_motion_search(AV1_COMP *cpi, MACROBLOCK *mb,
 
   av1_make_default_fullpel_ms_params(&full_ms_params, cpi, mb, block_size,
                                      &baseline_mv, search_site_cfg,
+                                     search_method,
                                      /*fine_search_interval=*/0);
-  av1_set_mv_search_method(&full_ms_params, search_site_cfg, search_method);
   full_ms_params.run_mesh_search = 1;
   full_ms_params.mv_cost_params.mv_cost_type = mv_cost_type;
 
@@ -205,10 +205,8 @@ static void tf_motion_search(AV1_COMP *cpi, MACROBLOCK *mb,
         mbd->plane[0].pre[0].buf = ref_frame->y_buffer + y_offset + offset;
         av1_make_default_fullpel_ms_params(&full_ms_params, cpi, mb,
                                            subblock_size, &baseline_mv,
-                                           search_site_cfg,
+                                           search_site_cfg, search_method,
                                            /*fine_search_interval=*/0);
-        av1_set_mv_search_method(&full_ms_params, search_site_cfg,
-                                 search_method);
         full_ms_params.run_mesh_search = 1;
         full_ms_params.mv_cost_params.mv_cost_type = mv_cost_type;
 
