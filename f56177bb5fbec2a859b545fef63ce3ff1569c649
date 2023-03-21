@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "77a110ac_62f6f1ad",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 13
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5610
+      },
+      "writtenOn": "2023-03-21T11:54:13Z",
+      "side": 1,
+      "message": "It seems to me this is necessary even if there is a slight speed hit.",
+      "revId": "f56177bb5fbec2a859b545fef63ce3ff1569c649",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
