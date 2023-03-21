@@ -71,6 +71,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "8697626b_529316c6",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 155,
+      "author": {
+        "id": 31592
+      },
+      "writtenOn": "2023-03-21T14:15:39Z",
+      "side": 1,
+      "message": "Thanks for providing guidance! We have added the prefix of `get_` to the function name.",
+      "parentUuid": "83a8b319_14a7cfdb",
+      "revId": "7d74679727c5ff7d07d95d485f24520fd83c85aa",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a989d165_b89bd230",
@@ -84,6 +102,24 @@
       "writtenOn": "2023-03-20T17:14:51Z",
       "side": 1,
       "message": "I suggest asserting this condition at the beginning of this function, and add a comment to say that this function ignores `dist_buf` when `is_key_frame` is true, so `dst_buf` should be null in that case.",
+      "revId": "7d74679727c5ff7d07d95d485f24520fd83c85aa",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4c05b6b2_5b14362b",
+        "filename": "av1/encoder/var_based_part.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1154,
+      "author": {
+        "id": 31592
+      },
+      "writtenOn": "2023-03-21T14:15:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a989d165_b89bd230",
       "revId": "7d74679727c5ff7d07d95d485f24520fd83c85aa",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
