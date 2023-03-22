@@ -917,7 +917,7 @@ void av1_estimate_intra_mode(AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bsize,
       best_pickmode->best_second_ref_frame = NONE;
       best_pickmode->best_mode_skip_txfm = this_rdc.skip_txfm;
       if (!this_rdc.skip_txfm) {
-        memcpy(ctx->blk_skip, x->txfm_search_info.blk_skip,
+        memcpy(best_pickmode->blk_skip, x->txfm_search_info.blk_skip,
                sizeof(x->txfm_search_info.blk_skip[0]) * ctx->num_4x4_blk);
       }
       mi->uv_mode = this_mode;
