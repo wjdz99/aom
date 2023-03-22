@@ -2996,7 +2996,7 @@ static AOM_FORCE_INLINE void handle_screen_content_mode_nonrd(
         x->color_sensitivity[COLOR_SENS_IDX(AOM_PLANE_V)])
       search_state->this_rdc.skip_txfm = 0;
     if (!search_state->this_rdc.skip_txfm) {
-      memcpy(ctx->blk_skip, txfm_info->blk_skip,
+      memcpy(best_pickmode->blk_skip, txfm_info->blk_skip,
              sizeof(txfm_info->blk_skip[0]) * ctx->num_4x4_blk);
     }
     if (xd->tx_type_map[0] != DCT_DCT)
@@ -3183,9 +3183,6 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
   inter_pred_params_sr.conv_params =
       get_conv_params(/*do_average=*/0, AOM_PLANE_Y, xd->bd);
 
-  memset(txfm_info->blk_skip, 0,
-         sizeof(txfm_info->blk_skip[0]) * ctx->num_4x4_blk);
-
   for (int idx = 0; idx < num_inter_modes + tot_num_comp_modes; ++idx) {
     // If we are at the first compound mode, and the single modes already
     // perform well, then end the search.
@@ -3323,12 +3320,6 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
   mi->ref_frame[1] = best_pickmode->best_second_ref_frame;
   txfm_info->skip_txfm = best_pickmode->best_mode_skip_txfm;
   if (!txfm_info->skip_txfm) {
-    // For inter modes: copy blk_skip from best_pickmode.
-    // If palette or intra mode was selected as best then
-    // blk_skip is already copied into the ctx.
-    // TODO(marpan): Look into removing blk_skip from best_pickmode
-    // and just copy directly into the ctx for inter.
-    if (best_pickmode->best_mode >= INTRA_MODE_END)
       memcpy(ctx->blk_skip, best_pickmode->blk_skip,
              sizeof(best_pickmode->blk_skip[0]) * ctx->num_4x4_blk);
   }
