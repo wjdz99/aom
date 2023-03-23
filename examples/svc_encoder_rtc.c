@@ -1230,6 +1230,9 @@ int main(int argc, const char **argv) {
   // Flag to test dynamic scaling of source frames for single
   // spatial stream, using the scaling_mode control.
   const int test_dynamic_scaling_single_layer = 0;
+  
+  // Flag to test setting speed per layer.
+  const int test_speed_per_layer  = 1;
 
   /* Setup default input stream settings */
   app_input.input_ctx.framerate.numerator = 30;
@@ -1465,6 +1468,24 @@ int main(int argc, const char **argv) {
                             &ref_frame_config);
           aom_codec_control(&codec, AV1E_SET_SVC_REF_FRAME_COMP_PRED,
                             &ref_frame_comp_pred);
+        }
+        // Set the speed per layer.
+        if (test_speed_per_layer) {
+          int speed_per_layer = 10;
+          if (layer_id.spatial_layer_id == 0) {
+            if (layer_id.temporal_layer_id == 0) speed_per_layer = 6;
+            if (layer_id.temporal_layer_id == 1) speed_per_layer = 7;
+            if (layer_id.temporal_layer_id == 2) speed_per_layer = 8;
+          } else if (layer_id.spatial_layer_id == 1) {
+            if (layer_id.temporal_layer_id == 0) speed_per_layer = 7;
+            if (layer_id.temporal_layer_id == 1) speed_per_layer = 8;
+            if (layer_id.temporal_layer_id == 2) speed_per_layer = 9;
+          } else if (layer_id.spatial_layer_id == 2) {
+            if (layer_id.temporal_layer_id == 0) speed_per_layer = 8;
+            if (layer_id.temporal_layer_id == 1) speed_per_layer = 9;
+            if (layer_id.temporal_layer_id == 2) speed_per_layer = 10;
+          }
+          aom_codec_control(&codec, AOME_SET_CPUUSED, speed_per_layer);
         }
       } else {
         // Only up to 3 temporal layers supported in fixed mode.
