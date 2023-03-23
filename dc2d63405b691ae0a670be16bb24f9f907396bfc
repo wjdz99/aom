@@ -16,6 +16,24 @@
       "message": "Jerome: There is a test failure with the error message:\nfile: svc_encoder_rtc.ivf was not found in test-data.sha1 or test_data_util.cmake\n\nhttps://build.aomedia.org/jenkins/job/libaom__compile/56040/",
       "revId": "dc2d63405b691ae0a670be16bb24f9f907396bfc",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e8b987ae_1ebc7c33",
+        "filename": "test/svc_encoder_rtc.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2023-03-23T17:48:16Z",
+      "side": 1,
+      "message": "Interesting that the test-data build job only looks at the diff and parse file extensions to see if it exists in test-data.sha1, even though that file isn\u0027t used at all.",
+      "parentUuid": "66e2fc8b_b17964df",
+      "revId": "dc2d63405b691ae0a670be16bb24f9f907396bfc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
