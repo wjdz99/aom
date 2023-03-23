@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e98b85cb_bc40599d",
+        "filename": "examples/svc_encoder_rtc.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1235,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2023-03-23T16:19:29Z",
+      "side": 1,
+      "message": "it\u0027s better to have it as a command line option, like how ```bitrates_arg``` is defined and per layer target bitrate is parsed by ```parse_layer_options_from_string```",
+      "range": {
+        "startLine": 1235,
+        "startChar": 12,
+        "endLine": 1235,
+        "endChar": 32
+      },
+      "revId": "5f756ab5b1c7bebd910cef1a1193a4c1a39780fa",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
