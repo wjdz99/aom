@@ -22,6 +22,30 @@
       },
       "revId": "a9d64eff41fb7ef4a961acc2a33b75e3f2434627",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "18cc288b_72dde801",
+        "filename": "test/lossless_test.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2023-03-23T18:57:11Z",
+      "side": 1,
+      "message": "The test TestLosslessEncodingCtr() does this.",
+      "parentUuid": "14894213_80bcec54",
+      "range": {
+        "startLine": 116,
+        "startChar": 0,
+        "endLine": 118,
+        "endChar": 0
+      },
+      "revId": "a9d64eff41fb7ef4a961acc2a33b75e3f2434627",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
