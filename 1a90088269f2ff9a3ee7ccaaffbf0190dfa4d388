@@ -117,6 +117,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "2dfbed71_86560453",
+        "filename": "examples/svc_encoder_rtc.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1661,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2023-03-24T18:58:46Z",
+      "side": 1,
+      "message": "The branch at 1693 now is never executed because the application will exit here if mismatch happens.\n\nWe can probably put that line here before die_codec",
+      "parentUuid": "125e3423_fd200024",
+      "revId": "1a90088269f2ff9a3ee7ccaaffbf0190dfa4d388",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "98d56de0_852d24df",
