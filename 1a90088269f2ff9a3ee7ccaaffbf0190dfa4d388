@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d9a51ff0_e40bedfd",
+        "filename": "examples/svc_encoder_rtc.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1169,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2023-03-24T15:01:36Z",
+      "side": 1,
+      "message": "this is for ```AOM_CODEC_ERROR```, whose error message is \"Unspecified internal error\".\n\nI feel like mismatch could have its own error code / message.",
+      "range": {
+        "startLine": 1169,
+        "startChar": 19,
+        "endLine": 1169,
+        "endChar": 20
+      },
+      "revId": "1a90088269f2ff9a3ee7ccaaffbf0190dfa4d388",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
