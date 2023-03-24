@@ -31,7 +31,7 @@ extern void aom_scale_rtcd();
 
 #if ARCH_X86 || ARCH_X86_64
 static void append_negative_gtest_filter(const char *str) {
-  std::string filter = ::testing::FLAGS_gtest_filter;
+  std::string filter = GTEST_FLAG_GET(filter);
   // Negative patterns begin with one '-' followed by a ':' separated list.
   if (filter.find('-') == std::string::npos) filter += '-';
   // OPT.* matches TEST() functions
@@ -45,7 +45,7 @@ static void append_negative_gtest_filter(const char *str) {
     filter += search_terminators[pos];
     filter += "*";
   }
-  ::testing::FLAGS_gtest_filter = filter;
+  GTEST_FLAG_SET(filter, filter);
 }
 #endif  // ARCH_X86 || ARCH_X86_64
 
