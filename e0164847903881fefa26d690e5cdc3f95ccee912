@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ee4a4af8_254ff48e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 31592
+      },
+      "writtenOn": "2023-03-24T17:23:33Z",
+      "side": 1,
+      "message": "This CL increases the tx_type pruning aggressiveness (to level 3) of `winner_mode_tx_type_pruning` speed feature for speed 5. For some of \nthe cases, the change is not yielding better results.\nHence, we have disabled it for the below cases.\n\n- Screen content tools are enabled\n- Frame is intra coded\n- Larger quantizers of mid-res and hd-res contents\n\nIn the commit message:\n[-] sign indicates encode time increase\n[+] sign indicates encode time reduction\n\nThe instruction count reduction specified has been measured using command:\n`$ perf stat -e instructions:u ./aomenc`",
+      "revId": "e0164847903881fefa26d690e5cdc3f95ccee912",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
