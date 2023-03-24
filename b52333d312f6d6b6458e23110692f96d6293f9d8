@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "27bea5ad_3b3bed1b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-03-24T19:16:25Z",
+      "side": 1,
+      "message": "LGTM.",
+      "revId": "b52333d312f6d6b6458e23110692f96d6293f9d8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f92ab660_18d0d2a9",
+        "filename": "examples/svc_encoder_rtc.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1212,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-03-24T19:16:25Z",
+      "side": 1,
+      "message": "Optional: I suggest moving this declaration to line 1660.",
+      "revId": "b52333d312f6d6b6458e23110692f96d6293f9d8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9d1fad39_5f8c01fc",
+        "filename": "examples/svc_encoder_rtc.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1660,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-03-24T19:16:25Z",
+      "side": 1,
+      "message": "Optional: The use of `mismatch_seen` can also be simplified. If you don\u0027t have time to deal with that in this CL, I suggest at least moving the declaration of `mismatch_seen` into this block:\n\n```\n         int mismatch_seen \u003d 0;\n         test_decode(\u0026codec, \u0026decoder, frame_cnt, \u0026mismatch_seen);\n```",
+      "revId": "b52333d312f6d6b6458e23110692f96d6293f9d8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
