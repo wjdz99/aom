@@ -3,6 +3,23 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "5535f87f_8393667b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-03-24T17:44:01Z",
+      "side": 1,
+      "message": "Jerome: I checked the code carefully and found the code can be cleaned up further.",
+      "revId": "1a90088269f2ff9a3ee7ccaaffbf0190dfa4d388",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "d9a51ff0_e40bedfd",
         "filename": "examples/svc_encoder_rtc.c",
         "patchSetId": 2
@@ -44,6 +61,57 @@
         "endLine": 1169,
         "endChar": 20
       },
+      "revId": "1a90088269f2ff9a3ee7ccaaffbf0190dfa4d388",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5cc936f3_cf313516",
+        "filename": "examples/svc_encoder_rtc.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1660,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-03-24T17:44:01Z",
+      "side": 1,
+      "message": "`test_decode()` can be simplified to return a bool, which means mismatch. Note that the return value no longer means \"mismatch seen\", because now we never call `test_decode()` after having seen a mismatch.",
+      "revId": "1a90088269f2ff9a3ee7ccaaffbf0190dfa4d388",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3e847497_36c1618f",
+        "filename": "examples/svc_encoder_rtc.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1661,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-03-24T17:44:01Z",
+      "side": 1,
+      "message": "Please see line 1693. I think we should include the frame number in the error message:\n\n```\n          if (mismatch_seen) die_codec(\u0026decoder, \"Mismatch seen in frame %d\", frame_cnt);\n```",
+      "revId": "1a90088269f2ff9a3ee7ccaaffbf0190dfa4d388",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "98d56de0_852d24df",
+        "filename": "examples/svc_encoder_rtc.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1696,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-03-24T17:44:01Z",
+      "side": 1,
+      "message": "Please check this if-else statement. Given the new line 1661, perhaps this if-else statement should become simply:\n\n```\n  fprintf(stats_file, \"No mismatch detected in recon buffers\\n\");\n```",
       "revId": "1a90088269f2ff9a3ee7ccaaffbf0190dfa4d388",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
