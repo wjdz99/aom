@@ -16,6 +16,24 @@
       "message": "Is this necessary if we assume sanitizer builds or a general crash in this case?",
       "revId": "89a5ebdf0b1e5eb74f8aedd912ee1b6b519fde4a",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9aa7eb89_3e88cac1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-03-24T19:11:38Z",
+      "side": 1,
+      "message": "Users of `aom_codec_error_detail()` may not know about the lifetime of the returned string. This CL is intended to help libaom users avoid this bug. The spirit of this CL is similar to setting a pointer to null after freeing it. When `aom_codec_destroy()` frees the error detail buffer, it can\u0027t set the outstanding  pointers to that buffer to null, so I came up with this idea.\n\nI tested this CL with the heif-enc command-line program of libheif.\n\nI don\u0027t know how to build libheif with AddressSanitizer enabled.\n\nIn my experiment, the use-after-free of the error detail string did not result in a crash. The error detail message was intact after the error detail buffer was freed. So this bug could not be easily detected.",
+      "parentUuid": "925e0b16_4f033d7d",
+      "revId": "89a5ebdf0b1e5eb74f8aedd912ee1b6b519fde4a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
