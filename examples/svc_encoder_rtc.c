@@ -252,10 +252,10 @@ static aom_codec_err_t parse_layer_options_from_string(
       (option1 == NULL && type == SCALE_FACTOR))
     return AOM_CODEC_INVALID_PARAM;
 
-  input_string = malloc(strlen(input) + 1);
-  if (!input_string) die("Failed to allocate input string.");
-  memcpy(input_string, input, strlen(input) + 1);
+  const size_t input_length = strlen(input);
+  input_string = malloc(input_length + 1);
   if (input_string == NULL) return AOM_CODEC_MEM_ERROR;
+  memcpy(input_string, input, input_length + 1);
   token = strtok(input_string, delim);  // NOLINT
   for (i = 0; i < num_layers; ++i) {
     if (token != NULL) {
@@ -263,11 +263,9 @@ static aom_codec_err_t parse_layer_options_from_string(
       if (res != AOM_CODEC_OK) break;
       token = strtok(NULL, delim);  // NOLINT
     } else {
+      res = AOM_CODEC_INVALID_PARAM;
       break;
     }
-  }
-  if (res == AOM_CODEC_OK && i != num_layers) {
-    res = AOM_CODEC_INVALID_PARAM;
   }
   free(input_string);
   return res;
