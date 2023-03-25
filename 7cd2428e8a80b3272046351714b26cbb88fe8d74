@@ -69,6 +69,24 @@
       "parentUuid": "a248bab2_0622153f",
       "revId": "7cd2428e8a80b3272046351714b26cbb88fe8d74",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "28fdac01_1b89a611",
+        "filename": "aom_dsp/arm/variance_neon.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 482,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-03-25T02:12:12Z",
+      "side": 1,
+      "message": "\u003e I am unsure about the alignment of the src and ref buffer addresses - maybe James Zern can clarify. Regardless, for AArch64 targets at least, the generated code will be the same as if we had used vld1q_lane_u32 - since there are no issues with unaligned memory accesses on AArch64.\n\nGiven src/ref are produced from block offsets this should be fine. Even if the allocations aren\u0027t explicitly aligned, the default malloc alignment will suffice.\n\nI knew AArch64 supported unaligned accesses, does that carry over to AArch32?",
+      "parentUuid": "c34eab12_0bf00c6d",
+      "revId": "7cd2428e8a80b3272046351714b26cbb88fe8d74",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
