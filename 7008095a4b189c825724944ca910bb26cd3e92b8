@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "23e98265_83893e56",
+        "filename": "test/svc_encoder_rtc.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-03-25T01:52:40Z",
+      "side": 1,
+      "message": "could be \u0027...and 2...\u0027. The comment for s1_t3 could be normalized too.",
+      "range": {
+        "startLine": 53,
+        "startChar": 49,
+        "endLine": 53,
+        "endChar": 50
+      },
+      "revId": "7008095a4b189c825724944ca910bb26cd3e92b8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
