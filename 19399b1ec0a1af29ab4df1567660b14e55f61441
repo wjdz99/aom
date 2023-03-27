@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "200914cb_fc8c2bb4",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2023-03-27T13:22:39Z",
+      "side": 1,
+      "message": "maybe add Bug: aomedia:3404?",
+      "revId": "19399b1ec0a1af29ab4df1567660b14e55f61441",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "240be207_f434219b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2023-03-27T13:22:39Z",
+      "side": 1,
+      "message": "Thanks for the fix. I didn\u0027t know you have a CL until I uploaded my fix. I\u0027ll abandon mine.",
+      "revId": "19399b1ec0a1af29ab4df1567660b14e55f61441",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
