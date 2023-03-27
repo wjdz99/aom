@@ -1,5 +1,23 @@
 {
-  "comments": [],
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "738e512f_caf20971",
+        "filename": "examples/svc_encoder_rtc.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 255,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-03-27T16:48:10Z",
+      "side": 1,
+      "message": "Saving the return value of strlen(input) in a local variable is a good idea. I will incorporate this into my cleanup CL https://aomedia-review.googlesource.com/c/aom/+/172646.",
+      "revId": "e315548be949b7d7a7609305e1658d2328d6cb71",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ],
   "submitRequirementResults": [
     {
       "submitRequirement": {
