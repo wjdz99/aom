@@ -16,6 +16,24 @@
       "message": "A lot of SVC datarate tests failing.",
       "revId": "33bb8aaa13d93900848039ac72f14e10bd3311ca",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d089874e_036960ef",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2023-03-28T21:16:35Z",
+      "side": 1,
+      "message": "expected: rate control issue",
+      "parentUuid": "fcb7a14f_2bff94aa",
+      "revId": "33bb8aaa13d93900848039ac72f14e10bd3311ca",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
