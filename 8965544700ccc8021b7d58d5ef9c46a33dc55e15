@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "35201d64_9f0d5477",
+        "filename": "examples/svc_encoder_rtc.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-03-30T20:59:26Z",
+      "side": 1,
+      "message": "Note that this usage_exit() function prints the usage help message. die() calls usage_exit():\n\n```\nvoid die(const char *fmt, ...) {\n  LOG_ERROR(NULL);\n  usage_exit();\n}\n```\n\nSo die() is not suitable for reporting a frame mismatch at line 1679. Use fatal() instead.",
+      "revId": "8965544700ccc8021b7d58d5ef9c46a33dc55e15",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
