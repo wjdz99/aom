@@ -16,6 +16,24 @@
       "message": "in this tree the variable could be scoped to the for loop given its c99",
       "revId": "213e8114aba4c354f472724bde104199e2a8bbbf",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d0d58002_469a171b",
+        "filename": "aom_ports/bitops.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-03-30T21:07:52Z",
+      "side": 1,
+      "message": "Done. I also replaced `(1 \u003c\u003c 4)` with `16` because I think it\u0027s easier to understand 16 (half of the size of `unsigned int n`).\n\nThe reason I worked on this function was for https://aomedia-review.googlesource.com/c/aom/+/172903. Eventually I decided to use a more compact implementation in that CL.",
+      "parentUuid": "ced0412e_f2d8456d",
+      "revId": "213e8114aba4c354f472724bde104199e2a8bbbf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
