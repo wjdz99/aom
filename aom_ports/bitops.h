@@ -70,12 +70,11 @@ static INLINE uint64_t get_byteswap64(uint64_t num) {
 static INLINE int get_msb(unsigned int n) {
   int log = 0;
   unsigned int value = n;
-  int i;
+  int shift;
 
   assert(n != 0);
 
-  for (i = 4; i >= 0; --i) {
-    const int shift = (1 << i);
+  for (shift = (1 << 4); shift != 0; shift >>= 1) {
     const unsigned int x = value >> shift;
     if (x != 0) {
       value = x;
