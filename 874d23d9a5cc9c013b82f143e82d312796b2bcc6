@@ -16,6 +16,47 @@
       "message": "This CL adds a unit test \u0027DropFrameEncodeTest\u0027 to reproduce the assertion failure related to buf-\u003edisplay_idx in init_gop_frames_for_tpl() and the segmentation fault reported in aomedia:3372 while encoding with --drop-frame\u003d1. We have locally validated the unit test with and without the fixes that were already submitted ([CL171841](https://aomedia-review.googlesource.com/c/aom/+/171841), [CL171842](https://aomedia-review.googlesource.com/c/aom/+/171842), [CL171843](https://aomedia-review.googlesource.com/c/aom/+/171843), [CL171844](https://aomedia-review.googlesource.com/c/aom/+/171844)). This unit test is currently disabled for speed presets \u003e\u003d3 due to the \u0027Floating point exception\u0027 reported in aomedia:3420. Once this is resolved, this unit test can be enabled for higher speed presets.",
       "revId": "874d23d9a5cc9c013b82f143e82d312796b2bcc6",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1d969e27_1b2e27b4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2023-03-30T23:19:59Z",
+      "side": 1,
+      "message": "Your plan sounds good. Thanks.",
+      "parentUuid": "9e931322_9d1a2a95",
+      "revId": "874d23d9a5cc9c013b82f143e82d312796b2bcc6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "210bf278_fd07b5bf",
+        "filename": "test/datarate_test.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 615,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2023-03-30T23:19:59Z",
+      "side": 1,
+      "message": "Should g_lag_in_frames be \u003e 0? Is it defined somewhere?",
+      "range": {
+        "startLine": 615,
+        "startChar": 7,
+        "endLine": 615,
+        "endChar": 26
+      },
+      "revId": "874d23d9a5cc9c013b82f143e82d312796b2bcc6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
