@@ -31,7 +31,6 @@
 #include "common/video_writer.h"
 #include "examples/encoder_util.h"
 #include "aom_ports/aom_timer.h"
-#include "aom_ports/bitops.h"
 
 #define OPTION_BUFFER_SIZE 1024
 
@@ -153,6 +152,18 @@ void usage_exit(void) {
   fprintf(stderr, "Options:\n");
   arg_show_usage(stderr, svc_args);
   exit(EXIT_FAILURE);
+}
+
+// The integer log base 2 function.
+// Returns (int)floor(log2(n)). n must be > 0.
+static int ilog2(unsigned int n) {
+  assert(n > 0);
+  int count = 0;
+  while (n != 0) {
+    ++count;
+    n >>= 1;
+  }
+  return count - 1;
 }
 
 static int file_is_y4m(const char detect[4]) {
@@ -1409,7 +1420,7 @@ int main(int argc, const char **argv) {
   aom_codec_control(&codec, AV1E_SET_INTRA_DEFAULT_TX_ONLY, 1);
 
   aom_codec_control(&codec, AV1E_SET_TILE_COLUMNS,
-                    cfg.g_threads ? get_msb(cfg.g_threads) : 0);
+                    cfg.g_threads ? ilog2(cfg.g_threads) : 0);
   if (cfg.g_threads > 1) aom_codec_control(&codec, AV1E_SET_ROW_MT, 1);
 
   aom_codec_control(&codec, AV1E_SET_TUNE_CONTENT, app_input.tune_content);
@@ -1676,7 +1687,7 @@ int main(int argc, const char **argv) {
                     frame_cnt);
             fclose(stats_file);
 #endif
-            die("Mismatch seen");
+            fatal("Mismatch seen");
           }
         }
       }
