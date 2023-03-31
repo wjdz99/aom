@@ -402,12 +402,13 @@ void av1_update_state(const AV1_COMP *const cpi, ThreadData *td,
   }
 #endif
   if (!frame_is_intra_only(cm)) {
-    if (is_inter_block(mi) && cm->features.interp_filter == SWITCHABLE) {
+    if (is_inter_block(mi) && cm->features.interp_filter == SWITCHABLE &&
+        av1_is_interp_needed(xd)) {
       // When the frame interp filter is SWITCHABLE, several cases that always
       // use the default type (EIGHTTAP_REGULAR) are described in
-      // av1_is_interp_needed(). Here, we should keep the counts for all
-      // applicable blocks, so the frame filter resetting decision in
-      // fix_interp_filter() is made correctly.
+      // av1_is_interp_needed(). Those cases should be excluded from the counts,
+      // so the frame filter resetting decision in fix_interp_filter() is made
+      // more wisely.
       update_filter_type_count(td->counts, xd, mi_addr);
     }
   }
