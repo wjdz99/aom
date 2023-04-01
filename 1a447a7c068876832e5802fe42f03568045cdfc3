@@ -46,6 +46,30 @@
       },
       "revId": "1a447a7c068876832e5802fe42f03568045cdfc3",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6338e44d_d3842036",
+        "filename": "test/datarate_test.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 591,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-04-01T20:38:14Z",
+      "side": 1,
+      "message": "Jerome: I just realized that if both of us think this test shouldn\u0027t be in datarate_test.cc, then we might as well revert this test. So I created a revert CL as an alternative way to fix the test failure:\nhttps://aomedia-review.googlesource.com/c/aom/+/173061",
+      "parentUuid": "25c4b745_272e35bf",
+      "range": {
+        "startLine": 591,
+        "startChar": 0,
+        "endLine": 591,
+        "endChar": 5
+      },
+      "revId": "1a447a7c068876832e5802fe42f03568045cdfc3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
