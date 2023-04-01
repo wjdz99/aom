@@ -653,11 +653,13 @@ INSTANTIATE_TEST_SUITE_P(
     ::testing::Values(
         static_cast<const libaom_test::CodecFactory *>(&libaom_test::kAV1)));
 
+#if !CONFIG_REALTIME_ONLY
 // TODO(aomedia:3420): Enable this unit-test for cpu-used >=3 once FPE error is
 // fixed.
 AV1_INSTANTIATE_TEST_SUITE(DropFrameEncodeTest,
                            ::testing::Values(::libaom_test::kOnePassGood),
                            ::testing::Range(0, 3), ::testing::Values(1, 4));
+#endif  // !CONFIG_REALTIME_ONLY
 
 }  // namespace
 }  // namespace datarate_test
