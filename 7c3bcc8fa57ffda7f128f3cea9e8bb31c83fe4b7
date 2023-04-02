@@ -16,6 +16,24 @@
       "message": "This test uses `::libaom_test::kOnePassGood`, which is not available in realtime-only build. So the nightly test fails:\nhttps://build.aomedia.org/jenkins/job/libaom__unit_tests-multi-target/2393/\n\nI wrote a simple fix in https://aomedia-review.googlesource.com/c/aom/+/172801 to exclude this test in realtime only build. I don\u0027t know if this test works with `::libaom_test::kRealTime`.\n\nSince this file seems to test the realtime mode only (see line 260 and the use of `::libaom_test::kRealTime` above), perhaps this test should not be in this file.",
       "revId": "7c3bcc8fa57ffda7f128f3cea9e8bb31c83fe4b7",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9a69fb9a_679bf9ad",
+        "filename": "test/datarate_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 659,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-04-02T00:25:55Z",
+      "side": 1,
+      "message": "Valgrind also reported uninitialised errors:\nhttps://build.aomedia.org/jenkins/job/libaom__unit_tests-valgrind/2251/\n\n```\n01:49:27 [----------] 1 test from AV1/DropFrameEncodeTest\n01:49:27 [ RUN      ] AV1/DropFrameEncodeTest.TestNoMisMatch/0\n01:49:27 \u003d\u003d90654\u003d\u003d Conditional jump or move depends on uninitialised value(s)\n01:49:27 \u003d\u003d90654\u003d\u003d    at 0x1153B60: apply_temporal_filter (temporal_filter_avx2.c:232)\n01:49:27 \u003d\u003d90654\u003d\u003d    by 0x1153B60: av1_apply_temporal_filter_avx2 (temporal_filter_avx2.c:441)\n01:49:27 \u003d\u003d90654\u003d\u003d    by 0xFF3FEE: av1_tf_do_filtering_row (temporal_filter.c:893)\n01:49:27 \u003d\u003d90654\u003d\u003d    by 0xFF4C91: tf_do_filtering (temporal_filter.c:953)\n01:49:27 \u003d\u003d90654\u003d\u003d    by 0xFF4C91: av1_temporal_filter (temporal_filter.c:1282)\n01:49:27 \u003d\u003d90654\u003d\u003d    by 0xFF522D: av1_tf_info_filtering (temporal_filter.c:1347)\n01:49:27 \u003d\u003d90654\u003d\u003d    by 0xFAC8D7: av1_get_second_pass_params (pass2_strategy.c:3895)\n01:49:27 \u003d\u003d90654\u003d\u003d    by 0x11B3BED: av1_encode_strategy (encode_strategy.c:1344)\n01:49:27 \u003d\u003d90654\u003d\u003d    by 0xF61FCE: av1_get_compressed_data (encoder.c:4755)\n01:49:27 \u003d\u003d90654\u003d\u003d    by 0xF16A97: encoder_encode (av1_cx_iface.c:3164)\n01:49:27 \u003d\u003d90654\u003d\u003d    by 0xC25873: aom_codec_encode (aom_encoder.c:182)\n01:49:27 \u003d\u003d90654\u003d\u003d    by 0x7FC4D7: libaom_test::Encoder::EncodeFrameInternal(libaom_test::VideoSource const\u0026, long) (encode_test_driver.cc:73)\n01:49:27 \u003d\u003d90654\u003d\u003d    by 0x7FC9BB: libaom_test::Encoder::EncodeFrame(libaom_test::VideoSource*, long) (encode_test_driver.cc:45)\n01:49:27 \u003d\u003d90654\u003d\u003d    by 0x7FCDD8: libaom_test::EncoderTest::RunLoop(libaom_test::VideoSource*) (encode_test_driver.cc:226)\n01:49:27 \u003d\u003d90654\u003d\u003d \n```",
+      "parentUuid": "7ed27328_7a08db43",
+      "revId": "7c3bcc8fa57ffda7f128f3cea9e8bb31c83fe4b7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
