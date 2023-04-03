@@ -506,11 +506,11 @@ static INLINE int16x8_t convolve6_8x4(const int16x8_t s0, const int16x8_t s1,
   return sum;
 }
 
-static INLINE uint16x4_t convolve6_4_s32(const int16x4_t s0, const int16x4_t s1,
-                                         const int16x4_t s2, const int16x4_t s3,
-                                         const int16x4_t s4, const int16x4_t s5,
-                                         const int16x8_t y_filter,
-                                         const int32x4_t offset_const) {
+static INLINE int32x4_t convolve6_4_s32(const int16x4_t s0, const int16x4_t s1,
+                                        const int16x4_t s2, const int16x4_t s3,
+                                        const int16x4_t s4, const int16x4_t s5,
+                                        const int16x8_t y_filter,
+                                        const int32x4_t offset_const) {
   const int16x4_t y_filter_lo = vget_low_s16(y_filter);
   const int16x4_t y_filter_hi = vget_high_s16(y_filter);
 
@@ -522,43 +522,61 @@ static INLINE uint16x4_t convolve6_4_s32(const int16x4_t s0, const int16x4_t s1,
   sum = vmlal_lane_s16(sum, s4, y_filter_hi, 1);
   sum = vmlal_lane_s16(sum, s5, y_filter_hi, 2);
 
+  return sum;
+}
+
+static INLINE uint16x4_t
+convolve6_4_s32_s16(const int16x4_t s0, const int16x4_t s1, const int16x4_t s2,
+                    const int16x4_t s3, const int16x4_t s4, const int16x4_t s5,
+                    const int16x8_t y_filter, const int32x4_t offset_const) {
+  int32x4_t sum = offset_const;
+  sum = convolve6_4_s32(s0, s1, s2, s3, s4, s5, y_filter, sum);
+
   return vqrshrun_n_s32(sum, COMPOUND_ROUND1_BITS);
 }
 
-static INLINE uint16x8_t convolve6_8_s32(const int16x8_t s0, const int16x8_t s1,
-                                         const int16x8_t s2, const int16x8_t s3,
-                                         const int16x8_t s4, const int16x8_t s5,
-                                         const int16x8_t y_filter,
-                                         const int32x4_t offset_const) {
-  const int16x4_t y_filter_lo = vget_low_s16(y_filter);
-  const int16x4_t y_filter_hi = vget_high_s16(y_filter);
+static INLINE void convolve6_8_s32(const int16x8_t s0, const int16x8_t s1,
+                                   const int16x8_t s2, const int16x8_t s3,
+                                   const int16x8_t s4, const int16x8_t s5,
+                                   const int16x8_t y_filter, int32x4_t *sum0,
+                                   int32x4_t *sum1) {
+  int16x4_t s0_lo = vget_low_s16(s0);
+  int16x4_t s1_lo = vget_low_s16(s1);
+  int16x4_t s2_lo = vget_low_s16(s2);
+  int16x4_t s3_lo = vget_low_s16(s3);
+  int16x4_t s4_lo = vget_low_s16(s4);
+  int16x4_t s5_lo = vget_low_s16(s5);
+  int16x4_t s0_hi = vget_high_s16(s0);
+  int16x4_t s1_hi = vget_high_s16(s1);
+  int16x4_t s2_hi = vget_high_s16(s2);
+  int16x4_t s3_hi = vget_high_s16(s3);
+  int16x4_t s4_hi = vget_high_s16(s4);
+  int16x4_t s5_hi = vget_high_s16(s5);
 
+  *sum0 = convolve6_4_s32(s0_lo, s1_lo, s2_lo, s3_lo, s4_lo, s5_lo, y_filter,
+                          *sum0);
+  *sum1 = convolve6_4_s32(s0_hi, s1_hi, s2_hi, s3_hi, s4_hi, s5_hi, y_filter,
+                          *sum1);
+}
+
+static INLINE uint16x8_t
+convolve6_8_s32_s16(const int16x8_t s0, const int16x8_t s1, const int16x8_t s2,
+                    const int16x8_t s3, const int16x8_t s4, const int16x8_t s5,
+                    const int16x8_t y_filter, const int32x4_t offset_const) {
   int32x4_t sum0 = offset_const;
-  sum0 = vmlal_lane_s16(sum0, vget_low_s16(s0), y_filter_lo, 1);
-  sum0 = vmlal_lane_s16(sum0, vget_low_s16(s1), y_filter_lo, 2);
-  sum0 = vmlal_lane_s16(sum0, vget_low_s16(s2), y_filter_lo, 3);
-  sum0 = vmlal_lane_s16(sum0, vget_low_s16(s3), y_filter_hi, 0);
-  sum0 = vmlal_lane_s16(sum0, vget_low_s16(s4), y_filter_hi, 1);
-  sum0 = vmlal_lane_s16(sum0, vget_low_s16(s5), y_filter_hi, 2);
-
   int32x4_t sum1 = offset_const;
-  sum1 = vmlal_lane_s16(sum1, vget_high_s16(s0), y_filter_lo, 1);
-  sum1 = vmlal_lane_s16(sum1, vget_high_s16(s1), y_filter_lo, 2);
-  sum1 = vmlal_lane_s16(sum1, vget_high_s16(s2), y_filter_lo, 3);
-  sum1 = vmlal_lane_s16(sum1, vget_high_s16(s3), y_filter_hi, 0);
-  sum1 = vmlal_lane_s16(sum1, vget_high_s16(s4), y_filter_hi, 1);
-  sum1 = vmlal_lane_s16(sum1, vget_high_s16(s5), y_filter_hi, 2);
+  convolve6_8_s32(s0, s1, s2, s3, s4, s5, y_filter, &sum0, &sum1);
 
   return vcombine_u16(vqrshrun_n_s32(sum0, COMPOUND_ROUND1_BITS),
                       vqrshrun_n_s32(sum1, COMPOUND_ROUND1_BITS));
 }
 
-static INLINE uint16x4_t convolve8_4_s32(const int16x4_t s0, const int16x4_t s1,
-                                         const int16x4_t s2, const int16x4_t s3,
-                                         const int16x4_t s4, const int16x4_t s5,
-                                         const int16x4_t s6, const int16x4_t s7,
-                                         const int16x8_t y_filter,
-                                         const int32x4_t offset_const) {
+static INLINE int32x4_t convolve8_4_s32(const int16x4_t s0, const int16x4_t s1,
+                                        const int16x4_t s2, const int16x4_t s3,
+                                        const int16x4_t s4, const int16x4_t s5,
+                                        const int16x4_t s6, const int16x4_t s7,
+                                        const int16x8_t y_filter,
+                                        const int32x4_t offset_const) {
   const int16x4_t y_filter_lo = vget_low_s16(y_filter);
   const int16x4_t y_filter_hi = vget_high_s16(y_filter);
 
@@ -572,40 +590,196 @@ static INLINE uint16x4_t convolve8_4_s32(const int16x4_t s0, const int16x4_t s1,
   sum = vmlal_lane_s16(sum, s6, y_filter_hi, 2);
   sum = vmlal_lane_s16(sum, s7, y_filter_hi, 3);
 
+  return sum;
+}
+
+static INLINE uint16x4_t
+convolve8_4_s32_s16(const int16x4_t s0, const int16x4_t s1, const int16x4_t s2,
+                    const int16x4_t s3, const int16x4_t s4, const int16x4_t s5,
+                    const int16x4_t s6, const int16x4_t s7,
+                    const int16x8_t y_filter, const int32x4_t offset_const) {
+  int32x4_t sum = offset_const;
+  sum = convolve8_4_s32(s0, s1, s2, s3, s4, s5, s6, s7, y_filter, sum);
+
   return vqrshrun_n_s32(sum, COMPOUND_ROUND1_BITS);
 }
 
-static INLINE uint16x8_t convolve8_8_s32(const int16x8_t s0, const int16x8_t s1,
-                                         const int16x8_t s2, const int16x8_t s3,
-                                         const int16x8_t s4, const int16x8_t s5,
-                                         const int16x8_t s6, const int16x8_t s7,
-                                         const int16x8_t y_filter,
-                                         const int32x4_t offset_const) {
-  const int16x4_t y_filter_lo = vget_low_s16(y_filter);
-  const int16x4_t y_filter_hi = vget_high_s16(y_filter);
+static INLINE uint16x8_t
+convolve8_8_s32_s16(const int16x8_t s0, const int16x8_t s1, const int16x8_t s2,
+                    const int16x8_t s3, const int16x8_t s4, const int16x8_t s5,
+                    const int16x8_t s6, const int16x8_t s7,
+                    const int16x8_t y_filter, const int32x4_t offset_const) {
+  int16x4_t s0_lo = vget_low_s16(s0);
+  int16x4_t s1_lo = vget_low_s16(s1);
+  int16x4_t s2_lo = vget_low_s16(s2);
+  int16x4_t s3_lo = vget_low_s16(s3);
+  int16x4_t s4_lo = vget_low_s16(s4);
+  int16x4_t s5_lo = vget_low_s16(s5);
+  int16x4_t s6_lo = vget_low_s16(s6);
+  int16x4_t s7_lo = vget_low_s16(s7);
+  int16x4_t s0_hi = vget_high_s16(s0);
+  int16x4_t s1_hi = vget_high_s16(s1);
+  int16x4_t s2_hi = vget_high_s16(s2);
+  int16x4_t s3_hi = vget_high_s16(s3);
+  int16x4_t s4_hi = vget_high_s16(s4);
+  int16x4_t s5_hi = vget_high_s16(s5);
+  int16x4_t s6_hi = vget_high_s16(s6);
+  int16x4_t s7_hi = vget_high_s16(s7);
 
   int32x4_t sum0 = offset_const;
-  sum0 = vmlal_lane_s16(sum0, vget_low_s16(s0), y_filter_lo, 0);
-  sum0 = vmlal_lane_s16(sum0, vget_low_s16(s1), y_filter_lo, 1);
-  sum0 = vmlal_lane_s16(sum0, vget_low_s16(s2), y_filter_lo, 2);
-  sum0 = vmlal_lane_s16(sum0, vget_low_s16(s3), y_filter_lo, 3);
-  sum0 = vmlal_lane_s16(sum0, vget_low_s16(s4), y_filter_hi, 0);
-  sum0 = vmlal_lane_s16(sum0, vget_low_s16(s5), y_filter_hi, 1);
-  sum0 = vmlal_lane_s16(sum0, vget_low_s16(s6), y_filter_hi, 2);
-  sum0 = vmlal_lane_s16(sum0, vget_low_s16(s7), y_filter_hi, 3);
+  sum0 = convolve8_4_s32(s0_lo, s1_lo, s2_lo, s3_lo, s4_lo, s5_lo, s6_lo, s7_lo,
+                         y_filter, sum0);
 
   int32x4_t sum1 = offset_const;
-  sum1 = vmlal_lane_s16(sum1, vget_high_s16(s0), y_filter_lo, 0);
-  sum1 = vmlal_lane_s16(sum1, vget_high_s16(s1), y_filter_lo, 1);
-  sum1 = vmlal_lane_s16(sum1, vget_high_s16(s2), y_filter_lo, 2);
-  sum1 = vmlal_lane_s16(sum1, vget_high_s16(s3), y_filter_lo, 3);
-  sum1 = vmlal_lane_s16(sum1, vget_high_s16(s4), y_filter_hi, 0);
-  sum1 = vmlal_lane_s16(sum1, vget_high_s16(s5), y_filter_hi, 1);
-  sum1 = vmlal_lane_s16(sum1, vget_high_s16(s6), y_filter_hi, 2);
-  sum1 = vmlal_lane_s16(sum1, vget_high_s16(s7), y_filter_hi, 3);
+  sum1 = convolve8_4_s32(s0_hi, s1_hi, s2_hi, s3_hi, s4_hi, s5_hi, s6_hi, s7_hi,
+                         y_filter, sum1);
 
   return vcombine_u16(vqrshrun_n_s32(sum0, COMPOUND_ROUND1_BITS),
                       vqrshrun_n_s32(sum1, COMPOUND_ROUND1_BITS));
+}
+
+static INLINE int16x4_t convolve12_y_4x4_s16(
+    const int16x4_t s0, const int16x4_t s1, const int16x4_t s2,
+    const int16x4_t s3, const int16x4_t s4, const int16x4_t s5,
+    const int16x4_t s6, const int16x4_t s7, const int16x4_t s8,
+    const int16x4_t s9, const int16x4_t s10, const int16x4_t s11,
+    const int16x8_t y_filter_0_7, const int16x4_t y_filter_8_11) {
+  const int16x4_t y_filter_0_3 = vget_low_s16(y_filter_0_7);
+  const int16x4_t y_filter_4_7 = vget_high_s16(y_filter_0_7);
+  int16x4_t sum;
+
+  sum = vmul_lane_s16(s0, y_filter_0_3, 0);
+  sum = vmla_lane_s16(sum, s1, y_filter_0_3, 1);
+  sum = vmla_lane_s16(sum, s2, y_filter_0_3, 2);
+  sum = vmla_lane_s16(sum, s3, y_filter_0_3, 3);
+  sum = vmla_lane_s16(sum, s4, y_filter_4_7, 0);
+
+  sum = vmla_lane_s16(sum, s7, y_filter_4_7, 3);
+  sum = vmla_lane_s16(sum, s8, y_filter_8_11, 0);
+  sum = vmla_lane_s16(sum, s9, y_filter_8_11, 1);
+  sum = vmla_lane_s16(sum, s10, y_filter_8_11, 2);
+  sum = vmla_lane_s16(sum, s11, y_filter_8_11, 3);
+
+  // Separate out the two filter values in the middle of the kernel that have
+  // the largest magnitude and use saturating addition to prevent overflow. This
+  // means we can stay at 16-bit elements, rather than having to widen
+  // everything to a 32-bit result, requiring twice the number of instructions.
+  sum = vqadd_s16(sum, vmul_lane_s16(s5, y_filter_4_7, 1));
+  sum = vqadd_s16(sum, vmul_lane_s16(s6, y_filter_4_7, 2));
+
+  return sum;
+}
+
+static INLINE uint8x8_t convolve12_y_8x4_s16(
+    const int16x8_t s0, const int16x8_t s1, const int16x8_t s2,
+    const int16x8_t s3, const int16x8_t s4, const int16x8_t s5,
+    const int16x8_t s6, const int16x8_t s7, const int16x8_t s8,
+    const int16x8_t s9, const int16x8_t s10, const int16x8_t s11,
+    const int16x8_t y_filter_0_7, const int16x4_t y_filter_8_11) {
+  const int16x4_t y_filter_0_3 = vget_low_s16(y_filter_0_7);
+  const int16x4_t y_filter_4_7 = vget_high_s16(y_filter_0_7);
+  int16x8_t sum;
+
+  sum = vmulq_lane_s16(s0, y_filter_0_3, 0);
+  sum = vmlaq_lane_s16(sum, s1, y_filter_0_3, 1);
+  sum = vmlaq_lane_s16(sum, s2, y_filter_0_3, 2);
+  sum = vmlaq_lane_s16(sum, s3, y_filter_0_3, 3);
+  sum = vmlaq_lane_s16(sum, s4, y_filter_4_7, 0);
+
+  sum = vmlaq_lane_s16(sum, s7, y_filter_4_7, 3);
+  sum = vmlaq_lane_s16(sum, s8, y_filter_8_11, 0);
+  sum = vmlaq_lane_s16(sum, s9, y_filter_8_11, 1);
+  sum = vmlaq_lane_s16(sum, s10, y_filter_8_11, 2);
+  sum = vmlaq_lane_s16(sum, s11, y_filter_8_11, 3);
+
+  // Separate out the two filter values in the middle of the kernel that have
+  // the largest magnitude and use saturating addition to prevent overflow. This
+  // means we can stay at 16-bit elements, rather than having to widen
+  // everything to a 32-bit result, requiring twice the number of instructions.
+  sum = vqaddq_s16(sum, vmulq_lane_s16(s5, y_filter_4_7, 1));
+  sum = vqaddq_s16(sum, vmulq_lane_s16(s6, y_filter_4_7, 2));
+
+  return vqrshrun_n_s16(sum, FILTER_BITS);
+}
+
+static INLINE int32x4_t convolve12_y_4x4_s32(
+    const int16x4_t s0, const int16x4_t s1, const int16x4_t s2,
+    const int16x4_t s3, const int16x4_t s4, const int16x4_t s5,
+    const int16x4_t s6, const int16x4_t s7, const int16x4_t s8,
+    const int16x4_t s9, const int16x4_t s10, const int16x4_t s11,
+    const int16x8_t y_filter_0_7, const int16x4_t y_filter_8_11) {
+  const int16x4_t y_filter_0_3 = vget_low_s16(y_filter_0_7);
+  const int16x4_t y_filter_4_7 = vget_high_s16(y_filter_0_7);
+
+  int32x4_t sum = vmull_lane_s16(s0, y_filter_0_3, 0);
+  sum = vmlal_lane_s16(sum, s1, y_filter_0_3, 1);
+  sum = vmlal_lane_s16(sum, s2, y_filter_0_3, 2);
+  sum = vmlal_lane_s16(sum, s3, y_filter_0_3, 3);
+  sum = vmlal_lane_s16(sum, s4, y_filter_4_7, 0);
+  sum = vmlal_lane_s16(sum, s5, y_filter_4_7, 1);
+  sum = vmlal_lane_s16(sum, s6, y_filter_4_7, 2);
+  sum = vmlal_lane_s16(sum, s7, y_filter_4_7, 3);
+  sum = vmlal_lane_s16(sum, s8, y_filter_8_11, 0);
+  sum = vmlal_lane_s16(sum, s9, y_filter_8_11, 1);
+  sum = vmlal_lane_s16(sum, s10, y_filter_8_11, 2);
+  sum = vmlal_lane_s16(sum, s11, y_filter_8_11, 3);
+
+  return sum;
+}
+
+static INLINE uint16x4_t convolve12_y_4x4_s32_s16(
+    const int16x4_t s0, const int16x4_t s1, const int16x4_t s2,
+    const int16x4_t s3, const int16x4_t s4, const int16x4_t s5,
+    const int16x4_t s6, const int16x4_t s7, const int16x4_t s8,
+    const int16x4_t s9, const int16x4_t s10, const int16x4_t s11,
+    const int16x8_t y_filter_0_7, const int16x4_t y_filter_8_11) {
+  int32x4_t sum = convolve12_y_4x4_s32(s0, s1, s2, s3, s4, s5, s6, s7, s8, s9,
+                                       s10, s11, y_filter_0_7, y_filter_8_11);
+
+  return vqrshrun_n_s32(sum, FILTER_BITS);
+}
+
+static INLINE uint16x8_t convolve12_y_8x4_s32(
+    const int16x8_t s0, const int16x8_t s1, const int16x8_t s2,
+    const int16x8_t s3, const int16x8_t s4, const int16x8_t s5,
+    const int16x8_t s6, const int16x8_t s7, const int16x8_t s8,
+    const int16x8_t s9, const int16x8_t s10, const int16x8_t s11,
+    const int16x8_t y_filter_0_7, const int16x4_t y_filter_8_11) {
+  int16x4_t s0_lo = vget_low_s16(s0);
+  int16x4_t s1_lo = vget_low_s16(s1);
+  int16x4_t s2_lo = vget_low_s16(s2);
+  int16x4_t s3_lo = vget_low_s16(s3);
+  int16x4_t s4_lo = vget_low_s16(s4);
+  int16x4_t s5_lo = vget_low_s16(s5);
+  int16x4_t s6_lo = vget_low_s16(s6);
+  int16x4_t s7_lo = vget_low_s16(s7);
+  int16x4_t s8_lo = vget_low_s16(s8);
+  int16x4_t s9_lo = vget_low_s16(s9);
+  int16x4_t s10_lo = vget_low_s16(s10);
+  int16x4_t s11_lo = vget_low_s16(s11);
+  int16x4_t s0_hi = vget_high_s16(s0);
+  int16x4_t s1_hi = vget_high_s16(s1);
+  int16x4_t s2_hi = vget_high_s16(s2);
+  int16x4_t s3_hi = vget_high_s16(s3);
+  int16x4_t s4_hi = vget_high_s16(s4);
+  int16x4_t s5_hi = vget_high_s16(s5);
+  int16x4_t s6_hi = vget_high_s16(s6);
+  int16x4_t s7_hi = vget_high_s16(s7);
+  int16x4_t s8_hi = vget_high_s16(s8);
+  int16x4_t s9_hi = vget_high_s16(s9);
+  int16x4_t s10_hi = vget_high_s16(s10);
+  int16x4_t s11_hi = vget_high_s16(s11);
+
+  int32x4_t sum0 = convolve12_y_4x4_s32(
+      s0_lo, s1_lo, s2_lo, s3_lo, s4_lo, s5_lo, s6_lo, s7_lo, s8_lo, s9_lo,
+      s10_lo, s11_lo, y_filter_0_7, y_filter_8_11);
+
+  int32x4_t sum1 = convolve12_y_4x4_s32(
+      s0_hi, s1_hi, s2_hi, s3_hi, s4_hi, s5_hi, s6_hi, s7_hi, s8_hi, s9_hi,
+      s10_hi, s11_hi, y_filter_0_7, y_filter_8_11);
+
+  return vcombine_u16(vqrshrun_n_s32(sum0, FILTER_BITS),
+                      vqrshrun_n_s32(sum1, FILTER_BITS));
 }
 
 #if !(defined(__aarch64__) && defined(__ARM_FEATURE_DOTPROD))
