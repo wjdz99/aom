@@ -25,7 +25,6 @@
 #endif
 #include "aom/aom_encoder.h"
 #include "aom/aomcx.h"
-#include "av1/common/enums.h"
 #include "common/args.h"
 #include "common/tools_common.h"
 #include "common/video_writer.h"
@@ -470,6 +469,10 @@ struct RateControlMetrics {
   int window_count;
   int layer_target_bitrate[AOM_MAX_LAYERS];
 };
+
+const int REF_FRAMES = 8;
+
+const int INTER_REFS_PER_FRAME = 7;
 
 // Reference frames used in this example encoder.
 enum {
