@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c0de5cd6_53494f02",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 31042
+      },
+      "writtenOn": "2023-04-03T13:01:18Z",
+      "side": 1,
+      "message": "Thanks for uploading. This is too large as a single change - please split it into three:\n1) Add an 8-tap implementation (falling back to C for 12-tap.)\n2) Add the 12-tap implementation.\n3) Specialize the 8-tap implementation for 6-tap filters.\n\nAdditionally, I\u0027d like to keep as clear a distinction between standard bitdepth and high bitdepth as possible. I\u0027m going to clean up and simplify all of the various standard bitdepth convolution helper functions as there is some redundancy, so I\u0027d rather they weren\u0027t re-used by high bidepth paths (for now.)",
+      "revId": "1b5f6c9df7d53372985063db6b914bc7477c3af5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
