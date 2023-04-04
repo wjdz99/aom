@@ -3,6 +3,23 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "d34001d6_dc2e51d3",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-04-04T20:28:19Z",
+      "side": 1,
+      "message": "Motivation for this change: I use libavif as an example.\n\nBecause I know the extra work that aom_codec_control() does, I guard the aom_codec_control() calls in libavif like this:\n\n```\n        avifBool lossless \u003d (quantizer \u003d\u003d AVIF_QUANTIZER_LOSSLESS);\n        if (lossless) {\n            aom_codec_control(\u0026codec-\u003einternal-\u003eencoder, AV1E_SET_LOSSLESS, 1);\n        }\n        ...\n        if (tileRowsLog2 !\u003d 0) {\n            aom_codec_control(\u0026codec-\u003einternal-\u003eencoder, AV1E_SET_TILE_ROWS, tileRowsLog2);\n        }\n        if (tileColsLog2 !\u003d 0) {\n            aom_codec_control(\u0026codec-\u003einternal-\u003eencoder, AV1E_SET_TILE_COLUMNS, tileColsLog2);\n        }\n```\n\nI.e., I only call aom_codec_control when I know the new value is not the default value.\n\nWith this change, we will be able to simplify the above code and the overhead of unnecessary aom_codec_control() calls will be kept at a minimum:\n\n```\n        avifBool lossless \u003d (quantizer \u003d\u003d AVIF_QUANTIZER_LOSSLESS);\n        aom_codec_control(\u0026codec-\u003einternal-\u003eencoder, AV1E_SET_LOSSLESS, lossless);\n        ...\n        aom_codec_control(\u0026codec-\u003einternal-\u003eencoder, AV1E_SET_TILE_ROWS, tileRowsLog2);\n        aom_codec_control(\u0026codec-\u003einternal-\u003eencoder, AV1E_SET_TILE_COLUMNS, tileColsLog2);\n```",
+      "revId": "055657d55d1286dbc319715b3b5013f3e711ace9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "52e85ba0_a6bd54b7",
         "filename": "/PATCHSET_LEVEL",
         "patchSetId": 3
