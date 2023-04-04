@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "24ec2ac2_56d2f201",
+        "filename": "aom_ports/aom_timer.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-04-04T21:02:08Z",
+      "side": 1,
+      "message": "We still need to include \"config/aom_config.h\" for the `CONFIG_OS_SUPPORT` and `INLINE` macros.\n\nI think `inline` is a C99 keyword, so perhaps the `INLINE` macro is no longer necessary?\n\nI don\u0027t really understand the purposes of the `CONFIG_OS_SUPPORT` macro.",
+      "revId": "b2dd6997fbfdd5802cfbc755bd126771c69e2466",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3f3c2882_6d40df04",
+        "filename": "aom_ports/aom_timer.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-04-04T21:02:08Z",
+      "side": 1,
+      "message": "`NULL` is used here.",
+      "revId": "b2dd6997fbfdd5802cfbc755bd126771c69e2466",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fac301c0_7d12d7c4",
+        "filename": "aom_ports/aom_timer.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-04-04T21:02:08Z",
+      "side": 1,
+      "message": "`int64_t` is used here.",
+      "revId": "b2dd6997fbfdd5802cfbc755bd126771c69e2466",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
