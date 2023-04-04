@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "54f7d9f5_c4ce996e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-04-04T20:32:48Z",
+      "side": 1,
+      "message": "Please review.\n\nNote that https://aomedia-review.googlesource.com/c/aom/+/173024 is another way to address this issue. We can commit both CLs. But if you prefer to decline this CL and reply on the other CL only, that\u0027s fine by me. Just let me know. Thanks.",
+      "revId": "e8d7574ae26c5f00c25736c71bd1a446dc1467c4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
