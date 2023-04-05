@@ -29,6 +29,7 @@
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // clang-format off
+#include <assert.h>
 #include <stdlib.h>
 #include "fast.h"
 
@@ -44,7 +45,7 @@ xy* aom_nonmax_suppression(const xy* corners, const int* scores, int num_corners
   int i, j;
   xy* ret_nonmax;
   int* nonmax_scores;
-  const int sz = (int)num_corners;
+  const int sz = num_corners;
 
   /*Point above points (roughly) to the pixel above the one of interest, if there
     is a feature there.*/
@@ -137,8 +138,9 @@ xy* aom_nonmax_suppression(const xy* corners, const int* scores, int num_corners
       }
 
     /*Check below (if there is anything below)*/
+    assert(pos.y <= last_row);
     if(pos.y >= 0)
-      if (pos.y != last_row && row_start[pos.y + 1] != -1 && point_below < sz) /*Nothing below*/
+      if (pos.y + 1 < last_row+1 && row_start[pos.y + 1] != -1 && point_below < sz) /*Nothing below*/
       {
         if(corners[point_below].y < pos.y + 1)
           point_below = row_start[pos.y+1];
