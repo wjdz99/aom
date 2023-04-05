@@ -1,0 +1,188 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8f921a00_4f5232ef",
+        "filename": "aom_dsp/arm/mem_neon.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 535,
+      "author": {
+        "id": 31042
+      },
+      "writtenOn": "2023-04-05T10:57:46Z",
+      "side": 1,
+      "message": "All of these types should be unsigned.",
+      "range": {
+        "startLine": 535,
+        "startChar": 4,
+        "endLine": 535,
+        "endChar": 50
+      },
+      "revId": "5a5de2e4a2784cae06098bb84fa8ce4cc4920825",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6341f5ed_49182961",
+        "filename": "av1/common/arm/highbd_convolve_neon.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 31042
+      },
+      "writtenOn": "2023-04-05T10:57:46Z",
+      "side": 1,
+      "message": "In new code, my preference is that we don\u0027t use software prefetch hints. We did a investigation on Neoverse-N1 and Neoverse-V1 recently, and saw no benefit, sometimes even a small regression.",
+      "range": {
+        "startLine": 79,
+        "startChar": 6,
+        "endLine": 86,
+        "endChar": 47
+      },
+      "revId": "5a5de2e4a2784cae06098bb84fa8ce4cc4920825",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "84984d3f_479591ea",
+        "filename": "av1/common/arm/highbd_convolve_neon.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 31042
+      },
+      "writtenOn": "2023-04-05T10:57:46Z",
+      "side": 1,
+      "message": "Let\u0027s get rid of this and simplify the helper inline function accordingly.",
+      "range": {
+        "startLine": 88,
+        "startChar": 38,
+        "endLine": 88,
+        "endChar": 46
+      },
+      "revId": "5a5de2e4a2784cae06098bb84fa8ce4cc4920825",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5e34e799_b68bc79d",
+        "filename": "av1/common/arm/highbd_convolve_neon.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 31042
+      },
+      "writtenOn": "2023-04-05T10:57:46Z",
+      "side": 1,
+      "message": "Ditto.",
+      "range": {
+        "startLine": 133,
+        "startChar": 38,
+        "endLine": 133,
+        "endChar": 46
+      },
+      "revId": "5a5de2e4a2784cae06098bb84fa8ce4cc4920825",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "715fb03a_1684e406",
+        "filename": "av1/common/arm/highbd_convolve_neon.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 149,
+      "author": {
+        "id": 31042
+      },
+      "writtenOn": "2023-04-05T10:57:46Z",
+      "side": 1,
+      "message": "Style nit: h--",
+      "range": {
+        "startLine": 149,
+        "startChar": 6,
+        "endLine": 149,
+        "endChar": 12
+      },
+      "revId": "5a5de2e4a2784cae06098bb84fa8ce4cc4920825",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "059a2949_bd2ab0d2",
+        "filename": "av1/common/arm/highbd_convolve_neon.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 201,
+      "author": {
+        "id": 31042
+      },
+      "writtenOn": "2023-04-05T10:57:46Z",
+      "side": 1,
+      "message": "Ditto.",
+      "range": {
+        "startLine": 201,
+        "startChar": 50,
+        "endLine": 201,
+        "endChar": 58
+      },
+      "revId": "5a5de2e4a2784cae06098bb84fa8ce4cc4920825",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d7fdee82_fce2a4c8",
+        "filename": "av1/common/arm/highbd_convolve_neon.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 235,
+      "author": {
+        "id": 31042
+      },
+      "writtenOn": "2023-04-05T10:57:46Z",
+      "side": 1,
+      "message": "Ditto.",
+      "range": {
+        "startLine": 235,
+        "startChar": 50,
+        "endLine": 235,
+        "endChar": 58
+      },
+      "revId": "5a5de2e4a2784cae06098bb84fa8ce4cc4920825",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b4ea1144_bd3e2ce2",
+        "filename": "av1/common/arm/highbd_convolve_neon.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 248,
+      "author": {
+        "id": 31042
+      },
+      "writtenOn": "2023-04-05T10:57:46Z",
+      "side": 1,
+      "message": "height--",
+      "range": {
+        "startLine": 248,
+        "startChar": 8,
+        "endLine": 248,
+        "endChar": 20
+      },
+      "revId": "5a5de2e4a2784cae06098bb84fa8ce4cc4920825",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
