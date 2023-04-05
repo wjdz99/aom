@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8cf7c3ae_10881987",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-04-05T15:54:47Z",
+      "side": 1,
+      "message": "Nit: \"ource_sad\" is missing the initial \"s\".",
+      "revId": "5247b75c0841daecb1bf03f1e83444a1b0b52c57",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "98ed677f_c36e27d8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-04-05T15:54:47Z",
+      "side": 1,
+      "message": "LGTM.",
+      "revId": "5247b75c0841daecb1bf03f1e83444a1b0b52c57",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "455fd1de_2a39fb47",
+        "filename": "av1/encoder/aq_cyclicrefresh.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 344,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-04-05T15:54:47Z",
+      "side": 1,
+      "message": "Thank you very much for documenting your insight and rationale.",
+      "revId": "5247b75c0841daecb1bf03f1e83444a1b0b52c57",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
