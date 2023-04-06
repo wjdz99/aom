@@ -33,6 +33,24 @@
       "message": "This doesn\u0027t fail any unit tests, but does fail on quite a few Argon test vectors [1].\n\nUnfortunately these aren\u0027t integrated into the automated tests yet. You can try something like:\n`aomdec --threads\u003d1 --rawvideo --all-layers --annexb profile0_core/streams/test10121_9817.obu -o - |md5sum`.\n\nThis is one of the failures:\n\n```\nprofile0_core/streams/test10121_9817.obu: FAILED\nactual: 3112534b6b620f19a39d8e8659bbf8f1\nexpected: c2235d3ca95af61c39adc7a68b3260d9\n```\n\n[1] https://aomedia.org/av1-video-decoder-verification-tool/",
       "revId": "f853cee976a2ebc0081ee96c1c802bd43a29f36f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "329368dd_f6b4e787",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 32122
+      },
+      "writtenOn": "2023-04-06T14:10:50Z",
+      "side": 1,
+      "message": "The last patch should hopefully fix the wrong md5sums, at least it seemed to work locally on those argon tests -thanks for the pointer btw.",
+      "parentUuid": "4f16e39b_39d66943",
+      "revId": "f853cee976a2ebc0081ee96c1c802bd43a29f36f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
