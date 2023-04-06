@@ -56,6 +56,23 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "6b8794a2_c27c710c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-04-06T19:11:21Z",
+      "side": 1,
+      "message": "Thank you for the review.",
+      "revId": "67dc1181c55b37835187dacc30c42d69e4e6aa77",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "3fa0bcf1_fbe77679",
         "filename": "third_party/fastfeat/README.libaom",
         "patchSetId": 3
@@ -85,6 +102,24 @@
       "side": 1,
       "message": "\u003e In https://aomedia-review.googlesource.com/c/aom/+/10902, Johann noted that that commit was not documented here. Maybe we should take care of that?\n\nYes I think that makes sense.",
       "parentUuid": "3fa0bcf1_fbe77679",
+      "revId": "67dc1181c55b37835187dacc30c42d69e4e6aa77",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8b518c70_165a7cdf",
+        "filename": "third_party/fastfeat/README.libaom",
+        "patchSetId": 3
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-04-06T19:11:21Z",
+      "side": 1,
+      "message": "I will take care of this in a separate CL.",
+      "parentUuid": "2acce1ad_ab8198b6",
       "revId": "67dc1181c55b37835187dacc30c42d69e4e6aa77",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -153,6 +188,30 @@
       "writtenOn": "2023-04-06T18:13:43Z",
       "side": 1,
       "message": "whitespace is uneven here",
+      "range": {
+        "startLine": 143,
+        "startChar": 30,
+        "endLine": 143,
+        "endChar": 32
+      },
+      "revId": "67dc1181c55b37835187dacc30c42d69e4e6aa77",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a1896e48_db484fe2",
+        "filename": "third_party/fastfeat/nonmax.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 143,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-04-06T19:11:21Z",
+      "side": 1,
+      "message": "I know :-) I guess I tried too hard to emulate the original code.\n\nFor last_row + 1, the original code consistently writes `last_row+1`. So I copied that style.\n\nFor pos.y + 1, the original code is inconsistent. So I aimed for local consistency and match the style used in the same line.",
+      "parentUuid": "99a54653_b05c199e",
       "range": {
         "startLine": 143,
         "startChar": 30,
