@@ -637,6 +637,20 @@ void av1_cyclic_refresh_setup(AV1_COMP *const cpi) {
     cr->qindex_delta[2] = qindex_delta;
     av1_set_segdata(seg, CR_SEGMENT_ID_BOOST2, SEG_LVL_ALT_Q, qindex_delta);
 
+    // Disable segmentation if qindex_delta is small, as the benefit of
+    // the refresh may not be worth the overhead. This can happen when the
+    // base/frame Q is already low (near rc->best_quality).
+    // A low Q condition that sets apply_cyclic_refresh = 0 is done in
+    // av1_cyclic_refresh_update_parameters(), but this one here based on
+    // qindex_delta is also needed.
+    // The qindex_delta is negative for refresh/boost, so choose condition
+    // that qindex_delta[0/1] > - 4 to disable for now.
+    if (cr->qindex_delta[1] > -4 && cr->qindex_delta[2] > -4) {
+      unsigned char *const seg_map = cpi->enc_seg.map;
+      memset(seg_map, 0, cm->mi_params.mi_rows * cm->mi_params.mi_cols);
+      av1_disable_segmentation(&cm->seg);
+    }
+
     // Update the segmentation and refresh map.
     cyclic_refresh_update_map(cpi);
   }
