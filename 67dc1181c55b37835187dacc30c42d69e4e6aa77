@@ -3,6 +3,40 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "3fa0bcf1_fbe77679",
+        "filename": "third_party/fastfeat/README.libaom",
+        "patchSetId": 3
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-04-06T00:26:15Z",
+      "side": 1,
+      "message": "In https://aomedia-review.googlesource.com/c/aom/+/10902, Johann noted that that commit was not documented here. Maybe we should take care of that?",
+      "revId": "67dc1181c55b37835187dacc30c42d69e4e6aa77",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3bbc3dcf_fcecfcb6",
+        "filename": "third_party/fastfeat/nonmax.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-04-06T00:26:15Z",
+      "side": 1,
+      "message": "I found that this `pos.y \u003e\u003d 0` test was added to appease the static analyzer:\nhttps://aomedia-review.googlesource.com/c/aom/+/10902",
+      "revId": "67dc1181c55b37835187dacc30c42d69e4e6aa77",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "bb0673db_3cf79467",
         "filename": "third_party/fastfeat/nonmax.c",
         "patchSetId": 3
