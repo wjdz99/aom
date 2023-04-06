@@ -1503,6 +1503,7 @@ static void set_rt_speed_feature_framesize_dependent(const AV1_COMP *const cpi,
       sf->rt_sf.screen_content_cdef_filter_qindex_thresh = 80;
       sf->rt_sf.part_early_exit_zeromv = 1;
       sf->rt_sf.nonrd_aggressive_skip = 1;
+      sf->rt_sf.frame_level_mode_cost_update = false;
     }
     if (speed >= 11) {
       sf->rt_sf.skip_lf_screen = 2;
