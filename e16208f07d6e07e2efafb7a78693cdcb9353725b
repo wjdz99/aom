@@ -16,6 +16,24 @@
       "message": "If we declare `first_byte` as `unsigned char`, then we don\u0027t need the `(unsigned char*)` cast.",
       "revId": "e16208f07d6e07e2efafb7a78693cdcb9353725b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e6aa0457_a412d04a",
+        "filename": "third_party/libwebm/mkvparser/mkvparser.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 296,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-04-06T02:34:37Z",
+      "side": 1,
+      "message": "\u003e If we declare `first_byte` as `unsigned char`, then we don\u0027t need the `(unsigned char*)` cast.\n\nThat\u0027s true, the signedness isn\u0027t necessary here. This is some fairly unreviewed code. There\u0027s plenty of room for improvement.",
+      "parentUuid": "95258df2_73fbbb03",
+      "revId": "e16208f07d6e07e2efafb7a78693cdcb9353725b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
