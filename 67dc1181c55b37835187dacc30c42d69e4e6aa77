@@ -138,6 +138,29 @@
       "message": "scan-build warns about this line (the line number is for the original code):\n\n```\naom/third_party/fastfeat/nonmax.c:141:53: warning: The left operand of \u0027!\u003d\u0027 is a garbage value [core.UndefinedBinaryOperatorResult]\n      if (pos.y !\u003d last_row \u0026\u0026 row_start[pos.y + 1] !\u003d -1 \u0026\u0026 point_below \u003c sz) /*Nothing below*/\n                               ~~~~~~~~~~~~~~~~~~~~ ^\n1 warning generated.\n```",
       "revId": "67dc1181c55b37835187dacc30c42d69e4e6aa77",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "99a54653_b05c199e",
+        "filename": "third_party/fastfeat/nonmax.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 143,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-04-06T18:13:43Z",
+      "side": 1,
+      "message": "whitespace is uneven here",
+      "range": {
+        "startLine": 143,
+        "startChar": 30,
+        "endLine": 143,
+        "endChar": 32
+      },
+      "revId": "67dc1181c55b37835187dacc30c42d69e4e6aa77",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
