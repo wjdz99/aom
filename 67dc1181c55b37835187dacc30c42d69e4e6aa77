@@ -1,6 +1,23 @@
 {
   "comments": [
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "3dbe7760_6b418621",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-04-06T02:36:51Z",
+      "side": 1,
+      "message": "Just so I understand, was this brought out in another change or when using a newer version of clang?",
+      "revId": "67dc1181c55b37835187dacc30c42d69e4e6aa77",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "3fa0bcf1_fbe77679",
@@ -14,6 +31,24 @@
       "writtenOn": "2023-04-06T00:26:15Z",
       "side": 1,
       "message": "In https://aomedia-review.googlesource.com/c/aom/+/10902, Johann noted that that commit was not documented here. Maybe we should take care of that?",
+      "revId": "67dc1181c55b37835187dacc30c42d69e4e6aa77",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2acce1ad_ab8198b6",
+        "filename": "third_party/fastfeat/README.libaom",
+        "patchSetId": 3
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-04-06T02:36:51Z",
+      "side": 1,
+      "message": "\u003e In https://aomedia-review.googlesource.com/c/aom/+/10902, Johann noted that that commit was not documented here. Maybe we should take care of that?\n\nYes I think that makes sense.",
+      "parentUuid": "3fa0bcf1_fbe77679",
       "revId": "67dc1181c55b37835187dacc30c42d69e4e6aa77",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
