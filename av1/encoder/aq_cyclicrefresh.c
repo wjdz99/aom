@@ -637,6 +637,14 @@ void av1_cyclic_refresh_setup(AV1_COMP *const cpi) {
     cr->qindex_delta[2] = qindex_delta;
     av1_set_segdata(seg, CR_SEGMENT_ID_BOOST2, SEG_LVL_ALT_Q, qindex_delta);
 
+    // Disable segmentation if qindex_delta is 0. This can happen when the
+    // base/frame Q is already low (close to best_quality).
+    if (cr->qindex_delta[1] == 0 && cr->qindex_delta[2] == 0) {
+      unsigned char *const seg_map = cpi->enc_seg.map;
+      memset(seg_map, 0, cm->mi_params.mi_rows * cm->mi_params.mi_cols);
+      av1_disable_segmentation(&cm->seg);
+    }
+
     // Update the segmentation and refresh map.
     cyclic_refresh_update_map(cpi);
   }
