@@ -33,6 +33,24 @@
       "message": "Use of this function is more motivation to check the usefulness of the `stride \u003d\u003d 4` test. I have a feeling that it will only be true in the unit tests and not in other cases.",
       "revId": "4a77de9eab6bbaca20b761b922bcdcfcb096937d",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "de498655_a468f2e1",
+        "filename": "aom_dsp/arm/avg_pred_neon.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-04-07T19:54:28Z",
+      "side": 1,
+      "message": "Are you suggesting we can remove the `stride \u003d\u003d 4` special case at the beginning of the `load_unaligned_u8q()` function?\n\n```\n// Load 4 sets of 4 bytes when alignment is not guaranteed.\nstatic INLINE uint8x16_t load_unaligned_u8q(const uint8_t *buf, int stride) {\n  uint32_t a;\n  uint32x4_t a_u32;\n  if (stride \u003d\u003d 4) return vld1q_u8(buf);\n  memcpy(\u0026a, buf, 4);\n  buf +\u003d stride;\n  a_u32 \u003d vdupq_n_u32(a);\n  ...\n  memcpy(\u0026a, buf, 4);\n  a_u32 \u003d vsetq_lane_u32(a, a_u32, 3);\n  return vreinterpretq_u8_u32(a_u32);\n}\n```",
+      "parentUuid": "a937da64_7c88134f",
+      "revId": "4a77de9eab6bbaca20b761b922bcdcfcb096937d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
