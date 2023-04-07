@@ -51,6 +51,24 @@
       "parentUuid": "a937da64_7c88134f",
       "revId": "4a77de9eab6bbaca20b761b922bcdcfcb096937d",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "77905198_30b0dd5e",
+        "filename": "aom_dsp/arm/avg_pred_neon.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-04-07T20:46:24Z",
+      "side": 1,
+      "message": "\u003e Are you suggesting we can remove the `stride \u003d\u003d 4` special case at the beginning of the `load_unaligned_u8q()` function?\n\u003e \n\nYes. Sorry that wasn\u0027t clear.\n\n\u003e ```\n\u003e // Load 4 sets of 4 bytes when alignment is not guaranteed.\n\u003e static INLINE uint8x16_t load_unaligned_u8q(const uint8_t *buf, int stride) {\n\u003e   uint32_t a;\n\u003e   uint32x4_t a_u32;\n\u003e   if (stride \u003d\u003d 4) return vld1q_u8(buf);\n\u003e   memcpy(\u0026a, buf, 4);\n\u003e   buf +\u003d stride;\n\u003e   a_u32 \u003d vdupq_n_u32(a);\n\u003e   ...\n\u003e   memcpy(\u0026a, buf, 4);\n\u003e   a_u32 \u003d vsetq_lane_u32(a, a_u32, 3);\n\u003e   return vreinterpretq_u8_u32(a_u32);\n\u003e }\n\u003e ```",
+      "parentUuid": "de498655_a468f2e1",
+      "revId": "4a77de9eab6bbaca20b761b922bcdcfcb096937d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
