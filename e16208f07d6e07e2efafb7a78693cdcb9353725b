@@ -34,6 +34,24 @@
       "parentUuid": "95258df2_73fbbb03",
       "revId": "e16208f07d6e07e2efafb7a78693cdcb9353725b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1aa31f39_01e6b9f0",
+        "filename": "third_party/libwebm/mkvparser/mkvparser.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 296,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-04-08T00:17:58Z",
+      "side": 1,
+      "message": "It turns out `first_byte` must be signed because it is the most significant byte of a signed integer, containing the sign it. Line 301 below depends on `first_byte` being a signed type.",
+      "parentUuid": "e6aa0457_a412d04a",
+      "revId": "e16208f07d6e07e2efafb7a78693cdcb9353725b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
