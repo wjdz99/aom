@@ -744,7 +744,7 @@ static AOM_INLINE int should_force_mode_cost_update(const AV1_COMP *cpi) {
 
       return frame_is_intra_only(cm) || is_frame_resize_pending(cpi) ||
              rc->high_source_sad || rc->frames_since_key < 10 ||
-             cpi->cyclic_refresh->counter_encode_maxq_scene_change < 10 ||
+             cpi->cyclic_refresh->counter_encode_maxq_scene_change < 10) ||
              cm->current_frame.frame_number % 8 == 0;
     } else if (cpi->svc.number_temporal_layers > 1) {
       return cpi->svc.temporal_layer_id != cpi->svc.number_temporal_layers - 1;
