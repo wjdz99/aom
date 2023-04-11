@@ -187,6 +187,24 @@
       "parentUuid": "fdee5e2a_149cdc1d",
       "revId": "3f055f43a5bb68a1016bcd78f8190ddbe4f62d1c",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5db2f2ae_50491cae",
+        "filename": "av1/common/arm/highbd_convolve_neon.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-04-11T16:49:40Z",
+      "side": 1,
+      "message": "\u003e I\u0027m also working on the other convolve functions, which include the av1_highbd_dist_wtd_convolve_* functions. The non-highbd arm versions are included in the jnt_convolve.c file and I was planning to follow the same scheme so the helper functions would go in the highbd_convolve.h header. If they should be included in the same single file then indeed I should just get them in the same .c file. What is the preferred way?\n\nUsing a header is fine for this. It\u0027s just easier to tell when the functions are required if they\u0027re moved to a header when they begin to be shared. No need to change this now though if you plan on reusing things in jnt_convolve.c.",
+      "parentUuid": "8b57262e_690f15da",
+      "revId": "3f055f43a5bb68a1016bcd78f8190ddbe4f62d1c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
