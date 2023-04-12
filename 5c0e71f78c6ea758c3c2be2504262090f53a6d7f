@@ -16,6 +16,24 @@
       "message": "Unlike the stub functions, `usage_exit()` is actually called, so we should include the header that declares it (common/tools_common.h). Otherwise it defeats the purpose of -Wmissing-prototypes.\n\nCan we do that?",
       "revId": "5c0e71f78c6ea758c3c2be2504262090f53a6d7f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1be0dc17_420f631b",
+        "filename": "CMakeLists.txt",
+        "patchSetId": 1
+      },
+      "lineNbr": 352,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-04-12T23:43:56Z",
+      "side": 1,
+      "message": "\u003e Unlike the stub functions, `usage_exit()` is actually called, so we should include the header that declares it (common/tools_common.h). Otherwise it defeats the purpose of -Wmissing-prototypes.\n\u003e \n\u003e Can we do that?\n\nGood point. That works with a little effort:\n\n```\ngen_src/usage_exit.c:3:24: warning: ‘noreturn’ function does return\n    3 | void usage_exit(void) {}\n```",
+      "parentUuid": "6e1a54b0_01cb801e",
+      "revId": "5c0e71f78c6ea758c3c2be2504262090f53a6d7f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
