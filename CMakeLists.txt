@@ -349,9 +349,11 @@ endforeach()
 # aom_common_app_util library must define this function. This is a convenience
 # to allow omission of the function from applications that might want to use
 # other pieces of the util support without defining usage_exit().
-file(WRITE "${AOM_GEN_SRC_DIR}/usage_exit.c" "void usage_exit(void) {}")
+file(WRITE "${AOM_GEN_SRC_DIR}/usage_exit.c" "void usage_exit(void);\n"
+                                             "void usage_exit(void) {}\n")
 file(WRITE "${AOM_GEN_SRC_DIR}/usage_exit.cc"
-     "extern \"C\" void usage_exit(void) {}")
+     "extern \"C\" void usage_exit(void);\n"
+     "extern \"C\" void usage_exit(void) {}\n")
 
 #
 # Application and application support targets.
