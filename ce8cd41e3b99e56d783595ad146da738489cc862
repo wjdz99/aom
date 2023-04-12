@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "dd97bb06_8ed83ace",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-04-12T19:55:35Z",
+      "side": 1,
+      "message": "Jerome: I suggest a simple change and have a question.",
+      "revId": "ce8cd41e3b99e56d783595ad146da738489cc862",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0d1a3205_247a745e",
+        "filename": "examples/svc_encoder_rtc.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1392,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-04-12T19:55:35Z",
+      "side": 1,
+      "message": "Nit: Use the parameter type and name in the declaration of `aom_codec_enc_init`:\n\n```\n  aom_codec_flags_t flags \u003d 0;\n```",
+      "revId": "ce8cd41e3b99e56d783595ad146da738489cc862",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c764dad7_78db5dc1",
+        "filename": "examples/svc_encoder_rtc.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1684,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-04-12T19:55:35Z",
+      "side": 1,
+      "message": "Nit: Should we put this code (lines 1684-1689) inside an `if (app_input.show_psnr)` block?\n\nI am not familiar with this; I am just comparing this with the corresponding code in aomenc.c.",
+      "revId": "ce8cd41e3b99e56d783595ad146da738489cc862",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
