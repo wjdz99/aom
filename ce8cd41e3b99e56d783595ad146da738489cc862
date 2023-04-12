@@ -35,6 +35,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "64c69f6c_9de734c8",
+        "filename": "examples/svc_encoder_rtc.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1392,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2023-04-12T20:50:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0d1a3205_247a745e",
+      "revId": "ce8cd41e3b99e56d783595ad146da738489cc862",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c764dad7_78db5dc1",
@@ -48,6 +66,24 @@
       "writtenOn": "2023-04-12T19:55:35Z",
       "side": 1,
       "message": "Nit: Should we put this code (lines 1684-1689) inside an `if (app_input.show_psnr)` block?\n\nI am not familiar with this; I am just comparing this with the corresponding code in aomenc.c.",
+      "revId": "ce8cd41e3b99e56d783595ad146da738489cc862",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9311cce9_2a6c0d76",
+        "filename": "examples/svc_encoder_rtc.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1684,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2023-04-12T20:50:16Z",
+      "side": 1,
+      "message": "My understanding is that if ```AOM_CODEC_USE_PSNR``` is not set for the encoder flag used to initialize the encoder, it won\u0027t return any packet with type ```AOM_CODEC_PSNR_PKT```.\n\nI use the code in aomenc.c as well. So I\u0027ll add that condition here too for consistency.",
+      "parentUuid": "c764dad7_78db5dc1",
       "revId": "ce8cd41e3b99e56d783595ad146da738489cc862",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
