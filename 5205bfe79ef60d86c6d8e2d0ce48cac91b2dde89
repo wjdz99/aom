@@ -20,6 +20,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "96341ac0_d4b6c26d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-04-13T19:08:24Z",
+      "side": 1,
+      "message": "\u003e James: Please feel free to ignore these comments. I got curious about this last night because I didn\u0027t know what exactly \"stub\" means, even though I have heard of the term \"stub function\" (the stub functions in the import libraries of Windows DLLs).\n\u003e \n\u003e After learning about \"stub\", I found that \"stub function\", \"stub source file\", and \"stub library\" in this CL differ from the common meaning of these terms.\n\nstub aligned closely enough for me, but I don\u0027t mind changing it to something else.",
+      "parentUuid": "5023f3f8_36683a7f",
+      "revId": "5205bfe79ef60d86c6d8e2d0ce48cac91b2dde89",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "7550002e_4e2167ce",
         "filename": "build/cmake/aom_install.cmake",
         "patchSetId": 2
@@ -37,6 +55,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "5c2ae90f_5a7e2ba6",
+        "filename": "build/cmake/aom_install.cmake",
+        "patchSetId": 2
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-04-13T19:08:24Z",
+      "side": 1,
+      "message": "\u003e Nit: \"stub\" isn\u0027t a good replacement here. Among the suggested alternatives at https://source.android.com/docs/setup/contribute/respectful-code, \"no-op\" seems the best. We could also consider \"empty\", \"null\", or \"void\". \"Empty\" seems especially suitable for describing the source file because ideally we want the file to be empty, but the compiler or linker won\u0027t allow that.\n\u003e \n\nIn that case \u0027empty\u0027 becomes somewhat misleading. noop for a source file rather than a function doesn\u0027t seem to be the best fit, but maybe it\u0027s close enough.\n\nhttps://aomedia-review.googlesource.com/c/aom/+/173462\n\n\u003e In some cases, such as the comment here, we can also just delete the word.\n\nhttps://aomedia-review.googlesource.com/c/aom/+/173461",
+      "parentUuid": "7550002e_4e2167ce",
+      "revId": "5205bfe79ef60d86c6d8e2d0ce48cac91b2dde89",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "8a2f19bf_e13fae7a",
         "filename": "build/cmake/aom_optimization.cmake",
         "patchSetId": 2
@@ -48,6 +84,24 @@
       "writtenOn": "2023-04-13T18:21:24Z",
       "side": 1,
       "message": "Nit: This comment could read \"Generates a C file with an unused no-op function ...\"",
+      "revId": "5205bfe79ef60d86c6d8e2d0ce48cac91b2dde89",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1718dff8_768619e7",
+        "filename": "build/cmake/aom_optimization.cmake",
+        "patchSetId": 2
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-04-13T19:08:24Z",
+      "side": 1,
+      "message": "\u003e Nit: This comment could read \"Generates a C file with an unused no-op function ...\"\n\nThanks, I didn\u0027t really reread things after I did \u0027s/dummy/stub/\u0027.\n\nhttps://aomedia-review.googlesource.com/c/aom/+/173461",
+      "parentUuid": "8a2f19bf_e13fae7a",
       "revId": "5205bfe79ef60d86c6d8e2d0ce48cac91b2dde89",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
