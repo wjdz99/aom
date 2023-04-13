@@ -1753,9 +1753,16 @@ static INLINE int get_this_mv(int_mv *this_mv, PREDICTION_MODE this_mode,
 // population
 static INLINE int skip_nearest_near_mv_using_refmv_weight(
     const MACROBLOCK *const x, const PREDICTION_MODE this_mode,
-    const int8_t ref_frame_type) {
+    const int8_t ref_frame_type, int64_t ref_best_rd) {
   if (this_mode != NEARESTMV && this_mode != NEARMV) return 0;
+  // Do not skip the modes if the current block has not yet identified a valid
+  // prediction.
+  if (ref_best_rd == INT64_MAX) return 0;
 
+  const MACROBLOCKD *xd = &x->e_mbd;
+  // Do not skip the modes if both the top and left neighboring blocks are not
+  // available.
+  if (!xd->left_available || !xd->up_available) return 0;
   const MB_MODE_INFO_EXT *const mbmi_ext = &x->mbmi_ext;
   const uint16_t *const ref_mv_weight = mbmi_ext->weight[ref_frame_type];
   const int ref_mv_count =
@@ -5036,8 +5043,12 @@ static int skip_inter_mode(AV1_COMP *cpi, MACROBLOCK *x, const BLOCK_SIZE bsize,
 
   if (sf->inter_sf.prune_nearest_near_mv_using_refmv_weight && !comp_pred) {
     const int8_t ref_frame_type = av1_ref_frame_type(ref_frames);
-    if (skip_nearest_near_mv_using_refmv_weight(x, this_mode, ref_frame_type))
+    if (skip_nearest_near_mv_using_refmv_weight(x, this_mode, ref_frame_type,
+                                                args->search_state->best_rd)) {
+      // Ensure the mode is pruned only when a best mode is already identified.
+      assert(args->search_state->best_rd != INT64_MAX);
       return 1;
+    }
   }
 
   if (sf->rt_sf.prune_inter_modes_with_golden_ref &&
