@@ -1200,6 +1200,8 @@ static void set_good_speed_features_framesize_independent(
 
     sf->mv_sf.warp_search_method = WARP_SEARCH_DIAMOND;
 
+    sf->inter_sf.prune_nearest_near_mv_using_refmv_weight =
+        (boosted || allow_screen_content_tools) ? 0 : 1;
     sf->inter_sf.prune_inter_modes_if_skippable = 1;
     sf->inter_sf.txfm_rd_gate_level = boosted ? 0 : 4;
     sf->inter_sf.enable_fast_compound_mode_search = 2;
