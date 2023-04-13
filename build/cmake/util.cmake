@@ -19,23 +19,23 @@ set(AOM_GEN_SRC_DIR "${AOM_CONFIG_DIR}/gen_src")
 # Creates source file in $AOM_GEN_SRC_DIR named $basename.$extension and returns
 # the full path to the source file via appending it to the list variable
 # referred to by $out_file_list_var parameter.
-macro(create_stub_source_file basename extension out_file_list_var)
-  set(stub_source_file "${AOM_GEN_SRC_DIR}/${basename}_stub.${extension}")
-  file(WRITE "${stub_source_file}"
+macro(create_noop_source_file basename extension out_file_list_var)
+  set(noop_source_file "${AOM_GEN_SRC_DIR}/${basename}_noop.${extension}")
+  file(WRITE "${noop_source_file}"
        "// Generated file. DO NOT EDIT!\n"
        "// ${target_name} needs a ${extension} file to force link language, \n"
        "// or to silence a harmless CMake warning: Ignore me.\n"
-       "void aom_${target_name}_stub_function(void);\n"
-       "void aom_${target_name}_stub_function(void) {}\n")
-  list(APPEND "${out_file_list_var}" "${stub_source_file}")
+       "void aom_${target_name}_noop_function(void);\n"
+       "void aom_${target_name}_noop_function(void) {}\n")
+  list(APPEND "${out_file_list_var}" "${noop_source_file}")
 endmacro()
 
-# Convenience function for adding a stub source file to $target_name using
-# $extension as the file extension. Wraps create_stub_source_file().
-function(add_stub_source_file_to_target target_name extension)
-  create_stub_source_file("${target_name}" "${extension}"
-                          "stub_source_file_list")
-  target_sources(${target_name} PRIVATE ${stub_source_file_list})
+# Convenience function for adding a noop source file to $target_name using
+# $extension as the file extension. Wraps create_noop_source_file().
+function(add_noop_source_file_to_target target_name extension)
+  create_noop_source_file("${target_name}" "${extension}"
+                          "noop_source_file_list")
+  target_sources(${target_name} PRIVATE ${noop_source_file_list})
 endfunction()
 
 # Sets the value of the variable referenced by $feature to $value, and reports
