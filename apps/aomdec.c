@@ -118,7 +118,7 @@ static const arg_def_t *all_args[] = {
 };
 
 #if CONFIG_LIBYUV
-static INLINE int libyuv_scale(aom_image_t *src, aom_image_t *dst,
+static INLINE int libyuv_scale(const aom_image_t *src, aom_image_t *dst,
                                FilterModeEnum mode) {
   if (src->fmt == AOM_IMG_FMT_I42016) {
     assert(dst->fmt == AOM_IMG_FMT_I42016);
@@ -878,6 +878,21 @@ static int main_loop(int argc, const char **argv_) {
 
           if (img->d_w != scaled_img->d_w || img->d_h != scaled_img->d_h) {
 #if CONFIG_LIBYUV
+            if (img->fmt != AOM_IMG_FMT_I420 &&
+                img->fmt != AOM_IMG_FMT_I42016) {
+              fprintf(stderr,
+                      "%s can only scale 4:2:0 outputs but got format %s\n",
+                      exec_name, image_format_to_string(img->fmt));
+              goto fail;
+            }
+            if (img->fmt != scaled_img->fmt) {
+              fprintf(stderr,
+                      "%s failed to scale output frame because format changed "
+                      "from %s to %s\n",
+                      exec_name, image_format_to_string(scaled_img->fmt),
+                      image_format_to_string(img->fmt));
+              goto fail;
+            }
             libyuv_scale(img, scaled_img, kFilterBox);
             img = scaled_img;
 #else
