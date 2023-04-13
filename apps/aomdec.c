@@ -118,10 +118,23 @@ static const arg_def_t *all_args[] = {
 };
 
 #if CONFIG_LIBYUV
-static INLINE int libyuv_scale(aom_image_t *src, aom_image_t *dst,
+// Returns 0 on success and returns -1 on failure.
+static INLINE int libyuv_scale(const aom_image_t *src, aom_image_t *dst,
                                FilterModeEnum mode) {
+  if (src->fmt != AOM_IMG_FMT_I420 && src->fmt != AOM_IMG_FMT_I42016) {
+    fprintf(stderr, "%s can only scale 4:2:0 outputs but got format %s\n",
+            exec_name, image_format_to_string(src->fmt));
+    return -1;
+  }
+  if (src->fmt != dst->fmt) {
+    fprintf(stderr,
+            "%s failed to scale output frame because format changed from %s to "
+            "%s\n",
+            exec_name, image_format_to_string(dst->fmt),
+            image_format_to_string(src->fmt));
+    return -1;
+  }
   if (src->fmt == AOM_IMG_FMT_I42016) {
-    assert(dst->fmt == AOM_IMG_FMT_I42016);
     return I420Scale_16(
         (uint16_t *)src->planes[AOM_PLANE_Y], src->stride[AOM_PLANE_Y] / 2,
         (uint16_t *)src->planes[AOM_PLANE_U], src->stride[AOM_PLANE_U] / 2,
@@ -132,7 +145,6 @@ static INLINE int libyuv_scale(aom_image_t *src, aom_image_t *dst,
         dst->stride[AOM_PLANE_V] / 2, dst->d_w, dst->d_h, mode);
   }
   assert(src->fmt == AOM_IMG_FMT_I420);
-  assert(dst->fmt == AOM_IMG_FMT_I420);
   return I420Scale(src->planes[AOM_PLANE_Y], src->stride[AOM_PLANE_Y],
                    src->planes[AOM_PLANE_U], src->stride[AOM_PLANE_U],
                    src->planes[AOM_PLANE_V], src->stride[AOM_PLANE_V], src->d_w,
@@ -878,7 +890,7 @@ static int main_loop(int argc, const char **argv_) {
 
           if (img->d_w != scaled_img->d_w || img->d_h != scaled_img->d_h) {
 #if CONFIG_LIBYUV
-            libyuv_scale(img, scaled_img, kFilterBox);
+            if (libyuv_scale(img, scaled_img, kFilterBox) != 0) goto fail;
             img = scaled_img;
 #else
             fprintf(
