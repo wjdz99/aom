@@ -1,0 +1,106 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "aedc1242_1a022044",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-04-14T18:33:46Z",
+      "side": 1,
+      "message": "We may want to remove b/259173819 from the commit message. Please see my comment in pickrst.c.",
+      "revId": "7cbc4019af546eed4bd9819346125ec081216fe4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "db56cdd8_63116f72",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-04-14T18:33:46Z",
+      "side": 1,
+      "message": "This probably should be removed.",
+      "revId": "7cbc4019af546eed4bd9819346125ec081216fe4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ccf77fa2_89fa397d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-04-14T18:33:46Z",
+      "side": 1,
+      "message": "Thanks for the fix. I have some questions and suggested changes.",
+      "revId": "7cbc4019af546eed4bd9819346125ec081216fe4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cd144f85_4e355d21",
+        "filename": "av1/encoder/pickrst.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1101,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-04-14T18:33:46Z",
+      "side": 1,
+      "message": "Note: It\u0027s not clear if b/259173819 is the same bug, because its signed integer overflow occurs at a different location (line 1141). So I am not sure if we should mention b/259173819 in this comment.",
+      "revId": "7cbc4019af546eed4bd9819346125ec081216fe4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "32c37cfe_c7b3a94f",
+        "filename": "av1/encoder/pickrst.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1112,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-04-14T18:33:46Z",
+      "side": 1,
+      "message": "Should the condition `scaler_c \u003e\u003d 1 \u003e\u003e 7` be changed to `scaler_c \u003c\u003d 1 \u003c\u003c 7`?\n\nNote that both the inequality and the shift are changed.",
+      "revId": "7cbc4019af546eed4bd9819346125ec081216fe4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5156a81f_b6f5fc53",
+        "filename": "av1/encoder/pickrst.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1141,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-04-14T18:33:46Z",
+      "side": 1,
+      "message": "In b/259173819, the signed integer overflow occurs in this line.",
+      "revId": "7cbc4019af546eed4bd9819346125ec081216fe4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
