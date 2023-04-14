@@ -18,6 +18,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "7594625b_88fadd4d",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 26732
+      },
+      "writtenOn": "2023-04-14T18:49:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "aedc1242_1a022044",
+      "revId": "7cbc4019af546eed4bd9819346125ec081216fe4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "db56cdd8_63116f72",
@@ -31,6 +49,24 @@
       "writtenOn": "2023-04-14T18:33:46Z",
       "side": 1,
       "message": "This probably should be removed.",
+      "revId": "7cbc4019af546eed4bd9819346125ec081216fe4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "83cea4b5_a635d0b1",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 26732
+      },
+      "writtenOn": "2023-04-14T18:49:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "db56cdd8_63116f72",
       "revId": "7cbc4019af546eed4bd9819346125ec081216fe4",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -52,6 +88,23 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "4f292287_35ec88fb",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 26732
+      },
+      "writtenOn": "2023-04-14T18:49:36Z",
+      "side": 1,
+      "message": "Thanks for the review.",
+      "revId": "7cbc4019af546eed4bd9819346125ec081216fe4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "cd144f85_4e355d21",
@@ -69,6 +122,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "71d71c7d_7e804831",
+        "filename": "av1/encoder/pickrst.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1101,
+      "author": {
+        "id": 26732
+      },
+      "writtenOn": "2023-04-14T18:49:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cd144f85_4e355d21",
+      "revId": "7cbc4019af546eed4bd9819346125ec081216fe4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "32c37cfe_c7b3a94f",
@@ -82,6 +153,24 @@
       "writtenOn": "2023-04-14T18:33:46Z",
       "side": 1,
       "message": "Should the condition `scaler_c \u003e\u003d 1 \u003e\u003e 7` be changed to `scaler_c \u003c\u003d 1 \u003c\u003c 7`?\n\nNote that both the inequality and the shift are changed.",
+      "revId": "7cbc4019af546eed4bd9819346125ec081216fe4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "33040e20_1679abe0",
+        "filename": "av1/encoder/pickrst.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1112,
+      "author": {
+        "id": 26732
+      },
+      "writtenOn": "2023-04-14T18:49:36Z",
+      "side": 1,
+      "message": "For max_abs_akj \u003e\u003d scale_threshold scenario scaler_c has to be \u003e\u003d (1 \u003c\u003c 7) to ensure \nb[i + 1] -\u003d c * b[k] / cd * scaler_c;\ndoesn\u0027t overflow. Clarified the comment.",
+      "parentUuid": "32c37cfe_c7b3a94f",
       "revId": "7cbc4019af546eed4bd9819346125ec081216fe4",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
