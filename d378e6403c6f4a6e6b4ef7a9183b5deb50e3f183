@@ -24,6 +24,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "23de2b7c_0fba82a8",
+        "filename": "examples/svc_encoder_rtc.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1544,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2023-04-17T22:37:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a853bbd_1791727f",
+      "range": {
+        "startLine": 1544,
+        "startChar": 21,
+        "endLine": 1544,
+        "endChar": 28
+      },
+      "revId": "d378e6403c6f4a6e6b4ef7a9183b5deb50e3f183",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "deab3c93_16d56d65",
@@ -47,6 +71,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "08daa47d_08f38902",
+        "filename": "examples/svc_encoder_rtc.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1549,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2023-04-17T22:37:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "deab3c93_16d56d65",
+      "range": {
+        "startLine": 1549,
+        "startChar": 8,
+        "endLine": 1549,
+        "endChar": 11
+      },
+      "revId": "d378e6403c6f4a6e6b4ef7a9183b5deb50e3f183",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "19e38da6_8b35753c",
@@ -60,6 +108,30 @@
       "writtenOn": "2023-04-17T22:20:54Z",
       "side": 1,
       "message": "there\u0027s no need for this pair of ()",
+      "range": {
+        "startLine": 1550,
+        "startChar": 12,
+        "endLine": 1550,
+        "endChar": 13
+      },
+      "revId": "d378e6403c6f4a6e6b4ef7a9183b5deb50e3f183",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1128876a_88bf3ab6",
+        "filename": "examples/svc_encoder_rtc.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1550,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2023-04-17T22:37:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "19e38da6_8b35753c",
       "range": {
         "startLine": 1550,
         "startChar": 12,
