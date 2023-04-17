@@ -549,6 +549,12 @@ function(setup_aom_test_targets)
       list(APPEND testdata_targets testdata_${test_index})
     endforeach()
 
+    foreach(test_index RANGE ${max_file_index})
+      list(GET test_files ${test_index} test_file)
+      list(GET test_file_checksums ${test_index} test_file_checksum)
+      file(WRITE "${AOM_CONFIG_DIR}/testdata/${test_file}.sha1" "${test_file_checksum}")
+    endforeach()
+
     # Create a custom build target for running each test data download target.
     add_custom_target(testdata)
     add_dependencies(testdata ${testdata_targets})
@@ -587,6 +593,26 @@ function(setup_aom_test_targets)
     endif()
   endif()
 
+  # Collect all variables containing libaom test source files.
+  get_cmake_property(all_cmake_vars VARIABLES)
+  foreach(var ${all_cmake_vars})
+
+    # https://github.com/cheshirekow/cmake_format/issues/34
+    # cmake-format: off
+    if (("${var}" MATCHES "_TEST_" AND NOT
+         "${var}" MATCHES
+         "_DATA_\|_CMAKE_\|INTRA_PRED\|_COMPILED\|_HOSTING\|_PERF_\|CODER_\|_IDE_TEST\|PTHREAD_C_CXX\|^CMAKE_\|^C_TEST_\|^CXX_TEST_|_SOURCE_VARS$")
+        OR (CONFIG_AV1_ENCODER AND ENABLE_ENCODE_PERF_TESTS AND
+            "${var}" MATCHES "_ENCODE_PERF_TEST_")
+        OR (CONFIG_AV1_DECODER AND ENABLE_DECODE_PERF_TESTS AND
+            "${var}" MATCHES "_DECODE_PERF_TEST_")
+        OR (CONFIG_AV1_ENCODER AND "${var}" MATCHES "_TEST_ENCODER_")
+        OR (CONFIG_AV1_DECODER AND  "${var}" MATCHES "_TEST_DECODER_"))
+      list(APPEND aom_test_source_vars ${var})
+    endif()
+    # cmake-format: on
+  endforeach()
+
   # Libaom_test_srcs.txt generation.
   set(libaom_test_srcs_txt_file "${AOM_CONFIG_DIR}/libaom_test_srcs.txt")
   file(WRITE "${libaom_test_srcs_txt_file}"
@@ -607,6 +633,30 @@ function(setup_aom_test_targets)
       endif()
     endforeach()
     set(last_aom_test_source_var ${aom_test_source_var})
+  endforeach()
+
+  set(libaom_test_srcs_gni_file "${AOM_CONFIG_DIR}/libaom_test_srcs.gni")
+  file(WRITE "${libaom_test_srcs_gni_file}" "# This file is generated. DO NOT EDIT.\n")
+
+  message(STATUS "debug start: ${aom_test_source_vars}")
+
+  foreach(aom_test_source_var ${aom_test_source_vars})
+    if("${${aom_test_source_var}}" MATCHES "${AOM_ROOT}")
+      string(TOLOWER ${aom_test_source_var} aom_test_source_var_lowercase)
+      file(APPEND "${libaom_test_srcs_gni_file}" "\n${aom_test_source_var_lowercase} = [\n")
+    endif()
+
+    foreach(file ${${aom_test_source_var}})
+      message(STATUS "debug: ${file} ${aom_test_source_var}")
+      if(NOT "${file}" MATCHES "${AOM_CONFIG_DIR}")
+        string(REPLACE "${AOM_ROOT}" "//third_party/libaom/source/libaom" file "${file}")
+        file(APPEND "${libaom_test_srcs_gni_file}" "  \"${file}\",\n")
+      endif()
+    endforeach()
+
+    if("${${aom_test_source_var}}" MATCHES "${AOM_ROOT}")
+      file(APPEND "${libaom_test_srcs_gni_file}" "]\n")
+    endif()
   endforeach()
 
   # Set up test for rc interface
