@@ -843,6 +843,11 @@ typedef struct INTER_MODE_SPEED_FEATURES {
   // Bypass transform search based on skip rd
   int txfm_rd_gate_level;
 
+  // Aggressively skips transform search based on skip rd in mode evaluation
+  // stage of motion mode. This sf is applicable only if txfm_rd_gate_level is
+  // enabled.
+  int motion_mode_agg_txfm_rd_gating;
+
   // Limit the inter mode tested in the RD loop
   int reduce_inter_modes;
 
