@@ -273,10 +273,11 @@ if(ENABLE_EXAMPLES)
   set(AOM_LIB_TARGETS ${AOM_LIB_TARGETS} aom_encoder_stats)
 endif()
 
-add_library(aom ${AOM_SOURCES} $<TARGET_OBJECTS:aom_rtcd>)
+add_library(aom_obj OBJECT ${AOM_SOURCES})
+add_library(aom $<TARGET_OBJECTS:aom_obj> $<TARGET_OBJECTS:aom_rtcd>)
 if(BUILD_SHARED_LIBS)
-  add_library(aom_static STATIC ${AOM_SOURCES} $<TARGET_OBJECTS:aom_rtcd>)
-  set_target_properties(aom_static PROPERTIES OUTPUT_NAME aom)
+  add_library(aom_static STATIC $<TARGET_OBJECTS:aom_obj>
+                                $<TARGET_OBJECTS:aom_rtcd>)
 
   if(NOT MSVC)
     # Extract version string and set VERSION/SOVERSION for the aom target.
@@ -319,7 +320,7 @@ if(CONFIG_AV1_ENCODER AND NOT CONFIG_REALTIME_ONLY AND NOT BUILD_SHARED_LIBS)
 endif()
 
 # List of object and static library targets.
-set(AOM_LIB_TARGETS ${AOM_LIB_TARGETS} aom_rtcd aom_mem aom_scale aom)
+set(AOM_LIB_TARGETS ${AOM_LIB_TARGETS} aom_rtcd aom_mem aom_scale aom_obj aom)
 if(CONFIG_AV1_ENCODER AND NOT CONFIG_REALTIME_ONLY AND NOT BUILD_SHARED_LIBS)
   set(AOM_LIB_TARGETS ${AOM_LIB_TARGETS} aom_av1_rc)
 endif()
