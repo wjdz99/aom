@@ -73,6 +73,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "72513aa6_74ab478d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 32128
+      },
+      "writtenOn": "2023-04-18T16:52:59Z",
+      "side": 1,
+      "message": "We use the hard-code values. https://source.chromium.org/chromium/chromium/src/+/main:media/gpu/vaapi/av1_vaapi_video_encoder_delegate.cc",
+      "parentUuid": "2ef5a3da_fbe41174",
+      "revId": "f8eedefac1843f844d66e6b9354bdd1e87271f1e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "b9290fc3_f9b801bb",
         "filename": "test/ratectrl_rtc_test.cc",
         "patchSetId": 1
