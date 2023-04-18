@@ -46,6 +46,23 @@
       },
       "revId": "28205af6efdb18f287dff6a4a51e858210e3248c",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ef536ad0_c405a3b3",
+        "filename": "build/cmake/aom_configure.cmake",
+        "patchSetId": 2
+      },
+      "lineNbr": 179,
+      "author": {
+        "id": 32097
+      },
+      "writtenOn": "2023-04-18T22:19:35Z",
+      "side": 1,
+      "message": "This bit needs to be run *before* the enable_language call, otherwise https://gitlab.kitware.com/cmake/cmake/-/blob/master/Modules/CMakeASM_NASMInformation.cmake#L38 will run roughshod over it. Fixing this should make x86 builds happy.\n\nFor future reference, also see https://gitlab.kitware.com/cmake/cmake/-/issues/23697",
+      "revId": "28205af6efdb18f287dff6a4a51e858210e3248c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
