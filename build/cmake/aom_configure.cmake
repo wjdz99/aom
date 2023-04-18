@@ -155,16 +155,20 @@ if(NOT MSVC)
 endif()
 
 if(AOM_TARGET_CPU STREQUAL "x86" OR AOM_TARGET_CPU STREQUAL "x86_64")
-  find_program(AS_EXECUTABLE yasm $ENV{YASM_PATH})
-  if(NOT AS_EXECUTABLE OR ENABLE_NASM)
-    unset(AS_EXECUTABLE CACHE)
-    find_program(AS_EXECUTABLE nasm $ENV{NASM_PATH})
-    if(AS_EXECUTABLE)
-      test_nasm()
-    endif()
+  find_program(CMAKE_ASM_NASM_COMPILER yasm $ENV{YASM_PATH})
+  if(NOT CMAKE_ASM_NASM_COMPILER OR ENABLE_NASM)
+    unset(CMAKE_ASM_NASM_COMPILER CACHE)
+    find_program(CMAKE_ASM_NASM_COMPILER nasm $ENV{NASM_PATH})
   endif()
 
-  if(NOT AS_EXECUTABLE)
+  include(CheckLanguage)
+  check_language(ASM_NASM)
+  if(CMAKE_ASM_NASM_COMPILER)
+    enable_language(ASM_NASM)
+    if (CMAKE_ASM_NASM_COMPILER_ID STREQUAL "NASM")
+      test_nasm()
+    endif()
+  else()
     message(
       FATAL_ERROR
         "Unable to find assembler. Install 'yasm' or 'nasm.' "
