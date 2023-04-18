@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f8b5ac6c_bdcacf54",
+        "filename": "CMakeLists.txt",
+        "patchSetId": 2
+      },
+      "lineNbr": 279,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-04-18T22:05:22Z",
+      "side": 0,
+      "message": "You may also want to mention this change in the commit message. I\u0027m assuming this fixes the race you described in the bug.\n\nCan we instead rename the import lib to avoid changing libaom.a/aom.lib to libaom_static.a/aom_static.lib? Otherwise this will cause an incompatibility between releases and might affect some packages:\n\nhttps://packages.debian.org/bookworm/amd64/libaom-dev/filelist",
+      "revId": "d6b8177c9e7fe0fa381afb6ed3946c492fc4d6e9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
