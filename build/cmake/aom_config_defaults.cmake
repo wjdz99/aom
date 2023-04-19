@@ -160,6 +160,10 @@ set_aom_config_var(CONFIG_OUTPUT_FRAME_SIZE 0
 set_aom_config_var(
   CONFIG_SALIENCY_MAP 0
   "AV1 experiment: Enable saliency map based encoding tuning for VMAF.")
+# Chromium can't support all encode/decode configs due to limitations on
+# the maximum buffer size allowed by its partition allocator.
+set_aom_config_var(CONFIG_CHROMIUM 0
+                   "Enable Chromium specific configuration")
 
 #
 # Variables in this section control optional features of the build system.
