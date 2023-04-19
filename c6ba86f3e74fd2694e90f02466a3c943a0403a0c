@@ -39,6 +39,30 @@
       },
       "revId": "c6ba86f3e74fd2694e90f02466a3c943a0403a0c",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a8f53e95_01fa6508",
+        "filename": "test/svc_datarate_test.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 377,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2023-04-19T23:40:19Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "7e04fc65_55b945c9",
+      "range": {
+        "startLine": 377,
+        "startChar": 6,
+        "endLine": 377,
+        "endChar": 9
+      },
+      "revId": "c6ba86f3e74fd2694e90f02466a3c943a0403a0c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
