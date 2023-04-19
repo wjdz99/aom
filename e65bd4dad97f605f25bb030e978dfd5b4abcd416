@@ -1,6 +1,23 @@
 {
   "comments": [
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "80f8a4ca_0278554f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 32097
+      },
+      "writtenOn": "2023-04-19T23:16:48Z",
+      "side": 1,
+      "message": "Fixed both issues, sending the new patchset now. Thanks for the review.",
+      "revId": "e65bd4dad97f605f25bb030e978dfd5b4abcd416",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "4b32ba55_3fc7425f",
@@ -32,6 +49,24 @@
       "side": 1,
       "message": "Spoiled by Meson... also to check tomorrow. aom is small enough that I can build it in my old MBP.",
       "parentUuid": "4b32ba55_3fc7425f",
+      "revId": "e65bd4dad97f605f25bb030e978dfd5b4abcd416",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b71d62b3_22888b1e",
+        "filename": "CMakeLists.txt",
+        "patchSetId": 2
+      },
+      "lineNbr": 279,
+      "author": {
+        "id": 32097
+      },
+      "writtenOn": "2023-04-19T23:16:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "32fcc423_7ee0236a",
       "revId": "e65bd4dad97f605f25bb030e978dfd5b4abcd416",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
