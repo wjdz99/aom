@@ -36,6 +36,19 @@ class DropFrameEncodeTest
     }
   }
 
+  virtual void SetTestAndRun() {
+    cfg_.rc_end_usage = AOM_CBR;
+    cfg_.rc_buf_sz = 1;
+    cfg_.g_pass = AOM_RC_ONE_PASS;
+    cfg_.rc_dropframe_thresh = 1;
+    cfg_.g_threads = threads_;
+
+    ::libaom_test::I420VideoSource video("desktopqvga2.320_240.yuv", 320, 240,
+                                         30, 1, 0, 100);
+
+    ASSERT_NO_FATAL_FAILURE(RunLoop(&video));
+  }
+
   unsigned int frame_number_;
   unsigned int threads_;
 
@@ -43,24 +56,21 @@ class DropFrameEncodeTest
   int cpu_used_;
 };
 
+class DropFrameEncodeTestLarge : public DropFrameEncodeTest {};
+
 // Test to reproduce the assertion failure related to buf->display_idx in
 // init_gop_frames_for_tpl() and segmentation fault reported in aomedia:3372
 // while encoding with --drop-frame=1.
-TEST_P(DropFrameEncodeTest, TestNoMisMatch) {
-  cfg_.rc_end_usage = AOM_CBR;
-  cfg_.rc_buf_sz = 1;
-  cfg_.g_pass = AOM_RC_ONE_PASS;
-  cfg_.rc_dropframe_thresh = 1;
-  cfg_.g_threads = threads_;
+TEST_P(DropFrameEncodeTest, TestNoMisMatch) { SetTestAndRun(); }
 
-  ::libaom_test::I420VideoSource video("desktopqvga2.320_240.yuv", 320, 240, 30,
-                                       1, 0, 100);
-
-  ASSERT_NO_FATAL_FAILURE(RunLoop(&video));
-}
+TEST_P(DropFrameEncodeTestLarge, TestNoMisMatch) { SetTestAndRun(); }
 
 AV1_INSTANTIATE_TEST_SUITE(DropFrameEncodeTest,
                            ::testing::Values(::libaom_test::kOnePassGood),
-                           ::testing::Range(0, 7), ::testing::Values(1, 4));
+                           ::testing::Range(5, 7), ::testing::Values(1, 4));
+
+AV1_INSTANTIATE_TEST_SUITE(DropFrameEncodeTestLarge,
+                           ::testing::Values(::libaom_test::kOnePassGood),
+                           ::testing::Range(0, 5), ::testing::Values(1, 4));
 
 }  // namespace
