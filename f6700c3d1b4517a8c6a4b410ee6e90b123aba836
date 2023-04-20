@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a73cc155_49137e9e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-04-20T17:13:32Z",
+      "side": 1,
+      "message": "With `CMake 3.22.4 -G Xcode`:\n\n```\nerror: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/libtool: can\u0027t open file: AOM.build/Debug/aom_dsp_common_sse2.build/Objects-normal/x86_64/aom_high_subpixel_8t_sse2.o (No such file or directory)\nerror: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/libtool: can\u0027t open file: AOM.build/Debug/aom_dsp_common_sse2.build/Objects-normal/x86_64/aom_high_subpixel_bilinear_sse2.o (No such file or directory)\n...\nCommand Libtool failed with a nonzero exit code\n\nwarning: no rule to process file \u0027av1/encoder/x86/dct_sse2.asm\u0027 of type \u0027sourcecode\u0027 for architecture \u0027x86_64\u0027 (in target \u0027aom_av1_encoder_sse2\u0027 from project \u0027AOM\u0027)\nwarning: no rule to process file \u0027av1/encoder/x86/error_sse2.asm\u0027 of type \u0027sourcecode\u0027 for architecture \u0027x86_64\u0027 (in target \u0027aom_av1_encoder_sse2\u0027 from project \u0027AOM\u0027)\n...\n\n```",
+      "revId": "f6700c3d1b4517a8c6a4b410ee6e90b123aba836",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
