@@ -50,6 +50,24 @@
       "message": "These run too slowly under [valgrind](https://build.aomedia.org/jenkins/job/libaom__unit_tests-valgrind/2264/), the lower cpu-used values should probably be in a Large test. It would be good to check the timings with and without address sanitizer too.\n\n```\nconsoleText:[       OK ] AV1/DropFrameEncodeTest.TestNoMisMatch/13 (140653 ms)\nconsoleText.1:[       OK ] AV1/DropFrameEncodeTest.TestNoMisMatch/0 (21214795 ms)\nconsoleText.10:[       OK ] AV1/DropFrameEncodeTest.TestNoMisMatch/9 (367887 ms)\nconsoleText.11:[       OK ] AV1/DropFrameEncodeTest.TestNoMisMatch/10 (176254 ms)\nconsoleText.12:[       OK ] AV1/DropFrameEncodeTest.TestNoMisMatch/11 (182834 ms)\nconsoleText.13:[       OK ] AV1/DropFrameEncodeTest.TestNoMisMatch/12 (140776 ms)\nconsoleText.2:[       OK ] AV1/DropFrameEncodeTest.TestNoMisMatch/1 (23997407 ms)\nconsoleText.3:[       OK ] AV1/DropFrameEncodeTest.TestNoMisMatch/2 (9223935 ms)\nconsoleText.4:[       OK ] AV1/DropFrameEncodeTest.TestNoMisMatch/3 (5702852 ms)\nconsoleText.5:[       OK ] AV1/DropFrameEncodeTest.TestNoMisMatch/4 (1820124 ms)\nconsoleText.6:[       OK ] AV1/DropFrameEncodeTest.TestNoMisMatch/5 (3101730 ms)\nconsoleText.7:[       OK ] AV1/DropFrameEncodeTest.TestNoMisMatch/6 (885322 ms)\nconsoleText.8:[       OK ] AV1/DropFrameEncodeTest.TestNoMisMatch/7 (553373 ms)\nconsoleText.9:[       OK ] AV1/DropFrameEncodeTest.TestNoMisMatch/8 (365313 ms)\n```",
       "revId": "d90659acbb1487949195006d46c4582c62f1b90f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "04db5a38_d98f5d2f",
+        "filename": "test/dropframe_encode_test.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2023-04-20T14:25:50Z",
+      "side": 1,
+      "message": "addressed in https://aomedia-review.googlesource.com/c/aom/+/173821\n\nI moved speed 0 to 4 to Large",
+      "parentUuid": "014ff972_2121510e",
+      "revId": "d90659acbb1487949195006d46c4582c62f1b90f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ],
   "submitRequirementResults": [
