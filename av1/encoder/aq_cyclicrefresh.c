@@ -380,6 +380,7 @@ static void cyclic_refresh_update_map(AV1_COMP *const cpi) {
   if (cr->target_num_seg_blocks == 0) {
     // Disable segmentation, seg_map is already set to 0 above.
     av1_disable_segmentation(&cm->seg);
+    cr->apply_cyclic_refresh = 0;
   }
 }
 
