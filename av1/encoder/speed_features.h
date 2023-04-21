@@ -808,7 +808,14 @@ typedef struct MV_SPEED_FEATURES {
   int full_pixel_search_level;
 
   // Whether to downsample the rows in sad calculation during motion search.
-  // This is only active when there are at least 16 rows.
+  // This is only active when there are at least 16 rows. Also, if there is a
+  // large discrepancy in the SAD values for the final motion vector between
+  // skipping vs not skipping, motion search is redone with skip row features
+  // off.
+  // 0: Do not downsample rows
+  // 1: Use SAD deviation of the even rows to odd rows as the metric to
+  //    downsample rows for block height >= 16
+  // 2: Downsample rows for block height >= 16
   int use_downsampled_sad;
 
   // Enable/disable extensive joint motion search.
