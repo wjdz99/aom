@@ -283,9 +283,16 @@ static uint32_t motion_estimation(AV1_COMP *cpi, MACROBLOCK *x,
   av1_set_mv_search_method(&full_ms_params, search_site_cfg,
                            tpl_sf->search_method);
 
+  int use_downsampled_sad = cpi->sf.mv_sf.use_downsampled_sad;
+  if (use_downsampled_sad == 1) {
+    const int is_key_frame =
+        cpi->ppi->gf_group.update_type[cpi->gf_frame_index] == KF_UPDATE;
+    use_downsampled_sad = !is_key_frame;
+  }
+
   av1_full_pixel_search(start_mv, &full_ms_params, step_param,
-                        cond_cost_list(cpi, cost_list), &best_mv->as_fullmv,
-                        NULL);
+                        use_downsampled_sad, cond_cost_list(cpi, cost_list),
+                        &best_mv->as_fullmv, NULL);
 
   SUBPEL_MOTION_SEARCH_PARAMS ms_params;
   av1_make_default_subpel_ms_params(&ms_params, cpi, x, bsize, &center_mv,
