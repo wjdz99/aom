@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8b1cf462_396f74f4",
+        "filename": "aom_ports/aom_ports.cmake",
+        "patchSetId": 6
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-04-21T19:48:24Z",
+      "side": 1,
+      "message": "this is under a `WIN32` branch.",
+      "revId": "fc001711c5f23c012852f7159145e036451fb7f6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d70a8ff1_f19be53a",
+        "filename": "build/cmake/aom_optimization.cmake",
+        "patchSetId": 6
+      },
+      "lineNbr": 135,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-04-21T19:48:24Z",
+      "side": 1,
+      "message": "I think this is only true for Xcode now, right?",
+      "revId": "fc001711c5f23c012852f7159145e036451fb7f6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "134fe899_eb519394",
+        "filename": "build/cmake/aom_optimization.cmake",
+        "patchSetId": 6
+      },
+      "lineNbr": 169,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-04-21T19:48:24Z",
+      "side": 1,
+      "message": "`CMAKE_ASM_NASM_COMPILER`",
+      "range": {
+        "startLine": 169,
+        "startChar": 37,
+        "endLine": 169,
+        "endChar": 50
+      },
+      "revId": "fc001711c5f23c012852f7159145e036451fb7f6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
