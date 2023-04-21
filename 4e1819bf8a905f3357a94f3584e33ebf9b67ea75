@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4508152e_d2530339",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-04-21T19:12:10Z",
+      "side": 1,
+      "message": "try to break this line around ~72 columns:\n\nhttps://git-scm.com/book/en/v2/Distributed-Git-Contributing-to-a-Project#_commit_guidelines",
+      "revId": "4e1819bf8a905f3357a94f3584e33ebf9b67ea75",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
