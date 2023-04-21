@@ -158,9 +158,16 @@ static void tf_motion_search(AV1_COMP *cpi, MACROBLOCK *mb,
     full_ms_params.mesh_search_mv_diff_threshold = 2;
   }
 
+  int use_downsampled_sad = cpi->sf.mv_sf.use_downsampled_sad;
+  if (use_downsampled_sad == 1) {
+    const int is_key_frame =
+        cpi->ppi->gf_group.update_type[cpi->gf_frame_index] == KF_UPDATE;
+    use_downsampled_sad = !is_key_frame;
+  }
+
   av1_full_pixel_search(start_mv, &full_ms_params, step_param,
-                        cond_cost_list(cpi, cost_list), &best_mv.as_fullmv,
-                        NULL);
+                        use_downsampled_sad, cond_cost_list(cpi, cost_list),
+                        &best_mv.as_fullmv, NULL);
 
   if (force_integer_mv == 1) {  // Only do full search on the entire block.
     const int mv_row = best_mv.as_mv.row;
@@ -218,9 +225,9 @@ static void tf_motion_search(AV1_COMP *cpi, MACROBLOCK *mb,
           full_ms_params.mesh_search_mv_diff_threshold = 2;
         }
 
-        av1_full_pixel_search(start_mv, &full_ms_params, step_param,
-                              cond_cost_list(cpi, cost_list),
-                              &best_mv.as_fullmv, NULL);
+        av1_full_pixel_search(
+            start_mv, &full_ms_params, step_param, use_downsampled_sad,
+            cond_cost_list(cpi, cost_list), &best_mv.as_fullmv, NULL);
 
         av1_make_default_subpel_ms_params(&ms_params, cpi, mb, subblock_size,
                                           &baseline_mv, cost_list);

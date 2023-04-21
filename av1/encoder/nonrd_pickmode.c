@@ -243,8 +243,8 @@ static int combined_motion_search(AV1_COMP *cpi, MACROBLOCK *x,
                                      /*fine_search_interval=*/0);
 
   const unsigned int full_var_rd = av1_full_pixel_search(
-      start_mv, &full_ms_params, step_param, cond_cost_list(cpi, cost_list),
-      &tmp_mv->as_fullmv, NULL);
+      start_mv, &full_ms_params, step_param, cpi->sf.mv_sf.use_downsampled_sad,
+      cond_cost_list(cpi, cost_list), &tmp_mv->as_fullmv, NULL);
 
   // calculate the bit cost on motion vector
   MV mvp_full = get_mv_from_fullmv(&tmp_mv->as_fullmv);
