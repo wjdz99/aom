@@ -737,8 +737,7 @@ static AOM_INLINE int should_force_mode_cost_update(const AV1_COMP *cpi) {
   if (cpi->oxcf.algo_cfg.cdf_update_mode == 2) {
     return cpi->frames_since_last_update == 1;
   } else if (cpi->oxcf.algo_cfg.cdf_update_mode == 1) {
-    if (cpi->svc.number_spatial_layers == 1 &&
-        cpi->svc.number_temporal_layers == 1) {
+    if (cpi->svc.temporal_layer_id == 0) {
       const AV1_COMMON *const cm = &cpi->common;
       const RATE_CONTROL *const rc = &cpi->rc;
 
@@ -746,8 +745,6 @@ static AOM_INLINE int should_force_mode_cost_update(const AV1_COMP *cpi) {
              rc->high_source_sad || rc->frames_since_key < 10 ||
              cpi->cyclic_refresh->counter_encode_maxq_scene_change < 10 ||
              cm->current_frame.frame_number % 8 == 0;
-    } else if (cpi->svc.number_temporal_layers > 1) {
-      return cpi->svc.temporal_layer_id != cpi->svc.number_temporal_layers - 1;
     }
   }
 
