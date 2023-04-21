@@ -259,10 +259,10 @@ void av1_single_motion_search(const AV1_COMP *const cpi, MACROBLOCK *x,
 
         if (smv.as_int == INVALID_MV) continue;
 
-        int thissme =
-            av1_full_pixel_search(smv.as_fullmv, &full_ms_params, step_param,
-                                  cond_cost_list(cpi, cost_list), &this_best_mv,
-                                  &this_second_best_mv);
+        int thissme = av1_full_pixel_search(
+            smv.as_fullmv, &full_ms_params, step_param,
+            cpi->sf.mv_sf.use_downsampled_sad, cond_cost_list(cpi, cost_list),
+            &this_best_mv, &this_second_best_mv);
 
         if (thissme < bestsme) {
           bestsme = thissme;
@@ -612,9 +612,9 @@ int av1_joint_motion_search(const AV1_COMP *cpi, MACROBLOCK *x,
     // Small-range full-pixel motion search.
     if (!cpi->sf.mv_sf.disable_extensive_joint_motion_search &&
         mbmi->interinter_comp.type != COMPOUND_WEDGE) {
-      bestsme =
-          av1_full_pixel_search(start_fullmv, &full_ms_params, 5, NULL,
-                                &best_mv.as_fullmv, &second_best_mv.as_fullmv);
+      bestsme = av1_full_pixel_search(
+          start_fullmv, &full_ms_params, 5, cpi->sf.mv_sf.use_downsampled_sad,
+          NULL, &best_mv.as_fullmv, &second_best_mv.as_fullmv);
     } else {
       bestsme = av1_refining_search_8p_c(&full_ms_params, start_fullmv,
                                          &best_mv.as_fullmv);
@@ -764,7 +764,8 @@ int av1_compound_single_motion_search(const AV1_COMP *cpi, MACROBLOCK *x,
   const FULLPEL_MV start_fullmv = get_fullmv_from_mv(this_mv);
 
   // Small-range full-pixel motion search.
-  bestsme = av1_full_pixel_search(start_fullmv, &full_ms_params, 5, NULL,
+  bestsme = av1_full_pixel_search(start_fullmv, &full_ms_params, 5,
+                                  cpi->sf.mv_sf.use_downsampled_sad, NULL,
                                   &best_mv.as_fullmv, NULL);
 
   if (scaled_ref_frame) {
@@ -982,9 +983,9 @@ int_mv av1_simple_motion_search(AV1_COMP *const cpi, MACROBLOCK *x, int mi_row,
   av1_make_default_fullpel_ms_params(&full_ms_params, cpi, x, bsize, &ref_mv,
                                      src_search_sites, fine_search_interval);
 
-  var = av1_full_pixel_search(start_mv, &full_ms_params, step_param,
-                              cond_cost_list(cpi, cost_list),
-                              &best_mv.as_fullmv, NULL);
+  var = av1_full_pixel_search(
+      start_mv, &full_ms_params, step_param, cpi->sf.mv_sf.use_downsampled_sad,
+      cond_cost_list(cpi, cost_list), &best_mv.as_fullmv, NULL);
 
   const int use_subpel_search =
       var < INT_MAX && !cpi->common.features.cur_frame_force_integer_mv &&

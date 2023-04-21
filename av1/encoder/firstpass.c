@@ -285,7 +285,8 @@ static AOM_INLINE void first_pass_motion_search(AV1_COMP *cpi, MACROBLOCK *x,
   av1_set_mv_search_method(&ms_params, first_pass_search_sites, NSTEP);
 
   FULLPEL_MV this_best_mv;
-  tmp_err = av1_full_pixel_search(start_mv, &ms_params, step_param, NULL,
+  tmp_err = av1_full_pixel_search(start_mv, &ms_params, step_param,
+                                  0 /* use_downsampled_sad */, NULL,
                                   &this_best_mv, NULL);
 
   if (tmp_err < INT_MAX) {
