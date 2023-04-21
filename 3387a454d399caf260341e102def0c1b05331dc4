@@ -133,6 +133,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "fdc2a6b6_6e2b553a",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 1760,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2023-04-21T17:52:06Z",
+      "side": 1,
+      "message": "Thanks for the study. The correctness is ensured if this checking is added within this feature\u0027s code. This is the straightforward way. In general speaking, we need this checking in the mode evaluation (i.e. it doesn\u0027t have to stay within this feature\u0027s code). But, it might not be easy to implement it.",
+      "parentUuid": "5ebc07da_bb842ff6",
+      "range": {
+        "startLine": 1760,
+        "startChar": 6,
+        "endLine": 1760,
+        "endChar": 30
+      },
+      "revId": "3387a454d399caf260341e102def0c1b05331dc4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "12e5be3a_df614c08",
         "filename": "av1/encoder/rdopt.c",
         "patchSetId": 8
