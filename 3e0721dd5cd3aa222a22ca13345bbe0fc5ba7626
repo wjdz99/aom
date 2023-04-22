@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ddc18b4b_dcfa70dd",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-04-22T05:05:06Z",
+      "side": 1,
+      "message": "This doesn\u0027t fail on Xcode now, but with this version I do see warnings:\n\n```\nwarning: no rule to process file \u0027aom_ports/float.asm\u0027 of type \u0027sourcecode\u0027 for architecture \u0027x86_64\u0027 (in target \u0027aom_ports_static\u0027 from project \u0027AOM\u0027)\nwarning: no rule to process file \u0027aom_dsp/x86/fwd_txfm_ssse3_x86_64.asm\u0027 of type \u0027sourcecode\u0027 for architecture \u0027x86_64\u0027 (in target \u0027aom_dsp_encoder_ssse3_static\u0027 from project \u0027AOM\u0027)\n...\n```",
+      "revId": "3e0721dd5cd3aa222a22ca13345bbe0fc5ba7626",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
