@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "72b4dfa6_2b1d45c6",
+        "filename": "av1/common/cdef_block_simd.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 275,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-04-24T23:18:19Z",
+      "side": 1,
+      "message": "This will also affect clang-cl. Does it have the same issue?",
+      "revId": "d97e571a28b8ff94d6271637dcb00c6857994c57",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
