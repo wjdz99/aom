@@ -16,6 +16,24 @@
       "message": "This will also affect clang-cl. Does it have the same issue?",
       "revId": "d97e571a28b8ff94d6271637dcb00c6857994c57",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b5c7d50a_9812bfd7",
+        "filename": "av1/common/cdef_block_simd.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 275,
+      "author": {
+        "id": 32097
+      },
+      "writtenOn": "2023-04-25T14:06:52Z",
+      "side": 1,
+      "message": "Oh, my bad, Clang/CL is not affected. I\u0027ll try to narrow it down.",
+      "parentUuid": "72b4dfa6_2b1d45c6",
+      "revId": "d97e571a28b8ff94d6271637dcb00c6857994c57",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
