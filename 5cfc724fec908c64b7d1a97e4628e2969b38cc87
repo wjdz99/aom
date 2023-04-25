@@ -22,6 +22,30 @@
       },
       "revId": "5cfc724fec908c64b7d1a97e4628e2969b38cc87",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1f6e43b9_88321c7b",
+        "filename": "aom_dsp/sad.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-04-25T20:41:12Z",
+      "side": 1,
+      "message": "\u003e Looks like we can remove this `#if` as the two `#define`s now look the same.\n\nGood catch. I\u0027ll follow up with something.\n\n-\u003e https://aomedia-review.googlesource.com/c/aom/+/174101",
+      "parentUuid": "7093a45e_58977f7a",
+      "range": {
+        "startLine": 64,
+        "startChar": 0,
+        "endLine": 64,
+        "endChar": 24
+      },
+      "revId": "5cfc724fec908c64b7d1a97e4628e2969b38cc87",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ],
   "submitRequirementResults": [
