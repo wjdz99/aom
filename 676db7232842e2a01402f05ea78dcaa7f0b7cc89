@@ -26,6 +26,30 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "9cdfe0ae_2f619a87",
+        "filename": "aom_dsp/arm/intrapred_neon.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 491,
+      "author": {
+        "id": 31817
+      },
+      "writtenOn": "2023-04-25T12:52:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e6334401_47db0b8d",
+      "range": {
+        "startLine": 491,
+        "startChar": 41,
+        "endLine": 491,
+        "endChar": 44
+      },
+      "revId": "676db7232842e2a01402f05ea78dcaa7f0b7cc89",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "70db2612_83a7c91b",
         "filename": "aom_dsp/arm/intrapred_neon.c",
         "patchSetId": 2
@@ -37,6 +61,24 @@
       "writtenOn": "2023-04-24T19:01:44Z",
       "side": 1,
       "message": "not necessary here, but to keep the size of the file down maybe these could be gathered into a macro.",
+      "revId": "676db7232842e2a01402f05ea78dcaa7f0b7cc89",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a4165ccb_9cfe570e",
+        "filename": "aom_dsp/arm/intrapred_neon.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 589,
+      "author": {
+        "id": 31817
+      },
+      "writtenOn": "2023-04-25T12:52:34Z",
+      "side": 1,
+      "message": "I\u0027ve slightly adjusted how the dc_load_sum_{16,32,64} methods work so that these can be macro\u0027d, seems to work well now! I\u0027ve left the \"full\" versions as-is since there was much less in common in those implementations due to the desire to delay the reduction for as long as possible.",
+      "parentUuid": "70db2612_83a7c91b",
       "revId": "676db7232842e2a01402f05ea78dcaa7f0b7cc89",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
