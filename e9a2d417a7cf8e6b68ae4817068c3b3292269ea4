@@ -84,6 +84,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "3c97bce8_b4f697d3",
+        "filename": "av1/encoder/x86/pickrst_avx2.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1523,
+      "author": {
+        "id": 31012
+      },
+      "writtenOn": "2023-04-26T13:53:02Z",
+      "side": 1,
+      "message": "The improvements made to AVX2 intrinsic is mainly achieved by pre-computing the values in ‘src-avg’ and ‘dgd-avg’ buffers and the same will be used to avoid most of the C operations.\nSize of the buffer is decided based on the worst case requirement i.e., the maximum width and height of the LRU allowed for Wiener filtering.\nWe did not prefer to initialize the whole buffer as the memset was adding overhead to intrinsic speed. With memset, the module level speed up was reduced by 16% and 8% for windows sizes 5 and 7 respectively. However, in order to address a suggestion given by James, the buffer allocation is moved from LRU level to frame level. With this change, we confirmed that the overhead added by memset is negligible. Hence, we have modified the memset as per your suggestion.\nHowever, the buffers are needed to be allocated only in below cases\n1. When AVX2 instruction set is enabled\n* Hence the memory allocation is kept under the HAVE_AVX2 flag.\n2. When Wiener filter is enabled.\n* We will include this change in our subsequent CL where the Wiener filter is enabled for speed 5 and 6.",
+      "parentUuid": "0b6d262c_f2a1ab70",
+      "range": {
+        "startLine": 1522,
+        "startChar": 2,
+        "endLine": 1523,
+        "endChar": 80
+      },
+      "revId": "e9a2d417a7cf8e6b68ae4817068c3b3292269ea4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "8758a280_a3abd61e",
         "filename": "av1/encoder/x86/pickrst_avx2.c",
         "patchSetId": 1
@@ -95,6 +119,30 @@
       "writtenOn": "2023-04-21T17:34:20Z",
       "side": 1,
       "message": "What are the cases that call c function? If this is actually called, maybe move this to the top part of this function, so this memory allocation won\u0027t be done?",
+      "range": {
+        "startLine": 1545,
+        "startChar": 4,
+        "endLine": 1547,
+        "endChar": 54
+      },
+      "revId": "e9a2d417a7cf8e6b68ae4817068c3b3292269ea4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f1437e76_b60a4468",
+        "filename": "av1/encoder/x86/pickrst_avx2.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1547,
+      "author": {
+        "id": 31012
+      },
+      "writtenOn": "2023-04-26T13:53:02Z",
+      "side": 1,
+      "message": "The SIMD support is facilitated for Wiener window sizes 5 \u0026 7 and for other window sizes the C function is invoked. As per our understanding, currently the encoder supports window sizes 5 and 7.",
+      "parentUuid": "8758a280_a3abd61e",
       "range": {
         "startLine": 1545,
         "startChar": 4,
