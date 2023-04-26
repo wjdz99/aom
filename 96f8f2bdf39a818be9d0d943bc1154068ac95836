@@ -16,6 +16,24 @@
       "message": "Since it\u0027s also a cherry pick, could you +1 it?",
       "revId": "96f8f2bdf39a818be9d0d943bc1154068ac95836",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0d0c9fba_344b7148",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-04-26T01:37:20Z",
+      "side": 1,
+      "message": "\u003e Since it\u0027s also a cherry pick, could you +1 it?\n\nLike with the other changes we can leave these until Wan-Teh is back later in the week. There\u0027s a policy against self +2, which I think I\u0027ll trigger since I uploaded the latest patchset.",
+      "parentUuid": "f5f05973_90bde73f",
+      "revId": "96f8f2bdf39a818be9d0d943bc1154068ac95836",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
