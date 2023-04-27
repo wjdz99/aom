@@ -33,6 +33,23 @@
       "message": "Please add a comment here. You can copy your explanation in the commit message.",
       "revId": "9763f658502e19b352ec2ae66a06b5bf6491e50b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "069113a9_2fa7470f",
+        "filename": "build/cmake/aom_optimization.cmake",
+        "patchSetId": 5
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-04-27T23:44:01Z",
+      "side": 1,
+      "message": "Nit: This compiler is usually referred to as clang-cl. \"Clang/CL\" could be misinterpreted as \"Clang or CL\" or \"Clang and CL\".",
+      "revId": "9763f658502e19b352ec2ae66a06b5bf6491e50b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
