@@ -343,8 +343,9 @@ static void loop_filter_rows_mt(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm,
                                 int lpf_opt_level) {
   const AVxWorkerInterface *const winterface = aom_get_worker_interface();
   int i;
-  loop_filter_frame_mt_init(cm, start, stop, planes_to_lf, num_workers, lf_sync,
-                            lpf_opt_level, MAX_MIB_SIZE_LOG2);
+  loop_filter_frame_mt_init(cm, num_workers, lf_sync, MAX_MIB_SIZE_LOG2);
+  enqueue_lf_jobs(lf_sync, start, stop, planes_to_lf, lpf_opt_level,
+                  (1 << MAX_MIB_SIZE_LOG2));
 
   // Set up loopfilter thread data.
   for (i = num_workers - 1; i >= 0; --i) {
