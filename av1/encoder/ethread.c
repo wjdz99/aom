@@ -1626,6 +1626,12 @@ static void lpf_pipeline_mt_init(AV1_COMP *cpi) {
   const int use_cdef = is_cdef_used(cm);
   const int use_restoration = is_restoration_used(cm);
 
+  // In case of change in frame resolution or change in number of workers,
+  // re-allocate multi-thread memory.
+  loop_filter_frame_mt_init(cm, cpi->mt_info.num_mod_workers[MOD_LPF],
+                            &cpi->mt_info.lf_row_sync,
+                            cm->seq_params->mib_size_log2);
+
   const unsigned int skip_apply_postproc_filters =
       derive_skip_apply_postproc_filters(cpi, use_loopfilter, use_cdef,
                                          use_superres, use_restoration);
@@ -1664,10 +1670,9 @@ static void lpf_pipeline_mt_init(AV1_COMP *cpi) {
 
     assert(cpi->mt_info.num_mod_workers[MOD_ENC] ==
            cpi->mt_info.num_mod_workers[MOD_LPF]);
-    loop_filter_frame_mt_init(cm, start_mi_row, end_mi_row, planes_to_lf,
-                              cpi->mt_info.num_mod_workers[MOD_LPF],
-                              &cpi->mt_info.lf_row_sync, lpf_opt_level,
-                              cm->seq_params->mib_size_log2);
+    enqueue_lf_jobs(&cpi->mt_info.lf_row_sync, start_mi_row, end_mi_row,
+                    planes_to_lf, lpf_opt_level,
+                    (1 << cm->seq_params->mib_size_log2));
   }
 }
 

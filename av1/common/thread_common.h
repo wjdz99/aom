@@ -242,8 +242,7 @@ static AOM_INLINE void enqueue_lf_jobs(AV1LfSync *lf_sync, int start, int stop,
 }
 
 static AOM_INLINE void loop_filter_frame_mt_init(
-    AV1_COMMON *cm, int start_mi_row, int end_mi_row, const int planes_to_lf[3],
-    int num_workers, AV1LfSync *lf_sync, int lpf_opt_level,
+    AV1_COMMON *cm, int num_workers, AV1LfSync *lf_sync,
     int num_mis_in_lpf_unit_height_log2) {
   // Number of superblock rows
   const int sb_rows =
@@ -260,9 +259,6 @@ static AOM_INLINE void loop_filter_frame_mt_init(
     memset(lf_sync->cur_sb_col[i], -1,
            sizeof(*(lf_sync->cur_sb_col[i])) * sb_rows);
   }
-
-  enqueue_lf_jobs(lf_sync, start_mi_row, end_mi_row, planes_to_lf,
-                  lpf_opt_level, (1 << num_mis_in_lpf_unit_height_log2));
 }
 
 static AOM_INLINE AV1LfMTInfo *get_lf_job_info(AV1LfSync *lf_sync) {
