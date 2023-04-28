@@ -3040,7 +3040,9 @@ int compute_num_mod_workers(AV1_COMP *cpi, MULTI_THREADED_MODULES mod_name) {
       num_mod_workers = cpi->ppi->p_mt_info.num_mod_workers[MOD_FRAME_ENC];
       break;
     case MOD_AI:
-      if (cpi->oxcf.pass == AOM_RC_ONE_PASS) {
+      // The multi-threading implementation of deltaq-mode = 3 in allintra
+      // mode is based on row multi threading.
+      if (cpi->oxcf.pass == AOM_RC_ONE_PASS && cpi->oxcf.row_mt) {
         num_mod_workers = compute_num_ai_workers(cpi);
         break;
       } else {
