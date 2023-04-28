@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2b6d514d_2a1dbf1a",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 3022,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-04-28T20:00:17Z",
+      "side": 1,
+      "message": "This function checks for `row_mt` and has an alternate call when it\u0027s false. Is the check needed?\n\nhttps://aomedia.googlesource.com/aom/+/4d926b7d9dc823fdbb2b88b61c64c3349745243c/av1/encoder/ethread.c#1497",
+      "revId": "52c41406ac82c9c0ef553787cd7e8ff9aa222810",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
