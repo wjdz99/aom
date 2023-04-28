@@ -314,7 +314,10 @@ if(MSVC)
   endif()
 else()
   require_c_flag("-std=c99" YES)
-  if(WIN32 AND NOT MINGW)
+  if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" AND CMAKE_CXX_SIMULATE_ID STREQUAL "MSVC")
+    # MSVC's STL requires C++14 as it's the compiler's standard default and
+    # minimum supported C++ version. However, clang-cl in GNU mode defaults to
+    # C++11.
     require_cxx_flag_nomsvc("-std=c++14" YES)
   else()
     require_cxx_flag_nomsvc("-std=c++11" YES)
