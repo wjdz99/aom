@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "abf9a95d_8ce18902",
+        "filename": "av1/encoder/arm/neon/temporal_filter_neon.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 239,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-04-28T23:37:58Z",
+      "side": 1,
+      "message": "an alternative might be:\n\n```\n    uint8x8_t idx \u003d vcreate_u8(0x0302030203020100);\n    uint8x8_t shuffle_hi \u003d vtbl1_u8(vget_high_u8(vreinterpretq_u8_u16(s)), idx);\n    s \u003d vcombine_u16(vget_low_u16(s), vreinterpret_u16_u8(shuffle_hi));\n```\n\nand\n\n```\n    uint8x8_t idx \u003d vcreate_u8(0x0706050405040504);\n    uint8x8_t shuffle_lo \u003d vtbl1_u8(vget_low_u8(vreinterpretq_u8_u16(s)), idx);\n    s \u003d vcombine_u16(vreinterpret_u16_u8(shuffle_lo), vget_high_u16(s));\n```\n\nbut that didn\u0027t seem worth it given the extra rodata and what gcc and clang were generating.\n\nA64 code generation might do a little better with the following or vcreate_u8\u0027s:\n\n```\n  static const uint8_t idx_buf[16] \u003d { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 10, 11, 10, 11 };\n  uint8x16_t idx2 \u003d vld1q_u8(idx_buf);\n  s \u003d vreinterpretq_u16_u8(vqtbl1q_u8(vreinterpretq_u8_u16(s), idx));\n```",
+      "revId": "434cf25d47ba63ee6f05e50efd2ed080e8e7027a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
