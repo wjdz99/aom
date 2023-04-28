@@ -35,6 +35,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "6b607a4d_78373367",
+        "filename": "aom_dsp/simd/v128_intrinsics_arm.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-04-28T22:32:46Z",
+      "side": 1,
+      "message": "\u003e Are the `int64_t` casts necessary? The documentation for `vcreate_s64` says it takes a `uint64_t` input, so `a` and `b` are of the correct type:\n\u003e \n\u003e https://developer.arm.com/architectures/instruction-sets/intrinsics/vcreate_s64\n\nGood catch. Fixed.",
+      "parentUuid": "a82da8d7_22afd7b5",
+      "revId": "169417b94b6ad30c0801048e40d75a8ff611342d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "07ebb1ba_fe4a1e33",
@@ -48,6 +66,24 @@
       "writtenOn": "2023-04-28T21:39:45Z",
       "side": 1,
       "message": "`v64_ziplo_8` takes `v64` inputs. `v64` is defined as `int64x1_t` in v64_intrinsics_arm.h, so we should cast `uint64x1_t` to `int64x1_t`, right?",
+      "revId": "169417b94b6ad30c0801048e40d75a8ff611342d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "233547ba_7dbacf92",
+        "filename": "aom_dsp/simd/v128_intrinsics_arm.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 380,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-04-28T22:32:46Z",
+      "side": 1,
+      "message": "\u003e `v64_ziplo_8` takes `v64` inputs. `v64` is defined as `int64x1_t` in v64_intrinsics_arm.h, so we should cast `uint64x1_t` to `int64x1_t`, right?\n\nYes, I missed that. I\u0027m not sure why we didn\u0027t get a vector conversion warning.",
+      "parentUuid": "07ebb1ba_fe4a1e33",
       "revId": "169417b94b6ad30c0801048e40d75a8ff611342d",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -69,6 +105,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a61a4b9f_b718995c",
+        "filename": "aom_dsp/simd/v256_intrinsics_v128.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 687,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-04-28T22:32:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "096c8f31_c769a49b",
+      "revId": "169417b94b6ad30c0801048e40d75a8ff611342d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "eed8149a_002811bb",
@@ -82,6 +136,24 @@
       "writtenOn": "2023-04-28T21:39:45Z",
       "side": 1,
       "message": "We should review this and see if this is the best implementation for Clang.",
+      "revId": "169417b94b6ad30c0801048e40d75a8ff611342d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1866ffa5_93cc2ae8",
+        "filename": "aom_dsp/simd/v64_intrinsics_arm.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-04-28T22:32:46Z",
+      "side": 1,
+      "message": "\u003e We should review this and see if this is the best implementation for Clang.\n\nThis block is probably overdone for modern compilers. No change in assembly between this and memcpy with clang-14 (it\u0027s only used in the tests).\n\n```\n000000000072c0c4 \u003cu32_store_unaligned(void*, unsigned int)\u003e:\n  72c0c4:       b9000001        str     w1, [x0]\n```",
+      "parentUuid": "eed8149a_002811bb",
       "revId": "169417b94b6ad30c0801048e40d75a8ff611342d",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -103,6 +175,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "8561f9f3_d03bb05a",
+        "filename": "aom_dsp/simd/v64_intrinsics_arm.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-04-28T22:32:46Z",
+      "side": 1,
+      "message": "\u003e We should cast `a` and `b` to `uint64x1_t` because that\u0027s the input parameter type of `vget_lane_u64`.\n\u003e \n\u003e Alternatively we can call `vget_lane_s64` instead and cast its return values to `uint64_t`\n\nThe second might be a little shorter.",
+      "parentUuid": "cafcb341_1320414d",
+      "revId": "169417b94b6ad30c0801048e40d75a8ff611342d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b0e6b26e_d24acbbd",
@@ -116,6 +206,24 @@
       "writtenOn": "2023-04-28T21:39:45Z",
       "side": 1,
       "message": "Nit: Should this line and line 148 be written in the same way?",
+      "revId": "169417b94b6ad30c0801048e40d75a8ff611342d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "875cc8c4_463f2930",
+        "filename": "aom_dsp/simd/v64_intrinsics_arm.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 137,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-04-28T22:32:46Z",
+      "side": 1,
+      "message": "\u003e Nit: Should this line and line 148 be written in the same way?\n\nThere might be a cost in moving from NEON to GPRs in 148, so we can mirror the two.",
+      "parentUuid": "b0e6b26e_d24acbbd",
       "revId": "169417b94b6ad30c0801048e40d75a8ff611342d",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
