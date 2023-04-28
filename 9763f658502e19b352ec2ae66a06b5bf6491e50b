@@ -18,6 +18,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "9ed7e570_d8646f35",
+        "filename": "build/cmake/aom_configure.cmake",
+        "patchSetId": 5
+      },
+      "lineNbr": 305,
+      "author": {
+        "id": 32097
+      },
+      "writtenOn": "2023-04-28T11:46:22Z",
+      "side": 1,
+      "message": "Hi!\n\nYes, we\u0027re trying to detect clang-cl specifically. `CLANG` is not a valid CMake variable (AFAIK: https://cmake.org/cmake/help/latest/manual/cmake-variables.7.html#id4) so I reused the non-MSVC clause here and checked for a non-MSYS2 Clang.\n\nI\u0027ll submit an additional patch to address your comments.",
+      "parentUuid": "df9f0fa7_b55ebd4d",
+      "revId": "9763f658502e19b352ec2ae66a06b5bf6491e50b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "7dc5ded2_e1f525f3",
@@ -31,6 +49,24 @@
       "writtenOn": "2023-04-27T23:41:21Z",
       "side": 1,
       "message": "Please add a comment here. You can copy your explanation in the commit message.",
+      "revId": "9763f658502e19b352ec2ae66a06b5bf6491e50b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a2ff727e_dfd63ce2",
+        "filename": "build/cmake/aom_configure.cmake",
+        "patchSetId": 5
+      },
+      "lineNbr": 306,
+      "author": {
+        "id": 32097
+      },
+      "writtenOn": "2023-04-28T11:46:22Z",
+      "side": 1,
+      "message": "I\u0027ll submit an additional patch to address your comments.",
+      "parentUuid": "7dc5ded2_e1f525f3",
       "revId": "9763f658502e19b352ec2ae66a06b5bf6491e50b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
