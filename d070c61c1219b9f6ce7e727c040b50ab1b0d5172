@@ -16,6 +16,24 @@
       "message": "It seems better to move the check of `cpi-\u003eoxcf.row_mt` into the `compute_num_ai_workers()` function. That is how the other cases of this switch statement are written (except `case MOD_FP`).",
       "revId": "d070c61c1219b9f6ce7e727c040b50ab1b0d5172",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0d3bee26_955b5360",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 3045,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2023-04-28T20:51:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bc71992e_f6483897",
+      "revId": "d070c61c1219b9f6ce7e727c040b50ab1b0d5172",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
