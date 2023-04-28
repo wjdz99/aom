@@ -3017,11 +3017,12 @@ int compute_num_mod_workers(AV1_COMP *cpi, MULTI_THREADED_MODULES mod_name) {
   int num_mod_workers = 0;
   switch (mod_name) {
     case MOD_FP:
-      if (cpi->oxcf.pass >= AOM_RC_SECOND_PASS)
-        num_mod_workers = 0;
-      else
+      if (cpi->oxcf.pass == AOM_RC_FIRST_PASS && cpi->oxcf.row_mt) {
         num_mod_workers =
             av1_compute_num_enc_workers(cpi, cpi->oxcf.max_threads);
+      } else {
+        num_mod_workers = 0;
+      }
       break;
     case MOD_TF: num_mod_workers = compute_num_tf_workers(cpi); break;
     case MOD_TPL: num_mod_workers = compute_num_tpl_workers(cpi); break;
