@@ -25,7 +25,7 @@
 extern "C" {
 #endif
 
-#define MATCH_SZ 13
+#define MATCH_SZ 16
 #define MATCH_SZ_BY2 ((MATCH_SZ - 1) / 2)
 #define MATCH_SZ_SQ (MATCH_SZ * MATCH_SZ)
 
