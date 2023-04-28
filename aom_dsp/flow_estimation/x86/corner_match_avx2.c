@@ -78,3 +78,39 @@ double av1_compute_cross_correlation_avx2(const unsigned char *frame1,
   int cov = cross_acc * MATCH_SZ_SQ - sum1_acc * sum2_acc;
   return cov / sqrt((double)var2);
 }
+
+double av1_compute_correlation_avx2(const unsigned char *frame1, int stride1,
+                                    int x1, int y1, double mean1,
+                                    double stddev1, const unsigned char *frame2,
+                                    int stride2, int x2, int y2, double mean2,
+                                    double stddev2) {
+  int i, stride1_i = 0, stride2_i = 0;
+  __m256i v1_1, v2_1;
+  const __m128i mask = _mm_load_si128((__m128i *)byte_mask);
+  __m128i v1, v2;
+  __m256i cross_vec = _mm256_setzero_si256();
+
+  frame1 += (y1 - MATCH_SZ_BY2) * stride1 + (x1 - MATCH_SZ_BY2);
+  frame2 += (y2 - MATCH_SZ_BY2) * stride2 + (x2 - MATCH_SZ_BY2);
+
+  for (i = 0; i < MATCH_SZ; ++i) {
+    v1 = _mm_and_si128(_mm_loadu_si128((__m128i *)&frame1[stride1_i]), mask);
+    v1_1 = _mm256_cvtepu8_epi16(v1);
+    v2 = _mm_and_si128(_mm_loadu_si128((__m128i *)&frame2[stride2_i]), mask);
+    v2_1 = _mm256_cvtepu8_epi16(v2);
+
+    cross_vec = _mm256_add_epi32(cross_vec, _mm256_madd_epi16(v1_1, v2_1));
+    stride1_i += stride1;
+    stride2_i += stride2;
+  }
+
+  // Sum cross_vec into a single value
+  __m128i tmp = _mm_add_epi32(_mm256_extracti128_si256(cross_vec, 0),
+                              _mm256_extracti128_si256(cross_vec, 1));
+  int cross = _mm_extract_epi32(tmp, 0) + _mm_extract_epi32(tmp, 1) +
+              _mm_extract_epi32(tmp, 2) + _mm_extract_epi32(tmp, 3);
+
+  double covariance = cross / (double)MATCH_SZ_SQ - mean1 * mean2;
+  double correlation = covariance / (stddev1 * stddev2);
+  return correlation;
+}

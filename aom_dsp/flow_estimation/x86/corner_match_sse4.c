@@ -102,3 +102,47 @@ double av1_compute_cross_correlation_sse4_1(const unsigned char *frame1,
   int cov = cross * MATCH_SZ_SQ - sum1 * sum2;
   return cov / sqrt((double)var2);
 }
+
+/* Compute corr(frame1, frame2) * MATCH_SZ * stddev(frame1), where the
+   correlation/standard deviation are taken over MATCH_SZ by MATCH_SZ windows
+   of each image, centered at (x1, y1) and (x2, y2) respectively.
+*/
+double av1_compute_correlation_sse4_1(const unsigned char *frame1, int stride1,
+                                      int x1, int y1, double mean1,
+                                      double stddev1,
+                                      const unsigned char *frame2, int stride2,
+                                      int x2, int y2, double mean2,
+                                      double stddev2) {
+  // 8 32-bit partial sums of products
+  __m128i cross_vec_l = _mm_setzero_si128();
+  __m128i cross_vec_r = _mm_setzero_si128();
+
+  const __m128i mask = _mm_load_si128((__m128i *)byte_mask);
+
+  frame1 += (y1 - MATCH_SZ_BY2) * stride1 + (x1 - MATCH_SZ_BY2);
+  frame2 += (y2 - MATCH_SZ_BY2) * stride2 + (x2 - MATCH_SZ_BY2);
+
+  for (int i = 0; i < MATCH_SZ; ++i) {
+    const __m128i v1 =
+        _mm_and_si128(_mm_loadu_si128((__m128i *)&frame1[i * stride1]), mask);
+    const __m128i v2 =
+        _mm_and_si128(_mm_loadu_si128((__m128i *)&frame2[i * stride2]), mask);
+
+    const __m128i v1_l = _mm_cvtepu8_epi16(v1);
+    const __m128i v1_r = _mm_cvtepu8_epi16(_mm_srli_si128(v1, 8));
+    const __m128i v2_l = _mm_cvtepu8_epi16(v2);
+    const __m128i v2_r = _mm_cvtepu8_epi16(_mm_srli_si128(v2, 8));
+
+    cross_vec_l = _mm_add_epi32(cross_vec_l, _mm_madd_epi16(v1_l, v2_l));
+    cross_vec_r = _mm_add_epi32(cross_vec_r, _mm_madd_epi16(v1_r, v2_r));
+  }
+
+  // Sum cross_vec into a single value
+  __m128i tmp = _mm_add_epi32(cross_vec_l, cross_vec_r);
+  int cross = _mm_extract_epi32(tmp, 0) + _mm_extract_epi32(tmp, 1) +
+              _mm_extract_epi32(tmp, 2) + _mm_extract_epi32(tmp, 3);
+
+  double covariance = cross / (double)MATCH_SZ_SQ - mean1 * mean2;
+  double correlation = covariance / (stddev1 * stddev2);
+  return correlation;
+}

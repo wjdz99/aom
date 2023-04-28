@@ -28,23 +28,23 @@
 
 #define THRESHOLD_NCC 0.75
 
-/* Compute var(frame) * MATCH_SZ_SQ over a MATCH_SZ by MATCH_SZ window of frame,
-   centered at (x, y).
+/* Compute mean and standard deviation of pixels in a window of size
+   MATCH_SZ by MATCH_SZ centered at (x, y).
+   Store results into *mean and *stddev
 */
-static double compute_variance(const unsigned char *frame, int stride, int x,
-                               int y) {
+static void compute_mean_stddev(const unsigned char *frame, int stride, int x,
+                                int y, double *mean, double *stddev) {
   int sum = 0;
   int sumsq = 0;
-  int var;
-  int i, j;
-  for (i = 0; i < MATCH_SZ; ++i)
-    for (j = 0; j < MATCH_SZ; ++j) {
+  for (int i = 0; i < MATCH_SZ; ++i) {
+    for (int j = 0; j < MATCH_SZ; ++j) {
       sum += frame[(i + y - MATCH_SZ_BY2) * stride + (j + x - MATCH_SZ_BY2)];
       sumsq += frame[(i + y - MATCH_SZ_BY2) * stride + (j + x - MATCH_SZ_BY2)] *
                frame[(i + y - MATCH_SZ_BY2) * stride + (j + x - MATCH_SZ_BY2)];
     }
-  var = sumsq * MATCH_SZ_SQ - sum * sum;
-  return (double)var;
+  }
+  *mean = (double)sum / MATCH_SZ_SQ;
+  *stddev = sqrt(sumsq / (double)MATCH_SZ_SQ - (*mean) * (*mean));
 }
 
 /* Compute corr(frame1, frame2) * MATCH_SZ * stddev(frame1), where the
@@ -76,6 +76,28 @@ double av1_compute_cross_correlation_c(const unsigned char *frame1, int stride1,
   return cov / sqrt((double)var2);
 }
 
+/* Compute corr(frame1, frame2) over a window of size MATCH_SZ by MATCH_SZ.
+   To save on computation, the mean and standard deviation of the window
+   in each frame are precomputed and passed into this function as arguments.
+*/
+double av1_compute_correlation_c(const unsigned char *frame1, int stride1,
+                                 int x1, int y1, double mean1, double stddev1,
+                                 const unsigned char *frame2, int stride2,
+                                 int x2, int y2, double mean2, double stddev2) {
+  int v1, v2;
+  int cross = 0;
+  for (int i = 0; i < MATCH_SZ; ++i) {
+    for (int j = 0; j < MATCH_SZ; ++j) {
+      v1 = frame1[(i + y1 - MATCH_SZ_BY2) * stride1 + (j + x1 - MATCH_SZ_BY2)];
+      v2 = frame2[(i + y2 - MATCH_SZ_BY2) * stride2 + (j + x2 - MATCH_SZ_BY2)];
+      cross += v1 * v2;
+    }
+  }
+  double covariance = cross / (double)MATCH_SZ_SQ - mean1 * mean2;
+  double correlation = covariance / (stddev1 * stddev2);
+  return correlation;
+}
+
 static int is_eligible_point(int pointx, int pointy, int width, int height) {
   return (pointx >= MATCH_SZ_BY2 && pointy >= MATCH_SZ_BY2 &&
           pointx + MATCH_SZ_BY2 < width && pointy + MATCH_SZ_BY2 < height);
@@ -88,6 +110,15 @@ static int is_eligible_distance(int point1x, int point1y, int point2x,
           (point1y - point2y) * (point1y - point2y)) <= thresh * thresh;
 }
 
+typedef struct {
+  int x;
+  int y;
+  double mean;
+  double stddev;
+  int best_match_idx;
+  double best_match_corr;
+} PointInfo;
+
 static int determine_correspondence(const unsigned char *src,
                                     const int *src_corners, int num_src_corners,
                                     const unsigned char *ref,
@@ -95,44 +126,114 @@ static int determine_correspondence(const unsigned char *src,
                                     int width, int height, int src_stride,
                                     int ref_stride,
                                     Correspondence *correspondences) {
-  // TODO(sarahparker) Improve this to include 2-way match
-  int i, j;
-  int num_correspondences = 0;
-  for (i = 0; i < num_src_corners; ++i) {
-    double best_match_ncc = 0.0;
-    double template_norm;
-    int best_match_j = -1;
-    if (!is_eligible_point(src_corners[2 * i], src_corners[2 * i + 1], width,
-                           height))
-      continue;
-    for (j = 0; j < num_ref_corners; ++j) {
-      double match_ncc;
-      if (!is_eligible_point(ref_corners[2 * j], ref_corners[2 * j + 1], width,
-                             height))
+  // New algorithm:
+  // * First pass: Linear scan of src and ref corner lists separately
+  //   * Filter out points too close to the frame edges [TODO later]
+  //   * Compute mean and stddev around each point
+  //   * Filter out points whose standard deviation is too low
+  //     (TODO: Is this actually needed, given that all points must pass
+  //     an initial selection stage based on local pixel differences?)
+  //
+  // * Second pass: Quadratic scan, ie. scan all combinations of {src, ref}
+  //   points
+  //   * Filter based on distance [+ position for now]
+  //   * Compute sum(src_px * ref_px)
+  //   * Combine with precomputed data to compute correlation
+  //   * Build bidirectional lists of (best match index, best correlation)
+  //
+  // * Third pass: Linear scan of src corner list
+  //   * For each corner i, generate a correspondence iff
+  //     ref_best_match[src_best_match[i]] == i
+
+  PointInfo *src_point_info =
+      (PointInfo *)aom_calloc(num_src_corners, sizeof(*src_point_info));
+  if (!src_point_info) {
+    return 0;
+  }
+
+  PointInfo *ref_point_info =
+      (PointInfo *)aom_calloc(num_ref_corners, sizeof(*ref_point_info));
+  if (!ref_point_info) {
+    aom_free(src_point_info);
+    return 0;
+  }
+
+  // First pass (linear):
+  // Filter corner lists and compute per-patch means and standard deviations,
+  // for the src and ref frames independently
+  int src_point_count = 0;
+  for (int i = 0; i < num_src_corners; i++) {
+    int src_x = src_corners[2 * i];
+    int src_y = src_corners[2 * i + 1];
+    if (!is_eligible_point(src_x, src_y, width, height)) continue;
+
+    PointInfo *point = &src_point_info[src_point_count];
+    point->x = src_x;
+    point->y = src_y;
+    compute_mean_stddev(src, src_stride, src_x, src_y, &point->mean,
+                        &point->stddev);
+    src_point_count++;
+  }
+
+  int ref_point_count = 0;
+  for (int j = 0; j < num_ref_corners; j++) {
+    int ref_x = ref_corners[2 * j];
+    int ref_y = ref_corners[2 * j + 1];
+    if (!is_eligible_point(ref_x, ref_y, width, height)) continue;
+
+    PointInfo *point = &ref_point_info[ref_point_count];
+    point->x = ref_x;
+    point->y = ref_y;
+    compute_mean_stddev(ref, ref_stride, ref_x, ref_y, &point->mean,
+                        &point->stddev);
+    ref_point_count++;
+  }
+
+  // Second pass (quadratic):
+  // For each pair of points, compute correlation, and use this to determine
+  // the best match of each corner, in both directions
+  for (int i = 0; i < src_point_count; ++i) {
+    PointInfo *src_point = &src_point_info[i];
+    for (int j = 0; j < ref_point_count; ++j) {
+      PointInfo *ref_point = &ref_point_info[j];
+      if (!is_eligible_distance(src_point->x, src_point->y, ref_point->x,
+                                ref_point->y, width, height))
         continue;
-      if (!is_eligible_distance(src_corners[2 * i], src_corners[2 * i + 1],
-                                ref_corners[2 * j], ref_corners[2 * j + 1],
-                                width, height))
-        continue;
-      match_ncc = av1_compute_cross_correlation(
-          src, src_stride, src_corners[2 * i], src_corners[2 * i + 1], ref,
-          ref_stride, ref_corners[2 * j], ref_corners[2 * j + 1]);
-      if (match_ncc > best_match_ncc) {
-        best_match_ncc = match_ncc;
-        best_match_j = j;
+
+      double corr = av1_compute_correlation(
+          src, src_stride, src_point->x, src_point->y, src_point->mean,
+          src_point->stddev, ref, ref_stride, ref_point->x, ref_point->y,
+          ref_point->mean, ref_point->stddev);
+
+      if (corr > src_point->best_match_corr) {
+        src_point->best_match_idx = j;
+        src_point->best_match_corr = corr;
+      }
+      if (corr > ref_point->best_match_corr) {
+        ref_point->best_match_idx = i;
+        ref_point->best_match_corr = corr;
       }
     }
-    // Note: We want to test if the best correlation is >= THRESHOLD_NCC,
-    // but need to account for the normalization in
-    // av1_compute_cross_correlation.
-    template_norm = compute_variance(src, src_stride, src_corners[2 * i],
-                                     src_corners[2 * i + 1]);
-    if (best_match_ncc > THRESHOLD_NCC * sqrt(template_norm)) {
+  }
+
+  // Third pass (linear):
+  // Scan through source corners, generating a correspondence for each corner
+  // iff ref_best_match[src_best_match[i]] == i
+  int num_correspondences = 0;
+  for (int i = 0; i < src_point_count; i++) {
+    PointInfo *point = &src_point_info[i];
+
+    // Skip corners which were not matched, or which didn't find
+    // a good enough match
+    if (point->best_match_corr < THRESHOLD_NCC) continue;
+
+    PointInfo *match_point = &ref_point_info[point->best_match_idx];
+    if (match_point->best_match_idx == i) {
       // Apply refinement
-      const int sx = src_corners[2 * i];
-      const int sy = src_corners[2 * i + 1];
-      const int rx = ref_corners[2 * best_match_j];
-      const int ry = ref_corners[2 * best_match_j + 1];
+      const int sx = point->x;
+      const int sy = point->y;
+      const int rx = match_point->x;
+      const int ry = match_point->y;
       double u = (double)(rx - sx);
       double v = (double)(ry - sy);
 
@@ -142,13 +243,18 @@ static int determine_correspondence(const unsigned char *src,
       aom_compute_flow_at_point(src, ref, patch_tl_x, patch_tl_y, width, height,
                                 src_stride, &u, &v);
 
-      correspondences[num_correspondences].x = (double)sx;
-      correspondences[num_correspondences].y = (double)sy;
-      correspondences[num_correspondences].rx = (double)sx + u;
-      correspondences[num_correspondences].ry = (double)sy + v;
+      Correspondence *correspondence = &correspondences[num_correspondences];
+      correspondence->x = (double)point->x;
+      correspondence->y = (double)point->y;
+      correspondence->rx = (double)point->x + u;
+      correspondence->ry = (double)point->y + v;
       num_correspondences++;
     }
   }
+
+  aom_free(src_point_info);
+  aom_free(ref_point_info);
+
   return num_correspondences;
 }
 
