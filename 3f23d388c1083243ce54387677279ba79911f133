@@ -3,6 +3,23 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "02e3f2c3_b529ff96",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-04-28T23:45:21Z",
+      "side": 1,
+      "message": "Delete the last `0`. The Change-Id should be I54140a1645f539944657c2b18dd801b57e422216.",
+      "revId": "3f23d388c1083243ce54387677279ba79911f133",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "b18e7ce0_59904a6c",
         "filename": "/PATCHSET_LEVEL",
         "patchSetId": 1
@@ -14,6 +31,91 @@
       "writtenOn": "2023-04-28T18:25:49Z",
       "side": 1,
       "message": "As requested, here are the docs improvements. Let me know if they\u0027re OK.",
+      "revId": "3f23d388c1083243ce54387677279ba79911f133",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "37c2a873_118acee2",
+        "filename": "build/cmake/aom_configure.cmake",
+        "patchSetId": 1
+      },
+      "lineNbr": 307,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-04-28T23:45:21Z",
+      "side": 1,
+      "message": "According to https://cmake.org/cmake/help/v3.16/variable/MSVC.html, cmake sets the `MSVC` variable to true for clang-cl (\"another compiler simulating Visual C++\"). So I don\u0027t understand how we can reach the code at line 317 for clang-cl.",
+      "revId": "3f23d388c1083243ce54387677279ba79911f133",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "414be536_aeb86a43",
+        "filename": "build/cmake/aom_configure.cmake",
+        "patchSetId": 1
+      },
+      "lineNbr": 317,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-04-28T23:45:21Z",
+      "side": 1,
+      "message": "According to https://cmake.org/cmake/help/latest/variable/CMAKE_LANG_COMPILER_FRONTEND_VARIANT.html?highlight\u003dclang+cl, it seems that a better way to detect clang-cl is to check if CMAKE_CXX_COMPILER_ID is equal to Clang and CMAKE_CXX_COMPILER_FRONTEND_VARIANT is equal to MSVC.",
+      "revId": "3f23d388c1083243ce54387677279ba79911f133",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f9d19ef8_0f75d159",
+        "filename": "build/cmake/aom_configure.cmake",
+        "patchSetId": 1
+      },
+      "lineNbr": 318,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-04-28T23:45:21Z",
+      "side": 1,
+      "message": "Nit: \"the STL\" \u003d\u003e \"the STL in MSVC\" or \"MSVC\u0027s STL\"",
+      "revId": "3f23d388c1083243ce54387677279ba79911f133",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9d084c36_480bdd97",
+        "filename": "build/cmake/aom_configure.cmake",
+        "patchSetId": 1
+      },
+      "lineNbr": 319,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-04-28T23:45:21Z",
+      "side": 1,
+      "message": "Nit: I suggest adding \"and minimum supported C++ version\".\n\n\nNotes:\n\n(1). This Microsoft page says:\n\n\"The Microsoft C++ compiler in Visual Studio 2017 and later versions doesn\u0027t support C++ standards modes earlier than C++14 (/std:c++14). Such support isn\u0027t planned.\"\n\nhttps://learn.microsoft.com/en-us/cpp/build/reference/std-specify-language-standard-version?view\u003dmsvc-170\n\n(2). I wrote a CL to explicitly specify /std:c++14 for MSVC:\n\nhttps://aomedia-review.googlesource.com/c/aom/+/174361",
+      "revId": "3f23d388c1083243ce54387677279ba79911f133",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9efd3947_50ddcfed",
+        "filename": "build/cmake/aom_optimization.cmake",
+        "patchSetId": 1
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-04-28T23:45:21Z",
+      "side": 1,
+      "message": "Nit: The comment \"The MSVC version is not granular enough.\" is confusing because there is no MSVC version in the surrounding code. I believe it is referring to the `if(MSVC)` test in the original code. If so, we should replace this sentence with something like \"Check for real MSVC.\" Or more verbosely, \"Check CMAKE_C_COMPILER_ID to detect MSVC because the MSVC variable is not granular enough.\"",
       "revId": "3f23d388c1083243ce54387677279ba79911f133",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
