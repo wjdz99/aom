@@ -1,0 +1,123 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "61d461a5_dc04510e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-04-28T21:39:45Z",
+      "side": 1,
+      "message": "I suggest some changes and have some questions.",
+      "revId": "169417b94b6ad30c0801048e40d75a8ff611342d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a82da8d7_22afd7b5",
+        "filename": "aom_dsp/simd/v128_intrinsics_arm.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-04-28T21:39:45Z",
+      "side": 1,
+      "message": "Are the `int64_t` casts necessary? The documentation for `vcreate_s64` says it takes a `uint64_t` input, so `a` and `b` are of the correct type:\n\nhttps://developer.arm.com/architectures/instruction-sets/intrinsics/vcreate_s64",
+      "revId": "169417b94b6ad30c0801048e40d75a8ff611342d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "07ebb1ba_fe4a1e33",
+        "filename": "aom_dsp/simd/v128_intrinsics_arm.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 380,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-04-28T21:39:45Z",
+      "side": 1,
+      "message": "`v64_ziplo_8` takes `v64` inputs. `v64` is defined as `int64x1_t` in v64_intrinsics_arm.h, so we should cast `uint64x1_t` to `int64x1_t`, right?",
+      "revId": "169417b94b6ad30c0801048e40d75a8ff611342d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "096c8f31_c769a49b",
+        "filename": "aom_dsp/simd/v256_intrinsics_v128.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 687,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-04-28T21:39:45Z",
+      "side": 1,
+      "message": "Typo: s64 \u003d\u003e u64\n\nNote: I found this accidentally by Gerrit\u0027s syntax highlighting.",
+      "revId": "169417b94b6ad30c0801048e40d75a8ff611342d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "eed8149a_002811bb",
+        "filename": "aom_dsp/simd/v64_intrinsics_arm.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-04-28T21:39:45Z",
+      "side": 1,
+      "message": "We should review this and see if this is the best implementation for Clang.",
+      "revId": "169417b94b6ad30c0801048e40d75a8ff611342d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cafcb341_1320414d",
+        "filename": "aom_dsp/simd/v64_intrinsics_arm.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-04-28T21:39:45Z",
+      "side": 1,
+      "message": "We should cast `a` and `b` to `uint64x1_t` because that\u0027s the input parameter type of `vget_lane_u64`.\n\nAlternatively we can call `vget_lane_s64` instead and cast its return values to `uint64_t`",
+      "revId": "169417b94b6ad30c0801048e40d75a8ff611342d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b0e6b26e_d24acbbd",
+        "filename": "aom_dsp/simd/v64_intrinsics_arm.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 137,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-04-28T21:39:45Z",
+      "side": 1,
+      "message": "Nit: Should this line and line 148 be written in the same way?",
+      "revId": "169417b94b6ad30c0801048e40d75a8ff611342d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
