@@ -3006,6 +3006,7 @@ static AOM_INLINE int compute_num_pack_bs_workers(AV1_COMP *cpi) {
 // Computes num_workers for all intra multi-threading.
 static AOM_INLINE int compute_num_ai_workers(AV1_COMP *cpi) {
   if (cpi->oxcf.max_threads <= 1) return 1;
+  if (!cpi->oxcf.row_mt) return 1;
   cpi->weber_bsize = BLOCK_8X8;
   const BLOCK_SIZE bsize = cpi->weber_bsize;
   const int mb_step = mi_size_wide[bsize];
@@ -3040,6 +3041,8 @@ int compute_num_mod_workers(AV1_COMP *cpi, MULTI_THREADED_MODULES mod_name) {
       num_mod_workers = cpi->ppi->p_mt_info.num_mod_workers[MOD_FRAME_ENC];
       break;
     case MOD_AI:
+      // The multi-threading implementation of deltaq-mode = 3 in allintra
+      // mode is based on row multi threading.
       if (cpi->oxcf.pass == AOM_RC_ONE_PASS) {
         num_mod_workers = compute_num_ai_workers(cpi);
         break;
