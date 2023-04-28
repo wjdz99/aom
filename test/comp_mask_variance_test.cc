@@ -179,6 +179,13 @@ INSTANTIATE_TEST_SUITE_P(
                        ::testing::ValuesIn(kCompMaskPredParams)));
 #endif
 
+#if HAVE_NEON
+INSTANTIATE_TEST_SUITE_P(
+    NEON, AV1CompMaskVarianceTest,
+    ::testing::Combine(::testing::Values(&aom_comp_mask_pred_neon),
+                       ::testing::ValuesIn(kCompMaskPredParams)));
+#endif
+
 #ifndef aom_comp_mask_pred
 // can't run this test if aom_comp_mask_pred is defined to aom_comp_mask_pred_c
 class AV1CompMaskUpVarianceTest : public AV1CompMaskVarianceTest {
