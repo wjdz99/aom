@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "19d9c749_9215d83e",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-04-28T22:18:24Z",
+      "side": 1,
+      "message": "I can\u0027t find this CL or commit. Could you post a URL to this CL or commit?",
+      "revId": "3dbb8cabfbe1d7aabc212af23e65dd184d02493e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "19023b04_39a9c2fb",
+        "filename": "aom_util/aom_thread.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-04-28T22:18:24Z",
+      "side": 1,
+      "message": "Hi amyspark,\n\nI built the parent commit (5a87816f2855b0ee7c3af2272fdf40349f51e1b9) of this CL successfully with Visual Studio 2022.\n\nWe define the `NOMINMAX` macro in build/cmake/aom_configure.cmake:\n\n```\nif(AOM_TARGET_SYSTEM STREQUAL \"Windows\")\n  ...\n  # Prevent windows.h from defining the min and max macros. This allows us to\n  # use std::min and std::max.\n  add_compiler_flag_if_supported(\"-DNOMINMAX\")\n  ...\nendif()\n```\n\nCould you find out why that doesn\u0027t work for you?",
+      "revId": "3dbb8cabfbe1d7aabc212af23e65dd184d02493e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
