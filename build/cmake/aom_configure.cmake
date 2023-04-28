@@ -314,7 +314,9 @@ if(MSVC)
   endif()
 else()
   require_c_flag("-std=c99" YES)
-  if(WIN32 AND NOT MINGW)
+  if(WIN32 AND MSVC_VERSION)
+    # Microsoft's Clang flavour defaults to C++11, but the STL requires C++14 as
+    # it's MSVC's default.
     require_cxx_flag_nomsvc("-std=c++14" YES)
   else()
     require_cxx_flag_nomsvc("-std=c++11" YES)
