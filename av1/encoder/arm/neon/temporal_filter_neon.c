@@ -58,7 +58,7 @@ static INLINE void get_abs_diff(const uint8_t *frame1, const uint32_t stride1,
   } while (i < block_height);
 }
 
-static INLINE uint8x16_t load_and_pad(uint8_t *src, const uint32_t col,
+static INLINE uint8x16_t load_and_pad(const uint8_t *src, const uint32_t col,
                                       const uint32_t block_width) {
   uint8x8_t s = vld1_u8(src);
 
@@ -233,7 +233,7 @@ static INLINE void get_squared_error(
   } while (i < block_height);
 }
 
-static INLINE uint16x8_t load_and_pad(uint16_t *src, const uint32_t col,
+static INLINE uint16x8_t load_and_pad(const uint16_t *src, const uint32_t col,
                                       const uint32_t block_width) {
   uint16x8_t s = vld1q_u16(src);
 
