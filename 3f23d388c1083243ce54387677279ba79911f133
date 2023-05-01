@@ -124,6 +124,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "892e10fa_12d9e1eb",
+        "filename": "build/cmake/aom_configure.cmake",
+        "patchSetId": 1
+      },
+      "lineNbr": 307,
+      "author": {
+        "id": 32097
+      },
+      "writtenOn": "2023-05-01T19:22:09Z",
+      "side": 1,
+      "message": "Yes, this is the most likely. The value of _MSC_VER from clang is 1920, which obviously doesn\u0027t match 19.36, so I think it is meant to be the targeted ABI version.",
+      "parentUuid": "8bce7c89_253e9152",
+      "revId": "3f23d388c1083243ce54387677279ba79911f133",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "414be536_aeb86a43",
