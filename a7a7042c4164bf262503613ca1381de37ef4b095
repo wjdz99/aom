@@ -16,6 +16,29 @@
       "message": "In the parent version, the Loop restoration filter is disabled for speed 5 and 6. As per the study, it is observed that enabling Loop restoration filter with Wiener filter would be beneficial to improve the quality with less impact in encoders’ speed. Hence, in this CL Loop restoration filter is enabled with Wiener filtering with necessary modifications to the speed feature `disable_lr_filter`.\nThe CL has changes as below,\n- Modifications to `disable_lr_filter` speed feature to provide flexibility to enable/disable Wiener and Self-Guided filters. \n- The variable ‘force_restore_type’ present in the parent version is removed as the functionality can be achieved through the speed features ‘disable_wiener_filter’ and ‘disable_sgr_filter’.\n- Conditional allocation of memory relevant to Self-Guided filter.\n\nIt is also observed that when Wiener filter is enabled, refinement search around Wiener filter coefficients is not contributing much to quality relative to the encode time increase. Hence, disabled the same through a new speed feature `disable_wiener_coeff_refine_search`.\n \nThe below shows the Borg-results of both the sf when tested independently.\n```\n1) Enabling wiener LR filter alone using `disable_wiener_filter` and `disable_sgr_filter` w.r.t. Parent version\n\n                  Instruction Count        BD-Rate Loss(%)        \n cpu   Resolution   Reduction(%)    avg.psnr   ovr.psnr    ssim\n 5       LOWRES2      -2.787        -0.2839    -0.2937   -0.2215\n 5       MIDRES2      -3.061        -0.6407    -0.6422   -0.5881\n 5        HDRES2      -3.213        -1.1647    -1.1543   -1.2075\n 5       Average      -3.020        -0.6964    -0.6967   -0.6724\n 6       LOWRES2      -3.756        -0.2920    -0.2949   -0.2552\n 6       MIDRES2      -4.475        -0.6636    -0.6494   -0.4788\n 6        HDRES2      -4.553        -1.0546    -1.0465   -1.1321\n 6       Average      -4.261        -0.6701    -0.6636   -0.6220\n\n2) Disabling the refinement search around wiener filter coefficients w.r.t. 1)\n                 Instruction Count        BD-Rate Loss(%)       \ncpu   Resolution   Reduction(%)    avg.psnr   ovr.psnr    ssim\n 5       LOWRES2      2.069         0.0824     0.0769    0.0208\n 5       MIDRES2      2.308         0.1848     0.2065    0.2684\n 5        HDRES2      2.371         0.2317     0.2186    0.1866\n 5       Average      2.249         0.1663     0.1674    0.1586\n 6       LOWRES2      2.802         0.0926     0.0930    0.1023\n 6       MIDRES2      3.369         0.1171     0.1101    0.0092\n 6        HDRES2      3.277         0.1655     0.1606    0.1936\n 6       Average      3.149         0.1251     0.1212    0.1017\n\n3) Combined result of 1) and 2), to enable wiener LR filter w.r.t. Parent version\n                 Instruction Count        BD-Rate Loss(%)       \ncpu   Resolution   Reduction(%)    avg.psnr   ovr.psnr    ssim\n 5       LOWRES2     -0.631        -0.2027    -0.2180   -0.2017\n 5       MIDRES2     -0.649        -0.4579    -0.4381   -0.3226\n 5        HDRES2     -0.724        -0.9375    -0.9405   -1.0239\n 5       Average     -0.668        -0.5327    -0.5322   -0.5161\n 6       LOWRES2     -0.803        -0.2002    -0.2028   -0.1539\n 6       MIDRES2     -0.908        -0.5479    -0.5406   -0.4713\n 6        HDRES2     -1.068        -0.8920    -0.8889   -0.9418\n 6       Average     -0.926        -0.5467    -0.5441   -0.5223\n```\nThe instruction count reduction specified has been measured using command:\n$ perf stat -e instructions:u ./aomenc …\n\nWe verified that the CL is bit-exact for speed \u003c\u003d 4. Please review the CL.",
       "revId": "a7a7042c4164bf262503613ca1381de37ef4b095",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9353a792_b717a069",
+        "filename": "av1/encoder/speed_features.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 1442,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2023-05-01T20:51:43Z",
+      "side": 1,
+      "message": "Looks like we have many sf for wiener filter? Not specific for this cl - maybe we could consolidate some later.",
+      "range": {
+        "startLine": 1442,
+        "startChar": 7,
+        "endLine": 1442,
+        "endChar": 41
+      },
+      "revId": "a7a7042c4164bf262503613ca1381de37ef4b095",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
