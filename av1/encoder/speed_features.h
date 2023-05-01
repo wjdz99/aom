@@ -821,6 +821,9 @@ typedef struct MV_SPEED_FEATURES {
   int disable_second_mv;
 
   // Skips full pixel search based on start mv of prior ref_mv_idx.
+  // 0: Disabled
+  // 1: Conservatively skips the full pixel search.
+  // 2: Aggressively skips the full pixel search.
   int skip_fullpel_search_using_startmv;
 
   // Method to use for refining WARPED_CAUSAL motion vectors
