@@ -106,6 +106,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "8bce7c89_253e9152",
+        "filename": "build/cmake/aom_configure.cmake",
+        "patchSetId": 1
+      },
+      "lineNbr": 307,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-05-01T18:20:20Z",
+      "side": 1,
+      "message": "Thanks for the explanation. It seems like a CMake bug that MSVC is not set but MSVC_VERSION is set. I think this is because clang.exe still defines the _MSC_VER macro:\nhttps://cmake.org/cmake/help/latest/variable/MSVC_VERSION.html\n\nPerhaps _MSC_VER is defined to indicate that the compiler (clang in Visual Studio) is still different from regular clang in that it uses some facilities from Visual Studio such as the STL.",
+      "parentUuid": "ad4824bf_5bed65b2",
+      "revId": "3f23d388c1083243ce54387677279ba79911f133",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "414be536_aeb86a43",
