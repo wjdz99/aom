@@ -189,19 +189,33 @@ void av1_single_motion_search(const AV1_COMP *const cpi, MACROBLOCK *x,
     for (int cand_idx = 0; cand_idx < cand_cnt; cand_idx++) {
       int_mv *fmv_cand = &cand[cand_idx].fmv;
       int skip_cand_mv = 0;
+      assert(stack_size >= 0);
+      int mv_match_count = stack_size ? 0 : -1;
 
-      // Check difference between mvs in the stack and candidate mv.
+      // Check difference between mvs in the stack and candidate mv to
+      // count the number of mvs in start_mv_stack that are closer to the
+      // current mv candidate.
       for (int stack_idx = 0; stack_idx < stack_size; stack_idx++) {
-        FULLPEL_MV *fmv_stack = &args->start_mv_stack[stack_idx];
-        const int row = abs(fmv_stack->row - fmv_cand->as_fullmv.row);
-        const int col = abs(fmv_stack->col - fmv_cand->as_fullmv.col);
+        const FULLPEL_MV *fmv_stack = &args->start_mv_stack[stack_idx];
+        const int row_diff = abs(fmv_stack->row - fmv_cand->as_fullmv.row);
+        const int col_diff = abs(fmv_stack->col - fmv_cand->as_fullmv.col);
 
-        if (row <= 1 && col <= 1) {
-          skip_cand_mv = 1;
-          break;
-        }
+        if (row_diff <= 1 && col_diff <= 1) mv_match_count++;
       }
+
+      if (cpi->sf.mv_sf.skip_fullpel_search_using_startmv >= 2) {
+        // Skip if current candidate mv is closer to any of the start mv
+        // candidates that are evaluated before.
+        if (mv_match_count > 0) skip_cand_mv = 1;
+      } else if (cpi->sf.mv_sf.skip_fullpel_search_using_startmv >= 1) {
+        // Skip if current candidate mv is closer to all the start mv
+        // candidates that are evaluated before.
+        if (mv_match_count == stack_size) skip_cand_mv = 1;
+      }
+
       if (skip_cand_mv) {
+        // Ensure atleast one full-pel motion search is not pruned.
+        assert(mbmi->ref_mv_idx != 0);
         // Mark the candidate mv as invalid so that motion search gets skipped.
         cand[cand_idx].fmv.as_int = INVALID_MV;
       } else {
