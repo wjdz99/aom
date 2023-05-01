@@ -18,6 +18,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "983e6a16_4d5f8815",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 32097
+      },
+      "writtenOn": "2023-05-01T13:28:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "02e3f2c3_b529ff96",
+      "revId": "3f23d388c1083243ce54387677279ba79911f133",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b18e7ce0_59904a6c",
@@ -31,6 +49,24 @@
       "writtenOn": "2023-04-28T18:25:49Z",
       "side": 1,
       "message": "As requested, here are the docs improvements. Let me know if they\u0027re OK.",
+      "revId": "3f23d388c1083243ce54387677279ba79911f133",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d09e5f9a_d17e323c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 32097
+      },
+      "writtenOn": "2023-05-01T13:28:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b18e7ce0_59904a6c",
       "revId": "3f23d388c1083243ce54387677279ba79911f133",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -52,6 +88,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ad4824bf_5bed65b2",
+        "filename": "build/cmake/aom_configure.cmake",
+        "patchSetId": 1
+      },
+      "lineNbr": 307,
+      "author": {
+        "id": 32097
+      },
+      "writtenOn": "2023-05-01T13:28:46Z",
+      "side": 1,
+      "message": "There\u0027s a slight misunderstanding there. The compiler I\u0027m targeting is clang-cl in GNU mode, i.e. https://cmake.org/cmake/help/latest/variable/CMAKE_LANG_COMPILER_FRONTEND_VARIANT.html equals GNU. This means we\u0027re using clang.exe instead of clang-cl.exe, and for this compiler, CMake sets the MSVC_VERSION variable, but *not* the MSVC variable.\n\nI\u0027ll use CMAKE_LANG_SIMULATE_ID in the next patchset to make it a bit clearer.",
+      "parentUuid": "37c2a873_118acee2",
+      "revId": "3f23d388c1083243ce54387677279ba79911f133",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "414be536_aeb86a43",
@@ -65,6 +119,24 @@
       "writtenOn": "2023-04-28T23:45:21Z",
       "side": 1,
       "message": "According to https://cmake.org/cmake/help/latest/variable/CMAKE_LANG_COMPILER_FRONTEND_VARIANT.html?highlight\u003dclang+cl, it seems that a better way to detect clang-cl is to check if CMAKE_CXX_COMPILER_ID is equal to Clang and CMAKE_CXX_COMPILER_FRONTEND_VARIANT is equal to MSVC.",
+      "revId": "3f23d388c1083243ce54387677279ba79911f133",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "97803f44_06fba034",
+        "filename": "build/cmake/aom_configure.cmake",
+        "patchSetId": 1
+      },
+      "lineNbr": 317,
+      "author": {
+        "id": 32097
+      },
+      "writtenOn": "2023-05-01T13:28:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "414be536_aeb86a43",
       "revId": "3f23d388c1083243ce54387677279ba79911f133",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -86,6 +158,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "42c96657_27c01005",
+        "filename": "build/cmake/aom_configure.cmake",
+        "patchSetId": 1
+      },
+      "lineNbr": 318,
+      "author": {
+        "id": 32097
+      },
+      "writtenOn": "2023-05-01T13:28:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f9d19ef8_0f75d159",
+      "revId": "3f23d388c1083243ce54387677279ba79911f133",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "9d084c36_480bdd97",
@@ -103,6 +193,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "950096da_0df0cf6a",
+        "filename": "build/cmake/aom_configure.cmake",
+        "patchSetId": 1
+      },
+      "lineNbr": 319,
+      "author": {
+        "id": 32097
+      },
+      "writtenOn": "2023-05-01T13:28:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9d084c36_480bdd97",
+      "revId": "3f23d388c1083243ce54387677279ba79911f133",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "9efd3947_50ddcfed",
@@ -116,6 +224,24 @@
       "writtenOn": "2023-04-28T23:45:21Z",
       "side": 1,
       "message": "Nit: The comment \"The MSVC version is not granular enough.\" is confusing because there is no MSVC version in the surrounding code. I believe it is referring to the `if(MSVC)` test in the original code. If so, we should replace this sentence with something like \"Check for real MSVC.\" Or more verbosely, \"Check CMAKE_C_COMPILER_ID to detect MSVC because the MSVC variable is not granular enough.\"",
+      "revId": "3f23d388c1083243ce54387677279ba79911f133",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "187ba763_47093fd4",
+        "filename": "build/cmake/aom_optimization.cmake",
+        "patchSetId": 1
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 32097
+      },
+      "writtenOn": "2023-05-01T13:28:46Z",
+      "side": 1,
+      "message": "The reference to `clang-cl` and the documentation of get_msvc_intrinsic_flag taken together, mean that the intention was to address the case of the architecture default (up to SSE4.1 on x64, SSE2 on x86).\n\nSince clang-cl\u0027s default is SSE2, it means the compilation will fail because there is no way to enable SSE3/SSSE3/SSE4.1 for codegen unless the GNU-style flags are used.\n\nI\u0027ll make it clearer in the upcoming patchset.",
+      "parentUuid": "9efd3947_50ddcfed",
       "revId": "3f23d388c1083243ce54387677279ba79911f133",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
