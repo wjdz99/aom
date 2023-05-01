@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bdfa7986_63721763",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-05-01T17:34:28Z",
+      "side": 1,
+      "message": "LGTM.",
+      "revId": "f82f599f5da04e0f99b2588da320afbe985e5f72",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "96d69c6e_34bf2778",
+        "filename": "av1/encoder/arm/neon/temporal_filter_neon.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-05-01T17:34:28Z",
+      "side": 1,
+      "message": "Could you see if `frame_abs_diff` and `src` can also be declared as const?",
+      "revId": "f82f599f5da04e0f99b2588da320afbe985e5f72",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "03c4f00e_2f057a5f",
+        "filename": "av1/encoder/arm/neon/temporal_filter_neon.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 268,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-05-01T17:34:28Z",
+      "side": 1,
+      "message": "Could you see if `frame_sse` and `src` can also be declared as const?",
+      "revId": "f82f599f5da04e0f99b2588da320afbe985e5f72",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
