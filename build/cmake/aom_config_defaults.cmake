@@ -115,6 +115,7 @@ set_aom_config_var(CONFIG_TUNE_VMAF 0 "Enable encoding tuning for VMAF.")
 set_aom_config_var(DECODE_HEIGHT_LIMIT 0 "Set limit for decode height.")
 set_aom_config_var(DECODE_WIDTH_LIMIT 0 "Set limit for decode width.")
 set_aom_config_var(STATIC_LINK_JXL 0 "Statically link the JPEG-XL library.")
+set_aom_config_var(CONFIG_CWG_C013 0 "Support for 7.x and 8.x levels.")
 
 # AV1 experiment flags.
 set_aom_config_var(CONFIG_BITRATE_ACCURACY 0
