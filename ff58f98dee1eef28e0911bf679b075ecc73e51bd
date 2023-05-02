@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a4151661_c4612ee6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-05-02T23:14:35Z",
+      "side": 1,
+      "message": "Bohan: For the v3.6.1 bug-fix release, I am thinking of reverting the commit rather than cherry-picking your new CL https://aomedia-review.googlesource.com/c/aom/+/174421.\n\nBut after creating the revert CL, I noticed an issue. Please see my comment below.",
+      "revId": "ff58f98dee1eef28e0911bf679b075ecc73e51bd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "863be653_42e56cb7",
+        "filename": "aom/aomcx.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 621,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-05-02T23:14:35Z",
+      "side": 1,
+      "message": "A downside of reverting commit c038618f6ca1891bde348418d669be4a181fde19 completely on the v3.6.x release branch is that the special level for keeping level stats only for level monitoring also goes back to 24.\n\nBohan, is this special level only used by libaom internally?",
+      "revId": "ff58f98dee1eef28e0911bf679b075ecc73e51bd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
