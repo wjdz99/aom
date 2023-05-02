@@ -88,7 +88,11 @@ TEST_P(LevelTest, TestTargetLevelApi) {
     for (int level = 0; level <= 32; ++level) {
       const int target_level = operating_point * 100 + level;
       if ((level < 28 && level != 2 && level != 3 && level != 6 && level != 7 &&
-           level != 10 && level != 11) ||
+           level != 10 && level != 11
+#if !CONFIG_CWG_C013
+           && level < 20  // Cannot be 7.0 (20) or above
+#endif
+           ) ||
           level == kLevelMax || level == kLevelKeepStats ||
           operating_point > 31) {
         EXPECT_EQ(AOM_CODEC_OK,
