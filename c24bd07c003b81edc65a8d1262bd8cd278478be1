@@ -18,6 +18,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "fe5fbf1c_ef2e2509",
+        "filename": "build/cmake/aom_config_defaults.cmake",
+        "patchSetId": 3
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2023-05-02T19:50:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "59a093aa_e40f783b",
+      "revId": "c24bd07c003b81edc65a8d1262bd8cd278478be1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "18182a32_1d71b1c0",
@@ -31,6 +49,30 @@
       "writtenOn": "2023-05-02T19:35:26Z",
       "side": 1,
       "message": "how about `\u0026\u0026 (CONFIG_CWG_C013 || level \u003c 20)`? no `#if` required.",
+      "range": {
+        "startLine": 93,
+        "startChar": 11,
+        "endLine": 93,
+        "endChar": 24
+      },
+      "revId": "c24bd07c003b81edc65a8d1262bd8cd278478be1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7b9b56b5_890e878d",
+        "filename": "test/level_test.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2023-05-02T19:50:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "18182a32_1d71b1c0",
       "range": {
         "startLine": 93,
         "startChar": 11,
