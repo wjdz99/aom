@@ -629,8 +629,11 @@ enum aome_enc_control_id {
    * - "109" means target level index 9 (4.1) for the 1st OP;
    * - "1019" means target level index 19 (6.3) for the 10th OP.
    *
-   * If the target level is not specified for an OP, the maximum parameters
-   * level of 31 is used as default.
+   * If the OP index is outside the valid range of 0..31, the codec control
+   * does nothing and returns AOM_CODEC_OK.
+   *
+   * If the target level is not set for an OP, the maximum parameters level of
+   * 31 is used as default.
    */
   AV1E_SET_TARGET_SEQ_LEVEL_IDX = 54,
 
