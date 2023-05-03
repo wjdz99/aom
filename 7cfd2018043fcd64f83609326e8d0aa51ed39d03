@@ -34,6 +34,24 @@
       "parentUuid": "9358ad40_9ad56426",
       "revId": "7cfd2018043fcd64f83609326e8d0aa51ed39d03",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5e96a03a_0465b824",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-05-03T19:21:23Z",
+      "side": 1,
+      "message": "\u003e \u003e Hi James, this patch didn\u0027t pass the tests, but it looks like this might be a CI issue?\n\u003e \n\u003e It looks that way. I retriggered it. Given the job structure jenkins has a bug that sometimes it will cleanup directories for still running jobs. If you follow the failure link and log in you may see a \u0027Retrigger\u0027 option on the left side.\n\nActually I might have read too much into the log message. The issue is there are some warnings:\n\n```\nunused variable \u0027kCompMaskPredParams\u0027\n```",
+      "parentUuid": "3c699c81_30323356",
+      "revId": "7cfd2018043fcd64f83609326e8d0aa51ed39d03",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
