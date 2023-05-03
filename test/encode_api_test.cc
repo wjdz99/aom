@@ -10,6 +10,7 @@
  */
 
 #include <cstdlib>
+#include <string>
 
 #include "third_party/googletest/src/googletest/include/gtest/gtest.h"
 
@@ -80,6 +81,23 @@ TEST(EncodeAPI, InvalidControlId) {
   EXPECT_EQ(AOM_CODEC_ERROR, aom_codec_control(&enc, -1, 0));
   EXPECT_EQ(AOM_CODEC_INVALID_PARAM, aom_codec_control(&enc, 0, 0));
   EXPECT_EQ(AOM_CODEC_OK, aom_codec_destroy(&enc));
+}
+
+TEST(EncodeAPI, InvalidOperatingPointIndex) {
+  aom_codec_iface_t *iface = aom_codec_av1_cx();
+  aom_codec_ctx_t enc;
+  aom_codec_enc_cfg_t cfg;
+  EXPECT_EQ(aom_codec_enc_config_default(iface, &cfg, kUsage), AOM_CODEC_OK);
+  EXPECT_EQ(aom_codec_enc_init(&enc, iface, &cfg, 0), AOM_CODEC_OK);
+  EXPECT_EQ(aom_codec_control(&enc, AV1E_SET_TARGET_SEQ_LEVEL_IDX, 3219),
+            AOM_CODEC_INVALID_PARAM);
+  EXPECT_EQ(aom_codec_error_detail(&enc),
+            std::string("Invalid operating point index: 32"));
+  EXPECT_EQ(aom_codec_set_option(&enc, "target-seq-level-idx", "3319"),
+            AOM_CODEC_INVALID_PARAM);
+  EXPECT_EQ(aom_codec_error_detail(&enc),
+            std::string("Invalid operating point index: 33"));
+  EXPECT_EQ(aom_codec_destroy(&enc), AOM_CODEC_OK);
 }
 
 TEST(EncodeAPI, SetSFrameOnFirstFrame) {
