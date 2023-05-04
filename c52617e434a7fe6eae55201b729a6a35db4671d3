@@ -87,6 +87,30 @@
       },
       "revId": "c52617e434a7fe6eae55201b729a6a35db4671d3",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7c7319de_d7365ca6",
+        "filename": "aom_ports/arm_cpudetect.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-05-04T22:04:22Z",
+      "side": 1,
+      "message": "\u003e \u003e Hi,\n\u003e \u003e \n\u003e \u003e These are the places I found:\n\u003e \u003e \n\u003e \u003e - aom_ports/aom_timer.h\n\u003e \u003e - aom_util/aom_thread.h \n\u003e \u003e - test/register_state_check.h\n\u003e \u003e - test/video_source.h\n\u003e \u003e \n\u003e \u003e And inside the GoogleTest vendor folder,\n\u003e \u003e \n\u003e \u003e - src/googletest/cmake/internal_utils.cmake\n\u003e \n\u003e googletest is outside the scope of this change.\n\nJerome:\n\nhttps://ci.chromium.org/ui/p/chromium/builders/try/win_chromium_compile_dbg_ng/1529320/overview",
+      "parentUuid": "3c68e76e_053aab26",
+      "range": {
+        "startLine": 65,
+        "startChar": 0,
+        "endLine": 65,
+        "endChar": 23
+      },
+      "revId": "c52617e434a7fe6eae55201b729a6a35db4671d3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
