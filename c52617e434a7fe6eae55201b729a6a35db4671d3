@@ -111,6 +111,30 @@
       },
       "revId": "c52617e434a7fe6eae55201b729a6a35db4671d3",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ee25173f_3720ea76",
+        "filename": "aom_ports/arm_cpudetect.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2023-05-04T22:06:30Z",
+      "side": 1,
+      "message": "I don\u0027t see it complaining WIN32_EXTRA_LEAN so I am not sure if it\u0027s necessary to undef WIN32_EXTRA_LEAN",
+      "parentUuid": "7c7319de_d7365ca6",
+      "range": {
+        "startLine": 65,
+        "startChar": 0,
+        "endLine": 65,
+        "endChar": 23
+      },
+      "revId": "c52617e434a7fe6eae55201b729a6a35db4671d3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
