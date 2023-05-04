@@ -18,6 +18,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "5e6eb544_c22677ee",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2023-05-04T18:01:46Z",
+      "side": 1,
+      "message": "Thanks for the review. Please see https://aomedia-review.googlesource.com/c/aom/+/174841",
+      "parentUuid": "3646be9e_1d10e884",
+      "revId": "66a86fe73fb794205f4c28c71dd835cd4733c6b2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "64a1b16e_a0f52da9",
@@ -31,6 +49,24 @@
       "writtenOn": "2023-05-03T20:29:34Z",
       "side": 1,
       "message": "Optional: We should indicate the values for these levels.",
+      "revId": "66a86fe73fb794205f4c28c71dd835cd4733c6b2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "20902cf9_5d94e470",
+        "filename": "aom/aomcx.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 621,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2023-05-04T18:01:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "64a1b16e_a0f52da9",
       "revId": "66a86fe73fb794205f4c28c71dd835cd4733c6b2",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -52,6 +88,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "22bd3c45_889789eb",
+        "filename": "aom/aomcx.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 622,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2023-05-04T18:01:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0b411d27_bf8bb81e",
+      "revId": "66a86fe73fb794205f4c28c71dd835cd4733c6b2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "bcba8f9b_43ae0e2b",
@@ -65,6 +119,24 @@
       "writtenOn": "2023-05-03T20:29:34Z",
       "side": 1,
       "message": "Optional: This pointer can point to `const AV1LevelParams`",
+      "revId": "66a86fe73fb794205f4c28c71dd835cd4733c6b2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "176e118a_7754a221",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 379,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2023-05-04T18:01:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bcba8f9b_43ae0e2b",
       "revId": "66a86fe73fb794205f4c28c71dd835cd4733c6b2",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -86,6 +158,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "299d3957_3464c44b",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 444,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2023-05-04T18:01:46Z",
+      "side": 1,
+      "message": "They have the same recommended resolution \u0026 frame rate in the spec proposal, so we will not set to them based on resolution and such.",
+      "parentUuid": "4c0b615e_08a2cf76",
+      "revId": "66a86fe73fb794205f4c28c71dd835cd4733c6b2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "9ded2f54_e7a29a74",
@@ -99,6 +189,24 @@
       "writtenOn": "2023-05-03T20:29:34Z",
       "side": 1,
       "message": "The `\u003c SEQ_LEVELS` test here means `SEQ_LEVEL_MAX` is excluded. Is that desired?",
+      "revId": "66a86fe73fb794205f4c28c71dd835cd4733c6b2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8497ca43_fed50382",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 797,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2023-05-04T18:01:46Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "9ded2f54_e7a29a74",
       "revId": "66a86fe73fb794205f4c28c71dd835cd4733c6b2",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -120,6 +228,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "296d4e20_0a5b82b2",
+        "filename": "av1/encoder/level.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 316,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2023-05-04T18:01:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d52030bb_f7476c83",
+      "revId": "66a86fe73fb794205f4c28c71dd835cd4733c6b2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "7fdb0ea0_748e70a1",
@@ -137,6 +263,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "be697da6_0e58fb9f",
+        "filename": "av1/encoder/level.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 317,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2023-05-04T18:01:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7fdb0ea0_748e70a1",
+      "revId": "66a86fe73fb794205f4c28c71dd835cd4733c6b2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "5f67f1e1_3b2e8e57",
@@ -150,6 +294,24 @@
       "writtenOn": "2023-05-03T20:29:34Z",
       "side": 1,
       "message": "Optional: It seems clearer to combine `level \u003c 28` and `(CONFIG_CWG_C013 || level \u003c 20)` into `level \u003c (CONFIG_CWG_C013 ? 28 : 20)`.",
+      "revId": "66a86fe73fb794205f4c28c71dd835cd4733c6b2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "186972bd_ebc2b35e",
+        "filename": "test/level_test.cc",
+        "patchSetId": 8
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2023-05-04T18:01:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5f67f1e1_3b2e8e57",
       "revId": "66a86fe73fb794205f4c28c71dd835cd4733c6b2",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
