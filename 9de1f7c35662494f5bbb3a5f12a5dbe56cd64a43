@@ -22,6 +22,30 @@
       },
       "revId": "9de1f7c35662494f5bbb3a5f12a5dbe56cd64a43",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b4fee7c2_d31c0d48",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 5051,
+      "author": {
+        "id": 9616
+      },
+      "writtenOn": "2023-05-04T14:40:28Z",
+      "side": 1,
+      "message": "Yes, `best_y_rdcost` is updated in `update_search_state()` for the inter mode evaluation stage, followed by intra mode evaluations. But from further study, we observed that `best_y_rdcost` is not appropriately updated when `do_tx_search` is false as it is not used in this case.\n\nHence, we modified the condition to check directly the best mode obtained as you suggested. This fix has reduced the average BD-Rate loss with similar instruction count reduction as in patchset 9. In order to contain the maximum BD-Rate loss, the sf is still disabled for hdres in speed 5. We have also validated that the visual artifacts reported in BUG\u003db/245416468 no longer exists. Thank you for the suggestion.",
+      "parentUuid": "4e77bfbc_6e7facb5",
+      "range": {
+        "startLine": 5051,
+        "startChar": 33,
+        "endLine": 5051,
+        "endChar": 46
+      },
+      "revId": "9de1f7c35662494f5bbb3a5f12a5dbe56cd64a43",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
