@@ -105,6 +105,24 @@
       "parentUuid": "b4e4cc03_1f708288",
       "revId": "3dbb8cabfbe1d7aabc212af23e65dd184d02493e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "78590776_606d931f",
+        "filename": "aom_util/aom_thread.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-05-05T00:57:32Z",
+      "side": 1,
+      "message": "Yes. By \"not working **completely**\", I meant the flag add_compiler_flag_if_supported added is lost in the reconfigure.",
+      "parentUuid": "6712f2a0_661ee230",
+      "revId": "3dbb8cabfbe1d7aabc212af23e65dd184d02493e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
