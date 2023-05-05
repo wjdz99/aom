@@ -832,8 +832,7 @@ void av1_estimate_intra_mode(AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bsize,
   // TODO(marpan): This is to remove bad artifact observed under screen.
   // For now avoid use of the blk_skip feature (set in block_yrd),
   // unless it's spatially flat or stationary block.
-  if (cpi->oxcf.tune_cfg.content == AOM_CONTENT_SCREEN &&
-      x->source_variance > 0 &&
+  if (x->source_variance > 0 &&
       x->content_state_sb.source_sad_nonrd != kZeroSad)
     allow_blk_skip = 0;
 
