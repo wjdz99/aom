@@ -22,6 +22,30 @@
       },
       "revId": "3e05ca15da718bfabbd41c148743127a5f4f2e30",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "96e646d0_0a143f40",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 31042
+      },
+      "writtenOn": "2023-05-05T21:21:05Z",
+      "side": 1,
+      "message": "We need to keep the version in the header as it\u0027s used in convolve_neon.c. I didn\u0027t want to just rename it in the header or I would have had to start mangling convolve_neon.c in these changes. I intend to do a separate refactoring pass on convolve_neon.c before pulling out common functionality into the header.",
+      "parentUuid": "5eeb4d38_415b7b31",
+      "range": {
+        "startLine": 11,
+        "startChar": 1,
+        "endLine": 12,
+        "endChar": 32
+      },
+      "revId": "3e05ca15da718bfabbd41c148743127a5f4f2e30",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
