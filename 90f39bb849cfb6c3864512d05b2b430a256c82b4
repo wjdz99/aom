@@ -1,0 +1,84 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d89df114_2fe2e3ec",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-05-05T22:04:29Z",
+      "side": 1,
+      "message": "James, Jerome: Please review the entire CL.\n\nBohan, amyspark: Please review the items in the CHANGELOG that describe your bug fixes.\n\nDeepa, Marco, Rachel, Yuan: Just FYI. The libaom v3.6.1 release contains your bug fixes.",
+      "revId": "90f39bb849cfb6c3864512d05b2b430a256c82b4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "14dd7587_7c60bd34",
+        "filename": "CHANGELOG",
+        "patchSetId": 1
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-05-05T22:04:29Z",
+      "side": 1,
+      "message": "Bohan: Please review this item.",
+      "range": {
+        "startLine": 6,
+        "startChar": 0,
+        "endLine": 8,
+        "endChar": 43
+      },
+      "revId": "90f39bb849cfb6c3864512d05b2b430a256c82b4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "335e6dfa_25823c0d",
+        "filename": "CHANGELOG",
+        "patchSetId": 1
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-05-05T22:04:29Z",
+      "side": 1,
+      "message": "amyspark: I summarized your commits that I cherry-picked to the \"helia\" branch in these two items. Please see if I describe them clear enough.\n\nTo view all the commits I cherry-picked to the \"helia\" branch for libaom v3.6.1, do the following:\n\n```\ngit clone https://aomedia.googlesource.com/aom\ncd aom\ngit log v3.6.0..origin/helia\n```",
+      "range": {
+        "startLine": 19,
+        "startChar": 0,
+        "endLine": 20,
+        "endChar": 55
+      },
+      "revId": "90f39bb849cfb6c3864512d05b2b430a256c82b4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "14bc68ab_3cd57a4c",
+        "filename": "CMakeLists.txt",
+        "patchSetId": 1
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-05-05T22:04:29Z",
+      "side": 1,
+      "message": "Since there is no change to the public interface in this release, we only need to perform Step 3 in https://www.gnu.org/software/libtool/manual/libtool.html#Updating-version-info.",
+      "revId": "90f39bb849cfb6c3864512d05b2b430a256c82b4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
