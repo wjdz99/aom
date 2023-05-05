@@ -88,6 +88,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "259395be_fcb94e53",
+        "filename": "CHANGELOG",
+        "patchSetId": 1
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-05-05T22:25:30Z",
+      "side": 1,
+      "message": "\u003e amyspark: I summarized your commits that I cherry-picked to the \"helia\" branch in these two items. Please see if I describe them clear enough.\n\u003e \n\u003e To view all the commits I cherry-picked to the \"helia\" branch for libaom v3.6.1, do the following:\n\u003e \n\u003e ```\n\u003e git clone https://aomedia.googlesource.com/aom\n\u003e cd aom\n\u003e git log v3.6.0..origin/helia\n\u003e ```\n\nhttps://aomedia.googlesource.com/aom/+log/v3.6.0..refs/heads/helia also works.",
+      "parentUuid": "335e6dfa_25823c0d",
+      "range": {
+        "startLine": 19,
+        "startChar": 0,
+        "endLine": 20,
+        "endChar": 55
+      },
+      "revId": "90f39bb849cfb6c3864512d05b2b430a256c82b4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "14bc68ab_3cd57a4c",
