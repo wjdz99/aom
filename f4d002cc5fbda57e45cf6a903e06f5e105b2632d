@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2eae8ce1_a1266279",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 31592
+      },
+      "writtenOn": "2023-05-05T12:38:57Z",
+      "side": 1,
+      "message": "This CL introduces a conservative approach to prune motion search for the speed feature `skip_fullpel_search_using_startmv`. This sf skips `NEWMV` mode based on closeness of previously evaluated start_mv’s w.r.t the current reference frame `start_mv`. \n\nIn the parent version, the mode is skipped if the `start_mv` is closer to any of the start_mv\u0027s prior to current `ref_mv_idx` (Level 2). This CL improves the logic conservatively by checking all the previously evaluated start_mv\u0027s (Level 1) to skip the full-pel search.\n\nThis CL impacts only ‘good’ encoding for speed 5. Pruning levels used for the speed feature w.r.t resolution as follows.\n\n```\nCpu/Testset   LOWRES2   MIDRES2   HDRES2\n  Speed 5     Level 1   Level 1   Level 2\n  Speed 6     Level 2   Level 2   Level 2\n```\n\nPlease check the Borg test results below.\n```\n                Instruction Count       BD-Rate Loss(%)      \ncpu    Testset    Reduction(%)    avg.psnr   ovr.psnr    ssim \n 5     LOWRES2      1.100         0.0312     0.0248   -0.0242\n 5     MIDRES2      1.026        -0.0260    -0.0268   -0.0287\n 5     HDRES2       1.165         0.0350     0.0199    0.0186\n 5     Average      1.097         0.0134     0.0059   -0.0114\n```\n\nThe CL is verified to be bit-exact for cpu 6.\n\nIn the commit message:\n[-] sign indicates encode time increase\n[+] sign indicates encode time reduction\n\nThe instruction count reduction specified has been measured using command:\n`$ perf stat -e instructions:u ./aomenc`",
+      "revId": "f4d002cc5fbda57e45cf6a903e06f5e105b2632d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
