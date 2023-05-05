@@ -87,6 +87,24 @@
       "parentUuid": "6e094b31_1c5f7507",
       "revId": "3dbb8cabfbe1d7aabc212af23e65dd184d02493e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6712f2a0_661ee230",
+        "filename": "aom_util/aom_thread.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-05-05T00:53:16Z",
+      "side": 1,
+      "message": "\u003e Thank you for the reply. This means the `add_compiler_flag_if_supported` function (used in build/cmake/aom_configure.cmake to add `-DNOMINMAX`) doesn\u0027t work completely when CMake\u0027s Visual Studio generator is used.\n\nThe other flags (_CRT..., etc.) get added I believe, but maybe something is lost in the reconfigure as mentioned. The call to add_compiler_flag_if_supported is a bit unnecessary if we know the compiler, we could just add it directly.",
+      "parentUuid": "b4e4cc03_1f708288",
+      "revId": "3dbb8cabfbe1d7aabc212af23e65dd184d02493e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
