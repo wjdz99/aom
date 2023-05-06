@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4854d0fd_d02e989d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-05-06T00:28:22Z",
+      "side": 1,
+      "message": "Rachel suggested cherry-picking this CL because it fixes an assertion failure that appeared after the \"Fix fullpel search limits\" patch was merged, and that one\u0027s been cherry picked into v3.6.1 already.",
+      "revId": "9577bc1254eb13b54200b89752ae0b28091deffb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
