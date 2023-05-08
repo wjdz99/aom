@@ -63,6 +63,30 @@
       },
       "revId": "f4d002cc5fbda57e45cf6a903e06f5e105b2632d",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0c13248b_b7eb9697",
+        "filename": "av1/encoder/motion_search_facade.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 213,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2023-05-08T15:30:02Z",
+      "side": 1,
+      "message": "Okay. Now the mv_diff threshold is 1 as in \"if (row_diff \u003c\u003d 1 \u0026\u0026 col_diff \u003c\u003d 1)\". Would lowering this threshold be helpful for speed 5? Just feel the condition you are using is unnecessarily strict (current candidate mv is closer to ALL the start mv candidates)? Could you explain?",
+      "parentUuid": "194f8433_71e54156",
+      "range": {
+        "startLine": 213,
+        "startChar": 8,
+        "endLine": 213,
+        "endChar": 59
+      },
+      "revId": "f4d002cc5fbda57e45cf6a903e06f5e105b2632d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
