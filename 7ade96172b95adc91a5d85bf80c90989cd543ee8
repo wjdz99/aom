@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "12a0d94f_93a1c698",
+        "filename": "CHANGELOG",
+        "patchSetId": 2
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-05-08T18:18:53Z",
+      "side": 1,
+      "message": "This link won\u0027t work until the v3.6.1 tag has been created.",
+      "range": {
+        "startLine": 4,
+        "startChar": 2,
+        "endLine": 4,
+        "endChar": 58
+      },
+      "revId": "7ade96172b95adc91a5d85bf80c90989cd543ee8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
