@@ -16,6 +16,70 @@
       "message": "As per our study, we observed that the transform search in `motion_mode_rd()` can be tuned further for speed-up based on skip rd cost through transform rd gating. This CL introduces a speed feature to tune aggressiveness of `txfm_rd_gate_level` in motion mode search at mode evaluation stage.\nThis speed feature is enabled for speed 5 and 6 of Good preset.\n\nBorg test results of Good preset.\n```\n                 Instruction Count        BD-Rate Loss(%)\ncpu      Testset   Reduction(%)    avg.psnr   ovr.psnr    ssim\n 5       LOWRES2      0.763         0.0350     0.0273    0.0277\n 5       MIDRES2      1.320         0.0301     0.0278    0.0430\n 5        HDRES2      1.893         0.0838     0.0885    0.0756\n 5       Average      1.325         0.0496     0.0479    0.0488\n\n 6       LOWRES2      0.771        -0.0086    -0.0082    0.0081\n 6       MIDRES2      1.489         0.0820     0.0913    0.1261\n 6        HDRES2      1.975         0.0487     0.0471    0.0420\n 6       Average      1.411         0.0404     0.0431    0.0583\n```\nIn the commit message:\n[-] sign indicates encode time increase\n[+] sign indicates encode time reduction\n\nThe instruction count reduction specified has been measured using command:\n`$ perf stat -e instructions:u ./aomenc`",
       "revId": "713a284feadc92bb94ecd5e08ae8921b386de884",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "becbabf6_e5443a94",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2023-05-08T16:10:07Z",
+      "side": 1,
+      "message": "Nice speedup and good tradeoff. Thanks.",
+      "parentUuid": "1dd30433_e5e8483c",
+      "revId": "713a284feadc92bb94ecd5e08ae8921b386de884",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3f56c86c_66c5686e",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1328,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2023-05-08T16:10:07Z",
+      "side": 1,
+      "message": "With these 2 conditions added, does this change affect speed \u003c 5? If they work well, maybe they should be added to lower speeds?",
+      "range": {
+        "startLine": 1328,
+        "startChar": 6,
+        "endLine": 1328,
+        "endChar": 58
+      },
+      "revId": "713a284feadc92bb94ecd5e08ae8921b386de884",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d0c53b02_348c23ab",
+        "filename": "av1/encoder/speed_features.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 849,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2023-05-08T16:10:07Z",
+      "side": 1,
+      "message": "What is the difference between this sf and txfm_rd_gate_level? It doesn\u0027t look like this sf is related to motion mode search?",
+      "range": {
+        "startLine": 849,
+        "startChar": 6,
+        "endLine": 849,
+        "endChar": 36
+      },
+      "revId": "713a284feadc92bb94ecd5e08ae8921b386de884",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
