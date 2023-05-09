@@ -1099,12 +1099,25 @@ static AOM_INLINE void chroma_check(AV1_COMP *cpi, MACROBLOCK *x,
 }
 
 static void fill_variance_tree_leaves(
+<<<<<<< HEAD   (5bae87 Use aom_sse instead of aom_mse to compute SSE)
     AV1_COMP *cpi, MACROBLOCK *x, VP128x128 *vt, PART_EVAL_STATUS *force_split,
     int avg_16x16[][4], int maxvar_16x16[][4], int minvar_16x16[][4],
     int *variance4x4downsample, int64_t *thresholds, const uint8_t *src_buf,
     int src_stride, const uint8_t *dst_buf, int dst_stride, bool is_key_frame,
     const bool is_small_sb) {
+=======
+    AV1_COMP *cpi, MACROBLOCK *x, VP128x128 *vt, VP16x16 *vt2,
+    PART_EVAL_STATUS *force_split, int avg_16x16[][4], int maxvar_16x16[][4],
+    int minvar_16x16[][4], int *variance4x4downsample, int64_t *thresholds,
+    uint8_t *src, int src_stride, const uint8_t *dst, int dst_stride,
+    bool is_key_frame) {
+  AV1_COMMON *cm = &cpi->common;
+>>>>>>> BRANCH (7ade96 v3.6.1: Update CHANGELOG)
   MACROBLOCKD *xd = &x->e_mbd;
+<<<<<<< HEAD   (5bae87 Use aom_sse instead of aom_mse to compute SSE)
+=======
+  const int is_small_sb = (cm->seq_params->sb_size == BLOCK_64X64);
+>>>>>>> BRANCH (7ade96 v3.6.1: Update CHANGELOG)
   const int num_64x64_blocks = is_small_sb ? 1 : 4;
   // TODO(kyslov) Bring back compute_minmax_variance with content type detection
   const int compute_minmax_variance = 0;
@@ -1680,10 +1693,16 @@ int av1_choose_var_based_partitioning(AV1_COMP *cpi, const TileInfo *const tile,
     CHECK_MEM_ERROR(cm, vt2, aom_malloc(sizeof(*vt2)));
   // Fill in the entire tree of 8x8 (or 4x4 under some conditions) variances
   // for splits.
+<<<<<<< HEAD   (5bae87 Use aom_sse instead of aom_mse to compute SSE)
   fill_variance_tree_leaves(cpi, x, vt, force_split, avg_16x16, maxvar_16x16,
                             minvar_16x16, variance4x4downsample, thresholds,
                             src_buf, src_stride, dst_buf, dst_stride,
                             is_key_frame, is_small_sb);
+=======
+  fill_variance_tree_leaves(cpi, x, vt, vt2, force_split, avg_16x16,
+                            maxvar_16x16, minvar_16x16, variance4x4downsample,
+                            thresholds, s, sp, d, dp, is_key_frame);
+>>>>>>> BRANCH (7ade96 v3.6.1: Update CHANGELOG)
 
   avg_64x64 = 0;
   for (int blk64_idx = 0; blk64_idx < num_64x64_blocks; ++blk64_idx) {

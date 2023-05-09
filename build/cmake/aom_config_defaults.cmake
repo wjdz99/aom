@@ -155,11 +155,14 @@ set_aom_config_var(CONFIG_TFLITE 0
                    "AV1 experiment: Enable tensorflow lite library.")
 set_aom_config_var(CONFIG_THREE_PASS 0
                    "AV1 experiment: Enable three-pass encoding.")
+<<<<<<< HEAD   (5bae87 Use aom_sse instead of aom_mse to compute SSE)
 set_aom_config_var(CONFIG_OUTPUT_FRAME_SIZE 0
                    "AV1 experiment: Output frame size information.")
 set_aom_config_var(
   CONFIG_SALIENCY_MAP 0
   "AV1 experiment: Enable saliency map based encoding tuning for VMAF.")
+=======
+>>>>>>> BRANCH (7ade96 v3.6.1: Update CHANGELOG)
 set_aom_config_var(CONFIG_CWG_C013 0
                    "AV1 experiment: Support for 7.x and 8.x levels.")
 

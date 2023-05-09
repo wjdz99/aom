@@ -242,8 +242,11 @@ if(AOM_TARGET_SYSTEM STREQUAL "Windows")
   # The default _WIN32_WINNT value in MinGW is 0x0502 (Windows XP with SP2). Set
   # it to 0x0601 (Windows 7).
   add_compiler_flag_if_supported("-D_WIN32_WINNT=0x0601")
+<<<<<<< HEAD   (5bae87 Use aom_sse instead of aom_mse to compute SSE)
   # Quiet warnings related to fopen, printf, etc.
   add_compiler_flag_if_supported("-D_CRT_SECURE_NO_WARNINGS")
+=======
+>>>>>>> BRANCH (7ade96 v3.6.1: Update CHANGELOG)
 endif()
 
 #
