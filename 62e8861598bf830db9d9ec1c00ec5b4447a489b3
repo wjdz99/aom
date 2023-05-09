@@ -16,6 +16,24 @@
       "message": "same thing here for the final else.",
       "revId": "62e8861598bf830db9d9ec1c00ec5b4447a489b3",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "98bf8f6e_434eb18f",
+        "filename": "aom_dsp/arm/sum_squares_neon.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 698,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-05-09T19:50:25Z",
+      "side": 1,
+      "message": "\u003e same thing here for the final else.\n\nFor definiteness, this would clear the warning:\n\n```\n  if (width \u003e\u003d 8) {\n    return aom_var_2d_u16_8xh_neon(src, src_stride, width, height);\n  }\n  if (width \u003e\u003d 4) {\n    return aom_var_2d_u16_4xh_neon(src, src_stride, width, height);\n  }\n  return aom_var_2d_u16_c(src, src_stride, width, height);\n```\n\nSome might argue that the else if is more compact, though this is just as readable.",
+      "parentUuid": "000893ac_31bb784e",
+      "revId": "62e8861598bf830db9d9ec1c00ec5b4447a489b3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
