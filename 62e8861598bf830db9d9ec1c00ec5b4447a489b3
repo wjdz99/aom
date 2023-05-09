@@ -34,6 +34,24 @@
       "parentUuid": "000893ac_31bb784e",
       "revId": "62e8861598bf830db9d9ec1c00ec5b4447a489b3",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "32688e66_5ed31246",
+        "filename": "aom_dsp/arm/sum_squares_neon.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 698,
+      "author": {
+        "id": 31957
+      },
+      "writtenOn": "2023-05-09T20:51:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "98bf8f6e_434eb18f",
+      "revId": "62e8861598bf830db9d9ec1c00ec5b4447a489b3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
