@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8a4e5626_75aa0922",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-05-10T23:17:57Z",
+      "side": 1,
+      "message": "LGTM.",
+      "revId": "e5fc454d4fdfc317c0f6423a1d9d2ebd4a57145e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3a32156a_3b06f04b",
+        "filename": "build/cmake/toolchains/riscv-linux-gcc.cmake",
+        "patchSetId": 1
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-05-10T23:17:57Z",
+      "side": 1,
+      "message": "Do we need to update this comment?",
+      "revId": "e5fc454d4fdfc317c0f6423a1d9d2ebd4a57145e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
