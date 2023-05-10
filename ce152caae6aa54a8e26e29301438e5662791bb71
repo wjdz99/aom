@@ -16,6 +16,29 @@
       "message": "Please review the new patchset.",
       "revId": "ce152caae6aa54a8e26e29301438e5662791bb71",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "40cd03b4_c96fc377",
+        "filename": "CMakeLists.txt",
+        "patchSetId": 6
+      },
+      "lineNbr": 840,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-05-10T02:10:48Z",
+      "side": 1,
+      "message": "```suggestion\n  # errors (don\u0027t use it with AddressSanitizer).\" See\n```\n\nReplace ’ with \u0027 to avoid making this file UTF-8.",
+      "range": {
+        "startLine": 840,
+        "startChar": 15,
+        "endLine": 840,
+        "endChar": 16
+      },
+      "revId": "ce152caae6aa54a8e26e29301438e5662791bb71",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
