@@ -34,6 +34,24 @@
       "parentUuid": "9c28b3a2_0b2b9ce0",
       "revId": "cf073c3d12604a3787f4a61902c277cf30a63c6b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "114eaacc_6e2aa611",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-05-10T00:07:32Z",
+      "side": 1,
+      "message": "\u003e \u003e According to the tests that fail, the psnr value is less than the threshold value. Digging into how this psnr value is calculated I found that it is calculated in aom_calc_highbd_psnr[1]. This calls highbd_get_sse where aom_highbd_8_mse16x16[2] function is called to calculate value of sse. Is this function should be called even when the case for bit depth value is 10 or 12? \n\u003e \u003e \n\u003e \u003e \n\u003e \n\u003e This comes from libvpx. It looks like 10/12 bit weren\u0027t considered in that path. Compare to `highbd_get_sse_shift` [3].\n\u003e \n\u003e \u003e [1]https://source.chromium.org/chromium/chromium/src/+/main:third_party/libaom/source/libaom/aom_dsp/psnr.c;drc\u003d5861e434c539370b8a7ff237770e01611de45cc8;l\u003d341\n\u003e \u003e [2] https://source.chromium.org/chromium/chromium/src/+/main:third_party/libaom/source/libaom/aom_dsp/psnr.c;drc\u003d5861e434c539370b8a7ff237770e01611de45cc8;l\u003d145\n\u003e \n\u003e [3] https://source.chromium.org/chromium/chromium/src/+/main:third_party/libaom/source/libaom/aom_dsp/psnr.c;l\u003d104;drc\u003d5861e434c539370b8a7ff237770e01611de45cc8\n\nThis may have been resolved in:\nhttps://aomedia-review.googlesource.com/c/aom/+/175063",
+      "parentUuid": "7fcc1011_4c23589f",
+      "revId": "cf073c3d12604a3787f4a61902c277cf30a63c6b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
