@@ -16,6 +16,23 @@
       "message": "The CL (https://aomedia-review.googlesource.com/c/aom/+/174221), enables Loop restoration for speed 5 and 6. \nIt is observed that this change causes 3% to 7% (based on resolution) of encode time increase for multi-thread use cases. The increase in encode time is due to the av1_pick_filter_restoration() module which is not multi-threaded. Hence, this CL disables the LR filter temporarily for multi-thread use cases for speed 5 and 6 until the module is multi-threaded.\n\nThis CL also takes care of following changes required in the `AVxEncoderThreadTestLarge` test case.\n- For speeds \u003e\u003d 5, encoder bit match test is modified to disable LR filter (for single and multi thread cases) for row-mt \u003d 0. Without this change single thread and multi-thread outputs are not expected to match.\n- This change is not required when row-mt is enabled, since single thread and multi-thread outputs are not expected to match due to other speed features in the encoder.\n\nBit match is verified for speeds 5 and 6 through Borg test. Also, confirmed that in multi-thread path LR filter is disabled in the streams.\n\nPlease review the CL and let us know your thoughts.",
       "revId": "77d6fbae94613f3be9354fee6557bca8f476cce1",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7b47a681_8fffe3f9",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2023-05-11T16:36:17Z",
+      "side": 1,
+      "message": "Thanks for getting this done.",
+      "revId": "77d6fbae94613f3be9354fee6557bca8f476cce1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
