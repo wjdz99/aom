@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0060aeba_393119f1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9101
+      },
+      "writtenOn": "2023-05-11T15:09:35Z",
+      "side": 1,
+      "message": "This CL extends `motion_mode_txfm_rd_gating_offset` speed feature to speed 4. Since Borg test results of all the testsets are within trade-off, the sf is extended for all the testsets.\n\nAs per suggestion, the documentation of the sf is also improved in this CL. We will consolidate the sfs after studying optimization scope in other modules where transform search is performed.\n\nFor this patch, bit exact output is ensured for speed 5 and 6.\nBorg test results of Good preset.\n```\n                 Instruction Count        BD-Rate Loss(%)\ncpu      Testset   Reduction(%)    avg.psnr   ovr.psnr    ssim\n 4       LOWRES2      0.670         0.0331     0.0389    0.1133\n 4       MIDRES2      1.067         0.0292     0.0201    0.0306\n 4        HDRES2      1.284         0.0636     0.0635    0.1063\n 4       Average      1.007         0.0420     0.0408    0.0834\n```\nIn the commit message:\n[-] sign indicates encode time increase\n[+] sign indicates encode time reduction\n\nThe instruction count reduction specified has been measured using command:\n`$ perf stat -e instructions:u ./aomenc`",
+      "revId": "087a49037d1bc6b843c69dcb8576d0d9d26c9c86",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
