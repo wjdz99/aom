@@ -46,6 +46,30 @@
       },
       "revId": "47c9c93f7850744a55ecb34f8ce4388cf110352d",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "22acc4fe_2e85438e",
+        "filename": "build/cmake/aom_configure.cmake",
+        "patchSetId": 2
+      },
+      "lineNbr": 326,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-05-11T18:32:54Z",
+      "side": 1,
+      "message": "\u003e Correction: My comment \"MSVC doesn\u0027t have a flag for C standards.\" is incorrect. MSVC has /std:c11 and /std:c17.\n\u003e \n\u003e But it doesn\u0027t have /std::c99. The documentation says \"The compiler doesn\u0027t implement several required features of C99, so it isn\u0027t possible to specify C99 conformance, either.\"\n\nI see. I missed the difference in branches.",
+      "parentUuid": "00b32c4e_826b50c1",
+      "range": {
+        "startLine": 316,
+        "startChar": 0,
+        "endLine": 326,
+        "endChar": 9
+      },
+      "revId": "47c9c93f7850744a55ecb34f8ce4388cf110352d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
