@@ -16,6 +16,92 @@
       "message": "Thanks for the fix!",
       "revId": "61fcda00d9a21a6b84d8cf2d4ff07681b31a32db",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a4c6e0e8_7aab8187",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2023-05-11T17:11:51Z",
+      "side": 1,
+      "message": "Some minor style issues.",
+      "revId": "61fcda00d9a21a6b84d8cf2d4ff07681b31a32db",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e687c9b1_c5f694a0",
+        "filename": "test/resize_test.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2023-05-11T17:11:51Z",
+      "side": 1,
+      "message": "This shouldn\u0027t have trailing underscore. Only data members of a class are named that way:\n\nhttps://google.github.io/styleguide/cppguide.html#Variable_Names",
+      "range": {
+        "startLine": 101,
+        "startChar": 30,
+        "endLine": 101,
+        "endChar": 49
+      },
+      "revId": "61fcda00d9a21a6b84d8cf2d4ff07681b31a32db",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "73b4b4b4_2d484122",
+        "filename": "test/resize_test.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 620,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2023-05-11T17:11:51Z",
+      "side": 1,
+      "message": "nit: static_cast\u003cbool\u003e()",
+      "range": {
+        "startLine": 620,
+        "startChar": 33,
+        "endLine": 620,
+        "endChar": 37
+      },
+      "revId": "61fcda00d9a21a6b84d8cf2d4ff07681b31a32db",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8e8b1985_6e49d105",
+        "filename": "test/resize_test.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 627,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2023-05-11T17:11:51Z",
+      "side": 1,
+      "message": "this could be\n\n```\nfor (const auto\u0026 info : frame_info_list_)\n```",
+      "range": {
+        "startLine": 626,
+        "startChar": 4,
+        "endLine": 627,
+        "endChar": 48
+      },
+      "revId": "61fcda00d9a21a6b84d8cf2d4ff07681b31a32db",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
