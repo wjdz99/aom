@@ -439,4 +439,40 @@ static INLINE uint16x8_t highbd_convolve12_horiz8_s32_s16(
   return vcombine_u16(vqmovun_s32(sum0), vqmovun_s32(sum1));
 }
 
+static INLINE int32x4_t highbd_convolve8_2d_scale_horiz4x8_s32(
+    const int16x8_t s0, const int16x8_t s1, const int16x8_t s2,
+    const int16x8_t s3, const int16x4_t *filters_lo,
+    const int16x4_t *filters_hi, const int32x4_t offset) {
+  int16x4_t s_lo[] = { vget_low_s16(s0), vget_low_s16(s1), vget_low_s16(s2),
+                       vget_low_s16(s3) };
+  int16x4_t s_hi[] = { vget_high_s16(s0), vget_high_s16(s1), vget_high_s16(s2),
+                       vget_high_s16(s3) };
+
+  transpose_u16_4x4((uint16x4_t *)s_lo);
+  transpose_u16_4x4((uint16x4_t *)s_hi);
+
+  int32x4_t sum = vmlal_s16(offset, s_lo[0], filters_lo[0]);
+  sum = vmlal_s16(sum, s_lo[1], filters_lo[1]);
+  sum = vmlal_s16(sum, s_lo[2], filters_lo[2]);
+  sum = vmlal_s16(sum, s_lo[3], filters_lo[3]);
+  sum = vmlal_s16(sum, s_hi[0], filters_hi[0]);
+  sum = vmlal_s16(sum, s_hi[1], filters_hi[1]);
+  sum = vmlal_s16(sum, s_hi[2], filters_hi[2]);
+  sum = vmlal_s16(sum, s_hi[3], filters_hi[3]);
+
+  return sum;
+}
+
+static INLINE uint16x4_t highbd_convolve8_2d_scale_horiz4x8_s32_s16(
+    const int16x8_t s0, const int16x8_t s1, const int16x8_t s2,
+    const int16x8_t s3, const int16x4_t *filters_lo,
+    const int16x4_t *filters_hi, const int32x4_t shift_s32,
+    const int32x4_t offset) {
+  int32x4_t sum = highbd_convolve8_2d_scale_horiz4x8_s32(
+      s0, s1, s2, s3, filters_lo, filters_hi, offset);
+
+  sum = vqrshlq_s32(sum, shift_s32);
+  return vqmovun_s32(sum);
+}
+
 #endif  // AOM_AV1_COMMON_ARM_HIGHBD_CONVOLVE_NEON_H_
