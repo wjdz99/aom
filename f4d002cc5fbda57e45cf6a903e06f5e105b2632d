@@ -87,6 +87,30 @@
       },
       "revId": "f4d002cc5fbda57e45cf6a903e06f5e105b2632d",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ca085d0f_66a7e0e7",
+        "filename": "av1/encoder/motion_search_facade.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 213,
+      "author": {
+        "id": 31592
+      },
+      "writtenOn": "2023-05-11T14:18:01Z",
+      "side": 1,
+      "message": "In the parent version, the full-pel search is skipped if the absolute difference between rows and cols of `start_mv` and previously evaluated mv’s in the stack is \u003c\u003d 1. Lowering the threshold to 0 can only give ~0.5% speed-up. In addition, 2 contents are dropping in BD-Rate by ~0.9%. Thus, we feel that the  existing threshold is sufficient.\n\nHowever, Instead of changing the threshold, the pruning logic is made conservative (i.e., sf\u003dlevel1) by imposing that the current mv is closer to all previously evaluated mv’s in the stack (instead of just any one of them). This new logic impacts only `ref_mv_idx\u003d2` candidates and for `ref_mv_idx` 0,1 the level1 logic is the same as that of level2.\n\nWe also agree that the conservative logic (i.e. level 1) is stricter, but it is observed to help reduce the maximum drops seen with level 2.  The following are the Borg test results for direct extension of the sf  from speed 6 to speed 5 which is Level 2:\n```\n                          Instruction Count        BD-Rate Loss(%)      \ncpu   Resolution   Reduction(%)    avg.psnr   ovr.psnr    ssim \n 5       LOWRES2      1.276         0.0525     0.0529   -0.0035\n 5       MIDRES2      1.329        -0.0032    -0.0069   -0.0289\n 5        HDRES2      1.168         0.0350     0.0199    0.0186\n 5       Average      1.258         0.0281     0.0220   -0.0046\n```\nContents with Maximum bd-rate drop:\n```\nmobisode2_240p      0.7500%\nshields_640x360_60  0.5179%\n```\n\nFrom the results it is seen that, for LOWRES2 and MIDRES2 resolution, as per trade-off and maximum bd-rate drop(%), level 1 logic seems to be working better than the existing logic. When debugging the content ‘mobiside_240p’, it is seen that `ref_mv_idx\u003d2` is getting pruned many times when it is close to one of the evaluated `ref_mv_idx` 0 or 1 leading to a worst case drop of 0.7%. Hence, we feel that the strict condition on pruning the `ref_mv_idx\u003d2` would be helpful if the current `start_mv` is close to all the previously evaluated mv’s.\n\nPlease let us know your suggestions.",
+      "parentUuid": "0c13248b_b7eb9697",
+      "range": {
+        "startLine": 213,
+        "startChar": 8,
+        "endLine": 213,
+        "endChar": 59
+      },
+      "revId": "f4d002cc5fbda57e45cf6a903e06f5e105b2632d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
