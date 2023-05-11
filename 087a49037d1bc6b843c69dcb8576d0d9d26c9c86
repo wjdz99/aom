@@ -18,6 +18,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a758bb21_ead2bd4e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2023-05-11T18:21:49Z",
+      "side": 1,
+      "message": "Thanks for adding this to speed 4. Good speed improvement!",
+      "parentUuid": "0060aeba_393119f1",
+      "revId": "087a49037d1bc6b843c69dcb8576d0d9d26c9c86",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c9cabfbe_7420a43d",
@@ -31,6 +49,24 @@
       "writtenOn": "2023-05-11T15:12:42Z",
       "side": 1,
       "message": "Speed \u003e 4 effectively uses offset as 1 for non-boosted frames since txfm_rd_gate_level is capped at `MAX_TX_RD_GATE_LEVEL` in motion mode search (line 1331 in rdopt.c)",
+      "revId": "087a49037d1bc6b843c69dcb8576d0d9d26c9c86",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "05b571b2_ba582724",
+        "filename": "av1/encoder/speed_features.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1156,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2023-05-11T18:21:49Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "c9cabfbe_7420a43d",
       "revId": "087a49037d1bc6b843c69dcb8576d0d9d26c9c86",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
