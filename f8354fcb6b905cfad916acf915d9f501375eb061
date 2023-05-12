@@ -16,6 +16,24 @@
       "message": "The function ‘av1_estimate_noise_from_single_plane_c()’ is used to estimate noise at frame level using the Laplacian operator. This CL adds an AVX2 variant intrinsic for the same. We have also added an unit-test for checking the functionality and module-level speed-up. At module level, the scaling is ~5.0x. Since the compiler is doing better optimization, the actual scaling is less than theoretically estimated scaling numbers. We confirmed this behaviour through objdump.\n\nPlease check the Borg test results for speed 5 and 6.\n```\n                         Instruction Count\ncpu      Resolution        Reduction(%)\n 5       LOWRES2              0.290\n 5       MIDRES2              0.401\n 5       HDRES2               0.501\n 5       AVERAGE              0.399\n 6       LOWRES2              0.167\n 6       MIDRES2              0.254\n 6       HDRES2               0.317\n 6       AVERAGE              0.246\n ```\nIt is verified that the CL is bit-exact for other presets as well.\n\nThe instruction count reduction specified has been measured using command:\n```\n$ perf stat -e instructions:u ./aomenc …\n```\nPlease review the CL.",
       "revId": "f8354fcb6b905cfad916acf915d9f501375eb061",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "42b8fa19_5842c2c0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2023-05-12T21:20:21Z",
+      "side": 1,
+      "message": "Thanks! Looks good to me.",
+      "parentUuid": "059a768a_4454b829",
+      "revId": "f8354fcb6b905cfad916acf915d9f501375eb061",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
