@@ -35,6 +35,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "0d1ce2c6_98981680",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9616
+      },
+      "writtenOn": "2023-05-12T11:06:22Z",
+      "side": 1,
+      "message": "Addressed the suggestions in https://aomedia-review.googlesource.com/c/aom/+/175203.",
+      "parentUuid": "a4c6e0e8_7aab8187",
+      "revId": "61fcda00d9a21a6b84d8cf2d4ff07681b31a32db",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e687c9b1_c5f694a0",
@@ -82,6 +100,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e5d1dbd1_d9d219f6",
+        "filename": "test/resize_test.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 9616
+      },
+      "writtenOn": "2023-05-12T11:06:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ac0fa9aa_8d994616",
+      "range": {
+        "startLine": 101,
+        "startChar": 30,
+        "endLine": 101,
+        "endChar": 49
+      },
+      "revId": "61fcda00d9a21a6b84d8cf2d4ff07681b31a32db",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d4d40b8b_c1177cfb",
@@ -95,6 +137,30 @@
       "writtenOn": "2023-05-11T17:18:02Z",
       "side": 1,
       "message": "since this is new we should stop using `virtual` and use `override` instead for classes that are not inherited.",
+      "range": {
+        "startLine": 192,
+        "startChar": 2,
+        "endLine": 192,
+        "endChar": 9
+      },
+      "revId": "61fcda00d9a21a6b84d8cf2d4ff07681b31a32db",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7baded61_2000f559",
+        "filename": "test/resize_test.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 192,
+      "author": {
+        "id": 9616
+      },
+      "writtenOn": "2023-05-12T11:06:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d4d40b8b_c1177cfb",
       "range": {
         "startLine": 192,
         "startChar": 2,
@@ -128,6 +194,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f33f8b12_e22e4a0f",
+        "filename": "test/resize_test.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 620,
+      "author": {
+        "id": 9616
+      },
+      "writtenOn": "2023-05-12T11:06:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "73b4b4b4_2d484122",
+      "range": {
+        "startLine": 620,
+        "startChar": 33,
+        "endLine": 620,
+        "endChar": 37
+      },
+      "revId": "61fcda00d9a21a6b84d8cf2d4ff07681b31a32db",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "8e8b1985_6e49d105",
@@ -141,6 +231,30 @@
       "writtenOn": "2023-05-11T17:11:51Z",
       "side": 1,
       "message": "this could be\n\n```\nfor (const auto\u0026 info : frame_info_list_)\n```",
+      "range": {
+        "startLine": 626,
+        "startChar": 4,
+        "endLine": 627,
+        "endChar": 48
+      },
+      "revId": "61fcda00d9a21a6b84d8cf2d4ff07681b31a32db",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bdb63b3c_df678a60",
+        "filename": "test/resize_test.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 627,
+      "author": {
+        "id": 9616
+      },
+      "writtenOn": "2023-05-12T11:06:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8e8b1985_6e49d105",
       "range": {
         "startLine": 626,
         "startChar": 4,
