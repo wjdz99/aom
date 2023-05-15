@@ -34,6 +34,23 @@
       "parentUuid": "647aaeb8_8a223f37",
       "revId": "75fd7a1a9bd26b3257ffbe5009c57d54b11015e9",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "083ecff4_ca7e3cd1",
+        "filename": "aom_dsp/arm/intrapred_neon.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1755,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-05-15T23:31:55Z",
+      "side": 1,
+      "message": "This could be `vld1_dup_u8` to avoid zeroing the register. From what I remember, that isn\u0027t removed by some compilers. That\u0027s an existing issue, so can be addressed in another change.",
+      "revId": "75fd7a1a9bd26b3257ffbe5009c57d54b11015e9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
