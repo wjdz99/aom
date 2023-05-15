@@ -50,7 +50,6 @@ typedef struct {
   MOTION_MODE best_motion_mode;
   WarpedMotionParams wm_params;
   int num_proj_ref;
-  uint8_t blk_skip[MAX_MIB_SIZE * MAX_MIB_SIZE];
   PALETTE_MODE_INFO pmi;
   int64_t best_sse;
 } BEST_PICKMODE;
@@ -562,7 +561,6 @@ void av1_estimate_intra_mode(AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bsize,
                              int reuse_prediction, struct buf_2d *orig_dst,
                              PRED_BUFFER *tmp_buffers,
                              PRED_BUFFER **this_mode_pred, RD_STATS *best_rdc,
-                             BEST_PICKMODE *best_pickmode,
-                             PICK_MODE_CONTEXT *ctx);
+                             BEST_PICKMODE *best_pickmode);
 
 #endif  // AOM_AV1_ENCODER_NONRD_OPT_H_

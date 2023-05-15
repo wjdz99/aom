@@ -695,8 +695,6 @@ void av1_estimate_block_intra(int plane, int block, int row, int col,
  *                                        selected intra mode
  * \param[in]    best_pickmode            Pointer to a structure containing
  *                                        best mode picked so far
- * \param[in]    ctx                      Pointer to structure holding coding
- *                                        contexts and modes for the block
  *
  * \remark Nothing is returned. Instead, calculated RD cost is placed to
  * \c best_rdc and best selected mode is placed to \c best_pickmode
@@ -707,8 +705,7 @@ void av1_estimate_intra_mode(AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bsize,
                              int reuse_prediction, struct buf_2d *orig_dst,
                              PRED_BUFFER *tmp_buffers,
                              PRED_BUFFER **this_mode_pred, RD_STATS *best_rdc,
-                             BEST_PICKMODE *best_pickmode,
-                             PICK_MODE_CONTEXT *ctx) {
+                             BEST_PICKMODE *best_pickmode) {
   AV1_COMMON *const cm = &cpi->common;
   MACROBLOCKD *const xd = &x->e_mbd;
   MB_MODE_INFO *const mi = xd->mi[0];
@@ -921,9 +918,6 @@ void av1_estimate_intra_mode(AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bsize,
       mi->uv_mode = this_mode;
       mi->mv[0].as_int = INVALID_MV;
       mi->mv[1].as_int = INVALID_MV;
-      if (!this_rdc.skip_txfm)
-        memset(ctx->blk_skip, 0,
-               sizeof(x->txfm_search_info.blk_skip[0]) * ctx->num_4x4_blk);
     }
   }
   mi->tx_size = best_pickmode->best_tx_size;
