@@ -16,6 +16,24 @@
       "message": "Are 2 temporaries needed? The C code and SSE4 seem to get away with 1.",
       "revId": "1ed3fc437b9da6ee5df5a48a351f055d7f011da6",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3a961e3b_30c7816c",
+        "filename": "av1/common/arm/highbd_convolve_neon.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 1420,
+      "author": {
+        "id": 32122
+      },
+      "writtenOn": "2023-05-16T19:19:32Z",
+      "side": 1,
+      "message": "Yes, in order to avoid branching within the main loop, I\u0027ve separated all the extra compound averaging *after* the x\u0026y convolution has been done. This does unfortunately need an extra temporary. I was wondering if we could do vla (variable-length-array) which is C99. Otherwise, I can convert to heap allocation with aom_memalign.",
+      "parentUuid": "1dc40f15_b262c61b",
+      "revId": "1ed3fc437b9da6ee5df5a48a351f055d7f011da6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
