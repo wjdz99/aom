@@ -16,6 +16,29 @@
       "message": "Onur: I converted the reproducer testcase in b/281219978 to this test.\n\nYou fixed signed integer overflows in update_b_sep_sym() before. What\u0027s new about this bug is that the bit depth is 12 bits.",
       "revId": "5ad3dd79e4a16732a09ab91a7c5caafd85fbd37e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a5b1c3c6_b971dab3",
+        "filename": "test/wiener_test.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 810,
+      "author": {
+        "id": 26732
+      },
+      "writtenOn": "2023-05-16T17:41:30Z",
+      "side": 1,
+      "message": "Going forward we may want to read these from data files or generate random data with fixed seed values.",
+      "range": {
+        "startLine": 810,
+        "startChar": 2,
+        "endLine": 810,
+        "endChar": 55
+      },
+      "revId": "5ad3dd79e4a16732a09ab91a7c5caafd85fbd37e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
