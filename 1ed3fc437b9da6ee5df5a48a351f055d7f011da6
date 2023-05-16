@@ -52,6 +52,24 @@
       "parentUuid": "3a961e3b_30c7816c",
       "revId": "1ed3fc437b9da6ee5df5a48a351f055d7f011da6",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "75e0a8ad_7107ed76",
+        "filename": "av1/common/arm/highbd_convolve_neon.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 1420,
+      "author": {
+        "id": 32122
+      },
+      "writtenOn": "2023-05-16T19:35:28Z",
+      "side": 1,
+      "message": "Ok, will do heap allocation then, what\u0027s the expected behaviour if allocation fails? Just exit(1)? I saw there is a macro CHECK_MEM_ERROR but it expects a context for the log message.",
+      "parentUuid": "e0650273_342c2634",
+      "revId": "1ed3fc437b9da6ee5df5a48a351f055d7f011da6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
