@@ -254,6 +254,20 @@ void av1_cdef_search(struct MultiThreadInfo *mt_info,
                      int skip_cdef_feature, CDEF_CONTROL cdef_control,
                      const int is_screen_content, int non_reference_frame);
 
+/*!\brief AV1 CDEF level from QP
+ *
+ * \ingroup in_loop_cdef
+ *
+ * Calculates CDEF levels from frame QP. Only used for speed 7+ with RT mode.
+ *
+ * \param[in,out]  cm                 Pointer to top level common structure
+ * \param[in]      skip_cdef          Flag to skip CDEF filtering
+ * \param[in]      is_screen_content  Flag indicating screen content
+ *
+ */
+void av1_pick_cdef_from_qp(AV1_COMMON *const cm, int skip_cdef,
+                           int is_screen_content);
+
 #ifdef __cplusplus
 }  // extern "C"
 #endif
