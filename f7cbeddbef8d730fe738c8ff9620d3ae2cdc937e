@@ -38,6 +38,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "88e2b4e4_4c596dc7",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-05-17T16:14:43Z",
+      "side": 1,
+      "message": "You are right. This commit addresses post-commit review comments of Jerome\u0027s, so it is essentially part of the original commit.",
+      "parentUuid": "0ca93127_dcad6070",
+      "revId": "f7cbeddbef8d730fe738c8ff9620d3ae2cdc937e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "04a12a0a_4a118633",
         "filename": "test/resize_test.cc",
         "patchSetId": 1
@@ -49,6 +67,24 @@
       "writtenOn": "2023-05-17T02:18:39Z",
       "side": 1,
       "message": "one could also say `i !\u003d 0`",
+      "revId": "f7cbeddbef8d730fe738c8ff9620d3ae2cdc937e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6ababeed_900f48b4",
+        "filename": "test/resize_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 620,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-05-17T16:14:43Z",
+      "side": 1,
+      "message": "Yes, `i !\u003d 0` or `i \u003d\u003d 1` is a good way to avoid the typecast. In this for loop, the variable `i` is only used here, so some people may prefer to use a range-based for loop:\n\n```\n  for (bool change_start_resln : { false, true }) {\n    video.change_start_resln_ \u003d change_start_resln;\n```",
+      "parentUuid": "04a12a0a_4a118633",
       "revId": "f7cbeddbef8d730fe738c8ff9620d3ae2cdc937e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
