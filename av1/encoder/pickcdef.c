@@ -728,8 +728,8 @@ static AOM_INLINE void cdef_params_init(const YV12_BUFFER_CONFIG *frame,
 #endif
 }
 
-static void pick_cdef_from_qp(AV1_COMMON *const cm, int skip_cdef,
-                              int is_screen_content) {
+void av1_pick_cdef_from_qp(AV1_COMMON *const cm, int skip_cdef,
+                           int is_screen_content) {
   const int bd = cm->seq_params->bit_depth;
   const int q =
       av1_ac_quant_QTX(cm->quant_params.base_qindex, 0, bd) >> (bd - 8);
@@ -820,7 +820,7 @@ void av1_cdef_search(MultiThreadInfo *mt_info, const YV12_BUFFER_CONFIG *frame,
                      const YV12_BUFFER_CONFIG *ref, AV1_COMMON *cm,
                      MACROBLOCKD *xd, CDEF_PICK_METHOD pick_method, int rdmult,
                      int skip_cdef_feature, CDEF_CONTROL cdef_control,
-                     const int is_screen_content, int non_reference_frame) {
+                     const int is_screen_content, int non_reference_frame, int rtc_ext_rc) {
   assert(cdef_control != CDEF_NONE);
   if (cdef_control == CDEF_REFERENCE && non_reference_frame) {
     CdefInfo *const cdef_info = &cm->cdef_info;
@@ -832,7 +832,10 @@ void av1_cdef_search(MultiThreadInfo *mt_info, const YV12_BUFFER_CONFIG *frame,
   }
 
   if (pick_method == CDEF_PICK_FROM_Q) {
-    pick_cdef_from_qp(cm, skip_cdef_feature, is_screen_content);
+    if (rtc_ext_rc)
+      av1_pick_cdef_from_qp(cm, 0, 0);
+    else
+      av1_pick_cdef_from_qp(cm, skip_cdef_feature, is_screen_content);
     return;
   }
   const CommonModeInfoParams *const mi_params = &cm->mi_params;
