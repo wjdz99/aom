@@ -46,6 +46,30 @@
       },
       "revId": "23be1623bccf93deb806e8d130631d864d632ba6",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5912bd73_f3a99e3e",
+        "filename": "av1/ratectrl_rtc.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 324,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2023-05-19T22:00:25Z",
+      "side": 1,
+      "message": "We can also provide damping.",
+      "parentUuid": "5052f218_2d081510",
+      "range": {
+        "startLine": 323,
+        "startChar": 2,
+        "endLine": 324,
+        "endChar": 76
+      },
+      "revId": "23be1623bccf93deb806e8d130631d864d632ba6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
