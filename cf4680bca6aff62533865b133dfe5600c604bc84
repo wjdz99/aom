@@ -51,6 +51,47 @@
       "parentUuid": "bbd6a738_4c021359",
       "revId": "cf4680bca6aff62533865b133dfe5600c604bc84",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e4b87ad4_9cebc1b3",
+        "filename": "av1/common/arm/highbd_convolve_neon.c",
+        "patchSetId": 14
+      },
+      "lineNbr": 1219,
+      "author": {
+        "id": 31042
+      },
+      "writtenOn": "2023-05-19T16:43:32Z",
+      "side": 1,
+      "message": "I think James\u0027 point here is that we may be able to halve the value of each of the 8 filter values and not need to widen up to 32-bit elements. I don\u0027t know if this is possible here though.",
+      "parentUuid": "65d6af9f_a30380b6",
+      "revId": "cf4680bca6aff62533865b133dfe5600c604bc84",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "36e9d981_d8874e72",
+        "filename": "av1/common/arm/highbd_convolve_neon.c",
+        "patchSetId": 14
+      },
+      "lineNbr": 1551,
+      "author": {
+        "id": 31042
+      },
+      "writtenOn": "2023-05-19T16:43:32Z",
+      "side": 1,
+      "message": "Can\u0027t we do a vhaddq (halving add) here?",
+      "range": {
+        "startLine": 1546,
+        "startChar": 14,
+        "endLine": 1551,
+        "endChar": 38
+      },
+      "revId": "cf4680bca6aff62533865b133dfe5600c604bc84",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
