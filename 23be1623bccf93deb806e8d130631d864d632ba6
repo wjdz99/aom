@@ -70,6 +70,30 @@
       },
       "revId": "23be1623bccf93deb806e8d130631d864d632ba6",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7809dca0_2ddc5e50",
+        "filename": "av1/ratectrl_rtc.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 324,
+      "author": {
+        "id": 32128
+      },
+      "writtenOn": "2023-05-20T04:16:08Z",
+      "side": 1,
+      "message": "\u003e For RTC only one value is calculated from QP[1].\n\u003e If more information is wanted, we need to come up with a new model to calculate those.\n\u003e [1]https://aomedia.googlesource.com/aom/+/refs/heads/main/av1/encoder/pickcdef.c#793\n\nAck. \n\n\u003e We can also provide damping.\n\nThanks. Would you do this in this CL or in a follow-up CL?",
+      "parentUuid": "5912bd73_f3a99e3e",
+      "range": {
+        "startLine": 323,
+        "startChar": 2,
+        "endLine": 324,
+        "endChar": 76
+      },
+      "revId": "23be1623bccf93deb806e8d130631d864d632ba6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
