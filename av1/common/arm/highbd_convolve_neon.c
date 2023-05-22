@@ -1156,7 +1156,7 @@ static INLINE void highbd_convolve_2d_x_scale_8tap_neon(
       // 2
       const uint32x4_t src_idx_u32 =
           vshlq_n_u32(vshrq_n_u32(xqn_idx, SCALE_SUBPEL_BITS), 1);
-#if defined(__aarch64__)
+#if AOM_ARCH_AARCH64
       uint64x2_t src4[2];
       src4[0] = vaddw_u32(vdupq_n_u64((const uint64_t)src_ptr),
                           vget_low_u32(src_idx_u32));
@@ -1172,7 +1172,7 @@ static INLINE void highbd_convolve_2d_x_scale_8tap_neon(
       int16_t *src4_ptr[4];
       uint32_t *tmp_ptr = (uint32_t *)&src4_ptr;
       vst1q_u32(tmp_ptr, src4);
-#endif  // defined(__aarch64__)
+#endif  // AOM_ARCH_AARCH64
       // Same for the filter vectors
       const int32x4_t filter_idx_s32 = vreinterpretq_s32_u32(
           vshrq_n_u32(vandq_u32(xqn_idx, subpel_mask), SCALE_EXTRA_BITS));
@@ -1253,7 +1253,7 @@ static INLINE void highbd_convolve_2d_x_scale_8tap_neon(
         // = 2
         const uint32x4_t src_idx_u32 =
             vshlq_n_u32(vshrq_n_u32(xqn_idx, SCALE_SUBPEL_BITS), 1);
-#if defined(__aarch64__)
+#if AOM_ARCH_AARCH64
         uint64x2_t src4[2];
         src4[0] = vaddw_u32(vdupq_n_u64((const uint64_t)s),
                             vget_low_u32(src_idx_u32));
@@ -1269,7 +1269,7 @@ static INLINE void highbd_convolve_2d_x_scale_8tap_neon(
         int16_t *src4_ptr[4];
         uint32_t *tmp_ptr = (uint32_t *)&src4_ptr;
         vst1q_u32(tmp_ptr, src4);
-#endif  // defined(__aarch64__)
+#endif  // AOM_ARCH_AARCH64
         // Same for the filter vectors
         const int32x4_t filter_idx_s32 = vreinterpretq_s32_u32(
             vshrq_n_u32(vandq_u32(xqn_idx, subpel_mask), SCALE_EXTRA_BITS));
