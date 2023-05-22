@@ -4198,7 +4198,7 @@ int av1_pack_bitstream(AV1_COMP *const cpi, uint8_t *dst, size_t *size,
   } else {
     // Since length_field is determined adaptively after frame header
     // encoding, saved_wb must be adjusted accordingly.
-    if (saved_wb.bit_buffer != NULL) {
+    if (length_field != 0) {
       saved_wb.bit_buffer += length_field;
     }
 
