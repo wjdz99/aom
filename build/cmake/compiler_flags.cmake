@@ -18,6 +18,7 @@ include(CheckCXXCompilerFlag)
 include("${AOM_ROOT}/build/cmake/compiler_tests.cmake")
 
 # Strings used to cache flags.
+set(AOM_AS_FLAGS)
 set(AOM_C_FLAGS)
 set(AOM_CXX_FLAGS)
 set(AOM_EXE_LINKER_FLAGS)
