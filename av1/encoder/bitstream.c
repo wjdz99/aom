@@ -4200,6 +4200,8 @@ int av1_pack_bitstream(AV1_COMP *const cpi, uint8_t *dst, size_t *size,
     // encoding, saved_wb must be adjusted accordingly.
     if (saved_wb.bit_buffer != NULL) {
       saved_wb.bit_buffer += length_field;
+    } else if (length_field != 0) {
+      return AOM_CODEC_ERROR;
     }
 
     //  Each tile group obu will be preceded by 4-byte size of the tile group
