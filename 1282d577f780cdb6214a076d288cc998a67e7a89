@@ -20,6 +20,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "c49c707e_34bb6325",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2023-05-23T16:41:13Z",
+      "side": 1,
+      "message": "Thanks for the modification. Looks good now. Good tradeoff for \u003c hdres. Possible to know why this doesn\u0027t work for hdres?",
+      "parentUuid": "bbf21536_4d6c5257",
+      "revId": "1282d577f780cdb6214a076d288cc998a67e7a89",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "a4766a30_bc082415",
         "filename": "av1/encoder/mcomp.c",
         "patchSetId": 3
@@ -243,6 +261,30 @@
       "side": 1,
       "message": "Temporal filtering and tpl modules are called before the setting of speed features at frame level in the function `av1_set_speed_features_framesize_dependent()`. Thus, integrating the above key frame decision in the speed feature setting would require that the function `av1_set_speed_features_framesize_dependent()` be also called before temporal filtering. We have added a comment and a TODO stating the same in the function `set_good_speed_feature_framesize_dependent()`. Please check.",
       "parentUuid": "8137d25f_ce36a99b",
+      "range": {
+        "startLine": 161,
+        "startChar": 0,
+        "endLine": 166,
+        "endChar": 3
+      },
+      "revId": "1282d577f780cdb6214a076d288cc998a67e7a89",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3b8088f9_cca3983e",
+        "filename": "av1/encoder/temporal_filter.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2023-05-23T16:41:13Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "153e6919_dcbbb0fb",
       "range": {
         "startLine": 161,
         "startChar": 0,
