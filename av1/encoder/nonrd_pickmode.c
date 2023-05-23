@@ -2904,8 +2904,8 @@ static AOM_FORCE_INLINE bool handle_inter_mode_nonrd(
 static AOM_FORCE_INLINE void handle_screen_content_mode_nonrd(
     AV1_COMP *cpi, MACROBLOCK *x, InterModeSearchStateNonrd *search_state,
     PRED_BUFFER *this_mode_pred, PICK_MODE_CONTEXT *ctx,
-    PRED_BUFFER *tmp_buffer, struct buf_2d *orig_dst, int skip_idtx_palette,
-    int try_palette, BLOCK_SIZE bsize, int reuse_inter_pred) {
+    PRED_BUFFER *tmp_buffer, struct buf_2d *orig_dst, int try_palette,
+    BLOCK_SIZE bsize, int reuse_inter_pred) {
   AV1_COMMON *const cm = &cpi->common;
   const REAL_TIME_SPEED_FEATURES *const rt_sf = &cpi->sf.rt_sf;
   MACROBLOCKD *const xd = &x->e_mbd;
@@ -2920,8 +2920,17 @@ static AOM_FORCE_INLINE void handle_screen_content_mode_nonrd(
   // is set.
   // TODO(marpan): Only allow for 8 bit-depth for now, re-enable for 10/12 bit
   // when issue 3359 is fixed.
+  unsigned int best_sse_inter_motion_y =
+        (unsigned int)(best_pickmode->best_sse >>
+                       (b_width_log2_lookup[bsize] +
+                        b_height_log2_lookup[bsize]));
+  int skip_idtx = (x->color_sensitivity[COLOR_SENS_IDX(AOM_PLANE_U)] ||
+                   x->color_sensitivity[COLOR_SENS_IDX(AOM_PLANE_V)]) &&
+                   ((x->content_state_sb.source_sad_nonrd != kZeroSad &&
+                   !cpi->rc.high_source_sad) ||
+                   (best_sse_inter_motion_y < 5000));
   if (cm->seq_params->bit_depth == 8 &&
-      cpi->oxcf.tune_cfg.content == AOM_CONTENT_SCREEN && !skip_idtx_palette &&
+      cpi->oxcf.tune_cfg.content == AOM_CONTENT_SCREEN && !skip_idtx &&
       !cpi->oxcf.txfm_cfg.use_inter_dct_only && !x->force_zeromv_skip_for_blk &&
       is_inter_mode(best_pickmode->best_mode) &&
       best_pickmode->best_pred != NULL &&
@@ -3285,13 +3294,13 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
                             &this_mode_pred, &search_state.best_rdc,
                             best_pickmode, ctx);
 
-  int skip_idtx_palette = (x->color_sensitivity[COLOR_SENS_IDX(AOM_PLANE_U)] ||
-                           x->color_sensitivity[COLOR_SENS_IDX(AOM_PLANE_V)]) &&
-                          x->content_state_sb.source_sad_nonrd != kZeroSad &&
-                          !cpi->rc.high_source_sad;
+  int skip_palette = (x->color_sensitivity[COLOR_SENS_IDX(AOM_PLANE_U)] ||
+                      x->color_sensitivity[COLOR_SENS_IDX(AOM_PLANE_V)]) &&
+                      x->content_state_sb.source_sad_nonrd != kZeroSad &&
+                      !cpi->rc.high_source_sad;
 
   int try_palette =
-      !skip_idtx_palette && cpi->oxcf.tool_cfg.enable_palette &&
+      !skip_palette && cpi->oxcf.tool_cfg.enable_palette &&
       av1_allow_palette(cpi->common.features.allow_screen_content_tools,
                         mi->bsize);
   try_palette =
@@ -3304,8 +3313,8 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
 
   // Perform screen content mode evaluation for non-rd
   handle_screen_content_mode_nonrd(cpi, x, &search_state, this_mode_pred, ctx,
-                                   tmp_buffer, &orig_dst, skip_idtx_palette,
-                                   try_palette, bsize, reuse_inter_pred);
+                                   tmp_buffer, &orig_dst, try_palette, bsize,
+                                   reuse_inter_pred);
 
 #if COLLECT_NONRD_PICK_MODE_STAT
   aom_usec_timer_mark(&x->ms_stat_nonrd.timer1);
