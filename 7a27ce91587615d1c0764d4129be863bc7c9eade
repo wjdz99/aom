@@ -16,6 +16,47 @@
       "message": "We have analyzed the worst case drop observed for pruning logic used in patchset 2. The quality drop is mainly due to other speed features related to motion search `reduce_search_range` and `skip_newmv_in_drl`. On top of the new pruning logic the above sf’s are skipping other mv\u0027s in the motion search.\nHence, we have improved the pruning logic by comparing the mv difference (`row_diff + col_diff \u003c\u003d 1`) and checking the validity of the `start_mv` used for comparison (`single_newmv_valid`).\nFor better consistency, `single_newmv_valid` check is extended to cpu 6 as well.\n\nPlease check the Borg test results below:\n```\ncpu   Resolution   Reduction(%)    avg.psnr   ovr.psnr    ssim \n 5       LOWRES2      0.988         0.0134    -0.0046   -0.0430\n 5       MIDRES2      1.023         0.0249     0.0174    0.0348\n 5        HDRES2      0.802         0.0317     0.0279    0.0075\n 5       Average      0.938         0.0233     0.0136   -0.0002\n\ncpu   Resolution   Reduction(%)    avg.psnr   ovr.psnr    ssim \n 6       LOWRES2     -0.065         0.0037     0.0014    0.0202\n 6       MIDRES2     -0.084         0.0025     0.0028    0.0296\n 6        HDRES2     -0.071        -0.0294    -0.0353   -0.0290\n 6       Average     -0.074        -0.0078    -0.0104    0.0069\n```\n\nIn the commit message:\n[-] sign indicates encode time increase\n[+] sign indicates encode time reduction\nThe instruction count reduction specified has been measured using command:\n`$ perf stat -e instructions:u ./aomenc`",
       "revId": "7a27ce91587615d1c0764d4129be863bc7c9eade",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7d7bb65f_b53cf715",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2023-05-23T16:26:35Z",
+      "side": 1,
+      "message": "Thanks for looking deep into this. very good tradeoff. Also it is good to make speed 6 feature performing better.",
+      "parentUuid": "27cb306c_70734f70",
+      "revId": "7a27ce91587615d1c0764d4129be863bc7c9eade",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "882484b7_9502b2e7",
+        "filename": "av1/encoder/speed_features.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 825,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2023-05-23T16:26:35Z",
+      "side": 1,
+      "message": "4 or 8 MV positions comes from mv_diff limits. 4 points is more conservative. Right?",
+      "range": {
+        "startLine": 825,
+        "startChar": 41,
+        "endLine": 825,
+        "endChar": 42
+      },
+      "revId": "7a27ce91587615d1c0764d4129be863bc7c9eade",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
