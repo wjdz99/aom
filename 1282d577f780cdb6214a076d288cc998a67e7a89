@@ -41,6 +41,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "04dd8fff_add8d97d",
+        "filename": "av1/encoder/mcomp.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1808,
+      "author": {
+        "id": 8893
+      },
+      "writtenOn": "2023-05-23T14:15:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a4766a30_bc082415",
+      "range": {
+        "startLine": 1773,
+        "startChar": 1,
+        "endLine": 1808,
+        "endChar": 0
+      },
+      "revId": "1282d577f780cdb6214a076d288cc998a67e7a89",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "6ed9a42f_554ce6e5",
@@ -54,6 +78,30 @@
       "writtenOn": "2023-05-19T20:47:29Z",
       "side": 1,
       "message": "new level 2 is the previous level 1, right?",
+      "range": {
+        "startLine": 628,
+        "startChar": 4,
+        "endLine": 628,
+        "endChar": 38
+      },
+      "revId": "1282d577f780cdb6214a076d288cc998a67e7a89",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "604b738e_b6de9a9a",
+        "filename": "av1/encoder/speed_features.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 628,
+      "author": {
+        "id": 8893
+      },
+      "writtenOn": "2023-05-23T14:15:10Z",
+      "side": 1,
+      "message": "Yes. That is correct.",
+      "parentUuid": "6ed9a42f_554ce6e5",
       "range": {
         "startLine": 628,
         "startChar": 4,
@@ -89,6 +137,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "c22af553_69592057",
+        "filename": "av1/encoder/speed_features.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 814,
+      "author": {
+        "id": 8893
+      },
+      "writtenOn": "2023-05-23T14:15:10Z",
+      "side": 1,
+      "message": "Yes. `use_downsampled_sad \u003d 1` is similar to what vp9 speed 0 uses, i.e., during motion search if the pred-to-src SAD deviation of the even and odd rows for the starting MV is small, SAD is computed only for even rows. level 2 is not used in vp9.",
+      "parentUuid": "c2a8a01b_c23635b2",
+      "range": {
+        "startLine": 813,
+        "startChar": 5,
+        "endLine": 814,
+        "endChar": 23
+      },
+      "revId": "1282d577f780cdb6214a076d288cc998a67e7a89",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "29f1378f_525932fa",
         "filename": "av1/encoder/speed_features.h",
         "patchSetId": 3
@@ -112,6 +184,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "563a7599_1165f7a3",
+        "filename": "av1/encoder/speed_features.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 815,
+      "author": {
+        "id": 8893
+      },
+      "writtenOn": "2023-05-23T14:15:10Z",
+      "side": 1,
+      "message": "Added more details.",
+      "parentUuid": "29f1378f_525932fa",
+      "range": {
+        "startLine": 815,
+        "startChar": 8,
+        "endLine": 815,
+        "endChar": 23
+      },
+      "revId": "1282d577f780cdb6214a076d288cc998a67e7a89",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "8137d25f_ce36a99b",
         "filename": "av1/encoder/temporal_filter.c",
         "patchSetId": 3
@@ -123,6 +219,30 @@
       "writtenOn": "2023-05-19T20:47:29Z",
       "side": 1,
       "message": "Can this key frame decision be integrated in the speed feature setting?",
+      "range": {
+        "startLine": 161,
+        "startChar": 0,
+        "endLine": 166,
+        "endChar": 3
+      },
+      "revId": "1282d577f780cdb6214a076d288cc998a67e7a89",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "153e6919_dcbbb0fb",
+        "filename": "av1/encoder/temporal_filter.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 8893
+      },
+      "writtenOn": "2023-05-23T14:15:10Z",
+      "side": 1,
+      "message": "Temporal filtering and tpl modules are called before the setting of speed features at frame level in the function `av1_set_speed_features_framesize_dependent()`. Thus, integrating the above key frame decision in the speed feature setting would require that the function `av1_set_speed_features_framesize_dependent()` be also called before temporal filtering. We have added a comment and a TODO stating the same in the function `set_good_speed_feature_framesize_dependent()`. Please check.",
+      "parentUuid": "8137d25f_ce36a99b",
       "range": {
         "startLine": 161,
         "startChar": 0,
