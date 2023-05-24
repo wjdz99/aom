@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bfa64554_98f5e211",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 31592
+      },
+      "writtenOn": "2023-05-24T15:40:14Z",
+      "side": 1,
+      "message": "This CL extends the speed feature `skip_fullpel_search_using_startmv` to speed 4. Since the Borg test result has a worst case bd-rate drop for resolution \u003e\u003d 480p, we have disabled the sf for the same.\n\nFor this CL, bit exact output is ensured for speed 5 and 6.\nPlease check the Borg test results of Good preset below.\n```\n                Instruction Count        BD-Rate Loss(%)      \ncpu      Testset    Reduction(%)    avg.psnr   ovr.psnr    ssim \n 4       LOWRES2      1.086         0.0542     0.0538    0.0056\n 4       MIDRES2      0.012         0.0001    -0.0003   -0.0007\n 4        HDRES2      0.000         0.0000     0.0000    0.0000\n 4       Average      0.366         0.0181     0.0178    0.0017\n```\n\nResults if extended for MIDRES and HDRES:\n```\n                 Instruction Count        BD-Rate Loss(%)      \ncpu      Testset   Reduction(%)    avg.psnr   ovr.psnr    ssim \n 4       LOWRES2      1.086         0.0542     0.0538    0.0056\n 4       MIDRES2      0.988         0.0429     0.0419    0.0045\n 4        HDRES2      1.053         0.0889     0.0896    0.0663\n 4       Average      1.042         0.0620     0.0618    0.0255\n```\nContents with worst case bd-rate drop if extended for MIDRES and HDRES:\n```\nTestset      Content       Max-qty-drop\nMIDRES2   blue_sky_480p25     0.8935\nHDRES2    factory_1080p30     1.2520\n```\nIn the commit message:\n[-] sign indicates encode time increase\n[+] sign indicates encode time reduction\n\nThe instruction count reduction specified has been measured using command:\n`$ perf stat -e instructions:u ./aomenc`",
+      "revId": "f8de6b409434674f0cce7904ac8b147d29fbd3a7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
