@@ -38,6 +38,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "ab675003_101d13b6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8893
+      },
+      "writtenOn": "2023-05-24T12:37:42Z",
+      "side": 1,
+      "message": "The sf was enabled for hdres previously (hdres uses level 2). Also, for hdres, the sf with level 2 shows a good speed vs BD-Rate trade-off, i.e., disabling the sf at speed 6 results in a BD-Rate gain of only ~0.1% with 7% instruction count increase. Thus, in this patch we haven\u0027t changed the behaviour of this sf for hdres.",
+      "parentUuid": "c49c707e_34bb6325",
+      "revId": "1282d577f780cdb6214a076d288cc998a67e7a89",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "a4766a30_bc082415",
         "filename": "av1/encoder/mcomp.c",
         "patchSetId": 3
