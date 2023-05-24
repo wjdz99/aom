@@ -16,6 +16,23 @@
       "message": "We have addressed the suggestions given by Wan-Teh in \u003chttps://aomedia-review.googlesource.com/c/aom/+/175141\u003e in this CL.",
       "revId": "ceca4418cc8e88973dc0108423bcf8bf057fe099",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "41f5f39d_12ec1d32",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-05-24T15:41:06Z",
+      "side": 1,
+      "message": "LGTM. Thanks.",
+      "revId": "ceca4418cc8e88973dc0108423bcf8bf057fe099",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
