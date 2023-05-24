@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d986dad3_df22245a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8893
+      },
+      "writtenOn": "2023-05-24T12:34:40Z",
+      "side": 1,
+      "message": "This patch fixes the nightly build failure https://build.aomedia.org/jenkins/job/libaom__nightly_compile/1840/",
+      "revId": "4a2945f746050f954c1c6617c6863063e5ecc355",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
