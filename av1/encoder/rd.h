@@ -100,6 +100,16 @@ enum {
   MODE_EVAL_TYPES,
 } UENUM1BYTE(MODE_EVAL_TYPE);
 
+enum {
+  // Default Transform search case - used in evaluation of compound type mode
+  // and best inter candidates
+  TX_SEARCH_DEFAULT,
+  // Transform search in motion mode rd
+  TX_SEARCH_MOTION_MODE,
+  // All transform search cases
+  TX_SEARCH_CASES
+} UENUM1BYTE(TX_SEARCH_CASE);
+
 typedef struct RD_OPT {
   // Thresh_mult is used to set a threshold for the rd score. A higher value
   // means that we will accept the best mode so far more often. This number
