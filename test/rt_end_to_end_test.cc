@@ -82,17 +82,17 @@ const TestVideoParam kTestVectors[] = {
   { "hantro_collage_w352h288_nv12.yuv", 8, AOM_IMG_FMT_NV12, AOM_BITS_8, 0 },
 };
 
-// Params: test video, speed, aq mode, threads, tile columns.
+// Params: test video, speed, aq mode, threads, tile columns, tile rows.
 class RTEndToEndTest
-    : public ::libaom_test::CodecTestWith5Params<TestVideoParam, int,
-                                                 unsigned int, int, int>,
+    : public ::libaom_test::CodecTestWith6Params<TestVideoParam, int,
+                                                 unsigned int, int, int, int>,
       public ::libaom_test::EncoderTest {
  protected:
   RTEndToEndTest()
       : EncoderTest(GET_PARAM(0)), test_video_param_(GET_PARAM(1)),
         cpu_used_(GET_PARAM(2)), psnr_(0.0), nframes_(0),
         aq_mode_(GET_PARAM(3)), threads_(GET_PARAM(4)),
-        tile_columns_(GET_PARAM(5)) {}
+        tile_columns_(GET_PARAM(5)), tile_rows_(GET_PARAM(6)) {}
 
   virtual ~RTEndToEndTest() {}
 
@@ -128,6 +128,7 @@ class RTEndToEndTest
       encoder->Control(AV1E_SET_ENABLE_TPL_MODEL, 0);
       encoder->Control(AV1E_SET_FRAME_PARALLEL_DECODING, 1);
       encoder->Control(AV1E_SET_TILE_COLUMNS, tile_columns_);
+      encoder->Control(AV1E_SET_TILE_ROWS, tile_rows_);
       encoder->Control(AOME_SET_CPUUSED, cpu_used_);
       encoder->Control(AV1E_SET_TUNE_CONTENT, AOM_CONTENT_DEFAULT);
       encoder->Control(AV1E_SET_AQ_MODE, aq_mode_);
@@ -183,6 +184,7 @@ class RTEndToEndTest
   unsigned int aq_mode_;
   int threads_;
   int tile_columns_;
+  int tile_rows_;
 };
 
 class RTEndToEndTestThreaded : public RTEndToEndTest {};
@@ -194,11 +196,13 @@ TEST_P(RTEndToEndTestThreaded, EndtoEndPSNRTest) { DoTest(); }
 AV1_INSTANTIATE_TEST_SUITE(RTEndToEndTest, ::testing::ValuesIn(kTestVectors),
                            ::testing::Range(5, 12),
                            ::testing::Values<unsigned int>(0, 3),
-                           ::testing::Values(1), ::testing::Values(1));
+                           ::testing::Values(1), ::testing::Values(1),
+                           ::testing::Values(1));
 
 AV1_INSTANTIATE_TEST_SUITE(RTEndToEndTestThreaded,
                            ::testing::ValuesIn(kTestVectors),
                            ::testing::Range(5, 12),
                            ::testing::Values<unsigned int>(0, 3),
-                           ::testing::Range(2, 5), ::testing::Range(2, 5));
+                           ::testing::Range(2, 6), ::testing::Range(1, 5),
+                           ::testing::Range(1, 5));
 }  // namespace
