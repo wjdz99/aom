@@ -16,6 +16,24 @@
       "message": "It looks like I made a bad suggestion. Those predictors might not have been cleared out, though realtime mode shouldn\u0027t use them. I\u0027ll take a look. In the meantime you can revert this to patchset 1.",
       "revId": "0535ce90e25250478af21d307ecdd729d8f50a9a",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4200b1d5_8f267bc1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-05-25T20:37:01Z",
+      "side": 1,
+      "message": "\u003e It looks like I made a bad suggestion. Those predictors might not have been cleared out, though realtime mode shouldn\u0027t use them. I\u0027ll take a look. In the meantime you can revert this to patchset 1.\n\nI remember now, the intra code is shared between encoder and decoder, so we can\u0027t pull it out without making the decoder non-compliant. Sorry for the churn here.",
+      "parentUuid": "d5b952cd_921828f7",
+      "revId": "0535ce90e25250478af21d307ecdd729d8f50a9a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
