@@ -16,6 +16,23 @@
       "message": "This CL avoids repeated start MV SAD calculation in the function `full_pixel_diamond()`. This is a bit-exact change and the results are as follows:\n```\n                 Instruction Count \ncpu      Testset   Reduction(%)    \n 5       LOWRES2      0.144          \n 5       MIDRES2      0.236          \n 5        HDRES2      0.369          \n 5       Average      0.250          \n\n 6       LOWRES2      0.116         \n 6       MIDRES2      0.190         \n 6        HDRES2      0.254         \n 6       Average      0.187    \n ```    \nThe instruction count reduction specified has been measured using command:\n$ perf stat -e instructions:u ./aomenc",
       "revId": "9a9364bf3885efdf9a89b88ad7f04a811d207c3c",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "eb111b7d_5ccd8767",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2023-05-26T20:31:51Z",
+      "side": 1,
+      "message": "Good that this brings some speedup for vod case",
+      "revId": "9a9364bf3885efdf9a89b88ad7f04a811d207c3c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
