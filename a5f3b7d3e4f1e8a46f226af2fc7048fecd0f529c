@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "acc1feb9_88191578",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9616
+      },
+      "writtenOn": "2023-05-26T14:20:54Z",
+      "side": 1,
+      "message": "In the parent commit, `skip_build_pred` flag is used to avoid the redundant population of predicted data when a valid predictor is available in the buffer. The flag is updated at `process_compound_inter_mode()` and `av1_interpolation_filter_search()` functions.\n\nIf the interpolation filter is chosen by finding a match from the stored stats `(av1_find_interp_filter_match())` and if the `skip_build_pred` flag is already set, then the available prediction data in the buffer may not be corresponding to the newly found filter. This CL fixes this issue by resetting the `skip_build_pred` flag and thereby ensuring that `av1_enc_build_inter_predictor()` would be invoked later.\n\nPlease find the results below:\n\n````\n                 Instruction Count        BD-Rate Loss(%)       \ncpu   Resolution   Reduction(%)    avg.psnr   ovr.psnr    ssim   \n 1       LOWRES2     -0.018        -0.0149    -0.0144   -0.0059 \n 1       MIDRES2     -0.110         0.0056    -0.0019    0.0184 \n 1        HDRES2     -0.084        -0.0083    -0.0115   -0.0133 \n 1       Average     -0.070        -0.0059    -0.0092   -0.0003 \n\n 2       LOWRES2     -0.030        -0.0087    -0.0134   -0.0199 \n 2       MIDRES2     -0.051        -0.0362    -0.0155   -0.0091\n 2        HDRES2     -0.010        -0.0245    -0.0213   -0.0503\n 2       Average     -0.030        -0.0231    -0.0167   -0.0264\n\n 3       LOWRES2      0.052         0.0114     0.0161   -0.0263\n 3       MIDRES2      0.027         0.0170     0.0110    0.0021\n 3        HDRES2     -0.085        -0.0074    -0.0018    0.0129\n 3       Average     -0.002         0.0070     0.0084   -0.0038\n\n 4       LOWRES2     -0.171        -0.0960    -0.1045   -0.0817\n 4       MIDRES2     -0.157        -0.0572    -0.0596   -0.0576\n 4        HDRES2     -0.125        -0.0152    -0.0211   -0.0459\n 4       Average     -0.151        -0.0561    -0.0617   -0.0617\n\n 5       LOWRES2     -0.239        -0.1256    -0.1335   -0.0865\n 5       MIDRES2     -0.267        -0.0140    -0.0113    0.0555\n 5        HDRES2     -0.237        -0.0130    -0.0083   -0.0109\n 5       Average     -0.247        -0.0509    -0.0510   -0.0140\n\n 6       LOWRES2     -0.236        -0.1257    -0.1192   -0.1078\n 6       MIDRES2     -0.186        -0.0792    -0.0799   -0.0467\n 6        HDRES2     -0.318        -0.0199    -0.0170    0.0054\n 6       Average     -0.247        -0.0749    -0.0720   -0.0497\n ````\nThe instruction count reduction specified has been measured using command:\n$ perf stat -e instructions:u ./aomenc\n\nPlease review.",
+      "revId": "a5f3b7d3e4f1e8a46f226af2fc7048fecd0f529c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
