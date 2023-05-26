@@ -34,6 +34,24 @@
       "parentUuid": "66a73005_8c02ffba",
       "revId": "9af8600a03e46cb20a43d8f3928422b0d139a3fa",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a3c453ee_22855c8a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-05-26T16:54:12Z",
+      "side": 1,
+      "message": "\u003e \u003e this probably means we don\u0027t have any test coverage for this branch\n\u003e \n\u003e We might because this falls back to C code if the malloc fails:\n\u003e \n\u003e https://aomedia.googlesource.com/aom/+/bdbdeaedc0708047ce1b0063b257d67f1b04a6d4/av1/common/arm/resize_neon.c#825\n\u003e \n\u003e I\u0027ll check though.\n\nPutting an abort in this path fails quite a few AV1/ResizeRealtimeTest.* tests. I didn\u0027t let other shards complete.",
+      "parentUuid": "a0de09b5_4503421d",
+      "revId": "9af8600a03e46cb20a43d8f3928422b0d139a3fa",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ],
   "submitRequirementResults": [
