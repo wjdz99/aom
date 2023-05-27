@@ -283,9 +283,14 @@ static uint32_t motion_estimation(AV1_COMP *cpi, MACROBLOCK *x,
   av1_set_mv_search_method(&full_ms_params, search_site_cfg,
                            tpl_sf->search_method);
 
-  av1_full_pixel_search(start_mv, &full_ms_params, step_param,
-                        cond_cost_list(cpi, cost_list), &best_mv->as_fullmv,
-                        NULL);
+  bestsme = av1_full_pixel_search(start_mv, &full_ms_params, step_param,
+                                  cond_cost_list(cpi, cost_list),
+                                  &best_mv->as_fullmv, NULL);
+
+  if (cpi->sf.tpl_sf.subpel_force_stop == FULL_PEL) {
+    best_mv->as_mv = get_mv_from_fullmv(&best_mv->as_fullmv);
+    return bestsme;
+  }
 
   SUBPEL_MOTION_SEARCH_PARAMS ms_params;
   av1_make_default_subpel_ms_params(&ms_params, cpi, x, bsize, &center_mv,
@@ -742,21 +747,29 @@ static AOM_INLINE void mode_estimation(AV1_COMP *cpi,
     tpl_stats->mv[rf_idx].as_int = best_rfidx_mv.as_int;
     single_mv[rf_idx] = best_rfidx_mv;
 
-    struct buf_2d ref_buf = { NULL, ref_frame_ptr->y_buffer,
-                              ref_frame_ptr->y_width, ref_frame_ptr->y_height,
-                              ref_frame_ptr->y_stride };
-    InterPredParams inter_pred_params;
-    av1_init_inter_params(&inter_pred_params, bw, bh, mi_row * MI_SIZE,
-                          mi_col * MI_SIZE, 0, 0, xd->bd, is_cur_buf_hbd(xd), 0,
-                          &tpl_data->sf, &ref_buf, kernel);
-    inter_pred_params.conv_params = get_conv_params(0, 0, xd->bd);
+    if (cpi->sf.tpl_sf.subpel_force_stop != FULL_PEL) {
+      struct buf_2d ref_buf = { NULL, ref_frame_ptr->y_buffer,
+                                ref_frame_ptr->y_width, ref_frame_ptr->y_height,
+                                ref_frame_ptr->y_stride };
+      InterPredParams inter_pred_params;
+      av1_init_inter_params(&inter_pred_params, bw, bh, mi_row * MI_SIZE,
+                            mi_col * MI_SIZE, 0, 0, xd->bd, is_cur_buf_hbd(xd),
+                            0, &tpl_data->sf, &ref_buf, kernel);
+      inter_pred_params.conv_params = get_conv_params(0, 0, xd->bd);
 
-    av1_enc_build_one_inter_predictor(predictor, bw, &best_rfidx_mv.as_mv,
-                                      &inter_pred_params);
+      av1_enc_build_one_inter_predictor(predictor, bw, &best_rfidx_mv.as_mv,
+                                        &inter_pred_params);
 
-    inter_cost =
-        tpl_get_satd_cost(bd_info, src_diff, bw, src_mb_buffer, src_stride,
-                          predictor, bw, coeff, bw, bh, tx_size);
+      inter_cost =
+          tpl_get_satd_cost(bd_info, src_diff, bw, src_mb_buffer, src_stride,
+                            predictor, bw, coeff, bw, bh, tx_size);
+    } else {
+      FULLPEL_MV best_fullmv = get_fullmv_from_mv(&best_rfidx_mv.as_mv);
+      inter_cost = tpl_get_satd_cost(
+          bd_info, src_diff, bw, src_mb_buffer, src_stride,
+          &ref_mb[best_fullmv.row * ref_stride + best_fullmv.col], ref_stride,
+          coeff, bw, bh, tx_size);
+    }
     // Store inter cost for each ref frame
     tpl_stats->pred_error[rf_idx] = AOMMAX(1, inter_cost);
 
