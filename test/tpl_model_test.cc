@@ -224,6 +224,7 @@ TEST(TplModelTest, TxfmStatsAccumulateTest) {
   }
 }
 
+#if CONFIG_BITRATE_ACCURACY
 TEST(TplModelTest, TxfmStatsRecordTest) {
   TplTxfmStats stats1;
   TplTxfmStats stats2;
@@ -248,6 +249,7 @@ TEST(TplModelTest, TxfmStatsRecordTest) {
     EXPECT_DOUBLE_EQ(stats2.abs_coeff_sum[i], 2 * stats1.abs_coeff_sum[i]);
   }
 }
+#endif
 
 TEST(TplModelTest, ComputeMVDifferenceTest) {
   TplDepFrame tpl_frame_small;
