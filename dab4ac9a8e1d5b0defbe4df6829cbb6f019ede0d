@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4cefef17_6bf7982e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8893
+      },
+      "writtenOn": "2023-05-30T11:26:44Z",
+      "side": 1,
+      "message": "This CL moves the functions `av1_record_tpl_txfm_block()`, `av1_tpl_txfm_stats_update_abs_coeff_mean()`, `av1_tpl_store_txfm_stats()` and `av1_accumulate_tpl_txfm_stats()` under the macro `CONFIG_BITRATE_ACCURACY` as the function `av1_laplace_estimate_frame_rate()` which uses stats collected in these functions is under the same macro.\n\nThis is a bit-exact change and the results are as follows:\n```\n                 Instruction Count \ncpu      Testset   Reduction(%)    \n 5       LOWRES2      0.159          \n 5       MIDRES2      0.217          \n 5        HDRES2      0.257          \n 5       Average      0.211          \n\n 6       LOWRES2      0.208        \n 6       MIDRES2      0.313         \n 6        HDRES2      0.371         \n 6       Average      0.297 \n```\nThe instruction count reduction specified has been measured using command:\n$ perf stat -e instructions:u ./aomenc",
+      "revId": "dab4ac9a8e1d5b0defbe4df6829cbb6f019ede0d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
