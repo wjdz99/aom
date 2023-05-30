@@ -18,6 +18,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "8e022b43_6aa32dc8",
+        "filename": "aom_dsp/arm/avg_neon.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 31042
+      },
+      "writtenOn": "2023-05-30T13:10:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c15ec271_70c612a0",
+      "revId": "f596ebfeeb3372075115f87266d072f33d2f44ce",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "393a52b4_58ae8bed",
@@ -31,6 +49,24 @@
       "writtenOn": "2023-05-24T23:28:56Z",
       "side": 1,
       "message": "given the assert, I think we can test against 0 here, no?",
+      "revId": "f596ebfeeb3372075115f87266d072f33d2f44ce",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "76ef08a0_a76176cb",
+        "filename": "aom_dsp/arm/avg_neon.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 149,
+      "author": {
+        "id": 31042
+      },
+      "writtenOn": "2023-05-30T13:10:36Z",
+      "side": 1,
+      "message": "I\u0027m not so sure - we use h as a pointer offset for the store, so need to count up.",
+      "parentUuid": "393a52b4_58ae8bed",
       "revId": "f596ebfeeb3372075115f87266d072f33d2f44ce",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
