@@ -20,6 +20,29 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "af78b00f_d295a813",
+        "filename": "av1/encoder/tpl_model.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 912,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2023-05-30T18:56:31Z",
+      "side": 1,
+      "message": "Will this change be reverted if the issue you found is fixed (always use reconstructed references)?",
+      "range": {
+        "startLine": 912,
+        "startChar": 52,
+        "endLine": 912,
+        "endChar": 53
+      },
+      "revId": "7d4e62dc6d09296a66fbf4389172774668d0ab65",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "29b0d520_285ce9a9",
         "filename": "av1/encoder/tpl_model.c",
         "patchSetId": 4
@@ -31,6 +54,30 @@
       "writtenOn": "2023-05-30T10:43:52Z",
       "side": 1,
       "message": "When the sf `allow_compound_pred` is 1 (i.e., for speed \u003c\u003d1) and best mode is NEW_NEWMV, the final reconstruction of frame buffer (happens in the function get_rate_distortion()) uses source frame as the first reference and reconstructed frame as the second reference . As per our understanding, this shouldn\u0027t be the case and the final reconstructed buffer should use reconstructed frames as the first and second references, i.e., the block reconstructed using the reconstructed frames as references (in the function `get_rate_distortion()` at line number 937) shouldn\u0027t be overwritten by function calls to `get_rate_distortion()` at line number 960 and 981. This can be addressed in a separate CL as this issue is not related to this CL. This CL is bit-exact for all speed presets.",
+      "range": {
+        "startLine": 981,
+        "startChar": 4,
+        "endLine": 981,
+        "endChar": 23
+      },
+      "revId": "7d4e62dc6d09296a66fbf4389172774668d0ab65",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1836b2bf_6fdc730a",
+        "filename": "av1/encoder/tpl_model.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 981,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2023-05-30T18:56:31Z",
+      "side": 1,
+      "message": "Thanks for the finding! As we said, please file an issue with this.",
+      "parentUuid": "29b0d520_285ce9a9",
       "range": {
         "startLine": 981,
         "startChar": 4,
