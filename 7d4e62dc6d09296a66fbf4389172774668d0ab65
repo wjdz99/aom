@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cab3b682_98467ca2",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8893
+      },
+      "writtenOn": "2023-05-30T10:43:52Z",
+      "side": 1,
+      "message": "This CL avoids some of the redundant computations in tpl module as follows:\n- Inverse transform and addition of prediction signal (reconstructed data) when using source frame as reference.\n  The above operation is not required as finally, reconstructed frame is used as reference to form the reconstructed frame buffer (line number 937 in tpl_model.c) \n- Rate and distortion calculation with source frame as reference when the best prediction mode is an intra mode.\n  When the best prediction mode is an intra mode, rate, distortion and sse based on source frame as reference is made equal to that of  reconstructed frame (line number 947-951 in tpl_model.c). Thus, rate and distortion calculation based on source frame can be skipped. \n- Start MV SAD computation when the number of start MVs used for motion search is 1.\n  When the number of start MVs used for motion search is 1, start MV SAD computation can be skipped as ranking of start MVs based on SAD metric is not required. \n\nThis is a bit-exact change and the results are as follows:\n```\n                 Instruction Count \ncpu      Testset   Reduction(%)    \n 5       LOWRES2      0.188          \n 5       MIDRES2      0.225          \n 5        HDRES2      0.264          \n 5       Average      0.226          \n\n 6       LOWRES2      0.234         \n 6       MIDRES2      0.314         \n 6        HDRES2      0.379         \n 6       Average      0.309 \n```\nThe instruction count reduction specified has been measured using command:\n$ perf stat -e instructions:u ./aomenc",
+      "revId": "7d4e62dc6d09296a66fbf4389172774668d0ab65",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "29b0d520_285ce9a9",
+        "filename": "av1/encoder/tpl_model.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 981,
+      "author": {
+        "id": 8893
+      },
+      "writtenOn": "2023-05-30T10:43:52Z",
+      "side": 1,
+      "message": "When the sf `allow_compound_pred` is 1 (i.e., for speed \u003c\u003d1) and best mode is NEW_NEWMV, the final reconstruction of frame buffer (happens in the function get_rate_distortion()) uses source frame as the first reference and reconstructed frame as the second reference . As per our understanding, this shouldn\u0027t be the case and the final reconstructed buffer should use reconstructed frames as the first and second references, i.e., the block reconstructed using the reconstructed frames as references (in the function `get_rate_distortion()` at line number 937) shouldn\u0027t be overwritten by function calls to `get_rate_distortion()` at line number 960 and 981. This can be addressed in a separate CL as this issue is not related to this CL. This CL is bit-exact for all speed presets.",
+      "range": {
+        "startLine": 981,
+        "startChar": 4,
+        "endLine": 981,
+        "endChar": 23
+      },
+      "revId": "7d4e62dc6d09296a66fbf4389172774668d0ab65",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
