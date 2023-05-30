@@ -34,6 +34,24 @@
       "parentUuid": "dbcf3bdd_4cfab645",
       "revId": "fc774d951fc34322249e3c1925e964475ce9dc6d",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7078c37b_049d75ba",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2023-05-30T06:35:40Z",
+      "side": 1,
+      "message": "\u003e Also, does this same logic apply to key frame temporal filtering?\n\nApplying this logic for key frames gives a small speed-up \u003c0.4% with many contents dropping \u003e1% (BD Rate). Thus, we suggest not enabling it for key frame.\n\n\u003e Would be good to have this for lower speeds.\n\nA direct extension of this sf to cpu 5 does not give an acceptable speed Vs BD Rate trade-off. We shall work on making this logic conservative for cpu 5.\n\n\u003e Did you try to make the decision also based on qp? We already have a qp decided for arf at this point, right?\n\nThe parent version already has a logic to reduce the number of frames for ARF using \u0027gfu_boost\u0027 that is calculated through \u0027av1_calc_arf_boost()\u0027. This logic indirectly depends on QP. As you mentioned, \u0027arf_q\u0027 is available at this point. We shall study this with some experiments.",
+      "parentUuid": "6a958c28_ffaccd50",
+      "revId": "fc774d951fc34322249e3c1925e964475ce9dc6d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ],
   "submitRequirementResults": [
