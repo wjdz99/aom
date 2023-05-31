@@ -756,31 +756,21 @@ static AOM_INLINE void mode_estimation(AV1_COMP *cpi,
     tpl_stats->mv[rf_idx].as_int = best_rfidx_mv.as_int;
     single_mv[rf_idx] = best_rfidx_mv;
 
-    if (tpl_sf->subpel_force_stop != FULL_PEL) {
-      struct buf_2d ref_buf = { NULL, ref_frame_ptr->y_buffer,
-                                ref_frame_ptr->y_width, ref_frame_ptr->y_height,
-                                ref_frame_ptr->y_stride };
-      InterPredParams inter_pred_params;
-      av1_init_inter_params(&inter_pred_params, bw, bh, mi_row * MI_SIZE,
-                            mi_col * MI_SIZE, 0, 0, xd->bd, is_cur_buf_hbd(xd),
-                            0, &tpl_data->sf, &ref_buf, kernel);
-      inter_pred_params.conv_params = get_conv_params(0, 0, xd->bd);
+    struct buf_2d ref_buf = { NULL, ref_frame_ptr->y_buffer,
+                              ref_frame_ptr->y_width, ref_frame_ptr->y_height,
+                              ref_frame_ptr->y_stride };
+    InterPredParams inter_pred_params;
+    av1_init_inter_params(&inter_pred_params, bw, bh, mi_row * MI_SIZE,
+                          mi_col * MI_SIZE, 0, 0, xd->bd, is_cur_buf_hbd(xd), 0,
+                          &tpl_data->sf, &ref_buf, kernel);
+    inter_pred_params.conv_params = get_conv_params(0, 0, xd->bd);
 
-      av1_enc_build_one_inter_predictor(predictor, bw, &best_rfidx_mv.as_mv,
-                                        &inter_pred_params);
+    av1_enc_build_one_inter_predictor(predictor, bw, &best_rfidx_mv.as_mv,
+                                      &inter_pred_params);
 
-      inter_cost =
-          tpl_get_satd_cost(bd_info, src_diff, bw, src_mb_buffer, src_stride,
-                            predictor, bw, coeff, bw, bh, tx_size);
-    } else {
-      const FULLPEL_MV best_fullmv = get_fullmv_from_mv(&best_rfidx_mv.as_mv);
-      // Since sub-pel motion search is not performed, use the prediction pixels
-      // directly from the reference block ref_mb
-      inter_cost = tpl_get_satd_cost(
-          bd_info, src_diff, bw, src_mb_buffer, src_stride,
-          &ref_mb[best_fullmv.row * ref_stride + best_fullmv.col], ref_stride,
-          coeff, bw, bh, tx_size);
-    }
+    inter_cost =
+        tpl_get_satd_cost(bd_info, src_diff, bw, src_mb_buffer, src_stride,
+                          predictor, bw, coeff, bw, bh, tx_size);
     // Store inter cost for each ref frame
     tpl_stats->pred_error[rf_idx] = AOMMAX(1, inter_cost);
 
