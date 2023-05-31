@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f18464a8_eeda520c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-05-31T18:17:28Z",
+      "side": 1,
+      "message": "James: Please review. This may break some nightly builds if warnings are treated as errors, so it\u0027d be good to check in this kind of change well before the weekend.\n\nI will test it with MSVC when I get home tonight.",
+      "revId": "b730b72695c8524f22029f5dc04d2162856a31d7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "739f3c06_2deb9194",
+        "filename": "apps/aomdec.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 384,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-05-31T18:17:28Z",
+      "side": 1,
+      "message": "Fixes the warning `\u0027break\u0027 will never be executed [-Werror,-Wunreachable-code-break]`.",
+      "revId": "b730b72695c8524f22029f5dc04d2162856a31d7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ef1f43dc_4de7048a",
+        "filename": "av1/common/reconinter.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 834,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-05-31T18:17:28Z",
+      "side": 1,
+      "message": "I took the opportunity to remove the unnecessary return statement.",
+      "revId": "b730b72695c8524f22029f5dc04d2162856a31d7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0c809bec_d57021f6",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 616,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-05-31T18:17:28Z",
+      "side": 1,
+      "message": "The parentheses around `0` fix the following warning:\n\n```\naom/av1/encoder/encodeframe.c:615:9: error: code will never be executed [-Werror,-Wunreachable-code]\n        adjust_rdmult_tpl_model(cpi, x, mi_row, mi_col);\n        ^~~~~~~~~~~~~~~~~~~~~~~\naom/av1/encoder/encodeframe.c:614:50: note: silence by adding parentheses to mark code as explicitly dead\n      if (cpi-\u003eoxcf.algo_cfg.enable_tpl_model \u0026\u0026 0) {\n                                                 ^\n                                                 /* DISABLES CODE */ ( )\n```",
+      "revId": "b730b72695c8524f22029f5dc04d2162856a31d7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4a7db097_4d05d365",
+        "filename": "examples/lightfield_bitstream_parsing.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-05-31T18:17:28Z",
+      "side": 1,
+      "message": "Fixes the warning `\u0027return\u0027 will never be executed [-Werror,-Wunreachable-code-return]`.",
+      "revId": "b730b72695c8524f22029f5dc04d2162856a31d7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
