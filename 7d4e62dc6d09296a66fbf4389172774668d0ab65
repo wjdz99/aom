@@ -43,6 +43,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "15d63385_0038d560",
+        "filename": "av1/encoder/tpl_model.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 912,
+      "author": {
+        "id": 8893
+      },
+      "writtenOn": "2023-05-31T13:36:41Z",
+      "side": 1,
+      "message": "The revert of this is not needed after the fix, since we will need to pass 0 for do_recon at line numbers 963 and 984.",
+      "parentUuid": "af78b00f_d295a813",
+      "range": {
+        "startLine": 912,
+        "startChar": 52,
+        "endLine": 912,
+        "endChar": 53
+      },
+      "revId": "7d4e62dc6d09296a66fbf4389172774668d0ab65",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "29b0d520_285ce9a9",
         "filename": "av1/encoder/tpl_model.c",
         "patchSetId": 4
@@ -78,6 +102,30 @@
       "side": 1,
       "message": "Thanks for the finding! As we said, please file an issue with this.",
       "parentUuid": "29b0d520_285ce9a9",
+      "range": {
+        "startLine": 981,
+        "startChar": 4,
+        "endLine": 981,
+        "endChar": 23
+      },
+      "revId": "7d4e62dc6d09296a66fbf4389172774668d0ab65",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b4029288_fd8f44b4",
+        "filename": "av1/encoder/tpl_model.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 981,
+      "author": {
+        "id": 8893
+      },
+      "writtenOn": "2023-05-31T13:36:41Z",
+      "side": 1,
+      "message": "Filed issue at https://bugs.chromium.org/p/aomedia/issues/detail?id\u003d3448",
+      "parentUuid": "1836b2bf_6fdc730a",
       "range": {
         "startLine": 981,
         "startChar": 4,
