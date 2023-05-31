@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ae48d579_4d1d2498",
+        "filename": "test/convolve_test.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-05-31T23:27:03Z",
+      "side": 1,
+      "message": "static isn\u0027t necessary in an anonymous namespace, but this matches the existing code so it\u0027s all right to leave for now.",
+      "range": {
+        "startLine": 36,
+        "startChar": 0,
+        "endLine": 36,
+        "endChar": 6
+      },
+      "revId": "2aa21a407e423750b55060b09a85e96c45e82ecd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "722fd8de_a9a0fbef",
+        "filename": "test/convolve_test.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 478,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-05-31T23:27:03Z",
+      "side": 1,
+      "message": "This could be scoped to the loop. I could make other comments about this block, but since it\u0027s just code moving in this change we can leave it as is.",
+      "revId": "2aa21a407e423750b55060b09a85e96c45e82ecd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
