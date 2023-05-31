@@ -33,6 +33,23 @@
       "message": "Nice optimization for speed 5 \u0026 6. Thanks.",
       "revId": "b459af3e345be402db052a143fcc5383d4b74cbd",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ef8f5987_51957509",
+        "filename": "av1/encoder/tpl_model.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 775,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-05-31T23:03:45Z",
+      "side": 1,
+      "message": "This change causes the crashes in https://crbug.com/aomedia/3449. I suspect `\u0026ref_mb[best_fullmv.row * ref_stride + best_fullmv.col]` doesn\u0027t meet the alignment requirement of the assembly code in aom_subtract_block_sse2().",
+      "revId": "b459af3e345be402db052a143fcc5383d4b74cbd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ],
   "submitRequirementResults": [
