@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7ec98b83_52ca9be2",
+        "filename": "build/cmake/aom_configure.cmake",
+        "patchSetId": 3
+      },
+      "lineNbr": 352,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-05-31T21:12:50Z",
+      "side": 1,
+      "message": "James: Please see my latest comment in https://chromium-review.googlesource.com/c/chromium/src/+/4498402/3/third_party/libaom/BUILD.gn#321.\n\nGiven my latest finding, we don\u0027t need to compile libaom with -Wunreachable-code-aggressive in order to import it into Chrome. So I am no longer sure if we should accept this CL. I slightly prefer we go ahead with this CL.\n\nWhat would you prefer?",
+      "revId": "2713ca52b675f31a8c350156ae672afcfbf4ca88",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
