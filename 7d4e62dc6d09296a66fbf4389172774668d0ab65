@@ -65,6 +65,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "4e76eb7f_30999d07",
+        "filename": "av1/encoder/tpl_model.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 912,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2023-05-31T15:44:09Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "15d63385_0038d560",
+      "range": {
+        "startLine": 912,
+        "startChar": 52,
+        "endLine": 912,
+        "endChar": 53
+      },
+      "revId": "7d4e62dc6d09296a66fbf4389172774668d0ab65",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "29b0d520_285ce9a9",
@@ -126,6 +150,30 @@
       "side": 1,
       "message": "Filed issue at https://bugs.chromium.org/p/aomedia/issues/detail?id\u003d3448",
       "parentUuid": "1836b2bf_6fdc730a",
+      "range": {
+        "startLine": 981,
+        "startChar": 4,
+        "endLine": 981,
+        "endChar": 23
+      },
+      "revId": "7d4e62dc6d09296a66fbf4389172774668d0ab65",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "750211d3_fd0bed32",
+        "filename": "av1/encoder/tpl_model.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 981,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2023-05-31T15:44:09Z",
+      "side": 1,
+      "message": "Good. Thanks.",
+      "parentUuid": "b4029288_fd8f44b4",
       "range": {
         "startLine": 981,
         "startChar": 4,
