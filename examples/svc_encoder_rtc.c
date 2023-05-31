@@ -804,7 +804,10 @@ static void set_layer_pattern(
       ref_frame_config->reference[SVC_GOLDEN_FRAME] = 1;
       ref_frame_config->reference[SVC_ALTREF_FRAME] = 1;
       // Allow for compound prediction using LAST and ALTREF.
-      if (speed >= 7) ref_frame_comp_pred->use_comp_pred[2] = 1;
+      if (speed >= 7) {
+        ref_frame_comp_pred->use_comp_pred[2] = 1;
+        ref_frame_comp_pred->use_comp_pred[0] = 1;
+      }
       break;
     case 4:
       // 3-temporal layer: but middle layer updates GF, so 2nd TL2 will
