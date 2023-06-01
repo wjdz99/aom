@@ -16,6 +16,23 @@
       "message": "In the function `aom_subtract_block_sse2()`, we have replaced the aligned load with unaligned load instructions for the `pred` buffer. `src` buffer is still required to be aligned to 16 bytes and `diff` buffer to 32 bytes.\n\nWe have verified that other variants of subtract functions like `aom_subtract_block_avx2()`, `aom_subtract_block_neon()`, `aom_highbd_subtract_block_sse2()`, `aom_highbd_subtract_block_neon()` do not have any load instructions with the alignment requirements. We also verified through unit tests that there is no speed performance impact with this change on a Intel(R) Core(TM) i7-6700 CPU @ 3.40GHz machine.",
       "revId": "2d9f19a0e1619d140b10f807892f76fd164cde79",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5df627d2_7ff712b2",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-06-01T16:14:00Z",
+      "side": 1,
+      "message": "LGTM. Thank you for checking the other aom_subtract_block_*() variants for the alignment requirement of the `pred` parameter.",
+      "revId": "2d9f19a0e1619d140b10f807892f76fd164cde79",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
