@@ -16,6 +16,24 @@
       "message": "For its use, I didn\u0027t think this one needed to default all the parameters.",
       "revId": "e70a05e9e139b2d9ce384008609799e451f2eeb3",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "af994758_a64eea7f",
+        "filename": "test/function_equivalence_test.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-06-01T23:08:25Z",
+      "side": 1,
+      "message": "I removed the first default argument (for `ref`) and the compilation failed. Some files such as test/sum_squares_test.cc and test/temporal_filter_test.cc need the default constructor of `FuncParam`.",
+      "parentUuid": "31cc7962_df33f335",
+      "revId": "e70a05e9e139b2d9ce384008609799e451f2eeb3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
