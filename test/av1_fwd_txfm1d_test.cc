@@ -84,7 +84,7 @@ TEST(av1_fwd_txfm1d, accuracy) {
 
       const int count_test_block = 5000;
       if (fwd_txfm_func != nullptr) {
-        for (int ti = 0; ti < count_test_block; ++ti) {
+        for (int bi = 0; bi < count_test_block; ++bi) {
           for (int ni = 0; ni < txfm_size; ++ni) {
             input[ni] = rnd.Rand16() % input_base - rnd.Rand16() % input_base;
             ref_input[ni] = static_cast<double>(input[ni]);

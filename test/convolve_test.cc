@@ -675,11 +675,13 @@ TEST_P(ConvolveTest, DISABLED_Speed) {
     }
   }
 
-  const InterpFilter filter = (InterpFilter)1;
-  const InterpKernel *filters =
-      (const InterpKernel *)av1_get_interp_filter_kernel(filter, USE_8_TAPS);
-  wrapper_filter_average_block2d_8_c(in, kInputStride, filters[1], filters[1],
-                                     out, kOutputStride, Width(), Height());
+  {
+    const InterpFilter filter = (InterpFilter)1;
+    const InterpKernel *filters =
+        (const InterpKernel *)av1_get_interp_filter_kernel(filter, USE_8_TAPS);
+    wrapper_filter_average_block2d_8_c(in, kInputStride, filters[1], filters[1],
+                                       out, kOutputStride, Width(), Height());
+  }
 
   aom_usec_timer timer;
   int tests_num = 1000;
