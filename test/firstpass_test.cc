@@ -110,9 +110,11 @@ TEST(FirstpassTest, FirstpassInfoMoveCurr) {
     EXPECT_EQ(ret, AOM_CODEC_OK);
   }
   EXPECT_EQ(firstpass_info.cur_index, firstpass_info.start_index);
-  aom_codec_err_t ret = av1_firstpass_info_pop(&firstpass_info);
-  // We cannot pop when cur_index == start_index
-  EXPECT_EQ(ret, AOM_CODEC_ERROR);
+  {
+    aom_codec_err_t ret = av1_firstpass_info_pop(&firstpass_info);
+    // We cannot pop when cur_index == start_index
+    EXPECT_EQ(ret, AOM_CODEC_ERROR);
+  }
   int ref_frame_cnt = 0;
   const int move_count = FIRSTPASS_INFO_STATIC_BUF_SIZE * 2 / 3;
   for (int i = 0; i < move_count; ++i) {
