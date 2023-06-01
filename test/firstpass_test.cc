@@ -129,7 +129,7 @@ TEST(FirstpassTest, FirstpassInfoMoveCurr) {
 
   const int test_count = FIRSTPASS_INFO_STATIC_BUF_SIZE / 2;
   for (int i = 0; i < test_count; ++i) {
-    aom_codec_err_t ret = av1_firstpass_info_pop(&firstpass_info);
+    ret = av1_firstpass_info_pop(&firstpass_info);
     EXPECT_EQ(ret, AOM_CODEC_OK);
   }
 
@@ -139,7 +139,7 @@ TEST(FirstpassTest, FirstpassInfoMoveCurr) {
     av1_zero(stats);
     stats.frame = frame_cnt;
     ++frame_cnt;
-    aom_codec_err_t ret = av1_firstpass_info_push(&firstpass_info, &stats);
+    ret = av1_firstpass_info_push(&firstpass_info, &stats);
     EXPECT_EQ(ret, AOM_CODEC_OK);
   }
 
@@ -154,7 +154,7 @@ TEST(FirstpassTest, FirstpassInfoMoveCurr) {
 
   // pop #test_count stats
   for (int i = 0; i < test_count; ++i) {
-    aom_codec_err_t ret = av1_firstpass_info_pop(&firstpass_info);
+    ret = av1_firstpass_info_pop(&firstpass_info);
     EXPECT_EQ(ret, AOM_CODEC_OK);
   }
 }
