@@ -333,7 +333,7 @@ void AV1FwdTxfm2dSpeedTest(TX_SIZE tx_size, lowbd_fwd_txfm_func target_func) {
         aom_usec_timer ref_timer, test_timer;
 
         aom_usec_timer_start(&ref_timer);
-        for (int i = 0; i < num_loops; ++i) {
+        for (int j = 0; j < num_loops; ++j) {
           ref_func(input, ref_output, input_stride, (TX_TYPE)tx_type, bd);
         }
         aom_usec_timer_mark(&ref_timer);
@@ -341,7 +341,7 @@ void AV1FwdTxfm2dSpeedTest(TX_SIZE tx_size, lowbd_fwd_txfm_func target_func) {
             static_cast<int>(aom_usec_timer_elapsed(&ref_timer));
 
         aom_usec_timer_start(&test_timer);
-        for (int i = 0; i < num_loops; ++i) {
+        for (int j = 0; j < num_loops; ++j) {
           target_func(input, output, input_stride, &param);
         }
         aom_usec_timer_mark(&test_timer);
@@ -385,9 +385,9 @@ TEST(AV1FwdTxfm2dTest, DCTScaleTest) {
     int stride = stride_list[i];
     int array_size = stride * stride;
 
-    for (int i = 0; i < array_size; i++) {
-      src_diff[i] = 8;
-      coeff[i] = 0;
+    for (int j = 0; j < array_size; j++) {
+      src_diff[j] = 8;
+      coeff[j] = 0;
     }
 
     av1_quick_txfm(/*use_hadamard=*/0, tx_size, bd_info, src_diff, stride,
@@ -395,9 +395,9 @@ TEST(AV1FwdTxfm2dTest, DCTScaleTest) {
 
     double input_sse = 0;
     double output_sse = 0;
-    for (int i = 0; i < array_size; i++) {
-      input_sse += pow(src_diff[i], 2);
-      output_sse += pow(coeff[i], 2);
+    for (int j = 0; j < array_size; j++) {
+      input_sse += pow(src_diff[j], 2);
+      output_sse += pow(coeff[j], 2);
     }
 
     double scale = output_sse / input_sse;
@@ -421,9 +421,9 @@ TEST(AV1FwdTxfm2dTest, HadamardScaleTest) {
     int stride = stride_list[i];
     int array_size = stride * stride;
 
-    for (int i = 0; i < array_size; i++) {
-      src_diff[i] = 8;
-      coeff[i] = 0;
+    for (int j = 0; j < array_size; j++) {
+      src_diff[j] = 8;
+      coeff[j] = 0;
     }
 
     av1_quick_txfm(/*use_hadamard=*/1, tx_size, bd_info, src_diff, stride,
@@ -431,9 +431,9 @@ TEST(AV1FwdTxfm2dTest, HadamardScaleTest) {
 
     double input_sse = 0;
     double output_sse = 0;
-    for (int i = 0; i < array_size; i++) {
-      input_sse += pow(src_diff[i], 2);
-      output_sse += pow(coeff[i], 2);
+    for (int j = 0; j < array_size; j++) {
+      input_sse += pow(src_diff[j], 2);
+      output_sse += pow(coeff[j], 2);
     }
 
     double scale = output_sse / input_sse;
@@ -614,7 +614,7 @@ void AV1HighbdFwdTxfm2dSpeedTest(TX_SIZE tx_size,
         aom_usec_timer ref_timer, test_timer;
 
         aom_usec_timer_start(&ref_timer);
-        for (int i = 0; i < num_loops; ++i) {
+        for (int j = 0; j < num_loops; ++j) {
           ref_func(input, ref_output, input_stride, (TX_TYPE)tx_type, bd);
         }
         aom_usec_timer_mark(&ref_timer);
@@ -622,7 +622,7 @@ void AV1HighbdFwdTxfm2dSpeedTest(TX_SIZE tx_size,
             static_cast<int>(aom_usec_timer_elapsed(&ref_timer));
 
         aom_usec_timer_start(&test_timer);
-        for (int i = 0; i < num_loops; ++i) {
+        for (int j = 0; j < num_loops; ++j) {
           target_func(input, output, input_stride, &param);
         }
         aom_usec_timer_mark(&test_timer);

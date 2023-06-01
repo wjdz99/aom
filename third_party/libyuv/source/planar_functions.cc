@@ -1369,30 +1369,29 @@ int RGB24Mirror(const uint8_t* src_rgb24,
 // the same blend function for all pixels if possible.
 LIBYUV_API
 ARGBBlendRow GetARGBBlend() {
-  void (*ARGBBlendRow)(const uint8_t* src_argb, const uint8_t* src_argb1,
-                       uint8_t* dst_argb, int width) = ARGBBlendRow_C;
+  void (*ARGBBlendRowFn)(const uint8_t* src_argb, const uint8_t* src_argb1,
+                         uint8_t* dst_argb, int width) = ARGBBlendRow_C;
 #if defined(HAS_ARGBBLENDROW_SSSE3)
   if (TestCpuFlag(kCpuHasSSSE3)) {
-    ARGBBlendRow = ARGBBlendRow_SSSE3;
-    return ARGBBlendRow;
+    ARGBBlendRowFn = ARGBBlendRow_SSSE3;
   }
 #endif
 #if defined(HAS_ARGBBLENDROW_NEON)
   if (TestCpuFlag(kCpuHasNEON)) {
-    ARGBBlendRow = ARGBBlendRow_NEON;
+    ARGBBlendRowFn = ARGBBlendRow_NEON;
   }
 #endif
 #if defined(HAS_ARGBBLENDROW_MMI)
   if (TestCpuFlag(kCpuHasMMI)) {
-    ARGBBlendRow = ARGBBlendRow_MMI;
+    ARGBBlendRowFn = ARGBBlendRow_MMI;
   }
 #endif
 #if defined(HAS_ARGBBLENDROW_MSA)
   if (TestCpuFlag(kCpuHasMSA)) {
-    ARGBBlendRow = ARGBBlendRow_MSA;
+    ARGBBlendRowFn = ARGBBlendRow_MSA;
   }
 #endif
-  return ARGBBlendRow;
+  return ARGBBlendRowFn;
 }
 
 // Alpha Blend 2 ARGB images and store to destination.
@@ -1406,8 +1405,8 @@ int ARGBBlend(const uint8_t* src_argb0,
               int width,
               int height) {
   int y;
-  void (*ARGBBlendRow)(const uint8_t* src_argb, const uint8_t* src_argb1,
-                       uint8_t* dst_argb, int width) = GetARGBBlend();
+  void (*ARGBBlendRowFn)(const uint8_t* src_argb, const uint8_t* src_argb1,
+                         uint8_t* dst_argb, int width) = GetARGBBlend();
   if (!src_argb0 || !src_argb1 || !dst_argb || width <= 0 || height == 0) {
     return -1;
   }
@@ -1426,7 +1425,7 @@ int ARGBBlend(const uint8_t* src_argb0,
   }
 
   for (y = 0; y < height; ++y) {
-    ARGBBlendRow(src_argb0, src_argb1, dst_argb, width);
+    ARGBBlendRowFn(src_argb0, src_argb1, dst_argb, width);
     src_argb0 += src_stride_argb0;
     src_argb1 += src_stride_argb1;
     dst_argb += dst_stride_argb;
