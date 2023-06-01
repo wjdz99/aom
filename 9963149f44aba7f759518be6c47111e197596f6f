@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a654332c_35f42af5",
+        "filename": "test/variance_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 869,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-06-01T22:09:02Z",
+      "side": 1,
+      "message": "Note that the outer loop index variables are named `i` and `j`.",
+      "revId": "9963149f44aba7f759518be6c47111e197596f6f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
