@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c2ee9bf3_5fb6df46",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-06-02T19:22:03Z",
+      "side": 1,
+      "message": "extra \u0027use\u0027",
+      "range": {
+        "startLine": 11,
+        "startChar": 23,
+        "endLine": 11,
+        "endChar": 31
+      },
+      "revId": "98926f093b30369c0d78f1a0e8ab3393e8941aa0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
