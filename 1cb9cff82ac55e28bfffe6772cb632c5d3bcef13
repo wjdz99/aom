@@ -52,6 +52,24 @@
       "parentUuid": "fa614531_3e8b7793",
       "revId": "1cb9cff82ac55e28bfffe6772cb632c5d3bcef13",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "db988d74_43d44ca6",
+        "filename": "av1/encoder/arm/crc32/hash_crc32.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 31042
+      },
+      "writtenOn": "2023-06-05T17:49:16Z",
+      "side": 1,
+      "message": "Hmmm, I\u0027d have thought this would show up as a warning for the Armv8.4 or Armv8.6 CI builds - CRC is mandatory since Armv8.1.",
+      "parentUuid": "aa6cf371_8337196c",
+      "revId": "1cb9cff82ac55e28bfffe6772cb632c5d3bcef13",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
