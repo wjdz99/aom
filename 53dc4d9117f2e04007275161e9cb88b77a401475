@@ -16,6 +16,24 @@
       "message": "The speed feature ‘fast_inter_tx_type_prob_thresh’ is used to limit the number of tx types evaluated during mode eval stage to one. Currently, this sf is enabled for non-boosted frames of LOWRES2 in speed 5, for all frames of LOWRES2 and MIDRES2 in speed 6.\nThrough experiments it is observed that speed quality trade-off of the sf is poor. Hence, this CL tunes the sf for better speed quality trade-off.\n\nPlease check the Borg test results.\n- Experiment 1: Disable the speed feature\n```\n                  Instruction Count        BD-Rate Loss(%)       \ncpu   Resolution      Reduction(%)    avg.psnr   ovr.psnr    ssim\n5     LOWRES2          -2.061        -0.5956    -0.6442     -0.4413\n5      MIDRES2         -0.027        -0.0055    -0.0054     -0.0041\n5      HDRES2           0.000         0.0000     0.0000      0.0000\n5      Average         -0.696        -0.2004    -0.2165     -0.1485\n6      LOWRES2         -3.605        -0.8462    -0.9108     -0.5001\n6      MIDRES2         -2.447        -0.5830    -0.6333     -0.2887\n6      HDRES2           0.000         0.0000     0.0000      0.0000\n6      Average         -2.017        -0.4764    -0.5147     -0.2629\n```\nAs per the results of Experiment 1, the trade-off seems to be poor for both speed 5 and 6. Hence, to tune the sf several experiments are performed based on frame types and reducing the aggressiveness of the sf threshold.\nFor speed 5, tuning the sf was not helpful, hence we decided to disable the sf for the same.\nFor speed 6, the sf is tuned as per Experiment 2. This also ensured that the sf performs well as per speed vs quality trade-off data.\n\n- Experiment 2: Reduce the aggressiveness for boosted_arf2_bwd frames.\n```\n                 Instruction Count        BD-Rate Loss(%)       \ncpu   Resolution     Reduction(%)    avg.psnr   ovr.psnr    ssim\n6     LOWRES2         -0.931        -0.4240    -0.4363     -0.2284\n6     MIDRES2         -1.191        -0.3630    -0.3781     -0.2023\n6     HDRES2           0.000         0.0000     0.0000      0.0000\n6     Average         -0.708        -0.2623    -0.2715     -0.1435 \n```\nThe instruction count reduction specified has been measured using command:\n$ perf stat -e instructions:u ./aomenc …\n\nWe verified that the CL is bit-exact for speed \u003c 5 and for ‘rt’ encoding mode.",
       "revId": "53dc4d9117f2e04007275161e9cb88b77a401475",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fc980b8b_749dbeb3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2023-06-05T21:02:29Z",
+      "side": 1,
+      "message": "The tradeoff is better. Looks good.",
+      "parentUuid": "f1f1a317_3c3b932c",
+      "revId": "53dc4d9117f2e04007275161e9cb88b77a401475",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
