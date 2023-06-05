@@ -34,6 +34,24 @@
       "parentUuid": "41d023ef_a8ff961d",
       "revId": "1cb9cff82ac55e28bfffe6772cb632c5d3bcef13",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "aa6cf371_8337196c",
+        "filename": "av1/encoder/arm/crc32/hash_crc32.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-06-05T17:41:57Z",
+      "side": 1,
+      "message": "\u003e \u003e `AOM_ARCH_AARCH64` is tested here\n\u003e \n\u003e Thanks. I guess I made the assumption we were compiling with `-Wundef`.\n\nWe are, but maybe there\u0027s no build config testing this.",
+      "parentUuid": "fa614531_3e8b7793",
+      "revId": "1cb9cff82ac55e28bfffe6772cb632c5d3bcef13",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
