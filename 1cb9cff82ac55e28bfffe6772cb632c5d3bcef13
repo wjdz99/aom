@@ -142,6 +142,24 @@
       "parentUuid": "4c62f63a_f9af84da",
       "revId": "1cb9cff82ac55e28bfffe6772cb632c5d3bcef13",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f04ce6cc_2b8a8756",
+        "filename": "av1/encoder/arm/crc32/hash_crc32.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-06-05T20:52:20Z",
+      "side": 1,
+      "message": "\u003e The issue seems to be that -DAOM_EXTRA_C_FLAGS\u003d-march\u003darmv8.6-a aren\u0027t included in the test compile -DCMAKE_C_FLAGS\u003d... will enable the code.\n\nThe sanitizer builds (using clang 11) already use `-DCMAKE_C_FLAGS`, but that version doesn\u0027t have support for `__ARM_FEATURE_CRC32`. I\u0027ll correct the gcc based builds; `gcc 10.2.1` has support for this feature.\n\nAs far as `check_c_source_compiles` goes, it does seem to indicate that the per-configuration flags (where `AOM_EXTRA_C_FLAGS` are stored) will be included [1] [2], but they don\u0027t seem to be when looking at the logs. Maybe I\u0027m reading the description incorrectly or we have something specific to our CMake files causing an issue.\n\n[1]: https://cmake.org/cmake/help/v3.19/policy/CMP0066.html\n[2]: https://cmake.org/cmake/help/latest/module/CheckCSourceCompiles.html?highlight\u003dcheck_c_source_compiles\n*Note that the contents of CMAKE_C_FLAGS and its associated configuration-specific variable are automatically added to the compiler command before the contents of CMAKE_REQUIRED_FLAGS.*",
+      "parentUuid": "93866df6_fbbbb9ef",
+      "revId": "1cb9cff82ac55e28bfffe6772cb632c5d3bcef13",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ],
   "submitRequirementResults": [
