@@ -820,7 +820,7 @@ void av1_change_config(struct AV1_COMP *cpi, const AV1EncoderConfig *oxcf,
 
   if (has_no_stats_stage(cpi) && (rc_cfg->mode == AOM_Q)) {
     p_rc->baseline_gf_interval = FIXED_GF_INTERVAL;
-  } else {
+  } else if (!is_one_pass_rt_params(cpi)) {
     p_rc->baseline_gf_interval = (MIN_GF_INTERVAL + MAX_GF_INTERVAL) / 2;
   }
 
