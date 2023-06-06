@@ -1598,6 +1598,23 @@ int main(int argc, const char **argv) {
         }
       }
 
+      // Change target_bitrate every other frame.
+      if (0 && frame_cnt % 2 == 0) {
+        if (frame_cnt < 500)
+          cfg.rc_target_bitrate += 10;
+        else
+          cfg.rc_target_bitrate -= 10;
+        // Do big increase and decrease.
+        if (frame_cnt == 100) cfg.rc_target_bitrate <<= 1;
+        if (frame_cnt == 600) cfg.rc_target_bitrate >>= 1;
+        if (cfg.rc_target_bitrate < 100 ) cfg.rc_target_bitrate = 100;
+ 
+        // Call change_config, or bypass with new control.
+        //res = aom_codec_enc_config_set(&codec, &cfg);
+        aom_codec_control(&codec, AV1E_SET_BITRATE_ONE_PASS_CBR,
+                          cfg.rc_target_bitrate);
+      }
+
       // Do the layer encode.
       aom_usec_timer_start(&timer);
       if (aom_codec_encode(&codec, frame_avail ? &raw : NULL, pts, 1, flags))

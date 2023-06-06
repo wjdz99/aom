@@ -1521,6 +1521,8 @@ enum aome_enc_control_id {
   // Any new encoder control IDs should be added above.
   // Maximum allowed encoder control ID is 229.
   // No encoder control ID should be added below.
+
+  AV1E_SET_BITRATE_ONE_PASS_CBR = 163,
 };
 
 /*!\brief aom 1-D scaling mode
@@ -2159,6 +2161,9 @@ AOM_CTRL_USE_TYPE(AV1E_SET_RATE_DISTRIBUTION_INFO, const char *)
 
 AOM_CTRL_USE_TYPE(AV1E_GET_LUMA_CDEF_STRENGTH, int *)
 #define AOM_CTRL_AV1E_GET_LUMA_CDEF_STRENGTH
+
+AOM_CTRL_USE_TYPE(AV1E_SET_BITRATE_ONE_PASS_CBR, int)
+#define AOM_CTRL_AV1E_SET_BITRATE_ONE_PASS_CBR
 
 /*!\endcond */
 /*! @} - end defgroup aom_encoder */
