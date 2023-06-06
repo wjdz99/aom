@@ -16,6 +16,24 @@
       "message": "Nit: I suggest copying some of the commit message as a comment here to explain this check, because this check is not obvious to me.",
       "revId": "692a9bef1d30a2fe23d239f613ab583c669ed2fd",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9d7745a3_c88a41d8",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 823,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2023-06-06T22:24:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2ab0e683_495df417",
+      "revId": "692a9bef1d30a2fe23d239f613ab583c669ed2fd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
