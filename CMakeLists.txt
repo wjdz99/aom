@@ -501,14 +501,19 @@ if(CONFIG_AV1_ENCODER)
                                     $<TARGET_OBJECTS:aom_common_app_util>
                                     $<TARGET_OBJECTS:aom_encoder_app_util>)
 
-    add_executable(svc_encoder_rtc "${AOM_ROOT}/examples/svc_encoder_rtc.cc"
-                                   $<TARGET_OBJECTS:aom_common_app_util>
-                                   $<TARGET_OBJECTS:aom_encoder_app_util>)
+    
 
     # Maintain a list of encoder example targets.
     list(APPEND AOM_ENCODER_EXAMPLE_TARGETS aomenc lossless_encoder noise_model
                 photon_noise_table set_maps simple_encoder scalable_encoder
                 twopass_encoder svc_encoder_rtc)
+
+    if(NOT BUILD_SHARED_LIBS)
+      add_executable(svc_encoder_rtc "${AOM_ROOT}/examples/svc_encoder_rtc.cc"
+                                     $<TARGET_OBJECTS:aom_common_app_util>
+                                     $<TARGET_OBJECTS:aom_encoder_app_util>)
+      list(APPEND AOM_ENCODER_EXAMPLE_TARGETS svc_encoder_rtc)
+    endif()
   endif()
 
   if(ENABLE_TOOLS)
@@ -734,6 +739,9 @@ endif()
 
 foreach(aom_app ${AOM_APP_TARGETS})
   target_link_libraries(${aom_app} ${AOM_LIB_LINK_TYPE} ${AOM_LIB})
+  if("${aom_app}" STREQUAL "svc_encoder_rtc")
+    target_link_libraries(${aom_app} ${AOM_LIB_LINK_TYPE} aom_av1_rc)
+  endif()
 endforeach()
 
 if(ENABLE_EXAMPLES OR ENABLE_TESTS OR ENABLE_TOOLS)
