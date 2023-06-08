@@ -123,6 +123,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "72e912a3_66c73f4b",
+        "filename": "aom/aomcx.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 1524,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2023-06-08T19:22:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5def3487_6e07924b",
+      "revId": "d72340adc0e74097784475130f05ecec190d961c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "de719d54_38307585",
@@ -140,6 +158,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "dc03fbf3_7641118b",
+        "filename": "aom/aomcx.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 1525,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2023-06-08T19:22:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "de719d54_38307585",
+      "revId": "d72340adc0e74097784475130f05ecec190d961c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "5ea93b95_a8866391",
@@ -153,6 +189,24 @@
       "writtenOn": "2023-06-06T20:58:53Z",
       "side": 1,
       "message": "Nit: Use the `unsigned int` type instead? I believe this is to replace the following field in the encoder config:\n\n```\n  /*!\\brief Target data rate\n   *\n   * Target bitrate to use for this stream, in kilobits per second.\n   */\n  unsigned int rc_target_bitrate;\n```",
+      "revId": "d72340adc0e74097784475130f05ecec190d961c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "256a3ccb_63ad36b0",
+        "filename": "aom/aomcx.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 2165,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2023-06-08T19:22:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5ea93b95_a8866391",
       "revId": "d72340adc0e74097784475130f05ecec190d961c",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -192,6 +246,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "cacdb997_04ccee37",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 2566,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2023-06-08T19:22:26Z",
+      "side": 1,
+      "message": "Done. Didn\u0027t replace the error checking, how would you like to change it?",
+      "parentUuid": "b027ed85_8cbbb6bd",
+      "revId": "d72340adc0e74097784475130f05ecec190d961c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "5ee87385_5a9547e6",
@@ -205,6 +277,24 @@
       "writtenOn": "2023-06-06T20:58:53Z",
       "side": 1,
       "message": "We should also set:\n\n```\n  ctx-\u003ecfg.rc_target_bitrate \u003d new_bitrate;\n```\n\nbecause this simpler function should have the same side effects as calling `aom_codec_enc_config_set(\u0026codec, \u0026cfg)` with a new `cfg.rc_target_bitrate` value.",
+      "revId": "d72340adc0e74097784475130f05ecec190d961c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "22f81801_08a798d7",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 2567,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2023-06-08T19:22:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5ee87385_5a9547e6",
       "revId": "d72340adc0e74097784475130f05ecec190d961c",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -226,6 +316,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a4cdb6bc_c1c20a9a",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 2569,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2023-06-08T19:22:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c3683b74_4abd2d6d",
+      "revId": "d72340adc0e74097784475130f05ecec190d961c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b322a447_60f53dd1",
@@ -239,6 +347,24 @@
       "writtenOn": "2023-06-06T20:58:53Z",
       "side": 1,
       "message": "The `set_primary_rc_buffer_sizes()` call doesn\u0027t modify `cpi-\u003eframerate`. Do we need to call `av1_new_framerate(cpi, cpi-\u003eframerate)`?",
+      "revId": "d72340adc0e74097784475130f05ecec190d961c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0c214c48_a878f205",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 2570,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2023-06-08T19:22:26Z",
+      "side": 1,
+      "message": "as we discussed offline, it does.",
+      "parentUuid": "b322a447_60f53dd1",
       "revId": "d72340adc0e74097784475130f05ecec190d961c",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
