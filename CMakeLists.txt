@@ -734,6 +734,9 @@ endif()
 
 foreach(aom_app ${AOM_APP_TARGETS})
   target_link_libraries(${aom_app} ${AOM_LIB_LINK_TYPE} ${AOM_LIB})
+  if("${aom_app}" STREQUAL "svc_encoder_rtc")
+    target_link_libraries(${aom_app} ${AOM_LIB_LINK_TYPE} aom_av1_rc)
+  endif()
 endforeach()
 
 if(ENABLE_EXAMPLES OR ENABLE_TESTS OR ENABLE_TOOLS)
