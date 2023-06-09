@@ -807,6 +807,7 @@ static AOM_INLINE void mode_estimation(AV1_COMP *cpi,
 
   int start_rf = 0;
   int end_rf = 3;
+  printf("\nallow_compound_pred %d\n", tpl_sf->allow_compound_pred);
   if (!tpl_sf->allow_compound_pred) end_rf = 0;
   if (cpi->third_pass_ctx &&
       frame_offset < cpi->third_pass_ctx->frame_info_count &&
@@ -952,8 +953,7 @@ static AOM_INLINE void mode_estimation(AV1_COMP *cpi,
   ref_frame_ptr[0] =
       best_mode == NEW_NEWMV
           ? tpl_data->ref_frame[comp_ref_frames[best_cmp_rf_idx][0]]
-      : best_rf_idx >= 0 ? tpl_data->ref_frame[best_rf_idx]
-                         : NULL;
+          : best_rf_idx >= 0 ? tpl_data->ref_frame[best_rf_idx] : NULL;
   ref_frame_ptr[1] =
       best_mode == NEW_NEWMV
           ? tpl_data->ref_frame[comp_ref_frames[best_cmp_rf_idx][1]]
@@ -1018,6 +1018,15 @@ static AOM_INLINE void mode_estimation(AV1_COMP *cpi,
         AOMMIN(tpl_stats->recrf_dist, tpl_stats->cmp_recrf_dist[1]);
     tpl_stats->cmp_recrf_rate[1] =
         AOMMIN(tpl_stats->recrf_rate, tpl_stats->cmp_recrf_rate[1]);
+
+    ref_frame_ptr[0] =
+        tpl_data->src_ref_frame[comp_ref_frames[best_cmp_rf_idx][0]];
+    ref_frame_ptr[1] =
+        tpl_data->src_ref_frame[comp_ref_frames[best_cmp_rf_idx][1]];
+    get_rate_distortion(&rate_cost, &recon_error, &pred_error, src_diff, coeff,
+                        qcoeff, dqcoeff, cm, x, ref_frame_ptr, rec_buffer_pool,
+                        rec_stride_pool, tx_size, best_mode, mi_row, mi_col,
+                        use_y_only_rate_distortion, 1 /*do_recon*/, NULL);
   }
 
   if (best_mode == NEWMV) {

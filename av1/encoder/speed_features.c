@@ -1076,7 +1076,7 @@ static void set_good_speed_features_framesize_independent(
     sf->lpf_sf.reduce_wiener_window_size = boosted ? 0 : 1;
 
     // TODO(any): Re-evaluate this feature set to 1 in speed 2.
-    sf->tpl_sf.allow_compound_pred = 0;
+    sf->tpl_sf.allow_compound_pred = 1;
     sf->tpl_sf.prune_ref_frames_in_tpl = 1;
   }
 
@@ -1142,9 +1142,10 @@ static void set_good_speed_features_framesize_independent(
     sf->winner_mode_sf.enable_winner_mode_for_coeff_opt = 1;
     sf->winner_mode_sf.enable_winner_mode_for_use_tx_domain_dist = 1;
     sf->winner_mode_sf.motion_mode_for_winner_cand =
-        boosted                                                          ? 0
-        : gf_group->update_type[cpi->gf_frame_index] == INTNL_ARF_UPDATE ? 1
-                                                                         : 2;
+        boosted ? 0
+                : gf_group->update_type[cpi->gf_frame_index] == INTNL_ARF_UPDATE
+                      ? 1
+                      : 2;
     sf->winner_mode_sf.prune_winner_mode_eval_level = boosted ? 0 : 4;
 
     // For screen content, "prune_sgr_based_on_wiener = 2" cause large quality
@@ -1274,9 +1275,8 @@ static void set_good_speed_features_framesize_independent(
     sf->part_sf.prune_rectangular_split_based_on_qidx =
         boosted || allow_screen_content_tools ? 0 : 2;
     sf->part_sf.prune_sub_8x8_partition_level =
-        allow_screen_content_tools          ? 0
-        : frame_is_intra_only(&cpi->common) ? 1
-                                            : 2;
+        allow_screen_content_tools ? 0
+                                   : frame_is_intra_only(&cpi->common) ? 1 : 2;
     sf->part_sf.prune_part4_search = 3;
 
     sf->mv_sf.simple_motion_subpel_force_stop = FULL_PEL;
