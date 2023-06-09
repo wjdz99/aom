@@ -1,0 +1,106 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a592e748_79d8104a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-06-09T18:47:14Z",
+      "side": 1,
+      "message": "This looks good. I suggest some simple changes.",
+      "revId": "14aabb1ad848f8e0252167c71123e6b9676834e2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8ae4020f_501ef060",
+        "filename": "aom/aomcx.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 1493,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-06-09T18:47:14Z",
+      "side": 1,
+      "message": "Please use this as an example for documenting the parameter type.",
+      "revId": "14aabb1ad848f8e0252167c71123e6b9676834e2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a9c56e1e_66042839",
+        "filename": "aom/aomcx.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 1521,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-06-09T18:47:14Z",
+      "side": 1,
+      "message": "Nit: kbps \u003d\u003e kilobits per second\n\nto match the comment for the corresponding cfg member:\n\n```\n  /*!\\brief Target data rate\n   *\n   * Target bitrate to use for this stream, in kilobits per second.\n   */\n  unsigned int rc_target_bitrate;\n```",
+      "revId": "14aabb1ad848f8e0252167c71123e6b9676834e2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6b367aea_cded6599",
+        "filename": "aom/aomcx.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 1522,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-06-09T18:47:14Z",
+      "side": 1,
+      "message": "Add \"unsigned int parameter\". See line 1493 for an example.",
+      "revId": "14aabb1ad848f8e0252167c71123e6b9676834e2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "32579c07_91da5e16",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 2568,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-06-09T18:47:14Z",
+      "side": 1,
+      "message": "Please change this assertion to a check:\n\n```\n  if (!is_one_pass_rt_params(cpi) || oxcf-\u003erc_cfg.mode !\u003d AOM_CBR ||\n      cpi-\u003eppi-\u003euse_svc || ppi-\u003enum_fp_contexts !\u003d 1 ||\n      ppi-\u003ecpi_lap !\u003d NULL) {\n    return AOM_CODEC_INVALID_PARAM;\n  }\n```\n\nAnd then ask the users of this codec control to check the return value.",
+      "revId": "14aabb1ad848f8e0252167c71123e6b9676834e2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2eb65047_265f2204",
+        "filename": "examples/svc_encoder_rtc.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 1615,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-06-09T18:47:14Z",
+      "side": 1,
+      "message": "Check the return value here.",
+      "revId": "14aabb1ad848f8e0252167c71123e6b9676834e2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
