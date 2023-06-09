@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ace0b773_c0d1ddbf",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-06-09T18:50:06Z",
+      "side": 1,
+      "message": "LGTM.\n\nMarco, are you okay with converting svc_encoder_rtc to C++?",
+      "revId": "3e7ba980cd9894329a712b11e37ec892dc18f04d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8fa1dc63_98f7e7b5",
+        "filename": "examples/encoder_util.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-06-09T18:50:06Z",
+      "side": 1,
+      "message": "Nit: Add a blank line before this line.",
+      "revId": "3e7ba980cd9894329a712b11e37ec892dc18f04d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
