@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8f96a025_57201908",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2023-06-09T11:42:24Z",
+      "side": 1,
+      "message": "In sync_enc_workers(), the error status of master thread is not available, as winterface-\u003esync() is invoked only for worker threads. The error status of the master thread needs to be read to facilitate its error propagation. This CL fixes this issue by initializing \u0027had_error\u0027 with the error status of the master thread.\n\nThe sync of master thread in sync_enc_workers() earlier removed in this [CL](https://aomedia-review.googlesource.com/c/aom/+/140223) to facilitate FPMT. This is because, in case of FPMT the master threads of each parallel encode frame (level 1 workers) will be overloaded as slave threads (level 2 workers) when they reach MT stages in their respective frame encodes. As the state of the master thread would be set to \"WORK\" due to the ‘get_compressed_data_hook’ being run on it, sync must not be called on it before it exits the frame parallel encode. Otherwise it may result in deadlock.",
+      "revId": "68c14b0fd22c8e790b82c84db0c9f43d5086e82c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
