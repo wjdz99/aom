@@ -33,6 +33,24 @@
       "message": "Nit: Add a blank line before this line.",
       "revId": "3e7ba980cd9894329a712b11e37ec892dc18f04d",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "96e5433c_717fdf77",
+        "filename": "examples/encoder_util.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2023-06-09T18:53:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8fa1dc63_98f7e7b5",
+      "revId": "3e7ba980cd9894329a712b11e37ec892dc18f04d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
