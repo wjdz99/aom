@@ -22,6 +22,30 @@
       },
       "revId": "6c625fcbab1173554ec7718c61c3ddf9562922f5",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0bcd9e64_9767811b",
+        "filename": "av1/common/arm/jnt_convolve_neon.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 3936,
+      "author": {
+        "id": 31957
+      },
+      "writtenOn": "2023-06-09T08:58:12Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "5665671e_6f332a21",
+      "range": {
+        "startLine": 3936,
+        "startChar": 13,
+        "endLine": 3936,
+        "endChar": 14
+      },
+      "revId": "6c625fcbab1173554ec7718c61c3ddf9562922f5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ],
   "submitRequirementResults": [
