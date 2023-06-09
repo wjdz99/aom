@@ -52,6 +52,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "50e84231_246f0663",
+        "filename": "aom/aomcx.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 1521,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2023-06-09T22:53:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a9c56e1e_66042839",
+      "revId": "14aabb1ad848f8e0252167c71123e6b9676834e2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "6b367aea_cded6599",
@@ -65,6 +83,24 @@
       "writtenOn": "2023-06-09T18:47:14Z",
       "side": 1,
       "message": "Add \"unsigned int parameter\". See line 1493 for an example.",
+      "revId": "14aabb1ad848f8e0252167c71123e6b9676834e2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ff84c04c_20632cda",
+        "filename": "aom/aomcx.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 1522,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2023-06-09T22:53:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6b367aea_cded6599",
       "revId": "14aabb1ad848f8e0252167c71123e6b9676834e2",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -86,6 +122,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "6b209442_e85af2bd",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 2568,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2023-06-09T22:53:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "32579c07_91da5e16",
+      "revId": "14aabb1ad848f8e0252167c71123e6b9676834e2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ae8476c8_fb7e3eee",
@@ -103,6 +157,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "5bb00de0_ca116927",
+        "filename": "examples/svc_encoder_rtc.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 1257,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2023-06-09T22:53:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ae8476c8_fb7e3eee",
+      "revId": "14aabb1ad848f8e0252167c71123e6b9676834e2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "2eb65047_265f2204",
@@ -116,6 +188,24 @@
       "writtenOn": "2023-06-09T18:47:14Z",
       "side": 1,
       "message": "Check the return value here.",
+      "revId": "14aabb1ad848f8e0252167c71123e6b9676834e2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c7245843_34676c96",
+        "filename": "examples/svc_encoder_rtc.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 1615,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2023-06-09T22:53:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2eb65047_265f2204",
       "revId": "14aabb1ad848f8e0252167c71123e6b9676834e2",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
