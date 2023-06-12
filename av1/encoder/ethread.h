@@ -42,6 +42,8 @@ void av1_row_mt_sync_write_dummy(AV1EncRowMultiThreadSync *row_mt_sync, int r,
 void av1_encode_tiles_mt(struct AV1_COMP *cpi);
 void av1_encode_tiles_row_mt(struct AV1_COMP *cpi);
 
+void av1_set_encoding_done_for_row(AV1_COMP *cpi, MACROBLOCKD *xd);
+
 #if !CONFIG_REALTIME_ONLY
 void av1_fp_encode_tiles_row_mt(AV1_COMP *cpi);
 
