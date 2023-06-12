@@ -549,6 +549,12 @@ typedef struct {
    * Only used when RT_PASSIVE_STRATEGY = 1.
    */
   int q_history[MAX_Q_HISTORY];
+
+  /*!
+   * Frame number for encoded frames (non-dropped).
+   * Use for setting rtc reference structure.
+   */
+  unsigned int frame_number_encoded;
 } PRIMARY_RATE_CONTROL;
 
 /*!\cond */
