@@ -1529,6 +1529,12 @@ typedef struct {
    */
   int allocated_sb_rows;
 
+  /*!
+   * Boolean : Initialized to 0 (false). Set to 1 (true) on error to abort
+   * encoding.
+   */
+  int row_mt_exit;
+
 #if CONFIG_MULTITHREAD
   /*!
    * Mutex lock used while dispatching jobs.
