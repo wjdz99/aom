@@ -1529,6 +1529,12 @@ typedef struct {
    */
   int allocated_sb_rows;
 
+  /*!
+   * Initialized to false, set to true by the worker thread that encounters an
+   * error in order to abort the processing of other worker threads.
+   */
+  bool row_mt_exit;
+
 #if CONFIG_MULTITHREAD
   /*!
    * Mutex lock used while dispatching jobs.
