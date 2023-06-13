@@ -41,9 +41,8 @@ static void nn_propagate_8to1(const float *const inputs,
   *output = _mm_add_ps(*output, hadd2);
 }
 
-static void nn_propagate_4to1(const float *const inputs,
-                              const float *const weights,
-                              __m128 *const output) {
+void nn_propagate_4to1(const float *const inputs, const float *const weights,
+                       __m128 *const output) {
   const __m128 inputs128 = _mm_loadu_ps(inputs);
 
   const __m128 weights128 = _mm_loadu_ps(weights);
@@ -58,9 +57,8 @@ static void nn_propagate_4to1(const float *const inputs,
   *output = _mm_add_ps(*output, hadd2);
 }
 
-static void nn_propagate_4to4(const float *const inputs,
-                              const float *const weights, __m128 *const outputs,
-                              const int num_inputs) {
+void nn_propagate_4to4(const float *const inputs, const float *const weights,
+                       __m128 *const outputs, const int num_inputs) {
   const __m128 inputs128 = _mm_loadu_ps(inputs);
 
   __m128 hadd[2];
@@ -80,9 +78,9 @@ static void nn_propagate_4to4(const float *const inputs,
   *outputs = _mm_add_ps(*outputs, hh);
 }
 
-static void nn_propagate_4to8(const float *const inputs,
-                              const float *const weights, __m128 *const out_h,
-                              __m128 *const out_l, const int num_inputs) {
+void nn_propagate_4to8(const float *const inputs, const float *const weights,
+                       __m128 *const out_h, __m128 *const out_l,
+                       const int num_inputs) {
   const __m128 inputs128 = _mm_loadu_ps(inputs);
 
   __m128 hadd[4];
