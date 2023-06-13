@@ -3244,6 +3244,9 @@ static int encode_with_recode_loop_and_filter(AV1_COMP *cpi, size_t *size,
 
   if (cpi->oxcf.tune_cfg.content == AOM_CONTENT_FILM) {
     set_grain_syn_params(cm);
+    if (seq_params->monochrome) {
+      av1_reset_film_grain_chroma_params(&cm->film_grain_params);
+    }
   }
 
   av1_finalize_encoded_frame(cpi);
