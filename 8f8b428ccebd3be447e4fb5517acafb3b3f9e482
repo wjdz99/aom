@@ -16,6 +16,52 @@
       "message": "I\u0027ll let Yunqing review this.",
       "revId": "8f8b428ccebd3be447e4fb5517acafb3b3f9e482",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b1d134c8_bc7e5c85",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1282,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2023-06-13T22:13:21Z",
+      "side": 1,
+      "message": "Where is this set? For consistency, maybe also use !winterface-\u003esync(worker) main thread?",
+      "range": {
+        "startLine": 1282,
+        "startChar": 38,
+        "endLine": 1282,
+        "endChar": 47
+      },
+      "revId": "8f8b428ccebd3be447e4fb5517acafb3b3f9e482",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "48d7e739_90fbb839",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1283,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2023-06-13T22:13:21Z",
+      "side": 1,
+      "message": "why this is needed?",
+      "range": {
+        "startLine": 1283,
+        "startChar": 33,
+        "endLine": 1283,
+        "endChar": 43
+      },
+      "revId": "8f8b428ccebd3be447e4fb5517acafb3b3f9e482",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
