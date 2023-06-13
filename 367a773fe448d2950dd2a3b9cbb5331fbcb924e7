@@ -18,6 +18,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "bf87b7d2_8ef034c3",
+        "filename": "CMakeLists.txt",
+        "patchSetId": 6
+      },
+      "lineNbr": 514,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2023-06-13T16:49:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0847393b_1e2a1ba0",
+      "revId": "367a773fe448d2950dd2a3b9cbb5331fbcb924e7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "97764a2a_3b83181e",
@@ -31,6 +49,24 @@
       "writtenOn": "2023-06-13T16:28:46Z",
       "side": 1,
       "message": "Nit: This is a C++ system header. It should be listed after C system headers. See the Style Guide:\n\nhttps://google.github.io/styleguide/cppguide.html#Names_and_Order_of_Includes",
+      "revId": "367a773fe448d2950dd2a3b9cbb5331fbcb924e7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "41e20537_a59a90cf",
+        "filename": "examples/svc_encoder_rtc.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2023-06-13T16:49:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "97764a2a_3b83181e",
       "revId": "367a773fe448d2950dd2a3b9cbb5331fbcb924e7",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -52,6 +88,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "2a7e3031_94510633",
+        "filename": "examples/svc_encoder_rtc.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2023-06-13T16:49:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4f02c689_0ef95125",
+      "revId": "367a773fe448d2950dd2a3b9cbb5331fbcb924e7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "42db29b4_051387cc",
@@ -65,6 +119,24 @@
       "writtenOn": "2023-06-13T16:28:46Z",
       "side": 1,
       "message": "Nit: Delete this blank line.",
+      "revId": "367a773fe448d2950dd2a3b9cbb5331fbcb924e7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "620f23ca_3a223341",
+        "filename": "examples/svc_encoder_rtc.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2023-06-13T16:49:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "42db29b4_051387cc",
       "revId": "367a773fe448d2950dd2a3b9cbb5331fbcb924e7",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -86,6 +158,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "edf597e6_fab9c326",
+        "filename": "examples/svc_encoder_rtc.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2023-06-13T16:49:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fe602dfc_6bb00d18",
+      "revId": "367a773fe448d2950dd2a3b9cbb5331fbcb924e7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "cc9a5967_744e6331",
@@ -99,6 +189,24 @@
       "writtenOn": "2023-06-13T16:28:46Z",
       "side": 1,
       "message": "The third parameter of ARG_DEF is:\n\n```\n  int has_val;  //  0: The argument must not have a value.\n                //  1: The argument must have a value.\n                // -1: The argument may or may not have a value.\n```\n\nSo -1 mans \"The argument may or may not have a value.\" Your code at line 383 does not use the value of the argument. So it is incorrect to pass -1.",
+      "revId": "367a773fe448d2950dd2a3b9cbb5331fbcb924e7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3933147e_73d038da",
+        "filename": "examples/svc_encoder_rtc.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2023-06-13T16:49:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cc9a5967_744e6331",
       "revId": "367a773fe448d2950dd2a3b9cbb5331fbcb924e7",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -120,6 +228,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "6258f703_cd4c54d4",
+        "filename": "examples/svc_encoder_rtc.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 1261,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2023-06-13T16:49:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5c7d59ac_b019af6d",
+      "revId": "367a773fe448d2950dd2a3b9cbb5331fbcb924e7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b7900e5f_7f9b0da6",
@@ -133,6 +259,24 @@
       "writtenOn": "2023-06-13T16:28:46Z",
       "side": 1,
       "message": "Nit: Move the declaration of `rc_cfg` from line 1545 to this line:\n\n```\n    aom::AV1RateControlRtcConfig rc_cfg \u003d create_rtc_rc_config(cfg, app_input);\n```\n\nYou can also declare this variable as const.",
+      "revId": "367a773fe448d2950dd2a3b9cbb5331fbcb924e7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "139dc1b5_ea28ac66",
+        "filename": "examples/svc_encoder_rtc.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 1548,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2023-06-13T16:49:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b7900e5f_7f9b0da6",
       "revId": "367a773fe448d2950dd2a3b9cbb5331fbcb924e7",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
