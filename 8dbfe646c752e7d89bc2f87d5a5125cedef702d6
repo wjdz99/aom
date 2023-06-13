@@ -16,6 +16,24 @@
       "message": "Inside a function, this should still be declared as \u0027static\u0027. Note that \u0027static\u0027 in the function scope means it is initialized, only once, on the first call to the function. The compiler is likely to optimize this, so there is probably no difference in practice.",
       "revId": "8dbfe646c752e7d89bc2f87d5a5125cedef702d6",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a2aed1b8_eb16fd6f",
+        "filename": "examples/svc_encoder_rtc.cc",
+        "patchSetId": 10
+      },
+      "lineNbr": 1263,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2023-06-13T19:23:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9f517768_35f29340",
+      "revId": "8dbfe646c752e7d89bc2f87d5a5125cedef702d6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
