@@ -1,6 +1,23 @@
 {
   "comments": [
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "cfa5e6b0_f774dcff",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 32128
+      },
+      "writtenOn": "2023-06-13T02:56:39Z",
+      "side": 1,
+      "message": "LGTM % nit comments.",
+      "revId": "e09d5a592c7fe61b8f216fbb5b490deac1b6d334",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "8d6451f5_18a983ff",
@@ -14,6 +31,115 @@
       "writtenOn": "2023-06-12T17:54:06Z",
       "side": 1,
       "message": "https://cmake.org/cmake/help/latest/command/target_link_libraries.html says:\n\n```\nRepeated calls for the same \u003ctarget\u003e append items in the order called.\n```\n\nSo we can just add\n\n```\n  if(\"${aom_app}\" STREQUAL \"svc_encoder_rtc\")\n    target_link_libraries(${aom_app} ${AOM_LIB_LINK_TYPE} aom_av1_rc)\n  endif()\n```\n\nafter the existing line:\n\n```\n  target_link_libraries(${aom_app} ${AOM_LIB_LINK_TYPE} ${AOM_LIB})\n```",
+      "revId": "e09d5a592c7fe61b8f216fbb5b490deac1b6d334",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2d22d986_35ffc494",
+        "filename": "examples/svc_encoder_rtc.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 1232,
+      "author": {
+        "id": 32128
+      },
+      "writtenOn": "2023-06-13T02:56:39Z",
+      "side": 1,
+      "message": "I let this function create and return aom::AV1RateControlRtcConfig.\n\n```suggestion\nstatic aom::AV1RateControlRtcConfig set_rtc_rc_config(const aom_codec_enc_cfg_t \u0026cfg, const AppInput \u0026app_input)\n```",
+      "range": {
+        "startLine": 1232,
+        "startChar": 7,
+        "endLine": 1232,
+        "endChar": 11
+      },
+      "revId": "e09d5a592c7fe61b8f216fbb5b490deac1b6d334",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b37e8c87_00043bbc",
+        "filename": "examples/svc_encoder_rtc.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 1232,
+      "author": {
+        "id": 32128
+      },
+      "writtenOn": "2023-06-13T02:56:39Z",
+      "side": 1,
+      "message": "Just note: By the way, it should be used anonymous namespace in c++ rather than static in order to make the function visible only within .cc.",
+      "range": {
+        "startLine": 1232,
+        "startChar": 0,
+        "endLine": 1232,
+        "endChar": 6
+      },
+      "revId": "e09d5a592c7fe61b8f216fbb5b490deac1b6d334",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bb37dedb_0f9b42f5",
+        "filename": "examples/svc_encoder_rtc.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 1543,
+      "author": {
+        "id": 32128
+      },
+      "writtenOn": "2023-06-13T02:56:39Z",
+      "side": 1,
+      "message": "move to l.1547\n```suggestion\n  aom::AV1RateControlRtcConfig rc_cfg \u003d create_rtc_rc_config();\n```",
+      "range": {
+        "startLine": 1543,
+        "startChar": 2,
+        "endLine": 1543,
+        "endChar": 38
+      },
+      "revId": "e09d5a592c7fe61b8f216fbb5b490deac1b6d334",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ef26b288_db8fbcb2",
+        "filename": "examples/svc_encoder_rtc.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 1566,
+      "author": {
+        "id": 32128
+      },
+      "writtenOn": "2023-06-13T02:56:39Z",
+      "side": 1,
+      "message": "Should this be set to l.1694 because it is only used if there is RTC.\nMaybe, we can also declare frame_params there?",
+      "revId": "e09d5a592c7fe61b8f216fbb5b490deac1b6d334",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "52489c53_3a265904",
+        "filename": "examples/svc_encoder_rtc.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 1693,
+      "author": {
+        "id": 32128
+      },
+      "writtenOn": "2023-06-13T02:56:39Z",
+      "side": 1,
+      "message": "rc_api",
+      "range": {
+        "startLine": 1693,
+        "startChar": 10,
+        "endLine": 1693,
+        "endChar": 35
+      },
       "revId": "e09d5a592c7fe61b8f216fbb5b490deac1b6d334",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
