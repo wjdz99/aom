@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3271c9b7_7dbbbb2c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-06-13T19:15:17Z",
+      "side": 1,
+      "message": "I compared the generated files through this chain when targeting x86-64 and aarch64; the set of optimizations look to match.",
+      "revId": "dcf3761e9a109dea3f7bded5df4c1f677600fd30",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
