@@ -1652,16 +1652,16 @@ static int64_t skip_mode_rd(RD_STATS *rd_stats, const AV1_COMP *const cpi,
 
   int64_t total_sse = 0;
   for (int plane = 0; plane < num_planes; ++plane) {
-    const struct macroblock_plane *const p = &x->plane[plane];
     const struct macroblockd_plane *const pd = &xd->plane[plane];
     const BLOCK_SIZE plane_bsize =
         get_plane_block_size(bsize, pd->subsampling_x, pd->subsampling_y);
-    const int bw = block_size_wide[plane_bsize];
-    const int bh = block_size_high[plane_bsize];
 
     av1_subtract_plane(x, plane_bsize, plane);
-    int64_t sse = aom_sum_squares_2d_i16(p->src_diff, bw, bw, bh) << 4;
-    sse >>= ((cpi->frame_info.bit_depth - 8) * 2);
+
+    int64_t sse =
+        av1_pixel_diff_dist(x, plane, 0, 0, plane_bsize, plane_bsize, NULL);
+    if (is_cur_buf_hbd(xd)) sse = ROUND_POWER_OF_TWO(sse, (xd->bd - 8) * 2);
+    sse <<= 4;
     total_sse += sse;
   }
   const int skip_mode_ctx = av1_get_skip_mode_context(xd);
@@ -3480,6 +3480,56 @@ static AOM_INLINE void rd_pick_skip_mode(
     rd_cost->rate += mode_costs->skip_mode_cost[skip_mode_ctx][0];
     av1_rd_cost_update(x->rdmult, rd_cost);
   }
+
+  if (skip_mode_rd_stats.dist != rd_cost->dist &&
+      (mbmi->skip_mode && !search_state->best_mbmode.skip_mode) &&
+      (mbmi->ref_frame[0] == search_state->best_mbmode.ref_frame[0] &&
+       mbmi->ref_frame[1] == search_state->best_mbmode.ref_frame[1]) &&
+      ((mbmi->mv[0].as_mv.row == search_state->best_mbmode.mv[0].as_mv.row) &&
+       (mbmi->mv[0].as_mv.col == search_state->best_mbmode.mv[0].as_mv.col) &&
+       (mbmi->mv[1].as_mv.row == search_state->best_mbmode.mv[1].as_mv.row) &&
+       (mbmi->mv[1].as_mv.col == search_state->best_mbmode.mv[1].as_mv.col)) &&
+      ((mbmi->interp_filters.as_filters.x_filter ==
+        search_state->best_mbmode.interp_filters.as_filters.x_filter) &&
+       (mbmi->interp_filters.as_filters.y_filter ==
+        search_state->best_mbmode.interp_filters.as_filters.y_filter)) &&
+      (mbmi->skip_txfm == 1 && search_state->best_mbmode.skip_txfm == 1) &&
+      (mbmi->interinter_comp.type ==
+       search_state->best_mbmode.interinter_comp.type))
+    printf(
+        "\nloc:%d;%d;(%d;%d;)  this mode:%d; bsize:%d; skip_mode:%d; "
+        "refs:%d;%d; mv0:%d,%d; mv1:%d,%d, if:%d,%d; "
+        "skip_txfm:%d; mm:%d; mbmi->interinter_comp.type:%d; this rdcost:%ld, "
+        "r:%d,d:%ld;    -> \n"
+        "cur best mode:%d; bsize:%d; skip_mode:%d; refs:%d,%d; mv0:%d,%d; "
+        "mv1:%d,%d, if:%d,%d; "
+        "skip_txfm:%d; mm:%d; mbmi->interinter_comp.type:%d; rdcost:%ld, "
+        "r:%d,d:%ld;   "
+        "skip_mode_ctx:%d; skip_mode_cost[0]:%d;[1]:%d;  \n",
+        xd->mi_row, xd->mi_col, cm->mi_params.mi_rows, cm->mi_params.mi_cols,
+        mbmi->mode, bsize, mbmi->skip_mode, mbmi->ref_frame[0],
+        mbmi->ref_frame[1], mbmi->mv[0].as_mv.row, mbmi->mv[0].as_mv.col,
+        mbmi->mv[1].as_mv.row, mbmi->mv[1].as_mv.col,
+        mbmi->interp_filters.as_filters.x_filter,
+        mbmi->interp_filters.as_filters.y_filter, mbmi->skip_txfm,
+        mbmi->motion_mode, mbmi->interinter_comp.type,
+        skip_mode_rd_stats.rdcost, skip_mode_rd_stats.rate,
+        skip_mode_rd_stats.dist, search_state->best_mbmode.mode,
+        search_state->best_mbmode.bsize, search_state->best_mbmode.skip_mode,
+        search_state->best_mbmode.ref_frame[0],
+        search_state->best_mbmode.ref_frame[1],
+        search_state->best_mbmode.mv[0].as_mv.row,
+        search_state->best_mbmode.mv[0].as_mv.col,
+        search_state->best_mbmode.mv[1].as_mv.row,
+        search_state->best_mbmode.mv[1].as_mv.col,
+        search_state->best_mbmode.interp_filters.as_filters.x_filter,
+        search_state->best_mbmode.interp_filters.as_filters.y_filter,
+        search_state->best_mbmode.skip_txfm,
+        search_state->best_mbmode.motion_mode,
+        search_state->best_mbmode.interinter_comp.type,
+        best_intra_inter_mode_cost, rd_cost->rate, rd_cost->dist, skip_mode_ctx,
+        x->mode_costs.skip_mode_cost[skip_mode_ctx][0],
+        x->mode_costs.skip_mode_cost[skip_mode_ctx][1]);
 
   if (skip_mode_rd_stats.rdcost <= best_intra_inter_mode_cost &&
       (!xd->lossless[mbmi->segment_id] || skip_mode_rd_stats.dist == 0)) {
