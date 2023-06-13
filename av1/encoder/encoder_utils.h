@@ -1120,6 +1120,8 @@ static AOM_INLINE bool av1_is_resize_needed(const AV1EncoderConfig *oxcf) {
   return resize_cfg->resize_mode || superres_cfg->superres_mode;
 }
 
+void av1_reset_film_grain_chroma_params(aom_film_grain_t *pars);
+
 #ifdef __cplusplus
 }  // extern "C"
 #endif
