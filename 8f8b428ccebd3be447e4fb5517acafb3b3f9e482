@@ -18,6 +18,23 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "8d8cb46e_99eeb58e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2023-06-14T21:25:22Z",
+      "side": 1,
+      "message": "Looks good. Thanks.",
+      "revId": "8f8b428ccebd3be447e4fb5517acafb3b3f9e482",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b1d134c8_bc7e5c85",
@@ -65,6 +82,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "5894b071_6645f30b",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1282,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2023-06-14T21:25:22Z",
+      "side": 1,
+      "message": "That sounds right. Thanks.",
+      "parentUuid": "891dfa9c_542eac06",
+      "range": {
+        "startLine": 1282,
+        "startChar": 38,
+        "endLine": 1282,
+        "endChar": 47
+      },
+      "revId": "8f8b428ccebd3be447e4fb5517acafb3b3f9e482",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "48d7e739_90fbb839",
@@ -102,6 +143,30 @@
       "side": 1,
       "message": "In the parent version, in case of error `aom_internal_error()` is always invoked with hardcoded values `AOM_CODEC_ERROR` and `Failed to encode tile data`. `error_info` holds the exact `error_code` and error `detail` and the same is used to propagate these details further.",
       "parentUuid": "48d7e739_90fbb839",
+      "range": {
+        "startLine": 1283,
+        "startChar": 33,
+        "endLine": 1283,
+        "endChar": 43
+      },
+      "revId": "8f8b428ccebd3be447e4fb5517acafb3b3f9e482",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6e5281dc_311cf879",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1283,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2023-06-14T21:25:22Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "ffc1e292_17eaec55",
       "range": {
         "startLine": 1283,
         "startChar": 33,
