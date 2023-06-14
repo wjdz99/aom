@@ -2538,7 +2538,13 @@ static AOM_INLINE void write_film_grain_params(
   if (cm->seq_params->monochrome || pars->chroma_scaling_from_luma ||
       ((cm->seq_params->subsampling_x == 1) &&
        (cm->seq_params->subsampling_y == 1) && (pars->num_y_points == 0))) {
-    assert(pars->num_cb_points == 0 && pars->num_cr_points == 0);
+    if (pars->num_cb_points != 0 || pars->num_cr_points != 0) {
+      aom_internal_error(
+          cm->error, AOM_CODEC_ERROR,
+          "Film grain parameters should not have non-zero "
+          "num_cb_points or num_cr_points when using mono-chrome output, "
+          "chroma scaling from luma or when num_y_points is 0.");
+    }
   } else {
     aom_wb_write_literal(wb, pars->num_cb_points, 4);  // max 10
     for (int i = 0; i < pars->num_cb_points; i++) {

@@ -14,6 +14,10 @@
 #include "aom_dsp/grain_table.h"
 #include "aom/internal/aom_codec_internal.h"
 #include "av1/encoder/grain_test_vectors.h"
+#include "test/codec_factory.h"
+#include "test/encode_test_driver.h"
+#include "test/i420_video_source.h"
+#include "test/util.h"
 #include "test/video_source.h"
 
 void grain_equal(const aom_film_grain_t *expected,
@@ -267,3 +271,40 @@ TEST_F(FilmGrainTableIOTest, RoundTripSplit) {
 
   EXPECT_EQ(0, remove(grain_file.c_str()));
 }
+
+class FilmGrainEncodeTest : public ::libaom_test::CodecTestWithParam<int>,
+                            public ::libaom_test::EncoderTest {
+ protected:
+  FilmGrainEncodeTest()
+      : EncoderTest(GET_PARAM(0)), mono_chrome_(GET_PARAM(1)) {}
+  virtual ~FilmGrainEncodeTest() {}
+
+  virtual void SetUp() {
+    InitializeConfig(::libaom_test::kOnePassGood);
+    cfg_.monochrome = mono_chrome_;
+    cfg_.rc_target_bitrate = 300;
+  }
+
+  virtual void PreEncodeFrameHook(::libaom_test::VideoSource *video,
+                                  ::libaom_test::Encoder *encoder) {
+    if (video->frame() == 0) {
+      encoder->Control(AOME_SET_CPUUSED, 5);
+      encoder->Control(AV1E_SET_TUNE_CONTENT, AOM_CONTENT_FILM);
+      encoder->Control(AV1E_SET_DENOISE_NOISE_LEVEL, 1);
+    }
+  }
+
+  virtual bool DoDecode() const { return false; }
+
+  void DoTest() {
+    ::libaom_test::I420VideoSource video("hantro_collage_w352h288.yuv", 352,
+                                         288, 30, 1, 0, 1);
+    ASSERT_NO_FATAL_FAILURE(RunLoop(&video));
+  }
+
+  bool mono_chrome_;
+};
+
+TEST_P(FilmGrainEncodeTest, Test) { DoTest(); }
+
+AV1_INSTANTIATE_TEST_SUITE(FilmGrainEncodeTest, ::testing::Values(0, 1));
