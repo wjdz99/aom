@@ -43,6 +43,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "891dfa9c_542eac06",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1282,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2023-06-14T16:10:26Z",
+      "side": 1,
+      "message": "`mt_info-\u003eworkers[].had_error` will be set in `execute()`. The error in main thread is handled differently due to the below reason.\n\nThe sync of the main thread in `sync_enc_workers()` was earlier removed in this [CL](https://aomedia-review.googlesource.com/c/aom/+/140223) to facilitate FPMT. This is because, in the case of FPMT, the main threads of each parallel encode frame (level 1 workers) will be overloaded as worker threads (level 2 workers) when they reach MT stages in their respective frame encodes. As the state of the main thread would be set to `WORK` due to the `get_compressed_data_hook` being run on it, sync must not be called on it before it exits the frame parallel encode. Otherwise it may result in deadlock.",
+      "parentUuid": "b1d134c8_bc7e5c85",
+      "range": {
+        "startLine": 1282,
+        "startChar": 38,
+        "endLine": 1282,
+        "endChar": 47
+      },
+      "revId": "8f8b428ccebd3be447e4fb5517acafb3b3f9e482",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "48d7e739_90fbb839",
         "filename": "av1/encoder/ethread.c",
         "patchSetId": 4
@@ -54,6 +78,30 @@
       "writtenOn": "2023-06-13T22:13:21Z",
       "side": 1,
       "message": "why this is needed?",
+      "range": {
+        "startLine": 1283,
+        "startChar": 33,
+        "endLine": 1283,
+        "endChar": 43
+      },
+      "revId": "8f8b428ccebd3be447e4fb5517acafb3b3f9e482",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ffc1e292_17eaec55",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1283,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2023-06-14T16:10:26Z",
+      "side": 1,
+      "message": "In the parent version, in case of error `aom_internal_error()` is always invoked with hardcoded values `AOM_CODEC_ERROR` and `Failed to encode tile data`. `error_info` holds the exact `error_code` and error `detail` and the same is used to propagate these details further.",
+      "parentUuid": "48d7e739_90fbb839",
       "range": {
         "startLine": 1283,
         "startChar": 33,
