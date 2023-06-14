@@ -18,6 +18,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "c9de2148_895a98d8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2023-06-14T23:27:05Z",
+      "side": 1,
+      "message": "Done. Changed the assertion to emit internal error, and added an end-to-end encoding test for film content.",
+      "parentUuid": "04d52ab1_49c349d2",
+      "revId": "20a1b3c8d01c6ab24760ab1d0f7a9265a0f2c324",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "1a1e5831_49887055",
@@ -31,6 +49,24 @@
       "writtenOn": "2023-06-14T00:28:47Z",
       "side": 1,
       "message": "These checks are spread around the code. Is there a more common place within one of the film grain calls that this could be done?\n\nWhy not handle this in `set_grain_syn_params()` at least in case this function is reused?\n\nIs `av1_update_film_grain_parameters()` not called after this functions sets `film_grain_params-\u003eupdate_parameters \u003d 1`?",
+      "revId": "20a1b3c8d01c6ab24760ab1d0f7a9265a0f2c324",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f7bd9701_84320761",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 3247,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2023-06-14T23:27:05Z",
+      "side": 1,
+      "message": "Done.",
+      "parentUuid": "1a1e5831_49887055",
       "revId": "20a1b3c8d01c6ab24760ab1d0f7a9265a0f2c324",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
