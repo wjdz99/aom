@@ -3004,15 +3004,18 @@ static int64_t handle_inter_mode(
 #if CONFIG_COLLECT_COMPONENT_TIMING
       end_timing(cpi, interpolation_filter_search_time);
 #endif
+
+      restore_dst_buf(xd, orig_dst, num_planes);
+
       if (args->modelled_rd != NULL && !is_comp_pred) {
         args->modelled_rd[this_mode][ref_mv_idx][refs[0]] = rd;
       }
       if (ret_val != 0) {
-        restore_dst_buf(xd, orig_dst, num_planes);
+//        restore_dst_buf(xd, orig_dst, num_planes);
         continue;
       } else if (cpi->sf.inter_sf.model_based_post_interp_filter_breakout &&
                  ref_best_rd != INT64_MAX && (rd >> 3) * 3 > ref_best_rd) {
-        restore_dst_buf(xd, orig_dst, num_planes);
+//        restore_dst_buf(xd, orig_dst, num_planes);
         continue;
       }
 
@@ -3025,7 +3028,7 @@ static int64_t handle_inter_mode(
               AOMMIN(args->modelled_rd[mode0][ref_mv_idx][refs[0]],
                      args->modelled_rd[mode1][ref_mv_idx][refs[1]]);
           if ((rd >> 3) * 6 > mrd && ref_best_rd < INT64_MAX) {
-            restore_dst_buf(xd, orig_dst, num_planes);
+//            restore_dst_buf(xd, orig_dst, num_planes);
             continue;
           }
         }
@@ -3087,7 +3090,7 @@ static int64_t handle_inter_mode(
         best_ref_mv_idx = ref_mv_idx;
       }
     }
-    restore_dst_buf(xd, orig_dst, num_planes);
+//    restore_dst_buf(xd, orig_dst, num_planes);
   }
 
   if (best_rd == INT64_MAX) return INT64_MAX;
