@@ -134,7 +134,8 @@ if(CONFIG_AV1_HIGHBITDEPTH)
               "${AOM_ROOT}/aom_dsp/x86/highbd_loopfilter_avx2.c")
 
   list(APPEND AOM_DSP_COMMON_INTRIN_NEON
-              "${AOM_ROOT}/aom_dsp/arm/highbd_loopfilter_neon.c")
+              "${AOM_ROOT}/aom_dsp/arm/highbd_loopfilter_neon.c"
+              "${AOM_ROOT}/aom_dsp/arm/highbd_convolve8_neon.c")
 endif()
 
 if(CONFIG_AV1_DECODER)
