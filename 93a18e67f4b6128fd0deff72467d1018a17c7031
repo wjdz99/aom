@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9f98ff29_1f06be37",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2023-06-15T12:35:52Z",
+      "side": 1,
+      "message": "In the process of extending `adjust_num_frames_for_arf_filtering` sf to lower speeds, we observed an inconsistency in the way the optimization is enabled for alt-ref frames in speed 6.\n\nIn the parent version, the sf was disabled for screen contents. Since screen content detection happens after temporal filtering, the sf is not disabled for the first alt-ref frame that follows the key-frame for screen contents.\n\nCode flow of encoder for screen content decision (SC) is as shown below.\n```\n1. Temporal filtering of Key \u0026 first-ARF frame:\n   During the temporal filtering of first GOP, SC decision is not known.\n2. TPL:\n    Uses temporally filtered frames (key and first-ARF) to compute rdmult and \nquantizer stats.\n3. Screen content decision (1st and 2nd stage):\n   a. 1st stage uses the information from source frames. Hence, change in the first-ARF will not lead to change in SC decision.\n   b. In the 2nd stage, encoding of key frames happens with and without SC tools for decision. Here, the stats (e.g., rdmult) generated during TPL is used. Hence, change in the first-ARF will lead to change in SC decision.\n4. Encoding of Key \u0026 first-ARF:\n5. Temporal filtering and encoding of Second-ARF:\n```\nTo enable this optimization consistently across alt-ref frames in speed 6, it is required to avoid/disable the optimization until the SC decision is known. Also, when tried to extend the sf for speed 5 (without this CL), it is seen that the SC decision is changing w.r.t. parent version due to the reason mentioned in (3b).  \n\nThis CL appropriately disables the speed feature for first-GOP using `frames_since_key`. The following is the Borg result for speed 6. Bit-exact output is verified for speeds \u003c 6.\n```\n                    Instruction Count        BD-Rate Loss(%)       \ncpu   Resolution      Reduction(%)      avg.psnr   ovr.psnr    ssim\n 6      LOWRES2        -0.345           0.0073    -0.0281     -0.0340\n 6      MIDRES2        -0.581          -0.0512    -0.0772      0.0688\n 6      HDRES2         -0.533          -0.0167    -0.0449     -0.0088\n 6      Average        -0.481          -0.0202    -0.0501     -0.0087\n```\nThe instruction count reduction specified has been measured using command:\n$ perf stat -e instructions:u ./aomenc …\n\nWe shall plan to extend the sf for lower speeds once this patch gets merged.",
+      "revId": "93a18e67f4b6128fd0deff72467d1018a17c7031",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
