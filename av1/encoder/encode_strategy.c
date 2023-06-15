@@ -724,6 +724,16 @@ static int denoise_and_encode(AV1_COMP *const cpi, uint8_t *const dest,
 #endif
   const AV1EncoderConfig *const oxcf = &cpi->oxcf;
   AV1_COMMON *const cm = &cpi->common;
+
+  const int is_intra_frame = frame_params->frame_type == KEY_FRAME ||
+                             frame_params->frame_type == INTRA_ONLY_FRAME;
+  FeatureFlags *const features = &cm->features;
+  if (!is_stat_generation_stage(cpi) &&
+      (oxcf->pass == AOM_RC_ONE_PASS || oxcf->pass >= AOM_RC_SECOND_PASS) &&
+      is_intra_frame) {
+    av1_set_screen_content_options(cpi, features);
+  }
+
   GF_GROUP *const gf_group = &cpi->ppi->gf_group;
   FRAME_UPDATE_TYPE update_type =
       get_frame_update_type(&cpi->ppi->gf_group, cpi->gf_frame_index);
