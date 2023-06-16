@@ -34,6 +34,24 @@
       "parentUuid": "9f98ff29_1f06be37",
       "revId": "93a18e67f4b6128fd0deff72467d1018a17c7031",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "56eef2c1_739c9bb1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2023-06-16T16:55:01Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nThanks for creating the patch. However, the suggested change may not resolve the issue as temporal filtering of Key frame and first-ARF is happening way before.\n\nThe code flow of suggested change(patch: https://aomedia-review.googlesource.com/c/aom/+/176841) is as below.\n```\n1. Temporal filtering of Key \u0026 first-ARF frame:\n   This is getting invoked through \u0027av1_get_second_pass_params() → av1_tf_info_filtering() → av1_temporal_filter()\u0027.\n2. Unfiltered source frame `cpi-\u003eunfiltered_source-\u003ey_buffer` derivation:\n   This is derived in choose_frame_source().\n3. av1_set_screen_content_options(): \n   First stage of screen content (SC) decision (enabled for all speeds \u003c\u003d 6).\n   Uses the information from (2) and make a SC decision.\n4. TPL for first gf group:\n5. av1_determine_sc_tools_with_encoding():\n   Second stage of SC decision (enabled for speed \u003c\u003d 5)\n6. Encoding of Key \u0026 first-ARF:\n7. Temporal filtering and encoding of Second-ARF:\n```\nAs seen from above, 1st stage of SC detection (3) happens after  temporal filtering of Key and first-ARF (1). By resolving the dependencies present in (2) and (3) and moving before (1) should solve the inconsistency observed in speed 6 due to sf ‘adjust_num_frames_for_arf_filtering’ for screen contents.\n\nHowever, to enable this sf for speed \u003c\u003d 5, the 2nd stage of SC detection also needs to be moved before temporal filtering. Due to such dependencies the suggested movement may not be a simple change.\nHence, we feel that disabling the sf for SC(use frame_since_key to know that SC decision is done) would be a simpler solution to resolve the inconsistency.\n\nPlease let us know your thoughts on the same.\n\nThanks \u0026 Regards,\nVenkata.",
+      "parentUuid": "ed13e2d4_1cc7b73b",
+      "revId": "93a18e67f4b6128fd0deff72467d1018a17c7031",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
