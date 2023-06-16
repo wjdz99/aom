@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7ae32b7a_ab8802ce",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-06-16T23:46:12Z",
+      "side": 1,
+      "message": "Just a quick pass. I\u0027ll leave this open to Jonathan to comment.",
+      "revId": "34b13da0153441040ba17c1cffcf64a2cb85923c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f6b89b1f_26805e1f",
+        "filename": "aom_dsp/aom_dsp.cmake",
+        "patchSetId": 4
+      },
+      "lineNbr": 138,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-06-16T23:46:12Z",
+      "side": 1,
+      "message": "many of the source lists aren\u0027t sorted at the moment, but you can keep this one sorted by swapping the order to match avx2.",
+      "revId": "34b13da0153441040ba17c1cffcf64a2cb85923c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "469c85a3_aeab2bf3",
+        "filename": "aom_dsp/arm/highbd_convolve8_neon.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-06-16T23:46:12Z",
+      "side": 1,
+      "message": "I think this is unused unless I\u0027m missing a function call.",
+      "revId": "34b13da0153441040ba17c1cffcf64a2cb85923c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
