@@ -46,6 +46,30 @@
       },
       "revId": "dc8c106e98affa7ccc1d936841cbdb7a64a765ed",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "24c0a93a_a31e62c2",
+        "filename": "aom_dsp/sad.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 272,
+      "author": {
+        "id": 31042
+      },
+      "writtenOn": "2023-06-16T15:12:04Z",
+      "side": 1,
+      "message": "Ah, thanks for fixing this.",
+      "parentUuid": "c61f2f68_63648666",
+      "range": {
+        "startLine": 272,
+        "startChar": 22,
+        "endLine": 272,
+        "endChar": 41
+      },
+      "revId": "dc8c106e98affa7ccc1d936841cbdb7a64a765ed",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
