@@ -52,6 +52,24 @@
       "parentUuid": "ed13e2d4_1cc7b73b",
       "revId": "93a18e67f4b6128fd0deff72467d1018a17c7031",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0c9e82c2_74ddc76c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2023-06-16T21:21:30Z",
+      "side": 1,
+      "message": "Yes, surely it is quite complicated. Moving 1st SC detection to the top can be doable with some modification of the function. The 2nd SC detection still exists though it might be supplemental(?). This needs more work. For now, let\u0027s resolve this as you suggested. Thanks for figuring out the workflow.",
+      "parentUuid": "56eef2c1_739c9bb1",
+      "revId": "93a18e67f4b6128fd0deff72467d1018a17c7031",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
