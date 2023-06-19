@@ -208,8 +208,8 @@ void aom_highbd_upsampled_pred_neon(MACROBLOCKD *xd,
     } else {
       assert(width == 2);
       int i = height / 2;
+      uint16x4_t r = vdup_n_u16(0);
       do {
-        uint16x4_t r;
         load_u16_2x1(ref + 0 * ref_stride, &r, 0);
         load_u16_2x1(ref + 1 * ref_stride, &r, 1);
         store_u16_2x1(comp_pred + 0 * width, r, 0);
@@ -260,6 +260,20 @@ void aom_highbd_comp_avg_upsampled_pred_neon(
 
   aom_highbd_comp_avg_pred_neon(comp_pred8, pred8, width, height, comp_pred8,
                                 width);
+}
+
+void aom_highbd_dist_wtd_comp_avg_upsampled_pred_neon(
+    MACROBLOCKD *xd, const struct AV1Common *const cm, int mi_row, int mi_col,
+    const MV *const mv, uint8_t *comp_pred8, const uint8_t *pred8, int width,
+    int height, int subpel_x_q3, int subpel_y_q3, const uint8_t *ref8,
+    int ref_stride, int bd, const DIST_WTD_COMP_PARAMS *jcp_param,
+    int subpel_search) {
+  aom_highbd_upsampled_pred_neon(xd, cm, mi_row, mi_col, mv, comp_pred8, width,
+                                 height, subpel_x_q3, subpel_y_q3, ref8,
+                                 ref_stride, bd, subpel_search);
+
+  aom_highbd_dist_wtd_comp_avg_pred_neon(comp_pred8, pred8, width, height,
+                                         comp_pred8, width, jcp_param);
 }
 
 #endif  // CONFIG_AV1_HIGHBITDEPTH
