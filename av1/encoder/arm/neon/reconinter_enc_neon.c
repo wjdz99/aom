@@ -219,4 +219,27 @@ void aom_highbd_upsampled_pred_neon(MACROBLOCKD *xd,
         bd);
   }
 }
+
+void aom_highbd_comp_avg_upsampled_pred_neon(
+    MACROBLOCKD *xd, const struct AV1Common *const cm, int mi_row, int mi_col,
+    const MV *const mv, uint8_t *comp_pred8, const uint8_t *pred8, int width,
+    int height, int subpel_x_q3, int subpel_y_q3, const uint8_t *ref8,
+    int ref_stride, int bd, int subpel_search) {
+  int i;
+
+  const uint16_t *pred = CONVERT_TO_SHORTPTR(pred8);
+  uint16_t *comp_pred = CONVERT_TO_SHORTPTR(comp_pred8);
+  aom_highbd_upsampled_pred_neon(xd, cm, mi_row, mi_col, mv, comp_pred8, width,
+                                 height, subpel_x_q3, subpel_y_q3, ref8,
+                                 ref_stride, bd, subpel_search);
+
+  const int16x8_t shift = vdupq_n_s16(-1);
+  for (i = 0; i < width * height; i += 8) {
+    uint16x8_t p = vld1q_u16(&pred[i]);
+    uint16x8_t cp = vld1q_u16(&comp_pred[i]);
+    cp = vqrshlq_u16(vaddq_u16(p, cp), shift);
+    vst1q_u16(&comp_pred[i], cp);
+  }
+}
+
 #endif  // CONFIG_AV1_HIGHBITDEPTH
