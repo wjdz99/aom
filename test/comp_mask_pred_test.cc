@@ -712,5 +712,13 @@ INSTANTIATE_TEST_SUITE_P(
                        ::testing::Range(8, 13, 2)));
 #endif
 
+#if HAVE_NEON
+INSTANTIATE_TEST_SUITE_P(
+    NEON, AV1HighbdUpsampledPredTest,
+    ::testing::Combine(::testing::Values(&aom_highbd_upsampled_pred_neon),
+                       ::testing::ValuesIn(kValidBlockSize),
+                       ::testing::Range(8, 13, 2)));
+#endif
+
 #endif  // CONFIG_AV1_HIGHBITDEPTH
 }  // namespace
