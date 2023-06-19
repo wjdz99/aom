@@ -216,8 +216,16 @@ static int is_affine_shear_allowed(int16_t alpha, int16_t beta, int16_t gamma,
 
 // Returns 1 on success or 0 on an invalid affine set
 int av1_get_shear_params(WarpedMotionParams *wm) {
+  // Check that models have been constructed sensibly
+  assert(wm->wmtype <= AFFINE);
+  if (wm->wmtype == ROTZOOM) {
+    assert(wm->wmmat[5] == wm->wmmat[2]);
+    assert(wm->wmmat[4] == -wm->wmmat[3]);
+  }
+
   const int32_t *mat = wm->wmmat;
   if (!is_affine_valid(wm)) return 0;
+
   wm->alpha =
       clamp(mat[2] - (1 << WARPEDMODEL_PREC_BITS), INT16_MIN, INT16_MAX);
   wm->beta = clamp(mat[3], INT16_MIN, INT16_MAX);
@@ -392,11 +400,6 @@ void highbd_warp_plane(WarpedMotionParams *wm, const uint16_t *const ref,
                        int p_col, int p_row, int p_width, int p_height,
                        int p_stride, int subsampling_x, int subsampling_y,
                        int bd, ConvolveParams *conv_params) {
-  assert(wm->wmtype <= AFFINE);
-  if (wm->wmtype == ROTZOOM) {
-    wm->wmmat[5] = wm->wmmat[2];
-    wm->wmmat[4] = -wm->wmmat[3];
-  }
   const int32_t *const mat = wm->wmmat;
   const int16_t alpha = wm->alpha;
   const int16_t beta = wm->beta;
@@ -669,11 +672,6 @@ void warp_plane(WarpedMotionParams *wm, const uint8_t *const ref, int width,
                 int height, int stride, uint8_t *pred, int p_col, int p_row,
                 int p_width, int p_height, int p_stride, int subsampling_x,
                 int subsampling_y, ConvolveParams *conv_params) {
-  assert(wm->wmtype <= AFFINE);
-  if (wm->wmtype == ROTZOOM) {
-    wm->wmmat[5] = wm->wmmat[2];
-    wm->wmmat[4] = -wm->wmmat[3];
-  }
   const int32_t *const mat = wm->wmmat;
   const int16_t alpha = wm->alpha;
   const int16_t beta = wm->beta;

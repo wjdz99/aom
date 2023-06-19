@@ -190,8 +190,6 @@ int64_t av1_warp_error(WarpedMotionParams *wm, int use_hbd, int bd,
                        int p_height, int p_stride, int subsampling_x,
                        int subsampling_y, int64_t best_error,
                        uint8_t *segment_map, int segment_map_stride) {
-  force_wmtype(wm, wm->wmtype);
-  assert(wm->wmtype <= AFFINE);
   if (!av1_get_shear_params(wm)) return INT64_MAX;
 #if CONFIG_AV1_HIGHBITDEPTH
   if (use_hbd)
@@ -262,6 +260,7 @@ int64_t av1_refine_integerized_param(
       best_param = curr_param;
       // look to the left
       *param = add_param_offset(p, curr_param, -step);
+      force_wmtype(wm, wmtype);
       step_error =
           av1_warp_error(wm, use_hbd, bd, ref, r_width, r_height, r_stride,
                          dst + border * d_stride + border, border, border,
@@ -276,6 +275,7 @@ int64_t av1_refine_integerized_param(
 
       // look to the right
       *param = add_param_offset(p, curr_param, step);
+      force_wmtype(wm, wmtype);
       step_error =
           av1_warp_error(wm, use_hbd, bd, ref, r_width, r_height, r_stride,
                          dst + border * d_stride + border, border, border,
@@ -293,6 +293,7 @@ int64_t av1_refine_integerized_param(
       // for the biggest step size
       while (step_dir) {
         *param = add_param_offset(p, best_param, step * step_dir);
+        force_wmtype(wm, wmtype);
         step_error =
             av1_warp_error(wm, use_hbd, bd, ref, r_width, r_height, r_stride,
                            dst + border * d_stride + border, border, border,
@@ -309,7 +310,7 @@ int64_t av1_refine_integerized_param(
       }
     }
   }
-  force_wmtype(wm, wmtype);
+
   wm->wmtype = get_wmtype(wm);
   return best_error;
 }
