@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fdc2c347_d7e1397e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8893
+      },
+      "writtenOn": "2023-06-20T18:04:16Z",
+      "side": 1,
+      "message": "When motion search is limited to full-pel precision (mv_sf.simple_motion_subpel_force_stop \u003d FULL_PEL for speed \u003d 6), re-used the residual block variance and sse calculated in full pel search function. This is a bit-exact change and the results are as follows:\n```\n                 Instruction Count \ncpu      Testset   Reduction(%)    \n 6       LOWRES2      0.481        \n 6       MIDRES2      0.520         \n 6        HDRES2      0.498         \n 6       Average      0.499 \n```\nThe instruction count reduction specified has been measured using command:\n$ perf stat -e instructions:u ./aomenc",
+      "revId": "2aeca6660cc00c7183380966e132be5df4f5f793",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
