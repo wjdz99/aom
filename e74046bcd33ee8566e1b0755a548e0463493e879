@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e19e7d24_0f482e18",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 31022
+      },
+      "writtenOn": "2023-06-20T12:49:19Z",
+      "side": 1,
+      "message": "This CL resolves the issue of a bit-mismatch between the C and SIMD implementations of `aom_hadamard_32x32()` functions. The root cause of this mismatch was an integer overflow that occurred during the addition operation in the SIMD functions. In the SIMD functions, addition was performed at the 16-bit level, however calculating a0 + a1 resulted in a 17-bit value.\n\nTo rectify this issue, the code change addresses the 16-bit addition problem in both SSE2 and AVX2. The solution involves modifying the code to perform the addition at the 32-bit level, incorporating sign extension. Subsequently, a right shift operation is applied, and then the result is converted back to 16-bit level.  This fixes the mismatch between C and SIMD functions.\n\nThe results for for good encoding mode are as follows:\n```\n    Instruction Count        BD-Rate Loss(%)\ncpu   Reduction(%)    avg.psnr   ovr.psnr    ssim \n 4      -0.013         0.0002     0.0001    0.0009\n 5      -0.185        -0.0138    -0.0139   -0.0124\n 6      -0.004         0.0000     0.0000    0.0000\n```\nIn speed 5, the BD-Rate results for cactus_1080p50 are as follows:\n```\n      BD-Rate Loss(%)\n avg.psnr   ovr.psnr    ssim \n  -2.0613   -2.0879    -1.8916   \n```\nAlso, at a target bitrate of 3.2 Mbps, cactus_1080p50 shows ~148% increase in instruction count. This is because with the fix `allow_screen_content_tools` is set to 1 in the function `av1_determine_sc_tools_with_encoding()` (In the parent version `allow_screen_content_tools` was set to 0). \n\nOther contents do not have a significant impact on BD-Rate and instruction count. \n\nThe instruction count reduction specified has been measured using command:\n```\n$ perf stat -e instructions:u ./vpxenc …\n```",
+      "revId": "e74046bcd33ee8566e1b0755a548e0463493e879",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
