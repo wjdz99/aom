@@ -16,6 +16,24 @@
       "message": "Jenkins failure: https://build.aomedia.org/jenkins/job/libaom__nightly_compile/1857/\nCould you take a look?",
       "revId": "7d637e1ccd859f9018ebff88911411685d3a3a2b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f876c511_dc1a3429",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8893
+      },
+      "writtenOn": "2023-06-21T12:06:31Z",
+      "side": 1,
+      "message": "The compilation fails with the following error :\n```\naom/aom_dsp/butteraugli.c:13:10: fatal error: jxl/butteraugli.h: No such file or directory\n13 | #include \u003cjxl/butteraugli.h\u003e\n   |          ^~~~~~~~~~~~~~~~~~~\ncompilation terminated.\n```\nWe have seen that in the \u0027libjxl\u0027 repository \"butteraugli.h\" file was removed in the recent commit https://github.com/libjxl/libjxl/commit/a96301672a1b27a387c8f4906801b30ff64868a4. Hence the libaom compilation fails with -DCONFIG_TUNE_BUTTERAUGLI\u003d1",
+      "parentUuid": "f7ebb3d8_731f513f",
+      "revId": "7d637e1ccd859f9018ebff88911411685d3a3a2b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
