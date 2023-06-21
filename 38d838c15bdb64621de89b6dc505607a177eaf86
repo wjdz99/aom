@@ -52,6 +52,92 @@
       "parentUuid": "228742e2_ccdc0e1e",
       "revId": "38d838c15bdb64621de89b6dc505607a177eaf86",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "40a5b0b8_d8ff97a6",
+        "filename": "test/hadamard_test.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 281,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-06-21T15:48:19Z",
+      "side": 1,
+      "message": "Hi Anupam,\n\nThank you for the explanation. I am not familiar with this code, so my question was based on the range of input in the `CompareReferenceRandom()` test at line 259. Please see my comments below, especially the one at line 347.",
+      "parentUuid": "1f61e645_62f7b06b",
+      "revId": "38d838c15bdb64621de89b6dc505607a177eaf86",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "21af07bb_19713a91",
+        "filename": "test/hadamard_test.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 347,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-06-21T15:48:19Z",
+      "side": 1,
+      "message": "The `Rand9Signed()` function returns values in the range of -256..255:\n\n```\n  int16_t Rand9Signed() {\n    // Use 9 bits: values between 255 (0x0FF) and -256 (0x100).\n    const uint32_t value \u003d random_.Generate(512);\n    return static_cast\u003cint16_t\u003e(value) - 256;\n  }\n```\n\nIf -256 is not a valid value for these Hadamard functions, the Rand() method should change it to -255.",
+      "revId": "38d838c15bdb64621de89b6dc505607a177eaf86",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0354236b_87a74233",
+        "filename": "test/hadamard_test.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 398,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-06-21T15:48:19Z",
+      "side": 1,
+      "message": "Please check if the most negative output of `Rand13Signed()` is a valid input to the Hadamard functions:\n\n```\n  int16_t Rand13Signed() {\n    // Use 13 bits: values between 4095 and -4096.\n    const uint32_t value \u003d random_.Generate(8192);\n    return static_cast\u003cint16_t\u003e(value) - 4096;\n  }\n```",
+      "revId": "38d838c15bdb64621de89b6dc505607a177eaf86",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7596cb2a_61867b85",
+        "filename": "test/hadamard_test.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 433,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-06-21T15:48:19Z",
+      "side": 1,
+      "message": "Please check if the -256 output from `Rand9Signed()` should be changed to -255.",
+      "revId": "38d838c15bdb64621de89b6dc505607a177eaf86",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "350f0dd3_d285aa60",
+        "filename": "test/hadamard_test.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 478,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-06-21T15:48:19Z",
+      "side": 1,
+      "message": "Please check if the -256 output from `Rand9Signed()` should be changed to -255.",
+      "revId": "38d838c15bdb64621de89b6dc505607a177eaf86",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
