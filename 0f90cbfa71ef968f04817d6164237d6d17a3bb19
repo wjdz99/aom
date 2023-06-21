@@ -16,6 +16,24 @@
       "message": "We don\u0027t need this CL now because Anupam has written a fix: https://aomedia-review.googlesource.com/c/aom/+/177041",
       "revId": "0f90cbfa71ef968f04817d6164237d6d17a3bb19",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3b14dea6_0edca4f1",
+        "filename": "test/hadamard_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 353,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-06-21T16:47:47Z",
+      "side": 1,
+      "message": "\u003e We don\u0027t need this CL now because Anupam has written a fix: https://aomedia-review.googlesource.com/c/aom/+/177041\n\nGood thing I forgot to submit it last night...",
+      "parentUuid": "bcef21c2_abd3eeb2",
+      "revId": "0f90cbfa71ef968f04817d6164237d6d17a3bb19",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
