@@ -16,6 +16,24 @@
       "message": "This CL resolves the mismatch between C and NEON implementation of aom_hadamard_32x32 function. The mismatch was due to integer overflow during the addition operation in the NEON functions.",
       "revId": "e752733bd9eaf700caf27765b107c8fa8439336e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d9f1ede1_c3c21615",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-06-21T16:23:13Z",
+      "side": 1,
+      "message": "Anupam: Thank you for the fix. I verified this fixed the test failures on my MacBook Pro M1. Since I am not familiar with the code, I will let Yunqing review this.",
+      "parentUuid": "5caebb9c_90029cc9",
+      "revId": "e752733bd9eaf700caf27765b107c8fa8439336e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
