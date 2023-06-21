@@ -18,6 +18,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "83e2b7b5_eb92ec79",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2023-06-21T21:43:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cc9fcccf_c14b5585",
+      "revId": "b18d0d49fd6f347554386f7daebc44244fc09c3f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "7217591f_27b8db3d",
@@ -31,6 +49,30 @@
       "writtenOn": "2023-06-16T20:53:11Z",
       "side": 1,
       "message": "you can remove `virtual` when using `override`.",
+      "range": {
+        "startLine": 280,
+        "startChar": 2,
+        "endLine": 280,
+        "endChar": 9
+      },
+      "revId": "b18d0d49fd6f347554386f7daebc44244fc09c3f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e3ca4d1c_63324127",
+        "filename": "test/film_grain_table_test.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 280,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2023-06-21T21:43:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7217591f_27b8db3d",
       "range": {
         "startLine": 280,
         "startChar": 2,
