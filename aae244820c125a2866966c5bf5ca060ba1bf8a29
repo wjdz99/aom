@@ -34,6 +34,24 @@
       "parentUuid": "5384f8cc_f013abad",
       "revId": "aae244820c125a2866966c5bf5ca060ba1bf8a29",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "056413bb_9c5a5e95",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2023-06-21T05:16:39Z",
+      "side": 1,
+      "message": "With the sf enabled for speeds 1 to 4, the following are the borg test results.\n```\n     Instruction Count        BD-Rate Loss(%)\ncpu    Reduction(%)    avg.psnr   ovr.psnr    ssim\n 1       0.253        -0.1528    -0.0789     -0.1435\n 2       0.222        -0.1755    -0.1021     -0.1923\n 3       0.299        -0.2065    -0.1367     -0.2118\n 4       0.903        -0.1969    -0.1215     -0.1751\n```\nThe below shows the contents which are affecting worse/best in the context of BD-rate(%).\n```\n                                   Instruction Count      BD-Rate Loss(%)\ncpu  Impact  content                  Reduction(%)    avg.psnr  ovr.psnr   ssim\n 1   worst  netflix_aerial             -2.998         3.0562     3.7786    5.3056   \n 1   worst  ToddlerFountain            -0.216         0.9817     1.1917    0.6346   \n 1   best   station2_240p               1.548        -1.7644    -1.7471   -2.7476    \n 1   best   into_tree_240p              1.000        -1.4798    -1.3289   -1.1643 \n    \n 2   worst  galleon_cif                -2.800         0.7550     0.9080    0.6185   \n 2   worst  into_tree_480p              0.405         0.6434     0.7086    0.6489    \n 2   best   into_tree_240p              1.039        -1.7362    -1.6354   -1.2793    \n 2   best   station2_240p               2.132        -1.6195    -1.6012   -2.7722 \n    \n 3   worst  Netflix_PierSeaside_1080p  -0.569         1.3662     1.2397    0.4030   \n 3   worst  galleon_cif                -0.558         0.8877     1.1144    1.0210   \n 3   best   station2_240p               2.355        -2.7491    -2.7862   -5.3174    \n 3   best   station2_1080p25            2.325        -1.5701    -1.7967   -1.8597 \n    \n 4   worst  Netflix_PierSeaside_1080p  -0.341         1.9194     1.3268    0.0914   \n 4   worst  galleon_cif                 0.465         1.1962     1.4001    1.1452    \n 4   worst  sunflower_720p25           -0.705         1.0203     1.2149    0.9943   \n 4   best   blue_sky_480p25             1.203        -3.3225    -3.0520   -3.3857    \n 4   best   station2_240p               3.664        -3.1356    -3.1837   -5.7909    \n``` \nSince the worst case BD-rate loss is \u003e 1%, we decided to not extend the sf for lower speeds.\n\nPlease let us know your opinion on the same.",
+      "parentUuid": "5bd4f055_d98de5a1",
+      "revId": "aae244820c125a2866966c5bf5ca060ba1bf8a29",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ],
   "submitRequirementResults": [
