@@ -24,6 +24,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "05e94c9d_ebb88d56",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 32122
+      },
+      "writtenOn": "2023-06-21T16:55:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "25ca3e44_97b0d6cf",
+      "range": {
+        "startLine": 9,
+        "startChar": 0,
+        "endLine": 9,
+        "endChar": 2
+      },
+      "revId": "2ebe9cfd67d9d93866a5a792c53ad9054edbceef",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "76da1852_a63d812c",
@@ -37,6 +61,30 @@
       "writtenOn": "2023-06-21T16:48:24Z",
       "side": 1,
       "message": "We should be calling aom_highbd_dist_wtd_comp_avg_pred_neon here. (If it needs implementing, we should do that first in a separate change.)",
+      "range": {
+        "startLine": 258,
+        "startChar": 2,
+        "endLine": 272,
+        "endChar": 3
+      },
+      "revId": "2ebe9cfd67d9d93866a5a792c53ad9054edbceef",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7d127eb2_dbb96721",
+        "filename": "av1/encoder/arm/neon/reconinter_enc_neon.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 272,
+      "author": {
+        "id": 32122
+      },
+      "writtenOn": "2023-06-21T16:55:07Z",
+      "side": 1,
+      "message": "Similarly, this is a NEON port of this function: \nhttps://aomedia.googlesource.com/aom/+/refs/heads/main/av1/encoder/reconinter_enc.c#663",
+      "parentUuid": "76da1852_a63d812c",
       "range": {
         "startLine": 258,
         "startChar": 2,
