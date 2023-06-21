@@ -16,6 +16,24 @@
       "message": "Hi Anupam,\n\nThank you for the fix.\n\nThe negative extreme is `(-1) * (1 \u003c\u003c kBitDepth)`, correct?\n\nSo `(-1) * ((1 \u003c\u003c kBitDepth) - 1)` is off by one for the negative extreme.",
       "revId": "38d838c15bdb64621de89b6dc505607a177eaf86",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "228742e2_ccdc0e1e",
+        "filename": "test/hadamard_test.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 281,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-06-21T02:23:02Z",
+      "side": 1,
+      "message": "\u003e Hi Anupam,\n\u003e \n\u003e Thank you for the fix.\n\u003e \n\u003e The negative extreme is `(-1) * (1 \u003c\u003c kBitDepth)`, correct?\n\u003e \n\u003e So `(-1) * ((1 \u003c\u003c kBitDepth) - 1)` is off by one for the negative extreme.\n\nWould we see values of this size during normal operation?",
+      "parentUuid": "5068e470_21f8c381",
+      "revId": "38d838c15bdb64621de89b6dc505607a177eaf86",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
