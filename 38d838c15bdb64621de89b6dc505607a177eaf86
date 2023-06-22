@@ -74,6 +74,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "88114e79_f42b9794",
+        "filename": "test/hadamard_test.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 281,
+      "author": {
+        "id": 31022
+      },
+      "writtenOn": "2023-06-22T12:29:54Z",
+      "side": 1,
+      "message": "Hi Wan-Teh,\nThanks for the suggestion. We have taken care of your comments in CL: https://aomedia-review.googlesource.com/c/aom/+/177101\nPlease review the patch.",
+      "parentUuid": "40a5b0b8_d8ff97a6",
+      "revId": "38d838c15bdb64621de89b6dc505607a177eaf86",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "21af07bb_19713a91",
         "filename": "test/hadamard_test.cc",
         "patchSetId": 3
@@ -107,6 +125,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "60f19c51_8f09313e",
+        "filename": "test/hadamard_test.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 347,
+      "author": {
+        "id": 31022
+      },
+      "writtenOn": "2023-06-22T12:29:54Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "3185838f_fa124e42",
+      "revId": "38d838c15bdb64621de89b6dc505607a177eaf86",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "0354236b_87a74233",
@@ -120,6 +156,24 @@
       "writtenOn": "2023-06-21T15:48:19Z",
       "side": 1,
       "message": "Please check if the most negative output of `Rand13Signed()` is a valid input to the Hadamard functions:\n\n```\n  int16_t Rand13Signed() {\n    // Use 13 bits: values between 4095 and -4096.\n    const uint32_t value \u003d random_.Generate(8192);\n    return static_cast\u003cint16_t\u003e(value) - 4096;\n  }\n```",
+      "revId": "38d838c15bdb64621de89b6dc505607a177eaf86",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "912f2e4d_909faf41",
+        "filename": "test/hadamard_test.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 398,
+      "author": {
+        "id": 31022
+      },
+      "writtenOn": "2023-06-22T12:29:54Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "0354236b_87a74233",
       "revId": "38d838c15bdb64621de89b6dc505607a177eaf86",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -141,6 +195,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "748c9d1a_b1a0087e",
+        "filename": "test/hadamard_test.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 433,
+      "author": {
+        "id": 31022
+      },
+      "writtenOn": "2023-06-22T12:29:54Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "7596cb2a_61867b85",
+      "revId": "38d838c15bdb64621de89b6dc505607a177eaf86",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "350f0dd3_d285aa60",
@@ -154,6 +226,24 @@
       "writtenOn": "2023-06-21T15:48:19Z",
       "side": 1,
       "message": "Please check if the -256 output from `Rand9Signed()` should be changed to -255.",
+      "revId": "38d838c15bdb64621de89b6dc505607a177eaf86",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8f551fb2_de723d87",
+        "filename": "test/hadamard_test.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 478,
+      "author": {
+        "id": 31022
+      },
+      "writtenOn": "2023-06-22T12:29:54Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "350f0dd3_d285aa60",
       "revId": "38d838c15bdb64621de89b6dc505607a177eaf86",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
