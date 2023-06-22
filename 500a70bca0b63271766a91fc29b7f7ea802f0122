@@ -237,6 +237,30 @@
       },
       "revId": "500a70bca0b63271766a91fc29b7f7ea802f0122",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "15149f22_2aa3cba8",
+        "filename": "av1/encoder/arm/neon/reconinter_enc_neon.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 242,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-06-22T18:36:53Z",
+      "side": 1,
+      "message": "\u003e Ok, I missed that one. Since this is ready to be merged, I\u0027ll have to rebase the aom_highbd_upsampled_pred_neon commit first.\n\nI needed to rebase that change. I\u0027ll submit it after the tests run again.",
+      "parentUuid": "12c90d40_1138d9d6",
+      "range": {
+        "startLine": 236,
+        "startChar": 2,
+        "endLine": 242,
+        "endChar": 3
+      },
+      "revId": "500a70bca0b63271766a91fc29b7f7ea802f0122",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
