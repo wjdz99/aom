@@ -564,7 +564,7 @@ void av1_rd_pick_palette_intra_sby(
   }
 
   uint8_t *const color_map = xd->plane[0].color_index_map;
-  if (colors_threshold > 1 && colors_threshold <= 64) {
+  if (colors_threshold > 1 && colors_threshold <= 128) {
     int16_t *const data = x->palette_buffer->kmeans_data_buf;
     int16_t centroids[PALETTE_MAX_SIZE];
     int lower_bound, upper_bound;
