@@ -3000,7 +3000,7 @@ static AOM_FORCE_INLINE void handle_screen_content_mode_nonrd(
                                &search_state->this_rdc,
                                search_state->best_rdc.rdcost);
   // Update best mode data in search_state
-  if (search_state->this_rdc.rdcost < search_state->best_rdc.rdcost) {
+  if (search_state->this_rdc.rdcost < (3 * search_state->best_rdc.rdcost >> 2)) {
     best_pickmode->pmi = mi->palette_mode_info;
     best_pickmode->best_mode = DC_PRED;
     mi->mv[0].as_int = INVALID_MV;
@@ -3288,8 +3288,10 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
   if (cpi->oxcf.tune_cfg.content == AOM_CONTENT_SCREEN &&
       x->content_state_sb.source_sad_nonrd != kZeroSad &&
       bsize <= BLOCK_16X16) {
-    unsigned int thresh_sse = cpi->rc.high_source_sad ? 15000 : 250000;
-    unsigned int thresh_source_var = cpi->rc.high_source_sad ? 50 : 1000;
+    int high_sad = cpi->rc.high_source_sad ||
+                   cpi->rc.frame_source_sad > 12000;
+    unsigned int thresh_sse = high_sad ? 15000 : 250000;
+    unsigned int thresh_source_var = high_sad ? 50 : 1000;
     unsigned int best_sse_inter_motion =
         (unsigned int)(search_state.best_rdc.sse >>
                        (b_width_log2_lookup[bsize] +
@@ -3320,7 +3322,8 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
       try_palette &&
       (is_mode_intra(best_pickmode->best_mode) || force_palette_test) &&
       x->source_variance > 0 && !x->force_zeromv_skip_for_blk &&
-      (cpi->rc.high_source_sad || x->source_variance > 500);
+      (cpi->rc.high_source_sad || x->source_variance > 500 ||
+       cpi->rc.frame_source_sad > 12000);
 
   if (rt_sf->prune_palette_nonrd && bsize > BLOCK_16X16) try_palette = 0;
 
