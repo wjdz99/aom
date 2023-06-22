@@ -16,6 +16,57 @@
       "message": "This CL addresses the issue with the Rand() method used to generate input for Hadamard functions in the unit test. The input to the Hadamard transform is the residual block, which consists of pixels ranging from -(1 \u003c\u003c kBitDepth) - 1 to (1 \u003c\u003c kBitDepth) - 1. This range is determined by the fact that the source pixel and prediction pixel values fall within the range of [0, (1 \u003c\u003c kBitDepth) - 1], while the residual pixel, computed as src - pred, falls within the range of [-((1 \u003c\u003c kBitDepth) - 1), (1 \u003c\u003c kBitDepth) - 1].",
       "revId": "41c8ff2fdac56c0f04fa8bc116e3f642dd2be0e3",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a78b165d_8dce9b2a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-06-22T17:14:42Z",
+      "side": 1,
+      "message": "Anupam: Thank you for the CL. This looks good. I suggest two changes.",
+      "revId": "41c8ff2fdac56c0f04fa8bc116e3f642dd2be0e3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b72d7df7_4d5ac7a2",
+        "filename": "test/hadamard_test.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 245,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-06-22T17:14:42Z",
+      "side": 1,
+      "message": "Nit: I suggest adding a concise summary of your explanation of the range of the input to the Hadamard transform. The summary will justify the non-obvious implementations of Rand() below.\n\nThis is your explanation in https://aomedia-review.googlesource.com/c/aom/+/176963:\n\nAs per our understanding, the input to Hadamard transform is the residual block, whose pixels can range from `-((1 \u003c\u003c kBitDepth) - 1)` to `(1 \u003c\u003c kBitDepth) - 1`. This is because source pixel and prediction pixel take values in the range `[0, (1 \u003c\u003c kBitDepth) - 1]`, and the residual pixel which is `src - pred` takes values in the range `[-((1 \u003c\u003c kBitDepth) - 1), (1 \u003c\u003c kBitDepth) - 1]`.",
+      "revId": "41c8ff2fdac56c0f04fa8bc116e3f642dd2be0e3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "29dcb08e_ce261d0f",
+        "filename": "test/hadamard_test.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 348,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-06-22T17:14:42Z",
+      "side": 1,
+      "message": "Nit: Could you delete the Rand9Signed() and Rand13Signed( functions in test/acm_random.h? They are only used by the tests in this file. Thanks.",
+      "revId": "41c8ff2fdac56c0f04fa8bc116e3f642dd2be0e3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
