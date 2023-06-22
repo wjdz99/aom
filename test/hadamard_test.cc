@@ -344,7 +344,12 @@ class HadamardTestBase
 class HadamardLowbdTest : public HadamardTestBase<tran_low_t, HadamardFunc> {
  public:
   HadamardLowbdTest() : HadamardTestBase(GetParam(), /*do_shift=*/true) {}
-  virtual int16_t Rand() { return rnd_.Rand9Signed(); }
+  // Use values between -255 (0xFF01) and 255 (0x00FF)
+  virtual int16_t Rand() {
+    int16_t src = rnd_.Rand8();
+    int16_t pred = rnd_.Rand8();
+    return src - pred;
+  }
 };
 
 TEST_P(HadamardLowbdTest, CompareReferenceRandom) { CompareReferenceRandom(); }
@@ -395,7 +400,12 @@ INSTANTIATE_TEST_SUITE_P(
 class HadamardHighbdTest : public HadamardTestBase<tran_low_t, HadamardFunc> {
  protected:
   HadamardHighbdTest() : HadamardTestBase(GetParam(), /*do_shift=*/true) {}
-  virtual int16_t Rand() { return rnd_.Rand13Signed(); }
+  // Use values between -4095 (0xF001) and 4095 (0x0FFF)
+  virtual int16_t Rand() {
+    int16_t src = rnd_.Rand12();
+    int16_t pred = rnd_.Rand12();
+    return src - pred;
+  }
 };
 
 TEST_P(HadamardHighbdTest, CompareReferenceRandom) { CompareReferenceRandom(); }
@@ -430,7 +440,12 @@ INSTANTIATE_TEST_SUITE_P(
 class HadamardLowbdLPTest : public HadamardTestBase<int16_t, HadamardLPFunc> {
  public:
   HadamardLowbdLPTest() : HadamardTestBase(GetParam(), /*do_shift=*/false) {}
-  virtual int16_t Rand() { return rnd_.Rand9Signed(); }
+  // Use values between -255 (0xFF01) and 255 (0x00FF)
+  virtual int16_t Rand() {
+    int16_t src = rnd_.Rand8();
+    int16_t pred = rnd_.Rand8();
+    return src - pred;
+  }
 };
 
 TEST_P(HadamardLowbdLPTest, CompareReferenceRandom) {
@@ -475,7 +490,12 @@ class HadamardLowbdLP8x8DualTest
  public:
   HadamardLowbdLP8x8DualTest()
       : HadamardTestBase(GetParam(), /*do_shift=*/false) {}
-  virtual int16_t Rand() { return rnd_.Rand9Signed(); }
+  // Use values between -255 (0xFF01) and 255 (0x00FF)
+  virtual int16_t Rand() {
+    int16_t src = rnd_.Rand8();
+    int16_t pred = rnd_.Rand8();
+    return src - pred;
+  }
 };
 
 TEST_P(HadamardLowbdLP8x8DualTest, CompareReferenceRandom) {
