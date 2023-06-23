@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "01b5ed3e_09f2e365",
+        "filename": "av1/encoder/arm/neon/reconinter_enc_neon.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 213,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-06-23T23:47:48Z",
+      "side": 1,
+      "message": "With gcc-12 targeting armv7-a:\n\n```\nIn function ‘vld1_lane_u32’,\n    inlined from ‘aom_highbd_upsampled_pred_neon’ at av1/encoder/arm/neon/reconinter_enc_neon.c:213:9:\n/usr/lib/gcc-cross/arm-linux-gnueabihf/12/include/arm_neon.h:10548:22: warning: ‘r’ may be used uninitialized [-Wmaybe-uninitialized]\n10548 |   return (uint32x2_t)__builtin_neon_vld1_lanev2si ((const __builtin_neon_si *) __a, (int32x2_t) __b, __c);\n      |                      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\nav1/encoder/arm/neon/reconinter_enc_neon.c: In function ‘aom_highbd_upsampled_pred_neon’:\nav1/encoder/arm/neon/reconinter_enc_neon.c:212:20: note: ‘r’ was declared here\n  212 |         uint16x4_t r;\n      |\n```\n\nWe can use `vld1_dup` in the first load or zero the register. Sadly the last I checked compilers weren\u0027t removing that, so another option is [`UNINITIALIZED_IS_SAFE`](https://aomedia.googlesource.com/aom/+/57dd20ae5c6df7c4244ade1bd7af1991935e77d2/aom_ports/mem.h#27).",
+      "revId": "7e4b8f3b659e30c79919203d139a7004329e4c9c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bd5b1fad_9d94f42c",
+        "filename": "av1/encoder/arm/neon/reconinter_enc_neon.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 240,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-06-23T23:47:48Z",
+      "side": 1,
+      "message": "this doesn\u0027t look to line up with the size of `temp` if you\u0027re guarding that.",
+      "revId": "7e4b8f3b659e30c79919203d139a7004329e4c9c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
