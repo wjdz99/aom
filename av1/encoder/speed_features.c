@@ -2588,6 +2588,20 @@ void av1_set_speed_features_qindex_dependent(AV1_COMP *cpi, int speed) {
     }
   }
 
+  if (speed >= 5) {
+    // Set sf value based on frame-level properties
+    if (!is_480p_or_larger)
+      sf->part_sf.ext_partition_eval_thresh = BLOCK_128X128;
+    else if (!frame_is_intra_only(&cpi->common) &&
+             !cm->features.allow_screen_content_tools)
+      sf->part_sf.ext_partition_eval_thresh = BLOCK_128X128;
+  }
+
+  if (speed >= 6) {
+    // Disable extended partitions
+    sf->part_sf.ext_partition_eval_thresh = BLOCK_128X128;
+  }
+
   set_subpel_search_method(&cpi->mv_search_params,
                            cpi->oxcf.unit_test_cfg.motion_vector_unit_test,
                            sf->mv_sf.subpel_search_method);
