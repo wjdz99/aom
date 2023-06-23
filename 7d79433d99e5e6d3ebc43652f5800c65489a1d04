@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "652ea7b1_2d1eea11",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-06-23T21:16:29Z",
+      "side": 1,
+      "message": "Thanks for the fix. I have a small suggestion.",
+      "revId": "7d79433d99e5e6d3ebc43652f5800c65489a1d04",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c008410e_0bfbc858",
+        "filename": "test/film_grain_table_test.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 319,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-06-23T21:16:29Z",
+      "side": 1,
+      "message": "GoogleTest has a `GTEST_SKIP()` macro that we can call in this situation.",
+      "revId": "7d79433d99e5e6d3ebc43652f5800c65489a1d04",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
