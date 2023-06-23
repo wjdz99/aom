@@ -53,6 +53,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "1036019c_669e859a",
+        "filename": "av1/av1_dx_iface.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 464,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-06-23T22:59:01Z",
+      "side": 1,
+      "message": "\u003e \u003e To avoid adding these `winterface-\u003eend(worker)` calls, I think we can move the `winterface-\u003einit(worker)` call at line 460 to the end of the function.\n\u003e \u003e \n\u003e \u003e James, if you think this is a good idea, I can look into this.\n\u003e \n\u003e The default [`init()`](https://aomedia.googlesource.com/aom/+/57dd20ae5c6df7c4244ade1bd7af1991935e77d2/aom_util/aom_thread.c#118) memsets the worker. `end()` shouldn\u0027t be needed unless `launch()` or `reset()` are called.\n\nIt is safe to call though, so it\u0027s fine to leave. That or we should make the semantics clearer in aom_thread.h.",
+      "parentUuid": "c5569545_cbda70d7",
+      "revId": "e0f85533c3308d0fd1274a673a9e96b630ebea5d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "01842574_dd75bcc6",
