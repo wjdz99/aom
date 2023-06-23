@@ -16,6 +16,24 @@
       "message": "`kOnePassGood` is not available in realtime-only builds. Ideally we should test both `kRealTime` and `kOnePassGood` by default, and exclude `kOnePassGood` for `#if CONFIG_REALTIME_ONLY`. Need to include \"config/aom_config.h\" for the definition of the `CONFIG_REALTIME_ONLY` macro.\n\nIf the bug this CL fixed cannot be reproduced in realtime mode, then we can simply exclude this test for `#if CONFIG_REALTIME_ONLY`.",
       "revId": "0fde15635d26ea2526af6c5345b31d7b680457a3",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "026d72e1_f42544e0",
+        "filename": "test/film_grain_table_test.cc",
+        "patchSetId": 9
+      },
+      "lineNbr": 283,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-06-23T16:48:29Z",
+      "side": 1,
+      "message": "\u003e `kOnePassGood` is not available in realtime-only builds. Ideally we should test both `kRealTime` and `kOnePassGood` by default, and exclude `kOnePassGood` for `#if CONFIG_REALTIME_ONLY`. Need to include \"config/aom_config.h\" for the definition of the `CONFIG_REALTIME_ONLY` macro.\n\u003e \n\u003e If the bug this CL fixed cannot be reproduced in realtime mode, then we can simply exclude this test for `#if CONFIG_REALTIME_ONLY`.\n\nGood catch, I missed that.",
+      "parentUuid": "e4e6dbf3_fd0b0e05",
+      "revId": "0fde15635d26ea2526af6c5345b31d7b680457a3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
