@@ -4336,6 +4336,7 @@ static void split_partition_search(
     av1_restore_context(x, x_ctx, mi_row, mi_col, bsize, av1_num_planes(cm));
 }
 
+#if CONFIG_PARTITION_SEARCH_ORDER
 // The max number of nodes in the partition tree.
 // The number of leaf nodes is (128x128) / (4x4) = 1024.
 // The number of All possible parent nodes is 1 + 2 + ... + 512 = 1023.
@@ -5148,6 +5149,7 @@ bool av1_rd_partition_search(AV1_COMP *const cpi, ThreadData *td,
 
   return true;
 }
+#endif  // CONFIG_PARTITION_SEARCH_ORDER
 
 static AOM_INLINE bool should_do_dry_run_encode_for_current_block(
     BLOCK_SIZE sb_size, BLOCK_SIZE max_partition_size, int curr_block_index,
