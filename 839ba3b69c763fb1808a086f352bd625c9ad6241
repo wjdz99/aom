@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8263ba94_29142eda",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 29295
+      },
+      "writtenOn": "2023-06-26T12:36:37Z",
+      "side": 1,
+      "message": "The sf \u0027ext_partition_eval_thresh\u0027 is tuned for cpu 5 and 6.\n\nThe resolution-wise split is indicated below:\n```\n              Instruction Count        BD-Rate Loss(%)\ncpu   Testset   Reduction(%)    avg.psnr   ovr.psnr    ssim \n 5    LOWRES2      2.042         0.0789     0.0832    0.1378\n 5    MIDRES2      2.291         0.2266     0.2283    0.2816\n 5     HDRES2      3.566         0.3917     0.4255    0.4373\n \n 6    LOWRES2      0.030        -0.0018    -0.0009    0.0028\n 6    MIDRES2      0.110         0.0002    -0.0020   -0.0061\n 6     HDRES2      2.488         0.2715     0.2622    0.3147\n```\n\nThe instruction count reduction specified has been measured using command:\n```\n$ perf stat -e instructions:u ./aomenc …\n```",
+      "revId": "839ba3b69c763fb1808a086f352bd625c9ad6241",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
