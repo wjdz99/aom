@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "492426d5_acb28385",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-06-27T18:01:28Z",
+      "side": 1,
+      "message": "For some reason this commit, but not the parent, reports a merge conflict. Can you rebase these two on the current main branch to fix things please?",
+      "revId": "cd736c4cf95b00fdf2b8eae79be37a7adad07a4e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
