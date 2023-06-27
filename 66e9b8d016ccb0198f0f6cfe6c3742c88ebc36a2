@@ -20,6 +20,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "c466837b_c7828f42",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 31392
+      },
+      "writtenOn": "2023-06-27T14:19:28Z",
+      "side": 1,
+      "message": "Performance wise there is no difference between using vaddq and vrhaddq, the problem will be that store_tran_low_to_s16q will be much slower given that it does widening, sshll can executed on half of the Neon pipes.\n\nhttps://godbolt.org/z/bb34nM6jj",
+      "parentUuid": "097db12e_c4bce52d",
+      "revId": "66e9b8d016ccb0198f0f6cfe6c3742c88ebc36a2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "b1296472_fc116549",
         "filename": "aom_dsp/arm/highbd_hadamard_neon.c",
         "patchSetId": 1
