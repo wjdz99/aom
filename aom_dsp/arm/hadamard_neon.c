@@ -196,58 +196,50 @@ void aom_hadamard_16x16_neon(const int16_t *src_diff, ptrdiff_t src_stride,
   /* Bottom right. */
   aom_hadamard_8x8_neon(src_diff + 8 + 8 * src_stride, src_stride, coeff + 192);
 
-  for (int i = 0; i < 64; i += 16) {
-    const int16x8_t a00 = load_tran_low_to_s16q(coeff + 0);
-    const int16x8_t a01 = load_tran_low_to_s16q(coeff + 64);
-    const int16x8_t a02 = load_tran_low_to_s16q(coeff + 128);
-    const int16x8_t a03 = load_tran_low_to_s16q(coeff + 192);
+  for (int i = 0; i < 64; i += 8) {
+    const int32x4_t a00 = vld1q_s32(coeff + 0);
+    const int32x4_t a01 = vld1q_s32(coeff + 64);
+    const int32x4_t a02 = vld1q_s32(coeff + 128);
+    const int32x4_t a03 = vld1q_s32(coeff + 192);
 
-    const int16x8_t b00 = vhaddq_s16(a00, a01);
-    const int16x8_t b01 = vhsubq_s16(a00, a01);
-    const int16x8_t b02 = vhaddq_s16(a02, a03);
-    const int16x8_t b03 = vhsubq_s16(a02, a03);
+    const int32x4_t b00 = vhaddq_s32(a00, a01);
+    const int32x4_t b01 = vhsubq_s32(a00, a01);
+    const int32x4_t b02 = vhaddq_s32(a02, a03);
+    const int32x4_t b03 = vhsubq_s32(a02, a03);
 
-    const int16x8_t c00 = vaddq_s16(b00, b02);
-    const int16x8_t c01 = vaddq_s16(b01, b03);
-    const int16x8_t c02 = vsubq_s16(b00, b02);
-    const int16x8_t c03 = vsubq_s16(b01, b03);
+    const int32x4_t c00 = vaddq_s32(b00, b02);
+    const int32x4_t c01 = vaddq_s32(b01, b03);
+    const int32x4_t c02 = vsubq_s32(b00, b02);
+    const int32x4_t c03 = vsubq_s32(b01, b03);
 
-    const int16x8_t a10 = load_tran_low_to_s16q(coeff + 8 + 0);
-    const int16x8_t a11 = load_tran_low_to_s16q(coeff + 8 + 64);
-    const int16x8_t a12 = load_tran_low_to_s16q(coeff + 8 + 128);
-    const int16x8_t a13 = load_tran_low_to_s16q(coeff + 8 + 192);
+    const int32x4_t a10 = vld1q_s32(coeff + 4 + 0);
+    const int32x4_t a11 = vld1q_s32(coeff + 4 + 64);
+    const int32x4_t a12 = vld1q_s32(coeff + 4 + 128);
+    const int32x4_t a13 = vld1q_s32(coeff + 4 + 192);
 
-    const int16x8_t b10 = vhaddq_s16(a10, a11);
-    const int16x8_t b11 = vhsubq_s16(a10, a11);
-    const int16x8_t b12 = vhaddq_s16(a12, a13);
-    const int16x8_t b13 = vhsubq_s16(a12, a13);
+    const int32x4_t b10 = vhaddq_s32(a10, a11);
+    const int32x4_t b11 = vhsubq_s32(a10, a11);
+    const int32x4_t b12 = vhaddq_s32(a12, a13);
+    const int32x4_t b13 = vhsubq_s32(a12, a13);
 
-    const int16x8_t c10 = vaddq_s16(b10, b12);
-    const int16x8_t c11 = vaddq_s16(b11, b13);
-    const int16x8_t c12 = vsubq_s16(b10, b12);
-    const int16x8_t c13 = vsubq_s16(b11, b13);
+    const int32x4_t c10 = vaddq_s32(b10, b12);
+    const int32x4_t c11 = vaddq_s32(b11, b13);
+    const int32x4_t c12 = vsubq_s32(b10, b12);
+    const int32x4_t c13 = vsubq_s32(b11, b13);
 
-    store_s16_to_tran_low(coeff + 0 + 0, vget_low_s16(c00));
-    store_s16_to_tran_low(coeff + 0 + 4, vget_low_s16(c10));
-    store_s16_to_tran_low(coeff + 0 + 8, vget_high_s16(c00));
-    store_s16_to_tran_low(coeff + 0 + 12, vget_high_s16(c10));
+    vst1q_s32(coeff + 0 + 0, c00);
+    vst1q_s32(coeff + 0 + 4, c10);
 
-    store_s16_to_tran_low(coeff + 64 + 0, vget_low_s16(c01));
-    store_s16_to_tran_low(coeff + 64 + 4, vget_low_s16(c11));
-    store_s16_to_tran_low(coeff + 64 + 8, vget_high_s16(c01));
-    store_s16_to_tran_low(coeff + 64 + 12, vget_high_s16(c11));
+    vst1q_s32(coeff + 64 + 0, c01);
+    vst1q_s32(coeff + 64 + 4, c11);
 
-    store_s16_to_tran_low(coeff + 128 + 0, vget_low_s16(c02));
-    store_s16_to_tran_low(coeff + 128 + 4, vget_low_s16(c12));
-    store_s16_to_tran_low(coeff + 128 + 8, vget_high_s16(c02));
-    store_s16_to_tran_low(coeff + 128 + 12, vget_high_s16(c12));
+    vst1q_s32(coeff + 128 + 0, c02);
+    vst1q_s32(coeff + 128 + 4, c12);
 
-    store_s16_to_tran_low(coeff + 192 + 0, vget_low_s16(c03));
-    store_s16_to_tran_low(coeff + 192 + 4, vget_low_s16(c13));
-    store_s16_to_tran_low(coeff + 192 + 8, vget_high_s16(c03));
-    store_s16_to_tran_low(coeff + 192 + 12, vget_high_s16(c13));
+    vst1q_s32(coeff + 192 + 0, c03);
+    vst1q_s32(coeff + 192 + 4, c13);
 
-    coeff += 16;
+    coeff += 8;
   }
 }
 
