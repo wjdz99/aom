@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a2a6f292_98e97621",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 3739,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-06-27T20:28:56Z",
+      "side": 0,
+      "message": "I just wanted to confirm you meant to delete this assertion. Is this what you referred to by \"Remove some unneeded code\" in the commit message?",
+      "revId": "c293558f10447c587e529feeac4f4b1532d201e1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
