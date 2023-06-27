@@ -73,6 +73,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "08ab50df_96e76c4b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-06-27T23:11:26Z",
+      "side": 1,
+      "message": "Thank you both for your comments. I can measure on my MacBook Pro M1 that this version of `aom_hadamard_32x32_neon()` is slower. I will abandon this CL.\n\nBased on your comments, I changed `aom_hadamard_16x16_neon()` to use `int32x4_t` instead of `int16x8_t`. That also speeds it up on my MacBook Pro M1. I will upload a CL for you to review.",
+      "parentUuid": "fa4290d5_b8d0122d",
+      "revId": "66e9b8d016ccb0198f0f6cfe6c3742c88ebc36a2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "b1296472_fc116549",
         "filename": "aom_dsp/arm/highbd_hadamard_neon.c",
         "patchSetId": 1
