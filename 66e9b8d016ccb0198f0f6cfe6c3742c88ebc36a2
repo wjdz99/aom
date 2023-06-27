@@ -38,6 +38,41 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "e3302fd5_28c2465e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 31042
+      },
+      "writtenOn": "2023-06-27T21:31:14Z",
+      "side": 1,
+      "message": "CR-1 as per the inline comment - would result in a performance regression for standard bitdepth.",
+      "revId": "66e9b8d016ccb0198f0f6cfe6c3742c88ebc36a2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fa4290d5_b8d0122d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 31042
+      },
+      "writtenOn": "2023-06-27T21:31:14Z",
+      "side": 1,
+      "message": "Gerda is correct - please don\u0027t merge this as it\u0027ll be slower for 8-bit than the current code.",
+      "parentUuid": "c466837b_c7828f42",
+      "revId": "66e9b8d016ccb0198f0f6cfe6c3742c88ebc36a2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "b1296472_fc116549",
         "filename": "aom_dsp/arm/highbd_hadamard_neon.c",
         "patchSetId": 1
