@@ -179,8 +179,6 @@ TEST_P(MetadataEncodeTest, TestMetadataEncoding) {
   cfg_.kf_mode = AOM_KF_AUTO;
   cfg_.g_lag_in_frames = 1;
   cfg_.kf_min_dist = cfg_.kf_max_dist = 3000;
-  // Enable dropped frames.
-  cfg_.rc_dropframe_thresh = 1;
   // Disable error_resilience mode.
   cfg_.g_error_resilient = 0;
   // Run at low bitrate.
