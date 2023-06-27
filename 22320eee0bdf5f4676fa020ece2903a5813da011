@@ -35,6 +35,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "317ec995_c6c35c87",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 3728,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2023-06-27T21:56:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bd57b4ba_0dd422ba",
+      "revId": "22320eee0bdf5f4676fa020ece2903a5813da011",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "06cc653f_26858140",
@@ -48,6 +66,24 @@
       "writtenOn": "2023-06-27T20:28:56Z",
       "side": 1,
       "message": "Is \"bitrate\" the same as \"bandwidth\"?",
+      "revId": "22320eee0bdf5f4676fa020ece2903a5813da011",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "eabfec53_ee91df2e",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 3730,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2023-06-27T21:56:44Z",
+      "side": 1,
+      "message": "yes, added bandwidth in comment",
+      "parentUuid": "06cc653f_26858140",
       "revId": "22320eee0bdf5f4676fa020ece2903a5813da011",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -69,6 +105,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "9bd25362_6a99d027",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 3734,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2023-06-27T21:56:44Z",
+      "side": 1,
+      "message": "The way SVC works in CBR: we pass the layer context into the cpi before encoding (and then save it back after encoding), so for every frame/layer being encoded,the cpi-\u003eoxcf.rc_cfg.target_bandwidth is the bitrate/bandwidth for that layer.\n\nSee for example, av1_restore_layer_context() and av1_save_layer_context().",
+      "parentUuid": "a4420f23_5b45b054",
+      "revId": "22320eee0bdf5f4676fa020ece2903a5813da011",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "4014b3ae_7fb2a023",
@@ -82,6 +136,24 @@
       "writtenOn": "2023-06-27T20:30:44Z",
       "side": 1,
       "message": "AV1/MetadataEncodeTest.TestMetadataEncoding/0 still failed:\nhttps://build.aomedia.org/jenkins/job/libaom__commit_trigger/73187/",
+      "revId": "22320eee0bdf5f4676fa020ece2903a5813da011",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e08f1b73_33ea09dc",
+        "filename": "test/metadata_test.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 181,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2023-06-27T21:56:44Z",
+      "side": 1,
+      "message": "left the test unmodified, and put back the original condition to enter the drop_frame logic, since its possible some other use case is using it.",
+      "parentUuid": "4014b3ae_7fb2a023",
       "revId": "22320eee0bdf5f4676fa020ece2903a5813da011",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
