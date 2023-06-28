@@ -68,6 +68,24 @@
       "parentUuid": "140693ce_159afb6a",
       "revId": "ffbb242eb781750d59239b71c8d8e9a0e3666070",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9c9cfdd4_9a14f200",
+        "filename": "aom_dsp/arm/hadamard_neon.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 281,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-06-28T21:13:38Z",
+      "side": 1,
+      "message": "This is tricky because the `coeff` buffer holds both the input and the output and we need to swap the second and third quarter of every row in the output.\n\nFor example, suppose A, B, C, D are the four quarters of a row, and the four quarters of the output row are A\u0027, B\u0027, C\u0027, D\u0027. This function reads A, B, C, D from some offset in `coeff` and writes A\u0027, C\u0027, B\u0027, D\u0027 to the same offset in `coeff`. The simplest way to do this correctly is to process entire rows (16 samples each) in each iteration of the loop. I added a comment to explain this.\n\nWe can be clever and first process A, and then process two quarters at a time -- {B, C}, {D, A}, ... {B, C} -- and finish with D last. I didn\u0027t attempt this.",
+      "parentUuid": "71825ee3_b999922d",
+      "revId": "ffbb242eb781750d59239b71c8d8e9a0e3666070",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
