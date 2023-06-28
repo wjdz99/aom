@@ -20,6 +20,29 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "a1a91ed3_fb7528d9",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1139,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2023-06-28T21:35:15Z",
+      "side": 1,
+      "message": "Is it possible to fold enc_row_mt-\u003erow_mt_exit into sync_read_ptr while loop? The problematic thread signal/broadcast row_mt_exit. So, we don\u0027t need to call av1_set_encoding_done_for_row(). Same for lpf.",
+      "range": {
+        "startLine": 1139,
+        "startChar": 6,
+        "endLine": 1139,
+        "endChar": 35
+      },
+      "revId": "db891c06f8ad2b7ab862f8109575811fd56f96d1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "62f49c2b_84254edb",
         "filename": "av1/encoder/encoder.h",
         "patchSetId": 3
