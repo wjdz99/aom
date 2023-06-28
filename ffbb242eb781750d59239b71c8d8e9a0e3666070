@@ -50,6 +50,24 @@
       "message": "For reference, this for loop is equivalent to the following code in `aom_hadamard_16x16_c()` (with loop index variable modified):\n\n```\n  // coeff: 15 bit, dynamic range [-16320, 16320]\n  for (int i \u003d 0; i \u003c 64; ++i) {\n    tran_low_t a0 \u003d coeff[0];\n    tran_low_t a1 \u003d coeff[64];\n    tran_low_t a2 \u003d coeff[128];\n    tran_low_t a3 \u003d coeff[192];\n    \n    tran_low_t b0 \u003d (a0 + a1) \u003e\u003e 1;  // (a0 + a1): 16 bit, [-32640, 32640]\n    tran_low_t b1 \u003d (a0 - a1) \u003e\u003e 1;  // b0-b3: 15 bit, dynamic range\n    tran_low_t b2 \u003d (a2 + a3) \u003e\u003e 1;  // [-16320, 16320]\n    tran_low_t b3 \u003d (a2 - a3) \u003e\u003e 1;\n\n    coeff[0] \u003d b0 + b2;  // 16 bit, [-32640, 32640]\n    coeff[64] \u003d b1 + b3;\n    coeff[128] \u003d b0 - b2;\n    coeff[192] \u003d b1 - b3;\n    \n    ++coeff;\n  } \n  \n  coeff -\u003d 64;\n  // Extra shift to match AVX2 output (i.e., aom_hadamard_16x16_avx2).\n  // Note that to match SSE2 output, it does not need this step.\n  for (int i \u003d 0; i \u003c 16; i++) {\n    for (int j \u003d 0; j \u003c 4; j++) {\n      tran_low_t temp \u003d coeff[i * 16 + 4 + j];\n      coeff[i * 16 + 4 + j] \u003d coeff[i * 16 + 8 + j];\n      coeff[i * 16 + 8 + j] \u003d temp;\n    }\n  }\n```",
       "revId": "ffbb242eb781750d59239b71c8d8e9a0e3666070",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "71825ee3_b999922d",
+        "filename": "aom_dsp/arm/hadamard_neon.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 281,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-06-28T04:42:58Z",
+      "side": 1,
+      "message": "It\u0027s possible that you could reroll this by 2 and the compiler might handle the unrolling depending on the optimization level.",
+      "parentUuid": "140693ce_159afb6a",
+      "revId": "ffbb242eb781750d59239b71c8d8e9a0e3666070",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
