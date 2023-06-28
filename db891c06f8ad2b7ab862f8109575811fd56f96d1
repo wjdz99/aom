@@ -16,6 +16,69 @@
       "message": "In this CL, a longjmp target has been introduced in `enc_row_mt_worker_hook()` to facilitate the error propagation in case of row multithreading. The same longjmp target would be used by loop filter MT workers when `pipeline_lpf_mt_with_enc` is set to 1.\n\nA flag `row_mt_exit` is introduced in the structure `AV1EncRowMultiThreadInfo` which will be set to 1 in case a main/worker thread encounters an error. The other workers will terminate their jobs appropriately by checking the status of this flag.\n\nIn case of row-multithreading, due to the top-right dependency, the worker on an SB row waits for the completion of the encode of the top and top-right SBs. Hence, in case a worker encounters an error, in order to avoid the dependent workers from waiting indefinitely (in `encode_sb_row()`), `av1_set_encoding_done_for_row()` is invoked before returning from the hook function. Similarly, to avoid indefinite wait by dependent workers during loop filter multithreading (in `launch_loop_filter_rows()`), `set_loop_filter_dependency_as_resolved()` is invoked.\n\nThis change is bit-exact and has been verified locally using bitstream-match tests for a combination of various configuration values for --threads, --tile-rows, --tile-columns, --cpu-used, --end-usage, --row-mt, --fp-mt, etc. Also, performed all unit-tests with sanitizers (address and thread) and valgrind.",
       "revId": "db891c06f8ad2b7ab862f8109575811fd56f96d1",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "62f49c2b_84254edb",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 1533,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-06-28T18:50:04Z",
+      "side": 1,
+      "message": "bool can be used directly. There are other uses in this file via stdbool.h already.",
+      "revId": "db891c06f8ad2b7ab862f8109575811fd56f96d1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "448c93c1_88272b6d",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 491,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-06-28T18:50:04Z",
+      "side": 1,
+      "message": "`av1_set_encoding_row_done()` or `av1_set_encoding_row_complete()` could work.",
+      "range": {
+        "startLine": 491,
+        "startChar": 5,
+        "endLine": 491,
+        "endChar": 34
+      },
+      "revId": "db891c06f8ad2b7ab862f8109575811fd56f96d1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2de9ef97_f60a40eb",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 512,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-06-28T18:50:04Z",
+      "side": 1,
+      "message": "`resolve_loop_filter_dependency()` could work.",
+      "range": {
+        "startLine": 512,
+        "startChar": 23,
+        "endLine": 512,
+        "endChar": 61
+      },
+      "revId": "db891c06f8ad2b7ab862f8109575811fd56f96d1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
