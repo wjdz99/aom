@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "660e1313_5ff03743",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2023-06-28T17:23:03Z",
+      "side": 1,
+      "message": "In this CL, a longjmp target has been introduced in `enc_row_mt_worker_hook()` to facilitate the error propagation in case of row multithreading. The same longjmp target would be used by loop filter MT workers when `pipeline_lpf_mt_with_enc` is set to 1.\n\nA flag `row_mt_exit` is introduced in the structure `AV1EncRowMultiThreadInfo` which will be set to 1 in case a main/worker thread encounters an error. The other workers will terminate their jobs appropriately by checking the status of this flag.\n\nIn case of row-multithreading, due to the top-right dependency, the worker on an SB row waits for the completion of the encode of the top and top-right SBs. Hence, in case a worker encounters an error, in order to avoid the dependent workers from waiting indefinitely (in `encode_sb_row()`), `av1_set_encoding_done_for_row()` is invoked before returning from the hook function. Similarly, to avoid indefinite wait by dependent workers during loop filter multithreading (in `launch_loop_filter_rows()`), `set_loop_filter_dependency_as_resolved()` is invoked.\n\nThis change is bit-exact and has been verified locally using bitstream-match tests for a combination of various configuration values for --threads, --tile-rows, --tile-columns, --cpu-used, --end-usage, --row-mt, --fp-mt, etc. Also, performed all unit-tests with sanitizers (address and thread) and valgrind.",
+      "revId": "db891c06f8ad2b7ab862f8109575811fd56f96d1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
