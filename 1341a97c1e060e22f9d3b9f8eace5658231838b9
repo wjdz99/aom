@@ -22,6 +22,30 @@
       },
       "revId": "1341a97c1e060e22f9d3b9f8eace5658231838b9",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0b53e631_b15410e6",
+        "filename": "aom_dsp/arm/highbd_variance_neon.c",
+        "patchSetId": 14
+      },
+      "lineNbr": 558,
+      "author": {
+        "id": 32122
+      },
+      "writtenOn": "2023-06-28T06:35:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "36bbb1b9_db21fcbf",
+      "range": {
+        "startLine": 556,
+        "startChar": 8,
+        "endLine": 558,
+        "endChar": 70
+      },
+      "revId": "1341a97c1e060e22f9d3b9f8eace5658231838b9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
