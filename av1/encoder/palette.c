@@ -31,6 +31,13 @@
 #include "av1/encoder/k_means_template.h"
 #undef AV1_K_MEANS_DIM
 
+static const uint8_t b_width_log2_lookup[BLOCK_SIZES] = { 0, 0, 1, 1, 1, 2,
+                                                          2, 2, 3, 3, 3, 4,
+                                                          4, 4, 5, 5 };
+static const uint8_t b_height_log2_lookup[BLOCK_SIZES] = { 0, 1, 0, 1, 2, 1,
+                                                           2, 3, 2, 3, 4, 3,
+                                                           4, 5, 4, 5 };
+
 static int int16_comparer(const void *a, const void *b) {
   return (*(int16_t *)a - *(int16_t *)b);
 }
@@ -564,7 +571,21 @@ void av1_rd_pick_palette_intra_sby(
   }
 
   uint8_t *const color_map = xd->plane[0].color_index_map;
-  if (colors_threshold > 1 && colors_threshold <= 64) {
+  int color_thresh_palette = 64;
+  // For nonrd_pickmode: Allow for larger color threshold for
+  // palette search, based on color, scene_change, and block source variance.
+  if (cpi->sf.rt_sf.use_nonrd_pick_mode && cpi->rc.high_source_sad &&
+      x->source_variance > 50) {
+    int64_t norm_color_dist = 0;
+    if (x->color_sensitivity[0] || x->color_sensitivity[1]) {
+      norm_color_dist = x->dist_inter_color >> (b_width_log2_lookup[bsize] +
+                                                b_height_log2_lookup[bsize]);
+      if (x->color_sensitivity[0] && x->color_sensitivity[1])
+        norm_color_dist = norm_color_dist >> 1;
+    }
+    if (norm_color_dist < 8000) color_thresh_palette = 96;
+  }
+  if (colors_threshold > 1 && colors_threshold <= color_thresh_palette) {
     int16_t *const data = x->palette_buffer->kmeans_data_buf;
     int16_t centroids[PALETTE_MAX_SIZE];
     int lower_bound, upper_bound;
