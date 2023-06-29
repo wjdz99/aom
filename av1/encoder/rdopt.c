@@ -6008,8 +6008,10 @@ void av1_rd_pick_inter_mode(struct AV1_COMP *cpi, struct TileDataEnc *tile_data,
       best_inter_yrd = this_yrd;
       update_search_state(&search_state, rd_cost, ctx, &rd_stats, &rd_stats_y,
                           &rd_stats_uv, mode_enum, x, do_tx_search);
-      if (do_tx_search) search_state.best_skip_rd[0] = skip_rd[0];
-      search_state.best_skip_rd[1] = skip_rd[1];
+      if (do_tx_search) {
+        search_state.best_skip_rd[0] = skip_rd[0];
+        search_state.best_skip_rd[1] = skip_rd[1];
+      }
     }
     if (sf->winner_mode_sf.motion_mode_for_winner_cand) {
       // Add this mode to motion mode candidate list for motion mode search
