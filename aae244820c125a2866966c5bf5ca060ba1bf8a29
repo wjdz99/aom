@@ -70,6 +70,24 @@
       "parentUuid": "056413bb_9c5a5e95",
       "revId": "aae244820c125a2866966c5bf5ca060ba1bf8a29",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0ae47ca7_d14ee0f9",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2023-06-29T11:52:24Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nWe do have the same observation as yours on worst/best content results. Specifically, we believe that the sf is helpful (improving the BD-rate) for contents with global motion whereas for contents with static/camera pan motion the sf behavior seems to be neutral/worse. Also, the effect seems to be less in speeds 5 and 6 (verified manually and also while submitting the patches it is ensured that the maximum drop \u003c 1%) as compared to speed 4.\n\nWe also feel that the direct extension(Approach_1) of the sf is not a good candidate for speed 4 due to the max BD-rate drop. Hence, tried to introduce a less aggressive method (i.e. Approach_2) to contain and limit the maximum BD-rate drop to \u003c ~0.8%.\n\nThe following are the borg results for speed 4:\n\nApproach_1: (Existing logic for speeds 5 and 6)\n```\n    Instruction Count        BD-Rate Loss(%)\ncpu    Reduction(%)    avg.psnr   ovr.psnr    ssim\n 4       0.903        -0.1969    -0.1215     -0.1751\n \n                                  Instruction Count      BD-Rate Loss(%)\ncpu  Impact  content                  Reduction(%)    avg.psnr  ovr.psnr   ssim\n 4   worst  Netflix_PierSeaside_1080p  -0.341         1.9194     1.3268    0.0914   \n 4   worst  galleon_cif                 0.465         1.1962     1.4001    1.1452    \n 4   worst  sunflower_720p25           -0.705         1.0203     1.2149    0.9943   \n 4   best   blue_sky_480p25             1.203        -3.3225    -3.0520   -3.3857    \n 4   best   station2_240p               3.664        -3.1356    -3.1837   -5.7909 \n```\nApproach_2: ( Make it less aggressive than Approach_1 by considering more frames for temrpoal filter processing)\n```\n    Instruction Count        BD-Rate Loss(%)\ncpu    Reduction(%)    avg.psnr   ovr.psnr    ssim\n 4       0.556        -0.1830    -0.1358     -0.1927\n \n                                    Instruction Count      BD-Rate Loss(%)\ncpu  Impact  content                  Reduction(%)    avg.psnr  ovr.psnr   ssim \n 4   worst  galleon_cif                 0.107         0.7902     0.9189    0.7813    \n 4   worst  into_tree_480p              1.337         0.7537     0.7897    1.2315   \n 4   worst  Netflix_PierSeaside_1080p   0.381         0.6055     0.5696    0.2770\n 4   best   blue_sky_480p25            -0.028        -3.2700    -3.0827   -4.1789    \n 4   best   station2_240p               2.288        -1.9901    -1.9949   -3.5901 \n```\nWe shall plan to submit a patch with Approach_2 for speed 4 and evaluate the same for speeds \u003c\u003d 3. Please let us know your thoughts on the same.",
+      "parentUuid": "3d8eb00e_f587efa9",
+      "revId": "aae244820c125a2866966c5bf5ca060ba1bf8a29",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ],
   "submitRequirementResults": [
