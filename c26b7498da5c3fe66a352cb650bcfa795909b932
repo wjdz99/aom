@@ -16,6 +16,24 @@
       "message": "The speed feature \u0027adjust_num_frames_for_arf_filtering\u0027 is used to adjust the number of frames required for temporal filtering of ARF frames. This sf is enabled for speeds 5 and 6. This CL introduces a less aggressive approach for lower speeds to contain maximum BD-rate drop.\n\nBit match is verified for speeds 5 and 6. The following are borg results for lower speeds\n```\n                   Instruction Count        BD-Rate Loss(%)       \ncpu   Resolution      Reduction(%)      avg.psnr   ovr.psnr    ssim\n 1      LOWRES2         0.283          -0.2276    -0.1748     -0.2712\n 1      MIDRES2         0.337          -0.1431    -0.1084     -0.1395\n 1      HDRES2          0.046          -0.0255    -0.0242     -0.0269\n 1      Average         0.222          -0.1321    -0.1025     -0.1459\n \n 2      LOWRES2         0.302          -0.2589    -0.1983     -0.2917\n 2      MIDRES2         0.281          -0.1310    -0.0824     -0.1345\n 2      HDRES2         -0.012          -0.0406    -0.0415     -0.0426\n 2      Average         0.190          -0.1435    -0.1074     -0.1563\n \n 3      LOWRES2         0.096          -0.2475    -0.1955     -0.3099\n 3      MIDRES2         0.298          -0.1673    -0.1113     -0.1668\n 3      HDRES2          0.348          -0.1545    -0.1279     -0.1215\n 3      Average         0.247          -0.1898    -0.1449     -0.1994\n \n 4      LOWRES2         0.606          -0.1876    -0.1432     -0.3326\n 4      MIDRES2         0.650          -0.1925    -0.1492     -0.1385\n 4      HDRES2          0.412          -0.1687    -0.1150     -0.1072\n 4      Average         0.556          -0.1830    -0.1358     -0.1927\n```\nThe instruction count reduction specified has been measured using command:\n$ perf stat -e instructions:u ./aomenc …",
       "revId": "c26b7498da5c3fe66a352cb650bcfa795909b932",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6ce4707f_1cb63bc1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2023-06-30T15:49:49Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nPlease review the CL.\n\nThanks \u0026 Regards,\nVenkata.",
+      "parentUuid": "ee1b8f3b_e6ccf070",
+      "revId": "c26b7498da5c3fe66a352cb650bcfa795909b932",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
