@@ -106,6 +106,24 @@
       "parentUuid": "0ae47ca7_d14ee0f9",
       "revId": "aae244820c125a2866966c5bf5ca060ba1bf8a29",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "06e3e662_1260713b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2023-06-30T15:03:42Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nWe have submitted a patch (https://aomedia-review.googlesource.com/c/aom/+/177581) by extending the sf for lower speeds with less aggressive approach. Also as suggested, we shall do the detailed study of the sf behaviour once we reach the closure of speed-up activities.",
+      "parentUuid": "e8b11ba4_ef8cb851",
+      "revId": "aae244820c125a2866966c5bf5ca060ba1bf8a29",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ],
   "submitRequirementResults": [
