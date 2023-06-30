@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "61573e43_da1834e3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-06-30T18:52:35Z",
+      "side": 1,
+      "message": "LGTM.\n\nI requested some comments. Since the tuning in this CL is not backed by new tests, it would be good to explain the reasons for the checks to help others understand.",
+      "revId": "58228de39811ce06cc296b79e4e3a17fee043625",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "338ad1fe_3435792f",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 538,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-06-30T18:52:35Z",
+      "side": 1,
+      "message": "Nit/optional: Some of your explanation in the commit message can be reproduced here as a comment to explain the purposes of the teste here.",
+      "revId": "58228de39811ce06cc296b79e4e3a17fee043625",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f677c5b9_cf2964e3",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 546,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-06-30T18:52:35Z",
+      "side": 1,
+      "message": "I assume rc-\u003eq1/q2_frame can\u0027t be negative. Why do we need to exclude rc-\u003eq1/q2_framec \u003d\u003d 0 here?",
+      "revId": "58228de39811ce06cc296b79e4e3a17fee043625",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4e7fc171_794dbe15",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 778,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-06-30T18:52:35Z",
+      "side": 1,
+      "message": "Optional: The parentheses around `!cpi-\u003eppi-\u003euse_svc` can be omitted.",
+      "revId": "58228de39811ce06cc296b79e4e3a17fee043625",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
