@@ -16,6 +16,24 @@
       "message": "```\nwarp_plane_neon.c:26:10: fatal error: \u0027arm_neon_sve_bridge.h\u0027 file not found\n#include \u003carm_neon_sve_bridge.h\u003e\n```\n\nIt may be that I\u0027m cross compiling on x86-64, but clang 14.0.6 will set the define. clang-11 used by the jenkins instances doesn\u0027t look to have support. What version was this introduced in?",
       "revId": "cdd013d6d20cac063b37eff278cca0e950751318",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9f321b07_4b46236f",
+        "filename": "av1/common/arm/warp_plane_neon.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 31817
+      },
+      "writtenOn": "2023-06-30T11:33:56Z",
+      "side": 1,
+      "message": "Apparently clang versions 14 and 15 lie about availability of the header: https://godbolt.org/z/z9rba4zqx\nThis is probably due to the header existing in the clang build directory but then not being installed, which was fixed by https://reviews.llvm.org/D137239 last year.\n\nIt seems like the most sane solution here is to simply check for the existence of the header alongside the feature. I\u0027ve added a new macro to avoid duplicating the complicated preprocessor condition.\n\nIt seems like MSVC/GCC/Clang are all happy with __has_include but I don\u0027t see an obvious precedent in aom so let me know if you would prefer an alternative approach!",
+      "parentUuid": "03939a61_2f64ee78",
+      "revId": "cdd013d6d20cac063b37eff278cca0e950751318",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
