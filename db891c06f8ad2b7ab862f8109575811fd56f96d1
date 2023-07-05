@@ -43,6 +43,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "127d0ec4_070a0f4f",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1139,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2023-07-05T12:43:42Z",
+      "side": 1,
+      "message": "Thanks for the suggestion. We have modified `launch_loop_filter_rows()` as suggested and removed the function `set_loop_filter_dependency_as_resolved()`.\n\nIn case of row-MT, incorporating `enc_row_mt-\u003erow_mt_exit` check within the while loop of `sync_read_ptr()` would require using a different mutex (`enc_row_mt-\u003emutex_`) and could be an overhead. However, to avoid the call to `av1_set_encoding_done_for_row()` by non-problematic threads in `encode_sb_row()`, `av1_set_encoding_done_for_row()` has been modified to invoke `sync_write_ptr()` for all the SB rows in the frame at once. Also renamed this function to `set_encoding_done()`. Please review the latest patch set and let us know your opinion.",
+      "parentUuid": "a1a91ed3_fb7528d9",
+      "range": {
+        "startLine": 1139,
+        "startChar": 6,
+        "endLine": 1139,
+        "endChar": 35
+      },
+      "revId": "db891c06f8ad2b7ab862f8109575811fd56f96d1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "62f49c2b_84254edb",
         "filename": "av1/encoder/encoder.h",
         "patchSetId": 3
@@ -54,6 +78,24 @@
       "writtenOn": "2023-06-28T18:50:04Z",
       "side": 1,
       "message": "bool can be used directly. There are other uses in this file via stdbool.h already.",
+      "revId": "db891c06f8ad2b7ab862f8109575811fd56f96d1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c2a7b4cb_3fa0a9ef",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 1533,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2023-07-05T12:43:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "62f49c2b_84254edb",
       "revId": "db891c06f8ad2b7ab862f8109575811fd56f96d1",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -83,6 +125,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "1b337efe_d38c8a5b",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 491,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2023-07-05T12:43:42Z",
+      "side": 1,
+      "message": "Changed the name to `set_encoding_done()` as this function will now be invoked only from the setjmp target by the problematic thread.",
+      "parentUuid": "448c93c1_88272b6d",
+      "range": {
+        "startLine": 491,
+        "startChar": 5,
+        "endLine": 491,
+        "endChar": 34
+      },
+      "revId": "db891c06f8ad2b7ab862f8109575811fd56f96d1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "2de9ef97_f60a40eb",
         "filename": "av1/encoder/ethread.c",
         "patchSetId": 3
@@ -94,6 +160,30 @@
       "writtenOn": "2023-06-28T18:50:04Z",
       "side": 1,
       "message": "`resolve_loop_filter_dependency()` could work.",
+      "range": {
+        "startLine": 512,
+        "startChar": 23,
+        "endLine": 512,
+        "endChar": 61
+      },
+      "revId": "db891c06f8ad2b7ab862f8109575811fd56f96d1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "af3e800b_5208d7fa",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 512,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2023-07-05T12:43:42Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "2de9ef97_f60a40eb",
       "range": {
         "startLine": 512,
         "startChar": 23,
