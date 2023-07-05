@@ -43,10 +43,6 @@ void av1_tile_set_col(TileInfo *tile, const struct AV1Common *cm, int col);
 int av1_get_sb_rows_in_tile(struct AV1Common *cm, const TileInfo *tile);
 int av1_get_sb_cols_in_tile(struct AV1Common *cm, const TileInfo *tile);
 
-// Return the pixel extents of the given tile
-PixelRect av1_get_tile_rect(const TileInfo *tile_info,
-                            const struct AV1Common *cm, int is_uv);
-
 // Define tile maximum width and area
 // There is no maximum height since height is limited by area and width limits
 // The minimum tile width or height is fixed at one superblock
