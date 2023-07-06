@@ -1919,6 +1919,16 @@ static AOM_INLINE int skip_mode_by_bsize_and_ref_frame(
   return 0;
 }
 
+
+static void set_block_source_sad(AV1_COMP *cpi, MACROBLOCK *x,
+                                 BLOCK_SIZE bsize,
+                                 struct buf_2d yv12_mb[0]) {
+  struct macroblock_plane *const p = &x->plane[0];
+  const int y_sad = cpi->ppi->fn_ptr[bsize].sdf(
+      p->src.buf, p->src.stride, yv12_mb[0].buf, yv12_mb[0].stride);
+  if (y_sad == 0) x->block_is_zero_sad = 1;
+}
+
 static void set_color_sensitivity(AV1_COMP *cpi, MACROBLOCK *x,
                                   BLOCK_SIZE bsize, int y_sad,
                                   unsigned int source_variance,
@@ -2410,7 +2420,7 @@ static AOM_FORCE_INLINE bool skip_inter_mode_nonrd(
            x->content_state_sb.source_sad_nonrd != kZeroSad &&
            ((x->color_sensitivity[COLOR_SENS_IDX(AOM_PLANE_U)] == 0 &&
              x->color_sensitivity[COLOR_SENS_IDX(AOM_PLANE_V)] == 0) ||
-            cpi->rc.high_source_sad) &&
+            cpi->rc.high_source_sad) && !x->block_is_zero_sad &&
            x->source_variance == 0))
         return true;
     }
@@ -2555,7 +2565,7 @@ static AOM_FORCE_INLINE bool handle_inter_mode_nonrd(
         x->content_state_sb.source_sad_nonrd != kZeroSad &&
         ((x->color_sensitivity[COLOR_SENS_IDX(AOM_PLANE_U)] == 0 &&
           x->color_sensitivity[COLOR_SENS_IDX(AOM_PLANE_V)] == 0) ||
-         cpi->rc.high_source_sad) &&
+         cpi->rc.high_source_sad) && !x->block_is_zero_sad &&
         x->source_variance == 0)
       return true;
   }
@@ -2875,6 +2885,9 @@ static AOM_FORCE_INLINE bool handle_inter_mode_nonrd(
 
   // Copy best mode params to search state
   if (search_state->this_rdc.rdcost < search_state->best_rdc.rdcost) {
+    //printf("best inter mode %d %d %d ** %ld %ld \n", this_best_mode, mi->ref_frame[0], this_early_term,
+    //        search_state->this_rdc.rdcost, search_state->best_rdc.rdcost);
+
     search_state->best_rdc = search_state->this_rdc;
     *best_early_term = this_early_term;
     update_search_state_nonrd(search_state, mi, txfm_info, &nonskip_rdc, ctx,
@@ -3206,7 +3219,20 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
                           /*is_intrabc=*/0);
   inter_pred_params_sr.conv_params =
       get_conv_params(/*do_average=*/0, AOM_PLANE_Y, xd->bd);
-
+ 
+  x->block_is_zero_sad = 0;
+  if (bsize == cm->seq_params->sb_size)
+    x->block_is_zero_sad = x->content_state_sb.source_sad_nonrd == kZeroSad;
+  else if (cpi->oxcf.tune_cfg.content == AOM_CONTENT_SCREEN &&
+           x->source_variance == 0) {
+    set_block_source_sad(cpi, x, bsize, search_state.yv12_mb[LAST_FRAME]);
+  }
+/*
+  printf("%d %d %d %d %d ** %d %d %d %d ** %d \n", cm->current_frame.frame_number, mi_col, mi_row, bsize, cpi->rc.high_source_sad,
+          x->source_variance, x->content_state_sb.source_sad_nonrd, x->color_sensitivity[0], x->color_sensitivity[1],
+          x->block_is_zero_sad);
+*/
+  
   x->min_dist_inter_uv = INT64_MAX;
   for (int idx = 0; idx < num_inter_modes + tot_num_comp_modes; ++idx) {
     // If we are at the first compound mode, and the single modes already

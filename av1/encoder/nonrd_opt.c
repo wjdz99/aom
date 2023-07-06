@@ -912,7 +912,10 @@ void av1_estimate_intra_mode(AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bsize,
     }
 
     if (this_rdc.rdcost < best_rdc->rdcost) {
+      //printf("intra mode %d %d %ld %ld \n", this_mode, this_rdc.skip_txfm, this_rdc.rdcost, best_rdc->rdcost);
       *best_rdc = this_rdc;
+      if (is_screen_content && x->source_variance == 0)
+        this_rdc.skip_txfm = 0;
       best_pickmode->best_mode = this_mode;
       best_pickmode->best_tx_size = mi->tx_size;
       best_pickmode->best_ref_frame = INTRA_FRAME;
