@@ -43,6 +43,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "14434d7a_354a73c3",
+        "filename": "test/av1_nn_predict_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 211,
+      "author": {
+        "id": 31592
+      },
+      "writtenOn": "2023-07-06T14:12:50Z",
+      "side": 1,
+      "message": "As per our understanding the macro `CONFIG_EXCLUDE_SIMD_MISMATCH` is used to disable\n- SIMD functions that have mismatch between C vs SIMD\n- Unit test corresponding to the SIMD functions\n\nHence, suggested change will result in x86 build failure for unit-test (as the corresponding function declarations are not available, if the macro is enabled).\nWe also noticed that the macro check is required in the NEON unit test below. ARM build for unit test is failing, if the macro is enabled. We shall submit a patch to correct the same.\nPlease let us know your thoughts.",
+      "parentUuid": "d3b369ae_a4e5e37b",
+      "range": {
+        "startLine": 211,
+        "startChar": 13,
+        "endLine": 211,
+        "endChar": 46
+      },
+      "revId": "7f2048be469861ec056ea4d0f577481727143267",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "536ff3f5_cabed9e2",
         "filename": "test/av1_nn_predict_test.cc",
         "patchSetId": 4
