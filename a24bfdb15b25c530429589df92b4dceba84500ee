@@ -48,6 +48,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "63e24988_75dc881d",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 492,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2023-07-06T15:35:19Z",
+      "side": 1,
+      "message": "Yes, this is fine. Thanks.",
+      "parentUuid": "9a9333f5_88f3802d",
+      "range": {
+        "startLine": 492,
+        "startChar": 12,
+        "endLine": 492,
+        "endChar": 29
+      },
+      "revId": "a24bfdb15b25c530429589df92b4dceba84500ee",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "9a64a371_a45c7fb1",
@@ -95,6 +119,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a2cb6f75_15c6d837",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 582,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2023-07-06T15:35:19Z",
+      "side": 1,
+      "message": "Ok. Could you add this explanation as a comment in the code, so we know this intention?",
+      "parentUuid": "e1b47752_cd26ed2d",
+      "range": {
+        "startLine": 582,
+        "startChar": 8,
+        "endLine": 582,
+        "endChar": 23
+      },
+      "revId": "a24bfdb15b25c530429589df92b4dceba84500ee",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "f05884d5_c9e33b1e",
@@ -132,6 +180,30 @@
       "side": 1,
       "message": "Checking `row_mt_exit` here, tries to return before calling the function `av1_encode_sb_row()`.",
       "parentUuid": "f05884d5_c9e33b1e",
+      "range": {
+        "startLine": 596,
+        "startChar": 4,
+        "endLine": 596,
+        "endChar": 30
+      },
+      "revId": "a24bfdb15b25c530429589df92b4dceba84500ee",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "73f1ec6f_77637bd0",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 596,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2023-07-06T15:35:19Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "436e681e_a65165f6",
       "range": {
         "startLine": 596,
         "startChar": 4,
