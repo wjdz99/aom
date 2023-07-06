@@ -116,39 +116,19 @@ int aom_arm_cpu_caps(void) {
 
 #elif defined(__linux__) /* end __ANDROID__ */
 
-#include <stdio.h>
+#include <sys/auxv.h>
 
 int aom_arm_cpu_caps(void) {
-  FILE *fin;
   int flags;
-  int mask;
   if (!arm_cpu_env_flags(&flags)) {
     return flags;
   }
-  mask = arm_cpu_env_mask();
-  /* Reading /proc/self/auxv would be easier, but that doesn't work reliably
-   *  on Android.
-   * This also means that detection will fail in Scratchbox.
-   */
-  fin = fopen("/proc/cpuinfo", "r");
-  if (fin != NULL) {
-    /* 512 should be enough for anybody (it's even enough for all the flags
-     * that x86 has accumulated... so far).
-     */
-    char buf[512];
-    while (fgets(buf, 511, fin) != NULL) {
-#if HAVE_NEON
-      if (memcmp(buf, "Features", 8) == 0) {
-        char *p;
-        p = strstr(buf, " neon");
-        if (p != NULL && (p[5] == ' ' || p[5] == '\n')) {
-          flags |= HAS_NEON;
-        }
-      }
-#endif /* HAVE_NEON */
-    }
-    fclose(fin);
-  }
+  int mask = arm_cpu_env_mask();
+#if AOM_ARCH_AARCH64
+  unsigned long hwcap = getauxval(AT_HWCAP);
+  flags |= HAS_NEON; // Neon is mandatory in Armv8.0-A.
+  flags |= (hwcap & HWCAP_CRC32) ? HAS_ARM_CRC32 : 0;
+#endif
   return flags & mask;
 }
 #else  /* end __linux__ */
