@@ -1,0 +1,78 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5b711f85_244314fe",
+        "filename": "av1/av1.cmake",
+        "patchSetId": 4
+      },
+      "lineNbr": 367,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-07-06T17:45:01Z",
+      "side": 1,
+      "message": "this can be removed now that line 357 has been renamed.",
+      "revId": "c5a9e166bea08c42290a94d2b30c09c399161e55",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "eddfdbc9_d0e8a04c",
+        "filename": "av1/encoder/arm/neon/pickrst_neon.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 537,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-07-06T17:45:01Z",
+      "side": 1,
+      "message": "this could be `sizeof(M_trn)`",
+      "revId": "c5a9e166bea08c42290a94d2b30c09c399161e55",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "67cacf7a_cc554bfb",
+        "filename": "av1/encoder/arm/neon/pickrst_neon.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 955,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-07-06T17:45:01Z",
+      "side": 1,
+      "message": "this could just be `sizeof(M_trn)`",
+      "revId": "c5a9e166bea08c42290a94d2b30c09c399161e55",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c576eda5_59480cda",
+        "filename": "av1/encoder/arm/neon/pickrst_neon.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 960,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-07-06T17:45:01Z",
+      "side": 1,
+      "message": "many instances could be preincrement, but it\u0027s not necessary in this change. The other implementations have a mix as well and it\u0027s more of a stylistic guideline in this case.",
+      "range": {
+        "startLine": 960,
+        "startChar": 40,
+        "endLine": 960,
+        "endChar": 45
+      },
+      "revId": "c5a9e166bea08c42290a94d2b30c09c399161e55",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
