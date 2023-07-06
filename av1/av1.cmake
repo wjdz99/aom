@@ -647,7 +647,7 @@ function(setup_av1_targets)
     if(HAVE_ARM_CRC32)
       if(CONFIG_AV1_ENCODER)
         if(AOM_AV1_ENCODER_INTRIN_ARM_CRC32)
-          add_intrinsics_object_library("${AOM_ARM_CRC32_FLAG}" "crc32"
+          add_intrinsics_object_library("-march=armv8-a+crc" "crc32"
                                         "aom_av1_encoder"
                                         "AOM_AV1_ENCODER_INTRIN_ARM_CRC32")
         endif()
