@@ -528,7 +528,7 @@ function(setup_aom_test_targets)
                                     "AOM_UNIT_TEST_COMMON_INTRIN_NEON")
   endif()
   if(HAVE_ARM_CRC32)
-    add_intrinsics_source_to_target("${AOM_ARM_CRC32_FLAG}" "test_libaom"
+    add_intrinsics_source_to_target("" "test_libaom"
                                     "AOM_UNIT_TEST_COMMON_INTRIN_CRC32")
   endif()
 
