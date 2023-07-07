@@ -1361,8 +1361,6 @@ void av1_temporal_filter(AV1_COMP *cpi, const int filter_frame_lookahead_idx,
   if (compute_frame_diff) {
     *frame_diff = tf_data->diff;
   }
-  // Deallocate temporal filter buffers.
-  tf_dealloc_data(tf_data, is_highbitdepth);
 }
 
 int av1_is_temporal_filter_on(const AV1EncoderConfig *oxcf) {

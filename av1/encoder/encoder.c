@@ -1659,6 +1659,17 @@ void av1_remove_primary_compressor(AV1_PRIMARY *ppi) {
   aom_free(ppi);
 }
 
+// Deallocate thread specific data for temporal filter.
+static void tf_dealloc_thread_data(AV1_COMP *cpi, int num_workers,
+                                   int is_highbitdepth) {
+  MultiThreadInfo *mt_info = &cpi->mt_info;
+  for (int i = num_workers - 1; i >= 0; i--) {
+    EncWorkerData *thread_data = &mt_info->tile_thr_data[i];
+    ThreadData *td = thread_data->td;
+    if (td != &cpi->td) tf_dealloc_data(&td->tf_data, is_highbitdepth);
+  }
+}
+
 void av1_remove_compressor(AV1_COMP *cpi) {
   if (!cpi) return;
 #if CONFIG_RATECTRL_LOG
@@ -1719,7 +1730,9 @@ void av1_remove_compressor(AV1_COMP *cpi) {
 #endif
   av1_row_mt_mem_dealloc(cpi);
 
+  const int is_highbitdepth = cpi->tf_ctx.is_highbitdepth;
   if (mt_info->num_workers > 1) {
+    tf_dealloc_thread_data(cpi, mt_info->num_workers, is_highbitdepth);
     av1_loop_filter_dealloc(&mt_info->lf_row_sync);
     av1_cdef_mt_dealloc(&mt_info->cdef_sync);
 #if !CONFIG_REALTIME_ONLY
@@ -1730,6 +1743,9 @@ void av1_remove_compressor(AV1_COMP *cpi) {
     av1_tf_mt_dealloc(&mt_info->tf_sync);
 #endif
   }
+
+  // Deallocate temporal filter buffers.
+  tf_dealloc_data(&cpi->td.tf_data, is_highbitdepth);
 
   av1_free_thirdpass_ctx(cpi->third_pass_ctx);
 
