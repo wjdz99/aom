@@ -2183,7 +2183,7 @@ static AOM_INLINE int tf_get_next_job(AV1TemporalFilterSync *tf_mt_sync,
   pthread_mutex_t *tf_mutex_ = tf_mt_sync->mutex_;
   pthread_mutex_lock(tf_mutex_);
 #endif
-  if (tf_mt_sync->next_tf_row < mb_rows) {
+  if (!tf_mt_sync->tf_mt_exit && tf_mt_sync->next_tf_row < mb_rows) {
     *current_mb_row = tf_mt_sync->next_tf_row;
     tf_mt_sync->next_tf_row++;
     do_next_row = 1;
@@ -2203,6 +2203,28 @@ static int tf_worker_hook(void *arg1, void *unused) {
   TemporalFilterCtx *tf_ctx = &cpi->tf_ctx;
   AV1TemporalFilterSync *tf_sync = &cpi->mt_info.tf_sync;
   const struct scale_factors *scale = &cpi->tf_ctx.sf;
+
+#if CONFIG_MULTITHREAD
+  pthread_mutex_t *tf_mutex_ = tf_sync->mutex_;
+#endif
+  MACROBLOCKD *const xd = &thread_data->td->mb.e_mbd;
+  struct aom_internal_error_info *const error_info = &thread_data->error_info;
+  xd->error_info = error_info;
+
+  // The jmp_buf is valid only for the duration of the function that calls
+  // setjmp(). Therefore, this function must reset the 'setjmp' field to 0
+  // before it returns.
+  if (setjmp(error_info->jmp)) {
+    error_info->setjmp = 0;
+#if CONFIG_MULTITHREAD
+    pthread_mutex_lock(tf_mutex_);
+    tf_sync->tf_mt_exit = true;
+    pthread_mutex_unlock(tf_mutex_);
+#endif
+    return 0;
+  }
+  error_info->setjmp = 1;
+
   const int num_planes = av1_num_planes(&cpi->common);
   assert(num_planes >= 1 && num_planes <= MAX_MB_PLANE);
 
@@ -2219,6 +2241,7 @@ static int tf_worker_hook(void *arg1, void *unused) {
 
   tf_restore_state(mbd, input_mb_mode_info, input_buffer, num_planes);
 
+  error_info->setjmp = 0;
   return 1;
 }
 
@@ -2227,6 +2250,7 @@ static void prepare_tf_workers(AV1_COMP *cpi, AVxWorkerHook hook,
                                int num_workers, int is_highbitdepth) {
   MultiThreadInfo *mt_info = &cpi->mt_info;
   mt_info->tf_sync.next_tf_row = 0;
+  mt_info->tf_sync.tf_mt_exit = false;
   for (int i = num_workers - 1; i >= 0; i--) {
     AVxWorker *worker = &mt_info->workers[i];
     EncWorkerData *thread_data = &mt_info->tile_thr_data[i];
