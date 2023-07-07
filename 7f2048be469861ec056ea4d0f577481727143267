@@ -89,6 +89,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "8d8a68ea_6f336df2",
+        "filename": "test/av1_nn_predict_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 211,
+      "author": {
+        "id": 31592
+      },
+      "writtenOn": "2023-07-07T12:02:44Z",
+      "side": 1,
+      "message": "As per the plan, we have submitted a CL to take care of the ARM build failure in NEON unit-test of `NnPredictTest`.\nhttps://aomedia-review.googlesource.com/c/aom/+/177741 \nPlease review the same.",
+      "parentUuid": "b8ff5a49_239a2954",
+      "range": {
+        "startLine": 211,
+        "startChar": 13,
+        "endLine": 211,
+        "endChar": 46
+      },
+      "revId": "7f2048be469861ec056ea4d0f577481727143267",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "536ff3f5_cabed9e2",
