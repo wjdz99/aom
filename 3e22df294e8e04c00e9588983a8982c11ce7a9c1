@@ -24,6 +24,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "1aacbbcc_c74df018",
+        "filename": "av1/encoder/arm/neon/highbd_temporal_filter_neon.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 32122
+      },
+      "writtenOn": "2023-07-07T18:51:39Z",
+      "side": 1,
+      "message": "indeed it\u0027s just vsrc[0][0]",
+      "parentUuid": "704ecad4_72af041b",
+      "range": {
+        "startLine": 120,
+        "startChar": 15,
+        "endLine": 120,
+        "endChar": 29
+      },
+      "revId": "3e22df294e8e04c00e9588983a8982c11ce7a9c1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "34a2d695_d7e71191",
@@ -47,6 +71,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "dad9ea5d_5cf7903f",
+        "filename": "av1/encoder/arm/neon/highbd_temporal_filter_neon.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 32122
+      },
+      "writtenOn": "2023-07-07T18:51:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "34a2d695_d7e71191",
+      "range": {
+        "startLine": 127,
+        "startChar": 43,
+        "endLine": 127,
+        "endChar": 48
+      },
+      "revId": "3e22df294e8e04c00e9588983a8982c11ce7a9c1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "9270b099_18b55e19",
@@ -60,6 +108,30 @@
       "writtenOn": "2023-07-07T16:24:14Z",
       "side": 1,
       "message": "the vsum calculation looks like it can be hoisted out of the i loop?",
+      "range": {
+        "startLine": 129,
+        "startChar": 37,
+        "endLine": 129,
+        "endChar": 64
+      },
+      "revId": "3e22df294e8e04c00e9588983a8982c11ce7a9c1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "25181b75_6945ea01",
+        "filename": "av1/encoder/arm/neon/highbd_temporal_filter_neon.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 32122
+      },
+      "writtenOn": "2023-07-07T18:51:39Z",
+      "side": 1,
+      "message": "yes, it appears that this is just setting all elements of acc_5x5_neon to the vsum reduction. I just checked and it appears all implementations (x86 and Neon SD) do the same, recalculating the sum on every iteration.",
+      "parentUuid": "9270b099_18b55e19",
       "range": {
         "startLine": 129,
         "startChar": 37,
