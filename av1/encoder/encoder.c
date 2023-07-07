@@ -1731,6 +1731,10 @@ void av1_remove_compressor(AV1_COMP *cpi) {
 #endif
   }
 
+  const int is_highbitdepth = cpi->tf_ctx.is_highbitdepth;
+  // Deallocate temporal filter buffers.
+  tf_dealloc_data(&cpi->td.tf_data, is_highbitdepth);
+
   av1_free_thirdpass_ctx(cpi->third_pass_ctx);
 
   av1_close_second_pass_log(cpi);
