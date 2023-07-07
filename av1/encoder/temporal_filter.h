@@ -261,6 +261,9 @@ typedef struct {
 #endif  // CONFIG_MULTITHREAD
   // Next temporal filter block row to be filtered.
   int next_tf_row;
+  // Initialized to false, set to true by the worker thread that encounters an
+  // error in order to abort the processing of other worker threads.
+  bool tf_mt_exit;
 } AV1TemporalFilterSync;
 
 // Estimates noise level from a given frame using a single plane (Y, U, or V).

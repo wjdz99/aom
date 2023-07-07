@@ -2183,7 +2183,7 @@ static AOM_INLINE int tf_get_next_job(AV1TemporalFilterSync *tf_mt_sync,
   pthread_mutex_t *tf_mutex_ = tf_mt_sync->mutex_;
   pthread_mutex_lock(tf_mutex_);
 #endif
-  if (tf_mt_sync->next_tf_row < mb_rows) {
+  if (!tf_mt_sync->tf_mt_exit && tf_mt_sync->next_tf_row < mb_rows) {
     *current_mb_row = tf_mt_sync->next_tf_row;
     tf_mt_sync->next_tf_row++;
     do_next_row = 1;
@@ -2206,6 +2206,27 @@ static int tf_worker_hook(void *arg1, void *unused) {
   const int num_planes = av1_num_planes(&cpi->common);
   assert(num_planes >= 1 && num_planes <= MAX_MB_PLANE);
 
+#if CONFIG_MULTITHREAD
+  pthread_mutex_t *tf_mutex_ = tf_sync->mutex_;
+#endif
+  MACROBLOCKD *const xd = &thread_data->td->mb.e_mbd;
+  struct aom_internal_error_info *const error_info = &thread_data->error_info;
+  xd->error_info = error_info;
+
+  // The jmp_buf is valid only for the duration of the function that calls
+  // setjmp(). Therefore, this function must reset the 'setjmp' field to 0
+  // before it returns.
+  if (setjmp(error_info->jmp)) {
+    error_info->setjmp = 0;
+#if CONFIG_MULTITHREAD
+    pthread_mutex_lock(tf_mutex_);
+    tf_sync->tf_mt_exit = true;
+    pthread_mutex_unlock(tf_mutex_);
+#endif
+    return 0;
+  }
+  error_info->setjmp = 1;
+
   MACROBLOCKD *mbd = &td->mb.e_mbd;
   uint8_t *input_buffer[MAX_MB_PLANE];
   MB_MODE_INFO **input_mb_mode_info;
@@ -2219,6 +2240,7 @@ static int tf_worker_hook(void *arg1, void *unused) {
 
   tf_restore_state(mbd, input_mb_mode_info, input_buffer, num_planes);
 
+  error_info->setjmp = 0;
   return 1;
 }
 
