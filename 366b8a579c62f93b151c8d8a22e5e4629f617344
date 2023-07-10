@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "025b2305_c95d0a15",
+        "filename": "build/cmake/cpu.cmake",
+        "patchSetId": 4
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 31817
+      },
+      "writtenOn": "2023-07-10T14:36:21Z",
+      "side": 1,
+      "message": "The version of the code prior to this commit checked __ARM_FEATURE_CRC32 in the code but never actually checked that the correct -march flag was set, so would be silently ignored if e.g. `-march\u003darmv8-a` was passed as the architecture to use. I imagine that checking that the flag is supported is sufficient here, but let me know if you would prefer to also be checking the __FEATURE_FLAGS going forward as we add detection for more features?",
+      "range": {
+        "startLine": 17,
+        "startChar": 0,
+        "endLine": 24,
+        "endChar": 9
+      },
+      "revId": "366b8a579c62f93b151c8d8a22e5e4629f617344",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c2d3ad6a_e9080b68",
+        "filename": "build/cmake/cpu.cmake",
+        "patchSetId": 4
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 31817
+      },
+      "writtenOn": "2023-07-10T14:36:21Z",
+      "side": 1,
+      "message": "i\u0027ve split the armv7 path off to avoid polluting the v7 code with flag checks that are going to be specific to aarch64",
+      "range": {
+        "startLine": 38,
+        "startChar": 0,
+        "endLine": 38,
+        "endChar": 42
+      },
+      "revId": "366b8a579c62f93b151c8d8a22e5e4629f617344",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}

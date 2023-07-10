@@ -36,6 +36,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "44a0cc74_6c7bd595",
+        "filename": "aom_ports/arm_cpudetect.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 31817
+      },
+      "writtenOn": "2023-07-10T14:36:21Z",
+      "side": 1,
+      "message": "Good to know we can just use getauxval for android as well now, but yeah let\u0027s do that in another commit 😊",
+      "parentUuid": "ae03048e_07594527",
+      "revId": "58d512ee0de03d99ed0a00d4c348a88593a19fd2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "986ebdb5_ad679ac3",
@@ -49,6 +67,24 @@
       "writtenOn": "2023-07-07T17:48:09Z",
       "side": 1,
       "message": "This won\u0027t work on its own since it\u0027s gated by `HAVE_ARM_CRC32` which is doing a __ARM_FEATURE check in `cpu.cmake`.\n\nIt\u0027s also only compatible with gcc/clang, but I don\u0027t believe Microsoft\u0027s compiler is setting `__ARM_FEATURE_*`. I would keep the variable to make any updates easier in the future.",
+      "revId": "58d512ee0de03d99ed0a00d4c348a88593a19fd2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "420ba1e1_1f55355a",
+        "filename": "av1/av1.cmake",
+        "patchSetId": 3
+      },
+      "lineNbr": 650,
+      "author": {
+        "id": 31817
+      },
+      "writtenOn": "2023-07-10T14:36:21Z",
+      "side": 1,
+      "message": "I couldn\u0027t find a place where AOM_ARM_CRC32_FLAG was actually defined before this commit, so I\u0027ve re-added it set as the appropriate \"-march\u003d...+crc\" determined via check_c_compiler_flag in cpu.cmake. that check should also avoid msvc from accidentally using it? let me know if you would prefer a different approach!",
+      "parentUuid": "986ebdb5_ad679ac3",
       "revId": "58d512ee0de03d99ed0a00d4c348a88593a19fd2",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
