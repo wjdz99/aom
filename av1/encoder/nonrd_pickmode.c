@@ -2486,7 +2486,7 @@ static AOM_FORCE_INLINE bool handle_inter_mode_nonrd(
     int idx, int force_mv_inter_layer, int is_single_pred, int skip_pred_mv,
     int gf_temporal_ref, int use_model_yrd_large, int filter_search_enabled_blk,
     BLOCK_SIZE bsize, PREDICTION_MODE this_mode, InterpFilter filt_select,
-    int cb_pred_filter_search, int reuse_inter_pred) {
+    int cb_pred_filter_search, int reuse_inter_pred, int *block_color_set) {
   AV1_COMMON *const cm = &cpi->common;
   MACROBLOCKD *const xd = &x->e_mbd;
   MB_MODE_INFO *const mi = xd->mi[0];
@@ -2584,7 +2584,7 @@ static AOM_FORCE_INLINE bool handle_inter_mode_nonrd(
     }
   }
 
-  if (idx == 0 && !skip_pred_mv) {
+  if (*block_color_set == 0 && !skip_pred_mv) {
     // Set color sensitivity on first tested mode only.
     // Use y-sad already computed in find_predictors: take the sad with motion
     // vector closest to 0; the uv-sad computed below in set_color_sensitivity
@@ -2608,6 +2608,7 @@ static AOM_FORCE_INLINE bool handle_inter_mode_nonrd(
       set_color_sensitivity(cpi, x, bsize, y_sad, x->source_variance,
                             search_state->yv12_mb[LAST_FRAME]);
     }
+    *block_color_set = 1;
   }
 
   mi->motion_mode = SIMPLE_TRANSLATION;
@@ -3091,7 +3092,7 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
   av1_zero(search_state.use_ref_frame_mask);
   BEST_PICKMODE *const best_pickmode = &search_state.best_pickmode;
   (void)tile_data;
-
+  int block_color_set = 0;
   const int bh = block_size_high[bsize];
   const int bw = block_size_wide[bsize];
   const int pixels_in_block = bh * bw;
@@ -3266,7 +3267,7 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
             idx, force_mv_inter_layer, is_single_pred, skip_pred_mv,
             gf_temporal_ref, use_model_yrd_large, filter_search_enabled_blk,
             bsize, this_mode, filt_select, cb_pred_filter_search,
-            reuse_inter_pred)) {
+            reuse_inter_pred, &block_color_set)) {
       break;
     }
   }
