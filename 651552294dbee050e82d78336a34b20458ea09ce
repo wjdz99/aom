@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "34085229_63c7a747",
+        "filename": "av1/encoder/arm/neon/highbd_temporal_filter_neon.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 31042
+      },
+      "writtenOn": "2023-07-10T21:06:46Z",
+      "side": 1,
+      "message": "This is a bit sub-optimal since it produces a pair of false dependency chains. Can we change it to:\n\nconst uint32x4_t _0111 \u003d vextq_u32(vzero, _1111, 3);\nconst uint32x4_t _0011 \u003d vextq_u32(vzero, _1111, 2);\nconst uint32x4_t _0001 \u003d vextq_u32(vzero, _1111, 1);\nconst uint32x4_t _1110 \u003d vextq_u32(_1111, vzero, 1);\nconst uint32x4_t _1100 \u003d vextq_u32(_1111, vzero, 2);\nconst uint32x4_t _1000 \u003d vextq_u32(_1111, vzero, 3);",
+      "range": {
+        "startLine": 109,
+        "startChar": 4,
+        "endLine": 114,
+        "endChar": 56
+      },
+      "revId": "651552294dbee050e82d78336a34b20458ea09ce",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
