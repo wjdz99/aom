@@ -16,6 +16,24 @@
       "message": "In the parent version, number of ref mv candidates are pruned using ref mv weight and rd cost of simple translation by `reduce_inter_modes` and `prune_mode_search_simple_translation` speed features respectively. For refmv count \u003d 1, the simple translation evaluation (through the function `simple_translation_pred_rd()`) performed to make the pruning decision is taking more time than the mode evaluation itself. Hence, this CL avoids the pruning decision for such cases.\n\nThe relevant sfs are applicable for speeds \u003e\u003d 0. Hence, for consistency this change extended for all speeds. The below shows Borg results for speeds 1 to 6.\n```\n                 Instruction Count         BD-Rate Loss(%)\ncpu   Resolution   Reduction(%)      avg.psnr   ovr.psnr    ssim\n 1      LOWRES2     -0.186          -0.0055     0.0005      0.0176\n 1      MIDRES2     -0.489           0.0167     0.0133     -0.0200\n 1       HDRES2     -0.785          -0.0257    -0.0229     -0.0148\n 1      Average     -0.487          -0.0048    -0.0030     -0.0057\n\n 2      LOWRES2      0.001           0.0000     0.0007      0.0136\n 2      MIDRES2      0.001          -0.0059    -0.0027     -0.0114\n 2       HDRES2      0.013          -0.0642    -0.0159     -0.0058\n 2      Average      0.005          -0.0234    -0.0060     -0.0012\n\n 3      LOWRES2      0.165           0.0037     0.0027     -0.0071\n 3      MIDRES2      0.113          -0.0077    -0.0104      0.0028\n 3       HDRES2      0.056          -0.0198    -0.0220     -0.0257\n 3      Average      0.111          -0.0079    -0.0099     -0.0100\n\n 4      LOWRES2      0.223           0.0031     0.0052      0.0090\n 4      MIDRES2      0.185          -0.0257    -0.0328     -0.0150\n 4       HDRES2      0.252           0.0070    -0.0093      0.0046\n 4      Average      0.220          -0.0052    -0.0123     -0.0005\n\n 5      LOWRES2      0.181          -0.0002     0.0034     -0.0117\n 5      MIDRES2      0.165          -0.0111    -0.0059     -0.0008\n 5       HDRES2      0.189          -0.0186    -0.0079     -0.0162\n 5      Average      0.178          -0.0100    -0.0035     -0.0096\n\n 6      LOWRES2      0.181          -0.0050    -0.0033      0.0020\n 6      MIDRES2      0.198          -0.0187    -0.0143     -0.0206\n 6       HDRES2      0.233          -0.0131    -0.0236     -0.0354\n 6      Average      0.204          -0.0123    -0.0137     -0.0180\n```\nThe instruction count reduction specified has been measured using command:\n$ perf stat -e instructions:u ./aomenc …",
       "revId": "0a565b511b6724774145e877eb1b8236d32dc7fc",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c05c0e76_0d7d3cf0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2023-07-10T17:07:29Z",
+      "side": 1,
+      "message": "This sounds reasonable. Looks good.",
+      "parentUuid": "25965255_4d7c943d",
+      "revId": "0a565b511b6724774145e877eb1b8236d32dc7fc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
