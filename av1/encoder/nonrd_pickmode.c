@@ -2577,32 +2577,6 @@ static AOM_FORCE_INLINE bool handle_inter_mode_nonrd(
     }
   }
 
-  if (idx == 0 && !skip_pred_mv) {
-    // Set color sensitivity on first tested mode only.
-    // Use y-sad already computed in find_predictors: take the sad with motion
-    // vector closest to 0; the uv-sad computed below in set_color_sensitivity
-    // is for zeromv.
-    // For screen: first check if golden reference is being used, if so,
-    // force color_sensitivity on if the color sensitivity for sb_g is on.
-    if (cpi->oxcf.tune_cfg.content == AOM_CONTENT_SCREEN &&
-        search_state->use_ref_frame_mask[GOLDEN_FRAME]) {
-      if (x->color_sensitivity_sb_g[COLOR_SENS_IDX(AOM_PLANE_U)] == 1)
-        x->color_sensitivity[COLOR_SENS_IDX(AOM_PLANE_U)] = 1;
-      if (x->color_sensitivity_sb_g[COLOR_SENS_IDX(AOM_PLANE_V)] == 1)
-        x->color_sensitivity[COLOR_SENS_IDX(AOM_PLANE_V)] = 1;
-    } else {
-      int y_sad = x->pred_mv0_sad[LAST_FRAME];
-      if (x->pred_mv1_sad[LAST_FRAME] != INT_MAX &&
-          (abs(search_state->frame_mv[NEARMV][LAST_FRAME].as_mv.col) +
-           abs(search_state->frame_mv[NEARMV][LAST_FRAME].as_mv.row)) <
-              (abs(search_state->frame_mv[NEARESTMV][LAST_FRAME].as_mv.col) +
-               abs(search_state->frame_mv[NEARESTMV][LAST_FRAME].as_mv.row)))
-        y_sad = x->pred_mv1_sad[LAST_FRAME];
-      set_color_sensitivity(cpi, x, bsize, y_sad, x->source_variance,
-                            search_state->yv12_mb[LAST_FRAME]);
-    }
-  }
-
   mi->motion_mode = SIMPLE_TRANSLATION;
 #if !CONFIG_REALTIME_ONLY
   if (cpi->oxcf.motion_mode_cfg.allow_warped_motion) {
@@ -3218,6 +3192,32 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
 
     int is_single_pred = 1;
     PREDICTION_MODE this_mode;
+
+  if (idx == 0 && !skip_pred_mv) {
+    // Set color sensitivity on first tested mode only.
+    // Use y-sad already computed in find_predictors: take the sad with motion
+    // vector closest to 0; the uv-sad computed below in set_color_sensitivity
+    // is for zeromv.
+    // For screen: first check if golden reference is being used, if so,
+    // force color_sensitivity on if the color sensitivity for sb_g is on.
+    if (cpi->oxcf.tune_cfg.content == AOM_CONTENT_SCREEN &&
+        search_state.use_ref_frame_mask[GOLDEN_FRAME]) {
+      if (x->color_sensitivity_sb_g[COLOR_SENS_IDX(AOM_PLANE_U)] == 1)
+        x->color_sensitivity[COLOR_SENS_IDX(AOM_PLANE_U)] = 1;
+      if (x->color_sensitivity_sb_g[COLOR_SENS_IDX(AOM_PLANE_V)] == 1)
+        x->color_sensitivity[COLOR_SENS_IDX(AOM_PLANE_V)] = 1;
+    } else {
+      int y_sad = x->pred_mv0_sad[LAST_FRAME];
+      if (x->pred_mv1_sad[LAST_FRAME] != INT_MAX &&
+          (abs(search_state.frame_mv[NEARMV][LAST_FRAME].as_mv.col) +
+           abs(search_state.frame_mv[NEARMV][LAST_FRAME].as_mv.row)) <
+              (abs(search_state.frame_mv[NEARESTMV][LAST_FRAME].as_mv.col) +
+               abs(search_state.frame_mv[NEARESTMV][LAST_FRAME].as_mv.row)))
+        y_sad = x->pred_mv1_sad[LAST_FRAME];
+      set_color_sensitivity(cpi, x, bsize, y_sad, x->source_variance,
+                            search_state.yv12_mb[LAST_FRAME]);
+    }
+  }
 
     // Check the inter mode can be skipped based on mode statistics and speed
     // features settings.
