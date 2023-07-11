@@ -54,6 +54,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ebfb6805_9916a291",
+        "filename": "aom_ports/arm_cpudetect.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-07-11T01:12:44Z",
+      "side": 1,
+      "message": "\u003e Good to know we can just use getauxval for android as well now, but yeah let\u0027s do that in another commit 😊\n\nYes that could work. If we can detect the API level at compile time and keep the old path that might be better for compatibility. With libaom, I don\u0027t know if many people will be targeting older Android versions, though.",
+      "parentUuid": "44a0cc74_6c7bd595",
+      "revId": "58d512ee0de03d99ed0a00d4c348a88593a19fd2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "986ebdb5_ad679ac3",
