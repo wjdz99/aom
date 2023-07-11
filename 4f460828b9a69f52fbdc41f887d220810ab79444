@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f3a899af_802ae413",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9616
+      },
+      "writtenOn": "2023-07-11T09:53:29Z",
+      "side": 1,
+      "message": "This CL enables the sf `skip_interp_filter_search` to disable interpolation filter search for GOOD preset, speed 5, 6. The sf is currently disabled for boosted frames and compound prediction modes. The newly added function `skip_interp_filter_search()` abstracts the conditions for GOOD and REALTIME encoding modes.\n\nThe sf `prune_comp_search_by_single_result` uses modelled_rd that is obtained from `av1_interpolation_filter_search()` of single prediction modes to prune compound predictions. This sf would result in aggressive pruning of compound modes when `skip_interp_filter_search` is enabled due to the absence of modelled_rd computed during interpolation filter search. Hence, this sf is conditionally disabled when `skip_interp_filter_search` is enabled.\n\nPlease find the results below:\n````\n                Instruction Count       BD-Rate Loss(%)      \ncpu    Testset    Reduction(%)    avg.psnr   ovr.psnr    ssim \n 5     LOWRES2      2.113        -0.1115    -0.1075   -0.0853\n 5     MIDRES2      1.428        -0.1647    -0.1591   -0.2264\n 5     HDRES2       0.682        -0.2423    -0.2590   -0.2681\n 5     Average      1.448        -0.1695    -0.1713   -0.1906\n \n 6     LOWRES2      2.605        -0.1783    -0.1832   -0.1376\n 6     MIDRES2      1.898        -0.1571    -0.1874   -0.2105\n 6     HDRES2       1.368        -0.0954    -0.1147   -0.0967\n 6     Average      1.982        -0.1460    -0.1639   -0.1494\n````\nIn the commit message:\n[-] sign indicates encode time increase\n[+] sign indicates encode time reduction\n\nThe instruction count reduction specified has been measured using command:\n$ perf stat -e instructions:u ./aomenc",
+      "revId": "4f460828b9a69f52fbdc41f887d220810ab79444",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
