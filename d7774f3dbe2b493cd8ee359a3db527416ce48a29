@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8c811bc5_90adfc3e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8893
+      },
+      "writtenOn": "2023-07-11T17:52:33Z",
+      "side": 1,
+      "message": "This CL adds a speed feature to use SAD instead of SATD during intra and inter mode search in tpl (a similar sf is present in SVT-AV1 codebase). However, after deciding the best mode, SATD of the best intra and inter mode is calculated as it is used in ML model to skip intra mode evaluation (sf-\u003eintra_sf.skip_intra_in_interframe). The results are as follows:\n```\n                 Instruction Count        BD-Rate Loss(%)\ncpu   Resolution   Reduction(%)    avg.psnr   ovr.psnr    ssim   \n 5       LOWRES2      1.450         0.1001     0.1051    0.0958   \n 5       MIDRES2      1.832         0.0906     0.1097    0.1732   \n 5        HDRES2      2.541         0.1226     0.1279    0.0524   \n 5       Average      1.908         0.1035     0.1135    0.1098   \n \n 6       LOWRES2      1.475         0.1125     0.1118    0.1616   \n 6       MIDRES2      2.141         0.1531     0.1460    0.1992   \n 6        HDRES2      2.657         0.1138     0.1016    0.1018   \n 6       Average      2.066         0.1267     0.1202    0.1558   \n \nThe instruction count reduction specified has been measured using command:\n$ perf stat -e instructions:u ./aomenc\n```\nIn this CL we have enabled the speed feature for all frames. However, we have also tried a lesser aggressive version, where SAD is used only for frames in the higher layers of the hierarchical prediction structure (i.e., speed feature is enabled for frames with gf_group-\u003elayer_depth[ ] \u003e x where x \u003d 3, 4, 5). Following are the results:\n\nSpeed feature enabled for frames with gf_group-\u003elayer_depth[ ] \u003e 3\n```\n                 Instruction Count        BD-Rate Loss(%)\ncpu   Resolution   Reduction(%)    avg.psnr   ovr.psnr    ssim   \n 5       Average      1.463         0.0424     0.0508    0.0242\n 6       Average      1.694         0.0598     0.0559    0.0571\n ```\nSpeed feature enabled for frames with gf_group-\u003elayer_depth[ ] \u003e 4\n```\n                 Instruction Count        BD-Rate Loss(%)\ncpu   Resolution   Reduction(%)    avg.psnr   ovr.psnr    ssim   \n 5      Average      1.180         0.0143     0.0201    0.0136 \n 6      Average      1.393         0.0213     0.0164    0.0271 \n```\nSpeed feature enabled for frames with gf_group-\u003elayer_depth[ ] \u003e 5\n```\n                 Instruction Count        BD-Rate Loss(%)\ncpu   Resolution   Reduction(%)    avg.psnr   ovr.psnr    ssim   \n 5      Average      0.973         0.0293     0.0317    0.0443 \n 6      Average      1.119         0.0229     0.0179    0.0195 \n```\nPlease let us know your opinion.",
+      "revId": "d7774f3dbe2b493cd8ee359a3db527416ce48a29",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "628e5084_960beeff",
+        "filename": "av1/encoder/tpl_model.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 1801,
+      "author": {
+        "id": 8893
+      },
+      "writtenOn": "2023-07-11T17:52:33Z",
+      "side": 1,
+      "message": "Tpl module is called before the setting of speed features at frame level. Thus, turning off this speed feature for key frame is done here and not integrated into speed feature setting itself.",
+      "range": {
+        "startLine": 1801,
+        "startChar": 6,
+        "endLine": 1801,
+        "endChar": 61
+      },
+      "revId": "d7774f3dbe2b493cd8ee359a3db527416ce48a29",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
