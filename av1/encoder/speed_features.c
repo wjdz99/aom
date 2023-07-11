@@ -357,6 +357,8 @@ static void set_allintra_speed_features_framesize_independent(
   sf->rt_sf.use_nonrd_pick_mode = 0;
   sf->rt_sf.use_real_time_ref_set = 0;
 
+  sf->lpf_sf.sgr_refine_mode = SGR_REFINE_WINNER;
+
   if (cpi->twopass_frame.fr_content_type == FC_GRAPHICS_ANIMATION ||
       cpi->use_screen_content_tools) {
     sf->mv_sf.exhaustive_searches_thresh = (1 << 20);
@@ -970,6 +972,8 @@ static void set_good_speed_features_framesize_independent(
 
   sf->rd_sf.perform_coeff_opt = 1;
   sf->hl_sf.superres_auto_search_type = SUPERRES_AUTO_DUAL;
+
+  sf->lpf_sf.sgr_refine_mode = SGR_REFINE_WINNER;
 
   if (speed >= 1) {
     sf->hl_sf.adjust_num_frames_for_arf_filtering =
@@ -2158,6 +2162,7 @@ static AOM_INLINE void init_lpf_sf(LOOP_FILTER_SPEED_FEATURES *lpf_sf) {
   lpf_sf->disable_wiener_filter = false;
   lpf_sf->disable_sgr_filter = false;
   lpf_sf->disable_wiener_coeff_refine_search = false;
+  lpf_sf->sgr_refine_mode = SGR_REFINE_ALL;
   lpf_sf->use_downsampled_wiener_stats = 0;
 }
 
