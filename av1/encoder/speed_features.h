@@ -171,6 +171,16 @@ typedef enum {
   CDEF_PICK_METHODS
 } CDEF_PICK_METHOD;
 
+/*!\enum SGR_REFINE_MODE
+ * \brief Options for how aggressively we refine self-guided filters
+ */
+typedef enum {
+  SGR_REFINE_ALL,
+  SGR_REFINE_WINNER,
+  SGR_REFINE_NONE,
+  SGR_REFINE_MODES
+} SGR_REFINE_MODE;
+
 /*!\cond */
 enum {
   // Terminate search early based on distortion so far compared to
@@ -1476,6 +1486,12 @@ typedef struct LOOP_FILTER_SPEED_FEATURES {
 
   // Disable the refinement search around the wiener filter coefficients.
   bool disable_wiener_coeff_refine_search;
+
+  // How aggressively do we refine self-guided filters:
+  // SGR_REFINE_ALL: Refine params before selecting best `ep` set
+  // SGR_REFINE_WINNER: Refine params after selecting best `ep` set
+  // SGR_REFINE_NONE: Don't refine at all
+  SGR_REFINE_MODE sgr_refine_mode;
 
   // Whether to downsample the rows in computation of wiener stats.
   int use_downsampled_wiener_stats;
