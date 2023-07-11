@@ -28,8 +28,6 @@
 #include "aom/aom_encoder.h"
 #include "aom/internal/aom_codec_internal.h"
 
-#define SAVE_STATUS(ctx, var) (ctx ? (ctx->err = var) : var)
-
 static aom_codec_alg_priv_t *get_alg_priv(aom_codec_ctx_t *ctx) {
   return (aom_codec_alg_priv_t *)ctx->priv;
 }
@@ -84,7 +82,8 @@ aom_codec_err_t aom_codec_enc_init_ver(aom_codec_ctx_t *ctx,
       // that remains valid after ctx->priv is destroyed, such as a C string
       // literal. This makes it safe to call aom_codec_error_detail() after
       // aom_codec_enc_init_ver() failed.
-      ctx->err_detail = ctx->priv ? ctx->priv->err_detail : NULL;
+      const char *err_detail = ctx->priv ? ctx->priv->err_detail : NULL;
+      if (err_detail) fprintf("%s", err_detail);
       aom_codec_destroy(ctx);
     }
   }
@@ -178,6 +177,15 @@ aom_codec_err_t aom_codec_encode(aom_codec_ctx_t *ctx, const aom_image_t *img,
     FLOATING_POINT_INIT
     res = ctx->iface->enc.encode(get_alg_priv(ctx), img, pts, duration, flags);
     FLOATING_POINT_RESTORE
+    if (res) {
+      // IMPORTANT: ctx->priv->err_detail must be null or point to a string
+      // that remains valid after ctx->priv is destroyed, such as a C string
+      // literal. This makes it safe to call aom_codec_error_detail() after
+      // aom_codec_encode() failed.
+      const char *err_detail = ctx->priv ? ctx->priv->err_detail : NULL;
+      if (err_detail) fprintf(stderr, "%s\n", err_detail);
+      aom_codec_destroy(ctx);
+    }
   }
 
   return SAVE_STATUS(ctx, res);
