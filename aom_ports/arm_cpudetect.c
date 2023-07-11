@@ -95,7 +95,15 @@ int aom_arm_cpu_caps(void) {
 #endif  // AOM_ARCH_AARCH64
 }
 
-#elif defined(__ANDROID__) /* end _MSC_VER */
+#elif defined(__ANDROID__) && (__ANDROID_API__ < 18)  // end _MSC_VER
+// Use getauxval() when targetting (64-bit) Android with API level >= 18.
+// getauxval() is supported since Android API level 18 (Android 4.3.)
+// First Android version with 64-bit support was Android 5.x (API level 21).
+
+#if AOM_ARCH_AARCH64
+#error "64-bit Android run-time feature detection should use getauxval()."
+#endif
+
 #include <cpu-features.h>
 
 int aom_arm_cpu_caps(void) {
@@ -110,11 +118,11 @@ int aom_arm_cpu_caps(void) {
 
 #if HAVE_NEON
   if (features & ANDROID_CPU_ARM_FEATURE_NEON) flags |= HAS_NEON;
-#endif /* HAVE_NEON */
+#endif  // HAVE_NEON
   return flags & mask;
 }
 
-#elif defined(__linux__) /* end __ANDROID__ */
+#elif defined(__linux__)  // end __ANDROID__ && (__ANDROID_API__ < 18)
 
 #include <sys/auxv.h>
 
