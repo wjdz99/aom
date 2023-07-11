@@ -410,17 +410,13 @@ static int64_t get_pixel_proj_error(const uint8_t *src8, int width, int height,
 #endif
 }
 
-#define USE_SGRPROJ_REFINEMENT_SEARCH 1
-static int64_t finer_search_pixel_proj_error(
+// Note: The initial parameters should be set up in xqd, and the corresponding
+// error should be stored in *err, before this function is called.
+static void finer_search_pixel_proj_error(
     const uint8_t *src8, int width, int height, int src_stride,
     const uint8_t *dat8, int dat_stride, int use_highbitdepth, int32_t *flt0,
     int flt0_stride, int32_t *flt1, int flt1_stride, int start_step, int *xqd,
-    const sgr_params_type *params) {
-  int64_t err = get_pixel_proj_error(
-      src8, width, height, src_stride, dat8, dat_stride, use_highbitdepth, flt0,
-      flt0_stride, flt1, flt1_stride, xqd, params);
-  (void)start_step;
-#if USE_SGRPROJ_REFINEMENT_SEARCH
+    const sgr_params_type *params, int64_t *err) {
   int64_t err2;
   int tap_min[] = { SGRPROJ_PRJ_MIN0, SGRPROJ_PRJ_MIN1 };
   int tap_max[] = { SGRPROJ_PRJ_MAX0, SGRPROJ_PRJ_MAX1 };
@@ -437,10 +433,10 @@ static int64_t finer_search_pixel_proj_error(
               get_pixel_proj_error(src8, width, height, src_stride, dat8,
                                    dat_stride, use_highbitdepth, flt0,
                                    flt0_stride, flt1, flt1_stride, xqd, params);
-          if (err2 > err) {
+          if (err2 > *err) {
             xqd[p] += s;
           } else {
-            err = err2;
+            *err = err2;
             skip = 1;
             // At the highest step size continue moving in the same direction
             if (s == start_step) continue;
@@ -456,10 +452,10 @@ static int64_t finer_search_pixel_proj_error(
               get_pixel_proj_error(src8, width, height, src_stride, dat8,
                                    dat_stride, use_highbitdepth, flt0,
                                    flt0_stride, flt1, flt1_stride, xqd, params);
-          if (err2 > err) {
+          if (err2 > *err) {
             xqd[p] -= s;
           } else {
-            err = err2;
+            *err = err2;
             // At the highest step size continue moving in the same direction
             if (s == start_step) continue;
           }
@@ -468,8 +464,6 @@ static int64_t finer_search_pixel_proj_error(
       } while (1);
     }
   }
-#endif  // USE_SGRPROJ_REFINEMENT_SEARCH
-  return err;
 }
 
 static int64_t signed_rounded_divide(int64_t dividend, int64_t divisor) {
@@ -788,7 +782,8 @@ static AOM_INLINE void compute_sgrproj_err(
     const int dat_stride, const uint8_t *src8, const int src_stride,
     const int use_highbitdepth, const int bit_depth, const int pu_width,
     const int pu_height, const int ep, int32_t *flt0, int32_t *flt1,
-    const int flt_stride, int *exqd, int64_t *err) {
+    const int flt_stride, int *exqd, int64_t *err,
+    SGR_REFINE_MODE sgr_refine_mode) {
   int exq[2];
   apply_sgr(ep, dat8, width, height, dat_stride, use_highbitdepth, bit_depth,
             pu_width, pu_height, flt0, flt1, flt_stride);
@@ -797,9 +792,14 @@ static AOM_INLINE void compute_sgrproj_err(
                     use_highbitdepth, flt0, flt_stride, flt1, flt_stride, exq,
                     params);
   encode_xq(exq, exqd, params);
-  *err = finer_search_pixel_proj_error(
-      src8, width, height, src_stride, dat8, dat_stride, use_highbitdepth, flt0,
-      flt_stride, flt1, flt_stride, 2, exqd, params);
+  *err = get_pixel_proj_error(src8, width, height, src_stride, dat8, dat_stride,
+                              use_highbitdepth, flt0, flt_stride, flt1,
+                              flt_stride, exqd, params);
+  if (sgr_refine_mode == SGR_REFINE_ALL) {
+    finer_search_pixel_proj_error(
+        src8, width, height, src_stride, dat8, dat_stride, use_highbitdepth,
+        flt0, flt_stride, flt1, flt_stride, 2, exqd, params, err);
+  }
 }
 
 static AOM_INLINE void get_best_error(int64_t *besterr, const int64_t err,
@@ -816,7 +816,8 @@ static AOM_INLINE void get_best_error(int64_t *besterr, const int64_t err,
 static SgrprojInfo search_selfguided_restoration(
     const uint8_t *dat8, int width, int height, int dat_stride,
     const uint8_t *src8, int src_stride, int use_highbitdepth, int bit_depth,
-    int pu_width, int pu_height, int32_t *rstbuf, int enable_sgr_ep_pruning) {
+    int pu_width, int pu_height, int32_t *rstbuf, int enable_sgr_ep_pruning,
+    SGR_REFINE_MODE sgr_refine_mode) {
   int32_t *flt0 = rstbuf;
   int32_t *flt1 = flt0 + RESTORATION_UNITPELS_MAX;
   int ep, idx, bestep = 0;
@@ -832,7 +833,7 @@ static SgrprojInfo search_selfguided_restoration(
       int64_t err;
       compute_sgrproj_err(dat8, width, height, dat_stride, src8, src_stride,
                           use_highbitdepth, bit_depth, pu_width, pu_height, ep,
-                          flt0, flt1, flt_stride, exqd, &err);
+                          flt0, flt1, flt_stride, exqd, &err, sgr_refine_mode);
       get_best_error(&besterr, err, exqd, bestxqd, &bestep, ep);
     }
   } else {
@@ -842,7 +843,7 @@ static SgrprojInfo search_selfguided_restoration(
       int64_t err;
       compute_sgrproj_err(dat8, width, height, dat_stride, src8, src_stride,
                           use_highbitdepth, bit_depth, pu_width, pu_height, ep,
-                          flt0, flt1, flt_stride, exqd, &err);
+                          flt0, flt1, flt_stride, exqd, &err, sgr_refine_mode);
       get_best_error(&besterr, err, exqd, bestxqd, &bestep, ep);
     }
     // evaluate left and right ep of winner in seed ep
@@ -853,7 +854,7 @@ static SgrprojInfo search_selfguided_restoration(
       int64_t err;
       compute_sgrproj_err(dat8, width, height, dat_stride, src8, src_stride,
                           use_highbitdepth, bit_depth, pu_width, pu_height, ep,
-                          flt0, flt1, flt_stride, exqd, &err);
+                          flt0, flt1, flt_stride, exqd, &err, sgr_refine_mode);
       get_best_error(&besterr, err, exqd, bestxqd, &bestep, ep);
     }
     // evaluate last two group
@@ -862,9 +863,19 @@ static SgrprojInfo search_selfguided_restoration(
       int64_t err;
       compute_sgrproj_err(dat8, width, height, dat_stride, src8, src_stride,
                           use_highbitdepth, bit_depth, pu_width, pu_height, ep,
-                          flt0, flt1, flt_stride, exqd, &err);
+                          flt0, flt1, flt_stride, exqd, &err, sgr_refine_mode);
       get_best_error(&besterr, err, exqd, bestxqd, &bestep, ep);
     }
+  }
+
+  if (sgr_refine_mode == SGR_REFINE_WINNER) {
+    // Reconstruct best filter set so far, so that we can refine `bestxqd`
+    apply_sgr(bestep, dat8, width, height, dat_stride, use_highbitdepth,
+              bit_depth, pu_width, pu_height, flt0, flt1, flt_stride);
+    const sgr_params_type *const params = &av1_sgr_params[bestep];
+    finer_search_pixel_proj_error(
+        src8, width, height, src_stride, dat8, dat_stride, use_highbitdepth,
+        flt0, flt_stride, flt1, flt_stride, 2, bestxqd, params, &besterr);
   }
 
   SgrprojInfo ret;
@@ -929,7 +940,7 @@ static AOM_INLINE void search_sgrproj(const RestorationTileLimits *limits,
       dgd_start, limits->h_end - limits->h_start,
       limits->v_end - limits->v_start, rsc->dgd_stride, src_start,
       rsc->src_stride, highbd, bit_depth, procunit_width, procunit_height,
-      tmpbuf, rsc->lpf_sf->enable_sgr_ep_pruning);
+      tmpbuf, rsc->lpf_sf->enable_sgr_ep_pruning, rsc->lpf_sf->sgr_refine_mode);
 
   RestorationUnitInfo rui;
   rui.restoration_type = RESTORE_SGRPROJ;
