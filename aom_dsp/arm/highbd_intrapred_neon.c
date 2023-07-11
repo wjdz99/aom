@@ -183,17 +183,18 @@ static INLINE int highbd_dc_predictor_rect(int bw, int bh, int sum, int shift1,
 
 #undef HIGHBD_DC_SHIFT2
 
-#define HIGHBD_DC_PREDICTOR_RECT(w, h, q, shift, mult)                  \
-  void aom_highbd_dc_predictor_##w##x##h##_neon(                        \
-      uint16_t *dst, ptrdiff_t stride, const uint16_t *above,           \
-      const uint16_t *left, int bd) {                                   \
-    (void)bd;                                                           \
-    uint16x8_t sum_above = highbd_dc_load_partial_sum_##w(above);       \
-    uint16x8_t sum_left = highbd_dc_load_partial_sum_##h(left);         \
-    uint16x8_t sum_vec = vaddq_u16(sum_left, sum_above);                \
-    int sum = horizontal_add_and_broadcast_long_u16x8(sum_vec)[0];      \
-    int dc0 = highbd_dc_predictor_rect((w), (h), sum, (shift), (mult)); \
-    highbd_dc_store_##w##xh(dst, stride, (h), vdup##q##_n_u16(dc0));    \
+#define HIGHBD_DC_PREDICTOR_RECT(w, h, q, shift, mult)                       \
+  void aom_highbd_dc_predictor_##w##x##h##_neon(                             \
+      uint16_t *dst, ptrdiff_t stride, const uint16_t *above,                \
+      const uint16_t *left, int bd) {                                        \
+    (void)bd;                                                                \
+    uint16x8_t sum_above = highbd_dc_load_partial_sum_##w(above);            \
+    uint16x8_t sum_left = highbd_dc_load_partial_sum_##h(left);              \
+    uint16x8_t sum_vec = vaddq_u16(sum_left, sum_above);                     \
+    int sum =                                                                \
+        vgetq_lane_u16(horizontal_add_and_broadcast_long_u16x8(sum_vec), 0); \
+    int dc0 = highbd_dc_predictor_rect((w), (h), sum, (shift), (mult));      \
+    highbd_dc_store_##w##xh(dst, stride, (h), vdup##q##_n_u16(dc0));         \
   }
 
 HIGHBD_DC_PREDICTOR_RECT(4, 8, , 2, HIGHBD_DC_MULTIPLIER_1X2)
