@@ -126,12 +126,19 @@ int aom_arm_cpu_caps(void) {
   int mask = arm_cpu_env_mask();
   unsigned long hwcap = getauxval(AT_HWCAP);
 #if AOM_ARCH_AARCH64
+  unsigned long hwcap2 = getauxval(AT_HWCAP2);
 #if HAVE_NEON
   flags |= HAS_NEON;  // Neon is mandatory in Armv8.0-A.
 #endif  // HAVE_NEON
 #if HAVE_ARM_CRC32
   if (hwcap & HWCAP_CRC32) flags |= HAS_ARM_CRC32;
 #endif  // HAVE_ARM_CRC32
+#if HAVE_NEON_DOTPROD
+  if (hwcap & HWCAP_ASIMDDP) flags |= HAS_NEON_DOTPROD;
+#endif  // HAVE_NEON_DOTPROD
+#if HAVE_NEON_I8MM
+  if (hwcap2 & HWCAP2_I8MM) flags |= HAS_NEON_I8MM;
+#endif  // HAVE_NEON_I8MM
 #else   // !AOM_ARCH_AARCH64
 #if HAVE_NEON
   if (hwcap & HWCAP_ARM_NEON) flags |= HAS_NEON;
