@@ -1594,8 +1594,10 @@ static void dr_prediction_z2_Nx4_neon(int N, uint8_t *dst, ptrdiff_t stride,
       base_y_c64 = vbic_s16(base_y_c64, vreinterpret_s16_u16(mask64));
 
 #if AOM_ARCH_AARCH64
-      uint8x8_t left_idx0 = vreinterpret_u8_s16(base_y_c64 + 2);  // [0, 16]
-      uint8x8_t left_idx1 = vreinterpret_u8_s16(base_y_c64 + 3);  // [1, 17]
+      uint8x8_t left_idx0 =
+          vreinterpret_u8_s16(vadd_s16(base_y_c64, vdup_n_s16(2)));  // [0, 16]
+      uint8x8_t left_idx1 =
+          vreinterpret_u8_s16(vadd_s16(base_y_c64, vdup_n_s16(3)));  // [1, 17]
 
       uint8x8_t a0_y = vtrn1_u8(vqtbl2_u8(left_vals, left_idx0), v_zero_u8);
       uint8x8_t a1_y = vtrn1_u8(vqtbl2_u8(left_vals, left_idx1), v_zero_u8);
