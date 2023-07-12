@@ -46,6 +46,30 @@
       },
       "revId": "e5fcfbfb59669288aadbccc143364bbf8241d6aa",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f2a1cefd_ca9a550e",
+        "filename": "av1/encoder/arm/neon/highbd_temporal_filter_neon.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 31817
+      },
+      "writtenOn": "2023-07-12T13:04:15Z",
+      "side": 1,
+      "message": "The vst1q simplification is nice, but my original comment was more that instead of:\n\n    uint32_t acc_5x5_neon[BH][BW];\n    ...\n    vst1q_u32(\u0026acc_5x5_neon[row][col], vsum);\n    \nI think we now only need:\n\n    uint32_t acc_5x5_neon[BW];\n    ...\n    vst1q_u32(\u0026acc_5x5_neon[col], vsum);\n    \nsince all row values are the same anyway?",
+      "parentUuid": "290910bc_ba57d5fb",
+      "range": {
+        "startLine": 127,
+        "startChar": 21,
+        "endLine": 127,
+        "endChar": 24
+      },
+      "revId": "e5fcfbfb59669288aadbccc143364bbf8241d6aa",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }

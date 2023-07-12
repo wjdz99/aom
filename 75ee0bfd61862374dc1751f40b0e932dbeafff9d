@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "34cef9b0_61b5813a",
+        "filename": "av1/encoder/arm/neon/highbd_temporal_filter_neon.c",
+        "patchSetId": 13
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 31817
+      },
+      "writtenOn": "2023-07-12T13:04:15Z",
+      "side": 1,
+      "message": "this loop body is really short now, maybe we can peel the first/last iteration and avoid the need for the load_and_pad function completely?",
+      "range": {
+        "startLine": 95,
+        "startChar": 0,
+        "endLine": 95,
+        "endChar": 55
+      },
+      "revId": "75ee0bfd61862374dc1751f40b0e932dbeafff9d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ae449fa9_34b58a01",
+        "filename": "av1/encoder/arm/neon/highbd_temporal_filter_neon.c",
+        "patchSetId": 13
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 31817
+      },
+      "writtenOn": "2023-07-12T13:04:15Z",
+      "side": 1,
+      "message": "this can be re-indexed as `for (int i \u003d 0; i \u003c 3; ++i)`?",
+      "range": {
+        "startLine": 100,
+        "startChar": 0,
+        "endLine": 100,
+        "endChar": 33
+      },
+      "revId": "75ee0bfd61862374dc1751f40b0e932dbeafff9d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cd368f5e_b7cac28c",
+        "filename": "av1/encoder/arm/neon/highbd_temporal_filter_neon.c",
+        "patchSetId": 13
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 31817
+      },
+      "writtenOn": "2023-07-12T13:04:15Z",
+      "side": 1,
+      "message": "this can be combined with the vmul on line 105 into a vmlaq by using vsrc[3][1] as the accumulator",
+      "range": {
+        "startLine": 108,
+        "startChar": 27,
+        "endLine": 108,
+        "endChar": 37
+      },
+      "revId": "75ee0bfd61862374dc1751f40b0e932dbeafff9d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
