@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c3fd63c3_e0dc51a4",
+        "filename": "test/sum_squares_test.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 562,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-07-12T17:16:19Z",
+      "side": 1,
+      "message": "Keeping Nx64 and 64xN is less fragile if the encoder implementation changes. To prevent a mismatch in expectations you could add asserts to the functions, if the inclusion of those block sizes impacts the implementation.",
+      "revId": "8a27cc88f7f070ab4943ce4738f6e8346d57e957",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
