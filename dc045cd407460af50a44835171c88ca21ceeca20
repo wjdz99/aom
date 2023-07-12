@@ -68,6 +68,30 @@
       },
       "revId": "dc045cd407460af50a44835171c88ca21ceeca20",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "366cb048_d3f7bdf3",
+        "filename": "test/svc_datarate_test.cc",
+        "patchSetId": 13
+      },
+      "lineNbr": 682,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2023-07-12T16:58:28Z",
+      "side": 1,
+      "message": "LAST_FRAME \u003d\u003d 1, so the pattern was referencing the reference #1 which is LAST2 (not LAST):\n// LAST_FRAME (0), LAST2_FRAME(1), LAST3_FRAME(2), GOLDEN_FRAME(3), BWDREF_FRAME(4), ALTREF2_FRAME(5), ALTREF_FRAME(6).\n\nLAST2 is not used in nonrd_pickmode (only LAST/GOLDEN/ALTREF), so it was asserting that no references (last/golden/altref) were being used for an inter-frame. See updated comment there.",
+      "parentUuid": "261b8e0d_d9eb0231",
+      "range": {
+        "startLine": 682,
+        "startChar": 36,
+        "endLine": 682,
+        "endChar": 37
+      },
+      "revId": "dc045cd407460af50a44835171c88ca21ceeca20",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
