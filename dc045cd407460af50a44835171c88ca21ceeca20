@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7161dd46_c89a0e39",
+        "filename": "examples/svc_encoder_rtc.cc",
+        "patchSetId": 13
+      },
+      "lineNbr": 640,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2023-07-12T13:49:49Z",
+      "side": 1,
+      "message": "this block is getting really long and hard to read\n\nwe could figure out a way to refactor this to make it easier to read. Some code can be reused between different modes.",
+      "range": {
+        "startLine": 640,
+        "startChar": 0,
+        "endLine": 640,
+        "endChar": 26
+      },
+      "revId": "dc045cd407460af50a44835171c88ca21ceeca20",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "88bf735c_d31d92d2",
+        "filename": "test/svc_datarate_test.cc",
+        "patchSetId": 13
+      },
+      "lineNbr": 650,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2023-07-12T13:49:49Z",
+      "side": 1,
+      "message": "this block of code and the block above in mode 11 should be factored out and re-used",
+      "range": {
+        "startLine": 650,
+        "startChar": 15,
+        "endLine": 650,
+        "endChar": 38
+      },
+      "revId": "dc045cd407460af50a44835171c88ca21ceeca20",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "261b8e0d_d9eb0231",
+        "filename": "test/svc_datarate_test.cc",
+        "patchSetId": 13
+      },
+      "lineNbr": 682,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2023-07-12T13:49:49Z",
+      "side": 1,
+      "message": "does the change (`LAST_FRAME`-\u003e`0` and `GOLDEN_FRAME`-\u003e`3`) fix the assertion failure? If so I don\u0027t understand because they\u0027re equivalent?",
+      "range": {
+        "startLine": 682,
+        "startChar": 36,
+        "endLine": 682,
+        "endChar": 37
+      },
+      "revId": "dc045cd407460af50a44835171c88ca21ceeca20",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
