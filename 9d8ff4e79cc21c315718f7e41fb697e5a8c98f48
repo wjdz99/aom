@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "78f0ac44_b917b69f",
+        "filename": "test/warp_filter_test_util.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-07-12T02:30:54Z",
+      "side": 1,
+      "message": "this should be a bool, but for consistency with the other flags, int makes sense.",
+      "range": {
+        "startLine": 41,
+        "startChar": 58,
+        "endLine": 41,
+        "endChar": 61
+      },
+      "revId": "9d8ff4e79cc21c315718f7e41fb697e5a8c98f48",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
