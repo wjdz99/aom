@@ -240,11 +240,12 @@ enum {
 } UENUM1BYTE(PRUNE_NEARMV_LEVEL);
 
 enum {
-  // Default Transform search case - used in evaluation of compound type mode
-  // and best inter candidates
+  // Default Transform search case - used in evaluation of best inter candidates
   TX_SEARCH_DEFAULT = 0,
   // Transform search in motion mode rd
   TX_SEARCH_MOTION_MODE,
+  // Transform search in compound type mode rd
+  TX_SEARCH_COMP_TYPE_MODE,
   // All transform search cases
   TX_SEARCH_CASES
 } UENUM1BYTE(TX_SEARCH_CASE);
