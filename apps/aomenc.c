@@ -65,7 +65,8 @@ static size_t wrap_fwrite(const void *ptr, size_t size, size_t nmemb,
 static const char *exec_name;
 
 static AOM_TOOLS_FORMAT_PRINTF(3, 0) void warn_or_exit_on_errorv(
-    aom_codec_ctx_t *ctx, int fatal, const char *s, va_list ap) {
+    aom_codec_ctx_t *ctx, int fatal, const char *s, bool destroy_ctx,
+    va_list ap) {
   if (ctx->err) {
     const char *detail = aom_codec_error_detail(ctx);
 
@@ -74,17 +75,19 @@ static AOM_TOOLS_FORMAT_PRINTF(3, 0) void warn_or_exit_on_errorv(
 
     if (detail) fprintf(stderr, "    %s\n", detail);
 
+    if (destroy_ctx) aom_codec_destroy(ctx);
     if (fatal) exit(EXIT_FAILURE);
   }
 }
 
-static AOM_TOOLS_FORMAT_PRINTF(2,
-                               3) void ctx_exit_on_error(aom_codec_ctx_t *ctx,
+static AOM_TOOLS_FORMAT_PRINTF(3,
+                               4) void ctx_exit_on_error(aom_codec_ctx_t *ctx,
+                                                         bool destroy_ctx,
                                                          const char *s, ...) {
   va_list ap;
 
   va_start(ap, s);
-  warn_or_exit_on_errorv(ctx, 1, s, ap);
+  warn_or_exit_on_errorv(ctx, 1, s, destroy_ctx, ap);
   va_end(ap);
 }
 
@@ -93,7 +96,7 @@ static AOM_TOOLS_FORMAT_PRINTF(3, 4) void warn_or_exit_on_error(
   va_list ap;
 
   va_start(ap, s);
-  warn_or_exit_on_errorv(ctx, fatal, s, ap);
+  warn_or_exit_on_errorv(ctx, fatal, s, fatal, ap);
   va_end(ap);
 }
 
@@ -1507,7 +1510,9 @@ static void initialize_encoder(struct stream_state *stream,
   /* Construct Encoder Context */
   aom_codec_enc_init(&stream->encoder, global->codec, &stream->config.cfg,
                      flags);
-  ctx_exit_on_error(&stream->encoder, "Failed to initialize encoder");
+  /* Encoder context is destroyed inside aom_codec_enc_init_ver() in case of an
+   * error, so false is passed to avoid the same again.*/
+  ctx_exit_on_error(&stream->encoder, false, "Failed to initialize encoder");
 
   for (i = 0; i < stream->config.arg_ctrl_cnt; i++) {
     int ctrl = stream->config.arg_ctrls[i][0];
@@ -1515,7 +1520,7 @@ static void initialize_encoder(struct stream_state *stream,
     if (aom_codec_control(&stream->encoder, ctrl, value))
       fprintf(stderr, "Error: Tried to set control %d = %d\n", ctrl, value);
 
-    ctx_exit_on_error(&stream->encoder, "Failed to control codec");
+    ctx_exit_on_error(&stream->encoder, true, "Failed to control codec");
   }
 
   for (i = 0; i < stream->config.arg_key_val_cnt; i++) {
@@ -1524,7 +1529,7 @@ static void initialize_encoder(struct stream_state *stream,
     if (aom_codec_set_option(&stream->encoder, name, val))
       fprintf(stderr, "Error: Tried to set option %s = %s\n", name, val);
 
-    ctx_exit_on_error(&stream->encoder, "Failed to set codec option");
+    ctx_exit_on_error(&stream->encoder, true, "Failed to set codec option");
   }
 
 #if CONFIG_TUNE_VMAF
@@ -1566,19 +1571,22 @@ static void initialize_encoder(struct stream_state *stream,
     if (strcmp(get_short_name_by_aom_encoder(global->codec), "av1") == 0) {
       AOM_CODEC_CONTROL_TYPECHECKED(&stream->decoder, AV1_SET_TILE_MODE,
                                     stream->config.cfg.large_scale_tile);
-      ctx_exit_on_error(&stream->decoder, "Failed to set decode_tile_mode");
+      ctx_exit_on_error(&stream->decoder, true,
+                        "Failed to set decode_tile_mode");
 
       AOM_CODEC_CONTROL_TYPECHECKED(&stream->decoder, AV1D_SET_IS_ANNEXB,
                                     stream->config.cfg.save_as_annexb);
-      ctx_exit_on_error(&stream->decoder, "Failed to set is_annexb");
+      ctx_exit_on_error(&stream->decoder, true, "Failed to set is_annexb");
 
       AOM_CODEC_CONTROL_TYPECHECKED(&stream->decoder, AV1_SET_DECODE_TILE_ROW,
                                     -1);
-      ctx_exit_on_error(&stream->decoder, "Failed to set decode_tile_row");
+      ctx_exit_on_error(&stream->decoder, true,
+                        "Failed to set decode_tile_row");
 
       AOM_CODEC_CONTROL_TYPECHECKED(&stream->decoder, AV1_SET_DECODE_TILE_COL,
                                     -1);
-      ctx_exit_on_error(&stream->decoder, "Failed to set decode_tile_col");
+      ctx_exit_on_error(&stream->decoder, true,
+                        "Failed to set decode_tile_col");
     }
   }
 #endif
@@ -1652,7 +1660,7 @@ static void encode_frame(struct stream_state *stream,
       img = stream->img;
 #else
       stream->encoder.err = 1;
-      ctx_exit_on_error(&stream->encoder,
+      ctx_exit_on_error(&stream->encoder, true,
                         "Stream %d: Failed to encode frame.\n"
                         "libyuv is required for scaling but is currently "
                         "disabled.\n"
@@ -1682,7 +1690,7 @@ static void encode_frame(struct stream_state *stream,
     img = stream->img;
 #else
     stream->encoder.err = 1;
-    ctx_exit_on_error(&stream->encoder,
+    ctx_exit_on_error(&stream->encoder, true,
                       "Stream %d: Failed to encode frame.\n"
                       "Scaling disabled in this configuration. \n"
                       "To enable, configure with --enable-libyuv\n",
@@ -1701,7 +1709,7 @@ static void encode_frame(struct stream_state *stream,
                    (uint32_t)(next_frame_start - frame_start), 0);
   aom_usec_timer_mark(&timer);
   stream->cx_time += aom_usec_timer_elapsed(&timer);
-  ctx_exit_on_error(&stream->encoder, "Stream %d: Failed to encode frame",
+  ctx_exit_on_error(&stream->encoder, true, "Stream %d: Failed to encode frame",
                     stream->index);
 }
 
@@ -1711,7 +1719,7 @@ static void update_quantizer_histogram(struct stream_state *stream) {
 
     AOM_CODEC_CONTROL_TYPECHECKED(&stream->encoder, AOME_GET_LAST_QUANTIZER_64,
                                   &q);
-    ctx_exit_on_error(&stream->encoder, "Failed to read quantizer");
+    ctx_exit_on_error(&stream->encoder, true, "Failed to read quantizer");
     stream->counts[q]++;
   }
 }
@@ -1898,8 +1906,10 @@ static void test_decode(struct stream_state *stream,
     }
   }
 
-  ctx_exit_on_error(&stream->encoder, "Failed to get encoder reference frame");
-  ctx_exit_on_error(&stream->decoder, "Failed to get decoder reference frame");
+  ctx_exit_on_error(&stream->encoder, true,
+                    "Failed to get encoder reference frame");
+  ctx_exit_on_error(&stream->decoder, true,
+                    "Failed to get decoder reference frame");
 
   if (!aom_compare_img(&enc_img, &dec_img)) {
     int y[4], u[4], v[4];
