@@ -16,6 +16,24 @@
       "message": "It looks like this define is new, we could use a local fallback for this one if it isn\u0027t defined. Fallbacks for the other two couldn\u0027t hurt for compatibility, though I assume HWCAP_CRC32 is on the older side.",
       "revId": "9fea28a7240c762a7fdf2973a735bc5d532f9e63",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fefcba05_fdca3794",
+        "filename": "aom_ports/arm_cpudetect.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 31817
+      },
+      "writtenOn": "2023-07-14T15:31:35Z",
+      "side": 1,
+      "message": "Done. It seems like these are pretty new and I imagine that this problem will only get worse as we add newer features, so defining them locally seems like a sane approach.",
+      "parentUuid": "0f8bcda0_edde152a",
+      "revId": "9fea28a7240c762a7fdf2973a735bc5d532f9e63",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
