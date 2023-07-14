@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "31bd6182_0ceeb2a1",
+        "filename": "aom_ports/arm_cpudetect.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-07-14T18:18:37Z",
+      "side": 1,
+      "message": "The only risk would be if the bits changed, but that would be its own compatibility problem.",
+      "revId": "4e303c6dbf684925930047861be2603031c51115",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8d336e5c_a840e682",
+        "filename": "build/cmake/aom_config_defaults.cmake",
+        "patchSetId": 5
+      },
+      "lineNbr": 205,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-07-14T18:18:37Z",
+      "side": 1,
+      "message": "I\u0027m not sure how best to describe this. They were optional until Arm8-6-A, no? I guess this aligns with the `-march` you\u0027re using to enable it though.",
+      "range": {
+        "startLine": 205,
+        "startChar": 11,
+        "endLine": 205,
+        "endChar": 20
+      },
+      "revId": "4e303c6dbf684925930047861be2603031c51115",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
