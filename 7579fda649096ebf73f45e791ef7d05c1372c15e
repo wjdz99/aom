@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2cb31356_4fe65aeb",
+        "filename": "aom_ports/arm_cpudetect.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-07-15T02:04:54Z",
+      "side": 1,
+      "message": "it won\u0027t carry over to libvpx, but have this return a bool to better match the name",
+      "range": {
+        "startLine": 63,
+        "startChar": 14,
+        "endLine": 63,
+        "endChar": 21
+      },
+      "revId": "7579fda649096ebf73f45e791ef7d05c1372c15e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5307c386_e93e5cfb",
+        "filename": "aom_ports/arm_cpudetect.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-07-15T02:04:54Z",
+      "side": 1,
+      "message": "check the error return and return 0 if it fails.",
+      "revId": "7579fda649096ebf73f45e791ef7d05c1372c15e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "aef8136e_f48fdc09",
+        "filename": "aom_ports/arm_cpudetect.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-07-15T02:04:54Z",
+      "side": 1,
+      "message": "add the link you sent before to the Apple documentation here for these features.",
+      "revId": "7579fda649096ebf73f45e791ef7d05c1372c15e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
