@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2d003c4a_bab1bbfc",
+        "filename": "aom_dsp/arm/masked_sad4d_neon.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 525,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-07-17T20:14:20Z",
+      "side": 0,
+      "message": "`-Wreturn-type` likely hides this under gcc:\n\n```\nFor C only, warn about a \"return\" statement with an expression in a function whose return type is \"void\", unless the expression type is also \"void\".  As a GNU extension, the latter case is accepted without a warning unless -Wpedantic is used.\n```",
+      "revId": "93ca91b96d840e0f59cc77b677cae383ff944d26",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
