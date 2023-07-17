@@ -1833,7 +1833,11 @@ static void set_rt_speed_features_framesize_independent(AV1_COMP *cpi,
         // Use DC, H, V intra mode for block sizes < 32X32.
         sf->rt_sf.intra_y_mode_bsize_mask_nrd[i] = INTRA_DC_H_V;
 
-    sf->winner_mode_sf.dc_blk_pred_level = 0;
+    sf->winner_mode_sf.dc_blk_pred_level =
+        (!frame_is_intra_only(cm) &&
+         cpi->oxcf.tune_cfg.content == AOM_CONTENT_SCREEN)
+            ? 3
+            : 0;
     sf->rt_sf.var_part_based_on_qidx = 3;
     sf->rt_sf.prune_compoundmode_with_singlecompound_var = true;
     sf->rt_sf.prune_compoundmode_with_singlemode_var = true;
