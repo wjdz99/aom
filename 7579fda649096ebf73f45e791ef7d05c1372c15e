@@ -24,6 +24,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "d103c1c6_54c50db3",
+        "filename": "aom_ports/arm_cpudetect.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 31042
+      },
+      "writtenOn": "2023-07-17T10:16:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2cb31356_4fe65aeb",
+      "range": {
+        "startLine": 63,
+        "startChar": 14,
+        "endLine": 63,
+        "endChar": 21
+      },
+      "revId": "7579fda649096ebf73f45e791ef7d05c1372c15e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "5307c386_e93e5cfb",
@@ -41,6 +65,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "19eb37d5_c0ec554b",
+        "filename": "aom_ports/arm_cpudetect.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 31042
+      },
+      "writtenOn": "2023-07-17T10:16:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5307c386_e93e5cfb",
+      "revId": "7579fda649096ebf73f45e791ef7d05c1372c15e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "aef8136e_f48fdc09",
@@ -54,6 +96,24 @@
       "writtenOn": "2023-07-15T02:04:54Z",
       "side": 1,
       "message": "add the link you sent before to the Apple documentation here for these features.",
+      "revId": "7579fda649096ebf73f45e791ef7d05c1372c15e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c0fed17b_9f2dc038",
+        "filename": "aom_ports/arm_cpudetect.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 31042
+      },
+      "writtenOn": "2023-07-17T10:16:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "aef8136e_f48fdc09",
       "revId": "7579fda649096ebf73f45e791ef7d05c1372c15e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
