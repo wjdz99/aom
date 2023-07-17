@@ -47,6 +47,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "677b5959_c4fa6a8b",
+        "filename": "test/svc_datarate_test.cc",
+        "patchSetId": 13
+      },
+      "lineNbr": 650,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2023-07-17T22:51:12Z",
+      "side": 1,
+      "message": "split it into 2 functions. The simulcast case has very different constraints along with specific comments, so probably not worth trying to merge it more with non-simulcast/svc case.",
+      "parentUuid": "88bf735c_d31d92d2",
+      "range": {
+        "startLine": 650,
+        "startChar": 15,
+        "endLine": 650,
+        "endChar": 38
+      },
+      "revId": "dc045cd407460af50a44835171c88ca21ceeca20",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "261b8e0d_d9eb0231",
