@@ -105,13 +105,23 @@ aom_codec_err_t aom_codec_control(aom_codec_ctx_t *ctx, int ctrl_id, ...) {
     if (entry->ctrl_id == ctrl_id) {
       va_list ap;
       va_start(ap, ctrl_id);
-      ctx->err = entry->fn((aom_codec_alg_priv_t *)ctx->priv, ap);
+      aom_codec_err_t res = entry->fn((aom_codec_alg_priv_t *)ctx->priv, ap);
       va_end(ap);
-      return ctx->err;
+      if (res) {
+        // IMPORTANT: ctx->priv->err_detail must be null or point to a string
+        // that remains valid after ctx->priv is destroyed, such as a C string
+        // literal. This makes it safe to call aom_codec_error_detail() after
+        // aom_codec_control() failed.
+        const char *err_detail = ctx->priv ? ctx->priv->err_detail : NULL;
+        if (err_detail) fprintf(stderr, "%s\n", err_detail);
+        aom_codec_destroy(ctx);
+      }
+      return SAVE_STATUS(ctx, res);
     }
   }
+  aom_codec_destroy(ctx);
   ctx->err = AOM_CODEC_ERROR;
-  ctx->priv->err_detail = "Invalid control ID";
+  ctx->err_detail = "Invalid control ID";
   return AOM_CODEC_ERROR;
 }
 
@@ -124,9 +134,18 @@ aom_codec_err_t aom_codec_set_option(aom_codec_ctx_t *ctx, const char *name,
     ctx->err = AOM_CODEC_ERROR;
     return AOM_CODEC_ERROR;
   }
-  ctx->err =
+  aom_codec_err_t res =
       ctx->iface->set_option((aom_codec_alg_priv_t *)ctx->priv, name, value);
-  return ctx->err;
+  if (res) {
+    // IMPORTANT: ctx->priv->err_detail must be null or point to a string
+    // that remains valid after ctx->priv is destroyed, such as a C string
+    // literal. This makes it safe to call aom_codec_error_detail() after
+    // aom_codec_set_option() failed.
+    const char *err_detail = ctx->priv ? ctx->priv->err_detail : NULL;
+    if (err_detail) fprintf(stderr, "%s\n", err_detail);
+    aom_codec_destroy(ctx);
+  }
+  return SAVE_STATUS(ctx, res);
 }
 
 void aom_internal_error(struct aom_internal_error_info *info,

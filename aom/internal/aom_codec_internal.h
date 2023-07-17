@@ -54,6 +54,8 @@
 extern "C" {
 #endif
 
+#define SAVE_STATUS(ctx, var) (ctx ? (ctx->err = var) : var)
+
 /*!\brief Current ABI version number
  *
  * \internal
