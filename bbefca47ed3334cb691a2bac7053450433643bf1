@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8604d91c_35c699de",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2023-07-18T20:00:57Z",
+      "side": 1,
+      "message": "Hi Ranjit, this search order change looks fine to me. Could you double check it? Thanks.",
+      "revId": "bbefca47ed3334cb691a2bac7053450433643bf1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0b4358c2_2623c46c",
+        "filename": "av1/encoder/pickrst.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 2013,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2023-07-18T20:00:57Z",
+      "side": 1,
+      "message": "\"This bypasses an early exit\" - Would this affect the encoder time?",
+      "range": {
+        "startLine": 2013,
+        "startChar": 4,
+        "endLine": 2013,
+        "endChar": 68
+      },
+      "revId": "bbefca47ed3334cb691a2bac7053450433643bf1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
