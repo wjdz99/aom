@@ -20,6 +20,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "f091824a_f638ac0c",
+        "filename": ".mailmap",
+        "patchSetId": 1
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-07-18T18:28:54Z",
+      "side": 1,
+      "message": "Should we revert this CL, cherry-pick James\u0027s commit, and then regenerate the AUTHORS and .mailcap files?",
+      "parentUuid": "473dfe0c_238713a8",
+      "revId": "6fd6dd4c3ea9fc6b3efbf3b67d7d762dc7f48ea0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "aea4b2b6_4e7a62ca",
         "filename": "/PATCHSET_LEVEL",
         "patchSetId": 1
