@@ -260,6 +260,30 @@
       },
       "revId": "651552294dbee050e82d78336a34b20458ea09ce",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3f8529bc_64717d8c",
+        "filename": "av1/encoder/arm/neon/highbd_temporal_filter_neon.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 32122
+      },
+      "writtenOn": "2023-07-18T20:05:06Z",
+      "side": 1,
+      "message": "So, this one has been bugging me for weeks. It turns out that the checksum is wrong also in the Intel implementations. When I fixed the Neon version to produce the correct binary, then the unit test fails! If I fix the unit test, then the Intel implementations fail! I have confirmed that I get the wrong checksums on Intel also. I\u0027ll commit the current progress and we can discuss further.",
+      "parentUuid": "82445b43_8e880f57",
+      "range": {
+        "startLine": 131,
+        "startChar": 0,
+        "endLine": 145,
+        "endChar": 7
+      },
+      "revId": "651552294dbee050e82d78336a34b20458ea09ce",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
