@@ -16,6 +16,24 @@
       "message": "Hi James!\n\nIt seems like the verification is failing because we currently have nothing guarding that particular features are enabled when we try to run tests, and the machine running the sanitizers appears to not have the Neon i8mm extension.\n\nI don\u0027t see any special handling for this already present in the library, so I was wondering if you had a preference on how we handle these situations as we port more code to take advantage of runtime feature detection?\n\nThanks!",
       "revId": "ecad9b5dbdcf17a5f5794a2a8b176ad4040d03d8",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e4dfbd10_963af23b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-07-18T18:30:43Z",
+      "side": 1,
+      "message": "\u003e Hi James!\n\u003e \n\u003e It seems like the verification is failing because we currently have nothing guarding that particular features are enabled when we try to run tests, and the machine running the sanitizers appears to not have the Neon i8mm extension.\n\u003e \n\u003e I don\u0027t see any special handling for this already present in the library, so I was wondering if you had a preference on how we handle these situations as we port more code to take advantage of runtime feature detection?\n\u003e \n\n[test_libaom.cc](https://aomedia.googlesource.com/aom/+/e2318cdca95519318af93205fe6d9156b5353924/test/test_libaom.cc#52) handles this for x86. Arm should be able to do something similar.",
+      "parentUuid": "2327c60f_c3f586e6",
+      "revId": "ecad9b5dbdcf17a5f5794a2a8b176ad4040d03d8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
