@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3ed54e2e_5337135a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-07-18T20:15:21Z",
+      "side": 1,
+      "message": "I\u0027ll merge this if there aren\u0027t any other comments.",
+      "revId": "4cb16390137b62347948f6de4fd9b3c9e6661fcc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
