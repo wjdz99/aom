@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2327c60f_c3f586e6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 31817
+      },
+      "writtenOn": "2023-07-18T14:16:19Z",
+      "side": 1,
+      "message": "Hi James!\n\nIt seems like the verification is failing because we currently have nothing guarding that particular features are enabled when we try to run tests, and the machine running the sanitizers appears to not have the Neon i8mm extension.\n\nI don\u0027t see any special handling for this already present in the library, so I was wondering if you had a preference on how we handle these situations as we port more code to take advantage of runtime feature detection?\n\nThanks!",
+      "revId": "ecad9b5dbdcf17a5f5794a2a8b176ad4040d03d8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
