@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "45ba2989_5e30f68c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2023-07-19T20:40:14Z",
+      "side": 1,
+      "message": "Looks like good and reasonable optimization. What is the metric for BDrate? It could be better to include more metrics to show the impact in a broad sense (e.g. avg_psnr, ovr_psnr, and ssim).",
+      "revId": "3c0ab24e209283c445a09622943b18d4ce2309fc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
