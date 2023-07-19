@@ -39,6 +39,30 @@
       },
       "revId": "bbefca47ed3334cb691a2bac7053450433643bf1",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fbb0e690_4030730a",
+        "filename": "av1/encoder/pickrst.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 2013,
+      "author": {
+        "id": 29052
+      },
+      "writtenOn": "2023-07-19T09:52:16Z",
+      "side": 1,
+      "message": "There\u0027s no significant impact - the function in question doesn\u0027t do a huge amount of work to begin with, it just has an early exit that\u0027s meant to reduce effort in the decoder even further, but which causes problems in the encoder as we haven\u0027t picked the frame restoration type yet.\n\nYou know, it might be clearer if I move the early exit check outside of av1_loop_restoration_corners_in_sb(), and have the decoder check the frame restoration type before calling it. Then I wouldn\u0027t need this hack here. I\u0027ll have a go at that and see if that\u0027s nicer.",
+      "parentUuid": "0b4358c2_2623c46c",
+      "range": {
+        "startLine": 2013,
+        "startChar": 4,
+        "endLine": 2013,
+        "endChar": 68
+      },
+      "revId": "bbefca47ed3334cb691a2bac7053450433643bf1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
