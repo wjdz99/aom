@@ -71,6 +71,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "3fc054a7_fc935b40",
+        "filename": "build/cmake/aom_configure.cmake",
+        "patchSetId": 1
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-07-19T19:56:07Z",
+      "side": 1,
+      "message": "\u003e `find_package(Git)` is at line 439.\n\u003e \n\u003e `find_package(Perl)` is at line 449.\n\u003e \n\u003e So this CL doesn\u0027t need to add them.\n\nI guess earlier `find_package()` became a noop; at least I only see output related to the include calls not from them. This does mean detection is deferred until that call. Basic prerequisites could be moved earlier, though I don\u0027t think the tools are used by any of the includes that follow.",
+      "parentUuid": "44883301_e6c0eaca",
+      "revId": "40120fca72cada5ed4d69ec1db4f7e689f9eedef",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "1d82b779_7b682f29",
         "filename": "build/cmake/aom_configure.cmake",
         "patchSetId": 1
