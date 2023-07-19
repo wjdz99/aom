@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6aaf828d_0ec24c92",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-07-19T19:23:03Z",
+      "side": 1,
+      "message": "James: Please review.\n\nSteve: Just FYI because this is related to your CL https://aomedia-review.googlesource.com/c/aom/+/178241.",
+      "revId": "40120fca72cada5ed4d69ec1db4f7e689f9eedef",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
