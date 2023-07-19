@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "565c51be_60006aee",
+        "filename": "build/cmake/pkg_config.cmake",
+        "patchSetId": 7
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-07-19T19:03:23Z",
+      "side": 1,
+      "message": "Let\u0027s go back to patchset 5, and change the if conditional as follows to avoid an extra space character at the end of the line on Linux:\n\n```\nif(CONFIG_MULTITHREAD AND CMAKE_THREAD_LIBS_INIT)\n  file(APPEND \"${pkgconfig_file}\"\n       \"Libs.private: -lm ${CMAKE_THREAD_LIBS_INIT}\\n\")\nelse()\n  file(APPEND \"${pkgconfig_file}\" \"Libs.private: -lm\\n\")\nendif()\n```",
+      "revId": "9b5bb6c9a00de728a2010ffa735d710e15ff08fe",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
