@@ -22,6 +22,30 @@
       },
       "revId": "13bd72592472f3f23e6aa2d4a9092685557b9fa4",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "655778e1_ea83f3af",
+        "filename": "av1/encoder/pickrst.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 1779,
+      "author": {
+        "id": 29052
+      },
+      "writtenOn": "2023-07-20T08:49:11Z",
+      "side": 1,
+      "message": "The rate calculations in the earlier functions are fine, they\u0027re just computed in the wrong context for this function: The rate computed by search_wiener() is computed for frame_restoration_mode \u003d RESTORE_WIENER, while the rate cost here is computed for frame_restoration_mode \u003d RESTORE_SWITCHABLE.\n\nThese two rate costs can be different, which means that the total cost under RESTORE_WIENER isn\u0027t a great proxy for the total cost under RESTORE_SWITCHABLE, especially at high q values. So what this change is proposing, is to ignore the rate part of the cost, and only prune based on the SSE, which is independent of the frame_restoration_mode.",
+      "parentUuid": "a3bb8eac_5268d04d",
+      "range": {
+        "startLine": 1777,
+        "startChar": 59,
+        "endLine": 1779,
+        "endChar": 62
+      },
+      "revId": "13bd72592472f3f23e6aa2d4a9092685557b9fa4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
