@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f563cbf0_fd975952",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-07-20T19:11:00Z",
+      "side": 1,
+      "message": "I see failures in the Argon test vectors with this patch, for example:\n\n```\nprofile1_core/streams/test1672_5292_4796.obu: FAILED\nactual: feb69ce2b82e10e47b5f170083cd811a\nexpected: f712c840f0399a48f4e1be6a0dd6b8af\n\nprofile1_core/streams/test1456_130_5767.obu: FAILED\nactual: bd6169548f219dc5f6fe848bedd181ac\nexpected: b919797ebd2e4bafe1bddb343df63e87\n```\n\nSince these are [publicly available](https://aomedia.org/av1-video-decoder-verification-tool) now we should add them to the nightly or possibly the presubmit, but for now we have an internal ~weekly check.",
+      "revId": "5ab53412e299b1169aeb5229c20728f43cc75e45",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
