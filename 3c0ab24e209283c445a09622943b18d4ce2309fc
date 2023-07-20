@@ -52,6 +52,24 @@
       "parentUuid": "4bc7faa2_fd74972a",
       "revId": "3c0ab24e209283c445a09622943b18d4ce2309fc",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c344a5ad_0148524e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2023-07-20T15:05:34Z",
+      "side": 1,
+      "message": "ssim should be fine. Also, avg_psnr and overall_psnr don\u0027t always agree with each other, so maybe also add overall_psnr.\nOther patches are fine with minor BDrate changes. Let\u0027s start from this one.",
+      "parentUuid": "1a2b0cea_075f006a",
+      "revId": "3c0ab24e209283c445a09622943b18d4ce2309fc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
