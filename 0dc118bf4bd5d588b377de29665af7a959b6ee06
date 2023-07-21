@@ -16,6 +16,23 @@
       "message": "LGTM. This (patchset 9) is the same as patchset 5, which James and I approved.",
       "revId": "0dc118bf4bd5d588b377de29665af7a959b6ee06",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "85f82813_71125dc4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 9
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-07-21T17:21:06Z",
+      "side": 1,
+      "message": "For anyone wondering about the empty values on Linux, there was a recent change to remove libpthread:\n\nhttps://developers.redhat.com/articles/2021/12/17/why-glibc-234-removed-libpthread",
+      "revId": "0dc118bf4bd5d588b377de29665af7a959b6ee06",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
