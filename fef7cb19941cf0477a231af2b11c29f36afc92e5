@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d46b680f_a0fd9b63",
+        "filename": "aom_dsp/arm/transpose_neon.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 400,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-07-21T20:34:26Z",
+      "side": 1,
+      "message": "Nice cleanup. I think some of the use of pointers in NEON carried over from x86 which presents a problem for the Windows ABI.",
+      "revId": "fef7cb19941cf0477a231af2b11c29f36afc92e5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
