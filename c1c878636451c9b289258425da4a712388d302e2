@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "12b3fd6b_19a41683",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8893
+      },
+      "writtenOn": "2023-07-21T11:34:14Z",
+      "side": 1,
+      "message": "This CL extends the speed feature `use_sad_for_mode_decision` to speed 4.\nThe results are as follows:\n```\n                 Instruction Count        BD-Rate Loss(%)\ncpu   Resolution   Reduction(%)    avg.psnr   ovr.psnr    ssim   \n 4       LOWRES2      0.605        -0.0419    -0.0498   -0.0179  \n 4       MIDRES2      0.821        -0.0094     0.0026    0.0268  \n 4        HDRES2      0.871        -0.0223    -0.0323   -0.0051  \n 4       Average      0.766        -0.0245    -0.0265    0.0012  \n ```\nThe sf is not extended to speed 3 as the instruction count reduction is small (~0.3%).",
+      "revId": "c1c878636451c9b289258425da4a712388d302e2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
