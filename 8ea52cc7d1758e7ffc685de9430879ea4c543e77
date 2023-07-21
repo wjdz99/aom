@@ -122,6 +122,24 @@
       "parentUuid": "b3ed55e6_1a74ef13",
       "revId": "8ea52cc7d1758e7ffc685de9430879ea4c543e77",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a3b59dac_5a1ba9c0",
+        "filename": "CMakeLists.txt",
+        "patchSetId": 1
+      },
+      "lineNbr": 650,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-07-21T21:17:34Z",
+      "side": 1,
+      "message": "Thank you both for the replies.",
+      "parentUuid": "b52eb944_c4f61772",
+      "revId": "8ea52cc7d1758e7ffc685de9430879ea4c543e77",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }

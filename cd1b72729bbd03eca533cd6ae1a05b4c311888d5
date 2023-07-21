@@ -52,6 +52,24 @@
       "parentUuid": "d22783f8_2ed5d2c7",
       "revId": "cd1b72729bbd03eca533cd6ae1a05b4c311888d5",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "587e41e5_0944edd6",
+        "filename": "CMakeLists.txt",
+        "patchSetId": 1
+      },
+      "lineNbr": 650,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-07-21T21:17:34Z",
+      "side": 0,
+      "message": "Thank you both for the replies.\n\nI found that Sai added `-static` in https://aomedia-review.googlesource.com/c/aom/+/133582, but he didn\u0027t say why.",
+      "parentUuid": "34b33ecc_78005ea3",
+      "revId": "cd1b72729bbd03eca533cd6ae1a05b4c311888d5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
