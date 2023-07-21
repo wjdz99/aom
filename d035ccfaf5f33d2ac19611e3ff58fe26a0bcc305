@@ -179,6 +179,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "8500f953_466d9db1",
+        "filename": "test/disflow_test.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-07-21T16:48:55Z",
+      "side": 1,
+      "message": "\u003e That will generate an integer, we need the division to make it a non-integer value, so the test aligns better with a real world case.\n\nI see, I wasn\u0027t paying attention to the type. Use `static_cast\u003cdouble\u003e()` here and make them const.",
+      "parentUuid": "e821302a_8818c72d",
+      "range": {
+        "startLine": 64,
+        "startChar": 27,
+        "endLine": 64,
+        "endChar": 51
+      },
+      "revId": "d035ccfaf5f33d2ac19611e3ff58fe26a0bcc305",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "34a88180_d7adefba",
         "filename": "test/disflow_test.cc",
         "patchSetId": 6
