@@ -3,6 +3,23 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "fb9bb9b6_701ae398",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-07-21T19:41:06Z",
+      "side": 1,
+      "message": "This CL seems correct, but I am not familiar with the code. I have some questions.",
+      "revId": "8ea52cc7d1758e7ffc685de9430879ea4c543e77",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "c1161b44_50fd58fd",
         "filename": "CMakeLists.txt",
         "patchSetId": 1
@@ -14,6 +31,41 @@
       "writtenOn": "2023-07-21T16:02:30Z",
       "side": 1,
       "message": "Setting `target_include_directories()` isn\u0027t necessary because this target depends on the objects. To be safe, I can add it though.",
+      "revId": "8ea52cc7d1758e7ffc685de9430879ea4c543e77",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "13db1591_12b421cb",
+        "filename": "CMakeLists.txt",
+        "patchSetId": 1
+      },
+      "lineNbr": 288,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-07-21T19:41:06Z",
+      "side": 1,
+      "message": "Did you mean adding `target_include_directories(aom_static PRIVATE ${VMAF_INCLUDE_DIRS})` after line 648?\n\nIf I understand your comment correctly, we should be able to delete line 651 because the `aom` library target depends on the same objects, right?",
+      "parentUuid": "c1161b44_50fd58fd",
+      "revId": "8ea52cc7d1758e7ffc685de9430879ea4c543e77",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b3ed55e6_1a74ef13",
+        "filename": "CMakeLists.txt",
+        "patchSetId": 1
+      },
+      "lineNbr": 650,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-07-21T19:41:06Z",
+      "side": 1,
+      "message": "Do you think we can replace lines 646-650 with the following?\n\n```\n      target_link_libraries(${AOM_LIB} PRIVATE ${VMAF_LDFLAGS} ${VMAF_LIBRARIES})\n```\n\nI haven\u0027t figured out when `${AOM_LIB}` should be used.",
       "revId": "8ea52cc7d1758e7ffc685de9430879ea4c543e77",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
