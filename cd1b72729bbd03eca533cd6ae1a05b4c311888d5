@@ -16,6 +16,24 @@
       "message": "The `-static` flag may have been used to indicate that when `BUILD_SHARED_LIBS` is 0, we prefer to link with the static vmaf library. Is there a way to express a preference for the static library in CMake?",
       "revId": "cd1b72729bbd03eca533cd6ae1a05b4c311888d5",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ebe8059c_745e8911",
+        "filename": "CMakeLists.txt",
+        "patchSetId": 1
+      },
+      "lineNbr": 650,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-07-21T20:51:32Z",
+      "side": 0,
+      "message": "\u003e The `-static` flag may have been used to indicate that when `BUILD_SHARED_LIBS` is 0, we prefer to link with the static vmaf library. Is there a way to express a preference for the static library in CMake?\n\nThis was the wrong way to do it, though. It would result in a fully static build. `-Wl,-Bstatic` can be used, but it won\u0027t fix the Arch Linux issue. I don\u0027t think there\u0027s much value in forcing a static link for a system lib like this.",
+      "parentUuid": "d22783f8_2ed5d2c7",
+      "revId": "cd1b72729bbd03eca533cd6ae1a05b4c311888d5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }

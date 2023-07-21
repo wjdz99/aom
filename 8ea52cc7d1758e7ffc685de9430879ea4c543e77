@@ -53,6 +53,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "604a788b_af42c66b",
+        "filename": "CMakeLists.txt",
+        "patchSetId": 1
+      },
+      "lineNbr": 288,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-07-21T20:51:32Z",
+      "side": 1,
+      "message": "\u003e Did you mean adding `target_include_directories(aom_static PRIVATE ${VMAF_INCLUDE_DIRS})` after line 648?\n\u003e \n\nYes.\n\n\u003e If I understand your comment correctly, we should be able to delete line 651 because the `aom` library target depends on the same objects, right?\n\nYes it can. I didn\u0027t realize it was just accumulating objects too.",
+      "parentUuid": "13db1591_12b421cb",
+      "revId": "8ea52cc7d1758e7ffc685de9430879ea4c543e77",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b3ed55e6_1a74ef13",
@@ -66,6 +84,24 @@
       "writtenOn": "2023-07-21T19:41:06Z",
       "side": 1,
       "message": "Do you think we can replace lines 646-650 with the following?\n\n```\n      target_link_libraries(${AOM_LIB} PRIVATE ${VMAF_LDFLAGS} ${VMAF_LIBRARIES})\n```\n\nI haven\u0027t figured out when `${AOM_LIB}` should be used.",
+      "revId": "8ea52cc7d1758e7ffc685de9430879ea4c543e77",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8d0d2a93_e927db64",
+        "filename": "CMakeLists.txt",
+        "patchSetId": 1
+      },
+      "lineNbr": 650,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-07-21T20:51:32Z",
+      "side": 1,
+      "message": "\u003e Do you think we can replace lines 646-650 with the following?\n\u003e \n\u003e ```\n\u003e       target_link_libraries(${AOM_LIB} PRIVATE ${VMAF_LDFLAGS} ${VMAF_LIBRARIES})\n\u003e ```\n\u003e \n\u003e I haven\u0027t figured out when `${AOM_LIB}` should be used.\n\nNo, because the shared object needs to have the library linked as well.",
+      "parentUuid": "b3ed55e6_1a74ef13",
       "revId": "8ea52cc7d1758e7ffc685de9430879ea4c543e77",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
