@@ -34,6 +34,24 @@
       "parentUuid": "d22783f8_2ed5d2c7",
       "revId": "cd1b72729bbd03eca533cd6ae1a05b4c311888d5",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "34b33ecc_78005ea3",
+        "filename": "CMakeLists.txt",
+        "patchSetId": 1
+      },
+      "lineNbr": 650,
+      "author": {
+        "id": 32097
+      },
+      "writtenOn": "2023-07-21T20:52:25Z",
+      "side": 0,
+      "message": "Hi! I think you\u0027ve run into https://gitlab.kitware.com/cmake/cmake/-/issues/21714. It\u0027s documented that there *should* be a `VMAF_STATIC_LIBRARIES` variable (see https://cmake.org/cmake/help/latest/module/FindPkgConfig.html), but last time I tried, I think it was not working.",
+      "parentUuid": "d22783f8_2ed5d2c7",
+      "revId": "cd1b72729bbd03eca533cd6ae1a05b4c311888d5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
