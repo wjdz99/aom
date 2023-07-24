@@ -283,9 +283,8 @@ static uint32_t motion_estimation(AV1_COMP *cpi, MACROBLOCK *x,
   FULLPEL_MOTION_SEARCH_PARAMS full_ms_params;
   av1_make_default_fullpel_ms_params(&full_ms_params, cpi, x, bsize, &center_mv,
                                      start_mv, search_site_cfg,
+                                     tpl_sf->search_method,
                                      /*fine_search_interval=*/0);
-  av1_set_mv_search_method(&full_ms_params, search_site_cfg,
-                           tpl_sf->search_method);
 
   bestsme = av1_full_pixel_search(start_mv, &full_ms_params, step_param,
                                   cond_cost_list(cpi, cost_list),
@@ -983,8 +982,7 @@ static AOM_INLINE void mode_estimation(AV1_COMP *cpi,
   ref_frame_ptr[0] =
       best_mode == NEW_NEWMV
           ? tpl_data->ref_frame[comp_ref_frames[best_cmp_rf_idx][0]]
-      : best_rf_idx >= 0 ? tpl_data->ref_frame[best_rf_idx]
-                         : NULL;
+          : best_rf_idx >= 0 ? tpl_data->ref_frame[best_rf_idx] : NULL;
   ref_frame_ptr[1] =
       best_mode == NEW_NEWMV
           ? tpl_data->ref_frame[comp_ref_frames[best_cmp_rf_idx][1]]
