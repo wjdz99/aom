@@ -152,7 +152,7 @@ void av1_make_default_fullpel_ms_params(
     FULLPEL_MOTION_SEARCH_PARAMS *ms_params, const struct AV1_COMP *cpi,
     MACROBLOCK *x, BLOCK_SIZE bsize, const MV *ref_mv, FULLPEL_MV start_mv,
     const search_site_config search_sites[NUM_DISTINCT_SEARCH_METHODS],
-    int fine_search_interval);
+    SEARCH_METHODS search_method, int fine_search_interval);
 
 /*! Sets the \ref FULLPEL_MOTION_SEARCH_PARAMS to intra mode. */
 void av1_set_ms_to_intra_mode(FULLPEL_MOTION_SEARCH_PARAMS *ms_params,
@@ -395,7 +395,6 @@ static INLINE const uint8_t *get_buf_from_fullmv(const struct buf_2d *buf,
                                                  const FULLPEL_MV *mv) {
   return &buf->buf[get_offset_from_fullmv(mv, buf->stride)];
 }
-
 #ifdef __cplusplus
 }  // extern "C"
 #endif
