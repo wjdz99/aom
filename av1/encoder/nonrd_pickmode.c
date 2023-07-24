@@ -124,9 +124,10 @@ static INLINE int subpel_select(AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bsize,
     if (frame_lowmotion > 0 && frame_lowmotion < 40)
       mv_thresh = 12;
     else
-      mv_thresh = (bsize >= BLOCK_32X32)   ? th_vals[th_idx][0]
-                  : (bsize >= BLOCK_16X16) ? th_vals[th_idx][1]
-                                           : th_vals[th_idx][2];
+      mv_thresh = (bsize >= BLOCK_32X32)
+                      ? th_vals[th_idx][0]
+                      : (bsize >= BLOCK_16X16) ? th_vals[th_idx][1]
+                                               : th_vals[th_idx][2];
     if (abs(mv->as_fullmv.row) >= (mv_thresh << 1) ||
         abs(mv->as_fullmv.col) >= (mv_thresh << 1))
       return FULL_PEL;
@@ -233,13 +234,14 @@ static int combined_motion_search(AV1_COMP *cpi, MACROBLOCK *x,
   else
     center_mv = tmp_mv->as_mv;
 
-  const SEARCH_METHODS search_method = sf->mv_sf.search_method;
+  const SEARCH_METHODS search_method =
+      av1_get_default_mv_search_method(x, &cpi->sf.mv_sf, bsize);
   const search_site_config *src_search_sites =
       av1_get_search_site_config(cpi, x, search_method);
   FULLPEL_MOTION_SEARCH_PARAMS full_ms_params;
   FULLPEL_MV_STATS best_mv_stats;
   av1_make_default_fullpel_ms_params(&full_ms_params, cpi, x, bsize, &center_mv,
-                                     start_mv, src_search_sites,
+                                     start_mv, src_search_sites, search_method,
                                      /*fine_search_interval=*/0);
 
   const unsigned int full_var_rd = av1_full_pixel_search(
