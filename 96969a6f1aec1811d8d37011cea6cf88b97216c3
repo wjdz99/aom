@@ -16,6 +16,47 @@
       "message": "Borg test results of Good preset:\n````\n                 Instruction Count        BD-Rate Loss(%)\ncpu      Testset   Reduction(%)    avg.psnr   ovr.psnr    ssim\n 6       LOWRES2     -0.093         0.0348     0.0396   -0.0138\n 6       MIDRES2     -0.081         0.0119     0.0185   -0.0835\n 6        HDRES2      0.056        -0.0253    -0.0259   -0.0180\n 6       Average     -0.042         0.0078     0.0115   -0.0389\n````\nIn the commit message:\n[-] sign indicates encode time increase\n[+] sign indicates encode time reduction\n\nThe instruction count reduction specified has been measured using command:\n`$ perf stat -e instructions:u ./aomenc`",
       "revId": "96969a6f1aec1811d8d37011cea6cf88b97216c3",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cf1e4d0e_06f231cc",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2023-07-24T15:13:58Z",
+      "side": 1,
+      "message": "It is good to check the availability of neighbors. Does this help with worst cases?",
+      "parentUuid": "e5f59196_ce07ef8c",
+      "revId": "96969a6f1aec1811d8d37011cea6cf88b97216c3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "093504b3_14392eb6",
+        "filename": "av1/encoder/partition_strategy.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1661,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2023-07-24T15:13:58Z",
+      "side": 1,
+      "message": "This change looks fine. Maybe the sub8x8 pruning can be done with only 1 neighbor available and its size \u003c\u003d 8x8? Not sure if that allows more reasonable pruning?",
+      "range": {
+        "startLine": 1660,
+        "startChar": 10,
+        "endLine": 1661,
+        "endChar": 35
+      },
+      "revId": "96969a6f1aec1811d8d37011cea6cf88b97216c3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
