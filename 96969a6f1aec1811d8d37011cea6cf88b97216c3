@@ -38,6 +38,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "c3571c0b_f769f4b9",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9616
+      },
+      "writtenOn": "2023-07-25T10:02:33Z",
+      "side": 1,
+      "message": "The fix did not significantly help the worst case contents, but found logically correct.",
+      "parentUuid": "cf1e4d0e_06f231cc",
+      "revId": "96969a6f1aec1811d8d37011cea6cf88b97216c3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "093504b3_14392eb6",
         "filename": "av1/encoder/partition_strategy.c",
         "patchSetId": 2
@@ -49,6 +67,30 @@
       "writtenOn": "2023-07-24T15:13:58Z",
       "side": 1,
       "message": "This change looks fine. Maybe the sub8x8 pruning can be done with only 1 neighbor available and its size \u003c\u003d 8x8? Not sure if that allows more reasonable pruning?",
+      "range": {
+        "startLine": 1660,
+        "startChar": 10,
+        "endLine": 1661,
+        "endChar": 35
+      },
+      "revId": "96969a6f1aec1811d8d37011cea6cf88b97216c3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b00a1246_cb8f75fe",
+        "filename": "av1/encoder/partition_strategy.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1661,
+      "author": {
+        "id": 9616
+      },
+      "writtenOn": "2023-07-25T10:02:33Z",
+      "side": 1,
+      "message": "Thank you for the suggestion. In the current logic, we are disabling the sub_8x8 pruning when either neighbor is not available. When one neighbor is available and bsize \u003e 8x8, we tried pruning sub_8x8 - but this gives a negligible speed-up/quality impact. Thus, we suggest to retain the existing logic.",
+      "parentUuid": "093504b3_14392eb6",
       "range": {
         "startLine": 1660,
         "startChar": 10,
