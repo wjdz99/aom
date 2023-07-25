@@ -38,9 +38,8 @@ const int kNumIterations = 10000;
 
 static const int16_t kInt13Max = (1 << 12) - 1;
 
-typedef uint64_t (*SSI16Func)(const int16_t *src, int stride, int width,
-                              int height);
-typedef libaom_test::FuncParam<SSI16Func> TestFuncs;
+using SSI16Func = uint64_t (*)(const int16_t *, int, int, int);
+using TestFuncs = libaom_test::FuncParam<SSI16Func>;
 
 class SumSquaresTest : public ::testing::TestWithParam<TestFuncs> {
  public:
@@ -183,8 +182,8 @@ INSTANTIATE_TEST_SUITE_P(
 // 1D version
 //////////////////////////////////////////////////////////////////////////////
 
-typedef uint64_t (*F1D)(const int16_t *src, uint32_t N);
-typedef libaom_test::FuncParam<F1D> TestFuncs1D;
+using F1D = uint64_t (*)(const int16_t *, uint32_t);
+using TestFuncs1D = libaom_test::FuncParam<F1D>;
 
 class SumSquares1DTest : public FunctionEquivalenceTest<F1D> {
  protected:
@@ -246,11 +245,11 @@ INSTANTIATE_TEST_SUITE_P(NEON, SumSquares1DTest,
 
 #endif  // HAVE_NEON
 
-typedef int64_t (*sse_func)(const uint8_t *a, int a_stride, const uint8_t *b,
-                            int b_stride, int width, int height);
-typedef libaom_test::FuncParam<sse_func> TestSSEFuncs;
+using sse_func = int64_t (*)(const uint8_t *, int, const uint8_t *, int, int,
+                             int);
+using TestSSEFuncs = libaom_test::FuncParam<sse_func>;
 
-typedef std::tuple<TestSSEFuncs, int> SSETestParam;
+using SSETestParam = std::tuple<TestSSEFuncs, int>;
 
 class SSETest : public ::testing::TestWithParam<SSETestParam> {
  public:
@@ -447,11 +446,10 @@ INSTANTIATE_TEST_SUITE_P(AVX2, SSETest,
 // get_blk sum squares test functions
 //////////////////////////////////////////////////////////////////////////////
 
-typedef void (*sse_sum_func)(const int16_t *data, int stride, int bw, int bh,
-                             int *x_sum, int64_t *x2_sum);
-typedef libaom_test::FuncParam<sse_sum_func> TestSSE_SumFuncs;
+using sse_sum_func = void (*)(const int16_t *, int, int, int, int *, int64_t *);
+using TestSSE_SumFuncs = libaom_test::FuncParam<sse_sum_func>;
 
-typedef std::tuple<TestSSE_SumFuncs, TX_SIZE> SSE_SumTestParam;
+using SSE_SumTestParam = std::tuple<TestSSE_SumFuncs, TX_SIZE>;
 
 class SSE_Sum_Test : public ::testing::TestWithParam<SSE_SumTestParam> {
  public:
@@ -599,8 +597,8 @@ INSTANTIATE_TEST_SUITE_P(NEON, SSE_Sum_Test,
 // 2D Variance test functions
 //////////////////////////////////////////////////////////////////////////////
 
-typedef uint64_t (*Var2DFunc)(uint8_t *src, int stride, int width, int height);
-typedef libaom_test::FuncParam<Var2DFunc> TestFuncVar2D;
+using Var2DFunc = uint64_t (*)(uint8_t *, int, int, int);
+using TestFuncVar2D = libaom_test::FuncParam<Var2DFunc>;
 
 const uint16_t test_block_size[2] = { 128, 256 };
 

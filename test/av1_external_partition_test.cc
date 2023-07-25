@@ -31,11 +31,9 @@ namespace {
 constexpr int kFrameNum = 8;
 constexpr int kVersion = 1;
 
-typedef struct TestData {
-  int version = kVersion;
-} TestData;
+using TestData = struct TestData { int version = kVersion; };
 
-typedef struct ToyModel {
+using ToyModel = struct ToyModel {
   TestData *data;
   aom_ext_part_config_t config;
   aom_ext_part_funcs_t funcs;
@@ -44,7 +42,7 @@ typedef struct ToyModel {
   int frame_width;
   int frame_height;
   BLOCK_SIZE block_size;
-} ToyModel;
+};
 
 // Note:
 // if CONFIG_PARTITION_SEARCH_ORDER = 0, we test APIs designed for the baseline

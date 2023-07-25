@@ -26,47 +26,37 @@
 #include "aom_mem/aom_mem.h"
 #include "aom_ports/mem.h"
 
-typedef unsigned int (*SadMxNFunc)(const uint8_t *src_ptr, int src_stride,
-                                   const uint8_t *ref_ptr, int ref_stride);
-typedef std::tuple<int, int, SadMxNFunc, int> SadMxNParam;
+using SadMxNFunc = unsigned int (*)(const uint8_t *, int, const uint8_t *, int);
+using SadMxNParam = std::tuple<int, int, SadMxNFunc, int>;
 
-typedef unsigned int (*SadSkipMxNFunc)(const uint8_t *src_ptr, int src_stride,
-                                       const uint8_t *ref_ptr, int ref_stride);
-typedef std::tuple<int, int, SadSkipMxNFunc, int> SadSkipMxNParam;
+using SadSkipMxNFunc = unsigned int (*)(const uint8_t *, int, const uint8_t *,
+                                        int);
+using SadSkipMxNParam = std::tuple<int, int, SadSkipMxNFunc, int>;
 
-typedef uint32_t (*SadMxNAvgFunc)(const uint8_t *src_ptr, int src_stride,
-                                  const uint8_t *ref_ptr, int ref_stride,
-                                  const uint8_t *second_pred);
-typedef std::tuple<int, int, SadMxNAvgFunc, int> SadMxNAvgParam;
+using SadMxNAvgFunc = uint32_t (*)(const uint8_t *, int, const uint8_t *, int,
+                                   const uint8_t *);
+using SadMxNAvgParam = std::tuple<int, int, SadMxNAvgFunc, int>;
 
-typedef unsigned int (*DistWtdSadMxhFunc)(const uint8_t *src_ptr,
-                                          int src_stride,
-                                          const uint8_t *ref_ptr,
-                                          int ref_stride, int width,
-                                          int height);
-typedef std::tuple<int, int, DistWtdSadMxhFunc, int> DistWtdSadMxhParam;
+using DistWtdSadMxhFunc = unsigned int (*)(const uint8_t *, int,
+                                           const uint8_t *, int, int, int);
+using DistWtdSadMxhParam = std::tuple<int, int, DistWtdSadMxhFunc, int>;
 
-typedef uint32_t (*DistWtdSadMxNAvgFunc)(const uint8_t *src_ptr, int src_stride,
-                                         const uint8_t *ref_ptr, int ref_stride,
-                                         const uint8_t *second_pred,
-                                         const DIST_WTD_COMP_PARAMS *jcp_param);
-typedef std::tuple<int, int, DistWtdSadMxNAvgFunc, int> DistWtdSadMxNAvgParam;
+using DistWtdSadMxNAvgFunc = uint32_t (*)(const uint8_t *, int, const uint8_t *,
+                                          int, const uint8_t *,
+                                          const DIST_WTD_COMP_PARAMS *);
+using DistWtdSadMxNAvgParam = std::tuple<int, int, DistWtdSadMxNAvgFunc, int>;
 
-typedef void (*SadMxNx4Func)(const uint8_t *src_ptr, int src_stride,
-                             const uint8_t *const ref_ptr[], int ref_stride,
-                             uint32_t *sad_array);
-typedef std::tuple<int, int, SadMxNx4Func, int> SadMxNx4Param;
+using SadMxNx4Func = void (*)(const uint8_t *, int, const uint8_t *const *, int,
+                              uint32_t *);
+using SadMxNx4Param = std::tuple<int, int, SadMxNx4Func, int>;
 
-typedef void (*SadSkipMxNx4Func)(const uint8_t *src_ptr, int src_stride,
-                                 const uint8_t *const ref_ptr[], int ref_stride,
-                                 uint32_t *sad_array);
-typedef std::tuple<int, int, SadSkipMxNx4Func, int> SadSkipMxNx4Param;
+using SadSkipMxNx4Func = void (*)(const uint8_t *, int, const uint8_t *const *,
+                                  int, uint32_t *);
+using SadSkipMxNx4Param = std::tuple<int, int, SadSkipMxNx4Func, int>;
 
-typedef void (*SadMxNx4AvgFunc)(const uint8_t *src_ptr, int src_stride,
-                                const uint8_t *const ref_ptr[], int ref_stride,
-                                const uint8_t *second_pred,
-                                uint32_t *sad_array);
-typedef std::tuple<int, int, SadMxNx4AvgFunc, int> SadMxNx4AvgParam;
+using SadMxNx4AvgFunc = void (*)(const uint8_t *, int, const uint8_t *const *,
+                                 int, const uint8_t *, uint32_t *);
+using SadMxNx4AvgParam = std::tuple<int, int, SadMxNx4AvgFunc, int>;
 
 using libaom_test::ACMRandom;
 

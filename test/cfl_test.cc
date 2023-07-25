@@ -172,8 +172,8 @@ class CFLTestWithAlignedData : public CFLTest {
   }
 };
 
-typedef cfl_subtract_average_fn (*sub_avg_fn)(TX_SIZE tx_size);
-typedef std::tuple<TX_SIZE, sub_avg_fn> sub_avg_param;
+using sub_avg_fn = cfl_subtract_average_fn (*)(TX_SIZE);
+using sub_avg_param = std::tuple<TX_SIZE, sub_avg_fn>;
 class CFLSubAvgTest : public ::testing::TestWithParam<sub_avg_param>,
                       public CFLTestWithData<int16_t> {
  public:
@@ -276,10 +276,10 @@ class CFLSubsampleTest : public ::testing::TestWithParam<S>,
   }
 };
 
-typedef cfl_subsample_lbd_fn (*get_subsample_lbd_fn)(TX_SIZE tx_size);
-typedef std::tuple<TX_SIZE, get_subsample_lbd_fn, get_subsample_lbd_fn,
-                   get_subsample_lbd_fn>
-    subsample_lbd_param;
+using get_subsample_lbd_fn = cfl_subsample_lbd_fn (*)(TX_SIZE);
+using subsample_lbd_param =
+    std::tuple<TX_SIZE, get_subsample_lbd_fn, get_subsample_lbd_fn,
+               get_subsample_lbd_fn>;
 class CFLSubsampleLBDTest
     : public CFLSubsampleTest<subsample_lbd_param, cfl_subsample_lbd_fn,
                               uint8_t> {
@@ -320,10 +320,10 @@ TEST_P(CFLSubsampleLBDTest, DISABLED_SubsampleLBD444SpeedTest) {
 }
 
 #if CONFIG_AV1_HIGHBITDEPTH
-typedef cfl_subsample_hbd_fn (*get_subsample_hbd_fn)(TX_SIZE tx_size);
-typedef std::tuple<TX_SIZE, get_subsample_hbd_fn, get_subsample_hbd_fn,
-                   get_subsample_hbd_fn>
-    subsample_hbd_param;
+using get_subsample_hbd_fn = cfl_subsample_hbd_fn (*)(TX_SIZE);
+using subsample_hbd_param =
+    std::tuple<TX_SIZE, get_subsample_hbd_fn, get_subsample_hbd_fn,
+               get_subsample_hbd_fn>;
 class CFLSubsampleHBDTest
     : public CFLSubsampleTest<subsample_hbd_param, cfl_subsample_hbd_fn,
                               uint16_t> {
@@ -364,8 +364,8 @@ TEST_P(CFLSubsampleHBDTest, DISABLED_SubsampleHBD444SpeedTest) {
 }
 #endif  // CONFIG_AV1_HIGHBITDEPTH
 
-typedef cfl_predict_lbd_fn (*get_predict_fn)(TX_SIZE tx_size);
-typedef std::tuple<TX_SIZE, get_predict_fn> predict_param;
+using get_predict_fn = cfl_predict_lbd_fn (*)(TX_SIZE);
+using predict_param = std::tuple<TX_SIZE, get_predict_fn>;
 class CFLPredictTest : public ::testing::TestWithParam<predict_param>,
                        public CFLTestWithAlignedData<uint8_t> {
  public:
@@ -413,8 +413,8 @@ TEST_P(CFLPredictTest, DISABLED_PredictSpeedTest) {
 }
 
 #if CONFIG_AV1_HIGHBITDEPTH
-typedef cfl_predict_hbd_fn (*get_predict_fn_hbd)(TX_SIZE tx_size);
-typedef std::tuple<TX_SIZE, get_predict_fn_hbd> predict_param_hbd;
+using get_predict_fn_hbd = cfl_predict_hbd_fn (*)(TX_SIZE);
+using predict_param_hbd = std::tuple<TX_SIZE, get_predict_fn_hbd>;
 class CFLPredictHBDTest : public ::testing::TestWithParam<predict_param_hbd>,
                           public CFLTestWithAlignedData<uint16_t> {
  public:

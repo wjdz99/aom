@@ -29,16 +29,16 @@
 namespace pickrst_test_lowbd {
 static const int kIterations = 100;
 
-typedef int64_t (*lowbd_pixel_proj_error_func)(
-    const uint8_t *src8, int width, int height, int src_stride,
-    const uint8_t *dat8, int dat_stride, int32_t *flt0, int flt0_stride,
-    int32_t *flt1, int flt1_stride, int xq[2], const sgr_params_type *params);
+using lowbd_pixel_proj_error_func = int64_t (*)(const uint8_t *, int, int, int,
+                                                const uint8_t *, int, int32_t *,
+                                                int, int32_t *, int, int *,
+                                                const sgr_params_type *);
 
 ////////////////////////////////////////////////////////////////////////////////
 // 8 bit
 ////////////////////////////////////////////////////////////////////////////////
 
-typedef std::tuple<const lowbd_pixel_proj_error_func> PixelProjErrorTestParam;
+using PixelProjErrorTestParam = std::tuple<const lowbd_pixel_proj_error_func>;
 
 class PixelProjErrorTest
     : public ::testing::TestWithParam<PixelProjErrorTestParam> {
@@ -201,16 +201,17 @@ INSTANTIATE_TEST_SUITE_P(NEON, PixelProjErrorTest,
 namespace pickrst_test_highbd {
 static const int kIterations = 100;
 
-typedef int64_t (*highbd_pixel_proj_error_func)(
-    const uint8_t *src8, int width, int height, int src_stride,
-    const uint8_t *dat8, int dat_stride, int32_t *flt0, int flt0_stride,
-    int32_t *flt1, int flt1_stride, int xq[2], const sgr_params_type *params);
+using highbd_pixel_proj_error_func = int64_t (*)(const uint8_t *, int, int, int,
+                                                 const uint8_t *, int,
+                                                 int32_t *, int, int32_t *, int,
+                                                 int *,
+                                                 const sgr_params_type *);
 
 ////////////////////////////////////////////////////////////////////////////////
 // High bit-depth
 ////////////////////////////////////////////////////////////////////////////////
 
-typedef std::tuple<const highbd_pixel_proj_error_func> PixelProjErrorTestParam;
+using PixelProjErrorTestParam = std::tuple<const highbd_pixel_proj_error_func>;
 
 class PixelProjHighbdErrorTest
     : public ::testing::TestWithParam<PixelProjErrorTestParam> {
@@ -373,15 +374,12 @@ INSTANTIATE_TEST_SUITE_P(AVX2, PixelProjHighbdErrorTest,
 namespace get_proj_subspace_test_lowbd {
 static const int kIterations = 100;
 
-typedef void (*set_get_proj_subspace)(const uint8_t *src8, int width,
-                                      int height, int src_stride,
-                                      const uint8_t *dat8, int dat_stride,
-                                      int32_t *flt0, int flt0_stride,
-                                      int32_t *flt1, int flt1_stride,
-                                      int64_t H[2][2], int64_t C[2],
-                                      const sgr_params_type *params);
+using set_get_proj_subspace = void (*)(const uint8_t *, int, int, int,
+                                       const uint8_t *, int, int32_t *, int,
+                                       int32_t *, int, int64_t (*)[2],
+                                       int64_t *, const sgr_params_type *);
 
-typedef std::tuple<const set_get_proj_subspace> GetProjSubspaceTestParam;
+using GetProjSubspaceTestParam = std::tuple<const set_get_proj_subspace>;
 
 class GetProjSubspaceTest
     : public ::testing::TestWithParam<GetProjSubspaceTestParam> {
@@ -552,15 +550,12 @@ INSTANTIATE_TEST_SUITE_P(AVX2, GetProjSubspaceTest,
 namespace get_proj_subspace_test_hbd {
 static const int kIterations = 100;
 
-typedef void (*set_get_proj_subspace_hbd)(const uint8_t *src8, int width,
-                                          int height, int src_stride,
-                                          const uint8_t *dat8, int dat_stride,
-                                          int32_t *flt0, int flt0_stride,
-                                          int32_t *flt1, int flt1_stride,
-                                          int64_t H[2][2], int64_t C[2],
-                                          const sgr_params_type *params);
+using set_get_proj_subspace_hbd = void (*)(const uint8_t *, int, int, int,
+                                           const uint8_t *, int, int32_t *, int,
+                                           int32_t *, int, int64_t (*)[2],
+                                           int64_t *, const sgr_params_type *);
 
-typedef std::tuple<const set_get_proj_subspace_hbd> GetProjSubspaceHBDTestParam;
+using GetProjSubspaceHBDTestParam = std::tuple<const set_get_proj_subspace_hbd>;
 
 class GetProjSubspaceTestHBD
     : public ::testing::TestWithParam<GetProjSubspaceHBDTestParam> {

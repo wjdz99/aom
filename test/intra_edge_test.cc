@@ -66,8 +66,8 @@ class UpsampleTest : public FunctionEquivalenceTest<F> {
 // 8 bit version
 //////////////////////////////////////////////////////////////////////////////
 
-typedef void (*UP8B)(uint8_t *p, int size);
-typedef libaom_test::FuncParam<UP8B> TestFuncs;
+using UP8B = void (*)(uint8_t *, int);
+using TestFuncs = libaom_test::FuncParam<UP8B>;
 
 class UpsampleTest8B : public UpsampleTest<UP8B, uint8_t> {
  protected:
@@ -110,8 +110,8 @@ INSTANTIATE_TEST_SUITE_P(
 // High bit-depth version
 //////////////////////////////////////////////////////////////////////////////
 
-typedef void (*UPHB)(uint16_t *p, int size, int bd);
-typedef libaom_test::FuncParam<UPHB> TestFuncsHBD;
+using UPHB = void (*)(uint16_t *, int, int);
+using TestFuncsHBD = libaom_test::FuncParam<UPHB>;
 
 class UpsampleTestHB : public UpsampleTest<UPHB, uint16_t> {
  protected:
@@ -195,8 +195,8 @@ class FilterEdgeTest : public FunctionEquivalenceTest<F> {
 // 8 bit version
 //////////////////////////////////////////////////////////////////////////////
 
-typedef void (*FE8B)(uint8_t *p, int size, int strength);
-typedef libaom_test::FuncParam<FE8B> FilterEdgeTestFuncs;
+using FE8B = void (*)(uint8_t *, int, int);
+using FilterEdgeTestFuncs = libaom_test::FuncParam<FE8B>;
 
 class FilterEdgeTest8B : public FilterEdgeTest<FE8B, uint8_t> {
  protected:
@@ -233,8 +233,8 @@ INSTANTIATE_TEST_SUITE_P(
 // High bit-depth version
 //////////////////////////////////////////////////////////////////////////////
 
-typedef void (*FEHB)(uint16_t *p, int size, int strength);
-typedef libaom_test::FuncParam<FEHB> FilterEdgeTestFuncsHBD;
+using FEHB = void (*)(uint16_t *, int, int);
+using FilterEdgeTestFuncsHBD = libaom_test::FuncParam<FEHB>;
 
 class FilterEdgeTestHB : public FilterEdgeTest<FEHB, uint16_t> {
  protected:

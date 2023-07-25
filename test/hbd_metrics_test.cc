@@ -30,11 +30,11 @@ using libaom_test::ACMRandom;
 
 namespace {
 
-typedef double (*LBDMetricFunc)(const YV12_BUFFER_CONFIG *source,
-                                const YV12_BUFFER_CONFIG *dest);
-typedef double (*HBDMetricFunc)(const YV12_BUFFER_CONFIG *source,
-                                const YV12_BUFFER_CONFIG *dest, uint32_t in_bd,
-                                uint32_t bd);
+using LBDMetricFunc = double (*)(const YV12_BUFFER_CONFIG *,
+                                 const YV12_BUFFER_CONFIG *);
+using HBDMetricFunc = double (*)(const YV12_BUFFER_CONFIG *,
+                                 const YV12_BUFFER_CONFIG *, uint32_t,
+                                 uint32_t);
 
 double compute_hbd_psnr(const YV12_BUFFER_CONFIG *source,
                         const YV12_BUFFER_CONFIG *dest, uint32_t in_bd,
@@ -174,8 +174,8 @@ class HBDMetricsTestBase {
   HBDMetricFunc hbd_metric_;
 };
 
-typedef std::tuple<LBDMetricFunc, HBDMetricFunc, int, int, double>
-    MetricTestTParam;
+using MetricTestTParam =
+    std::tuple<LBDMetricFunc, HBDMetricFunc, int, int, double>;
 class HBDMetricsTest : public HBDMetricsTestBase,
                        public ::testing::TestWithParam<MetricTestTParam> {
  public:

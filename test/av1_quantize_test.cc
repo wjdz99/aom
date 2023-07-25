@@ -22,12 +22,11 @@
 
 namespace {
 
-typedef void (*QuantizeFpFunc)(
-    const tran_low_t *coeff_ptr, intptr_t count, const int16_t *zbin_ptr,
-    const int16_t *round_ptr, const int16_t *quant_ptr,
-    const int16_t *quant_shift_ptr, tran_low_t *qcoeff_ptr,
-    tran_low_t *dqcoeff_ptr, const int16_t *dequant_ptr, uint16_t *eob_ptr,
-    const int16_t *scan, const int16_t *iscan, int log_scale);
+using QuantizeFpFunc = void (*)(const tran_low_t *, intptr_t, const int16_t *,
+                                const int16_t *, const int16_t *,
+                                const int16_t *, tran_low_t *, tran_low_t *,
+                                const int16_t *, uint16_t *, const int16_t *,
+                                const int16_t *, int);
 
 struct QuantizeFuncParams {
   QuantizeFuncParams(QuantizeFpFunc qF = nullptr,

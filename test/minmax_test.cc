@@ -26,8 +26,8 @@ namespace {
 
 using ::libaom_test::ACMRandom;
 
-typedef void (*MinMaxFunc)(const uint8_t *a, int a_stride, const uint8_t *b,
-                           int b_stride, int *min, int *max);
+using MinMaxFunc = void (*)(const uint8_t *, int, const uint8_t *, int, int *,
+                            int *);
 
 class MinMaxTest : public ::testing::TestWithParam<MinMaxFunc> {
  public:

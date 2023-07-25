@@ -116,11 +116,11 @@ class AverageTestBase : public ::testing::Test {
 
   ACMRandom rnd_;
 };
-typedef unsigned int (*AverageFunction)(const uint8_t *s, int pitch);
+using AverageFunction = unsigned int (*)(const uint8_t *, int);
 
 // Arguments: width, height, bit_depth, buffer start offset, block size, avg
 // function.
-typedef std::tuple<int, int, int, int, int, AverageFunction> AvgFunc;
+using AvgFunc = std::tuple<int, int, int, int, int, AverageFunction>;
 
 template <typename Pixel>
 class AverageTest : public AverageTestBase<Pixel>,
@@ -215,13 +215,13 @@ class AverageTest : public AverageTestBase<Pixel>,
   int64_t opt_elapsed_time_ = 0;
 };
 
-typedef void (*AverageFunction_8x8_quad)(const uint8_t *s, int pitch, int x_idx,
-                                         int y_idx, int *avg);
+using AverageFunction_8x8_quad = void (*)(const uint8_t *, int, int, int,
+                                          int *);
 
 // Arguments: width, height, bit_depth, buffer start offset, block size, avg
 // function.
-typedef std::tuple<int, int, int, int, int, AverageFunction_8x8_quad>
-    AvgFunc_8x8_quad;
+using AvgFunc_8x8_quad =
+    std::tuple<int, int, int, int, int, AverageFunction_8x8_quad>;
 
 template <typename Pixel>
 class AverageTest_8x8_quad
@@ -349,12 +349,11 @@ TEST_P(AverageTestHbd, DISABLED_Speed) {
 }
 #endif  // CONFIG_AV1_HIGHBITDEPTH
 
-typedef void (*IntProRowFunc)(int16_t *hbuf, uint8_t const *ref,
-                              const int ref_stride, const int width,
-                              const int height, int norm_factor);
+using IntProRowFunc = void (*)(int16_t *, const uint8_t *, const int, const int,
+                               const int, int);
 
 // Params: width, height, asm function, c function.
-typedef std::tuple<int, int, IntProRowFunc, IntProRowFunc> IntProRowParam;
+using IntProRowParam = std::tuple<int, int, IntProRowFunc, IntProRowFunc>;
 
 class IntProRowTest : public AverageTestBase<uint8_t>,
                       public ::testing::WithParamInterface<IntProRowParam> {
@@ -451,12 +450,11 @@ class IntProRowTest : public AverageTestBase<uint8_t>,
 };
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(IntProRowTest);
 
-typedef void (*IntProColFunc)(int16_t *vbuf, uint8_t const *ref,
-                              const int ref_stride, const int width,
-                              const int height, int norm_factor);
+using IntProColFunc = void (*)(int16_t *, const uint8_t *, const int, const int,
+                               const int, int);
 
 // Params: width, height, asm function, c function.
-typedef std::tuple<int, int, IntProColFunc, IntProColFunc> IntProColParam;
+using IntProColParam = std::tuple<int, int, IntProColFunc, IntProColFunc>;
 
 class IntProColTest : public AverageTestBase<uint8_t>,
                       public ::testing::WithParamInterface<IntProColParam> {
@@ -632,10 +630,9 @@ class VectorVarTestBase : public ::testing::Test {
   static const int num_random_cmp = 50;
 };
 
-typedef int (*VectorVarFunc)(const int16_t *ref, const int16_t *src,
-                             const int bwl);
+using VectorVarFunc = int (*)(const int16_t *, const int16_t *, const int);
 
-typedef std::tuple<int, VectorVarFunc, VectorVarFunc> VecVarFunc;
+using VecVarFunc = std::tuple<int, VectorVarFunc, VectorVarFunc>;
 
 class VectorVarTest : public VectorVarTestBase,
                       public ::testing::WithParamInterface<VecVarFunc> {
@@ -857,8 +854,8 @@ INSTANTIATE_TEST_SUITE_P(
 #endif  // HAVE_NEON
 #endif  // CONFIG_AV1_HIGHBITDEPTH
 
-typedef int (*SatdFunc)(const tran_low_t *coeffs, int length);
-typedef int (*SatdLpFunc)(const int16_t *coeffs, int length);
+using SatdFunc = int (*)(const tran_low_t *, int);
+using SatdLpFunc = int (*)(const int16_t *, int);
 
 template <typename SatdFuncType>
 struct SatdTestParam {
