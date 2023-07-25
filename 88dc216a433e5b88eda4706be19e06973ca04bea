@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8b310f89_fc4218be",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 29295
+      },
+      "writtenOn": "2023-07-25T14:58:06Z",
+      "side": 1,
+      "message": "In this CL, the current best partition winner is used to prune extended partitions. This state-based logic is combined with the existing frame-level sf \u0027ext_partition_eval_thresh,\u0027 using a new sf \u0027ext_part_eval_based_on_cur_best.\u0027 It is observed that if the current winner is NONE, the 4-way partitions can be further pruned. When the current winner is NONE or SPLIT, AB partitions can be pruned. If the current winner is HORZ/VERT, AB needs to be evaluated.\n\nFor Speed 4, the Borg results are somewhat out of trade-off:\n``\n            Instruction Count        BD-Rate Loss(%)       \ncpu Testset   Reduction(%)    avg.psnr   ovr.psnr    ssim \n 4  HDRES2      1.498         0.1318     0.1229    0.1001 \n``\nIn This CL, it is disabled for Speed 4. A further analysis can be taken up with respect to this. \n\nThe logic from CL does not show improvement to lower res content, hence the existing logic of \u0027ext_partition_eval_thresh\u0027 in the parent version holds good for LOW/MID resolutions.",
+      "revId": "88dc216a433e5b88eda4706be19e06973ca04bea",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
