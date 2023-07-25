@@ -21,10 +21,10 @@
 #define NUM_LAG_VALUES 3
 
 namespace {
-typedef struct {
+struct kfIntervalParam {
   const unsigned int min_kf_dist;
   const unsigned int max_kf_dist;
-} kfIntervalParam;
+};
 
 const kfIntervalParam kfTestParams[] = {
   { 1, 1 }, { 0, 10 }, { 10, 10 }, { 0, 30 }, { 30, 30 }

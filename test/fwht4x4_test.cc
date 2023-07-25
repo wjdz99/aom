@@ -31,13 +31,13 @@
 using libaom_test::ACMRandom;
 
 namespace {
-typedef void (*FdctFunc)(const int16_t *in, tran_low_t *out, int stride);
-typedef void (*IdctFunc)(const tran_low_t *in, uint8_t *out, int stride);
+using FdctFunc = void (*)(const int16_t *, tran_low_t *, int);
+using IdctFunc = void (*)(const tran_low_t *, uint8_t *, int);
 
 using libaom_test::FhtFunc;
 
-typedef std::tuple<FdctFunc, IdctFunc, TX_TYPE, aom_bit_depth_t, int, FdctFunc>
-    Dct4x4Param;
+using Dct4x4Param =
+    std::tuple<FdctFunc, IdctFunc, TX_TYPE, aom_bit_depth_t, int, FdctFunc>;
 
 void fwht4x4_ref(const int16_t *in, tran_low_t *out, int stride,
                  TxfmParam * /*txfm_param*/) {

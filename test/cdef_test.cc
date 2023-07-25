@@ -32,9 +32,9 @@ namespace {
 
 using CdefFilterBlockFunctions = std::array<cdef_filter_block_func, 4>;
 
-typedef std::tuple<CdefFilterBlockFunctions, CdefFilterBlockFunctions,
-                   BLOCK_SIZE, int, int>
-    cdef_dir_param_t;
+using cdef_dir_param_t =
+    std::tuple<CdefFilterBlockFunctions, CdefFilterBlockFunctions, BLOCK_SIZE,
+               int, int>;
 
 class CDEFBlockTest : public ::testing::TestWithParam<cdef_dir_param_t> {
  public:
@@ -58,13 +58,13 @@ class CDEFBlockTest : public ::testing::TestWithParam<cdef_dir_param_t> {
 };
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(CDEFBlockTest);
 
-typedef CDEFBlockTest CDEFBlockHighbdTest;
+using CDEFBlockHighbdTest = CDEFBlockTest;
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(CDEFBlockHighbdTest);
 
-typedef CDEFBlockTest CDEFSpeedTest;
+using CDEFSpeedTest = CDEFBlockTest;
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(CDEFSpeedTest);
 
-typedef CDEFBlockTest CDEFSpeedHighbdTest;
+using CDEFSpeedHighbdTest = CDEFBlockTest;
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(CDEFSpeedHighbdTest);
 
 int64_t test_cdef(int bsize, int iterations, CdefFilterBlockFunctions cdef,
@@ -206,10 +206,9 @@ void test_cdef_speed(int bsize, int iterations, CdefFilterBlockFunctions cdef,
       << "SIMD time: " << elapsed_time << " us" << std::endl;
 }
 
-typedef int (*find_dir_t)(const uint16_t *img, int stride, int32_t *var,
-                          int coeff_shift);
+using find_dir_t = int (*)(const uint16_t *, int, int32_t *, int);
 
-typedef std::tuple<find_dir_t, find_dir_t> find_dir_param_t;
+using find_dir_param_t = std::tuple<find_dir_t, find_dir_t>;
 
 class CDEFFindDirTest : public ::testing::TestWithParam<find_dir_param_t> {
  public:
@@ -227,7 +226,7 @@ class CDEFFindDirTest : public ::testing::TestWithParam<find_dir_param_t> {
 };
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(CDEFFindDirTest);
 
-typedef CDEFFindDirTest CDEFFindDirSpeedTest;
+using CDEFFindDirSpeedTest = CDEFFindDirTest;
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(CDEFFindDirSpeedTest);
 
 void test_finddir(int (*finddir)(const uint16_t *img, int stride, int32_t *var,
@@ -295,11 +294,10 @@ void test_finddir_speed(int (*finddir)(const uint16_t *img, int stride,
       << "SIMD time: " << elapsed_time << " us" << std::endl;
 }
 
-typedef void (*find_dir_dual_t)(const uint16_t *img1, const uint16_t *img2,
-                                int stride, int32_t *var1, int32_t *var2,
-                                int coeff_shift, int *out1, int *out2);
+using find_dir_dual_t = void (*)(const uint16_t *, const uint16_t *, int,
+                                 int32_t *, int32_t *, int, int *, int *);
 
-typedef std::tuple<find_dir_dual_t, find_dir_dual_t> find_dir_dual_param_t;
+using find_dir_dual_param_t = std::tuple<find_dir_dual_t, find_dir_dual_t>;
 
 class CDEFFindDirDualTest
     : public ::testing::TestWithParam<find_dir_dual_param_t> {
@@ -318,7 +316,7 @@ class CDEFFindDirDualTest
 };
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(CDEFFindDirDualTest);
 
-typedef CDEFFindDirDualTest CDEFFindDirDualSpeedTest;
+using CDEFFindDirDualSpeedTest = CDEFFindDirDualTest;
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(CDEFFindDirDualSpeedTest);
 
 void test_finddir_dual(

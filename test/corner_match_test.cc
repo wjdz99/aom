@@ -27,13 +27,12 @@ namespace AV1CornerMatch {
 
 using libaom_test::ACMRandom;
 
-typedef double (*ComputeCrossCorrFunc)(const unsigned char *im1, int stride1,
-                                       int x1, int y1, const unsigned char *im2,
-                                       int stride2, int x2, int y2);
+using ComputeCrossCorrFunc = double (*)(const unsigned char *, int, int, int,
+                                        const unsigned char *, int, int, int);
 
 using std::make_tuple;
 using std::tuple;
-typedef tuple<int, ComputeCrossCorrFunc> CornerMatchParam;
+using CornerMatchParam = tuple<int, ComputeCrossCorrFunc>;
 
 class AV1CornerMatchTest : public ::testing::TestWithParam<CornerMatchParam> {
  public:

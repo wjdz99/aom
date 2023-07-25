@@ -42,9 +42,19 @@ using libaom_test::ACMRandom;
       const int16_t *dequant_ptr, uint16_t *eob_ptr, const int16_t *scan,  \
       const int16_t *iscan
 
-typedef void (*LPQuantizeFunc)(LP_QUANTIZE_PARAM_LIST);
-typedef void (*QuantizeFunc)(QUAN_PARAM_LIST);
-typedef void (*QuantizeFuncHbd)(QUAN_PARAM_LIST, int log_scale);
+using LPQuantizeFunc = void (*)(const int16_t *, intptr_t, const int16_t *,
+                                const int16_t *, int16_t *, int16_t *,
+                                const int16_t *, uint16_t *, const int16_t *,
+                                const int16_t *);
+using QuantizeFunc = void (*)(const tran_low_t *, intptr_t, const int16_t *,
+                              const int16_t *, const int16_t *, const int16_t *,
+                              tran_low_t *, tran_low_t *, const int16_t *,
+                              uint16_t *, const int16_t *, const int16_t *);
+using QuantizeFuncHbd = void (*)(const tran_low_t *, intptr_t, const int16_t *,
+                                 const int16_t *, const int16_t *,
+                                 const int16_t *, tran_low_t *, tran_low_t *,
+                                 const int16_t *, uint16_t *, const int16_t *,
+                                 const int16_t *, int);
 
 #undef LP_QUANTIZE_PARAM_LIST
 
@@ -82,10 +92,10 @@ template <typename FuncType>
 using QuantizeParam =
     tuple<FuncType, FuncType, TX_SIZE, QuantType, aom_bit_depth_t>;
 
-typedef struct {
+using QuanTable = struct {
   QUANTS quant;
   Dequants dequant;
-} QuanTable;
+};
 
 const int kTestNum = 1000;
 

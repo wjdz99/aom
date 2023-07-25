@@ -46,13 +46,13 @@ std::unordered_map<std::string,
                            { 2, { { 0, 33.57 }, { 3, 33.22 } } },
                            { 3, { { 0, 33.45 }, { 3, 33.10 } } } } } };
 
-typedef struct {
+struct TestVideoParam {
   const char *filename;
   unsigned int input_bit_depth;
   aom_img_fmt fmt;
   aom_bit_depth_t bit_depth;
   unsigned int profile;
-} TestVideoParam;
+};
 
 std::ostream &operator<<(std::ostream &os, const TestVideoParam &test_arg) {
   return os << "TestVideoParam { filename:" << test_arg.filename

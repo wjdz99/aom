@@ -24,9 +24,8 @@
 #include "third_party/googletest/src/googletest/include/gtest/gtest.h"
 
 namespace {
-typedef int64_t (*frame_error_func)(const uint8_t *const ref, int stride,
-                                    const uint8_t *const dst, int p_width,
-                                    int p_height, int p_stride);
+using frame_error_func = int64_t (*)(const uint8_t *const, int,
+                                     const uint8_t *const, int, int, int);
 #if HAVE_AVX2 || HAVE_SSE2
 const int kBlockWidth[] = {
   832, 834, 640, 1280, 1920,
@@ -35,7 +34,7 @@ const int kBlockHeight[] = {
   480, 482, 360, 720, 1080,
 };
 #endif
-typedef std::tuple<frame_error_func, int, int> FrameErrorParam;
+using FrameErrorParam = std::tuple<frame_error_func, int, int>;
 
 class AV1FrameErrorTest : public ::testing::TestWithParam<FrameErrorParam> {
  public:

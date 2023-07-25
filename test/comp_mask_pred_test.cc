@@ -30,14 +30,12 @@
 #include "third_party/googletest/src/googletest/include/gtest/gtest.h"
 
 namespace {
-typedef void (*comp_mask_pred_func)(uint8_t *comp_pred, const uint8_t *pred,
-                                    int width, int height, const uint8_t *ref,
-                                    int ref_stride, const uint8_t *mask,
-                                    int mask_stride, int invert_mask);
+using comp_mask_pred_func = void (*)(uint8_t *, const uint8_t *, int, int,
+                                     const uint8_t *, int, const uint8_t *, int,
+                                     int);
 
-typedef void (*comp_avg_pred_func)(uint8_t *comp_pred, const uint8_t *pred,
-                                   int width, int height, const uint8_t *ref,
-                                   int ref_stride);
+using comp_avg_pred_func = void (*)(uint8_t *, const uint8_t *, int, int,
+                                    const uint8_t *, int);
 
 #if HAVE_SSSE3 || HAVE_SSE2 || HAVE_AVX2 || HAVE_NEON
 const BLOCK_SIZE kCompMaskPredParams[] = {
@@ -111,7 +109,7 @@ void AV1CompMaskPredBase::TearDown() {
   aom_free(ref_buffer_);
 }
 
-typedef std::tuple<comp_mask_pred_func, BLOCK_SIZE> CompMaskPredParam;
+using CompMaskPredParam = std::tuple<comp_mask_pred_func, BLOCK_SIZE>;
 
 class AV1CompMaskPredTest
     : public AV1CompMaskPredBase,
@@ -207,14 +205,11 @@ const BLOCK_SIZE kValidBlockSize[] = {
 };
 #endif
 
-typedef void (*upsampled_pred_func)(MACROBLOCKD *xd, const AV1_COMMON *const cm,
-                                    int mi_row, int mi_col, const MV *const mv,
-                                    uint8_t *comp_pred, int width, int height,
-                                    int subpel_x_q3, int subpel_y_q3,
-                                    const uint8_t *ref, int ref_stride,
-                                    int subpel_search);
+using upsampled_pred_func = void (*)(MACROBLOCKD *, const AV1_COMMON *const,
+                                     int, int, const MV *const, uint8_t *, int,
+                                     int, int, int, const uint8_t *, int, int);
 
-typedef std::tuple<upsampled_pred_func, BLOCK_SIZE> UpsampledPredParam;
+using UpsampledPredParam = std::tuple<upsampled_pred_func, BLOCK_SIZE>;
 
 class AV1UpsampledPredTest
     : public AV1CompMaskPredBase,
@@ -299,7 +294,7 @@ INSTANTIATE_TEST_SUITE_P(
                        ::testing::ValuesIn(kValidBlockSize)));
 #endif
 
-typedef std::tuple<comp_avg_pred_func, BLOCK_SIZE> CompAvgPredParam;
+using CompAvgPredParam = std::tuple<comp_avg_pred_func, BLOCK_SIZE>;
 
 class AV1CompAvgPredTest : public ::testing::TestWithParam<CompAvgPredParam> {
  public:
@@ -481,14 +476,12 @@ void AV1HighbdCompMaskPredTestBase::TearDown() {
   aom_free(ref_buffer_);
 }
 
-typedef void (*highbd_comp_mask_pred_func)(uint8_t *comp_pred8,
-                                           const uint8_t *pred8, int width,
-                                           int height, const uint8_t *ref8,
-                                           int ref_stride, const uint8_t *mask,
-                                           int mask_stride, int invert_mask);
+using highbd_comp_mask_pred_func = void (*)(uint8_t *, const uint8_t *, int,
+                                            int, const uint8_t *, int,
+                                            const uint8_t *, int, int);
 
-typedef std::tuple<highbd_comp_mask_pred_func, BLOCK_SIZE, int>
-    HighbdCompMaskPredParam;
+using HighbdCompMaskPredParam =
+    std::tuple<highbd_comp_mask_pred_func, BLOCK_SIZE, int>;
 
 class AV1HighbdCompMaskPredTest
     : public AV1HighbdCompMaskPredTestBase,
@@ -607,14 +600,14 @@ INSTANTIATE_TEST_SUITE_P(
                        ::testing::Range(8, 13, 2)));
 #endif
 
-typedef void (*highbd_upsampled_pred_func)(
-    MACROBLOCKD *xd, const struct AV1Common *const cm, int mi_row, int mi_col,
-    const MV *const mv, uint8_t *comp_pred8, int width, int height,
-    int subpel_x_q3, int subpel_y_q3, const uint8_t *ref8, int ref_stride,
-    int bd, int subpel_search);
+using highbd_upsampled_pred_func = void (*)(MACROBLOCKD *,
+                                            const struct AV1Common *const, int,
+                                            int, const MV *const, uint8_t *,
+                                            int, int, int, int, const uint8_t *,
+                                            int, int, int);
 
-typedef std::tuple<highbd_upsampled_pred_func, BLOCK_SIZE, int>
-    HighbdUpsampledPredParam;
+using HighbdUpsampledPredParam =
+    std::tuple<highbd_upsampled_pred_func, BLOCK_SIZE, int>;
 
 class AV1HighbdUpsampledPredTest
     : public AV1HighbdCompMaskPredTestBase,
@@ -728,13 +721,11 @@ INSTANTIATE_TEST_SUITE_P(
                        ::testing::Range(8, 13, 2)));
 #endif
 
-typedef void (*highbd_comp_avg_pred_func)(uint8_t *comp_pred,
-                                          const uint8_t *pred, int width,
-                                          int height, const uint8_t *ref,
-                                          int ref_stride);
+using highbd_comp_avg_pred_func = void (*)(uint8_t *, const uint8_t *, int, int,
+                                           const uint8_t *, int);
 
-typedef std::tuple<highbd_comp_avg_pred_func, BLOCK_SIZE, int>
-    HighbdCompAvgPredParam;
+using HighbdCompAvgPredParam =
+    std::tuple<highbd_comp_avg_pred_func, BLOCK_SIZE, int>;
 
 class AV1HighbdCompAvgPredTest
     : public ::testing::TestWithParam<HighbdCompAvgPredParam> {

@@ -28,14 +28,12 @@
 namespace {
 using libaom_test::ACMRandom;
 
-typedef void (*buildcompdiffwtdmaskd_func)(uint8_t *mask,
-                                           DIFFWTD_MASK_TYPE mask_type,
-                                           const uint8_t *src0, int src0_stride,
-                                           const uint8_t *src1, int src1_stride,
-                                           int h, int w);
+using buildcompdiffwtdmaskd_func = void (*)(uint8_t *, DIFFWTD_MASK_TYPE,
+                                            const uint8_t *, int,
+                                            const uint8_t *, int, int, int);
 
-typedef std::tuple<BLOCK_SIZE, buildcompdiffwtdmaskd_func>
-    BuildCompDiffwtdMaskDParam;
+using BuildCompDiffwtdMaskDParam =
+    std::tuple<BLOCK_SIZE, buildcompdiffwtdmaskd_func>;
 
 #if HAVE_SSE4_1
 ::testing::internal::ParamGenerator<BuildCompDiffwtdMaskDParam> BuildParams(
@@ -58,13 +56,13 @@ class BuildCompDiffwtdMaskTest
   ACMRandom rnd_;
 };
 
-typedef void (*buildcompdiffwtdmaskd16_func)(
-    uint8_t *mask, DIFFWTD_MASK_TYPE mask_type, const CONV_BUF_TYPE *src0,
-    int src0_stride, const CONV_BUF_TYPE *src1, int src1_stride, int h, int w,
-    ConvolveParams *conv_params, int bd);
+using buildcompdiffwtdmaskd16_func = void (*)(uint8_t *, DIFFWTD_MASK_TYPE,
+                                              const CONV_BUF_TYPE *, int,
+                                              const CONV_BUF_TYPE *, int, int,
+                                              int, ConvolveParams *, int);
 
-typedef std::tuple<int, buildcompdiffwtdmaskd16_func, BLOCK_SIZE>
-    BuildCompDiffwtdMaskD16Param;
+using BuildCompDiffwtdMaskD16Param =
+    std::tuple<int, buildcompdiffwtdmaskd16_func, BLOCK_SIZE>;
 
 #if HAVE_SSE4_1 || HAVE_NEON
 ::testing::internal::ParamGenerator<BuildCompDiffwtdMaskD16Param> BuildParams(
