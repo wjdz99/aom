@@ -100,6 +100,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "025415dc_29e0ba4e",
+        "filename": "av1/encoder/encoder_alloc.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 262,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2023-07-25T17:51:54Z",
+      "side": 1,
+      "message": "I see how this is handled. Sounds like a good approach. Thanks.",
+      "parentUuid": "04d45780_41d3c71e",
+      "range": {
+        "startLine": 262,
+        "startChar": 2,
+        "endLine": 262,
+        "endChar": 17
+      },
+      "revId": "0a2a7c712fb774b13a7bcd6ac1dbe5976ae11049",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ccc78be4_fff3c391",
@@ -137,6 +161,30 @@
       "side": 1,
       "message": "This call ensures that the buffers allocated by `tf_alloc_and_reset_data()` in `prepare_tf_workers()` for MT encode are freed in case an error is encountered during temporal filtering (due to early termination `tf_dealloc_thread_data()` in `av1_tf_do_filtering_mt()` would not be invoked).\n\nIn case of successful MT encode, `tf_dealloc_data()` would be called twice (after `sync_enc_workers()` and `free_thread_data()`).",
       "parentUuid": "ccc78be4_fff3c391",
+      "range": {
+        "startLine": 446,
+        "startChar": 6,
+        "endLine": 446,
+        "endChar": 21
+      },
+      "revId": "0a2a7c712fb774b13a7bcd6ac1dbe5976ae11049",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "78302f8c_5dc1e029",
+        "filename": "av1/encoder/encoder_alloc.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 446,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2023-07-25T17:51:54Z",
+      "side": 1,
+      "message": "Yes, looks like this is needed.",
+      "parentUuid": "e5e45e6e_4690ab12",
       "range": {
         "startLine": 446,
         "startChar": 6,
