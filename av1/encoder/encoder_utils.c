@@ -680,6 +680,17 @@ void av1_scale_references(AV1_COMP *cpi, const InterpFilter filter,
   MV_REFERENCE_FRAME ref_frame;
 
   for (ref_frame = LAST_FRAME; ref_frame <= ALTREF_FRAME; ++ref_frame) {
+
+    // For RTC-SVC: if force_zero_mode_spatial_ref is enabled, check if the
+    // motion search is skipped for the three references: last, golden, altref.
+    // If so, we can skip scaling that reference.
+    if (cpi->ppi->use_svc && cpi->svc.force_zero_mode_spatial_ref &&
+        cpi->ppi->rtc_ref.set_ref_frame_config) {
+      if (ref_frame == LAST_FRAME && cpi->svc.skip_mvsearch_last) return;
+      if (ref_frame == GOLDEN_FRAME && cpi->svc.skip_mvsearch_gf) return;
+      if (ref_frame == ALTREF_FRAME && cpi->svc.skip_mvsearch_altref) return;
+    }
+
     // Need to convert from AOM_REFFRAME to index into ref_mask (subtract 1).
     if (cpi->ref_frame_flags & av1_ref_frame_flag_list[ref_frame]) {
       BufferPool *const pool = cm->buffer_pool;
