@@ -264,6 +264,8 @@ static AOM_INLINE void dealloc_compressor_data(AV1_COMP *cpi) {
   // tf_dealloc_data() in av1_temporal_filter() would not be invoked).
   tf_dealloc_data(&cpi->td.tf_data, is_highbitdepth);
 
+  tpl_dealloc_temp_buffers(&cpi->td.tpl_tmp_buffers);
+
   av1_free_txb_buf(cpi);
   av1_free_context_buffers(cm);
 
@@ -451,6 +453,7 @@ static AOM_INLINE void free_thread_data(AV1_PRIMARY *ppi) {
     // invoked).
     if (t < num_tf_workers)
       tf_dealloc_data(&thread_data->td->tf_data, is_highbitdepth);
+    tpl_dealloc_temp_buffers(&thread_data->td->tpl_tmp_buffers);
     aom_free(thread_data->td);
   }
 }
