@@ -3,6 +3,23 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "97afc705_47e9308f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-07-27T22:31:06Z",
+      "side": 1,
+      "message": "LGTM.",
+      "revId": "ee1ceb0b368418a31a9a1a38f62634d94aaa734d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "fdf7a938_68db2fb8",
         "filename": "test/av1_nn_predict_test.cc",
         "patchSetId": 2
@@ -14,6 +31,47 @@
       "writtenOn": "2023-07-26T22:58:16Z",
       "side": 1,
       "message": "The conversion of `{ 0 }` to `{ nullptr }` was then manually changed to `{}` in this file.",
+      "revId": "ee1ceb0b368418a31a9a1a38f62634d94aaa734d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a0f52bd9_39062936",
+        "filename": "test/av1_nn_predict_test.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-07-27T22:31:06Z",
+      "side": 1,
+      "message": "Why is `{}` better than `{ nullptr }` as a pointer array initializer?\n\nThis is one of the many parts of C++ that I haven\u0027t mastered. Thanks.",
+      "parentUuid": "fdf7a938_68db2fb8",
+      "revId": "ee1ceb0b368418a31a9a1a38f62634d94aaa734d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "513cfc3d_30cb383d",
+        "filename": "test/av1_nn_predict_test.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 183,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-07-27T22:31:06Z",
+      "side": 1,
+      "message": "Similar question: Is `{}` also better than `{ 0 }` as an int array initializer?",
+      "range": {
+        "startLine": 183,
+        "startChar": 47,
+        "endLine": 183,
+        "endChar": 52
+      },
       "revId": "ee1ceb0b368418a31a9a1a38f62634d94aaa734d",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
