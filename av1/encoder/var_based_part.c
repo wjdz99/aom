@@ -1001,7 +1001,7 @@ static AOM_INLINE void chroma_check(AV1_COMP *cpi, MACROBLOCK *x,
                                     unsigned int y_sad_alt, bool is_key_frame,
                                     bool zero_motion, unsigned int *uv_sad) {
   MACROBLOCKD *xd = &x->e_mbd;
-  int shift = 3;
+  int shift = 4;
   int fac_uv = 6;
   if (is_key_frame || cpi->oxcf.tool_cfg.enable_monochrome) return;
 
