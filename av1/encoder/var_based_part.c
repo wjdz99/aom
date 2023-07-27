@@ -1001,6 +1001,7 @@ static AOM_INLINE void chroma_check(AV1_COMP *cpi, MACROBLOCK *x,
                                     unsigned int y_sad_alt, bool is_key_frame,
                                     bool zero_motion, unsigned int *uv_sad) {
   MACROBLOCKD *xd = &x->e_mbd;
+  const int source_sad_nonrd = x->content_state_sb.source_sad_nonrd;
   int shift = 3;
   int fac_uv = 6;
   if (is_key_frame || cpi->oxcf.tool_cfg.enable_monochrome) return;
@@ -1017,8 +1018,11 @@ static AOM_INLINE void chroma_check(AV1_COMP *cpi, MACROBLOCK *x,
       fac_uv = 5;
   }
   if (cpi->oxcf.tune_cfg.content == AOM_CONTENT_SCREEN &&
-      cpi->rc.high_source_sad)
+      cpi->rc.high_source_sad) {
     shift = 7;
+  } else if (source_sad_nonrd >= kMedSad) {
+    shift = 4;
+  }
 
   MB_MODE_INFO *mi = xd->mi[0];
   const AV1_COMMON *const cm = &cpi->common;
@@ -1392,6 +1396,7 @@ static void setup_planes(AV1_COMP *cpi, MACROBLOCK *x, unsigned int *y_sad,
   }
 
   if (use_last_ref) {
+    const int source_sad_nonrd = x->content_state_sb.source_sad_nonrd;
     av1_setup_pre_planes(
         xd, 0, yv12, mi_row, mi_col,
         scaled_ref_last ? NULL : get_ref_scale_factors(cm, LAST_FRAME),
@@ -1402,8 +1407,13 @@ static void setup_planes(AV1_COMP *cpi, MACROBLOCK *x, unsigned int *y_sad,
     mi->mv[0].as_int = 0;
     mi->interp_filters = av1_broadcast_interp_filter(BILINEAR);
 
-    const int est_motion =
-        cpi->sf.rt_sf.estimate_motion_for_var_based_partition;
+    int est_motion = cpi->sf.rt_sf.estimate_motion_for_var_based_partition;
+    // TODO(marpan): Look into adjusting this conditions.
+    // There is regression on color content when
+    // estimate_motion_for_var_based_partition = 3 and high motion,
+    // so for now force it to 2 based on superblock sad.
+    if (est_motion > 2 && source_sad_nonrd > kMedSad) est_motion = 2;
+
     if (est_motion == 1 || est_motion == 2) {
       if (xd->mb_to_right_edge >= 0 && xd->mb_to_bottom_edge >= 0) {
         const MV dummy_mv = { 0, 0 };

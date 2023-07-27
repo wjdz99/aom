@@ -79,7 +79,6 @@ static INLINE void update_search_state_nonrd(
     TxfmSearchInfo *txfm_info, RD_STATS *nonskip_rdc, PICK_MODE_CONTEXT *ctx,
     PREDICTION_MODE this_best_mode, const int64_t sse_y) {
   BEST_PICKMODE *const best_pickmode = &search_state->best_pickmode;
-
   best_pickmode->best_sse = sse_y;
   best_pickmode->best_mode = this_best_mode;
   best_pickmode->best_motion_mode = mi->motion_mode;
