@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4c1f1bcf_62313d31",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-07-27T18:41:40Z",
+      "side": 1,
+      "message": "This sounds good. For x86 we establish a hierarchy too, so disabling SSE4 also disables AVX, AVX2, etc. We achieve this in cmake though by disabling those files.",
+      "revId": "fea70fb225decb403b752f7fa16a91ca0c6409db",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
