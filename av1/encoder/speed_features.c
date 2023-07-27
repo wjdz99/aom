@@ -1855,7 +1855,7 @@ static void set_rt_speed_features_framesize_independent(AV1_COMP *cpi,
   }
   if (speed >= 9) {
     sf->rt_sf.sse_early_term_inter_search = EARLY_TERM_IDX_3;
-    sf->rt_sf.estimate_motion_for_var_based_partition = 3;
+    sf->rt_sf.estimate_motion_for_var_based_partition = 2;
     sf->rt_sf.prefer_large_partition_blocks = 3;
     sf->rt_sf.skip_intra_pred = 2;
     sf->rt_sf.var_part_split_threshold_shift = 9;
