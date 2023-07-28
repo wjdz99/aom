@@ -34,6 +34,24 @@
       "parentUuid": "4c1f1bcf_62313d31",
       "revId": "fea70fb225decb403b752f7fa16a91ca0c6409db",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1a9bf1c9_75566ea0",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-07-28T19:54:24Z",
+      "side": 1,
+      "message": "\u003e Indeed, although the detection side of this problem in particular case does not seem to affect x86 since e.g. if you have AVX2 then you definitely also have AVX.\n\u003e \n\u003e On an imaginary Armv8.2-A implementation one could theoretically implement SVE but without the Neon I8MM extension. I don\u0027t believe that such an implementation exists today but there is no harm in being cautious here in the cpudetect code.\n\u003e \n\u003e Separately to this commit, we might want to adopt the x86 disable propagation as a way of giving people a sane way to consistently disable HAVE_{FEAT} without having to individually list every new feature that we add, but I don\u0027t know how common that use actually is.\n\nProbably not very common. We use it on the x86 side to check compilation and tests, though the latter could be done via `AOM_SIMD_CAPS_MASK`.",
+      "parentUuid": "b814e8bc_08c68415",
+      "revId": "fea70fb225decb403b752f7fa16a91ca0c6409db",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
