@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c66e1835_bafa834d",
+        "filename": "aom_ports/arm_cpudetect.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 201,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-07-28T19:49:00Z",
+      "side": 1,
+      "message": "nice cleanup.",
+      "revId": "c7e7cf437ed5e0a3a651042f46b9e6d7f81548ef",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
