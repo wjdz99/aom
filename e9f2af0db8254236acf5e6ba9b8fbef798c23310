@@ -51,6 +51,24 @@
       "parentUuid": "a9f7b717_bcc36216",
       "revId": "e9f2af0db8254236acf5e6ba9b8fbef798c23310",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e5eb13fd_dc096480",
+        "filename": "test/function_equivalence_test.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-07-28T19:45:22Z",
+      "side": 1,
+      "message": "\u003e Did you mean removing the TearDown() method?\n\u003e \n\nYes.\n\n\u003e It\u0027s not clear how to clean up SetUp(). Did you mean move its code to the constructor?\n\nYes. SetUp() should only really be necessary if you need to check an error return or skip a test to avoid a partially constructed object.",
+      "parentUuid": "3e2c72cd_0704f778",
+      "revId": "e9f2af0db8254236acf5e6ba9b8fbef798c23310",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
