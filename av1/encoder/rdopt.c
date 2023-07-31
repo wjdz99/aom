@@ -3909,6 +3909,27 @@ static AOM_INLINE void init_mode_skip_mask(mode_skip_mask_t *mask,
 
   mask->pred_modes[INTRA_FRAME] |=
       ~(uint32_t)sf->intra_sf.intra_y_mode_mask[max_txsize_lookup[bsize]];
+
+  // Prune reference frames which are not the closest to the current
+  // frame and with large pred_mv_sad.
+  if (sf->inter_sf.prune_single_ref) {
+    for (ref_frame = LAST_FRAME; ref_frame <= ALTREF_FRAME; ++ref_frame) {
+      const RefFrameDistanceInfo *const ref_frame_dist_info =
+          &cpi->ref_frame_dist_info;
+      const int is_closest_ref =
+          (ref_frame == ref_frame_dist_info->nearest_past_ref) ||
+          (ref_frame == ref_frame_dist_info->nearest_future_ref);
+      if (!is_closest_ref) {
+        const int dir =
+            (ref_frame_dist_info->ref_relative_dist[ref_frame - LAST_FRAME] < 0)
+                ? 0
+                : 1;
+        if (x->best_pred_mv_sad[dir] < INT_MAX &&
+            x->pred_mv_sad[ref_frame] > 1.05 * x->best_pred_mv_sad[dir])
+          mask->pred_modes[ref_frame] |= INTER_SINGLE_ALL;
+      }
+    }
+  }
 }
 
 static AOM_INLINE void init_neighbor_pred_buf(
@@ -4021,6 +4042,7 @@ static AOM_INLINE void set_params_rd_pick_inter_mode(
       setup_buffer_ref_mvs_inter(cpi, x, ref_frame, bsize, yv12_mb);
     }
     if (cpi->sf.inter_sf.alt_ref_search_fp ||
+        cpi->sf.inter_sf.prune_single_ref ||
         cpi->sf.rt_sf.prune_inter_modes_wrt_gf_arf_based_on_sad) {
       // Store the best pred_mv_sad across all past frames
       if (cpi->ref_frame_dist_info.ref_relative_dist[ref_frame - LAST_FRAME] <
