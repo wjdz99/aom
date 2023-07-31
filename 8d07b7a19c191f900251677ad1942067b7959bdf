@@ -3,6 +3,23 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "3e3cd882_c7874da4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 31042
+      },
+      "writtenOn": "2023-07-31T23:23:48Z",
+      "side": 1,
+      "message": "This function goes away in this change: https://aomedia-review.googlesource.com/c/aom/+/179021",
+      "revId": "8d07b7a19c191f900251677ad1942067b7959bdf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "af4c12fd_2f94d571",
         "filename": "av1/common/arm/convolve_neon.c",
         "patchSetId": 1
