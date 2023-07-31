@@ -941,12 +941,19 @@ static AOM_INLINE void chroma_check(AV1_COMP *cpi, MACROBLOCK *x,
                                     int zero_motion, unsigned int *uv_sad) {
   int i;
   MACROBLOCKD *xd = &x->e_mbd;
-  int shift = 3;
+  const int source_sad_nonrd = x->content_state_sb.source_sad_nonrd;
+  int shift_top = 1;
+  int shift_bottom = 3;
   if (is_key_frame || cpi->oxcf.tool_cfg.enable_monochrome) return;
 
   if (cpi->oxcf.tune_cfg.content == AOM_CONTENT_SCREEN &&
       cpi->rc.high_source_sad)
-    shift = 5;
+    shift_bottom = 5;
+  else if (source_sad_nonrd >= kMedSad &&
+           cpi->common.width * cpi->common.height > 640 * 360) {
+    shift_top = 2;
+    shift_bottom = source_sad_nonrd > kMedSad ? 5 : 4;
+  }
 
   MB_MODE_INFO *mi = xd->mi[0];
   const AV1_COMMON *const cm = &cpi->common;
@@ -996,9 +1003,9 @@ static AOM_INLINE void chroma_check(AV1_COMP *cpi, MACROBLOCK *x,
       }
     }
 
-    if (uv_sad[i - 1] > (y_sad >> 1))
+    if (uv_sad[i - 1] > (y_sad >> shift_top))
       x->color_sensitivity_sb[i - 1] = 1;
-    else if (uv_sad[i - 1] < (y_sad >> shift))
+    else if (uv_sad[i - 1] < (y_sad >> shift_bottom))
       x->color_sensitivity_sb[i - 1] = 0;
     // Borderline case: to be refined at coding block level in nonrd_pickmode,
     // for coding block size < sb_size.
