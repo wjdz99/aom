@@ -674,6 +674,7 @@ void av1_convolve_x_sr_neon(const uint8_t *src, int src_stride, uint8_t *dst,
 
 #else  // !(AOM_ARCH_AARCH64 && defined(__ARM_FEATURE_DOTPROD))
 
+#if AOM_ARCH_AARCH64
 static INLINE int16x4_t convolve8_4x4(const int16x4_t s0, const int16x4_t s1,
                                       const int16x4_t s2, const int16x4_t s3,
                                       const int16x4_t s4, const int16x4_t s5,
@@ -692,6 +693,7 @@ static INLINE int16x4_t convolve8_4x4(const int16x4_t s0, const int16x4_t s1,
   sum = vmla_lane_s16(sum, s7, filter_hi, 3);
   return sum;
 }
+#endif  // AOM_ARCH_AARCH64
 
 static INLINE uint8x8_t
 convolve8_horiz_8x8(const int16x8_t s0, const int16x8_t s1, const int16x8_t s2,
