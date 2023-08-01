@@ -439,8 +439,7 @@ static void encode_superblock(const AV1_COMP *const cpi, TileDataEnc *tile_data,
     av1_update_intra_mb_txb_context(cpi, td, dry_run, bsize,
                                     tile_data->allow_update_cdf);
   } else {
-    xd->cfl.store_y =
-        is_inter_block(mbmi) && !xd->is_chroma_ref && is_cfl_allowed(xd);
+    xd->cfl.store_y = is_cfl_allowed(xd);
     int ref;
     const int is_compound = has_second_ref(mbmi);
 

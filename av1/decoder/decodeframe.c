@@ -944,7 +944,7 @@ static AOM_INLINE void decode_token_recon_block(AV1Decoder *const pbi,
     td->predict_inter_block_visit(cm, dcb, bsize);
     xd->cfl.store_y =
         //store_cfl_required(cm, xd);
-        is_inter_block(mbmi) && !xd->is_chroma_ref && is_cfl_allowed(xd);
+        is_cfl_allowed(xd);
     td->cfl_store_inter_block_visit(cm, xd);
     // Reconstruction
     if (!mbmi->skip_txfm) {
