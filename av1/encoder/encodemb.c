@@ -489,6 +489,9 @@ static void encode_block(int plane, int block, int blk_row, int blk_col,
                              xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH);
   }
 #endif
+  if (plane == PLANE_TYPE_Y && xd->cfl.store_y) {
+    cfl_store_tx(xd, blk_row, blk_col, tx_size, plane_bsize);
+  }
 }
 
 static void encode_block_inter(int plane, int block, int blk_row, int blk_col,

@@ -259,6 +259,9 @@ static AOM_INLINE void inverse_transform_inter_block(
                           plane, pixel_c, pixel_r, blk_w, blk_h,
                           xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH);
 #endif
+  if (plane == AOM_PLANE_Y && xd->cfl.store_y) {
+    cfl_store_tx(xd, blk_row, blk_col, tx_size, xd->mi[0]->bsize);
+  }
 }
 
 static AOM_INLINE void set_cb_buffer_offsets(DecoderCodingBlock *dcb,
@@ -939,6 +942,10 @@ static AOM_INLINE void decode_token_recon_block(AV1Decoder *const pbi,
     }
   } else {
     td->predict_inter_block_visit(cm, dcb, bsize);
+    xd->cfl.store_y =
+        //store_cfl_required(cm, xd);
+        is_inter_block(mbmi) && !xd->is_chroma_ref && is_cfl_allowed(xd);
+    td->cfl_store_inter_block_visit(cm, xd);
     // Reconstruction
     if (!mbmi->skip_txfm) {
       int eobtotal = 0;
@@ -994,6 +1001,7 @@ static AOM_INLINE void decode_token_recon_block(AV1Decoder *const pbi,
       }
     }
     td->cfl_store_inter_block_visit(cm, xd);
+    xd->cfl.store_y = 0;
   }
 
   av1_visit_palette(pbi, xd, r, set_color_index_map_offset);

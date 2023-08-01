@@ -439,6 +439,8 @@ static void encode_superblock(const AV1_COMP *const cpi, TileDataEnc *tile_data,
     av1_update_intra_mb_txb_context(cpi, td, dry_run, bsize,
                                     tile_data->allow_update_cdf);
   } else {
+    xd->cfl.store_y =
+        is_inter_block(mbmi) && !xd->is_chroma_ref && is_cfl_allowed(xd);
     int ref;
     const int is_compound = has_second_ref(mbmi);
 
@@ -464,6 +466,12 @@ static void encode_superblock(const AV1_COMP *const cpi, TileDataEnc *tile_data,
       assert(cpi->oxcf.motion_mode_cfg.enable_obmc);
       av1_build_obmc_inter_predictors_sb(cm, xd);
     }
+    // Here we store the predictd y pixels, in case this block skips txfm.
+    // If not skip_txfm, the reconstructed y pixels will be stored in
+    // encode_block() in encodemb.c.
+    if (is_inter_block(mbmi) && !xd->is_chroma_ref && is_cfl_allowed(xd)) {
+      cfl_store_block(xd, mbmi->bsize, mbmi->tx_size);
+    }
 
 #if CONFIG_MISMATCH_DEBUG
     if (dry_run == OUTPUT_ENABLED) {
@@ -488,6 +496,7 @@ static void encode_superblock(const AV1_COMP *const cpi, TileDataEnc *tile_data,
     av1_encode_sb(cpi, x, bsize, dry_run);
     av1_tokenize_sb_vartx(cpi, td, dry_run, bsize, rate,
                           tile_data->allow_update_cdf);
+    xd->cfl.store_y = 0;
   }
 
   if (!dry_run) {
@@ -563,9 +572,9 @@ static void encode_superblock(const AV1_COMP *const cpi, TileDataEnc *tile_data,
                   (mbmi->skip_txfm || seg_skip) && is_inter_block(mbmi), xd);
   }
 
-  if (is_inter_block(mbmi) && !xd->is_chroma_ref && is_cfl_allowed(xd)) {
-    cfl_store_block(xd, mbmi->bsize, mbmi->tx_size);
-  }
+  //if (is_inter_block(mbmi) && !xd->is_chroma_ref && is_cfl_allowed(xd)) {
+  //  cfl_store_block(xd, mbmi->bsize, mbmi->tx_size);
+  //}
   if (!dry_run) {
     if (cpi->oxcf.pass == AOM_RC_ONE_PASS && cpi->svc.temporal_layer_id == 0 &&
         cpi->sf.rt_sf.use_temporal_noise_estimate &&
