@@ -229,6 +229,13 @@ INSTANTIATE_TEST_SUITE_P(
                                           av1_filter_intra_edge_sse4_1)));
 #endif  // HAVE_SSE4_1
 
+#if HAVE_NEON
+INSTANTIATE_TEST_SUITE_P(
+    NEON, FilterEdgeTest8B,
+    ::testing::Values(FilterEdgeTestFuncs(av1_filter_intra_edge_c,
+                                          av1_filter_intra_edge_neon)));
+#endif  // HAVE_NEON
+
 //////////////////////////////////////////////////////////////////////////////
 // High bit-depth version
 //////////////////////////////////////////////////////////////////////////////
