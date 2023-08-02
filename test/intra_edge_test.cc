@@ -106,6 +106,10 @@ INSTANTIATE_TEST_SUITE_P(
                                 av1_upsample_intra_edge_sse4_1)));
 #endif  // HAVE_SSE4_1
 
+#if HAVE_NEON
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(UpsampleTest8B);
+#endif  // HAVE_NEON
+
 //////////////////////////////////////////////////////////////////////////////
 // High bit-depth version
 //////////////////////////////////////////////////////////////////////////////
@@ -157,6 +161,10 @@ INSTANTIATE_TEST_SUITE_P(
     ::testing::Values(TestFuncsHBD(av1_upsample_intra_edge_high_c,
                                    av1_upsample_intra_edge_high_sse4_1)));
 #endif  // HAVE_SSE4_1
+
+#if HAVE_NEON
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(UpsampleTestHB);
+#endif  // HAVE_NEON
 
 template <typename F, typename T>
 class FilterEdgeTest : public FunctionEquivalenceTest<F> {
@@ -229,6 +237,13 @@ INSTANTIATE_TEST_SUITE_P(
                                           av1_filter_intra_edge_sse4_1)));
 #endif  // HAVE_SSE4_1
 
+#if HAVE_NEON
+INSTANTIATE_TEST_SUITE_P(
+    NEON, FilterEdgeTest8B,
+    ::testing::Values(FilterEdgeTestFuncs(av1_filter_intra_edge_c,
+                                          av1_filter_intra_edge_neon)));
+#endif  // HAVE_NEON
+
 //////////////////////////////////////////////////////////////////////////////
 // High bit-depth version
 //////////////////////////////////////////////////////////////////////////////
@@ -273,6 +288,10 @@ INSTANTIATE_TEST_SUITE_P(SSE4_1, FilterEdgeTestHB,
                              av1_filter_intra_edge_high_c,
                              av1_filter_intra_edge_high_sse4_1)));
 #endif  // HAVE_SSE4_1
+
+#if HAVE_NEON
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(FilterEdgeTestHB);
+#endif  // HAVE_NEON
 
 // Speed tests
 
