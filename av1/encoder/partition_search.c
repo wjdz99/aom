@@ -459,8 +459,11 @@ static void encode_superblock(const AV1_COMP *const cpi, TileDataEnc *tile_data,
          cm->seq_params->bit_depth == AOM_BITS_8)
             ? 1
             : 0;
+
+    for (int plane = start_plane; plane < num_planes; ++plane) {
     av1_enc_build_inter_predictor(cm, xd, mi_row, mi_col, NULL, bsize,
-                                  start_plane, av1_num_planes(cm) - 1);
+                                  //start_plane, av1_num_planes(cm) - 1);
+                                  plane, plane);
     if (mbmi->motion_mode == OBMC_CAUSAL) {
       assert(cpi->oxcf.motion_mode_cfg.enable_obmc);
       av1_build_obmc_inter_predictors_sb(cm, xd);
@@ -492,7 +495,8 @@ static void encode_superblock(const AV1_COMP *const cpi, TileDataEnc *tile_data,
     (void)num_planes;
 #endif
 
-    av1_encode_sb(cpi, x, bsize, dry_run);
+    av1_encode_sb(cpi, x, bsize, dry_run, plane, plane + 1);
+  }
     av1_tokenize_sb_vartx(cpi, td, dry_run, bsize, rate,
                           tile_data->allow_update_cdf);
     xd->cfl.store_y = 0;

@@ -666,10 +666,12 @@ static void dec_build_inter_predictors(const AV1_COMMON *cm,
 static AOM_INLINE void dec_build_inter_predictor(const AV1_COMMON *cm,
                                                  DecoderCodingBlock *dcb,
                                                  int mi_row, int mi_col,
-                                                 BLOCK_SIZE bsize) {
+                                                 BLOCK_SIZE bsize,
+                                                 const int plane_start,
+                                                 const int plane_end) {
   MACROBLOCKD *const xd = &dcb->xd;
-  const int num_planes = av1_num_planes(cm);
-  for (int plane = 0; plane < num_planes; ++plane) {
+  //const int num_planes = av1_num_planes(cm);
+  for (int plane = plane_start; plane < plane_end; ++plane) {
     if (plane && !xd->is_chroma_ref) break;
     const int mi_x = mi_col * MI_SIZE;
     const int mi_y = mi_row * MI_SIZE;
@@ -836,7 +838,9 @@ static AOM_INLINE void cfl_store_inter_block(AV1_COMMON *const cm,
 
 static AOM_INLINE void predict_inter_block(AV1_COMMON *const cm,
                                            DecoderCodingBlock *dcb,
-                                           BLOCK_SIZE bsize) {
+                                           BLOCK_SIZE bsize,
+                                           const int plane_start,
+                                           const int plane_end) {
   MACROBLOCKD *const xd = &dcb->xd;
   MB_MODE_INFO *mbmi = xd->mi[0];
   const int num_planes = av1_num_planes(cm);
@@ -859,7 +863,7 @@ static AOM_INLINE void predict_inter_block(AV1_COMMON *const cm,
     }
   }
 
-  dec_build_inter_predictor(cm, dcb, mi_row, mi_col, bsize);
+  dec_build_inter_predictor(cm, dcb, mi_row, mi_col, bsize, plane_start, plane_end);
   if (mbmi->motion_mode == OBMC_CAUSAL) {
     dec_build_obmc_inter_predictors_sb(cm, dcb);
   }
@@ -941,7 +945,9 @@ static AOM_INLINE void decode_token_recon_block(AV1Decoder *const pbi,
       }
     }
   } else {
-    td->predict_inter_block_visit(cm, dcb, bsize);
+    for (int plane = 0; plane < num_planes; ++plane) {
+    //td->predict_inter_block_visit(cm, dcb, bsize);
+    predict_inter_block(cm, dcb, bsize, plane, plane + 1);
     xd->cfl.store_y =
         //store_cfl_required(cm, xd);
         is_cfl_allowed(xd);
@@ -966,7 +972,7 @@ static AOM_INLINE void decode_token_recon_block(AV1Decoder *const pbi,
 
       for (row = 0; row < max_blocks_high; row += mu_blocks_high) {
         for (col = 0; col < max_blocks_wide; col += mu_blocks_wide) {
-          for (int plane = 0; plane < num_planes; ++plane) {
+          //for (int plane = 0; plane < num_planes; ++plane) {
             if (plane && !xd->is_chroma_ref) break;
             const struct macroblockd_plane *const pd = &xd->plane[plane];
             const int ss_x = pd->subsampling_x;
@@ -996,12 +1002,13 @@ static AOM_INLINE void decode_token_recon_block(AV1Decoder *const pbi,
                 block += step;
               }
             }
-          }
+          //}
         }
       }
     }
     td->cfl_store_inter_block_visit(cm, xd);
     xd->cfl.store_y = 0;
+    }
   }
 
   av1_visit_palette(pbi, xd, r, set_color_index_map_offset);

@@ -64,7 +64,7 @@ struct encode_b_args {
 };
 
 void av1_encode_sb(const struct AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bsize,
-                   RUN_TYPE dry_run);
+                   RUN_TYPE dry_run, const int plane_start, const int plane_end);
 
 void av1_foreach_transformed_block_in_plane(
     const MACROBLOCKD *const xd, BLOCK_SIZE plane_bsize, int plane,
