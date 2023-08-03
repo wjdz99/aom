@@ -16,6 +16,93 @@
       "message": "In the temporal filter, the block size at which prediction needs to happen is decided by doing motion estimation at block sizes 32x32, and for four sub-blocks of size 16x16. This CL introduces a speed feature ‘allow_sub_blk_me_in_tf’ to avoid 16x16 sub-block motion search by using source variance calculated at 4x4 sub-block level. If the variation between the minimum and maximum variance is large then only allow motion search at sub-block level and vice versa. Currently, this sf is enabled only in speed 6 for MIDRES2 and HDRES2 resolutions.\n\nThe below shows Borg test results for speed 6.\n```\n                 Instruction Count         BD-Rate Loss(%)\ncpu   Test_Set     Reduction(%)      avg.psnr   ovr.psnr    ssim\n 6    LOWRES2        0.000           0.0000     0.0000      0.0000\n 6    MIDRES2        0.766          -0.0159     0.0449      0.0311\n 6    HDRES2         1.384          -0.0566    -0.0766     -0.0486\n 6    Average        0.717          -0.0242    -0.0106     -0.0056\n```\nAs trade-off is poor for LOWRES2 dataset, the sf is disabled for the same. Extending this sf to speed 5 is not within the trade-off.",
       "revId": "eba82a2df82bb5c072804b0219701a61068982f9",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9cbb97c5_71c8c8a6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2023-08-03T17:00:09Z",
+      "side": 1,
+      "message": "Yes, the block size decision correlates with the resolution. For lowres, 16x16 might be used a lot. This is fine since we are focusing on high res optimization. Nice speedup!",
+      "parentUuid": "3d4c317b_a91fbbc1",
+      "revId": "eba82a2df82bb5c072804b0219701a61068982f9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "87fef758_88aaa570",
+        "filename": "av1/encoder/temporal_filter.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2023-08-03T17:00:09Z",
+      "side": 1,
+      "message": "Not sure how expensive this calculation is? Is this necessary?",
+      "range": {
+        "startLine": 83,
+        "startChar": 21,
+        "endLine": 83,
+        "endChar": 26
+      },
+      "revId": "eba82a2df82bb5c072804b0219701a61068982f9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9841135e_5ff9e2fe",
+        "filename": "av1/encoder/temporal_filter.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 246,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2023-08-03T17:00:09Z",
+      "side": 1,
+      "message": "Include this part under \"if (allow_me_for_sub_blks)\" as well?",
+      "range": {
+        "startLine": 239,
+        "startChar": 0,
+        "endLine": 246,
+        "endChar": 25
+      },
+      "revId": "eba82a2df82bb5c072804b0219701a61068982f9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a6279ba2_5b036af8",
+        "filename": "av1/encoder/temporal_filter.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 913,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2023-08-03T17:00:09Z",
+      "side": 1,
+      "message": "Should this be adjusted based on bit depth? If so, maybe at least add a comment here.",
+      "range": {
+        "startLine": 913,
+        "startChar": 49,
+        "endLine": 913,
+        "endChar": 52
+      },
+      "revId": "eba82a2df82bb5c072804b0219701a61068982f9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
