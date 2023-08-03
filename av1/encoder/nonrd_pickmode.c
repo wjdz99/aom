@@ -1935,9 +1935,25 @@ static void set_color_sensitivity(AV1_COMP *cpi, MACROBLOCK *x,
   const int subsampling_x = cpi->common.seq_params->subsampling_x;
   const int subsampling_y = cpi->common.seq_params->subsampling_y;
   const int source_sad_nonrd = x->content_state_sb.source_sad_nonrd;
+  if (bsize == cpi->common.seq_params->sb_size) {
+    if (x->color_sensitivity[COLOR_SENS_IDX(AOM_PLANE_U)] == 2) {
+      if (source_sad_nonrd >= kMedSad)
+        x->color_sensitivity[COLOR_SENS_IDX(AOM_PLANE_U)] = 1;
+      else
+        x->color_sensitivity[COLOR_SENS_IDX(AOM_PLANE_U)] = 0;
+    }
+    if (x->color_sensitivity[COLOR_SENS_IDX(AOM_PLANE_V)] == 2) {
+      if (source_sad_nonrd >= kMedSad)
+        x->color_sensitivity[COLOR_SENS_IDX(AOM_PLANE_V)] = 1;
+      else
+        x->color_sensitivity[COLOR_SENS_IDX(AOM_PLANE_V)] = 0;
+    }
+    return;
+  }
   int shift = 3;
   if (source_sad_nonrd >= kMedSad &&
-      cpi->oxcf.tune_cfg.content != AOM_CONTENT_SCREEN &&
+      (cpi->oxcf.tune_cfg.content != AOM_CONTENT_SCREEN ||
+       x->source_variance > 0) &&
       cpi->common.width * cpi->common.height >= 640 * 360)
     shift = 4;
   if (cpi->oxcf.tune_cfg.content == AOM_CONTENT_SCREEN &&
@@ -1964,7 +1980,8 @@ static void set_color_sensitivity(AV1_COMP *cpi, MACROBLOCK *x,
 
   for (int plane = AOM_PLANE_U; plane < num_planes; ++plane) {
     if (x->color_sensitivity[COLOR_SENS_IDX(plane)] == 2 ||
-        source_variance < 50) {
+        (x->color_sensitivity[COLOR_SENS_IDX(plane)] == 0 &&
+         source_sad_nonrd >= kMedSad)) {
       struct macroblock_plane *const p = &x->plane[plane];
       const BLOCK_SIZE bs =
           get_plane_block_size(bsize, subsampling_x, subsampling_y);
@@ -3214,7 +3231,7 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
     int is_single_pred = 1;
     PREDICTION_MODE this_mode;
 
-    if (idx == 0 && !skip_pred_mv) {
+    if (idx == 0) {
       // Set color sensitivity on first tested mode only.
       // Use y-sad already computed in find_predictors: take the sad with motion
       // vector closest to 0; the uv-sad computed below in set_color_sensitivity
@@ -3227,7 +3244,9 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
           x->color_sensitivity[COLOR_SENS_IDX(AOM_PLANE_U)] = 1;
         if (x->color_sensitivity_sb_g[COLOR_SENS_IDX(AOM_PLANE_V)] == 1)
           x->color_sensitivity[COLOR_SENS_IDX(AOM_PLANE_V)] = 1;
-      } else if (search_state.use_ref_frame_mask[LAST_FRAME]) {
+      }
+      if (search_state.use_ref_frame_mask[LAST_FRAME] &&
+          x->pred_mv0_sad[LAST_FRAME] != INT_MAX) {
         int y_sad = x->pred_mv0_sad[LAST_FRAME];
         if (x->pred_mv1_sad[LAST_FRAME] != INT_MAX &&
             (abs(search_state.frame_mv[NEARMV][LAST_FRAME].as_mv.col) +
