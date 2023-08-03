@@ -38,6 +38,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "f7131d2a_300589a4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2023-08-03T17:18:58Z",
+      "side": 1,
+      "message": "Also, the condition used here only consider the source variance. What is the worst quality drop here (at what bitrate)?",
+      "parentUuid": "9cbb97c5_71c8c8a6",
+      "revId": "eba82a2df82bb5c072804b0219701a61068982f9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "87fef758_88aaa570",
         "filename": "av1/encoder/temporal_filter.c",
         "patchSetId": 5
