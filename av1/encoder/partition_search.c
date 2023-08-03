@@ -894,8 +894,9 @@ static void pick_sb_modes(AV1_COMP *const cpi, TileDataEnc *tile_data,
   // Reset skip mode flag.
   mbmi->skip_mode = 0;
 
-  x->source_variance = av1_get_perpixel_variance_facade(
-      cpi, xd, &x->plane[0].src, bsize, AOM_PLANE_Y);
+  if (x->source_variance == UINT_MAX)
+    x->source_variance = av1_get_perpixel_variance_facade(
+        cpi, xd, &x->plane[0].src, bsize, AOM_PLANE_Y);
 
   // Initialize default mode evaluation params
   set_mode_eval_params(cpi, x, DEFAULT_EVAL);
