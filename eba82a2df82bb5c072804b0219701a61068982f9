@@ -72,6 +72,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "28d6bc85_13305e0f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2023-08-04T17:06:19Z",
+      "side": 1,
+      "message": "Ok. Interesting result. Thanks.",
+      "parentUuid": "249f8b58_7aa222c2",
+      "revId": "eba82a2df82bb5c072804b0219701a61068982f9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "87fef758_88aaa570",
@@ -109,6 +127,30 @@
       "side": 1,
       "message": "The time spent on log1p and division operation is negligible (~0.01%). Similar kind of implementation is done in \u0027av1_rd_pick_partition()\u0027, for deciding NONE vs SPLIT partition. We adopted the same idea and used the implementation for consistency.",
       "parentUuid": "87fef758_88aaa570",
+      "range": {
+        "startLine": 83,
+        "startChar": 21,
+        "endLine": 83,
+        "endChar": 26
+      },
+      "revId": "eba82a2df82bb5c072804b0219701a61068982f9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bf5f499e_897a15ab",
+        "filename": "av1/encoder/temporal_filter.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2023-08-04T17:06:19Z",
+      "side": 1,
+      "message": "Ok.",
+      "parentUuid": "b2fadda5_25624b6e",
       "range": {
         "startLine": 83,
         "startChar": 21,
