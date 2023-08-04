@@ -44,7 +44,7 @@ static INLINE unsigned int sad(const uint8_t *a, int a_stride, const uint8_t *b,
                                         const uint8_t *ref, int ref_stride,   \
                                         const uint8_t *second_pred) {         \
     uint8_t comp_pred[m * n];                                                 \
-    aom_comp_avg_pred(comp_pred, second_pred, m, n, ref, ref_stride);         \
+    aom_comp_avg_pred_c(comp_pred, second_pred, m, n, ref, ref_stride);       \
     return sad(src, src_stride, comp_pred, m, m, n);                          \
   }                                                                           \
   unsigned int aom_dist_wtd_sad##m##x##n##_avg_c(                             \
@@ -238,7 +238,8 @@ static INLINE unsigned int highbd_sadb(const uint8_t *a8, int a_stride,
       const uint8_t *second_pred) {                                            \
     uint16_t comp_pred[m * n];                                                 \
     uint8_t *const comp_pred8 = CONVERT_TO_BYTEPTR(comp_pred);                 \
-    aom_highbd_comp_avg_pred(comp_pred8, second_pred, m, n, ref, ref_stride);  \
+    aom_highbd_comp_avg_pred_c(comp_pred8, second_pred, m, n, ref,             \
+                               ref_stride);                                    \
     return highbd_sadb(src, src_stride, comp_pred8, m, m, n);                  \
   }                                                                            \
   unsigned int aom_highbd_dist_wtd_sad##m##x##n##_avg_c(                       \
@@ -246,8 +247,8 @@ static INLINE unsigned int highbd_sadb(const uint8_t *a8, int a_stride,
       const uint8_t *second_pred, const DIST_WTD_COMP_PARAMS *jcp_param) {     \
     uint16_t comp_pred[m * n];                                                 \
     uint8_t *const comp_pred8 = CONVERT_TO_BYTEPTR(comp_pred);                 \
-    aom_highbd_dist_wtd_comp_avg_pred(comp_pred8, second_pred, m, n, ref,      \
-                                      ref_stride, jcp_param);                  \
+    aom_highbd_dist_wtd_comp_avg_pred_c(comp_pred8, second_pred, m, n, ref,    \
+                                        ref_stride, jcp_param);                \
     return highbd_sadb(src, src_stride, comp_pred8, m, m, n);                  \
   }                                                                            \
   unsigned int aom_highbd_sad_skip_##m##x##n##_c(                              \
