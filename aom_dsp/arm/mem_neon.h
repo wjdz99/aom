@@ -894,6 +894,15 @@ static INLINE uint8x8_t load_unaligned_u8_4x1(const uint8_t *buf) {
   return vreinterpret_u8_u32(a_u32);
 }
 
+static INLINE uint8x8_t load_unaligned_dup_u8_4x2(const uint8_t *buf) {
+  uint32_t a;
+  uint32x2_t a_u32;
+
+  memcpy(&a, buf, 4);
+  a_u32 = vdup_n_u32(a);
+  return vreinterpret_u8_u32(a_u32);
+}
+
 static INLINE uint8x8_t load_unaligned_u8_4x2(const uint8_t *buf, int stride) {
   uint32_t a;
   uint32x2_t a_u32;
