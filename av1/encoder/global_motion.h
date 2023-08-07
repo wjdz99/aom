@@ -97,10 +97,10 @@ void av1_compute_feature_segmentation_map(uint8_t *segment_map, int width,
                                           int height, int *inliers,
                                           int num_inliers);
 
-extern const int error_measure_lut[512];
+extern const int error_measure_lut[513];
 
 static INLINE int error_measure(int err) {
-  return error_measure_lut[255 + err];
+  return error_measure_lut[256 + err];
 }
 
 #if CONFIG_AV1_HIGHBITDEPTH
@@ -108,11 +108,10 @@ static INLINE int highbd_error_measure(int err, int bd) {
   const int b = bd - 8;
   const int bmask = (1 << b) - 1;
   const int v = (1 << b);
-  err = abs(err);
   const int e1 = err >> b;
   const int e2 = err & bmask;
-  return error_measure_lut[255 + e1] * (v - e2) +
-         error_measure_lut[256 + e1] * e2;
+  return error_measure_lut[256 + e1] * (v - e2) +
+         error_measure_lut[257 + e1] * e2;
 }
 #endif  // CONFIG_AV1_HIGHBITDEPTH
 
