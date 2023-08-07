@@ -16,6 +16,69 @@
       "message": "In the parent version, for single-threaded encode, global motion buffers are locally allocated and deallocated in `global_motion_estimation()`. Because of the local allocation/deallocation, it is not possible to free these buffers in case of an error during gm processing. To resolve this issue, `gm_data` is introduced in `cpi-\u003etd` which contains gm buffers used for both ST and MT gm processing. Added relevant calls to `gm_dealloc_data()` inside `aom_codec_destroy()` to avoid memory leaks in case of an error during gm processing.  \n\nThe gm buffer allocation for MT encode is also made similar to other modules (temporal filtering and tpl) where the buffers are allocated and deallocated for each frame. We have ensured that this refactoring has negligible impact on MT speed.\n \nAlse cleaned up the function `init_gm_thread_data()`, as initialization of `segment_map` is ensured in `av1_compute_feature_segmentation_map()` before every population.\n\nThis change is bit-exact and has been verified using bitstream-match tests for a combination of various configuration values for --threads, --tile-rows, --tile-columns, --cpu-used, --end-usage, --row-mt, --fp-mt, etc. Validated all unit-tests with sanitizers (address and thread) and valgrind.",
       "revId": "5e3b2e3073bce739bf01061ba493f9d832bb5521",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2ab3da11_49634fbe",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2023-08-07T22:45:09Z",
+      "side": 1,
+      "message": "Looks good overall. Thanks.",
+      "revId": "5e3b2e3073bce739bf01061ba493f9d832bb5521",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c75182f5_94a500fc",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 2532,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2023-08-07T22:45:09Z",
+      "side": 1,
+      "message": "What does this condition do? Work thread only?",
+      "range": {
+        "startLine": 2532,
+        "startChar": 4,
+        "endLine": 2532,
+        "endChar": 23
+      },
+      "revId": "5e3b2e3073bce739bf01061ba493f9d832bb5521",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ef782ddb_f8b1ae4e",
+        "filename": "av1/encoder/global_motion_facade.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 448,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2023-08-07T22:45:09Z",
+      "side": 1,
+      "message": "So gm_dealloc_data() only handles ST case?",
+      "range": {
+        "startLine": 448,
+        "startChar": 4,
+        "endLine": 448,
+        "endChar": 19
+      },
+      "revId": "5e3b2e3073bce739bf01061ba493f9d832bb5521",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
