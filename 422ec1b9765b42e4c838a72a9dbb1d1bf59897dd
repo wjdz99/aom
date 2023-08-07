@@ -54,6 +54,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "08824f57_b9dac606",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2023-08-07T15:53:10Z",
+      "side": 1,
+      "message": "Thanks for the deep investigation!\n\nLooks like the 1st sf still works fine while the 2nd one doesn\u0027t impact much anymore.\n\nIt is kind of surprise to see that disabling delta_q_present_flag for all INTNL_ARF_UPDATE frames gives even more coding gain back. Maybe something is wrong here?",
+      "parentUuid": "efb3f240_61dfeb67",
+      "revId": "422ec1b9765b42e4c838a72a9dbb1d1bf59897dd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a6d5938c_532e754b",
@@ -91,6 +109,30 @@
       "side": 1,
       "message": "Yes. This factor is also dependent on the prediction degradation information of the leaf frames on the base layer ARF. However, this information is not available as tpl is skipped for leaf frames. \n\nFor gf group size of 32, earlier, the number of frames used to calculate `cpi-\u003erd.r0` of base layer ARF (i.e., frame number 32) was 31+3 (frames from next gf group). Now, as tpl is skipped for leaf frames, the number of frames used is 15+3 \u003d 18. This corresponds to a factor of 34/18\u003d1.9.This factor has to be reduced based on the prediction degradation of leaf frames on base layer ARF. Thus a factor of 1.6 is used.",
       "parentUuid": "a6d5938c_532e754b",
+      "range": {
+        "startLine": 1884,
+        "startChar": 27,
+        "endLine": 1884,
+        "endChar": 70
+      },
+      "revId": "422ec1b9765b42e4c838a72a9dbb1d1bf59897dd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "267a158d_2acaf894",
+        "filename": "av1/encoder/tpl_model.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1884,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2023-08-07T15:53:10Z",
+      "side": 1,
+      "message": "Sounds good. Thanks for the details.",
+      "parentUuid": "20b415a6_d8f20516",
       "range": {
         "startLine": 1884,
         "startChar": 27,
