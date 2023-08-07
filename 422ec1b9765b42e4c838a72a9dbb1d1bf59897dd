@@ -38,6 +38,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "efb3f240_61dfeb67",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8893
+      },
+      "writtenOn": "2023-08-07T11:49:04Z",
+      "side": 1,
+      "message": "The coding gain is majorly contributed by setting `delta_q_present_flag` to 0 for the highest layer `INTNL_ARF_UPDATE` frames and disabling the sf `inter_sf.prune_inter_modes_based_on_tpl` for `LF_UPDATE` frames. To study the impact we have done few experiments and the results are below:\n\n1) `inter_sf.prune_inter_modes_based_on_tpl`\n- Disable the speed feature `inter_sf.prune_inter_modes_based_on_tpl` for `LF_UPDATE` frames (except `LF_UPDATE` frames in first gf group of the key-frame interval) \n```\n                   Instruction Count        BD-Rate Loss(%)\ncpu   Resolution   Reduction(%)       avg.psnr   ovr.psnr    ssim  \n 6       LOWRES2       -1.991         -0.0904    -0.0927   -0.0600 \n 6       MIDRES2       -1.849         -0.0979    -0.0973   -0.0846 \n 6        HDRES2       -1.655         -0.1072    -0.1207   -0.0836 \n 6       Average       -1.832         -0.0985    -0.1036   -0.0761 \n```\n\n2) `intra_sf.skip_intra_in_interframe`\n- Disable the ML model which prunes intra modes in inter frames for `LF_UPDATE` frames (except `LF_UPDATE` frames in first gf group of the key-frame interval) \n- Skip intra modes in inter frame if the best inter mode is transform skip for block sizes with width \u003e\u003d 16 and height \u003e\u003d 16 for `LF_UPDATE` frames (except `LF_UPDATE` frames in first gf group of the key-frame interval) \n```\n                 Instruction Count        BD-Rate Loss(%)\ncpu   Resolution   Reduction(%)    avg.psnr   ovr.psnr    ssim   \n 6       LOWRES2      -0.160        0.0131     0.0134   0.0122  \n 6       MIDRES2      -0.039        0.0462     0.0417   0.0426  \n 6        HDRES2      -0.032        0.0368     0.0413   0.0268  \n 6       Average      -0.077        0.0320     0.0322   0.0272  \n```\n\n3) `delta_q_present_flag`\n- Set `delta_q_present_flag` to 0 for the highest layer `INTNL_ARF_UPDATE` frames  (except for frames in first gf group of the key-frame interval) \n```\n                  Instruction Count       BD-Rate Loss(%)\ncpu   Resolution   Reduction(%)     avg.psnr   ovr.psnr    ssim   \n 6       LOWRES2       0.129        -0.1656    -0.1596   -0.0729  \n 6       MIDRES2       0.090        -0.2749    -0.2733   -0.2959  \n 6        HDRES2       0.097        -0.1939    -0.1991   -0.1743  \n 6       Average       0.105        -0.2115    -0.2107   -0.1810  \n```\n\nThe above results show that coding gain is achieved by setting `delta_q_present_flag` to 0 for the highest layer `INTNL_ARF_UPDATE` frames and disabling the sf `inter_sf.prune_inter_modes_based_on_tpl`  for `LF_UPDATE` frames.\n\nThe clips showing high BD-Rate loss/gain are as follows:\n ```\nContent                                          avg.psnr   ovr.psnr   ssim\nNetflix_PierSeaside_2048x1080_60fps_8bit_420     1.0471      1.4883    -0.4702\nCampfire_1280x720_30fps_8bit                    -0.1030      0.0947     1.3833\nToddlerFountain_1280x720_60fps_8bit              0.2331      0.3580     1.3458\nped_1080p25                                      0.4596      0.4760     1.3045\n\nMobisode2_832x480_30                            -1.8134     -1.9696    -1.9137\nstation2_480p25                                 -1.4848     -1.4883    -1.7342\nfactory_1080p30                                 -1.3998     -1.8459    -1.0418\nin_to_tree_1080p50                              -1.0322     -0.7747    -1.3243\n```\nNote : The results of setting `delta_q_present_flag` to 0 for all frames of type `INTNL_ARF_UPDATE` are as follows: \n\n```\n                  Instruction Count        BD-Rate Loss(%)\ncpu   Resolution   Reduction(%)    avg.psnr    ovr.psnr     ssim   \n 6       LOWRES2      0.383        -0.5399     -0.4846      0.0164  \n 6       MIDRES2      0.355        -0.8588     -0.7428     -0.4906  \n 6        HDRES2      0.292        -0.2347     -0.2303     -0.3396  \n 6       Average      0.344        -0.5445     -0.4859     -0.2713 \n\n```",
+      "parentUuid": "4ed55e16_c544c542",
+      "revId": "422ec1b9765b42e4c838a72a9dbb1d1bf59897dd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "a6d5938c_532e754b",
         "filename": "av1/encoder/tpl_model.c",
         "patchSetId": 2
@@ -49,6 +67,30 @@
       "writtenOn": "2023-08-04T16:56:09Z",
       "side": 1,
       "message": "How does a fixed factor work here? Besides # of leaf frames, would this factor be affected by other factors?",
+      "range": {
+        "startLine": 1884,
+        "startChar": 27,
+        "endLine": 1884,
+        "endChar": 70
+      },
+      "revId": "422ec1b9765b42e4c838a72a9dbb1d1bf59897dd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "20b415a6_d8f20516",
+        "filename": "av1/encoder/tpl_model.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1884,
+      "author": {
+        "id": 8893
+      },
+      "writtenOn": "2023-08-07T11:49:04Z",
+      "side": 1,
+      "message": "Yes. This factor is also dependent on the prediction degradation information of the leaf frames on the base layer ARF. However, this information is not available as tpl is skipped for leaf frames. \n\nFor gf group size of 32, earlier, the number of frames used to calculate `cpi-\u003erd.r0` of base layer ARF (i.e., frame number 32) was 31+3 (frames from next gf group). Now, as tpl is skipped for leaf frames, the number of frames used is 15+3 \u003d 18. This corresponds to a factor of 34/18\u003d1.9.This factor has to be reduced based on the prediction degradation of leaf frames on base layer ARF. Thus a factor of 1.6 is used.",
+      "parentUuid": "a6d5938c_532e754b",
       "range": {
         "startLine": 1884,
         "startChar": 27,
