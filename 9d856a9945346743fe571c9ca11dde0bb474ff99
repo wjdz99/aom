@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c24b8e68_52022c43",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2023-08-07T14:14:47Z",
+      "side": 1,
+      "message": "In this CL, a `longjmp` target has been introduced in `gm_mt_worker_hook()` to facilitate the error propagation in case of global motion multithreading. \n\nA flag `gm_mt_exit ` is introduced in the structure `AV1GlobalMotionSync` which will be set to 1 in case a main/worker thread encounters an error. The other workers will terminate their jobs appropriately by checking the status of this flag.\n\nThis change is bit-exact and has been verified using bitstream-match tests for a combination of various configuration values for --threads, --tile-rows, --tile-columns, --cpu-used, --end-usage, --row-mt, --fp-mt, etc. Validated all unit-tests with sanitizers (address and thread) and valgrind.",
+      "revId": "9d856a9945346743fe571c9ca11dde0bb474ff99",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
