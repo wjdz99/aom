@@ -1421,8 +1421,27 @@ static void setup_planes(AV1_COMP *cpi, MACROBLOCK *x, unsigned int *y_sad,
     if (est_motion == 1 || est_motion == 2) {
       if (xd->mb_to_right_edge >= 0 && xd->mb_to_bottom_edge >= 0) {
         const MV dummy_mv = { 0, 0 };
-        *y_sad = av1_int_pro_motion_estimation(cpi, x, cm->seq_params->sb_size,
-                                               mi_row, mi_col, &dummy_mv);
+        int scale = 1;
+        if (x->source_variance > 100 &&
+            x->content_state_sb.source_sad_nonrd >= kMedSad) {
+          scale = 2;
+          unsigned int y_sad_zero;
+          unsigned int thresh_sad =
+              (cm->seq_params->sb_size == BLOCK_128X128) ? 40000 : 10000;
+          *y_sad = av1_int_pro_motion_estimation(
+              cpi, x, cm->seq_params->sb_size, mi_row, mi_col, &dummy_mv,
+              &y_sad_zero, scale);
+          if (mi->mv[0].as_int != 0 && *y_sad < (y_sad_zero >> 1) &&
+              *y_sad < thresh_sad) {
+            x->sb_me = 1;
+            x->sb_me_mv_col = mi->mv[0].as_mv.col;
+            x->sb_me_mv_row = mi->mv[0].as_mv.row;
+          } else {
+            x->sb_me = 0;
+            *y_sad = y_sad_zero;
+            mi->mv[0].as_int = 0;
+          }
+        }
       }
     }
 
