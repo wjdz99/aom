@@ -24,6 +24,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "83cb186d_21d31870",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 1946,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2023-08-09T17:14:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "60a95a23_8c121157",
+      "range": {
+        "startLine": 1946,
+        "startChar": 0,
+        "endLine": 1946,
+        "endChar": 62
+      },
+      "revId": "9820ded4f8e4e23ddbb1bdd2b08d7e23f4c2d1f5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "38d8d477_643e4084",
@@ -47,6 +71,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ab606cf6_52162f8b",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 1959,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2023-08-09T17:14:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "38d8d477_643e4084",
+      "range": {
+        "startLine": 1959,
+        "startChar": 63,
+        "endLine": 1959,
+        "endChar": 71
+      },
+      "revId": "9820ded4f8e4e23ddbb1bdd2b08d7e23f4c2d1f5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "97948cb7_bc5b5c4d",
@@ -60,6 +108,30 @@
       "writtenOn": "2023-08-09T16:19:23Z",
       "side": 1,
       "message": "this is not used any more in this function, so it can be removed as an argument from `set_params_nonrd_pick_inter_mode`",
+      "range": {
+        "startLine": 3151,
+        "startChar": 65,
+        "endLine": 3151,
+        "endChar": 77
+      },
+      "revId": "9820ded4f8e4e23ddbb1bdd2b08d7e23f4c2d1f5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b23f7160_fdeb3009",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 3151,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2023-08-09T17:14:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "97948cb7_bc5b5c4d",
       "range": {
         "startLine": 3151,
         "startChar": 65,
