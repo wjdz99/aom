@@ -1582,9 +1582,8 @@ static void set_rt_speed_feature_framesize_dependent(const AV1_COMP *const cpi,
     }
     sf->rt_sf.partition_direct_merging = 0;
     sf->hl_sf.accurate_bit_estimate = 0;
-    // TODO(marpan): Look into why there is regression with
-    // estimate_motion_for_var_based_partition > 0 for screen.
-    sf->rt_sf.estimate_motion_for_var_based_partition = 0;
+    sf->rt_sf.estimate_motion_for_var_based_partition =
+        (cpi->oxcf.profile == 0) ? 1 : 0;
   }
   if (is_lossless_requested(&cpi->oxcf.rc_cfg)) {
     sf->rt_sf.use_rtc_tf = 0;
