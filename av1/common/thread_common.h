@@ -54,6 +54,10 @@ typedef struct AV1LfSyncData {
   AV1LfMTInfo *job_queue;
   int jobs_enqueued;
   int jobs_dequeued;
+
+  // Initialized to false, set to true by the worker thread that encounters an
+  // error in order to abort the processing of other worker threads.
+  bool lf_mt_exit;
 } AV1LfSync;
 
 typedef struct AV1LrMTInfo {
@@ -164,6 +168,9 @@ void av1_loop_filter_dealloc(AV1LfSync *lf_sync);
 void av1_loop_filter_alloc(AV1LfSync *lf_sync, AV1_COMMON *cm, int rows,
                            int width, int num_workers);
 
+void av1_set_vert_loop_filter_done(AV1_COMMON *cm, AV1LfSync *lf_sync,
+                                   int num_mis_in_lpf_unit_height_log2);
+
 void av1_loop_filter_frame_mt(YV12_BUFFER_CONFIG *frame, struct AV1Common *cm,
                               struct macroblockd *xd, int plane_start,
                               int plane_end, int partial_frame,
@@ -185,6 +192,7 @@ void av1_thread_loop_filter_rows(
     const YV12_BUFFER_CONFIG *const frame_buffer, AV1_COMMON *const cm,
     struct macroblockd_plane *planes, MACROBLOCKD *xd, int mi_row, int plane,
     int dir, int lpf_opt_level, AV1LfSync *const lf_sync,
+    struct aom_internal_error_info *error_info,
     AV1_DEBLOCKING_PARAMETERS *params_buf, TX_SIZE *tx_buf, int mib_size_log2);
 
 static AOM_FORCE_INLINE bool skip_loop_filter_plane(const int planes_to_lf[3],
@@ -271,7 +279,7 @@ static AOM_INLINE AV1LfMTInfo *get_lf_job_info(AV1LfSync *lf_sync) {
 #if CONFIG_MULTITHREAD
   pthread_mutex_lock(lf_sync->job_mutex);
 
-  if (lf_sync->jobs_dequeued < lf_sync->jobs_enqueued) {
+  if (!lf_sync->lf_mt_exit && lf_sync->jobs_dequeued < lf_sync->jobs_enqueued) {
     cur_job_info = lf_sync->job_queue + lf_sync->jobs_dequeued;
     lf_sync->jobs_dequeued++;
   }
