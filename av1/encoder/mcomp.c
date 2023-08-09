@@ -1986,12 +1986,12 @@ int av1_intrabc_hash_search(const AV1_COMP *cpi, const MACROBLOCKD *xd,
   return best_hash_cost;
 }
 
-static int vector_match(int16_t *ref, int16_t *src, int bwl) {
+static int vector_match(int16_t *ref, int16_t *src, int bwl, int scale) {
   int best_sad = INT_MAX;
   int this_sad;
   int d;
   int center, offset = 0;
-  int bw = 4 << bwl;  // redundant variable, to be changed in the experiments.
+  int bw = scale * (4 << bwl);  // redundant variable, to be changed in the experiments.
   for (d = 0; d <= bw; d += 16) {
     this_sad = aom_vector_var(&ref[d], src, bwl);
     if (this_sad < best_sad) {
@@ -2054,19 +2054,37 @@ static int vector_match(int16_t *ref, int16_t *src, int bwl) {
 // A special fast version of motion search used in rt mode
 unsigned int av1_int_pro_motion_estimation(const AV1_COMP *cpi, MACROBLOCK *x,
                                            BLOCK_SIZE bsize, int mi_row,
-                                           int mi_col, const MV *ref_mv) {
+                                           int mi_col, const MV *ref_mv,
+                                           unsigned int *y_sad_zero, int scale) {
+  const AV1_COMMON *const cm = &cpi->common;
   MACROBLOCKD *xd = &x->e_mbd;
   MB_MODE_INFO *mi = xd->mi[0];
   struct buf_2d backup_yv12[MAX_MB_PLANE] = { { 0, 0, 0, 0, 0 } };
-  DECLARE_ALIGNED(16, int16_t, hbuf[256]);
-  DECLARE_ALIGNED(16, int16_t, vbuf[256]);
-  DECLARE_ALIGNED(16, int16_t, src_hbuf[128]);
-  DECLARE_ALIGNED(16, int16_t, src_vbuf[128]);
   int idx;
   const int bw = 4 << mi_size_wide_log2[bsize];
   const int bh = 4 << mi_size_high_log2[bsize];
-  const int search_width = bw << 1;
-  const int search_height = bh << 1;
+  int fac = 0;
+  int scale2 = 1;
+  int search_fac = 1;
+  if (scale == 2 && (mi_col >= mi_size_wide_log2[bsize] &&
+                     mi_row >= mi_size_high_log2[bsize] &&
+                     mi_col < cm->width -  mi_size_wide_log2[bsize] &&
+                     mi_row < cm->height - mi_size_high_log2[bsize])) {
+    fac = 1;
+    scale2 = 3;
+    search_fac = 2;
+  }
+  const int search_width = bw << search_fac;
+  const int search_height = bh << search_fac;
+  int16_t *hbuf;
+  int16_t *vbuf;
+  int16_t *src_hbuf;
+  int16_t *src_vbuf;
+  CHECK_MEM_ERROR(cm, hbuf, (int16_t *)aom_calloc(search_width, sizeof(*hbuf)));
+  CHECK_MEM_ERROR(cm, vbuf,
+                  (int16_t *)aom_calloc(search_height, sizeof(*vbuf)));
+  CHECK_MEM_ERROR(cm, src_hbuf, (int16_t *)aom_calloc(bw, sizeof(*src_hbuf)));
+  CHECK_MEM_ERROR(cm, src_vbuf, (int16_t *)aom_calloc(bh, sizeof(*src_vbuf)));
   const int src_stride = x->plane[0].src.stride;
   const int ref_stride = xd->plane[0].pre[0].stride;
   uint8_t const *ref_buf, *src_buf;
@@ -2106,10 +2124,10 @@ unsigned int av1_int_pro_motion_estimation(const AV1_COMP *cpi, MACROBLOCK *x,
   }
 
   // Set up prediction 1-D reference set
-  ref_buf = xd->plane[0].pre[0].buf - (bw >> 1);
+  ref_buf = xd->plane[0].pre[0].buf - (fac * bw + (bw >> 1));
   aom_int_pro_row(hbuf, ref_buf, ref_stride, search_width, bh, row_norm_factor);
 
-  ref_buf = xd->plane[0].pre[0].buf - (bh >> 1) * ref_stride;
+  ref_buf = xd->plane[0].pre[0].buf - (fac * bh + (bh >> 1)) * ref_stride;
   aom_int_pro_col(vbuf, ref_buf, ref_stride, bw, search_height,
                   col_norm_factor);
 
@@ -2120,9 +2138,9 @@ unsigned int av1_int_pro_motion_estimation(const AV1_COMP *cpi, MACROBLOCK *x,
 
   // Find the best match per 1-D search
   best_int_mv->as_fullmv.col =
-      vector_match(hbuf, src_hbuf, mi_size_wide_log2[bsize]);
+      vector_match(hbuf, src_hbuf, mi_size_wide_log2[bsize], scale2);
   best_int_mv->as_fullmv.row =
-      vector_match(vbuf, src_vbuf, mi_size_high_log2[bsize]);
+      vector_match(vbuf, src_vbuf, mi_size_high_log2[bsize], scale2);
 
   FULLPEL_MV this_mv = best_int_mv->as_fullmv;
   src_buf = x->plane[0].src.buf;
@@ -2134,13 +2152,15 @@ unsigned int av1_int_pro_motion_estimation(const AV1_COMP *cpi, MACROBLOCK *x,
   if (best_int_mv->as_int != 0) {
     tmp_sad = cpi->ppi->fn_ptr[bsize].sdf(x->plane[0].src.buf, src_stride,
                                           xd->plane[0].pre[0].buf, ref_stride);
-
+    *y_sad_zero = tmp_sad;
     if (tmp_sad < best_sad) {
       best_int_mv->as_fullmv = kZeroFullMv;
       this_mv = best_int_mv->as_fullmv;
       ref_buf = xd->plane[0].pre[0].buf;
       best_sad = tmp_sad;
     }
+  } else {
+    *y_sad_zero = best_sad;
   }
 
   {
@@ -2193,6 +2213,10 @@ unsigned int av1_int_pro_motion_estimation(const AV1_COMP *cpi, MACROBLOCK *x,
     for (i = 0; i < MAX_MB_PLANE; i++) xd->plane[i].pre[0] = backup_yv12[i];
   }
 
+  aom_free(hbuf);
+  aom_free(vbuf);
+  aom_free(src_hbuf);
+  aom_free(src_vbuf);
   return best_sad;
 }
 
