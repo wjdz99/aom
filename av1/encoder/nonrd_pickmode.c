@@ -333,6 +333,7 @@ static int search_new_mv(AV1_COMP *cpi, MACROBLOCK *x,
   MB_MODE_INFO *const mi = xd->mi[0];
   AV1_COMMON *cm = &cpi->common;
   int_mv *this_ref_frm_newmv = &frame_mv[NEWMV][ref_frame];
+  unsigned int y_sad_zero;
   if (ref_frame > LAST_FRAME && cpi->oxcf.rc_cfg.mode == AOM_CBR &&
       gf_temporal_ref) {
     int tmp_sad;
@@ -342,7 +343,7 @@ static int search_new_mv(AV1_COMP *cpi, MACROBLOCK *x,
 
     tmp_sad = av1_int_pro_motion_estimation(
         cpi, x, bsize, mi_row, mi_col,
-        &x->mbmi_ext.ref_mv_stack[ref_frame][0].this_mv.as_mv);
+        &x->mbmi_ext.ref_mv_stack[ref_frame][0].this_mv.as_mv, &y_sad_zero, 1);
 
     if (tmp_sad > x->pred_mv_sad[LAST_FRAME]) return -1;
 
@@ -2362,6 +2363,27 @@ static AOM_FORCE_INLINE bool skip_inter_mode_nonrd(
     *ref_frame2 = NONE_FRAME;
   }
 
+  if (x->sb_me) {
+    if (*ref_frame > LAST_FRAME) {
+      return true;
+    } else {
+      //if (*this_mode == GLOBALMV) return true;
+      if (*this_mode == NEARESTMV &&
+          (search_state->frame_mv[NEARESTMV][LAST_FRAME].as_mv.col !=
+               x->sb_me_mv_col ||
+           search_state->frame_mv[NEARESTMV][LAST_FRAME].as_mv.row !=
+               x->sb_me_mv_row))
+        return true;
+      if (*this_mode == NEARMV &&
+          (search_state->frame_mv[NEARMV][LAST_FRAME].as_mv.col !=
+               x->sb_me_mv_col ||
+           search_state->frame_mv[NEARMV][LAST_FRAME].as_mv.row !=
+               x->sb_me_mv_row))
+        return true;
+    }
+    return false;
+  }
+
   // Skip the single reference mode for which mode check flag is set.
   if (*is_single_pred && search_state->mode_checked[*this_mode][*ref_frame]) {
     return true;
@@ -2539,7 +2561,7 @@ static AOM_FORCE_INLINE bool handle_inter_mode_nonrd(
   RD_STATS nonskip_rdc;
   av1_invalid_rd_stats(&nonskip_rdc);
 
-  if (this_mode == NEWMV && !force_mv_inter_layer) {
+  if (this_mode == NEWMV && !force_mv_inter_layer && !x->sb_me) {
 #if COLLECT_NONRD_PICK_MODE_STAT
     aom_usec_timer_start(&x->ms_stat_nonrd.timer2);
 #endif
@@ -2559,6 +2581,9 @@ static AOM_FORCE_INLINE bool handle_inter_mode_nonrd(
     if (skip_newmv) {
       return true;
     }
+  } else if (x->sb_me && this_mode == NEWMV && ref_frame == LAST_FRAME) {
+    search_state->frame_mv[NEWMV][LAST_FRAME].as_mv.col = x->sb_me_mv_col;
+    search_state->frame_mv[NEWMV][LAST_FRAME].as_mv.row = x->sb_me_mv_row;
   }
 
   // Check the current motion vector is same as that of previously evaluated
@@ -2878,7 +2903,7 @@ static AOM_FORCE_INLINE bool handle_inter_mode_nonrd(
       aom_usec_timer_elapsed(&x->ms_stat_nonrd.timer1);
 #endif
 
-  // Copy best mode params to search state
+  // Copy best mode params to search state.
   if (search_state->this_rdc.rdcost < search_state->best_rdc.rdcost) {
     search_state->best_rdc = search_state->this_rdc;
     *best_early_term = this_early_term;
@@ -2903,7 +2928,8 @@ static AOM_FORCE_INLINE bool handle_inter_mode_nonrd(
 
   if (*best_early_term && (idx > 0 || rt_sf->nonrd_aggressive_skip)) {
     txfm_info->skip_txfm = 1;
-    return false;
+    if (!x->sb_me || this_best_mode != GLOBALMV || ref_frame != LAST_FRAME)
+      return false;
   }
   return true;
 }
@@ -2930,7 +2956,7 @@ static AOM_FORCE_INLINE void handle_screen_content_mode_nonrd(
   if (cm->seq_params->bit_depth == 8 &&
       cpi->oxcf.tune_cfg.content == AOM_CONTENT_SCREEN && !skip_idtx_palette &&
       !cpi->oxcf.txfm_cfg.use_inter_dct_only && !x->force_zeromv_skip_for_blk &&
-      is_inter_mode(best_pickmode->best_mode) &&
+      !x->sb_me && is_inter_mode(best_pickmode->best_mode) &&
       best_pickmode->best_pred != NULL &&
       (!rt_sf->prune_idtx_nonrd ||
        (rt_sf->prune_idtx_nonrd && bsize <= BLOCK_32X32 &&
@@ -3213,11 +3239,13 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
 
   x->block_is_zero_sad = x->content_state_sb.source_sad_nonrd == kZeroSad;
   if (cpi->oxcf.tune_cfg.content == AOM_CONTENT_SCREEN &&
-      !x->force_zeromv_skip_for_blk &&
+      !x->force_zeromv_skip_for_blk && !x->sb_me &&
       x->content_state_sb.source_sad_nonrd != kZeroSad &&
       x->source_variance == 0 && bsize < cm->seq_params->sb_size) {
     set_block_source_sad(cpi, x, bsize, &search_state.yv12_mb[LAST_FRAME][0]);
   }
+
+  if (x->sb_me && bsize < BLOCK_32X32) x->sb_me = 0;
 
   x->min_dist_inter_uv = INT64_MAX;
   for (int idx = 0; idx < num_inter_modes + tot_num_comp_modes; ++idx) {
@@ -3346,7 +3374,7 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
   }
 
   // Evaluate Intra modes in inter frame
-  if (!x->force_zeromv_skip_for_blk)
+  if (!x->force_zeromv_skip_for_blk && !x->sb_me)
     av1_estimate_intra_mode(cpi, x, bsize, best_early_term,
                             search_state.ref_costs_single[INTRA_FRAME],
                             reuse_inter_pred, &orig_dst, tmp_buffer,
@@ -3365,7 +3393,7 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
   try_palette =
       try_palette &&
       (is_mode_intra(best_pickmode->best_mode) || force_palette_test) &&
-      x->source_variance > 0 && !x->force_zeromv_skip_for_blk &&
+      x->source_variance > 0 && !x->force_zeromv_skip_for_blk && !x->sb_me &&
       (cpi->rc.high_source_sad || x->source_variance > 300);
 
   if (rt_sf->prune_palette_nonrd && bsize > BLOCK_16X16) try_palette = 0;
