@@ -1411,6 +1411,7 @@ static void setup_planes(AV1_COMP *cpi, MACROBLOCK *x, unsigned int *y_sad,
     mi->mv[0].as_int = 0;
     mi->interp_filters = av1_broadcast_interp_filter(BILINEAR);
 
+    int is_screen = cpi->oxcf.tune_cfg.content == AOM_CONTENT_SCREEN;
     int est_motion = cpi->sf.rt_sf.estimate_motion_for_var_based_partition;
     // TODO(b/290596301): Look into adjusting this condition.
     // There is regression on color content when
@@ -1421,8 +1422,32 @@ static void setup_planes(AV1_COMP *cpi, MACROBLOCK *x, unsigned int *y_sad,
     if (est_motion == 1 || est_motion == 2) {
       if (xd->mb_to_right_edge >= 0 && xd->mb_to_bottom_edge >= 0) {
         const MV dummy_mv = { 0, 0 };
-        *y_sad = av1_int_pro_motion_estimation(cpi, x, cm->seq_params->sb_size,
-                                               mi_row, mi_col, &dummy_mv);
+        int scale = 1;
+        if (!is_screen ||
+            (x->source_variance > 100 && source_sad_nonrd > kLowSad)) {
+          scale = (is_screen && cpi->oxcf.profile == 0) ? 2 : 1;
+          unsigned int y_sad_zero;
+          *y_sad = av1_int_pro_motion_estimation(
+              cpi, x, cm->seq_params->sb_size, mi_row, mi_col, &dummy_mv,
+              &y_sad_zero, scale);
+          if (is_screen) {
+            unsigned int thresh_sad =
+                (cm->seq_params->sb_size == BLOCK_128X128) ? 50000 : 20000;
+            int is_scroll =
+                (abs(mi->mv[0].as_mv.col) > 8 && mi->mv[0].as_mv.row == 0) ||
+                (abs(mi->mv[0].as_mv.row) > 8 && mi->mv[0].as_mv.col == 0);
+            if (is_scroll && *y_sad < (y_sad_zero >> 1) &&
+                *y_sad < thresh_sad) {
+              x->sb_me_part = 1;
+              x->sb_me_mv_col = mi->mv[0].as_mv.col;
+              x->sb_me_mv_row = mi->mv[0].as_mv.row;
+            } else {
+              x->sb_me_part = 0;
+              *y_sad = y_sad_zero;
+              mi->mv[0].as_int = 0;
+            }
+          }
+        }
       }
     }
 
