@@ -2264,10 +2264,12 @@ static void pick_sb_modes_nonrd(AV1_COMP *const cpi, TileDataEnc *tile_data,
   x->force_zeromv_skip_for_blk =
       get_force_zeromv_skip_flag_for_blk(cpi, x, bsize);
 
-  if (!x->force_zeromv_skip_for_blk) {
+  if (!x->force_zeromv_skip_for_blk &&
+      (x->source_variance == UINT_MAX || bsize < cm->seq_params->sb_size)) {
     x->source_variance = av1_get_perpixel_variance_facade(
         cpi, xd, &x->plane[0].src, bsize, AOM_PLANE_Y);
   }
+
   // Save rdmult before it might be changed, so it can be restored later.
   const int orig_rdmult = x->rdmult;
   setup_block_rdmult(cpi, x, mi_row, mi_col, bsize, aq_mode, mbmi);

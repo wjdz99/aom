@@ -29,6 +29,7 @@
 #include "av1/encoder/encodeframe.h"
 #include "av1/encoder/var_based_part.h"
 #include "av1/encoder/reconinter_enc.h"
+#include "av1/encoder/rdopt_utils.h"
 
 // Possible values for the force_split variable while evaluating variance based
 // partitioning.
@@ -1421,8 +1422,26 @@ static void setup_planes(AV1_COMP *cpi, MACROBLOCK *x, unsigned int *y_sad,
     if (est_motion == 1 || est_motion == 2) {
       if (xd->mb_to_right_edge >= 0 && xd->mb_to_bottom_edge >= 0) {
         const MV dummy_mv = { 0, 0 };
-        *y_sad = av1_int_pro_motion_estimation(cpi, x, cm->seq_params->sb_size,
-                                               mi_row, mi_col, &dummy_mv);
+        int scale = 1;
+        if (x->source_variance > 100 && x->content_state_sb.source_sad_nonrd >= kMedSad) {
+          scale = 2;
+          unsigned int y_sad_zero;
+          unsigned int thresh_sad =
+              (cm->seq_params->sb_size == BLOCK_128X128) ? 40000 : 10000;
+          *y_sad = av1_int_pro_motion_estimation(cpi, x, cm->seq_params->sb_size,
+                                                 mi_row, mi_col, &dummy_mv,
+                                                 &y_sad_zero, scale);
+          if (mi->mv[0].as_int != 0 && *y_sad < (y_sad_zero >> 1) &&
+              *y_sad < thresh_sad) {
+            x->sb_me = 1;
+            x->sb_me_mv_col = mi->mv[0].as_mv.col;
+            x->sb_me_mv_row = mi->mv[0].as_mv.row;
+          } else {
+            x->sb_me = 0;
+            *y_sad = y_sad_zero;
+            mi->mv[0].as_int = 0;
+          }
+        }
       }
     }
 
@@ -1644,6 +1663,12 @@ int av1_choose_var_based_partitioning(AV1_COMP *cpi, const TileInfo *const tile,
       if (ref_scaled == NULL) is_key_frame = true;
     }
   }
+
+  x->source_variance = UINT_MAX;
+  if (cpi->sf.rt_sf.use_nonrd_pick_mode &&
+      x->content_state_sb.source_sad_nonrd > kLowSad)
+    x->source_variance = av1_get_perpixel_variance_facade(
+        cpi, xd, &x->plane[0].src, cm->seq_params->sb_size, AOM_PLANE_Y);
 
   if (!is_key_frame) {
     setup_planes(cpi, x, &y_sad, &y_sad_g, &y_sad_alt, &y_sad_last,
