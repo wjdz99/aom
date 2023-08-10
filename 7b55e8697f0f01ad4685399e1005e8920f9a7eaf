@@ -35,6 +35,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "addc12d0_c24bb59f",
+        "filename": "CHANGELOG",
+        "patchSetId": 3
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2023-08-10T19:08:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "764f07e6_05c62b0c",
+      "revId": "7b55e8697f0f01ad4685399e1005e8920f9a7eaf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "1ce66174_13071c80",
@@ -48,6 +66,24 @@
       "writtenOn": "2023-08-10T18:46:09Z",
       "side": 1,
       "message": "Nit: Can not \u003d\u003e Cannot",
+      "revId": "7b55e8697f0f01ad4685399e1005e8920f9a7eaf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "237590b2_34a05143",
+        "filename": "CHANGELOG",
+        "patchSetId": 3
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2023-08-10T19:08:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1ce66174_13071c80",
       "revId": "7b55e8697f0f01ad4685399e1005e8920f9a7eaf",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -69,6 +105,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "1e4866de_feb4749c",
+        "filename": "CHANGELOG",
+        "patchSetId": 3
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2023-08-10T19:08:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "10085252_e5e1da96",
+      "revId": "7b55e8697f0f01ad4685399e1005e8920f9a7eaf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c652d037_7b27f762",
@@ -86,6 +140,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a4f398d0_dc6407a4",
+        "filename": "CHANGELOG",
+        "patchSetId": 3
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2023-08-10T19:08:55Z",
+      "side": 1,
+      "message": "I just don\u0027t think it\u0027s useful to mention internal bug numbers since they\u0027re not accessible any way, besides there\u0027re some bug fixes that don\u0027t have an associate bug report.",
+      "parentUuid": "c652d037_7b27f762",
+      "revId": "7b55e8697f0f01ad4685399e1005e8920f9a7eaf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "f973e698_6e216450",
@@ -99,6 +171,24 @@
       "writtenOn": "2023-08-10T18:46:09Z",
       "side": 1,
       "message": "IMPORTANT: `LT_AGE` should be 7, not 0.\n\nDetails:\n\nStep 5 should be executed:\n\n```\n5. If any interfaces have been added since the last public release,\n   then increment age.\n```\n\nStep 6 should not be executed:\n\n```\n6. If any interfaces have been removed or changed since the last public release,\n   then set age to 0.\n```\n\nHere \"changed\" means an incompatible change.",
+      "revId": "7b55e8697f0f01ad4685399e1005e8920f9a7eaf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "15f90233_2a258d34",
+        "filename": "CMakeLists.txt",
+        "patchSetId": 3
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2023-08-10T19:08:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f973e698_6e216450",
       "revId": "7b55e8697f0f01ad4685399e1005e8920f9a7eaf",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
