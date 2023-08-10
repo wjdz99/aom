@@ -1,0 +1,106 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c7adaea4_3a92d2ac",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-08-10T18:46:09Z",
+      "side": 1,
+      "message": "Thanks for writing the changelog. I suggest some changes. The LT_AGE should be set to 7, not 0.",
+      "revId": "7b55e8697f0f01ad4685399e1005e8920f9a7eaf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "764f07e6_05c62b0c",
+        "filename": "CHANGELOG",
+        "patchSetId": 3
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-08-10T18:46:09Z",
+      "side": 1,
+      "message": "Nit: Remove the \"RTC Screen:\" prefix, and then modify the sentence to say the new speed is intended for screen sharing. For example,\n\n```\n      * RTC speed (--cpu-used\u003d) 11, intended for screen sharing, for\n        faster encoding with ...\n```",
+      "revId": "7b55e8697f0f01ad4685399e1005e8920f9a7eaf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1ce66174_13071c80",
+        "filename": "CHANGELOG",
+        "patchSetId": 3
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-08-10T18:46:09Z",
+      "side": 1,
+      "message": "Nit: Can not \u003d\u003e Cannot",
+      "revId": "7b55e8697f0f01ad4685399e1005e8920f9a7eaf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "10085252_e5e1da96",
+        "filename": "CHANGELOG",
+        "patchSetId": 3
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-08-10T18:46:09Z",
+      "side": 1,
+      "message": "Nit: capitalize \"Signed\"",
+      "revId": "7b55e8697f0f01ad4685399e1005e8920f9a7eaf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c652d037_7b27f762",
+        "filename": "CHANGELOG",
+        "patchSetId": 3
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-08-10T18:46:09Z",
+      "side": 1,
+      "message": "Do lines 106-112 have bug numbers? I think it is fine to mention Google-internal bug numbers. They already appeared in some commit messages.",
+      "revId": "7b55e8697f0f01ad4685399e1005e8920f9a7eaf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f973e698_6e216450",
+        "filename": "CMakeLists.txt",
+        "patchSetId": 3
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-08-10T18:46:09Z",
+      "side": 1,
+      "message": "IMPORTANT: `LT_AGE` should be 7, not 0.\n\nDetails:\n\nStep 5 should be executed:\n\n```\n5. If any interfaces have been added since the last public release,\n   then increment age.\n```\n\nStep 6 should not be executed:\n\n```\n6. If any interfaces have been removed or changed since the last public release,\n   then set age to 0.\n```\n\nHere \"changed\" means an incompatible change.",
+      "revId": "7b55e8697f0f01ad4685399e1005e8920f9a7eaf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
