@@ -141,6 +141,24 @@
       "parentUuid": "aa673ef9_f8bd88f8",
       "revId": "638fb0e2846083118e3a29578b002dc691c7c23c",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "94cc60b4_7b0836b0",
+        "filename": "CHANGELOG",
+        "patchSetId": 6
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 31042
+      },
+      "writtenOn": "2023-08-11T14:08:40Z",
+      "side": 1,
+      "message": "Ah. Ok, in that case we ought to delete references to the run-time feature detection support then... Let me benchmark the ironbark branch quickly for HBD performance.",
+      "parentUuid": "a39244a2_00654892",
+      "revId": "638fb0e2846083118e3a29578b002dc691c7c23c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
