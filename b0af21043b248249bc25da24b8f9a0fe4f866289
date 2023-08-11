@@ -16,6 +16,24 @@
       "message": "I think this should be `// AOM_ARCH_AARCH64`",
       "revId": "b0af21043b248249bc25da24b8f9a0fe4f866289",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f184772a_9436fdd1",
+        "filename": "av1/common/arm/convolve_neon.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1042,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-08-11T23:19:27Z",
+      "side": 1,
+      "message": "Done. You\u0027re right. Fixed in https://aomedia-review.googlesource.com/c/aom/+/179761.",
+      "parentUuid": "3db6c4a5_28930319",
+      "revId": "b0af21043b248249bc25da24b8f9a0fe4f866289",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
