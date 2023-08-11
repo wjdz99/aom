@@ -72,6 +72,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "1752b4ab_4a7fd123",
+        "filename": "CHANGELOG",
+        "patchSetId": 9
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2023-08-11T16:30:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2fbc80f9_ad47db88",
+      "revId": "bcec14d783141678e55b2b95c8208d22f6636720",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a8bb405e_e114510c",
@@ -85,6 +103,30 @@
       "writtenOn": "2023-08-11T15:04:37Z",
       "side": 1,
       "message": "Thanks Jonathan. Just to note: we put this ~2-4% based on the RTC video results you last sent, for the Jan-June range, which is pretty close to the 3.6-3.7 range. Feel free to change/update it.\n\nFor screen: for speeds 6-8 there were speedups from algorithm changes, so hard to separate out the gains from your work. But for speed 9 and 10 we measured neutral and ~2 slowdown from our algorithm changes (to reduce artifacts), so we can add the speedups from your work (added above).",
+      "range": {
+        "startLine": 55,
+        "startChar": 9,
+        "endLine": 55,
+        "endChar": 19
+      },
+      "revId": "bcec14d783141678e55b2b95c8208d22f6636720",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ee09d9f9_f1107b33",
+        "filename": "CHANGELOG",
+        "patchSetId": 9
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2023-08-11T16:30:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a8bb405e_e114510c",
       "range": {
         "startLine": 55,
         "startChar": 9,
