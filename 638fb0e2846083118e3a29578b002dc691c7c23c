@@ -159,6 +159,24 @@
       "parentUuid": "a39244a2_00654892",
       "revId": "638fb0e2846083118e3a29578b002dc691c7c23c",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b465b43a_2dce7cbf",
+        "filename": "CHANGELOG",
+        "patchSetId": 6
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 31042
+      },
+      "writtenOn": "2023-08-11T15:40:34Z",
+      "side": 1,
+      "message": "3.6.1 is a lot older than I originally thought, so I benchmarked standard bitdepth as well (on a Graviton 3.)\n\nIronbark branch tip vs 3.6.1 release tag:\n\nStandard bitdepth VoD:\nspeed 5: +31%\nspeed 4: +2%\nspeed 3: +9%\nspeed 2: +157%\n\nHigh Bitdepth VoD:\nspeed 5: +85%\n\nFeel free to do some arithmetic to get \"Arm-only\" SIMD gains.",
+      "parentUuid": "94cc60b4_7b0836b0",
+      "revId": "638fb0e2846083118e3a29578b002dc691c7c23c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
