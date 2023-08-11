@@ -16,6 +16,70 @@
       "message": "In this CL, the sf `txfm_rd_gate_level` is tuned for compound type evaluation by introducing `TX_SEARCH_COMP_TYPE_MODE` in `TX_SEARCH_CASE`. It is set to level 5 for non-boosted frames for speed presets \u003e\u003d 5. Currently masked compound types are disabled for hdres in speed 6. In order to ensure conservative gating of transform search in the absence of masked compound type, txfm_rd_gate_level would fall back to `TX_SEARCH_DEFAULT`. Hence, this CL is bit-exact for hdres in speed 6.\n\nBorg test results of Good preset:\n````\n                Instruction Count        BD-Rate Loss(%)\ncpu      Testset   Reduction(%)    avg.psnr   ovr.psnr    ssim\n 5       LOWRES2      1.109         0.0713     0.0771    0.0399\n 5       MIDRES2      1.524         0.1228     0.1395    0.1578\n 5        HDRES2      1.217         0.1185     0.1286    0.0969\n 5       Average      1.288         0.1037     0.1146    0.0987\n\n 6       LOWRES2      0.939         0.0945     0.1024    0.0778\n 6       MIDRES2      1.269         0.0903     0.0982    0.0536\n 6        HDRES2      0.001         0.0000     0.0000    0.0000\n 6       Average      0.753         0.0631     0.0685    0.0450\n ````\nIn the commit message:\n[-] sign indicates encode time increase\n[+] sign indicates encode time reduction\n\nThe instruction count reduction specified has been measured using command:\n`$ perf stat -e instructions:u ./aomenc`",
       "revId": "512823b56023e0f24b11564bf0bc313b272644ea",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ef142540_f0418b0d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2023-08-11T21:01:25Z",
+      "side": 1,
+      "message": "Good speedup!",
+      "parentUuid": "7b846f7d_40621654",
+      "revId": "512823b56023e0f24b11564bf0bc313b272644ea",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "52abaeef_ae056b2a",
+        "filename": "av1/encoder/speed_features.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 243,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2023-08-11T21:01:25Z",
+      "side": 1,
+      "message": "So, TX_SEARCH_DEFAULT is for winner modes only now?",
+      "range": {
+        "startLine": 243,
+        "startChar": 59,
+        "endLine": 243,
+        "endChar": 80
+      },
+      "revId": "512823b56023e0f24b11564bf0bc313b272644ea",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7ff23e8a_4ff32560",
+        "filename": "av1/encoder/speed_features.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 248,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2023-08-11T21:01:25Z",
+      "side": 1,
+      "message": "For compound type winner modes, are they included here or in TX_SEARCH_DEFAULT? Could you add more details in the comment?",
+      "range": {
+        "startLine": 248,
+        "startChar": 2,
+        "endLine": 248,
+        "endChar": 26
+      },
+      "revId": "512823b56023e0f24b11564bf0bc313b272644ea",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
