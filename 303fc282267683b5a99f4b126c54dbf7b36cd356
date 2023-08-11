@@ -16,6 +16,24 @@
       "message": "Jingning, Angie: I believe the intention was to look up from the mi_size_high_log2 and mi_size_wide_log2 tables, because we right-shift mi_rows and mi_cols by these amounts. See lines 161-162.\n\nWould you prefer to just use the constant 2?",
       "revId": "303fc282267683b5a99f4b126c54dbf7b36cd356",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6dca4c24_3ca3aee0",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2023-08-11T17:44:10Z",
+      "side": 1,
+      "message": "this looks good. thanks!",
+      "parentUuid": "8b1cd454_53a0efbc",
+      "revId": "303fc282267683b5a99f4b126c54dbf7b36cd356",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
