@@ -64,6 +64,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "0a4b6389_99b07f7f",
+        "filename": "CHANGELOG",
+        "patchSetId": 11
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2023-08-14T21:22:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "db2ac267_86a5a903",
+      "range": {
+        "startLine": 15,
+        "startChar": 46,
+        "endLine": 15,
+        "endChar": 47
+      },
+      "revId": "42d77a71d8c5e14d8303af57b961e1356333914a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "91d4e7cb_311415d1",
@@ -81,6 +105,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "4f1b29d0_d6edcac1",
+        "filename": "CHANGELOG",
+        "patchSetId": 11
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2023-08-14T21:22:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "91d4e7cb_311415d1",
+      "revId": "42d77a71d8c5e14d8303af57b961e1356333914a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e9e69bc1_ae5b2fd0",
@@ -94,6 +136,30 @@
       "writtenOn": "2023-08-14T18:06:33Z",
       "side": 1,
       "message": "this extra space could be removed",
+      "range": {
+        "startLine": 62,
+        "startChar": 15,
+        "endLine": 62,
+        "endChar": 16
+      },
+      "revId": "42d77a71d8c5e14d8303af57b961e1356333914a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e8ca7693_10fecc96",
+        "filename": "CHANGELOG",
+        "patchSetId": 11
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2023-08-14T21:22:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e9e69bc1_ae5b2fd0",
       "range": {
         "startLine": 62,
         "startChar": 15,
