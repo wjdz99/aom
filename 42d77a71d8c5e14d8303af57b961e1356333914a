@@ -1,6 +1,29 @@
 {
   "comments": [
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "85b9f788_c7386c21",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 11
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-08-14T18:06:33Z",
+      "side": 1,
+      "message": "CMakeLists",
+      "range": {
+        "startLine": 7,
+        "startChar": 33,
+        "endLine": 7,
+        "endChar": 42
+      },
+      "revId": "42d77a71d8c5e14d8303af57b961e1356333914a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "2fd125ce_25e7e122",
@@ -20,6 +43,29 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "db2ac267_86a5a903",
+        "filename": "CHANGELOG",
+        "patchSetId": 11
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-08-14T18:06:33Z",
+      "side": 1,
+      "message": "looks like some non-ascii characters were carried over here.",
+      "range": {
+        "startLine": 15,
+        "startChar": 46,
+        "endLine": 15,
+        "endChar": 47
+      },
+      "revId": "42d77a71d8c5e14d8303af57b961e1356333914a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "91d4e7cb_311415d1",
         "filename": "CHANGELOG",
         "patchSetId": 11
@@ -31,6 +77,29 @@
       "writtenOn": "2023-08-14T16:11:05Z",
       "side": 1,
       "message": "Nit: The equal sign `\u0027\u003d\u0027` could be deleted. I wonder if Marco meant to write `(--cpu-used\u003d) 11`.",
+      "revId": "42d77a71d8c5e14d8303af57b961e1356333914a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e9e69bc1_ae5b2fd0",
+        "filename": "CHANGELOG",
+        "patchSetId": 11
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-08-14T18:06:33Z",
+      "side": 1,
+      "message": "this extra space could be removed",
+      "range": {
+        "startLine": 62,
+        "startChar": 15,
+        "endLine": 62,
+        "endChar": 16
+      },
       "revId": "42d77a71d8c5e14d8303af57b961e1356333914a",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
