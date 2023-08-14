@@ -38,6 +38,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "b60264ba_46bbd055",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8893
+      },
+      "writtenOn": "2023-08-14T12:56:12Z",
+      "side": 1,
+      "message": "Thanks. We tested this logic for speed 4. The results are as follows:\n```\n                 Instruction Count        BD-Rate Loss(%)\ncpu   Resolution   Reduction(%)    avg.psnr   ovr.psnr    ssim  \n 4       LOWRES2      0.424         0.0901     0.0921    0.1120 \n 4       MIDRES2      0.870         0.0406     0.0298    0.0152 \n 4        HDRES2      0.763        -0.0173     0.0007    0.0765 \n 4       Average      0.686         0.0378     0.0408    0.0679 \n```\nIt seems the trade-off is not good. Thus, the sf is not extended to speed 4.",
+      "parentUuid": "9c179d52_4ebbc99a",
+      "revId": "45363b5858e204dee41a7691c216b171c8956550",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "76269f32_072f534c",
         "filename": "av1/encoder/rdopt.c",
         "patchSetId": 3
