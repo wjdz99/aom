@@ -83,6 +83,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "94279abb_fbdddfef",
+        "filename": "av1/encoder/speed_features.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 243,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2023-08-14T16:03:01Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "78d04d1b_768e64ce",
+      "range": {
+        "startLine": 243,
+        "startChar": 59,
+        "endLine": 243,
+        "endChar": 80
+      },
+      "revId": "512823b56023e0f24b11564bf0bc313b272644ea",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "7ff23e8a_4ff32560",
@@ -120,6 +144,30 @@
       "side": 1,
       "message": "Currently, the best compound type is decided during the MODE_EVAL stage. Also, during the compound type search, either `TX_SEARCH_COMP_TYPE_MODE` or `TX_SEARCH_DEFAULT` (cases where masked comp types are disabled) is used. Modified the comments as per the suggestion.",
       "parentUuid": "7ff23e8a_4ff32560",
+      "range": {
+        "startLine": 248,
+        "startChar": 2,
+        "endLine": 248,
+        "endChar": 26
+      },
+      "revId": "512823b56023e0f24b11564bf0bc313b272644ea",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b9338b26_38803cbd",
+        "filename": "av1/encoder/speed_features.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 248,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2023-08-14T16:03:01Z",
+      "side": 1,
+      "message": "Thanks.",
+      "parentUuid": "5738aa0e_2c038d98",
       "range": {
         "startLine": 248,
         "startChar": 2,
