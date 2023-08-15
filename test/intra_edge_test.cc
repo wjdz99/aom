@@ -295,9 +295,12 @@ INSTANTIATE_TEST_SUITE_P(SSE4_1, FilterEdgeTestHB,
                              av1_filter_intra_edge_high_sse4_1)));
 #endif  // HAVE_SSE4_1
 
-#if HAVE_NEON
-GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(FilterEdgeTestHB);
-#endif  // HAVE_NEON
+#if HAVE_NEON && CONFIG_AV1_HIGHBITDEPTH
+INSTANTIATE_TEST_SUITE_P(
+    NEON, FilterEdgeTestHB,
+    ::testing::Values(FilterEdgeTestFuncsHBD(av1_filter_intra_edge_high_c,
+                                             av1_filter_intra_edge_high_neon)));
+#endif  // HAVE_NEON && CONFIG_AV1_HIGHBITDEPTH
 
 // Speed tests
 
