@@ -165,9 +165,12 @@ INSTANTIATE_TEST_SUITE_P(
                                    av1_upsample_intra_edge_high_sse4_1)));
 #endif  // HAVE_SSE4_1
 
-#if HAVE_NEON
-GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(UpsampleTestHB);
-#endif  // HAVE_NEON
+#if HAVE_NEON && CONFIG_AV1_HIGHBITDEPTH
+INSTANTIATE_TEST_SUITE_P(
+    NEON, UpsampleTestHB,
+    ::testing::Values(TestFuncsHBD(av1_upsample_intra_edge_high_c,
+                                   av1_upsample_intra_edge_high_neon)));
+#endif  // HAVE_NEON && CONFIG_AV1_HIGHBITDEPTH
 
 template <typename F, typename T>
 class FilterEdgeTest : public FunctionEquivalenceTest<F> {
