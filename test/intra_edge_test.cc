@@ -166,7 +166,10 @@ INSTANTIATE_TEST_SUITE_P(
 #endif  // HAVE_SSE4_1
 
 #if HAVE_NEON
-GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(UpsampleTestHB);
+INSTANTIATE_TEST_SUITE_P(
+    NEON, UpsampleTestHB,
+    ::testing::Values(TestFuncsHBD(av1_upsample_intra_edge_high_c,
+                                   av1_upsample_intra_edge_high_neon)));
 #endif  // HAVE_NEON
 
 template <typename F, typename T>
