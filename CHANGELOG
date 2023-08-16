@@ -7,9 +7,11 @@
     * New codec controls:
       * AV1E_SET_QUANTIZER_ONE_PASS: Set quantizer for each frame.
       * AV1E_ENABLE_RATE_GUIDE_DELTAQ: enable the rate distribution guided delta
-        quantization in all intra mode.
+        quantization in all intra mode. enable-rate-guide-deltaq option is added
+        for this control.
       * AV1E_SET_RATE_DISTRIBUTION_INFO: set the input file for rate
-        distribution used in all intra mode.
+        distribution used in all intra mode. rate-distribution-info is added for
+        this control.
       * AV1E_GET_LUMA_CDEF_STRENGTH
       * AV1E_SET_BITRATE_ONE_PASS_CBR
     * AOM_SCALING_MODE is extended to include 2/3 and 1/3 scaling.
