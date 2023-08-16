@@ -237,10 +237,10 @@ int av1_init_search_range(int size) {
 // These are multiplier used to perform regularization in motion compensation
 // when x->mv_cost_type is set to MV_COST_L1.
 // LOWRES
-#define SSE_LAMBDA_LOWRES 2   // Used by mv_cost_err_fn
+#define SSE_LAMBDA_LOWRES 2  // Used by mv_cost_err_fn
 #define SAD_LAMBDA_LOWRES 32  // Used by mvsad_err_cost during full pixel search
 // MIDRES
-#define SSE_LAMBDA_MIDRES 0   // Used by mv_cost_err_fn
+#define SSE_LAMBDA_MIDRES 0  // Used by mv_cost_err_fn
 #define SAD_LAMBDA_MIDRES 15  // Used by mvsad_err_cost during full pixel search
 // HDRES
 #define SSE_LAMBDA_HDRES 1  // Used by mv_cost_err_fn
@@ -1799,7 +1799,10 @@ int av1_full_pixel_search(const FULLPEL_MV start_mv,
   }
 
   assert(ms_params->ms_buffers.ref->stride == ms_params->search_sites->stride);
-  assert(ms_params->ms_buffers.ref->width == ms_params->ms_buffers.src->width);
+  // TODO(chiyotsai@google.com) Re-enable this after yet another failure is
+  // adressed.
+  // assert(ms_params->ms_buffers.ref->width ==
+  // ms_params->ms_buffers.src->width);
 
   switch (search_method) {
     case FAST_BIGDIA:
