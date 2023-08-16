@@ -1,0 +1,211 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d946582f_f5f44417",
+        "filename": "av1/encoder/block.h",
+        "patchSetId": 39
+      },
+      "lineNbr": 1340,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2023-08-16T18:16:44Z",
+      "side": 1,
+      "message": "Could you also add a comment saying that this is only valid for LAST_FRAME?",
+      "range": {
+        "startLine": 1340,
+        "startChar": 2,
+        "endLine": 1340,
+        "endChar": 22
+      },
+      "revId": "791c0be02f0f9cfaaadd1622461b4e290f30cbe5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "54105ea2_fc269969",
+        "filename": "av1/encoder/block.h",
+        "patchSetId": 39
+      },
+      "lineNbr": 1349,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2023-08-16T18:16:44Z",
+      "side": 1,
+      "message": "Could we pack these into an `int_mv` union?\nThis way we can simplify a lot of checks with `search_state-\u003eframe_mv[this_best_mode][ref_frame].as_int \u003d\u003d sb_me_mv.as_int`",
+      "range": {
+        "startLine": 1344,
+        "startChar": 1,
+        "endLine": 1349,
+        "endChar": 19
+      },
+      "revId": "791c0be02f0f9cfaaadd1622461b4e290f30cbe5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ea6a1576_7743f89b",
+        "filename": "av1/encoder/mcomp.c",
+        "patchSetId": 39
+      },
+      "lineNbr": 2077,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2023-08-16T18:16:44Z",
+      "side": 1,
+      "message": "Could we just name this `search_scale` which is a clearer name than `me_search_par`. We can also remove the assignment on line 2087 as well.",
+      "range": {
+        "startLine": 2077,
+        "startChar": 47,
+        "endLine": 2077,
+        "endChar": 60
+      },
+      "revId": "791c0be02f0f9cfaaadd1622461b4e290f30cbe5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d80e576a_2f5fcf03",
+        "filename": "av1/encoder/mcomp.c",
+        "patchSetId": 39
+      },
+      "lineNbr": 2105,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2023-08-16T18:16:44Z",
+      "side": 1,
+      "message": "Could we get away with `malloc` instead of `calloc`?\nOr even just keep everything on the stack like\n```\nDECLARE_ALIGNED(16, int16_t, hbuf[512);\nDECLARE_ALIGNED(16, int16_t, vbuf[512]);\nDECLARE_ALIGNED(16, int16_t, src_hbuf[256]);\nDECLARE_ALIGNED(16, int16_t, src_vbuf[256]);\n```\nI\u0027m not sure if moving increasing the stack size is worth avoid calling mallocs though.",
+      "range": {
+        "startLine": 2101,
+        "startChar": 0,
+        "endLine": 2105,
+        "endChar": 78
+      },
+      "revId": "791c0be02f0f9cfaaadd1622461b4e290f30cbe5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "21718742_bdf0aab5",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 39
+      },
+      "lineNbr": 2372,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2023-08-16T18:16:44Z",
+      "side": 1,
+      "message": "This condition can be factored to line 2366",
+      "range": {
+        "startLine": 2372,
+        "startChar": 35,
+        "endLine": 2372,
+        "endChar": 59
+      },
+      "revId": "791c0be02f0f9cfaaadd1622461b4e290f30cbe5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8008416b_f58f4973",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 39
+      },
+      "lineNbr": 2593,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2023-08-16T18:16:44Z",
+      "side": 1,
+      "message": "Suggestion: This is slightly cleaner if we do\n```\nif (x-\u003esb_me_block \u0026\u0026 this_mode \u003d\u003d NEWMV \u0026\u0026 ref_frame \u003d\u003d LAST_FRAME) {\n  // Clipped\n} else if (this_mode \u003d\u003d NEWMV \u0026\u0026 !force_mv_inter_layer) {\n  // Clipped\n}\n```",
+      "range": {
+        "startLine": 2589,
+        "startChar": 1,
+        "endLine": 2593,
+        "endChar": 3
+      },
+      "revId": "791c0be02f0f9cfaaadd1622461b4e290f30cbe5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8399b357_beff024e",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 39
+      },
+      "lineNbr": 2916,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2023-08-16T18:16:44Z",
+      "side": 1,
+      "message": "Should we also check `ref_frame \u003d\u003d LAST_FRAME` here?",
+      "range": {
+        "startLine": 2912,
+        "startChar": 0,
+        "endLine": 2916,
+        "endChar": 26
+      },
+      "revId": "791c0be02f0f9cfaaadd1622461b4e290f30cbe5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0c0eab5e_31432a95",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 39
+      },
+      "lineNbr": 3345,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2023-08-16T18:16:44Z",
+      "side": 1,
+      "message": "This variable isn\u0027t used outside of `handle_inter_mode_nonrd`, so we could move it local to that function.",
+      "range": {
+        "startLine": 3345,
+        "startChar": 12,
+        "endLine": 3345,
+        "endChar": 28
+      },
+      "revId": "791c0be02f0f9cfaaadd1622461b4e290f30cbe5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "88e887d5_beb9a690",
+        "filename": "av1/encoder/var_based_part.c",
+        "patchSetId": 39
+      },
+      "lineNbr": 1434,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2023-08-16T18:16:44Z",
+      "side": 1,
+      "message": "nit: this can be replaced with `kZeroMv`",
+      "range": {
+        "startLine": 1434,
+        "startChar": 64,
+        "endLine": 1434,
+        "endChar": 72
+      },
+      "revId": "791c0be02f0f9cfaaadd1622461b4e290f30cbe5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
