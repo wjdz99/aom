@@ -90,7 +90,7 @@ class AV1RateControlRTC {
   AV1LoopfilterLevel GetLoopfilterLevel() const;
   // GetCdefInfo() needs to be called after ComputeQP()
   AV1CdefInfo GetCdefInfo() const;
-  signed char *GetCyclicRefreshMap() const;
+  unsigned char *GetCyclicRefreshMap() const;
   int *GetDeltaQ() const;
   void ComputeQP(const AV1FrameParamsRTC &frame_params);
   // Feedback to rate control with the size of current encoded frame
