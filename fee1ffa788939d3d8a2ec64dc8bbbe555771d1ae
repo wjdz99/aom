@@ -1,6 +1,23 @@
 {
   "comments": [
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "98a123e3_d6db5001",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2023-08-16T13:58:31Z",
+      "side": 1,
+      "message": "Thank you Wan-Teh! They\u0027re addressed here:\n\nhttps://aomedia-review.googlesource.com/c/aom/+/179941",
+      "revId": "fee1ffa788939d3d8a2ec64dc8bbbe555771d1ae",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "172f3f5e_8631b21d",
@@ -18,6 +35,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "1b178c66_89c3fb72",
+        "filename": "aom/aomcx.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 1516,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2023-08-16T13:58:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "172f3f5e_8631b21d",
+      "revId": "fee1ffa788939d3d8a2ec64dc8bbbe555771d1ae",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ff0585a2_84c06e1a",
@@ -31,6 +66,24 @@
       "writtenOn": "2023-08-16T00:54:11Z",
       "side": 1,
       "message": "This comment is not clear. It should say somethng like `Returns an array of CDEF_MAX_STRENGTHS ints` or `Returns an int array of CDEF_MAX_STRENGTHS elements`.",
+      "revId": "fee1ffa788939d3d8a2ec64dc8bbbe555771d1ae",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b3b23094_faa242da",
+        "filename": "aom/aomcx.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 1517,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2023-08-16T13:58:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ff0585a2_84c06e1a",
       "revId": "fee1ffa788939d3d8a2ec64dc8bbbe555771d1ae",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
