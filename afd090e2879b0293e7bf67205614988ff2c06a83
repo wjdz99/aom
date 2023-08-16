@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "455ee50a_251a8cbb",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-08-16T19:30:46Z",
+      "side": 1,
+      "message": "I suggest three small changes.",
+      "revId": "afd090e2879b0293e7bf67205614988ff2c06a83",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7ab88e60_3cdf7cc2",
+        "filename": "CHANGELOG",
+        "patchSetId": 1
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-08-16T19:30:46Z",
+      "side": 1,
+      "message": "Nit: Add \"The\" before \"enable-rate-guide-deltaq\". I also suggest quoting the option. So `The \"enable-rate-guide-deltaq\" option`.",
+      "revId": "afd090e2879b0293e7bf67205614988ff2c06a83",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bfc7e5c2_cf1d98da",
+        "filename": "CHANGELOG",
+        "patchSetId": 1
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-08-16T19:30:46Z",
+      "side": 1,
+      "message": "Nit: Change `rate-distribution-info` to `The \"rate-distribution-info\" option`.",
+      "revId": "afd090e2879b0293e7bf67205614988ff2c06a83",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "608cb193_7a9e2481",
+        "filename": "CHANGELOG",
+        "patchSetId": 1
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-08-16T19:30:46Z",
+      "side": 1,
+      "message": "There is also a corresponding change to the equivalent option. `The \"tune\" option is extended to include \"vmaf_saliency_map\".`",
+      "revId": "afd090e2879b0293e7bf67205614988ff2c06a83",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
