@@ -1736,7 +1736,9 @@ void av1_remove_compressor(AV1_COMP *cpi) {
   }
 
   av1_free_thirdpass_ctx(cpi->third_pass_ctx);
-
+#if !CONFIG_REALTIME_ONLY
+  av1_free_firstpass_data(&cpi->firstpass_data);
+#endif
   av1_close_second_pass_log(cpi);
 
   dealloc_compressor_data(cpi);
