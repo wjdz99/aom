@@ -1,6 +1,23 @@
 {
   "comments": [
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ecbd4506_008c75bb",
+        "filename": "av1/encoder/partition_strategy.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1652,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-08-17T20:36:18Z",
+      "side": 1,
+      "message": "Optional: I think the logic for `prune_sub_8x8` might be clearer if rewritten as follows:\n\n```\n    int prune_sub_8x8;\n    if (cpi-\u003esf.part_sf.prune_sub_8x8_partition_level \u003d\u003d 2) {\n      prune_sub_8x8 \u003d 1;\n    } else {\n      // cpi-\u003esf.part_sf.prune_sub_8x8_partition_level \u003d\u003d 1\n      prune_sub_8x8 \u003d 0;\n      ...\n      if (num_neighbors_lt_8x8 \u003c 2) {\n        prune_sub_8x8 \u003d 1;\n      }\n    }\n```",
+      "revId": "5bac06dc4f4cfdc19979ace077e5481551664391",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "cffff162_e593aeb4",
@@ -32,6 +49,24 @@
       "side": 1,
       "message": "Hi Wan-Teh,\n\nAs you indicated, this CL is expected to reduce the pruning and hence the expected outcome is an increase in instruction count with quality improvement. For `GOOD` encoding mode, this CL resulted in an increase in instruction count as expected (-ve indicates instruction count increase), but we see a slight BD-Rate loss. As the loss is in noise range/very small and the fix is correct at frame boundaries, we went ahead and submitted this fix.\n\nWe tested this CL for `AVIF still-image` encode and `all-intra encoding` for speed 6 using the following commit:\n`Libaom commit: 2d73a633a1d7dd2b06bb498e9f38609515173440`\n`Libavif commit: fa11395318b55a4f0eee20abd83dcf772f4b47f2`\n\nThe results are as expected (-ve sign indicates instruction count increase and quality improvement).\n\nFor AVIF still-image encode (for `Kodak_sources_768x512’ as this change is applicable only for lower resolutions):\n```\ncpu   Instruction Count   BD-Rate Loss(%)                 \n         Reduction(%)    avg.psnr   ssim \n6          -0.387       -0.0404  -0.0213\n```\n\nBorg test results for all-intra encoding for 50 frames:\n```\n          Instruction Count         BD-Rate Loss(%)\ncpu-used    Reduction(%)     avg.psnr   ovr.psnr     ssim\n   6           -0.462         -0.0134    -0.0137   -0.0085\n```\nPlease let us know if you see any issues with our approach.",
       "parentUuid": "cffff162_e593aeb4",
+      "revId": "5bac06dc4f4cfdc19979ace077e5481551664391",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1b742893_bc02f928",
+        "filename": "av1/encoder/partition_strategy.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1663,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-08-17T20:36:18Z",
+      "side": 1,
+      "message": "Hi Remya,\n\nThank you very much for answering my question and performing extra measurements. My apologies for my confusion. A negative instruction count reduction is an instruction count increase, which matches my expectation. If I understand it correctly, for still image and all-intra video encoding, the quality improved as expected, although also in the noise range.\n\nCould you explain briefly why we should not prune at frame boundaries (where a top/left neighbor block is unavailable)? Just curious... Thanks.",
+      "parentUuid": "8bbf68ca_21a98c0b",
       "revId": "5bac06dc4f4cfdc19979ace077e5481551664391",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
