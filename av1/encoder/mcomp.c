@@ -2101,12 +2101,6 @@ unsigned int av1_int_pro_motion_estimation(const AV1_COMP *cpi, MACROBLOCK *x,
   int16_t *vbuf;
   int16_t *src_hbuf;
   int16_t *src_vbuf;
-  CHECK_MEM_ERROR(cm, hbuf,
-                  (int16_t *)aom_malloc(search_width * sizeof(*hbuf)));
-  CHECK_MEM_ERROR(cm, vbuf,
-                  (int16_t *)aom_malloc(search_height * sizeof(*vbuf)));
-  CHECK_MEM_ERROR(cm, src_hbuf, (int16_t *)aom_malloc(bw * sizeof(*src_hbuf)));
-  CHECK_MEM_ERROR(cm, src_vbuf, (int16_t *)aom_malloc(bh * sizeof(*src_vbuf)));
   const int src_stride = x->plane[0].src.stride;
   const int ref_stride = xd->plane[0].pre[0].stride;
   uint8_t const *ref_buf, *src_buf;
@@ -2145,6 +2139,13 @@ unsigned int av1_int_pro_motion_estimation(const AV1_COMP *cpi, MACROBLOCK *x,
     }
     return best_sad;
   }
+
+  CHECK_MEM_ERROR(cm, hbuf,
+                  (int16_t *)aom_malloc(search_width * sizeof(*hbuf)));
+  CHECK_MEM_ERROR(cm, vbuf,
+                  (int16_t *)aom_malloc(search_height * sizeof(*vbuf)));
+  CHECK_MEM_ERROR(cm, src_hbuf, (int16_t *)aom_malloc(bw * sizeof(*src_hbuf)));
+  CHECK_MEM_ERROR(cm, src_vbuf, (int16_t *)aom_malloc(bh * sizeof(*src_vbuf)));
 
   // Set up prediction 1-D reference set for rows.
   ref_buf = xd->plane[0].pre[0].buf - ((search_scale - 1) * bw + (bw >> 1));
