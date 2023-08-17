@@ -189,6 +189,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e39e7e08_c09d41aa",
+        "filename": "av1/encoder/mcomp.c",
+        "patchSetId": 39
+      },
+      "lineNbr": 2105,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2023-08-17T00:16:33Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "76902618_e8f632ff",
+      "range": {
+        "startLine": 2101,
+        "startChar": 0,
+        "endLine": 2105,
+        "endChar": 78
+      },
+      "revId": "791c0be02f0f9cfaaadd1622461b4e290f30cbe5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "21718742_bdf0aab5",
@@ -367,6 +391,30 @@
       "side": 1,
       "message": "The flag is meant to indicate if the mode has been tested already (at current or earlier mode test), so need it to be set to 0 outside mode loop. Renamed the flag.",
       "parentUuid": "0c0eab5e_31432a95",
+      "range": {
+        "startLine": 3345,
+        "startChar": 12,
+        "endLine": 3345,
+        "endChar": 28
+      },
+      "revId": "791c0be02f0f9cfaaadd1622461b4e290f30cbe5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "926a75e4_ccab8dea",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 39
+      },
+      "lineNbr": 3345,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2023-08-17T00:16:33Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "ac28fe8f_5d4fbff3",
       "range": {
         "startLine": 3345,
         "startChar": 12,
