@@ -16,6 +16,24 @@
       "message": "Hi Remya,\n\nOne of our tests, which compares the encoded AVIF file with a previously encoded \"golden\" AVIF file, fails after this commit. The test should be rewritten to calculate a distortion metric such as PSNR with the source input image, rather than requiring the encoded AVIF remain stable.\n\nWhile investigating the test failure, I studied this CL. If I understand it correctly, the effect of this CL is that we are pruning less often. So I would expect the instruction count to increase and the quality to improve. But the commit message says there is an instruction count reduction, and the BD-rate loss is positive for PSNR. Do you know why?\n\nThanks,\nWan-Teh",
       "revId": "5bac06dc4f4cfdc19979ace077e5481551664391",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8bbf68ca_21a98c0b",
+        "filename": "av1/encoder/partition_strategy.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1663,
+      "author": {
+        "id": 9616
+      },
+      "writtenOn": "2023-08-17T13:27:26Z",
+      "side": 1,
+      "message": "Hi Wan-Teh,\n\nAs you indicated, this CL is expected to reduce the pruning and hence the expected outcome is an increase in instruction count with quality improvement. For `GOOD` encoding mode, this CL resulted in an increase in instruction count as expected (-ve indicates instruction count increase), but we see a slight BD-Rate loss. As the loss is in noise range/very small and the fix is correct at frame boundaries, we went ahead and submitted this fix.\n\nWe tested this CL for `AVIF still-image` encode and `all-intra encoding` for speed 6 using the following commit:\n`Libaom commit: 2d73a633a1d7dd2b06bb498e9f38609515173440`\n`Libavif commit: fa11395318b55a4f0eee20abd83dcf772f4b47f2`\n\nThe results are as expected (-ve sign indicates instruction count increase and quality improvement).\n\nFor AVIF still-image encode (for `Kodak_sources_768x512’ as this change is applicable only for lower resolutions):\n```\ncpu   Instruction Count   BD-Rate Loss(%)                 \n         Reduction(%)    avg.psnr   ssim \n6          -0.387       -0.0404  -0.0213\n```\n\nBorg test results for all-intra encoding for 50 frames:\n```\n          Instruction Count         BD-Rate Loss(%)\ncpu-used    Reduction(%)     avg.psnr   ovr.psnr     ssim\n   6           -0.462         -0.0134    -0.0137   -0.0085\n```\nPlease let us know if you see any issues with our approach.",
+      "parentUuid": "cffff162_e593aeb4",
+      "revId": "5bac06dc4f4cfdc19979ace077e5481551664391",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
