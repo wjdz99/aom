@@ -2143,6 +2143,11 @@ unsigned int av1_int_pro_motion_estimation(const AV1_COMP *cpi, MACROBLOCK *x,
       int i;
       for (i = 0; i < MAX_MB_PLANE; i++) xd->plane[i].pre[0] = backup_yv12[i];
     }
+
+    aom_free(hbuf);
+    aom_free(vbuf);
+    aom_free(src_hbuf);
+    aom_free(src_vbuf);
     return best_sad;
   }
 
