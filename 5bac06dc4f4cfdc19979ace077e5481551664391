@@ -18,6 +18,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ba68ae5c_188e81ca",
+        "filename": "av1/encoder/partition_strategy.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1652,
+      "author": {
+        "id": 9616
+      },
+      "writtenOn": "2023-08-18T12:19:05Z",
+      "side": 1,
+      "message": "Thank you for the suggestion. We shall submit a CL to address this.",
+      "parentUuid": "ecbd4506_008c75bb",
+      "revId": "5bac06dc4f4cfdc19979ace077e5481551664391",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "cffff162_e593aeb4",
@@ -67,6 +85,24 @@
       "side": 1,
       "message": "Hi Remya,\n\nThank you very much for answering my question and performing extra measurements. My apologies for my confusion. A negative instruction count reduction is an instruction count increase, which matches my expectation. If I understand it correctly, for still image and all-intra video encoding, the quality improved as expected, although also in the noise range.\n\nCould you explain briefly why we should not prune at frame boundaries (where a top/left neighbor block is unavailable)? Just curious... Thanks.",
       "parentUuid": "8bbf68ca_21a98c0b",
+      "revId": "5bac06dc4f4cfdc19979ace077e5481551664391",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c01158e1_004a92dd",
+        "filename": "av1/encoder/partition_strategy.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1663,
+      "author": {
+        "id": 9616
+      },
+      "writtenOn": "2023-08-18T12:19:05Z",
+      "side": 1,
+      "message": "In the parent version, at the frame boundaries (where a top/left neighbor block is unavailable), the condition of both top and left neighboring blocks being \u003c\u003d BLOCK_8X8 would always fail. This would result in pruning of sub_8x8 blocks for all blocks at the frame boundary. This effect may propagate to a non-boundary block. An example of this is: if any of the block-neighbors (top/left) is \u003e BLOCK_8X8 by the virtue of not evaluating sub_8x8, the current block may not evaluate sub_8X8. This case would make the pruning logic unduly aggressive. Thus, we believe the pruning logic at frame boundaries should be disabled since we do not have the neighboring block information.",
+      "parentUuid": "1b742893_bc02f928",
       "revId": "5bac06dc4f4cfdc19979ace077e5481551664391",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
