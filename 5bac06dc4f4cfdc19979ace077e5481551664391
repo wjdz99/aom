@@ -105,6 +105,24 @@
       "parentUuid": "1b742893_bc02f928",
       "revId": "5bac06dc4f4cfdc19979ace077e5481551664391",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "024aa3c1_165a9eb4",
+        "filename": "av1/encoder/partition_strategy.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1663,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-08-18T16:58:34Z",
+      "side": 1,
+      "message": "Thank you very much for the clear explanation. It makes sense to me now.",
+      "parentUuid": "c01158e1_004a92dd",
+      "revId": "5bac06dc4f4cfdc19979ace077e5481551664391",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
