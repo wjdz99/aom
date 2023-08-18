@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6c1f0009_f5c578b0",
+        "filename": "aom_dsp/arm/aom_convolve8_neon.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-08-18T16:33:56Z",
+      "side": 1,
+      "message": "This works as a way to contrast _array. It could also be omitted given the structure of the call. I don\u0027t have a strong opinion, though, and it\u0027s much better to normalize things. Thanks for doing the clean up.",
+      "range": {
+        "startLine": 88,
+        "startChar": 14,
+        "endLine": 88,
+        "endChar": 19
+      },
+      "revId": "e309403592d5651246d34567954ba7434c1004fe",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
