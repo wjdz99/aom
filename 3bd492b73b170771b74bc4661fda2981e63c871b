@@ -63,6 +63,30 @@
       },
       "revId": "3bd492b73b170771b74bc4661fda2981e63c871b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a4c1d294_eb4c8a49",
+        "filename": "av1/encoder/arm/neon/av1_fwd_txfm2d_neon.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 364,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-08-21T18:14:08Z",
+      "side": 1,
+      "message": "\u003e Yep. This turns out to be applicable to quite a lot of functions in this file, so done in https://aomedia-review.googlesource.com/c/aom/+/180341 . Let me know if you\u0027d prefer a different arrangement.\n\nThat works for me. Thanks for taking a closer look.",
+      "parentUuid": "368cc951_9d2336be",
+      "range": {
+        "startLine": 364,
+        "startChar": 12,
+        "endLine": 364,
+        "endChar": 16
+      },
+      "revId": "3bd492b73b170771b74bc4661fda2981e63c871b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
