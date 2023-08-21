@@ -16,6 +16,46 @@
       "message": "In this CL, a `longjmp` target has been introduced in `loop_filter_row_worker()` to facilitate the error propagation in case of loopfilter multithreading. Also the relevant changes to the `longjmp` target of `enc_row_mt_worker_hook()` are added to facilitate the error propagation in case of pipelined loop filtering.  \n\nIn case of the MT modules specific to the encode-stage, the error propagation from worker threads was handled using the `error_info` member of `MACROBLOCKD` structure that is available for each thread (`xd-\u003eerror_info`). However, for the loopfilter-stage, a thread-specific `xd` is not available. Introducing an instance of `MACROBLOCKD` within `LFWorkerData` and copying from the `cpi-\u003etd.mb.e_mbd` for each thread would add an overhead which may impact the decoder performance. Thus, `error_info` is introduced in `LFWorkerData` and the same needs to be used by the low-level functions in order to handle error propagation.\n\nA flag `lf_mt_exit ` is introduced in the structure `AV1LfSync` which will be set to true in case a main/worker thread encounters an error. The other workers will terminate their jobs by checking the status of this flag.  The sync of lf workers has been abstracted into a function `sync_lf_workers()` which also reads the error status of each thread and propagates the error details in case of an error.\n\nIn case of loopfilter multithreading, the worker on an SB row waits for the vertical edge filtering of the right and top-right SBs. Hence, in case a thread (main/worker) encounters an error, in order to avoid the dependent workers from waiting indefinitely (in `av1_thread_loop_filter_rows()`) `av1_set_vert_loop_filter_done()` is invoked before returning from the hook functions `loop_filter_row_worker()` and `enc_row_mt_worker_hook()` (when `cpi-\u003emt_info.pipeline_lpf_mt_with_enc\u003d1`).\n\nThis change is bit-exact and has been verified using bitstream-match tests for a combination of various configuration values for --threads, --tile-rows, --tile-columns, --cpu-used, --end-usage, --row-mt, --fp-mt, etc. Validated all unit-tests with sanitizers (address and thread) and valgrind.",
       "revId": "7c5404afbb62f8d10ba84b082f5ae87bd69359dd",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2ea5d967_b211ebba",
+        "filename": "av1/common/thread_common.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 310,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-08-21T19:35:11Z",
+      "side": 1,
+      "message": "resolve this in the same way as https://aomedia-review.googlesource.com/c/aom/+/180321",
+      "revId": "7c5404afbb62f8d10ba84b082f5ae87bd69359dd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e72566b1_af04406a",
+        "filename": "av1/common/thread_common.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 283,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-08-21T19:35:11Z",
+      "side": 1,
+      "message": "the extra ()s aren\u0027t necessary.",
+      "range": {
+        "startLine": 283,
+        "startChar": 6,
+        "endLine": 283,
+        "endChar": 7
+      },
+      "revId": "7c5404afbb62f8d10ba84b082f5ae87bd69359dd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
