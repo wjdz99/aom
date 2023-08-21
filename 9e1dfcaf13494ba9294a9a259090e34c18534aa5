@@ -16,6 +16,23 @@
       "message": "The function `restore_workers_after_fpmt()` restores the worker states after encoding parallel frames. In the parent version, `restore_workers_after_fpmt()` is not getting invoked in case of an error, due to early termination in `sync_fpmt_workers()`. This CL fixes this issue by moving the `restore_workers_after_fpmt()` inside `sync_fpmt_workers()` before `aom_internal_error()`.\n\nThis change is bit-exact and has been verified using bitstream-match tests for a combination of various configuration values for --threads, --tile-rows, --tile-columns, --cpu-used, --end-usage, --row-mt, --fp-mt, etc. Validated all unit-tests with sanitizers (address and thread) and valgrind.",
       "revId": "9e1dfcaf13494ba9294a9a259090e34c18534aa5",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6fe4de18_adc5c3c8",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1291,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-08-21T19:33:50Z",
+      "side": 1,
+      "message": "It would be better to keep the function in its current location in this change to make the difference easier to see. As a follow up you could move this closer to its use.",
+      "revId": "9e1dfcaf13494ba9294a9a259090e34c18534aa5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
