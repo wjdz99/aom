@@ -158,30 +158,14 @@ static int frame_max_bits(const RATE_CONTROL *rc,
   return (int)max_bits;
 }
 
-static const double q_pow_term[(QINDEX_RANGE >> 5) + 1] = { 0.65, 0.70, 0.75,
-                                                            0.80, 0.85, 0.90,
-                                                            0.95, 0.95, 0.95 };
-#define ERR_DIVISOR 96.0
-static double calc_correction_factor(double err_per_mb, int q) {
-  const double error_term = err_per_mb / ERR_DIVISOR;
-  const int index = q >> 5;
-  // Adjustment to power term based on qindex
-  const double power_term =
-      q_pow_term[index] +
-      (((q_pow_term[index + 1] - q_pow_term[index]) * (q % 32)) / 32.0);
-  assert(error_term >= 0.0);
-  return fclamp(pow(error_term, power_term), 0.05, 5.0);
-}
-
 // Based on history adjust expectations of bits per macroblock.
 static void twopass_update_bpm_factor(AV1_COMP *cpi, int rate_err_tol) {
   TWO_PASS *const twopass = &cpi->ppi->twopass;
   const PRIMARY_RATE_CONTROL *const p_rc = &cpi->ppi->p_rc;
 
   // Based on recent history adjust expectations of bits per macroblock.
-  double damp_fac = AOMMAX(5.0, rate_err_tol / 10.0);
   double rate_err_factor = 1.0;
-  const double adj_limit = AOMMAX(0.2, (double)(100 - rate_err_tol) / 200.0);
+  const double adj_limit = AOMMAX(0.25, (double)(100 - rate_err_tol) / 200.0);
   const double min_fac = 1.0 - adj_limit;
   const double max_fac = 1.0 + adj_limit;
 
@@ -248,20 +232,19 @@ static void twopass_update_bpm_factor(AV1_COMP *cpi, int rate_err_tol) {
 #endif
 
   if (p_rc->bits_off_target && total_actual_bits > 0) {
-    if (cpi->ppi->lap_enabled) {
-      rate_err_factor = rolling_arf_group_actual_bits /
-                        DOUBLE_DIVIDE_CHECK(rolling_arf_group_target_bits);
+    if (rolling_arf_group_actual_bits > rolling_arf_group_target_bits) {
+      double error_fraction =
+          (rolling_arf_group_actual_bits - rolling_arf_group_target_bits) /
+          rolling_arf_group_target_bits;
+      error_fraction = (error_fraction > 1.0) ? 1.0 : error_fraction;
+      rate_err_factor = 1.0 + error_fraction;
     } else {
-      rate_err_factor = 1.0 - ((double)(bits_off_target) /
-                               AOMMAX(total_actual_bits, bits_left));
+      double error_fraction =
+          (rolling_arf_group_target_bits - rolling_arf_group_actual_bits) /
+          rolling_arf_group_target_bits;
+      rate_err_factor = 1.0 - error_fraction;
     }
 
-    // Adjustment is damped if this is 1 pass with look ahead processing
-    // (as there are only ever a few frames of data) and for all but the first
-    // GOP in normal two pass.
-    if ((twopass->bpm_factor != 1.0) || cpi->ppi->lap_enabled) {
-      rate_err_factor = 1.0 + ((rate_err_factor - 1.0) / damp_fac);
-    }
     rate_err_factor = AOMMAX(min_fac, AOMMIN(max_fac, rate_err_factor));
   }
 
@@ -270,17 +253,23 @@ static void twopass_update_bpm_factor(AV1_COMP *cpi, int rate_err_tol) {
   if ((rate_err_factor < 1.0 && err_estimate >= 0) ||
       (rate_err_factor > 1.0 && err_estimate <= 0)) {
     twopass->bpm_factor *= rate_err_factor;
-    if (rate_err_tol >= 100) {
-      twopass->bpm_factor =
-          AOMMAX(min_fac, AOMMIN(max_fac, twopass->bpm_factor));
-    } else {
-      twopass->bpm_factor = AOMMAX(0.1, AOMMIN(10.0, twopass->bpm_factor));
-    }
+    twopass->bpm_factor =
+        AOMMAX(min_fac, AOMMIN(max_fac, twopass->bpm_factor));
   }
 }
 
-static int qbpm_enumerator(int rate_err_tol) {
-  return 1200000 + ((300000 * AOMMIN(75, AOMMAX(rate_err_tol - 25, 0))) / 75);
+static const double q_div_term[(QINDEX_RANGE >> 5) + 1] = { 32.0, 40.0, 46.0,
+                                                            52.0, 56.0, 60.0,
+                                                            64.0, 68.0, 72.0 };
+#define EPMB_SCALER 1250000
+static double calc_correction_factor(double err_per_mb, int q) {
+  double power_term = 0.90;
+  const int index = q >> 5;
+  const double divisor =
+      q_div_term[index] +
+      (((q_div_term[index + 1] - q_div_term[index]) * (q % 32)) / 32.0);
+  double error_term = EPMB_SCALER * pow(err_per_mb, power_term);
+  return error_term / divisor;
 }
 
 // Similar to find_qindex_by_rate() function in ratectrl.c, but includes
@@ -295,11 +284,9 @@ static int find_qindex_by_rate_with_correction(
 
   while (low < high) {
     const int mid = (low + high) >> 1;
-    const double mid_factor = calc_correction_factor(error_per_mb, mid);
+    const double q_factor = calc_correction_factor(error_per_mb, mid);
     const double q = av1_convert_qindex_to_q(mid, bit_depth);
-    const int enumerator = qbpm_enumerator(rate_err_tol);
-    const int mid_bits_per_mb =
-        (int)((enumerator * mid_factor * group_weight_factor) / q);
+    const int mid_bits_per_mb = (int)((q_factor * group_weight_factor) / q);
 
     if (mid_bits_per_mb > desired_bits_per_mb) {
       low = mid + 1;
@@ -3051,8 +3038,8 @@ static int64_t get_kf_group_bits(AV1_COMP *cpi, double kf_group_err,
       double vbr_corpus_complexity_lap =
           cpi->oxcf.rc_cfg.vbr_corpus_complexity_lap / 10.0;
       /* Get the average corpus complexity of the frame */
-      kf_group_bits = (int64_t)(
-          kf_group_bits * (kf_group_avg_error / vbr_corpus_complexity_lap));
+      kf_group_bits = (int64_t)(kf_group_bits * (kf_group_avg_error /
+                                                 vbr_corpus_complexity_lap));
     }
   } else {
     kf_group_bits = (int64_t)(twopass->bits_left *
@@ -4234,7 +4221,7 @@ void av1_twopass_postencode_update(AV1_COMP *cpi) {
     int maxq_adj_limit;
     minq_adj_limit =
         (rc_cfg->mode == AOM_CQ ? MINQ_ADJ_LIMIT_CQ : MINQ_ADJ_LIMIT);
-    maxq_adj_limit = rc->worst_quality - rc->active_worst_quality;
+    maxq_adj_limit = (rc->worst_quality - rc->active_worst_quality);
 
     // Undershoot
     if ((rc_cfg->under_shoot_pct < 100) &&
@@ -4246,8 +4233,9 @@ void av1_twopass_postencode_update(AV1_COMP *cpi) {
       if ((pct_error >= rc_cfg->under_shoot_pct) &&
           (p_rc->rate_error_estimate > 0)) {
         twopass->extend_minq += 1;
+        twopass->extend_maxq -= 1;
       }
-      twopass->extend_maxq -= 1;
+
       // Overshoot
     } else if ((rc_cfg->over_shoot_pct < 100) &&
                (p_rc->rolling_actual_bits > p_rc->rolling_target_bits)) {
@@ -4259,18 +4247,8 @@ void av1_twopass_postencode_update(AV1_COMP *cpi) {
       if ((pct_error >= rc_cfg->over_shoot_pct) &&
           (p_rc->rate_error_estimate < 0)) {
         twopass->extend_maxq += 1;
+        twopass->extend_minq -= 1;
       }
-      twopass->extend_minq -= 1;
-    } else {
-      // Adjustment for extreme local overshoot.
-      // Only applies when normal adjustment above is not used (e.g.
-      // when threshold is set to 100).
-      if (rc->projected_frame_size > (2 * rc->base_frame_target) &&
-          rc->projected_frame_size > (2 * rc->avg_frame_bandwidth))
-        ++twopass->extend_maxq;
-      // Unwind extreme overshoot adjustment.
-      else if (p_rc->rolling_target_bits > p_rc->rolling_actual_bits)
-        --twopass->extend_maxq;
     }
     twopass->extend_minq =
         clamp(twopass->extend_minq, -minq_adj_limit, minq_adj_limit);
