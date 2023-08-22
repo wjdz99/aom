@@ -16,6 +16,24 @@
       "message": "When the functions are defined in a header, they should be marked AOM_INLINE. My comment was that the function most likely does not need to be defined in the header at all.",
       "revId": "21cacf73943db52967800f9ffc7f52f13d913ff9",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3faac764_006dc030",
+        "filename": "av1/encoder/encodeframe_utils.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 433,
+      "author": {
+        "id": 9616
+      },
+      "writtenOn": "2023-08-22T14:31:43Z",
+      "side": 1,
+      "message": "Thank you for the clarification. In the new patchset, we have moved the functions `av1_dealloc_src_diff_buf()` and `av1_alloc_src_diff_buf()` to `encodeframe_utils.c`.",
+      "parentUuid": "30730717_38fbc99f",
+      "revId": "21cacf73943db52967800f9ffc7f52f13d913ff9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
