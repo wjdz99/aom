@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0477cd43_1970b2f6",
+        "filename": "av1/common/thread_common.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 259,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-08-22T18:55:00Z",
+      "side": 1,
+      "message": "Is this a TODO?",
+      "revId": "a13d11ea58bd2071af2f10c6ab6da8cf948c06ce",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fcb09637_6bdf7a5b",
+        "filename": "av1/common/thread_common.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 314,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-08-22T18:55:00Z",
+      "side": 1,
+      "message": "this can just be merged to line 311, the local variable isn\u0027t necessary given the scope.",
+      "revId": "a13d11ea58bd2071af2f10c6ab6da8cf948c06ce",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
