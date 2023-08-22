@@ -1436,9 +1436,7 @@ static void setup_planes(AV1_COMP *cpi, MACROBLOCK *x, unsigned int *y_sad,
           // int_pro_motion() will be used in nonrd_pickmode. Only do this
           // for screen for now.
           if (is_screen) {
-            unsigned int thresh_sad =
-                (cm->seq_params->sb_size == BLOCK_128X128) ? 50000 : 20000;
-            if (*y_sad < (y_sad_zero >> 1) && *y_sad < thresh_sad) {
+            if (*y_sad < (y_sad_zero >> 1)) {
               x->sb_me_partition = 1;
               x->sb_me_mv.as_int = mi->mv[0].as_int;
             } else {
