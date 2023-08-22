@@ -16,6 +16,24 @@
       "message": "This CL fixes the mismatch between C and SSE2 implementation of aom_satd() function. The issue is due to incorrect assumption of 16-bit representation of transform co-efficients in SSE2 for bit-depth \u003d 10, 12. Also, fixed the max/min input values in the unit test.",
       "revId": "c4531cfb097ce2b3f63ce6a1a19c54991b88f820",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "30d16653_e0b72a1a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2023-08-22T17:21:10Z",
+      "side": 1,
+      "message": "Thanks for the quick fix! Looks good.",
+      "parentUuid": "6306c699_0c4f5797",
+      "revId": "c4531cfb097ce2b3f63ce6a1a19c54991b88f820",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
