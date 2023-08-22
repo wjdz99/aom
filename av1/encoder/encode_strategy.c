@@ -588,7 +588,7 @@ int av1_calc_refresh_idx_for_intnl_arf(
   if (free_fb_index != INVALID_IDX) {
     return free_fb_index;
   } else {
-    int enable_refresh_skip = !is_one_pass_rt_params(cpi);
+    int enable_refresh_skip = !is_one_pass_lag0_params(cpi);
     int refresh_idx =
         get_refresh_idx(ref_frame_map_pairs, 0, gf_group, gf_index,
                         enable_refresh_skip, gf_group->display_idx[gf_index]);
@@ -689,7 +689,7 @@ int av1_get_refresh_frame_flags(
     refresh_mask = 1 << free_fb_index;
     return refresh_mask;
   }
-  const int enable_refresh_skip = !is_one_pass_rt_params(cpi);
+  const int enable_refresh_skip = !is_one_pass_lag0_params(cpi);
   const int update_arf = frame_update_type == ARF_UPDATE;
   const int refresh_idx =
       get_refresh_idx(ref_frame_map_pairs, update_arf, &cpi->ppi->gf_group,
@@ -1033,7 +1033,7 @@ void av1_get_ref_frames(RefFrameMapPair ref_frame_map_pairs[REF_FRAMES],
   int max_level = 0;
   GF_GROUP *gf_group = &cpi->ppi->gf_group;
   int skip_ref_unmapping = 0;
-  int is_one_pass_rt = is_one_pass_rt_params(cpi);
+  int is_one_pass_rt = is_one_pass_lag0_params(cpi);
 
   // Go through current reference buffers and store display order, pyr level,
   // and map index.
@@ -1321,8 +1321,8 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
     }
   }
   cpi->twopass_frame.this_frame = NULL;
-  const int use_one_pass_rt_params = is_one_pass_rt_params(cpi);
-  if (!use_one_pass_rt_params && !is_stat_generation_stage(cpi)) {
+  const int use_one_pass_lag0_params = is_one_pass_lag0_params(cpi);
+  if (!use_one_pass_lag0_params && !is_stat_generation_stage(cpi)) {
 #if CONFIG_COLLECT_COMPONENT_TIMING
     start_timing(cpi, av1_get_second_pass_params_time);
 #endif
@@ -1476,23 +1476,23 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
   }
 
 #if CONFIG_COLLECT_COMPONENT_TIMING
-  start_timing(cpi, av1_get_one_pass_rt_params_time);
+  start_timing(cpi, av1_get_one_pass_lag0_params_time);
 #endif
 #if CONFIG_REALTIME_ONLY
-  av1_get_one_pass_rt_params(cpi, &frame_params.frame_type, &frame_input,
-                             *frame_flags);
+  av1_get_one_pass_lag0_params(cpi, &frame_params.frame_type, &frame_input,
+                               *frame_flags);
   if (use_rtc_reference_structure_one_layer(cpi))
     av1_set_rtc_reference_structure_one_layer(cpi, cpi->gf_frame_index == 0);
 #else
-  if (use_one_pass_rt_params) {
-    av1_get_one_pass_rt_params(cpi, &frame_params.frame_type, &frame_input,
-                               *frame_flags);
+  if (use_one_pass_lag0_params) {
+    av1_get_one_pass_lag0_params(cpi, &frame_params.frame_type, &frame_input,
+                                 *frame_flags);
     if (use_rtc_reference_structure_one_layer(cpi))
       av1_set_rtc_reference_structure_one_layer(cpi, cpi->gf_frame_index == 0);
   }
 #endif
 #if CONFIG_COLLECT_COMPONENT_TIMING
-  end_timing(cpi, av1_get_one_pass_rt_params_time);
+  end_timing(cpi, av1_get_one_pass_lag0_params_time);
 #endif
 
   FRAME_UPDATE_TYPE frame_update_type =
@@ -1513,8 +1513,8 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
   // Set forced key frames when necessary. For two-pass encoding / lap mode,
   // this is already handled by av1_get_second_pass_params. However when no
   // stats are available, we still need to check if the new frame is a keyframe.
-  // For one pass rt, this is already checked in av1_get_one_pass_rt_params.
-  if (!use_one_pass_rt_params &&
+  // For one pass rt, this is already checked in av1_get_one_pass_lag0_params.
+  if (!use_one_pass_lag0_params &&
       (is_stat_generation_stage(cpi) || has_no_stats_stage(cpi))) {
     // Current frame is coded as a key-frame for any of the following cases:
     // 1) First frame of a video
@@ -1602,7 +1602,7 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
 
     // Work out which reference frame slots may be used.
     frame_params.ref_frame_flags =
-        get_ref_frame_flags(&cpi->sf, is_one_pass_rt_params(cpi), ref_frame_buf,
+        get_ref_frame_flags(&cpi->sf, is_one_pass_lag0_params(cpi), ref_frame_buf,
                             ext_flags->ref_frame_flags);
 
     // Set primary_ref_frame of non-reference frames as PRIMARY_REF_NONE.

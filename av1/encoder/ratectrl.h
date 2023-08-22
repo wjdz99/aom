@@ -585,7 +585,7 @@ int av1_rc_get_default_max_gf_interval(double framerate, int min_gf_interval);
 // Generally at the high level, the following flow is expected
 // to be enforced for rate control:
 // First call per frame, one of:
-//   av1_get_one_pass_rt_params()
+//   av1_get_one_pass_lag0_params()
 //   av1_get_second_pass_params()
 // depending on the usage to set the rate control encode parameters desired.
 //
@@ -778,7 +778,7 @@ int av1_calc_pframe_target_size_one_pass_cbr(
  */
 int av1_calc_iframe_target_size_one_pass_cbr(const struct AV1_COMP *cpi);
 
-/*!\brief Setup the rate control parameters for 1 pass real-time mode.
+/*!\brief Setup the rate control parameters for 1 pass, lag = 0 mode.
  *
  * - Sets the frame type and target frame size.
  * - Sets the GF update.
@@ -796,10 +796,10 @@ int av1_calc_iframe_target_size_one_pass_cbr(const struct AV1_COMP *cpi);
  * function are set in: \c frame_params, \c cpi->common, \c cpi->rc,
  * \c cpi->svc.
  */
-void av1_get_one_pass_rt_params(struct AV1_COMP *cpi,
-                                FRAME_TYPE *const frame_type,
-                                const struct EncodeFrameInput *frame_input,
-                                unsigned int frame_flags);
+void av1_get_one_pass_lag0_params(struct AV1_COMP *cpi,
+                                  FRAME_TYPE *const frame_type,
+                                  const struct EncodeFrameInput *frame_input,
+                                  unsigned int frame_flags);
 
 /*!\brief Increase q on expected encoder overshoot, for CBR mode.
  *

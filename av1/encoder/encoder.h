@@ -1864,7 +1864,7 @@ typedef struct FramePartitionTimingStats {
 // Adjust the following to add new components.
 enum {
   av1_encode_strategy_time,
-  av1_get_one_pass_rt_params_time,
+  av1_get_one_pass_lag0_params_time,
   av1_get_second_pass_params_time,
   denoise_and_encode_time,
   apply_filtering_time,
@@ -1919,8 +1919,8 @@ enum {
 static INLINE char const *get_component_name(int index) {
   switch (index) {
     case av1_encode_strategy_time: return "av1_encode_strategy_time";
-    case av1_get_one_pass_rt_params_time:
-      return "av1_get_one_pass_rt_params_time";
+    case av1_get_one_pass_lag0_params_time:
+      return "av1_get_one_pass_lag0_params_time";
     case av1_get_second_pass_params_time:
       return "av1_get_second_pass_params_time";
     case denoise_and_encode_time: return "denoise_and_encode_time";
@@ -3997,14 +3997,13 @@ static INLINE int has_no_stats_stage(const AV1_COMP *const cpi) {
 
 /*!\cond */
 
-static INLINE int is_one_pass_rt_params(const AV1_COMP *cpi) {
-  return has_no_stats_stage(cpi) && cpi->oxcf.mode == REALTIME &&
-         cpi->oxcf.gf_cfg.lag_in_frames == 0;
+static INLINE int is_one_pass_lag0_params(const AV1_COMP *cpi) {
+  return has_no_stats_stage(cpi) && cpi->oxcf.gf_cfg.lag_in_frames == 0;
 }
 
 // Use default/internal reference structure for single-layer RTC.
 static INLINE int use_rtc_reference_structure_one_layer(const AV1_COMP *cpi) {
-  return is_one_pass_rt_params(cpi) && cpi->ppi->number_spatial_layers == 1 &&
+  return is_one_pass_lag0_params(cpi) && cpi->ppi->number_spatial_layers == 1 &&
          cpi->ppi->number_temporal_layers == 1 &&
          !cpi->ppi->rtc_ref.set_ref_frame_config;
 }
