@@ -1330,7 +1330,7 @@ static AOM_INLINE void init_mc_flow_dispenser(AV1_COMP *cpi, int frame_idx,
 
   // Work out which reference frame slots may be used.
   ref_frame_flags =
-      get_ref_frame_flags(&cpi->sf, is_one_pass_rt_params(cpi),
+      get_ref_frame_flags(&cpi->sf, is_one_pass_lag0_params(cpi),
                           ref_frames_ordered, cpi->ext_flags.ref_frame_flags);
 
   enforce_max_ref_frames(cpi, &ref_frame_flags, ref_frame_display_indices,

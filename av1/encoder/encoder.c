@@ -820,10 +820,10 @@ void av1_change_config(struct AV1_COMP *cpi, const AV1EncoderConfig *oxcf,
 
   if (has_no_stats_stage(cpi) && (rc_cfg->mode == AOM_Q)) {
     p_rc->baseline_gf_interval = FIXED_GF_INTERVAL;
-  } else if (!is_one_pass_rt_params(cpi) ||
+  } else if (!is_one_pass_lag0_params(cpi) ||
              cm->current_frame.frame_number == 0) {
     // For rtc mode: logic for setting the baseline_gf_interval is done
-    // in av1_get_one_pass_rt_params(), and it should not be reset here in
+    // in av1_get_one_pass_lag0_params(), and it should not be reset here in
     // change_config(), unless after init_config (first frame).
     p_rc->baseline_gf_interval = (MIN_GF_INTERVAL + MAX_GF_INTERVAL) / 2;
   }
@@ -2718,7 +2718,7 @@ static int encode_without_recode(AV1_COMP *cpi) {
       cpi->oxcf.mode == REALTIME && svc->number_spatial_layers == 1 &&
       svc->number_temporal_layers == 1 && !cpi->rc.rtc_external_ratectrl &&
       sf->rt_sf.gf_refresh_based_on_qp)
-    av1_adjust_gf_refresh_qp_one_pass_rt(cpi);
+    av1_adjust_gf_refresh_qp_one_pass_lag0(cpi);
 
 #if CONFIG_COLLECT_COMPONENT_TIMING
   end_timing(cpi, av1_encode_frame_time);
@@ -3508,7 +3508,7 @@ static void calculate_frame_avg_haar_energy(AV1_COMP *cpi) {
   const FIRSTPASS_STATS *const total_stats =
       twopass->stats_buf_ctx->total_stats;
 
-  if (is_one_pass_rt_params(cpi) ||
+  if (is_one_pass_lag0_params(cpi) ||
       (cpi->oxcf.q_cfg.deltaq_mode != DELTA_Q_PERCEPTUAL) ||
       (is_fp_wavelet_energy_invalid(total_stats) == 0))
     return;

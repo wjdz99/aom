@@ -2778,7 +2778,7 @@ static void set_baseline_gf_interval(AV1_COMP *cpi, FRAME_TYPE frame_type) {
       (frame_type == KEY_FRAME) ? REFBUF_RESET : REFBUF_UPDATE;
 }
 
-void av1_adjust_gf_refresh_qp_one_pass_rt(AV1_COMP *cpi) {
+void av1_adjust_gf_refresh_qp_one_pass_lag0(AV1_COMP *cpi) {
   AV1_COMMON *const cm = &cpi->common;
   RATE_CONTROL *const rc = &cpi->rc;
   RTC_REF *const rtc_ref = &cpi->ppi->rtc_ref;
@@ -2823,7 +2823,7 @@ void av1_adjust_gf_refresh_qp_one_pass_rt(AV1_COMP *cpi) {
   }
 }
 
-/*!\brief Setup the reference prediction structure for 1 pass real-time
+/*!\brief Setup the reference prediction structure for 1 pass, lag = 0.
  *
  * Set the reference prediction structure for 1 layer.
  * Current structue is to use 3 references (LAST, GOLDEN, ALTREF),
@@ -2933,7 +2933,7 @@ void av1_set_rtc_reference_structure_one_layer(AV1_COMP *cpi, int gf_update) {
     cpi->rt_reduce_num_ref_buffers &= (rtc_ref->ref_idx[2] < 7);
 }
 
-/*!\brief Check for scene detection, for 1 pass real-time mode.
+/*!\brief Check for scene detection, for 1 pass lag=0 encoding.
  *
  * Compute average source sad (temporal sad: between current source and
  * previous source) over a subset of superblocks. Use this is detect big changes
@@ -2946,8 +2946,8 @@ void av1_set_rtc_reference_structure_one_layer(AV1_COMP *cpi, int gf_update) {
  * \remark Nothing is returned. Instead the flag \c cpi->rc.high_source_sad
  * is set if scene change is detected, and \c cpi->rc.avg_source_sad is updated.
  */
-static void rc_scene_detection_onepass_rt(AV1_COMP *cpi,
-                                          const EncodeFrameInput *frame_input) {
+static void rc_scene_detection_onepass_lag0(
+    AV1_COMP *cpi, const EncodeFrameInput *frame_input) {
   AV1_COMMON *const cm = &cpi->common;
   RATE_CONTROL *const rc = &cpi->rc;
   YV12_BUFFER_CONFIG const *const unscaled_src = frame_input->source;
@@ -3117,8 +3117,8 @@ static void rc_scene_detection_onepass_rt(AV1_COMP *cpi,
  * \return Return GF update flag, and update the \c cpi->rc with
  * the next GF interval settings.
  */
-static int set_gf_interval_update_onepass_rt(AV1_COMP *cpi,
-                                             FRAME_TYPE frame_type) {
+static int set_gf_interval_update_onepass_lag0(AV1_COMP *cpi,
+                                               FRAME_TYPE frame_type) {
   RATE_CONTROL *const rc = &cpi->rc;
   int gf_update = 0;
   const int resize_pending = is_frame_resize_pending(cpi);
@@ -3336,9 +3336,9 @@ static bool set_flag_rps_bias_recovery_frame(const AV1_COMP *const cpi) {
   return false;
 }
 
-void av1_get_one_pass_rt_params(AV1_COMP *cpi, FRAME_TYPE *const frame_type,
-                                const EncodeFrameInput *frame_input,
-                                unsigned int frame_flags) {
+void av1_get_one_pass_lag0_params(AV1_COMP *cpi, FRAME_TYPE *const frame_type,
+                                  const EncodeFrameInput *frame_input,
+                                  unsigned int frame_flags) {
   RATE_CONTROL *const rc = &cpi->rc;
   PRIMARY_RATE_CONTROL *const p_rc = &cpi->ppi->p_rc;
   AV1_COMMON *const cm = &cpi->common;
@@ -3405,7 +3405,7 @@ void av1_get_one_pass_rt_params(AV1_COMP *cpi, FRAME_TYPE *const frame_type,
   if (cpi->sf.rt_sf.check_scene_detection && svc->spatial_layer_id == 0) {
     if (rc->prev_coded_width == cm->width &&
         rc->prev_coded_height == cm->height) {
-      rc_scene_detection_onepass_rt(cpi, frame_input);
+      rc_scene_detection_onepass_lag0(cpi, frame_input);
     } else if (cpi->src_sad_blk_64x64) {
       aom_free(cpi->src_sad_blk_64x64);
       cpi->src_sad_blk_64x64 = NULL;
@@ -3433,7 +3433,7 @@ void av1_get_one_pass_rt_params(AV1_COMP *cpi, FRAME_TYPE *const frame_type,
   }
   // Set the GF interval and update flag.
   if (!rc->rtc_external_ratectrl)
-    set_gf_interval_update_onepass_rt(cpi, *frame_type);
+    set_gf_interval_update_onepass_lag0(cpi, *frame_type);
   // Set target size.
   if (cpi->oxcf.rc_cfg.mode == AOM_CBR) {
     if (*frame_type == KEY_FRAME || *frame_type == INTRA_ONLY_FRAME) {

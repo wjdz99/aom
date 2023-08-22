@@ -2557,7 +2557,7 @@ static aom_codec_err_t ctrl_set_bitrate_one_pass_cbr(aom_codec_alg_priv_t *ctx,
   AV1_PRIMARY *const ppi = ctx->ppi;
   AV1_COMP *const cpi = ppi->cpi;
   AV1EncoderConfig *oxcf = &cpi->oxcf;
-  if (!is_one_pass_rt_params(cpi) || oxcf->rc_cfg.mode != AOM_CBR ||
+  if (!is_one_pass_lag0_params(cpi) || oxcf->rc_cfg.mode != AOM_CBR ||
       cpi->ppi->use_svc || ppi->num_fp_contexts != 1 || ppi->cpi_lap != NULL) {
     return AOM_CODEC_INVALID_PARAM;
   }
@@ -2982,7 +2982,7 @@ static aom_codec_err_t encoder_encode(aom_codec_alg_priv_t *ctx,
 #endif
 
   // Handle fixed keyframe intervals
-  if (is_stat_generation_stage(ppi->cpi) || is_one_pass_rt_params(ppi->cpi)) {
+  if (is_stat_generation_stage(ppi->cpi) || is_one_pass_lag0_params(ppi->cpi)) {
     if (ctx->cfg.kf_mode == AOM_KF_AUTO &&
         ctx->cfg.kf_min_dist == ctx->cfg.kf_max_dist) {
       if (ppi->cpi->common.spatial_layer_id == 0 &&
@@ -3157,7 +3157,7 @@ static aom_codec_err_t encoder_encode(aom_codec_alg_priv_t *ctx,
 
     // Reset gf_frame_index in case it reaches MAX_STATIC_GF_GROUP_LENGTH for
     // real time encoding.
-    if (is_one_pass_rt_params(cpi) &&
+    if (is_one_pass_lag0_params(cpi) &&
         cpi->gf_frame_index == MAX_STATIC_GF_GROUP_LENGTH)
       cpi->gf_frame_index = 0;
 
