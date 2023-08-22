@@ -16,6 +16,24 @@
       "message": "James: `lc-\u003elayer_target_bitrate` is of the `int64_t` type. We can also fix this by casting the operands to `int64_t`.\n\n```\n        lc-\u003elayer_target_bitrate \u003d (int64_t)1000 * params-\u003elayer_target_bitrate[layer];\n```\n\nDid you consider that?",
       "revId": "00ef4ff15e3e62c50e381eb00c08d7f709226d40",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "46b350d5_a997c454",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 3564,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-08-22T19:06:33Z",
+      "side": 1,
+      "message": "\u003e James: `lc-\u003elayer_target_bitrate` is of the `int64_t` type. We can also fix this by casting the operands to `int64_t`.\n\u003e \n\u003e ```\n\u003e         lc-\u003elayer_target_bitrate \u003d (int64_t)1000 * params-\u003elayer_target_bitrate[layer];\n\u003e ```\n\u003e \n\u003e Did you consider that?\n\nI was going between a couple of bugs on the libvpx side where things are mostly int, so I may have missed it here or went with int because of the aom_svc_params_t type. Still, anything larger might open up other overflow issues.",
+      "parentUuid": "736866ce_4114e7c0",
+      "revId": "00ef4ff15e3e62c50e381eb00c08d7f709226d40",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
