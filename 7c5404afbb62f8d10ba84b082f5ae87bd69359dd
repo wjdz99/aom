@@ -35,6 +35,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "b5f3f908_5c5b07e2",
+        "filename": "av1/common/thread_common.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 310,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2023-08-22T13:40:50Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "2ea5d967_b211ebba",
+      "revId": "7c5404afbb62f8d10ba84b082f5ae87bd69359dd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e72566b1_af04406a",
@@ -48,6 +66,30 @@
       "writtenOn": "2023-08-21T19:35:11Z",
       "side": 1,
       "message": "the extra ()s aren\u0027t necessary.",
+      "range": {
+        "startLine": 283,
+        "startChar": 6,
+        "endLine": 283,
+        "endChar": 7
+      },
+      "revId": "7c5404afbb62f8d10ba84b082f5ae87bd69359dd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "86613f3b_3f77a49d",
+        "filename": "av1/common/thread_common.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 283,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2023-08-22T13:40:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e72566b1_af04406a",
       "range": {
         "startLine": 283,
         "startChar": 6,
