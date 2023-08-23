@@ -18,6 +18,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "af85be27_f7d1d805",
+        "filename": "av1/common/thread_common.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 259,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2023-08-23T11:41:54Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "0477cd43_1970b2f6",
+      "revId": "a13d11ea58bd2071af2f10c6ab6da8cf948c06ce",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "fcb09637_6bdf7a5b",
@@ -78,6 +96,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "3e9b398f_17143071",
+        "filename": "av1/common/thread_common.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 352,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2023-08-23T11:41:54Z",
+      "side": 1,
+      "message": "Replaced 3 with `MAX_MB_PLANE` here and at other applicable instances.",
+      "parentUuid": "879ca128_ff8996b4",
+      "range": {
+        "startLine": 352,
+        "startChar": 28,
+        "endLine": 352,
+        "endChar": 29
+      },
+      "revId": "a13d11ea58bd2071af2f10c6ab6da8cf948c06ce",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "672da133_801f25a2",
         "filename": "av1/common/thread_common.c",
         "patchSetId": 6
@@ -89,6 +131,30 @@
       "writtenOn": "2023-08-22T23:23:56Z",
       "side": 1,
       "message": "If main thread has error, could it return here directly?",
+      "range": {
+        "startLine": 365,
+        "startChar": 4,
+        "endLine": 365,
+        "endChar": 14
+      },
+      "revId": "a13d11ea58bd2071af2f10c6ab6da8cf948c06ce",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "87790ca4_956bb181",
+        "filename": "av1/common/thread_common.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 365,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2023-08-23T11:41:54Z",
+      "side": 1,
+      "message": "We would still need to invoke `winterface-\u003esync()` on other worker threads which would be in WORK state before exiting. Hence `aom_internal_error()` is invoked towards the end of the function.",
+      "parentUuid": "672da133_801f25a2",
       "range": {
         "startLine": 365,
         "startChar": 4,
