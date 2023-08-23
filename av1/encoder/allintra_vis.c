@@ -292,6 +292,23 @@ void av1_calc_mb_wiener_var_row(AV1_COMP *const cpi, MACROBLOCK *x,
                                     mt_unit_col);
     }
 
+#if CONFIG_MULTITHREAD
+    if (cpi->ppi->p_mt_info.num_workers > 1) {
+      const AV1EncRowMultiThreadInfo *const enc_row_mt =
+          &cpi->mt_info.enc_row_mt;
+      pthread_mutex_lock(enc_row_mt->mutex_);
+      const bool mb_wiener_mt_exit = enc_row_mt->mb_wiener_mt_exit;
+      pthread_mutex_unlock(enc_row_mt->mutex_);
+      // Exit in case any worker has encountered an error.
+      if (mb_wiener_mt_exit) {
+        // Set the pointer to null since mbmi is only allocated inside this
+        // function.
+        xd->mi = NULL;
+        return;
+      }
+    }
+#endif
+
     PREDICTION_MODE best_mode = DC_PRED;
     int best_intra_cost = INT_MAX;
     const int mi_width = mi_size_wide[bsize];
