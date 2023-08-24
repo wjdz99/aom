@@ -1454,6 +1454,7 @@ typedef struct ThreadData {
   CONV_BUF_TYPE *tmp_conv_dst;
   uint64_t abs_sum_level;
   uint8_t *tmp_pred_bufs[2];
+  uint8_t *wiener_tmp_pred_buf;
   int intrabc_used;
   int deltaq_used;
   int coefficient_size;
@@ -3791,6 +3792,10 @@ int av1_set_internal_size(AV1EncoderConfig *const oxcf,
 int av1_get_quantizer(struct AV1_COMP *cpi);
 
 int av1_convert_sect5obus_to_annexb(uint8_t *buffer, size_t *input_size);
+
+void av1_alloc_mb_wiener_var_pred_buf(AV1_COMP *cpi, ThreadData *td);
+
+void av1_dealloc_mb_wiener_var_pred_buf(ThreadData *td);
 
 // Set screen content options.
 // This function estimates whether to use screen content tools, by counting

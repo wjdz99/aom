@@ -276,6 +276,8 @@ static AOM_INLINE void dealloc_compressor_data(AV1_COMP *cpi) {
 
   av1_dealloc_src_diff_buf(&cpi->td.mb, av1_num_planes(cm));
 
+  av1_dealloc_mb_wiener_var_pred_buf(&cpi->td);
+
   av1_free_txb_buf(cpi);
   av1_free_context_buffers(cm);
 
@@ -474,6 +476,7 @@ static AOM_INLINE void free_thread_data(AV1_PRIMARY *ppi) {
     // case of an error during gm.
     gm_dealloc_data(&thread_data->td->gm_data);
     av1_dealloc_src_diff_buf(&thread_data->td->mb, num_planes);
+    av1_dealloc_mb_wiener_var_pred_buf(thread_data->td);
     aom_free(thread_data->td);
   }
 }
