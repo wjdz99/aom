@@ -24,6 +24,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "974547be_df0b81b0",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2023-08-24T18:15:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ee67f30a_fa54dbfe",
+      "range": {
+        "startLine": 12,
+        "startChar": 23,
+        "endLine": 12,
+        "endChar": 29
+      },
+      "revId": "e19f8b8b60168c979f53278621d4b1d62b7079a5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d23db7c9_43078e6c",
@@ -37,6 +61,30 @@
       "writtenOn": "2023-08-24T17:34:45Z",
       "side": 1,
       "message": "Could you make this more readable by adding a new variable like `const bool check_scrolling_motion_only \u003d is_screen \u0026\u0026 bsize \u003d\u003d cm-\u003eseq_params-\u003esb_size)`, then check for `if (!check_scrolling_motion_only)`?",
+      "range": {
+        "startLine": 2214,
+        "startChar": 6,
+        "endLine": 2214,
+        "endChar": 51
+      },
+      "revId": "e19f8b8b60168c979f53278621d4b1d62b7079a5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d2ba9860_2fb7c05d",
+        "filename": "av1/encoder/mcomp.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 2214,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2023-08-24T18:15:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d23db7c9_43078e6c",
       "range": {
         "startLine": 2214,
         "startChar": 6,
