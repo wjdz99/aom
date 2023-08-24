@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c951d7a9_8b77769f",
+        "filename": "test/test.cmake",
+        "patchSetId": 2
+      },
+      "lineNbr": 179,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-08-24T16:51:36Z",
+      "side": 1,
+      "message": "I missed this in https://aomedia-review.googlesource.com/c/aom/+/180562 because this code was at a different location.\n\nNote that the original code uses `AOM_UNIT_TEST_ENCODER_INTRIN_SSE4_1`, which is apparently a typo. I changed that to `AOM_UNIT_TEST_COMMON_INTRIN_SSE4_1` to match the neighboring code here. `AOM_UNIT_TEST_COMMON_INTRIN_SSE4_1` is used at lines 521-522.",
+      "revId": "9fbb524f7abfac1769b0e584c056c6e6092458b3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0601f60c_15e662b3",
+        "filename": "test/test.cmake",
+        "patchSetId": 2
+      },
+      "lineNbr": 327,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-08-24T16:51:36Z",
+      "side": 1,
+      "message": "This is a bug fix. The `HAVE_SSE4` variable doesn\u0027t exist. We need to use either `HAVE_SSE4_1` or `HAVE_SSE4_2`. I inspected simd_sse4_test.cc and found we should use ``HAVE_SSE4_1` here.",
+      "revId": "9fbb524f7abfac1769b0e584c056c6e6092458b3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
