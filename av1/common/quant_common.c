@@ -274,38 +274,45 @@ const qm_val_t *av1_get_qmatrix(const CommonQuantParams *quant_params,
              : quant_params->gqmatrix[NUM_QM_LEVELS - 1][0][qm_tx_size];
 }
 
+#if !CONFIG_REALTIME_ONLY
 #define QM_TOTAL_SIZE 3344
 // We only use wt_matrix_ref[q] and iwt_matrix_ref[q]
 // for q = 0, ..., NUM_QM_LEVELS - 2.
 static const qm_val_t wt_matrix_ref[NUM_QM_LEVELS - 1][2][QM_TOTAL_SIZE];
 static const qm_val_t iwt_matrix_ref[NUM_QM_LEVELS - 1][2][QM_TOTAL_SIZE];
+#endif
 
 void av1_qm_init(CommonQuantParams *quant_params, int num_planes) {
-  // for (int q = 0; q < NUM_QM_LEVELS; ++q) {
-  //   for (int c = 0; c < num_planes; ++c) {
-  //     int current = 0;
-  //     for (int t = 0; t < TX_SIZES_ALL; ++t) {
-  //       const int size = tx_size_2d[t];
-  //       const int qm_tx_size = av1_get_adjusted_tx_size(t);
-  //       if (q == NUM_QM_LEVELS - 1) {
-  //         quant_params->gqmatrix[q][c][t] = NULL;
-  //         quant_params->giqmatrix[q][c][t] = NULL;
-  //       } else if (t != qm_tx_size) {  // Reuse matrices for 'qm_tx_size'
-  //         assert(t > qm_tx_size);
-  //         quant_params->gqmatrix[q][c][t] =
-  //             quant_params->gqmatrix[q][c][qm_tx_size];
-  //         quant_params->giqmatrix[q][c][t] =
-  //             quant_params->giqmatrix[q][c][qm_tx_size];
-  //       } else {
-  //         assert(current + size <= QM_TOTAL_SIZE);
-  //         quant_params->gqmatrix[q][c][t] = &wt_matrix_ref[q][c >= 1][current];
-  //         quant_params->giqmatrix[q][c][t] =
-  //             &iwt_matrix_ref[q][c >= 1][current];
-  //         current += size;
-  //       }
-  //     }
-  //   }
-  // }
+#if CONFIG_REALTIME_ONLY
+  (void)quant_params;
+  (void)num_planes;
+#else
+  for (int q = 0; q < NUM_QM_LEVELS; ++q) {
+    for (int c = 0; c < num_planes; ++c) {
+      int current = 0;
+      for (int t = 0; t < TX_SIZES_ALL; ++t) {
+        const int size = tx_size_2d[t];
+        const int qm_tx_size = av1_get_adjusted_tx_size(t);
+        if (q == NUM_QM_LEVELS - 1) {
+          quant_params->gqmatrix[q][c][t] = NULL;
+          quant_params->giqmatrix[q][c][t] = NULL;
+        } else if (t != qm_tx_size) {  // Reuse matrices for 'qm_tx_size'
+          assert(t > qm_tx_size);
+          quant_params->gqmatrix[q][c][t] =
+              quant_params->gqmatrix[q][c][qm_tx_size];
+          quant_params->giqmatrix[q][c][t] =
+              quant_params->giqmatrix[q][c][qm_tx_size];
+        } else {
+          assert(current + size <= QM_TOTAL_SIZE);
+          quant_params->gqmatrix[q][c][t] = &wt_matrix_ref[q][c >= 1][current];
+          quant_params->giqmatrix[q][c][t] =
+              &iwt_matrix_ref[q][c >= 1][current];
+          current += size;
+        }
+      }
+    }
+  }
+#endif
 }
 
 /* Provide 15 sets of quantization matrices for chroma and luma
@@ -321,7 +328,7 @@ void av1_qm_init(CommonQuantParams *quant_params, int num_planes) {
    not used.
  */
 
-#if 0
+#if !CONFIG_REALTIME_ONLY
 static const qm_val_t iwt_matrix_ref[NUM_QM_LEVELS - 1][2][QM_TOTAL_SIZE] = {
   {
       { /* Luma */
@@ -12877,4 +12884,4 @@ static const qm_val_t wt_matrix_ref[NUM_QM_LEVELS - 1][2][QM_TOTAL_SIZE] = {
   },
 };
 
-#endif
+#endif  // !CONFIG_REALTIME_ONLY
