@@ -2318,13 +2318,17 @@ static void cdef_restoration_frame(AV1_COMP *cpi, AV1_COMMON *cm,
             AOMMAX(cpi->sf.rt_sf.screen_content_cdef_filter_qindex_thresh,
                    cpi->rc.best_quality + 5) &&
         cpi->oxcf.tune_cfg.content == AOM_CONTENT_SCREEN;
+    if (cpi->cdef_search_ctx == NULL) {
+      CHECK_MEM_ERROR(cm, cpi->cdef_search_ctx,
+                      aom_malloc(sizeof(CdefSearchCtx)));
+    }
     // Find CDEF parameters
     av1_cdef_search(&cpi->mt_info, &cm->cur_frame->buf, cpi->source, cm, xd,
                     cpi->sf.lpf_sf.cdef_pick_method, cpi->td.mb.rdmult,
                     cpi->sf.rt_sf.skip_cdef_sb, cpi->oxcf.tool_cfg.cdef_control,
                     use_screen_content_model,
                     cpi->ppi->rtc_ref.non_reference_frame,
-                    cpi->rc.rtc_external_ratectrl);
+                    cpi->rc.rtc_external_ratectrl, cpi->cdef_search_ctx);
 
     // Apply the filter
     if ((skip_apply_postproc_filters & SKIP_APPLY_CDEF) == 0) {

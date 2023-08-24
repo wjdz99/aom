@@ -213,8 +213,24 @@ static INLINE int cdef_sb_skip(const CommonModeInfoParams *const mi_params,
   return 0;
 }
 
+// Deallocates the memory allocated for members of CdefSearchCtx.
+// Inputs:
+//   cdef_search_ctx: Pointer to the structure containing parameters
+//   related to CDEF search context.
+// Returns:
+//   Nothing will be returned.
+static INLINE void cdef_dealloc_data(CdefSearchCtx *cdef_search_ctx) {
+  aom_free(cdef_search_ctx->mse[0]);
+  cdef_search_ctx->mse[0] = NULL;
+  aom_free(cdef_search_ctx->mse[1]);
+  cdef_search_ctx->mse[1] = NULL;
+  aom_free(cdef_search_ctx->sb_index);
+  cdef_search_ctx->sb_index = NULL;
+}
+
 void av1_cdef_mse_calc_block(CdefSearchCtx *cdef_search_ctx, int fbr, int fbc,
                              int sb_count);
+
 /*!\endcond */
 
 /*!\brief AV1 CDEF parameter search
@@ -236,6 +252,8 @@ void av1_cdef_mse_calc_block(CdefSearchCtx *cdef_search_ctx, int fbr, int fbc,
  * \param[in]      non_reference_frame Indicates if current frame is
  * non-reference
  * \param[in]      rtc_ext_rc   Indicate if external RC is used for testing
+ * \param[in,out]  cdef_search_ctx Pointer to the structure containing
+ * parameters related to CDEF search context.
  *
  * \remark Nothing is returned. Instead, optimal CDEF parameters are stored
  * in the \c cdef_info structure of type \ref CdefInfo inside \c cm:
@@ -254,7 +272,7 @@ void av1_cdef_search(struct MultiThreadInfo *mt_info,
                      MACROBLOCKD *xd, CDEF_PICK_METHOD pick_method, int rdmult,
                      int skip_cdef_feature, CDEF_CONTROL cdef_control,
                      const int is_screen_content, int non_reference_frame,
-                     int rtc_ext_rc);
+                     int rtc_ext_rc, CdefSearchCtx *cdef_search_ctx);
 
 /*!\brief AV1 CDEF level from QP
  *
