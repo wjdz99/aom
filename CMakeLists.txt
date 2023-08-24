@@ -292,12 +292,6 @@ if(BUILD_SHARED_LIBS)
     # MSVC and MINGW both to FALSE).
     set_target_properties(aom PROPERTIES ARCHIVE_OUTPUT_NAME "aom_shared")
   endif()
-  # Tests and examples rely on having unexported AV1 symbols visible. This is
-  # not the case on Windows platforms due to enforcement of the module
-  # definition file.
-  set(AOM_LIB aom_static)
-else()
-  set(AOM_LIB aom)
 endif()
 
 if(BUILD_SHARED_LIBS)
@@ -737,7 +731,7 @@ if(ENABLE_EXAMPLES AND CONFIG_AV1_ENCODER AND CONFIG_AV1_DECODER)
 endif()
 
 foreach(aom_app ${AOM_APP_TARGETS})
-  target_link_libraries(${aom_app} ${AOM_LIB_LINK_TYPE} ${AOM_LIB})
+  target_link_libraries(${aom_app} ${AOM_LIB_LINK_TYPE} aom)
 endforeach()
 
 if(ENABLE_EXAMPLES OR ENABLE_TESTS OR ENABLE_TOOLS)
