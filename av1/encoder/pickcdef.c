@@ -634,36 +634,18 @@ static void cdef_mse_calc_frame(CdefSearchCtx *cdef_search_ctx) {
 //   related to CDEF search context.
 // Returns:
 //   Nothing will be returned. Contents of cdef_search_ctx will be modified.
-static AOM_INLINE bool cdef_alloc_data(CdefSearchCtx *cdef_search_ctx) {
+static AOM_INLINE void cdef_alloc_data(AV1_COMMON *cm,
+                                       CdefSearchCtx *cdef_search_ctx) {
   const int nvfb = cdef_search_ctx->nvfb;
   const int nhfb = cdef_search_ctx->nhfb;
-  cdef_search_ctx->sb_index =
-      aom_malloc(nvfb * nhfb * sizeof(cdef_search_ctx->sb_index[0]));
+  CHECK_MEM_ERROR(
+      cm, cdef_search_ctx->sb_index,
+      aom_malloc(nvfb * nhfb * sizeof(cdef_search_ctx->sb_index[0])));
   cdef_search_ctx->sb_count = 0;
-  cdef_search_ctx->mse[0] =
-      aom_malloc(sizeof(**cdef_search_ctx->mse) * nvfb * nhfb);
-  cdef_search_ctx->mse[1] =
-      aom_malloc(sizeof(**cdef_search_ctx->mse) * nvfb * nhfb);
-  if (!(cdef_search_ctx->sb_index && cdef_search_ctx->mse[0] &&
-        cdef_search_ctx->mse[1])) {
-    aom_free(cdef_search_ctx->sb_index);
-    aom_free(cdef_search_ctx->mse[0]);
-    aom_free(cdef_search_ctx->mse[1]);
-    return false;
-  }
-  return true;
-}
-
-// Deallocates the memory allocated for members of CdefSearchCtx.
-// Inputs:
-//   cdef_search_ctx: Pointer to the structure containing parameters
-//   related to CDEF search context.
-// Returns:
-//   Nothing will be returned.
-static AOM_INLINE void cdef_dealloc_data(CdefSearchCtx *cdef_search_ctx) {
-  aom_free(cdef_search_ctx->mse[0]);
-  aom_free(cdef_search_ctx->mse[1]);
-  aom_free(cdef_search_ctx->sb_index);
+  CHECK_MEM_ERROR(cm, cdef_search_ctx->mse[0],
+                  aom_malloc(sizeof(**cdef_search_ctx->mse) * nvfb * nhfb));
+  CHECK_MEM_ERROR(cm, cdef_search_ctx->mse[1],
+                  aom_malloc(sizeof(**cdef_search_ctx->mse) * nvfb * nhfb));
 }
 
 // Initialize the parameters related to CDEF search context.
@@ -823,7 +805,7 @@ void av1_cdef_search(MultiThreadInfo *mt_info, const YV12_BUFFER_CONFIG *frame,
                      MACROBLOCKD *xd, CDEF_PICK_METHOD pick_method, int rdmult,
                      int skip_cdef_feature, CDEF_CONTROL cdef_control,
                      const int is_screen_content, int non_reference_frame,
-                     int rtc_ext_rc) {
+                     int rtc_ext_rc, CdefSearchCtx *cdef_search_ctx) {
   assert(cdef_control != CDEF_NONE);
   if (cdef_control == CDEF_REFERENCE && non_reference_frame) {
     CdefInfo *const cdef_info = &cm->cdef_info;
@@ -847,33 +829,26 @@ void av1_cdef_search(MultiThreadInfo *mt_info, const YV12_BUFFER_CONFIG *frame,
   const int fast = (pick_method >= CDEF_FAST_SEARCH_LVL1 &&
                     pick_method <= CDEF_FAST_SEARCH_LVL5);
   const int num_planes = av1_num_planes(cm);
-  CdefSearchCtx cdef_search_ctx;
+
   // Initialize parameters related to CDEF search context.
-  cdef_params_init(frame, ref, cm, xd, &cdef_search_ctx, pick_method);
+  cdef_params_init(frame, ref, cm, xd, cdef_search_ctx, pick_method);
   // Allocate CDEF search context buffers.
-  if (!cdef_alloc_data(&cdef_search_ctx)) {
-    CdefInfo *const cdef_info = &cm->cdef_info;
-    cdef_info->nb_cdef_strengths = 0;
-    cdef_info->cdef_bits = 0;
-    cdef_info->cdef_strengths[0] = 0;
-    cdef_info->cdef_uv_strengths[0] = 0;
-    return;
-  }
+  cdef_alloc_data(cm, cdef_search_ctx);
   // Frame level mse calculation.
   if (mt_info->num_workers > 1) {
-    av1_cdef_mse_calc_frame_mt(cm, mt_info, &cdef_search_ctx);
+    av1_cdef_mse_calc_frame_mt(cm, mt_info, cdef_search_ctx);
   } else {
-    cdef_mse_calc_frame(&cdef_search_ctx);
+    cdef_mse_calc_frame(cdef_search_ctx);
   }
 
   /* Search for different number of signaling bits. */
   int nb_strength_bits = 0;
   uint64_t best_rd = UINT64_MAX;
   CdefInfo *const cdef_info = &cm->cdef_info;
-  int sb_count = cdef_search_ctx.sb_count;
+  int sb_count = cdef_search_ctx->sb_count;
   uint64_t(*mse[2])[TOTAL_STRENGTHS];
-  mse[0] = cdef_search_ctx.mse[0];
-  mse[1] = cdef_search_ctx.mse[1];
+  mse[0] = cdef_search_ctx->mse[0];
+  mse[1] = cdef_search_ctx->mse[1];
   /* Calculate the maximum number of bits required to signal CDEF strengths at
    * block level */
   const int total_strengths = nb_cdef_strengths[pick_method];
@@ -925,7 +900,7 @@ void av1_cdef_search(MultiThreadInfo *mt_info, const YV12_BUFFER_CONFIG *frame,
         best_mse = curr;
       }
     }
-    mi_params->mi_grid_base[cdef_search_ctx.sb_index[i]]->cdef_strength =
+    mi_params->mi_grid_base[cdef_search_ctx->sb_index[i]]->cdef_strength =
         best_gi;
   }
   if (fast) {
@@ -943,5 +918,5 @@ void av1_cdef_search(MultiThreadInfo *mt_info, const YV12_BUFFER_CONFIG *frame,
 
   cdef_info->cdef_damping = damping;
   // Deallocate CDEF search context buffers.
-  cdef_dealloc_data(&cdef_search_ctx);
+  cdef_dealloc_data(cdef_search_ctx);
 }
