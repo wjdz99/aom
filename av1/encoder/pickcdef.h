@@ -228,8 +228,9 @@ static INLINE void cdef_dealloc_data(CdefSearchCtx *cdef_search_ctx) {
   cdef_search_ctx->sb_index = NULL;
 }
 
-void av1_cdef_mse_calc_block(CdefSearchCtx *cdef_search_ctx, int fbr, int fbc,
-                             int sb_count);
+void av1_cdef_mse_calc_block(CdefSearchCtx *cdef_search_ctx,
+                             struct aom_internal_error_info *error_info,
+                             int fbr, int fbc, int sb_count);
 
 /*!\endcond */
 
