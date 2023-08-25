@@ -26,6 +26,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "63829fca_ce2e9363",
+        "filename": "av1/encoder/global_motion.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 29052
+      },
+      "writtenOn": "2023-08-25T15:26:03Z",
+      "side": 1,
+      "message": "Ah, yeah, this is definitely worth a comment: As written, this is correct for negative inputs, but the obvious equivalent with / and % would *not* be correct, because / and \u003e\u003e have different rounding rules in C.\n\nThe important point here is that \u003e\u003e always rounds down, and the \u0026 operation here acts as a \"remainder mod 2^b\" which gives results in the range [0, 2^b), even for negative inputs. And that\u0027s what we need for the interpolation logic.",
+      "parentUuid": "cb1f9dbe_119560eb",
+      "range": {
+        "startLine": 111,
+        "startChar": 2,
+        "endLine": 112,
+        "endChar": 29
+      },
+      "revId": "e407b296b1e63bdb687aea205ac870e63330f2aa",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "25cccb21_901ecc25",
         "filename": "av1/encoder/x86/frame_error_avx2.c",
         "patchSetId": 2
@@ -37,6 +61,30 @@
       "writtenOn": "2023-08-24T20:42:22Z",
       "side": 1,
       "message": "Any reason to change this from 255 to 256?",
+      "range": {
+        "startLine": 49,
+        "startChar": 65,
+        "endLine": 49,
+        "endChar": 72
+      },
+      "revId": "e407b296b1e63bdb687aea205ac870e63330f2aa",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "634c0213_acd6416a",
+        "filename": "av1/encoder/x86/frame_error_avx2.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 29052
+      },
+      "writtenOn": "2023-08-25T15:26:03Z",
+      "side": 1,
+      "message": "Now that I\u0027ve removed the abs() call from the highbd error metric, we can have an error of (say) -1023 in 10 bit mode. In that case, highbd_error_measure() computes e1 \u003d -256, e2 \u003d 1. And so we need an entry in error_measure_lut[] to handle the logical index -256.\n\nBut currently the table only goes down to -255, so we have to add an extra entry at the start. That ends up bumping the index of everything else up by 1.\n\nI\u0027ll add a note on that to the commit message when I re-submit.",
+      "parentUuid": "25cccb21_901ecc25",
       "range": {
         "startLine": 49,
         "startChar": 65,
