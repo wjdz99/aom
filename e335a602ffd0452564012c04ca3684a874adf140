@@ -135,6 +135,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "daf7d692_ee0468ff",
+        "filename": "test/av1_c_vs_simd_encode.sh",
+        "patchSetId": 3
+      },
+      "lineNbr": 187,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2023-08-25T16:46:40Z",
+      "side": 1,
+      "message": "Command line looks good for video. If you add test for screen mode add: --tune-content\u003dscreen and --enable-palette\u003d1.\n\nShould another test case be added with multi-threading (both tile-column and tiles-rows non-zero)?",
+      "parentUuid": "fbf09af7_f535255e",
+      "range": {
+        "startLine": 187,
+        "startChar": 0,
+        "endLine": 187,
+        "endChar": 20
+      },
+      "revId": "e335a602ffd0452564012c04ca3684a874adf140",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "40d74373_a0d5ea1a",
         "filename": "test/av1_c_vs_simd_encode.sh",
         "patchSetId": 3
@@ -146,6 +170,30 @@
       "writtenOn": "2023-08-25T16:35:24Z",
       "side": 1,
       "message": "Are we using different config for rtc encoding? Please check.",
+      "range": {
+        "startLine": 238,
+        "startChar": 14,
+        "endLine": 238,
+        "endChar": 38
+      },
+      "revId": "e335a602ffd0452564012c04ca3684a874adf140",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "42442f66_c8945812",
+        "filename": "test/av1_c_vs_simd_encode.sh",
+        "patchSetId": 3
+      },
+      "lineNbr": 238,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2023-08-25T16:46:40Z",
+      "side": 1,
+      "message": "For RTC we use: -DCONFIG_REALTIME_ONLY\u003d1 -DCONFIG_AV1_HIGHBITDEPTH\u003d0",
+      "parentUuid": "40d74373_a0d5ea1a",
       "range": {
         "startLine": 238,
         "startChar": 14,
