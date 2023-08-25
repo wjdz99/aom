@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "80ea0440_b7927c0b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 31022
+      },
+      "writtenOn": "2023-08-25T13:10:01Z",
+      "side": 1,
+      "message": "This CL adds a shell script that tests the bit exactness of the C and SIMD AV1 encoders. The script generates four different aomenc binaries (x86 32-bit, x86 64-bit, ARM NEON, and C-only) within a temporary test directory. The C-only binary is created using the config setting `-DAOM_TARGET_CPU\u003dgeneric` in the temporary test directory.\n\nThe script checks the bit-exactness of encoder output for C vs. SSE2, SSE3, SSSE3, SSE4_1, AVX, AVX2, and NEON instruction sets. The flag `AOM_SIMD_CAPS_MASK` is used to control the \"aomenc\" execution for different instruction set extension optimizations, namely SSE2, SSE3, SSSE3, SSE4_1 and AVX. \n\nDue to existing C Vs SIMD bit-mismatches, we have disabled testing of 10-bit encoding and testing on 32-bit platform. We shall enable these tests after we fix mismatches for those test cases. Furthermore, the ARM tests added is disabled currently,  due to  C Vs NEON bit-mismatch (BUG\u003dlibaom:3474).\n\nThe script covers the following test cases:\n\nTest clips:\n* hantro_collage_w352h288.yuv\n* niklas_640_480_30.yuv\n* niklas_1280_720_30.y4m\n\nBitrates:\n* 1600 kbps\n* 6400 kbps\n\nNumber of frames: 20\n\nSpeed:\n* good: speed 0-6\n* RT: speed 5-10",
+      "revId": "e335a602ffd0452564012c04ca3684a874adf140",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
