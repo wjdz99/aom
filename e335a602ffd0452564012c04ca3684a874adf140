@@ -3,6 +3,29 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "fc1c3add_5793c312",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2023-08-25T16:35:24Z",
+      "side": 1,
+      "message": "Please add the issue number here:\nhttps://bugs.chromium.org/p/aomedia/issues/detail?id\u003d3472",
+      "range": {
+        "startLine": 7,
+        "startChar": 4,
+        "endLine": 7,
+        "endChar": 8
+      },
+      "revId": "e335a602ffd0452564012c04ca3684a874adf140",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "80ea0440_b7927c0b",
         "filename": "/PATCHSET_LEVEL",
         "patchSetId": 3
@@ -14,6 +37,121 @@
       "writtenOn": "2023-08-25T13:10:01Z",
       "side": 1,
       "message": "This CL adds a shell script that tests the bit exactness of the C and SIMD AV1 encoders. The script generates four different aomenc binaries (x86 32-bit, x86 64-bit, ARM NEON, and C-only) within a temporary test directory. The C-only binary is created using the config setting `-DAOM_TARGET_CPU\u003dgeneric` in the temporary test directory.\n\nThe script checks the bit-exactness of encoder output for C vs. SSE2, SSE3, SSSE3, SSE4_1, AVX, AVX2, and NEON instruction sets. The flag `AOM_SIMD_CAPS_MASK` is used to control the \"aomenc\" execution for different instruction set extension optimizations, namely SSE2, SSE3, SSSE3, SSE4_1 and AVX. \n\nDue to existing C Vs SIMD bit-mismatches, we have disabled testing of 10-bit encoding and testing on 32-bit platform. We shall enable these tests after we fix mismatches for those test cases. Furthermore, the ARM tests added is disabled currently,  due to  C Vs NEON bit-mismatch (BUG\u003dlibaom:3474).\n\nThe script covers the following test cases:\n\nTest clips:\n* hantro_collage_w352h288.yuv\n* niklas_640_480_30.yuv\n* niklas_1280_720_30.y4m\n\nBitrates:\n* 1600 kbps\n* 6400 kbps\n\nNumber of frames: 20\n\nSpeed:\n* good: speed 0-6\n* RT: speed 5-10",
+      "revId": "e335a602ffd0452564012c04ca3684a874adf140",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ee83cf25_07e4a572",
+        "filename": "test/av1_c_vs_simd_encode.sh",
+        "patchSetId": 3
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2023-08-25T16:35:24Z",
+      "side": 1,
+      "message": "Maybe set different bitrates for non-rd resolutions, and rtc encoding.",
+      "range": {
+        "startLine": 14,
+        "startChar": 15,
+        "endLine": 14,
+        "endChar": 24
+      },
+      "revId": "e335a602ffd0452564012c04ca3684a874adf140",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "65e9a5d8_5628f998",
+        "filename": "test/av1_c_vs_simd_encode.sh",
+        "patchSetId": 3
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2023-08-25T16:35:24Z",
+      "side": 1,
+      "message": "We have more SC tool in AV1, could we add 1 screen content test clip? Please check if there is one in the test data, otherwise, we can add one. Let me know.",
+      "range": {
+        "startLine": 17,
+        "startChar": 0,
+        "endLine": 17,
+        "endChar": 10
+      },
+      "revId": "e335a602ffd0452564012c04ca3684a874adf140",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0233d212_8a4fc816",
+        "filename": "test/av1_c_vs_simd_encode.sh",
+        "patchSetId": 3
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2023-08-25T16:35:24Z",
+      "side": 1,
+      "message": "Should this be increased if gop size is 32? Maybe test 35 - 40 frames?",
+      "range": {
+        "startLine": 30,
+        "startChar": 38,
+        "endLine": 30,
+        "endChar": 40
+      },
+      "revId": "e335a602ffd0452564012c04ca3684a874adf140",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fbf09af7_f535255e",
+        "filename": "test/av1_c_vs_simd_encode.sh",
+        "patchSetId": 3
+      },
+      "lineNbr": 187,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2023-08-25T16:35:24Z",
+      "side": 1,
+      "message": "@marpan@google.com\nMarco, please check if rtc encoding command needs any update?",
+      "range": {
+        "startLine": 187,
+        "startChar": 0,
+        "endLine": 187,
+        "endChar": 20
+      },
+      "revId": "e335a602ffd0452564012c04ca3684a874adf140",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "40d74373_a0d5ea1a",
+        "filename": "test/av1_c_vs_simd_encode.sh",
+        "patchSetId": 3
+      },
+      "lineNbr": 238,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2023-08-25T16:35:24Z",
+      "side": 1,
+      "message": "Are we using different config for rtc encoding? Please check.",
+      "range": {
+        "startLine": 238,
+        "startChar": 14,
+        "endLine": 238,
+        "endChar": 38
+      },
       "revId": "e335a602ffd0452564012c04ca3684a874adf140",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
