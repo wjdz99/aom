@@ -334,16 +334,19 @@ static int search_new_mv(AV1_COMP *cpi, MACROBLOCK *x,
   AV1_COMMON *cm = &cpi->common;
   int_mv *this_ref_frm_newmv = &frame_mv[NEWMV][ref_frame];
   unsigned int y_sad_zero;
-  if (ref_frame > LAST_FRAME && cpi->oxcf.rc_cfg.mode == AOM_CBR &&
+  if (0 && ref_frame > LAST_FRAME && cpi->oxcf.rc_cfg.mode == AOM_CBR &&
       gf_temporal_ref) {
     int tmp_sad;
     int dis;
 
     if (bsize < BLOCK_16X16) return -1;
 
+    int me_search_size_col = block_size_wide[bsize] >> 1;
+    int me_search_size_row = block_size_high[bsize] >> 1;
     tmp_sad = av1_int_pro_motion_estimation(
         cpi, x, bsize, mi_row, mi_col,
-        &x->mbmi_ext.ref_mv_stack[ref_frame][0].this_mv.as_mv, &y_sad_zero, 1);
+        &x->mbmi_ext.ref_mv_stack[ref_frame][0].this_mv.as_mv, &y_sad_zero,
+        me_search_size_col, me_search_size_row);
 
     if (tmp_sad > x->pred_mv_sad[LAST_FRAME]) return -1;
 
