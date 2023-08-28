@@ -1648,18 +1648,20 @@ void av1_prune_partitions_before_search(AV1_COMP *const cpi,
 
   if (cpi->sf.part_sf.prune_sub_8x8_partition_level && (bsize == BLOCK_8X8)) {
     const MACROBLOCKD *const xd = &x->e_mbd;
-    int prune_sub_8x8 = 1;
-    if (cpi->sf.part_sf.prune_sub_8x8_partition_level == 1) {
-      int num_neighbors_lt_8x8 = 0;
-      if (xd->left_available)
-        num_neighbors_lt_8x8 += (xd->left_mbmi->bsize <= BLOCK_8X8);
-      if (xd->up_available)
-        num_neighbors_lt_8x8 += (xd->above_mbmi->bsize <= BLOCK_8X8);
-      // Avoid pruning if either of the neighbors is not available or if both
-      // the available neighbors are of size <= BLOCK_8X8.
-      if (!xd->left_available || !xd->up_available ||
-          num_neighbors_lt_8x8 == 2) {
-        prune_sub_8x8 = 0;
+    int prune_sub_8x8;
+    if (cpi->sf.part_sf.prune_sub_8x8_partition_level == 2) {
+      prune_sub_8x8 = 1;
+    } else {
+      assert(cpi->sf.part_sf.prune_sub_8x8_partition_level == 1);
+      prune_sub_8x8 = 0;
+      if (xd->left_available && xd->up_available) {
+        int num_neighbors_le_8x8 = 0;
+        num_neighbors_le_8x8 += (xd->left_mbmi->bsize <= BLOCK_8X8);
+        num_neighbors_le_8x8 += (xd->above_mbmi->bsize <= BLOCK_8X8);
+        // Prune if both neighbors are available and either is > BLOCK_8X8
+        if (num_neighbors_le_8x8 < 2) {
+          prune_sub_8x8 = 1;
+        }
       }
     }
     if (prune_sub_8x8) {
