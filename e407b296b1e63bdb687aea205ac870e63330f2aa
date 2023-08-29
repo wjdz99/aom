@@ -48,6 +48,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "00c310f6_90ee5765",
+        "filename": "av1/encoder/global_motion.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 29052
+      },
+      "writtenOn": "2023-08-29T21:01:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "63829fca_ce2e9363",
+      "range": {
+        "startLine": 111,
+        "startChar": 2,
+        "endLine": 112,
+        "endChar": 29
+      },
+      "revId": "e407b296b1e63bdb687aea205ac870e63330f2aa",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "25cccb21_901ecc25",
@@ -85,6 +109,30 @@
       "side": 1,
       "message": "Now that I\u0027ve removed the abs() call from the highbd error metric, we can have an error of (say) -1023 in 10 bit mode. In that case, highbd_error_measure() computes e1 \u003d -256, e2 \u003d 1. And so we need an entry in error_measure_lut[] to handle the logical index -256.\n\nBut currently the table only goes down to -255, so we have to add an extra entry at the start. That ends up bumping the index of everything else up by 1.\n\nI\u0027ll add a note on that to the commit message when I re-submit.",
       "parentUuid": "25cccb21_901ecc25",
+      "range": {
+        "startLine": 49,
+        "startChar": 65,
+        "endLine": 49,
+        "endChar": 72
+      },
+      "revId": "e407b296b1e63bdb687aea205ac870e63330f2aa",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c59f87f3_59fdb353",
+        "filename": "av1/encoder/x86/frame_error_avx2.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 29052
+      },
+      "writtenOn": "2023-08-29T21:01:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "634c0213_acd6416a",
       "range": {
         "startLine": 49,
         "startChar": 65,
