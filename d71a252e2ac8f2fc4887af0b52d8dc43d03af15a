@@ -22,6 +22,30 @@
       },
       "revId": "d71a252e2ac8f2fc4887af0b52d8dc43d03af15a",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "04972f7b_03a0881a",
+        "filename": "av1/encoder/motion_search_facade.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 229,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-08-29T06:45:53Z",
+      "side": 1,
+      "message": "I suspect this particular compiler warning considers assertions, similar to Clang\u0027s static analyzer. If the compiler considers assertions, then this assertion tells the compiler that the index `args-\u003estart_mv_cnt` is within the bounds of the `args-\u003estart_mv_stack` and `args-\u003eref_mv_idx_stack` arrays.\n\nAnother way to review this CL is to ignore the compiler warning and just note that it is better to validate the array index before use than after use.",
+      "parentUuid": "c30a5f46_a89436e4",
+      "range": {
+        "startLine": 229,
+        "startChar": 10,
+        "endLine": 229,
+        "endChar": 66
+      },
+      "revId": "d71a252e2ac8f2fc4887af0b52d8dc43d03af15a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
