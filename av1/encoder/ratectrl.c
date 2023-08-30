@@ -2238,6 +2238,9 @@ void av1_rc_postencode_update(AV1_COMP *cpi, uint64_t bytes_used) {
   // Update rate control heuristics
   rc->projected_frame_size = (int)(bytes_used << 3);
 
+  if (current_frame->frame_number % 100 == 0)
+  printf("%d %d %d \n", current_frame->frame_number, current_frame->frame_type, cpi->svc.spatial_layer_id);
+
   // Post encode loop adjustment of Q prediction.
   av1_rc_update_rate_correction_factors(cpi, 0, cm->width, cm->height);
 

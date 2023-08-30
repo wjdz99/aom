@@ -1482,6 +1482,8 @@ int main(int argc, const char **argv) {
   int use_svc_control = 1;
   int set_err_resil_frame = 0;
   int test_changing_bitrate = 0;
+  // REALTIME or GOOD_QUALITY (ALL_INTRA has not been tested).
+  int usage = AOM_USAGE_GOOD_QUALITY;//AOM_USAGE_REALTIME;
   zero(rc.layer_target_bitrate);
   memset(&layer_id, 0, sizeof(aom_svc_layer_id_t));
   memset(&app_input, 0, sizeof(AppInput));
@@ -1503,14 +1505,14 @@ int main(int argc, const char **argv) {
   exec_name = argv[0];
 
   // start with default encoder configuration
-  aom_codec_err_t res = aom_codec_enc_config_default(aom_codec_av1_cx(), &cfg,
-                                                     AOM_USAGE_REALTIME);
+  aom_codec_err_t res =
+      aom_codec_enc_config_default(aom_codec_av1_cx(), &cfg, usage);
   if (res != AOM_CODEC_OK) {
     die("Failed to get config: %s\n", aom_codec_err_to_string(res));
   }
 
   // Real time parameters.
-  cfg.g_usage = AOM_USAGE_REALTIME;
+  cfg.g_usage = usage;
 
   cfg.rc_end_usage = AOM_CBR;
   cfg.rc_min_quantizer = 2;

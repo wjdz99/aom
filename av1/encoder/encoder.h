@@ -4005,8 +4005,9 @@ static INLINE int has_no_stats_stage(const AV1_COMP *const cpi) {
 /*!\cond */
 
 static INLINE int is_one_pass_rt_params(const AV1_COMP *cpi) {
-  return has_no_stats_stage(cpi) && cpi->oxcf.mode == REALTIME &&
-         cpi->oxcf.gf_cfg.lag_in_frames == 0;
+  const RTC_REF *const rtc_ref = &cpi->ppi->rtc_ref;
+  return has_no_stats_stage(cpi) && (cpi->oxcf.mode == REALTIME ||
+         rtc_ref->set_ref_frame_config) && cpi->oxcf.gf_cfg.lag_in_frames == 0;
 }
 
 // Use default/internal reference structure for single-layer RTC.
