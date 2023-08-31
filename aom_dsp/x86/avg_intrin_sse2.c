@@ -25,11 +25,14 @@ static INLINE void sign_extend_16bit_to_32bit_sse2(__m128i in, __m128i zero,
   *out_hi = _mm_unpackhi_epi16(in, sign_bits);
 }
 
+<<<<<<< HEAD   (bb2428 Add const qualifiers for av1_calc_frame_error SIMD)
 static INLINE __m128i invert_sign_32_sse2(__m128i a, __m128i sign) {
   a = _mm_xor_si128(a, sign);
   return _mm_sub_epi32(a, sign);
 }
 
+=======
+>>>>>>> BRANCH (6054fa Rename the DLL import library "aom_dll.lib")
 void aom_minmax_8x8_sse2(const uint8_t *s, int p, const uint8_t *d, int dp,
                          int *min, int *max) {
   __m128i u0, s0, d0, diff, maxabsdiff, minabsdiff, negdiff, absdiff0, absdiff;

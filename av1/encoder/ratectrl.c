@@ -554,7 +554,11 @@ static int adjust_q_cbr(const AV1_COMP *cpi, int q, int active_worst_quality,
     // not been set due to dropped frames.
     if (rc->rc_1_frame * rc->rc_2_frame == -1 &&
         rc->q_1_frame != rc->q_2_frame && rc->q_1_frame > 0 &&
+<<<<<<< HEAD   (bb2428 Add const qualifiers for av1_calc_frame_error SIMD)
         rc->q_2_frame > 0 && !overshoot_buffer_low) {
+=======
+        rc->q_2_frame > 0) {
+>>>>>>> BRANCH (6054fa Rename the DLL import library "aom_dll.lib")
       int qclamp = clamp(q, AOMMIN(rc->q_1_frame, rc->q_2_frame),
                          AOMMAX(rc->q_1_frame, rc->q_2_frame));
       // If the previous frame had overshoot and the current q needs to

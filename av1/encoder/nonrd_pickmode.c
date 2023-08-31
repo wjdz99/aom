@@ -1939,6 +1939,7 @@ static void set_color_sensitivity(AV1_COMP *cpi, MACROBLOCK *x,
   const int subsampling_x = cpi->common.seq_params->subsampling_x;
   const int subsampling_y = cpi->common.seq_params->subsampling_y;
   const int source_sad_nonrd = x->content_state_sb.source_sad_nonrd;
+<<<<<<< HEAD   (bb2428 Add const qualifiers for av1_calc_frame_error SIMD)
   const int high_res = cpi->common.width * cpi->common.height >= 640 * 360;
   if (bsize == cpi->common.seq_params->sb_size) {
     // At superblock level color_sensitivity is already set to 0, 1, or 2.
@@ -1955,8 +1956,16 @@ static void set_color_sensitivity(AV1_COMP *cpi, MACROBLOCK *x,
     }
     return;
   }
+=======
+>>>>>>> BRANCH (6054fa Rename the DLL import library "aom_dll.lib")
   int shift = 3;
+<<<<<<< HEAD   (bb2428 Add const qualifiers for av1_calc_frame_error SIMD)
   if (source_sad_nonrd >= kMedSad && x->source_variance > 0 && high_res)
+=======
+  if (source_sad_nonrd >= kMedSad &&
+      cpi->oxcf.tune_cfg.content != AOM_CONTENT_SCREEN &&
+      cpi->common.width * cpi->common.height >= 640 * 360)
+>>>>>>> BRANCH (6054fa Rename the DLL import library "aom_dll.lib")
     shift = 4;
   if (cpi->oxcf.tune_cfg.content == AOM_CONTENT_SCREEN &&
       cpi->rc.high_source_sad) {

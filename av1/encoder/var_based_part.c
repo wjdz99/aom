@@ -1022,7 +1022,12 @@ static AOM_INLINE void chroma_check(AV1_COMP *cpi, MACROBLOCK *x,
   if (cpi->oxcf.tune_cfg.content == AOM_CONTENT_SCREEN &&
       cpi->rc.high_source_sad) {
     shift_lower_limit = 7;
+<<<<<<< HEAD   (bb2428 Add const qualifiers for av1_calc_frame_error SIMD)
   } else if (source_sad_nonrd >= kMedSad && x->source_variance > 500 &&
+=======
+  } else if (source_sad_nonrd >= kMedSad &&
+             cpi->oxcf.tune_cfg.content != AOM_CONTENT_SCREEN &&
+>>>>>>> BRANCH (6054fa Rename the DLL import library "aom_dll.lib")
              cpi->common.width * cpi->common.height >= 640 * 360) {
     shift_upper_limit = 2;
     shift_lower_limit = source_sad_nonrd > kMedSad ? 5 : 4;
@@ -1413,7 +1418,10 @@ static void setup_planes(AV1_COMP *cpi, MACROBLOCK *x, unsigned int *y_sad,
     mi->mv[0].as_int = 0;
     mi->interp_filters = av1_broadcast_interp_filter(BILINEAR);
 
+<<<<<<< HEAD   (bb2428 Add const qualifiers for av1_calc_frame_error SIMD)
     int is_screen = cpi->oxcf.tune_cfg.content == AOM_CONTENT_SCREEN;
+=======
+>>>>>>> BRANCH (6054fa Rename the DLL import library "aom_dll.lib")
     int est_motion = cpi->sf.rt_sf.estimate_motion_for_var_based_partition;
     // TODO(b/290596301): Look into adjusting this condition.
     // There is regression on color content when

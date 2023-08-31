@@ -352,7 +352,11 @@ class HadamardLowbdTest : public HadamardTestBase<tran_low_t, HadamardFunc> {
  public:
   HadamardLowbdTest() : HadamardTestBase(GetParam(), /*do_shift=*/true) {}
   // Use values between -255 (0xFF01) and 255 (0x00FF)
+<<<<<<< HEAD   (bb2428 Add const qualifiers for av1_calc_frame_error SIMD)
   int16_t Rand() override {
+=======
+  virtual int16_t Rand() {
+>>>>>>> BRANCH (6054fa Rename the DLL import library "aom_dll.lib")
     int16_t src = rnd_.Rand8();
     int16_t pred = rnd_.Rand8();
     return src - pred;
@@ -408,7 +412,11 @@ class HadamardHighbdTest : public HadamardTestBase<tran_low_t, HadamardFunc> {
  protected:
   HadamardHighbdTest() : HadamardTestBase(GetParam(), /*do_shift=*/true) {}
   // Use values between -4095 (0xF001) and 4095 (0x0FFF)
+<<<<<<< HEAD   (bb2428 Add const qualifiers for av1_calc_frame_error SIMD)
   int16_t Rand() override {
+=======
+  virtual int16_t Rand() {
+>>>>>>> BRANCH (6054fa Rename the DLL import library "aom_dll.lib")
     int16_t src = rnd_.Rand12();
     int16_t pred = rnd_.Rand12();
     return src - pred;
@@ -448,7 +456,11 @@ class HadamardLowbdLPTest : public HadamardTestBase<int16_t, HadamardLPFunc> {
  public:
   HadamardLowbdLPTest() : HadamardTestBase(GetParam(), /*do_shift=*/false) {}
   // Use values between -255 (0xFF01) and 255 (0x00FF)
+<<<<<<< HEAD   (bb2428 Add const qualifiers for av1_calc_frame_error SIMD)
   int16_t Rand() override {
+=======
+  virtual int16_t Rand() {
+>>>>>>> BRANCH (6054fa Rename the DLL import library "aom_dll.lib")
     int16_t src = rnd_.Rand8();
     int16_t pred = rnd_.Rand8();
     return src - pred;
@@ -498,7 +510,11 @@ class HadamardLowbdLP8x8DualTest
   HadamardLowbdLP8x8DualTest()
       : HadamardTestBase(GetParam(), /*do_shift=*/false) {}
   // Use values between -255 (0xFF01) and 255 (0x00FF)
+<<<<<<< HEAD   (bb2428 Add const qualifiers for av1_calc_frame_error SIMD)
   int16_t Rand() override {
+=======
+  virtual int16_t Rand() {
+>>>>>>> BRANCH (6054fa Rename the DLL import library "aom_dll.lib")
     int16_t src = rnd_.Rand8();
     int16_t pred = rnd_.Rand8();
     return src - pred;
