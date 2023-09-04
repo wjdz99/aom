@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0431ce86_84ddcfae",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 31022
+      },
+      "writtenOn": "2023-09-04T10:02:02Z",
+      "side": 1,
+      "message": "In this patchset, we have taken care of all comments. This patch primarily includes the following changes:\n* Added the following builds:\n * Generic(good and rt)\n * x86_64(good and rt)\n * x86(good and rt)\n * ARM (good and rt)\n* Added screen data input for testing.\n* Increased the number of frames to be tested to 35.\n* Setting bit-rates based on presets and resolution.",
+      "revId": "2f0d8699b22c04109bbfa8dd96c7f1e9820a562a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}

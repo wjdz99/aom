@@ -24,6 +24,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "8ee0ea0f_4de8c029",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 31022
+      },
+      "writtenOn": "2023-09-04T10:02:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fc1c3add_5793c312",
+      "range": {
+        "startLine": 7,
+        "startChar": 4,
+        "endLine": 7,
+        "endChar": 8
+      },
+      "revId": "e335a602ffd0452564012c04ca3684a874adf140",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "80ea0440_b7927c0b",
@@ -54,6 +78,30 @@
       "writtenOn": "2023-08-25T16:35:24Z",
       "side": 1,
       "message": "Maybe set different bitrates for non-rd resolutions, and rtc encoding.",
+      "range": {
+        "startLine": 14,
+        "startChar": 15,
+        "endLine": 14,
+        "endChar": 24
+      },
+      "revId": "e335a602ffd0452564012c04ca3684a874adf140",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "305e582b_354c0c98",
+        "filename": "test/av1_c_vs_simd_encode.sh",
+        "patchSetId": 3
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 31022
+      },
+      "writtenOn": "2023-09-04T10:02:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ee83cf25_07e4a572",
       "range": {
         "startLine": 14,
         "startChar": 15,
@@ -111,6 +159,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "9a98a4a7_de38003b",
+        "filename": "test/av1_c_vs_simd_encode.sh",
+        "patchSetId": 3
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 31022
+      },
+      "writtenOn": "2023-09-04T10:02:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "be1cfe68_ddf034af",
+      "range": {
+        "startLine": 17,
+        "startChar": 0,
+        "endLine": 17,
+        "endChar": 10
+      },
+      "revId": "e335a602ffd0452564012c04ca3684a874adf140",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "0233d212_8a4fc816",
@@ -124,6 +196,30 @@
       "writtenOn": "2023-08-25T16:35:24Z",
       "side": 1,
       "message": "Should this be increased if gop size is 32? Maybe test 35 - 40 frames?",
+      "range": {
+        "startLine": 30,
+        "startChar": 38,
+        "endLine": 30,
+        "endChar": 40
+      },
+      "revId": "e335a602ffd0452564012c04ca3684a874adf140",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "67a11466_aff9a4e7",
+        "filename": "test/av1_c_vs_simd_encode.sh",
+        "patchSetId": 3
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 31022
+      },
+      "writtenOn": "2023-09-04T10:02:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0233d212_8a4fc816",
       "range": {
         "startLine": 30,
         "startChar": 38,
@@ -205,6 +301,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f396ac6c_05b691ab",
+        "filename": "test/av1_c_vs_simd_encode.sh",
+        "patchSetId": 3
+      },
+      "lineNbr": 187,
+      "author": {
+        "id": 31022
+      },
+      "writtenOn": "2023-09-04T10:02:02Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "62095e23_d73aaeec",
+      "range": {
+        "startLine": 187,
+        "startChar": 0,
+        "endLine": 187,
+        "endChar": 20
+      },
+      "revId": "e335a602ffd0452564012c04ca3684a874adf140",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "40d74373_a0d5ea1a",
@@ -242,6 +362,30 @@
       "side": 1,
       "message": "For RTC we use: -DCONFIG_REALTIME_ONLY\u003d1 -DCONFIG_AV1_HIGHBITDEPTH\u003d0",
       "parentUuid": "40d74373_a0d5ea1a",
+      "range": {
+        "startLine": 238,
+        "startChar": 14,
+        "endLine": 238,
+        "endChar": 38
+      },
+      "revId": "e335a602ffd0452564012c04ca3684a874adf140",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "868227fd_75122792",
+        "filename": "test/av1_c_vs_simd_encode.sh",
+        "patchSetId": 3
+      },
+      "lineNbr": 238,
+      "author": {
+        "id": 31022
+      },
+      "writtenOn": "2023-09-04T10:02:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "42442f66_c8945812",
       "range": {
         "startLine": 238,
         "startChar": 14,
