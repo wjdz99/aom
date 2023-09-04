@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "20253b3e_6e330b2a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2023-09-04T10:30:03Z",
+      "side": 1,
+      "message": "While simulating the error with the test cases given in https://oss-fuzz.com/testcase-detail/6441266320375808, we observed that 2 workers were working on the decode stage of the 1st frame and the 2nd worker encountered an error (`worker[1]\u003ehad_error` was set to 1) because of which further processing of the first frame was skipped. For the 2nd frame, the decode stage had only 1 worker and hence `worker[1]\u003ehad_error` was not reset in `launch_dec_workers()`. During its loopfiltering stage, as the number of workers were more than one, `worker[1]\u003ehad_error` which holds a stale value from the previous frame was incorrectly used and this resulted in the access of uninitialized `error_info` in `sync_lf_workers()-\u003eaom_internal_error()`.\n\nAs the number of workers might differ from decode stage to post-processing stage, we should reset the `worker[]-\u003ehad_error` for the number workers of that stage before using the same. In this CL, we have re-submitted the original [CL](https://aomedia-review.googlesource.com/c/aom/+/179721) which added the framework for error propagation in loopfilter MT module along with the fix to reset `worker[]-\u003ehad_error` inside `loop_filter_rows_mt()` (please refer line 443 in av1/common/thread_common.c).\n\nWe have verified that with this fix, the issue reported in oss-fuzz:61802 no longer exists.\n\nSimilar fix would be required in other MT modules and we shall study and address the same in a separate CL.",
+      "revId": "cc49a1861d79d0aeb707d09114728e0bb24b2898",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
