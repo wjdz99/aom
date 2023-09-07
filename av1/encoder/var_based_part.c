@@ -1425,8 +1425,7 @@ static void setup_planes(AV1_COMP *cpi, MACROBLOCK *x, unsigned int *y_sad,
       if (xd->mb_to_right_edge >= 0 && xd->mb_to_bottom_edge >= 0) {
         // For screen only do int_pro_motion for spatial variance above
         // threshold and motion level above LowSad.
-        if (!is_screen ||
-            (x->source_variance > 100 && source_sad_nonrd > kLowSad)) {
+        if (x->source_variance > 100 && source_sad_nonrd > kLowSad) {
           int me_search_size_col =
               is_screen ? 96 : block_size_wide[cm->seq_params->sb_size] >> 1;
           // For screen use larger search size row motion to capture
