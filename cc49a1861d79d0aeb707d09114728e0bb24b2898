@@ -51,6 +51,24 @@
       "parentUuid": "20253b3e_6e330b2a",
       "revId": "cc49a1861d79d0aeb707d09114728e0bb24b2898",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d85e0778_e17e6703",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2023-09-07T13:41:28Z",
+      "side": 1,
+      "message": "Yes, we have verified that with this fix, the fuzzer built with the decoder library exits cleanly in case of an error and continues to decode subsequent frames. A similar fix for the encoder is addressed in [CL](https://aomedia-review.googlesource.com/c/aom/+/181041).",
+      "parentUuid": "f4fd5688_3bb945ca",
+      "revId": "cc49a1861d79d0aeb707d09114728e0bb24b2898",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
