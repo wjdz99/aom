@@ -69,6 +69,24 @@
       "parentUuid": "f4fd5688_3bb945ca",
       "revId": "cc49a1861d79d0aeb707d09114728e0bb24b2898",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "19f65f6e_2f0c9873",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2023-09-07T15:44:06Z",
+      "side": 1,
+      "message": "Thanks. Looks good. By the way, what do you mean the decoder exits but still \"continues to decode subsequent frames\"?",
+      "parentUuid": "d85e0778_e17e6703",
+      "revId": "cc49a1861d79d0aeb707d09114728e0bb24b2898",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
