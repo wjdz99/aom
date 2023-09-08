@@ -16,6 +16,47 @@
       "message": "The structure `CdefSearchCtx` holds the buffers required during CDEF search. In the parent commit, these buffers were allocated and deallocated locally within `av1_cdef_search()`. In the event of an early termination during CDEF search, these allocated buffers would not be freed and would result in memory leaks. This CL refactors the above-mentioned buffer allocations by introducing a pointer to the `CdefSearchCtx` structure in `AV1_COMP`. This will facilitate the deallocation of the CDEF search context buffers in `encoder_destroy()` thereby preventing any possible leaks. Also, `CHECK_MEM_ERROR()` is now used for allocating the CDEF search context buffers in `cdef_alloc_data()`.\n\nThis change is bit-exact and has been verified using bitstream-match tests for a combination of various configuration values for --threads, --tile-rows, --tile-columns, --cpu-used, --end-usage, --row-mt, --fp-mt, etc.",
       "revId": "44e151138c4ed22c1bd07c49cd735aa727f9aeb0",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "822bc9af_a236814a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2023-09-08T22:30:37Z",
+      "side": 1,
+      "message": "looks good.",
+      "parentUuid": "685d0264_d7452038",
+      "revId": "44e151138c4ed22c1bd07c49cd735aa727f9aeb0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "013a408b_49a7767c",
+        "filename": "av1/encoder/pickcdef.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 819,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2023-09-08T22:30:37Z",
+      "side": 1,
+      "message": "For better knowing what is used/modified in 1 function, only passing in the needed parameters instead of cpi is desired. So, we may not want this type of refactoring. It might be fine here since this function is a high level one.",
+      "range": {
+        "startLine": 819,
+        "startChar": 31,
+        "endLine": 819,
+        "endChar": 34
+      },
+      "revId": "44e151138c4ed22c1bd07c49cd735aa727f9aeb0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
