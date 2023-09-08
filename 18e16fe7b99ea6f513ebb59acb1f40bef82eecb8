@@ -16,6 +16,46 @@
       "message": "The low bit-depth Hadamard transform functions assume that the transform coefficients can be represented using 16 bits. In case of high bit-depth encoding as the transform coefficients exceed the 16 bit range (transform coefficients are represented using (bitdepth + 8) bits), low bit-depth Hadamard transform functions cannot be used. This CL uses the high bit-depth Hadamard transform functions in case of high bit-depth encoding.",
       "revId": "18e16fe7b99ea6f513ebb59acb1f40bef82eecb8",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4d32e8d4_5389d2a7",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2023-09-08T15:41:44Z",
+      "side": 1,
+      "message": "Thanks for the fix!",
+      "revId": "18e16fe7b99ea6f513ebb59acb1f40bef82eecb8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d0bae214_5e3fe790",
+        "filename": "av1/encoder/hybrid_fwd_txfm.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 320,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2023-09-08T15:41:44Z",
+      "side": 1,
+      "message": "Should we have a hbd hadamard_4x4 here?",
+      "range": {
+        "startLine": 320,
+        "startChar": 17,
+        "endLine": 320,
+        "endChar": 33
+      },
+      "revId": "18e16fe7b99ea6f513ebb59acb1f40bef82eecb8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
