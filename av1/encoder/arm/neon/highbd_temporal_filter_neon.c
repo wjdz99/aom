@@ -348,10 +348,8 @@ void av1_highbd_apply_temporal_filter_neon(
 
     const uint16_t *ref =
         CONVERT_TO_SHORTPTR(frame_to_filter->buffers[plane]) + frame_offset;
-    const int ss_x_shift =
-        mbd->plane[plane].subsampling_x - mbd->plane[AOM_PLANE_Y].subsampling_x;
-    const int ss_y_shift =
-        mbd->plane[plane].subsampling_y - mbd->plane[AOM_PLANE_Y].subsampling_y;
+    const int ss_x_shift = mbd->plane[plane].subsampling_x;
+    const int ss_y_shift = mbd->plane[plane].subsampling_y;
     const int num_ref_pixels = TF_WINDOW_LENGTH * TF_WINDOW_LENGTH +
                                ((plane) ? (1 << (ss_x_shift + ss_y_shift)) : 0);
     const double inv_num_ref_pixels = 1.0 / num_ref_pixels;
@@ -368,17 +366,15 @@ void av1_highbd_apply_temporal_filter_neon(
       for (unsigned int i = 0; i < plane_h; i++) {
         for (unsigned int j = 0; j < plane_w; j++) {
           for (int ii = 0; ii < (1 << ss_y_shift); ++ii) {
+            const int yy = (i << ss_y_shift) + ii;  // Y-coord on Y-plane.
             for (int jj = 0; jj < (1 << ss_x_shift); ++jj) {
-              const int yy = (i << ss_y_shift) + ii;  // Y-coord on Y-plane.
               const int xx = (j << ss_x_shift) + jj;  // X-coord on Y-plane.
-              luma_sse_sum[i * BW + j] +=
-                  frame_sse[yy * frame_sse_stride + xx + 2];
+              luma_sse_sum[i * BW + j] += frame_sse[yy * mb_width + xx];
             }
           }
         }
       }
     }
-
     get_squared_error(ref, frame_stride, pred + plane_offset, plane_w, plane_w,
                       plane_h, frame_sse, frame_sse_stride);
 
