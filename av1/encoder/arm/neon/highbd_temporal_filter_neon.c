@@ -359,6 +359,7 @@ void av1_highbd_apply_temporal_filter_neon(
     const double n_decay = 0.5 + log(2 * noise_levels[plane] + 5.0);
     // Decay factors for non-local mean approach.
     const double decay_factor = 1 / (n_decay * q_decay * s_decay);
+    const int ww = frame_sse_stride << ss_x_shift;  // Width of Y-plane.
 
     // Filter U-plane and V-plane using Y-plane. This is because motion
     // search is only done on Y-plane, so the information from Y-plane
@@ -368,17 +369,15 @@ void av1_highbd_apply_temporal_filter_neon(
       for (unsigned int i = 0; i < plane_h; i++) {
         for (unsigned int j = 0; j < plane_w; j++) {
           for (int ii = 0; ii < (1 << ss_y_shift); ++ii) {
+            const int yy = (i << ss_y_shift) + ii;  // Y-coord on Y-plane.
             for (int jj = 0; jj < (1 << ss_x_shift); ++jj) {
-              const int yy = (i << ss_y_shift) + ii;  // Y-coord on Y-plane.
               const int xx = (j << ss_x_shift) + jj;  // X-coord on Y-plane.
-              luma_sse_sum[i * BW + j] +=
-                  frame_sse[yy * frame_sse_stride + xx + 2];
+              luma_sse_sum[i * BW + j] += frame_sse[yy * ww + xx];
             }
           }
         }
       }
     }
-
     get_squared_error(ref, frame_stride, pred + plane_offset, plane_w, plane_w,
                       plane_h, frame_sse, frame_sse_stride);
 
