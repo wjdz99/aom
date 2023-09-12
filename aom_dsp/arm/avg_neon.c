@@ -10,6 +10,7 @@
 
 #include <arm_neon.h>
 #include <assert.h>
+#include <stdlib.h>
 
 #include "config/aom_config.h"
 #include "config/aom_dsp_rtcd.h"
@@ -245,10 +246,12 @@ int aom_vector_var_neon(const int16_t *ref, const int16_t *src, int bwl) {
     width -= 8;
   } while (width != 0);
 
-  const int32_t mean = horizontal_add_s16x8(v_mean);
+  // abs() is not strictly necessary, but avoids -fsanitize=integer unsigned
+  // integer overflow warnings.
+  const uint32_t mean = abs(horizontal_add_s16x8(v_mean));
   const int32_t sse = horizontal_add_s32x4(vaddq_s32(v_sse[0], v_sse[1]));
 
-  // (mean * mean): dynamic range 31 bits.
+  // (mean * mean): dynamic range 32 bits.
   return sse - ((mean * mean) >> (bwl + 2));
 }
 
