@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7ce0e706_33debd49",
+        "filename": "aom_dsp/arm/avg_neon.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 250,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-09-12T20:28:42Z",
+      "side": 1,
+      "message": "We can add more sanitizer coverage to the presubmit and see what it does to run time.\n\n\n```\n../aom_dsp/arm/avg_neon.c:252:23: runtime error: signed integer overflow: -65280 * -65280 cannot be represented in type \u0027int\u0027\nSUMMARY: UndefinedBehaviorSanitizer: undefined-behavior ../aom_dsp/arm/avg_neon.c:252:23 in \n../test/avg_test.cc:660: Failure\n```",
+      "revId": "7e5d10cadc5ccbb54e8ca3bb611d9f92f1df6db0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0f683e49_888a825e",
+        "filename": "aom_dsp/arm/avg_neon.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 254,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-09-12T20:28:42Z",
+      "side": 1,
+      "message": "I\u0027ll normalize the other instances of this comment in a follow up.",
+      "revId": "7e5d10cadc5ccbb54e8ca3bb611d9f92f1df6db0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
