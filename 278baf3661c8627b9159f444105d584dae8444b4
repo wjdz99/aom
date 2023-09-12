@@ -16,6 +16,24 @@
       "message": "This and the loops are slightly out of sync with the non-highbd implementation. It might be worth normalizing them.",
       "revId": "278baf3661c8627b9159f444105d584dae8444b4",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "922babf0_5e64bc37",
+        "filename": "av1/common/arm/highbd_reconintra_neon.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 31042
+      },
+      "writtenOn": "2023-09-12T13:26:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e8116310_9c5e9400",
+      "revId": "278baf3661c8627b9159f444105d584dae8444b4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
