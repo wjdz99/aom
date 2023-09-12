@@ -3,6 +3,57 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "0c40b434_adf659dc",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-09-12T21:07:14Z",
+      "side": 1,
+      "message": "Thanks for the CL. I have some suggested changes to the comments.",
+      "revId": "7e5d10cadc5ccbb54e8ca3bb611d9f92f1df6db0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e9899166_1f3a7849",
+        "filename": "aom_dsp/arm/avg_neon.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 223,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-09-12T21:07:14Z",
+      "side": 1,
+      "message": "Note that we have comments for the dynamic ranges of `diff` and `v_mean` in lines 221 and 223.",
+      "revId": "7e5d10cadc5ccbb54e8ca3bb611d9f92f1df6db0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e081f503_81299629",
+        "filename": "aom_dsp/arm/avg_neon.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 249,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-09-12T21:07:14Z",
+      "side": 1,
+      "message": "1) Remove \"abs() is not strictly necessary\" from the comment? Or did you mean just changing the type of `mean` to `uint32_t` is sufficient?\n\n```\n  const uint32_t mean \u003d horizontal_add_s16x8(v_mean);\n```\n\nAlso, we don\u0027t need to mention `-fsanitize\u003dinteger`, because signed integer overflow is undefined behavior in C. We can just say something like \"Declaring mean as uint32_t rather than int32_t avoids signed integer overflow in (mean * mean).\"\n\n2) Typo: unsigned \u003d\u003e signed\n\nSee the runtime error message quoted in your comment at line 250.\n\n3) clarify the signed integer overflow warnings are emitted for the `(mean * mean)` expression below, not for line 251.",
+      "revId": "7e5d10cadc5ccbb54e8ca3bb611d9f92f1df6db0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "7ce0e706_33debd49",
         "filename": "aom_dsp/arm/avg_neon.c",
         "patchSetId": 1
@@ -14,6 +65,23 @@
       "writtenOn": "2023-09-12T20:28:42Z",
       "side": 1,
       "message": "We can add more sanitizer coverage to the presubmit and see what it does to run time.\n\n\n```\n../aom_dsp/arm/avg_neon.c:252:23: runtime error: signed integer overflow: -65280 * -65280 cannot be represented in type \u0027int\u0027\nSUMMARY: UndefinedBehaviorSanitizer: undefined-behavior ../aom_dsp/arm/avg_neon.c:252:23 in \n../test/avg_test.cc:660: Failure\n```",
+      "revId": "7e5d10cadc5ccbb54e8ca3bb611d9f92f1df6db0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cc41fa22_ebda4994",
+        "filename": "aom_dsp/arm/avg_neon.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 251,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-09-12T21:07:14Z",
+      "side": 1,
+      "message": "Nit: I suggest adding a comment for the dynamic range of `horizontal_add_s16x8(v_mean)`.",
       "revId": "7e5d10cadc5ccbb54e8ca3bb611d9f92f1df6db0",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -31,6 +99,23 @@
       "writtenOn": "2023-09-12T20:28:42Z",
       "side": 1,
       "message": "I\u0027ll normalize the other instances of this comment in a follow up.",
+      "revId": "7e5d10cadc5ccbb54e8ca3bb611d9f92f1df6db0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9d80d596_a1d2c1fb",
+        "filename": "aom_dsp/arm/avg_neon.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 254,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-09-12T21:07:14Z",
+      "side": 1,
+      "message": "Optional: In these dynamic range comments, it seems clearer to explicitly indicate whether the number of bits for a signed or unsigned value.\n\nSpecifically,\n- line 221: signed\n- line 223: signed\n- line 225: signed, even though the range is nonnegative.\n- line 251 (proposed comment): unsigned\n- line 254: unsigned\n\nPerhaps readers are supposed to infer signed vs. unsigned from the data type, so only the comment in line 225 needs clarification?",
       "revId": "7e5d10cadc5ccbb54e8ca3bb611d9f92f1df6db0",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
