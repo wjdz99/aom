@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5ec1a78c_1067a223",
+        "filename": "test/coding_path_sync.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 135,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-09-13T18:04:08Z",
+      "side": 0,
+      "message": "This bug was introduced when the test was originally added:\nhttps://aomedia-review.googlesource.com/c/aom/+/14960 (had an HBD bug)\nhttps://aomedia-review.googlesource.com/c/aom/+/23482",
+      "revId": "a445346c7962db07bd5b631e3da7611b29e84d7e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
