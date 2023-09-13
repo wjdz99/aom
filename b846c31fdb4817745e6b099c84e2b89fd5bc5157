@@ -35,6 +35,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e149b36d_5c4437f0",
+        "filename": "aom_dsp/arm/avg_neon.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 251,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-09-13T01:58:22Z",
+      "side": 1,
+      "message": "\u003e Nit/optional: I understand this comment (the first sentence) now after some research. I think most C programmers, including myself, don\u0027t understand why abs() is not strictly necessary here. So this comment is really intended for the few C experts (to prevent them from removing abs()), but it is confusing for others.\n\u003e \n\nYes, that was the intent. I could add a note referencing 2s complement, but if we have sanitizers to cover this then the comment becomes moot. I\u0027m testing some version of the sanitizer now. I think there may be conversion warnings to deal with for `-fsanitizer\u003dinteger` first, so `undefined` might be easier to start with.\n\n\u003e So I would omit this comment (the first sentence).\n\nI added the detail to the commit message instead so if someone does some archaeology they\u0027ll have a reference.",
+      "parentUuid": "37178e5b_424f418e",
+      "revId": "b846c31fdb4817745e6b099c84e2b89fd5bc5157",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "801a0a4c_b9dcfe7f",
@@ -48,6 +66,24 @@
       "writtenOn": "2023-09-13T00:27:55Z",
       "side": 1,
       "message": "Optional: In Chi Yo\u0027s code, this variable is named `mean_abs`. It would be good to go back to that variable name, so that all avg*.c files use the same variable name.\n\nThis would require changing `mean * mean` to `mean_abs * mean_abs` in the comments (line 250 and line 256).",
+      "revId": "b846c31fdb4817745e6b099c84e2b89fd5bc5157",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "edbd8b85_5088497c",
+        "filename": "aom_dsp/arm/avg_neon.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 253,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-09-13T01:58:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "801a0a4c_b9dcfe7f",
       "revId": "b846c31fdb4817745e6b099c84e2b89fd5bc5157",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
