@@ -72,6 +72,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "8742d89e_c630001c",
+        "filename": "aom_dsp/arm/avg_neon.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 249,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-09-13T00:03:13Z",
+      "side": 1,
+      "message": "\u003e \u003e 1) Remove \"abs() is not strictly necessary\" from the comment? Or did you mean just changing the type of `mean` to `uint32_t` is sufficient?\n\u003e \u003e \n\u003e \u003e ```\n\u003e \u003e   const uint32_t mean \u003d horizontal_add_s16x8(v_mean);\n\u003e \u003e ```\n\u003e \u003e \n\u003e \u003e Also, we don\u0027t need to mention `-fsanitize\u003dinteger`, because signed integer overflow is undefined behavior in C. We can just say something like \"Declaring mean as uint32_t rather than int32_t avoids signed integer overflow in (mean * mean).\"\n\u003e \u003e \n\u003e \n\u003e -fsanitize\u003dinteger also reports unsigned overflow by default, that is what I was referring to.\n\u003e \n\n```\nruntime error: unsigned integer overflow: 4294902016 * 4294902016 cannot be represented in type \u0027unsigned int\u0027\n```\n\n\u003e \u003e 2) Typo: unsigned \u003d\u003e signed\n\u003e \u003e \n\u003e \u003e See the runtime error message quoted in your comment at line 250.\n\u003e \u003e \n\u003e \n\u003e That was a separate one, demonstrating -fsanitize\u003dundefined.\n\u003e \n\u003e \u003e 3) clarify the signed integer overflow warnings are emitted for the `(mean * mean)` expression below, not for line 251.\n\u003e \n\u003e Done.",
+      "parentUuid": "d2b72bb1_77ab5e84",
+      "revId": "7e5d10cadc5ccbb54e8ca3bb611d9f92f1df6db0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "7ce0e706_33debd49",
         "filename": "aom_dsp/arm/avg_neon.c",
         "patchSetId": 1
