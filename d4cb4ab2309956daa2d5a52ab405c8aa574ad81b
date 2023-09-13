@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7c5388c4_4fc6dda1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-09-13T01:05:51Z",
+      "side": 1,
+      "message": "This breaks some of the [Argon test vectors](https://aomedia.org/av1-video-decoder-verification-tool/). For example:\n\n```\nprofile1_core/streams/test1183.obu: FAILED\nactual: 0ca178944ff6666ad8c288346a8ebdfc\nexpected: ed1d84c718afa82a2a3b0cd729f7d0b9\n\nprofile1_core/streams/test106.obu: FAILED\nactual: a335be3ea3488615de8b174964405a37\nexpected: 0a880318479cabab5366d4b4bfb4549b\n```",
+      "revId": "d4cb4ab2309956daa2d5a52ab405c8aa574ad81b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
