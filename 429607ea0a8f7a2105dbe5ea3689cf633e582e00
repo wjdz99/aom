@@ -20,6 +20,23 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "76a05da7_1c2ce512",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-09-13T16:13:45Z",
+      "side": 1,
+      "message": "Chi Yo: Please review. Thanks.",
+      "revId": "429607ea0a8f7a2105dbe5ea3689cf633e582e00",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "d477de60_4d9dc9e1",
         "filename": "aom_dsp/entenc.h",
         "patchSetId": 1
@@ -66,6 +83,24 @@
       "side": 1,
       "message": "This looks fine. Left-shifting `output` first is safe due to the earlier masking operation on line 110 of entenc.c.",
       "parentUuid": "c260d830_8c7a17c4",
+      "revId": "429607ea0a8f7a2105dbe5ea3689cf633e582e00",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5e446f31_e90de809",
+        "filename": "aom_dsp/entenc.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-09-13T16:13:45Z",
+      "side": 1,
+      "message": "Neeraj: Thank you for checking this carefully. On little-endian systems, the original code and new code are equivalent. So if the original code is safe, the new code is also safe.\n\nNote: We could replace the masking operation on line 110 of entenc.c with a left-shifting operation, i.e., move the `num_bytes_ready` bytes in `output` to the most significant bytes. Then `write_enc_data_to_out_buf()` just need to convert `output` to big-endian byte order.",
+      "parentUuid": "70ba88f8_7e7e4e33",
       "revId": "429607ea0a8f7a2105dbe5ea3689cf633e582e00",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
