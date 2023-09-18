@@ -2258,6 +2258,7 @@ static AOM_FORCE_INLINE void set_params_nonrd_pick_inter_mode(
   MB_MODE_INFO *const mi = xd->mi[0];
   const ModeCosts *mode_costs = &x->mode_costs;
   int skip_pred_mv = 0;
+  int use_scaled_ref_frame = 0;
 
   // Initialize variance and distortion (chroma) for all modes and reference
   // frames
@@ -2304,11 +2305,13 @@ static AOM_FORCE_INLINE void set_params_nonrd_pick_inter_mode(
 #endif
 
   // Populate predicated motion vectors for LAST_FRAME
-  if (cpi->ref_frame_flags & AOM_LAST_FLAG)
+  if (cpi->ref_frame_flags & AOM_LAST_FLAG) {
     find_predictors(cpi, x, LAST_FRAME, search_state->frame_mv,
                     search_state->yv12_mb, bsize, *force_skip_low_temp_var,
-                    x->force_zeromv_skip_for_blk);
-
+                    x->force_zeromv_skip_for_blk, &use_scaled_ref_frame);
+    search_state->use_scaled_ref_frame[LAST_FRAME] = use_scaled_ref_frame;
+    if (use_scaled_ref_frame) x->reuse_inter_pred = 0;
+  }
   // Update mask to use all reference frame
   get_ref_frame_use_mask(cpi, x, mi, mi_row, mi_col, bsize, gf_temporal_ref,
                          search_state->use_ref_frame_mask,
@@ -2326,7 +2329,8 @@ static AOM_FORCE_INLINE void set_params_nonrd_pick_inter_mode(
     if (search_state->use_ref_frame_mask[ref_frame_iter]) {
       find_predictors(cpi, x, ref_frame_iter, search_state->frame_mv,
                       search_state->yv12_mb, bsize, *force_skip_low_temp_var,
-                      skip_pred_mv);
+                      skip_pred_mv, &use_scaled_ref_frame);
+      search_state->use_scaled_ref_frame[ref_frame_iter] = use_scaled_ref_frame;
     }
   }
 }
@@ -3120,6 +3124,7 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
       rt_sf->reuse_inter_pred_nonrd && cm->seq_params->bit_depth == AOM_BITS_8;
   InterModeSearchStateNonrd search_state;
   av1_zero(search_state.use_ref_frame_mask);
+  av1_zero(search_state.use_scaled_ref_frame);
   BEST_PICKMODE *const best_pickmode = &search_state.best_pickmode;
   (void)tile_data;
 
@@ -3329,6 +3334,20 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
     mi->ref_frame[1] = ref_frame2;
     set_ref_ptrs(cm, xd, ref_frame, ref_frame2);
 
+    // Check if the scaled reference frame should be used. This is set in the
+    // find_predictors() for each usable reference. If so, set the
+    // block_ref_scale_factors[] to no reference scaling (this is set in
+    // av1_setup_scale_factors_for_frame() below, as the prediction reference
+    // and source are now the same resolution).
+    struct scale_factors sf_tmp;
+    av1_setup_scale_factors_for_frame(&sf_tmp, xd->plane[0].pre[0].width,
+                                      xd->plane[0].pre[0].height, cm->width,
+                                      cm->height);
+    if (search_state.use_scaled_ref_frame[ref_frame])
+      xd->block_ref_scale_factors[0] = &sf_tmp;
+    if (search_state.use_scaled_ref_frame[ref_frame2])
+      xd->block_ref_scale_factors[1] = &sf_tmp;
+
     // Perform inter mode evaluation for non-rd
     if (!handle_inter_mode_nonrd(
             cpi, x, &search_state, ctx, &this_mode_pred, tmp_buffer,
@@ -3450,6 +3469,16 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
 
   if (!is_inter_block(mi)) {
     mi->interp_filters = av1_broadcast_interp_filter(SWITCHABLE_FILTERS);
+  } else {
+    // If inter mode is selected and ref_frame was one that uses the
+    // scaled reference frame, then we can't use reuse_inter_pred.
+    // If LAST is using scaled_reference then this is already turned off
+    // before start of mode testing, regardless of best_ref_frame.
+    if (search_state.use_scaled_ref_frame[best_pickmode->best_ref_frame] ||
+        (has_second_ref(mi) &&
+         search_state
+             .use_scaled_ref_frame[best_pickmode->best_second_ref_frame]))
+      x->reuse_inter_pred = 0;
   }
 
   // Restore the predicted samples of best mode to final buffer
