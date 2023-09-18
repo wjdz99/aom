@@ -3141,6 +3141,7 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
   int force_mv_inter_layer = 0;
   bool comp_use_zero_zeromv_only = 0;
   int tot_num_comp_modes = NUM_COMP_INTER_MODES_RT;
+  const bool use_scaled_ref = true;
 #if CONFIG_AV1_TEMPORAL_DENOISING
   const int denoise_recheck_zeromv = 1;
   AV1_PICKMODE_CTX_DEN ctx_den;
@@ -3328,6 +3329,13 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
     mi->ref_frame[0] = ref_frame;
     mi->ref_frame[1] = ref_frame2;
     set_ref_ptrs(cm, xd, ref_frame, ref_frame2);
+
+    if (use_scaled_ref) {
+      struct scale_factors sf;
+      av1_setup_scale_factors_for_frame(&sf, xd->plane[0].pre[0].width, xd->plane[0].pre[0].height, cm->width, cm->height);
+      xd->block_ref_scale_factors[0] = &sf;
+      xd->block_ref_scale_factors[1] = &sf;
+    }
 
     // Perform inter mode evaluation for non-rd
     if (!handle_inter_mode_nonrd(

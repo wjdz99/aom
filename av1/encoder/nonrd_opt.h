@@ -433,7 +433,13 @@ static INLINE void find_predictors(AV1_COMP *cpi, MACROBLOCK *x,
   MACROBLOCKD *const xd = &x->e_mbd;
   MB_MODE_INFO *const mbmi = xd->mi[0];
   MB_MODE_INFO_EXT *const mbmi_ext = &x->mbmi_ext;
-  const YV12_BUFFER_CONFIG *yv12 = get_ref_frame_yv12_buf(cm, ref_frame);
+  bool scaled_ref_frame = false;
+  const YV12_BUFFER_CONFIG *ref = get_ref_frame_yv12_buf(cm, ref_frame);
+  if (ref->y_crop_height != cm->height || ref->y_crop_width != cm->width)
+    scaled_ref_frame = true;
+  const YV12_BUFFER_CONFIG *yv12 =
+      scaled_ref_frame ? av1_get_scaled_ref_frame(cpi, ref_frame)
+                       : get_ref_frame_yv12_buf(cm, ref_frame);
   const int num_planes = av1_num_planes(cm);
 
   x->pred_mv_sad[ref_frame] = INT_MAX;
@@ -443,8 +449,7 @@ static INLINE void find_predictors(AV1_COMP *cpi, MACROBLOCK *x,
   // TODO(kyslov) this needs various further optimizations. to be continued..
   assert(yv12 != NULL);
   if (yv12 != NULL) {
-    const struct scale_factors *const sf =
-        get_ref_scale_factors_const(cm, ref_frame);
+    struct scale_factors *const sf = scaled_ref_frame ? NULL : get_ref_scale_factors(cm, ref_frame);
     av1_setup_pred_block(xd, yv12_mb[ref_frame], yv12, sf, sf, num_planes);
     av1_find_mv_refs(cm, xd, mbmi, ref_frame, mbmi_ext->ref_mv_count,
                      xd->ref_mv_stack, xd->weight, NULL, mbmi_ext->global_mvs,
@@ -457,7 +462,7 @@ static INLINE void find_predictors(AV1_COMP *cpi, MACROBLOCK *x,
         &frame_mv[NEARESTMV][ref_frame], &frame_mv[NEARMV][ref_frame], 0);
     frame_mv[GLOBALMV][ref_frame] = mbmi_ext->global_mvs[ref_frame];
     // Early exit for non-LAST frame if force_skip_low_temp_var is set.
-    if (!av1_is_scaled(sf) && bsize >= BLOCK_8X8 && !skip_pred_mv &&
+    if (bsize >= BLOCK_8X8 && !skip_pred_mv &&
         !(force_skip_low_temp_var && ref_frame != LAST_FRAME)) {
       av1_mv_pred(cpi, x, yv12_mb[ref_frame][0].buf, yv12->y_stride, ref_frame,
                   bsize);

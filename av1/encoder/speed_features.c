@@ -1594,6 +1594,8 @@ static void set_rt_speed_feature_framesize_dependent(const AV1_COMP *const cpi,
     // can be removed once it's fixed for lossless mode.
     sf->hl_sf.accurate_bit_estimate = 0;
   }
+  // HACK
+  //sf->rt_sf.reuse_inter_pred_nonrd = 0;
 }
 
 // TODO(kyslov): now this is very similar to
