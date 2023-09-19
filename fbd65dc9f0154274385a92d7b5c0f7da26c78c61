@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2ab63080_e41980bd",
+        "filename": "test/resize_test.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 510,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-09-19T23:20:45Z",
+      "side": 1,
+      "message": "Optional: These three can be merged into a single `int` or enum variable with values 0, 1, 2, 3. We can wait until you want to add `set_scale_mode4_`.",
+      "revId": "fbd65dc9f0154274385a92d7b5c0f7da26c78c61",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "03d27310_611a90ef",
+        "filename": "test/resize_test.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 620,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-09-19T23:20:45Z",
+      "side": 1,
+      "message": "Nit: two spelling errors: \"horizonataly\" and \"baclk\"",
+      "revId": "fbd65dc9f0154274385a92d7b5c0f7da26c78c61",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
