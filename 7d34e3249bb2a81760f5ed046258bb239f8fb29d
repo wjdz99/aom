@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e095669a_df811e3c",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-09-19T19:03:14Z",
+      "side": 1,
+      "message": "Add the bug number before this line:\n\n```\nBug: aomedia:3474\n```",
+      "revId": "7d34e3249bb2a81760f5ed046258bb239f8fb29d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ae616dee_79442adf",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-09-19T19:03:14Z",
+      "side": 1,
+      "message": "Thanks for the fix.",
+      "revId": "7d34e3249bb2a81760f5ed046258bb239f8fb29d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e2eccea2_6a73f61c",
+        "filename": "av1/encoder/arm/neon/highbd_temporal_filter_neon.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 375,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-09-19T19:03:14Z",
+      "side": 1,
+      "message": "The variable `ww` has a fixed value in the loop, so we can move it (lines 374-375) outside the loop, between line 367 and 368.\n\nNote: The variable `yy` could receive the same treatment and be moved between line 370 and line 371.",
+      "revId": "7d34e3249bb2a81760f5ed046258bb239f8fb29d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
