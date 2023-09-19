@@ -18,6 +18,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ace0628e_09992851",
+        "filename": "test/resize_test.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 510,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2023-09-19T23:25:01Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "2ab63080_e41980bd",
+      "revId": "fbd65dc9f0154274385a92d7b5c0f7da26c78c61",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "03d27310_611a90ef",
@@ -31,6 +49,24 @@
       "writtenOn": "2023-09-19T23:20:45Z",
       "side": 1,
       "message": "Nit: two spelling errors: \"horizonataly\" and \"baclk\"",
+      "revId": "fbd65dc9f0154274385a92d7b5c0f7da26c78c61",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c243b716_36e1c057",
+        "filename": "test/resize_test.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 620,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2023-09-19T23:25:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "03d27310_611a90ef",
       "revId": "fbd65dc9f0154274385a92d7b5c0f7da26c78c61",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
