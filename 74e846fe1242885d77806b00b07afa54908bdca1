@@ -18,6 +18,23 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "2532a1fd_47993a88",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-09-19T05:04:16Z",
+      "side": 1,
+      "message": "At v3.7.0 and v3.7.0-423-g57be81b0fd I don\u0027t have any issue targeting arm64 (using `build/cmake/toolchains/arm64-macos.cmake`). I tried Unix Makefiles, Ninja and Xcode (14.3) as generators.\n\nAt what point do you see a hang? Can you add your cmake command line here please?",
+      "revId": "74e846fe1242885d77806b00b07afa54908bdca1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "c86365c6_48b3fb23",
