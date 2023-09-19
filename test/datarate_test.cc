@@ -298,6 +298,38 @@ class DatarateTestLarge
         << " The datarate for the file missed the target!"
         << cfg_.rc_target_bitrate << " " << effective_datarate_;
   }
+
+  virtual void BasicRateTargetingSuperresCBR() {
+    ::libaom_test::I420VideoSource video("desktopqvga2.320_240.yuv", 320, 240,
+                                         30, 1, 0, 800);
+
+    cfg_.g_profile = 0;
+    cfg_.g_timebase = video.timebase();
+
+    cfg_.rc_buf_initial_sz = 500;
+    cfg_.rc_buf_optimal_sz = 500;
+    cfg_.rc_buf_sz = 1000;
+    cfg_.rc_dropframe_thresh = 1;
+    cfg_.rc_min_quantizer = 0;
+    cfg_.rc_max_quantizer = 63;
+    cfg_.rc_end_usage = AOM_CBR;
+
+    cfg_.rc_superres_mode = AOM_SUPERRES_FIXED;
+    cfg_.rc_superres_denominator = 16;
+    cfg_.rc_superres_kf_denominator = 16;
+
+    const int bitrate_array[2] = { 250, 650 };
+    cfg_.rc_target_bitrate = bitrate_array[GET_PARAM(4)];
+    ResetModel();
+    ASSERT_NO_FATAL_FAILURE(RunLoop(&video));
+    ASSERT_GE(static_cast<double>(cfg_.rc_target_bitrate),
+              effective_datarate_ * 0.85)
+        << " The datarate for the file exceeds the target by too much!";
+    ASSERT_LE(static_cast<double>(cfg_.rc_target_bitrate),
+              effective_datarate_ * 1.15)
+        << " The datarate for the file missed the target!"
+        << cfg_.rc_target_bitrate << " " << effective_datarate_;
+  }
 };
 
 // Params: test mode, speed, aq mode.
@@ -403,6 +435,10 @@ TEST_P(DatarateTestLarge, DISABLED_BasicRateTargeting444CBRScreen) {
 TEST_P(DatarateTestLarge, BasicRateTargeting444CBRScreen) {
 #endif
   BasicRateTargeting444CBRScreenTest();
+}
+
+TEST_P(DatarateTestLarge, BasicRateTargetingSuperresCBR) {
+  BasicRateTargetingSuperresCBR();
 }
 
 // Check that (1) the first dropped frame gets earlier and earlier
@@ -519,6 +555,11 @@ TEST_P(DatarateTestRealtime, DISABLED_BasicRateTargeting444CBRScreen) {
 TEST_P(DatarateTestRealtime, BasicRateTargeting444CBRScreen) {
 #endif
   BasicRateTargeting444CBRScreenTest();
+}
+
+// Check basic rate targeting with error resilience on for scene cuts.
+TEST_P(DatarateTestRealtime, BasicRateTargetingSuperresCBR) {
+  BasicRateTargetingSuperresCBR();
 }
 
 // Check that (1) the first dropped frame gets earlier and earlier
