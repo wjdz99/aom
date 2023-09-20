@@ -16,6 +16,24 @@
       "message": "This changes the library ABI given what is [exported](https://aomedia.googlesource.com/aom/+/c689ee11aed1e77f4b6bec0108b4a9c1f693b698/av1/exports_com#2).\n\nThis function probably shouldn\u0027t have been exported only for an example, but we\u0027ll need to account for the change in versioning of the next release.\n\n```\nABI check for build-HEAD/I/lib/libaom.so failed (4):\nFunctions changes summary: 0 Removed, 1 Changed, 0 Added function\nVariables changes summary: 0 Removed, 0 Changed, 0 Added variable\n\n1 function with some indirect sub-type change:\n\n[C] \"function void av1_resize_frame420(const uint8_t* const, int, const uint8_t* const, const uint8_t* const, int, int, int, uint8_t, int, uint8_t, uint8_t*, int, int, int)\" at resize.c:1135:1 has some indirect sub-type changes:\nreturn type changed:\ntype name changed from \"void\" to \"bool\"\ntype size changed from 0 to 8 (in bits)\n```",
       "revId": "3176890e09c6bf0fe8ec739da96f998b30da3d8d",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f7a487ea_4f790808",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-09-20T22:28:02Z",
+      "side": 1,
+      "message": "I think we can treat `av1_resize_frame420()` as a \"private\" exported function.\n\nIn any case, I can restore the original function prototype and add an `av1_resize_frame420_v2()` function that returns bool.",
+      "parentUuid": "2809ccb5_761fab99",
+      "revId": "3176890e09c6bf0fe8ec739da96f998b30da3d8d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
