@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "84e88b09_8a19b3ae",
+        "filename": "av1/common/resize.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-09-20T23:12:03Z",
+      "side": 1,
+      "message": "I found that the following functions are unused and can be deleted:\n\n- av1_resize_frame422\n- av1_resize_frame444\n- av1_highbd_resize_frame420\n- av1_highbd_resize_frame422\n- av1_highbd_resize_frame444\n \nTo keep this CL focused, I didn\u0027t remove them in this CL.",
+      "revId": "be205e22cc29a1a88bf841f011c7ae10d3634737",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
