@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a661a1b9_fcd8a9ba",
+        "filename": "av1/encoder/arm/neon/highbd_temporal_filter_neon.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 324,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-09-20T21:52:02Z",
+      "side": 1,
+      "message": "I analyzed the code that uses the `frame_sse` buffer. There are three functions: this function (at line 375), `get_squared_error()`, and `highbd_apply_temporal_filter()`. None of them use the padding.\n\nKonstantinos, it would be good if you could confirm `highbd_apply_temporal_filter()` doesn\u0027t use the pading in the `frame_sse` buffer. Thanks.",
+      "revId": "7657a65398e942d86b2b7c6a869f05c85a9f4712",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
