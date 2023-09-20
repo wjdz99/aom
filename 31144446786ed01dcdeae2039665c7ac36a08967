@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "33d52c34_b37ffb68",
+        "filename": "av1/encoder/arm/neon/highbd_temporal_filter_neon.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 352,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-09-20T17:18:33Z",
+      "side": 1,
+      "message": "Hi Konstantinos,\n\nI just realized that much of the code in this function comes from `av1_apply_temporal_filter_c()`. So in this CL it would be better to faithfully match the code in `av1_apply_temporal_filter_c()`, and then we can simplify and clean up the code in all the  `av1_apply_temporal_filter_*()` functions in a separate CL.\n\nI am going to take a closer look now and may go back to an earlier patchset of this CL.",
+      "revId": "31144446786ed01dcdeae2039665c7ac36a08967",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
