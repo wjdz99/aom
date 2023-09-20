@@ -26,11 +26,19 @@ bool av1_resize_plane(const uint8_t *const input, int height, int width,
 bool av1_upscale_plane_double_prec(const double *const input, int height,
                                    int width, int in_stride, double *output,
                                    int height2, int width2, int out_stride);
-bool av1_resize_frame420(const uint8_t *const y, int y_stride,
+// Deprecated. Use av1_resize_frame420_v2() instead.
+// TODO(aomedia:3228): In libaom 4.0.0, remove av1_resize_frame420 from
+// av1/exports_com and rename av1_resize_frame420_v2 to av1_resize_frame420.
+void av1_resize_frame420(const uint8_t *const y, int y_stride,
                          const uint8_t *const u, const uint8_t *const v,
                          int uv_stride, int height, int width, uint8_t *oy,
                          int oy_stride, uint8_t *ou, uint8_t *ov,
                          int ouv_stride, int oheight, int owidth);
+bool av1_resize_frame420_v2(const uint8_t *const y, int y_stride,
+                            const uint8_t *const u, const uint8_t *const v,
+                            int uv_stride, int height, int width, uint8_t *oy,
+                            int oy_stride, uint8_t *ou, uint8_t *ov,
+                            int ouv_stride, int oheight, int owidth);
 bool av1_resize_frame422(const uint8_t *const y, int y_stride,
                          const uint8_t *const u, const uint8_t *const v,
                          int uv_stride, int height, int width, uint8_t *oy,

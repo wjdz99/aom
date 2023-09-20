@@ -388,10 +388,11 @@ if(ENABLE_EXAMPLES OR ENABLE_TESTS OR ENABLE_TOOLS)
 endif()
 
 if((CONFIG_AV1_DECODER OR CONFIG_AV1_ENCODER) AND ENABLE_EXAMPLES)
-  add_executable(resize_util "${AOM_ROOT}/examples/resize_util.c"
-                             $<TARGET_OBJECTS:aom_common_app_util>)
-  set_property(TARGET ${example} PROPERTY FOLDER examples)
-  list(APPEND AOM_APP_TARGETS resize_util)
+  if(NOT BUILD_SHARED_LIBS)
+    add_executable(resize_util "${AOM_ROOT}/examples/resize_util.c")
+    set_property(TARGET ${example} PROPERTY FOLDER examples)
+    list(APPEND AOM_APP_TARGETS resize_util)
+  endif()
 endif()
 
 if(CONFIG_AV1_DECODER AND ENABLE_EXAMPLES)
