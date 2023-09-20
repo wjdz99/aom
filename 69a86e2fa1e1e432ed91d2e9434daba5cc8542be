@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "159616ef_023c6f63",
+        "filename": "av1/encoder/arm/neon/highbd_temporal_filter_neon.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 375,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-09-20T18:39:48Z",
+      "side": 0,
+      "message": "The `+ 2` here apparently comes from `av1_highbd_apply_temporal_filter_sse2` and `av1_highbd_apply_temporal_filter_avx2`. In those two functions, the stride of `frame_sse` is `SSE_STRIDE \u003d (BW + 4)` for all three planes, and each row starts at index 2. So apparently each row is padded with two samples to the left and two samples to the right. (Thanks to Cheng for the explanation.)\n\nThe `get_squared_error()` function in this file doesn\u0027t use any padding to the left of each row, so we should not add 2 to the index here.",
+      "revId": "69a86e2fa1e1e432ed91d2e9434daba5cc8542be",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
