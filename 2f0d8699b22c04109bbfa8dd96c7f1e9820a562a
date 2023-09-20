@@ -41,6 +41,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "dbb78fe5_8c6975bc",
+        "filename": "test/av1_c_vs_simd_encode.sh",
+        "patchSetId": 4
+      },
+      "lineNbr": 471,
+      "author": {
+        "id": 31022
+      },
+      "writtenOn": "2023-09-20T14:42:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "dabd35f6_a58f38a8",
+      "range": {
+        "startLine": 471,
+        "startChar": 4,
+        "endLine": 471,
+        "endChar": 21
+      },
+      "revId": "2f0d8699b22c04109bbfa8dd96c7f1e9820a562a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "20e85ac6_23bc7a4b",
@@ -54,6 +78,30 @@
       "writtenOn": "2023-09-06T16:06:28Z",
       "side": 1,
       "message": "Could we skip 10 bit testing for arm (I did that in VP9)? So we could enable the ARM test here? In this way, we will provide test coverage for all production use cases (this is our goal).",
+      "range": {
+        "startLine": 492,
+        "startChar": 4,
+        "endLine": 492,
+        "endChar": 12
+      },
+      "revId": "2f0d8699b22c04109bbfa8dd96c7f1e9820a562a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0b8373bb_583a9514",
+        "filename": "test/av1_c_vs_simd_encode.sh",
+        "patchSetId": 4
+      },
+      "lineNbr": 492,
+      "author": {
+        "id": 31022
+      },
+      "writtenOn": "2023-09-20T14:42:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "20e85ac6_23bc7a4b",
       "range": {
         "startLine": 492,
         "startChar": 4,
