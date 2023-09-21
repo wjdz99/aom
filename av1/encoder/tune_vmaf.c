@@ -623,11 +623,8 @@ void av1_set_mb_vmaf_rdmult_scaling(AV1_COMP *cpi) {
       &resized_source, y_width / resize_factor, y_height / resize_factor, ss_x,
       ss_y, cm->seq_params->use_highbitdepth, cpi->oxcf.border_in_pixels,
       cm->features.byte_alignment, 0, 0);
-  if (!av1_resize_and_extend_frame_nonnormative(
-          cpi->source, &resized_source, bit_depth, av1_num_planes(cm))) {
-    aom_internal_error(cm->error, AOM_CODEC_MEM_ERROR,
-                       "Error allocating buffers during resize");
-  }
+  av1_resize_and_extend_frame_nonnormative(cpi->source, &resized_source,
+                                           bit_depth, av1_num_planes(cm));
 
   const int resized_y_width = resized_source.y_width;
   const int resized_y_height = resized_source.y_height;

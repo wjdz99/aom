@@ -93,8 +93,7 @@ bool av1_compute_global_motion_disflow(TransformationType type,
                                        YV12_BUFFER_CONFIG *src,
                                        YV12_BUFFER_CONFIG *ref, int bit_depth,
                                        MotionModel *motion_models,
-                                       int num_motion_models,
-                                       bool *mem_alloc_failed);
+                                       int num_motion_models);
 
 #ifdef __cplusplus
 }

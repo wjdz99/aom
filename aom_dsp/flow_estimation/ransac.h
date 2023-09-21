@@ -26,7 +26,7 @@ extern "C" {
 
 bool ransac(const Correspondence *matched_points, int npoints,
             TransformationType type, MotionModel *motion_models,
-            int num_desired_motions, bool *mem_alloc_failed);
+            int num_desired_motions);
 
 #ifdef __cplusplus
 }

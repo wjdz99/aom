@@ -39,7 +39,7 @@ CornerList *av1_alloc_corner_list(void) {
   return corners;
 }
 
-static bool compute_corner_list(const ImagePyramid *pyr, CornerList *corners) {
+static void compute_corner_list(const ImagePyramid *pyr, CornerList *corners) {
   const uint8_t *buf = pyr->layers[0].buffer;
   int width = pyr->layers[0].width;
   int height = pyr->layers[0].height;
@@ -47,11 +47,8 @@ static bool compute_corner_list(const ImagePyramid *pyr, CornerList *corners) {
 
   int *scores = NULL;
   int num_corners;
-  bool mem_alloc_failed = false;
-  xy *const frame_corners_xy =
-      aom_fast9_detect_nonmax(buf, width, height, stride, FAST_BARRIER, &scores,
-                              &num_corners, &mem_alloc_failed);
-  if (mem_alloc_failed) return false;
+  xy *const frame_corners_xy = aom_fast9_detect_nonmax(
+      buf, width, height, stride, FAST_BARRIER, &scores, &num_corners);
 
   if (num_corners <= 0) {
     // Some error occured, so no corners are available
@@ -99,10 +96,9 @@ static bool compute_corner_list(const ImagePyramid *pyr, CornerList *corners) {
 
   free(scores);
   free(frame_corners_xy);
-  return true;
 }
 
-bool av1_compute_corner_list(const ImagePyramid *pyr, CornerList *corners) {
+void av1_compute_corner_list(const ImagePyramid *pyr, CornerList *corners) {
   assert(corners);
 
 #if CONFIG_MULTITHREAD
@@ -110,14 +106,13 @@ bool av1_compute_corner_list(const ImagePyramid *pyr, CornerList *corners) {
 #endif  // CONFIG_MULTITHREAD
 
   if (!corners->valid) {
-    if (!compute_corner_list(pyr, corners)) return false;
+    compute_corner_list(pyr, corners);
     corners->valid = true;
   }
 
 #if CONFIG_MULTITHREAD
   pthread_mutex_unlock(&corners->mutex);
 #endif  // CONFIG_MULTITHREAD
-  return true;
 }
 
 #ifndef NDEBUG

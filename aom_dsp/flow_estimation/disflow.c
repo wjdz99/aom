@@ -452,9 +452,8 @@ static void fill_flow_field_borders(double *flow, int width, int height,
 }
 
 // make sure flow_u and flow_v start at 0
-static bool compute_flow_field(const ImagePyramid *src_pyr,
+static void compute_flow_field(const ImagePyramid *src_pyr,
                                const ImagePyramid *ref_pyr, FlowField *flow) {
-  bool mem_status = true;
   assert(src_pyr->n_levels == ref_pyr->n_levels);
 
   double *flow_u = flow->u;
@@ -463,10 +462,6 @@ static bool compute_flow_field(const ImagePyramid *src_pyr,
   const size_t flow_size = flow->stride * (size_t)flow->height;
   double *u_upscale = aom_malloc(flow_size * sizeof(*u_upscale));
   double *v_upscale = aom_malloc(flow_size * sizeof(*v_upscale));
-  if (!u_upscale || !v_upscale) {
-    mem_status = false;
-    goto free_uvscale;
-  }
 
   // Compute flow field from coarsest to finest level of the pyramid
   for (int level = src_pyr->n_levels - 1; level >= 0; --level) {
@@ -516,16 +511,12 @@ static bool compute_flow_field(const ImagePyramid *src_pyr,
       const int upscale_flow_height = cur_flow_height << 1;
       const int upscale_stride = flow->stride;
 
-      bool upscale_u_plane = av1_upscale_plane_double_prec(
+      av1_upscale_plane_double_prec(
           flow_u, cur_flow_height, cur_flow_width, cur_flow_stride, u_upscale,
           upscale_flow_height, upscale_flow_width, upscale_stride);
-      bool upscale_v_plane = av1_upscale_plane_double_prec(
+      av1_upscale_plane_double_prec(
           flow_v, cur_flow_height, cur_flow_width, cur_flow_stride, v_upscale,
           upscale_flow_height, upscale_flow_width, upscale_stride);
-      if (!upscale_u_plane || !upscale_v_plane) {
-        mem_status = false;
-        goto free_uvscale;
-      }
 
       // Multiply all flow vectors by 2.
       // When we move down a pyramid level, the image resolution doubles.
@@ -567,10 +558,8 @@ static bool compute_flow_field(const ImagePyramid *src_pyr,
       }
     }
   }
-free_uvscale:
   aom_free(u_upscale);
   aom_free(v_upscale);
-  return mem_status;
 }
 
 static FlowField *alloc_flow_field(int frame_width, int frame_height) {
@@ -612,24 +601,14 @@ bool av1_compute_global_motion_disflow(TransformationType type,
                                        YV12_BUFFER_CONFIG *src,
                                        YV12_BUFFER_CONFIG *ref, int bit_depth,
                                        MotionModel *motion_models,
-                                       int num_motion_models,
-                                       bool *mem_alloc_failed) {
+                                       int num_motion_models) {
   // Precompute information we will need about each frame
   ImagePyramid *src_pyramid = src->y_pyramid;
   CornerList *src_corners = src->corners;
   ImagePyramid *ref_pyramid = ref->y_pyramid;
-  if (!aom_compute_pyramid(src, bit_depth, src_pyramid)) {
-    *mem_alloc_failed = true;
-    return false;
-  }
-  if (!av1_compute_corner_list(src_pyramid, src_corners)) {
-    *mem_alloc_failed = true;
-    return false;
-  }
-  if (!aom_compute_pyramid(ref, bit_depth, ref_pyramid)) {
-    *mem_alloc_failed = true;
-    return false;
-  }
+  aom_compute_pyramid(src, bit_depth, src_pyramid);
+  av1_compute_corner_list(src_pyramid, src_corners);
+  aom_compute_pyramid(ref, bit_depth, ref_pyramid);
 
   const int src_width = src_pyramid->layers[0].width;
   const int src_height = src_pyramid->layers[0].height;
@@ -637,22 +616,14 @@ bool av1_compute_global_motion_disflow(TransformationType type,
   assert(ref_pyramid->layers[0].height == src_height);
 
   FlowField *flow = alloc_flow_field(src_width, src_height);
-  if (!flow) {
-    *mem_alloc_failed = true;
-    return false;
-  }
+  if (!flow) return false;
 
-  if (!compute_flow_field(src_pyramid, ref_pyramid, flow)) {
-    *mem_alloc_failed = true;
-    free_flow_field(flow);
-    return false;
-  }
+  compute_flow_field(src_pyramid, ref_pyramid, flow);
 
   // find correspondences between the two images using the flow field
   Correspondence *correspondences =
       aom_malloc(src_corners->num_corners * sizeof(*correspondences));
   if (!correspondences) {
-    *mem_alloc_failed = true;
     free_flow_field(flow);
     return false;
   }
@@ -661,7 +632,7 @@ bool av1_compute_global_motion_disflow(TransformationType type,
       determine_disflow_correspondence(src_corners, flow, correspondences);
 
   bool result = ransac(correspondences, num_correspondences, type,
-                       motion_models, num_motion_models, mem_alloc_failed);
+                       motion_models, num_motion_models);
 
   aom_free(correspondences);
   free_flow_field(flow);
