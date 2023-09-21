@@ -16,6 +16,24 @@
       "message": "James, Yunqing: Should we just delete this example?",
       "revId": "a026a36637c4bccfb5cd37f0b50518bcd2f0fa5b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a1efd891_94ede5f8",
+        "filename": "examples/resize_util.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-09-21T19:41:47Z",
+      "side": 1,
+      "message": "\u003e James, Yunqing: Should we just delete this example?\n\nIf it\u0027s not useful, it likely originated from libvpx.",
+      "parentUuid": "ca09df02_30b23c81",
+      "revId": "a026a36637c4bccfb5cd37f0b50518bcd2f0fa5b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
