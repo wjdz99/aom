@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "43101e49_bd60bb24",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 2496,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-09-21T20:32:09Z",
+      "side": 1,
+      "message": "In the debugger, I see the `xd` struct is all zeros except for `xd-\u003eerror_info`.",
+      "revId": "4829841ea292d62fef52fb617f2d5960185ab49b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9475c7e8_cb5f3f7f",
+        "filename": "av1/encoder/global_motion_facade.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-09-21T20:32:09Z",
+      "side": 1,
+      "message": "In this CL, we will use this `xd` for everything (like before) except for error reporting. For error reporting, we use the `error_info` input parameter instead.",
+      "revId": "4829841ea292d62fef52fb617f2d5960185ab49b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7ba9fd2c_e2561456",
+        "filename": "av1/encoder/global_motion_facade.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 135,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-09-21T20:32:09Z",
+      "side": 1,
+      "message": "We were crashing in this `is_cur_buf_hbd(xd)` call because `xd-\u003ecur_buf` was a null pointer when we got the nearly all-zero `xd` from `gm_mt_worker_hook()`.",
+      "revId": "4829841ea292d62fef52fb617f2d5960185ab49b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
