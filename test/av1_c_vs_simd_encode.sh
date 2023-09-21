@@ -10,6 +10,8 @@
 ##
 ##  This script checks the bit exactness between C and SIMD
 ##  implementations of AV1 encoder.
+##
+. $(dirname $0)/tools_common.sh
 
 PRESETS="good rt"
 LOWBD_CLIPS="yuv_raw_input yuv_480p_raw_input y4m_720p_input y4m_screen_input"
@@ -17,7 +19,6 @@ HIGHBD_CLIPS="y4m_360p_10bit_input"
 OUT_FILE_SUFFIX=".ivf"
 SCRIPT_DIR=$(dirname "$0")
 LIBAOM_SOURCE_DIR=$(cd ${SCRIPT_DIR}/..; pwd)
-devnull='> /dev/null 2>&1'
 
 # Clips used in test.
 YUV_RAW_INPUT="${LIBAOM_TEST_DATA_PATH}/hantro_collage_w352h288.yuv"
@@ -208,8 +209,7 @@ y4m_screen_input() {
 
 has_x86_isa_extn() {
   instruction_set=$1
-  grep -q "$instruction_set" /proc/cpuinfo
-  if [ $? -eq 1 ]; then
+  if ! grep -q "$instruction_set" /proc/cpuinfo; then
     return 1
   fi
 }
@@ -448,8 +448,7 @@ av1_test_x86() {
   for preset in $PRESETS; do
     local encoder="$(av1_enc_tool_path "${target}" "${preset}")"
     for isa in $x86_isa_variants; do
-      has_x86_isa_extn $isa
-      if [ $? -eq 1 ]; then
+      if ! has_x86_isa_extn $isa; then
         echo "${isa} is not supported in this machine"
         continue
       fi
@@ -527,9 +526,4 @@ av1_c_vs_simd_enc_test () {
 # Setup a trap function to clean up build, and output files after tests complete.
 trap cleanup EXIT
 
-av1_c_vs_simd_enc_verify_environment
-if [ $? -eq 1 ]; then
-  echo "Environment check failed."
-  exit 1
-fi
-av1_c_vs_simd_enc_test
+run_tests av1_c_vs_simd_enc_verify_environment av1_c_vs_simd_enc_test
