@@ -10,6 +10,8 @@
 ##
 ##  This script checks the bit exactness between C and SIMD
 ##  implementations of AV1 encoder.
+##
+. $(dirname $0)/tools_common.sh
 
 PRESETS="good rt"
 LOWBD_CLIPS="yuv_raw_input yuv_480p_raw_input y4m_720p_input y4m_screen_input"
@@ -527,9 +529,4 @@ av1_c_vs_simd_enc_test () {
 # Setup a trap function to clean up build, and output files after tests complete.
 trap cleanup EXIT
 
-av1_c_vs_simd_enc_verify_environment
-if [ $? -eq 1 ]; then
-  echo "Environment check failed."
-  exit 1
-fi
-av1_c_vs_simd_enc_test
+run_tests av1_c_vs_simd_enc_verify_environment av1_c_vs_simd_enc_test
