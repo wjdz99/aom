@@ -57,6 +57,30 @@
       },
       "revId": "a51741d54c467b04648e07be5c94d192a834891d",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "75b8e123_69b142e1",
+        "filename": "test/examples.sh",
+        "patchSetId": 5
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 31022
+      },
+      "writtenOn": "2023-09-21T10:25:21Z",
+      "side": 1,
+      "message": "Yes, without adding this, the test will be run whenever example.sh is executed, i.e., for  https://build.aomedia.org/jenkins/job/libaom__example_test-multi-target/ and  https://build.aomedia.org/jenkins/job/libaom__nightly_optimization-levels/. \n\nThese jenkins tests are run for various targets such as generic-gnu, x86-linux-gcc, x86-linux-asan, x86_64-linux-gcc, x86_64-linux-valgrind, realtime-only and with different SIMD optimizations disabled. Thus, as per our understanding, including C vs SIMD match tests in example.sh would run the test repeatedly for each of the platforms/configurations.\n\nThe av1_c_vs_simd_encode.sh script generates the binaries and tests the C vs SIMD match for x86 (32 bit and 64 bit) and ARM platforms and it would be good if this test is separately enabled in Jenkins.",
+      "parentUuid": "b3230c16_fff03a9d",
+      "range": {
+        "startLine": 18,
+        "startChar": 59,
+        "endLine": 18,
+        "endChar": 80
+      },
+      "revId": "a51741d54c467b04648e07be5c94d192a834891d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
