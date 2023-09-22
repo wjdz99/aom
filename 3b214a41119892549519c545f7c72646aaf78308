@@ -16,6 +16,24 @@
       "message": "In this CL, a `longjmp` target has been introduced in `cdef_sb_row_worker_hook()` to facilitate the error propagation in case of CDEF row-multithreading. \n\nAs a thread specific `xd` is not available in the CDEF filtering stage, we introduced `error_info` in `AV1CdefWorkerData`. The same `error_info` needs to be used by the low-level functions in order to handle error propagation in multi-threaded scenarios.\n\nThe flag `cdef_sync-\u003ecdef_mt_exit` will be set to true in case a main/worker thread encounters an error. The other workers will terminate their jobs by checking the status of this flag. Also, `sync_cdef_workers()` function is modified to read the error status of each thread and propagate the error details in case of an error.\n\nIn case of CDEF row-multithreading, each worker assigned to a filter block row waits for the \nfor the copy of the line buffers (top and bottom) of the above row to be complete. If one of the threads encounters an error, `set_cdef_init_fb_row_done()` is invoked before returning from the hook function to avoid dependent workers from waiting indefinitely.\n\nThis change is bit-exact and has been verified using bitstream-match tests for a combination of various configuration values for --threads, --tile-rows, --tile-columns, --cpu-used, --end-usage, --row-mt, --fp-mt, etc. Validated all unit-tests with sanitizers (address and thread) and valgrind.",
       "revId": "3b214a41119892549519c545f7c72646aaf78308",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cc4fccfc_db3b159a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2023-09-22T18:27:11Z",
+      "side": 1,
+      "message": "Looks good.",
+      "parentUuid": "6f83f139_959c93ee",
+      "revId": "3b214a41119892549519c545f7c72646aaf78308",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
