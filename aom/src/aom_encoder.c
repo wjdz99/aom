@@ -171,7 +171,10 @@ aom_codec_err_t aom_codec_encode(aom_codec_ctx_t *ctx, const aom_image_t *img,
     res = AOM_CODEC_ERROR;
   else if (!(ctx->iface->caps & AOM_CODEC_CAP_ENCODER))
     res = AOM_CODEC_INCAPABLE;
-  else {
+  else if (img && ((ctx->init_flags & AOM_CODEC_USE_HIGHBITDEPTH) != 0) !=
+                      ((img->fmt & AOM_IMG_FMT_HIGHBITDEPTH) != 0)) {
+    res = AOM_CODEC_INVALID_PARAM;
+  } else {
     /* Execute in a normalized floating point environment, if the platform
      * requires it.
      */
