@@ -2722,6 +2722,9 @@ static aom_codec_err_t encoder_init(aom_codec_ctx_t *ctx) {
       }
       priv->oxcf.use_highbitdepth =
           (ctx->init_flags & AOM_CODEC_USE_HIGHBITDEPTH) ? 1 : 0;
+#if !CONFIG_AV1_HIGHBITDEPTH
+      if (priv->oxcf.use_highbitdepth) return AOM_CODEC_INVALID_PARAM;
+#endif
 
       priv->ppi = av1_create_primary_compressor(&priv->pkt_list.head,
                                                 *num_lap_buffers, &priv->oxcf);
