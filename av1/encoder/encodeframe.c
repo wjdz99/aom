@@ -1455,7 +1455,8 @@ static AOM_INLINE void encode_tiles(AV1_COMP *cpi) {
     }
   }
 
-  av1_dealloc_mb_data(cm, mb);
+  av1_dealloc_src_diff_buf(mb, av1_num_planes(cm));
+  av1_dealloc_mb_data(mb);
 }
 
 // Set the relative distance of a reference frame w.r.t. current frame
