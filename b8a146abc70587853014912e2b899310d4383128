@@ -16,6 +16,46 @@
       "message": "Bohan: PTAL. This is related to https://crbug.com/aomedia/2987, which you fixed. Thanks.",
       "revId": "b8a146abc70587853014912e2b899310d4383128",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "37bd9ad0_d32505f2",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2023-09-25T22:48:43Z",
+      "side": 1,
+      "message": "Question: Should the codec in this case just \"upgrade\" the input image to high bitdepth, or signal an error? I remember that we can ask the codec to use highbd internally even for lowbd contents @jingning@google.com ?",
+      "revId": "b8a146abc70587853014912e2b899310d4383128",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f6b9f34e_1713a171",
+        "filename": "test/encode_api_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2023-09-25T22:48:43Z",
+      "side": 1,
+      "message": "nit: ++i",
+      "range": {
+        "startLine": 34,
+        "startChar": 26,
+        "endLine": 34,
+        "endChar": 29
+      },
+      "revId": "b8a146abc70587853014912e2b899310d4383128",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
