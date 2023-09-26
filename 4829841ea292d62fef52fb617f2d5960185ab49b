@@ -92,6 +92,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "b118583a_11b76002",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-09-26T18:26:59Z",
+      "side": 1,
+      "message": "Satheesh: Thank you for your reply. Yunqing also told me that we should not copy the `MACROBLOCK` structure if it\u0027s not needed because it is a large structure.",
+      "parentUuid": "7c852c69_93b411c0",
+      "revId": "4829841ea292d62fef52fb617f2d5960185ab49b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "43101e49_bd60bb24",
         "filename": "av1/encoder/ethread.c",
         "patchSetId": 1
