@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "48e8e5f5_3185393f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-09-26T18:23:05Z",
+      "side": 1,
+      "message": "Bohan: Please review patchset 8. Thanks!",
+      "revId": "96983fe072b8467bd4a9a202f006187bc05d5e86",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
