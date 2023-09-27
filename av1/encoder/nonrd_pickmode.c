@@ -2346,6 +2346,17 @@ static AOM_FORCE_INLINE bool skip_inter_mode_nonrd(
     *ref_frame2 = NONE_FRAME;
   }
 
+  // For spatial enhancement layer which has a lower quality layer:
+  // If GOLDEN_FRAME is used a reference, then always test the
+  // GLOBALMV (zeromv) - GOLDEN reference mode.
+  // TODO(marpan): add a check that user is using the GOLDEN reference
+  // as the inter-layer prediction.
+  if (cpi->svc.spatial_layer_id > 0 && cpi->svc.has_quality_layer &&
+      search_state->use_ref_frame_mask[GOLDEN_FRAME] &&
+      *ref_frame == GOLDEN_FRAME && *this_mode == GLOBALMV &&
+      search_state->use_ref_frame_mask[GOLDEN_FRAME] == 1)
+    return false;
+
   if (x->sb_me_block && *ref_frame == LAST_FRAME) {
     // We want to make sure to test the superblock MV:
     // so don't skip (return false) for NEAREST_LAST or NEAR_LAST if they
