@@ -18,6 +18,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "456e210c_1de49caa",
+        "filename": "av1/encoder/svc_layercontext.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 400,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2023-09-28T01:50:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "690e9d11_efbc0abb",
+      "revId": "e6c154983195a899226399247c483eb6c78731e7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "098cc000_559b41f9",
@@ -31,6 +49,24 @@
       "writtenOn": "2023-09-27T23:52:48Z",
       "side": 1,
       "message": "Nit: add `const`",
+      "revId": "e6c154983195a899226399247c483eb6c78731e7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4efcd653_b4511b9a",
+        "filename": "av1/encoder/svc_layercontext.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 403,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2023-09-28T01:50:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "098cc000_559b41f9",
       "revId": "e6c154983195a899226399247c483eb6c78731e7",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -52,6 +88,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "6750be82_f0281973",
+        "filename": "av1/encoder/svc_layercontext.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 146,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2023-09-28T01:50:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8051cc85_6ebd78bf",
+      "revId": "e6c154983195a899226399247c483eb6c78731e7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "22e6e896_f7f96371",
@@ -65,6 +119,24 @@
       "writtenOn": "2023-09-27T23:52:48Z",
       "side": 1,
       "message": "Nit: add \"lower\" to the name? `has_lower_quality_layer`",
+      "revId": "e6c154983195a899226399247c483eb6c78731e7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ca404e8b_7644d34f",
+        "filename": "av1/encoder/svc_layercontext.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 149,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2023-09-28T01:50:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "22e6e896_f7f96371",
       "revId": "e6c154983195a899226399247c483eb6c78731e7",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
