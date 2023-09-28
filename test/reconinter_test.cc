@@ -129,7 +129,7 @@ typedef void (*build_comp_diff_wtd_mask_highbd_func)(
 typedef std::tuple<BLOCK_SIZE, int, build_comp_diff_wtd_mask_highbd_func>
     BuildCompDiffwtdMaskHighbdParam;
 
-#if HAVE_SSSE3 || HAVE_AVX2
+#if HAVE_SSSE3 || HAVE_AVX2 || HAVE_NEON
 ::testing::internal::ParamGenerator<BuildCompDiffwtdMaskHighbdParam>
 BuildParamsHighbd(build_comp_diff_wtd_mask_highbd_func filter) {
   return ::testing::Combine(::testing::Range(BLOCK_4X4, BLOCK_SIZES_ALL),
@@ -216,6 +216,12 @@ INSTANTIATE_TEST_SUITE_P(
 INSTANTIATE_TEST_SUITE_P(
     AVX2, BuildCompDiffwtdMaskHighbdTest,
     BuildParamsHighbd(av1_build_compound_diffwtd_mask_highbd_avx2));
+#endif
+
+#if HAVE_NEON
+INSTANTIATE_TEST_SUITE_P(
+    NEON, BuildCompDiffwtdMaskHighbdTest,
+    BuildParamsHighbd(av1_build_compound_diffwtd_mask_highbd_neon));
 #endif
 #endif  // CONFIG_AV1_HIGHBITDEPTH
 
