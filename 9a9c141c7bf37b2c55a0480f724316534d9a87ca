@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5e75d6a2_33d0a45c",
+        "filename": "av1/encoder/var_based_part.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 1345,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-09-29T00:15:28Z",
+      "side": 1,
+      "message": "Should we document that `sf_no_scale` is only used when `scaled_ref_last` is true?",
+      "revId": "9a9c141c7bf37b2c55a0480f724316534d9a87ca",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8007b74d_9ff8aaf4",
+        "filename": "av1/encoder/var_based_part.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 1346,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-09-29T00:15:28Z",
+      "side": 1,
+      "message": "Declare `sf_no_scale` as const:\n\n```\nconst struct scale_factors *sf_no_scale\n```",
+      "revId": "9a9c141c7bf37b2c55a0480f724316534d9a87ca",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1c462cda_b14e1d8a",
+        "filename": "av1/encoder/var_based_part.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 1599,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-09-29T00:15:28Z",
+      "side": 1,
+      "message": "It seems that these three lines can be moved into `setup_planes`. Then it won\u0027t need the new `sf_no_scale` parameter.\n\nI guess `sf_no_scale` needs to be declared here so that its lifetime is long enough?",
+      "revId": "9a9c141c7bf37b2c55a0480f724316534d9a87ca",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
