@@ -282,3 +282,283 @@ void av1_apply_temporal_filter_neon(
     plane_offset += plane_h * plane_w;
   }
 }
+
+double av1_estimate_noise_from_single_plane_neon(const uint8_t *src, int height,
+                                                 int width, int stride,
+                                                 int edge_thresh) {
+  int16x8_t thresh = vdupq_n_s16(edge_thresh);
+  int32x4_t acc = vdupq_n_s32(0);
+  uint32x4_t count = vdupq_n_u32(0);
+  int final_count = 0;
+  int64_t final_acc = 0;
+  const uint8_t *src_start = src + stride + 1;
+  int h = 1;
+
+  do {
+    int w = 1;
+    const uint8_t *src_ptr = src_start;
+
+    while (w <= (width - 1) - 16) {
+      uint8x16_t mat[3][3];
+      mat[0][0] = vld1q_u8(src_ptr - stride - 1);
+      mat[0][1] = vld1q_u8(src_ptr - stride);
+      mat[0][2] = vld1q_u8(src_ptr - stride + 1);
+      mat[1][0] = vld1q_u8(src_ptr - 1);
+      mat[1][1] = vld1q_u8(src_ptr);
+      mat[1][2] = vld1q_u8(src_ptr + 1);
+      mat[2][0] = vld1q_u8(src_ptr + stride - 1);
+      mat[2][1] = vld1q_u8(src_ptr + stride);
+      mat[2][2] = vld1q_u8(src_ptr + stride + 1);
+
+      // Compute Sobel gradients.
+      int16x8_t x_coeff0_lo = vreinterpretq_s16_u16(
+          vsubl_u8(vget_low_u8(mat[0][0]), vget_low_u8(mat[0][2])));
+      int16x8_t x_coeff0_hi = vreinterpretq_s16_u16(
+          vsubl_u8(vget_high_u8(mat[0][0]), vget_high_u8(mat[0][2])));
+      int16x8_t x_coeff1_lo = vreinterpretq_s16_u16(
+          vsubl_u8(vget_low_u8(mat[2][0]), vget_low_u8(mat[2][2])));
+      int16x8_t x_coeff1_hi = vreinterpretq_s16_u16(
+          vsubl_u8(vget_high_u8(mat[2][0]), vget_high_u8(mat[2][2])));
+      int16x8_t x_coeff2_lo = vreinterpretq_s16_u16(
+          vsubl_u8(vget_low_u8(mat[1][0]), vget_low_u8(mat[1][2])));
+      int16x8_t x_coeff2_hi = vreinterpretq_s16_u16(
+          vsubl_u8(vget_high_u8(mat[1][0]), vget_high_u8(mat[1][2])));
+      x_coeff2_lo = vshlq_n_s16(x_coeff2_lo, 1);
+      x_coeff2_hi = vshlq_n_s16(x_coeff2_hi, 1);
+      int16x8_t Gx_lo = vaddq_s16(x_coeff0_lo, x_coeff1_lo);
+      int16x8_t Gx_hi = vaddq_s16(x_coeff0_hi, x_coeff1_hi);
+      Gx_lo = vaddq_s16(Gx_lo, x_coeff2_lo);
+      Gx_hi = vaddq_s16(Gx_hi, x_coeff2_hi);
+
+      int16x8_t y_coeff0_lo = vreinterpretq_s16_u16(
+          vsubl_u8(vget_low_u8(mat[0][0]), vget_low_u8(mat[2][0])));
+      int16x8_t y_coeff0_hi = vreinterpretq_s16_u16(
+          vsubl_u8(vget_high_u8(mat[0][0]), vget_high_u8(mat[2][0])));
+      int16x8_t y_coeff1_lo = vreinterpretq_s16_u16(
+          vsubl_u8(vget_low_u8(mat[0][2]), vget_low_u8(mat[2][2])));
+      int16x8_t y_coeff1_hi = vreinterpretq_s16_u16(
+          vsubl_u8(vget_high_u8(mat[0][2]), vget_high_u8(mat[2][2])));
+      int16x8_t y_coeff2_lo = vreinterpretq_s16_u16(
+          vsubl_u8(vget_low_u8(mat[0][1]), vget_low_u8(mat[2][1])));
+      int16x8_t y_coeff2_hi = vreinterpretq_s16_u16(
+          vsubl_u8(vget_high_u8(mat[0][1]), vget_high_u8(mat[2][1])));
+      y_coeff2_lo = vshlq_n_s16(y_coeff2_lo, 1);
+      y_coeff2_hi = vshlq_n_s16(y_coeff2_hi, 1);
+      int16x8_t Gy_lo = vaddq_s16(y_coeff0_lo, y_coeff1_lo);
+      int16x8_t Gy_hi = vaddq_s16(y_coeff0_hi, y_coeff1_hi);
+      Gy_lo = vaddq_s16(Gy_lo, y_coeff2_lo);
+      Gy_hi = vaddq_s16(Gy_hi, y_coeff2_hi);
+
+      int16x8_t Ga_lo = vaddq_s16(vabsq_s16(Gx_lo), vabsq_s16(Gy_lo));
+      int16x8_t Ga_hi = vaddq_s16(vabsq_s16(Gx_hi), vabsq_s16(Gy_hi));
+
+      // Check which vector elements are under the threshold. The Laplacian is
+      // then unconditionally computed and we accumulate zeros if we're not
+      // under the threshold. This is much faster than using an if statement.
+      uint16x8_t thresh_u16_lo = vcltq_s16(Ga_lo, thresh);
+      uint16x8_t thresh_u16_hi = vcltq_s16(Ga_hi, thresh);
+
+      uint16x8_t center_lo = vshll_n_u8(vget_low_u8(mat[1][1]), 2);
+      uint16x8_t center_hi = vshll_n_u8(vget_high_u8(mat[1][1]), 2);
+
+      uint16x8_t adj0_lo =
+          vaddl_u8(vget_low_u8(mat[0][1]), vget_low_u8(mat[2][1]));
+      uint16x8_t adj0_hi =
+          vaddl_u8(vget_high_u8(mat[0][1]), vget_high_u8(mat[2][1]));
+      uint16x8_t adj1_lo =
+          vaddl_u8(vget_low_u8(mat[1][0]), vget_low_u8(mat[1][2]));
+      uint16x8_t adj1_hi =
+          vaddl_u8(vget_high_u8(mat[1][0]), vget_high_u8(mat[1][2]));
+      uint16x8_t adj_lo = vshlq_n_u16(vaddq_u16(adj0_lo, adj1_lo), 1);
+      uint16x8_t adj_hi = vshlq_n_u16(vaddq_u16(adj0_hi, adj1_hi), 1);
+
+      uint16x8_t diag0_lo =
+          vaddl_u8(vget_low_u8(mat[0][0]), vget_low_u8(mat[0][2]));
+      uint16x8_t diag0_hi =
+          vaddl_u8(vget_high_u8(mat[0][0]), vget_high_u8(mat[0][2]));
+      uint16x8_t diag1_lo =
+          vaddl_u8(vget_low_u8(mat[2][0]), vget_low_u8(mat[2][2]));
+      uint16x8_t diag1_hi =
+          vaddl_u8(vget_high_u8(mat[2][0]), vget_high_u8(mat[2][2]));
+      uint16x8_t diag_lo = vaddq_u16(diag0_lo, diag1_lo);
+      uint16x8_t diag_hi = vaddq_u16(diag0_hi, diag1_hi);
+
+      int16x8_t v_lo = vreinterpretq_s16_u16(vsubq_u16(center_lo, adj_lo));
+      v_lo = vaddq_s16(v_lo, vreinterpretq_s16_u16(diag_lo));
+      int16x8_t v_hi = vreinterpretq_s16_u16(vsubq_u16(center_hi, adj_hi));
+      v_hi = vaddq_s16(v_hi, vreinterpretq_s16_u16(diag_hi));
+
+      acc = vpadalq_s16(acc, vabsq_s16(vandq_s16(
+                                 v_lo, vreinterpretq_s16_u16(thresh_u16_lo))));
+      acc = vpadalq_s16(acc, vabsq_s16(vandq_s16(
+                                 v_hi, vreinterpretq_s16_u16(thresh_u16_hi))));
+
+      count = vpadalq_u16(count, vshrq_n_u16(thresh_u16_lo, 15));
+      count = vpadalq_u16(count, vshrq_n_u16(thresh_u16_hi, 15));
+
+      w += 16;
+      src_ptr += 16;
+    }
+
+    if (w <= (width - 1) - 8) {
+      uint8x8_t mat[3][3];
+      mat[0][0] = vld1_u8(src_ptr - stride - 1);
+      mat[0][1] = vld1_u8(src_ptr - stride);
+      mat[0][2] = vld1_u8(src_ptr - stride + 1);
+      mat[1][0] = vld1_u8(src_ptr - 1);
+      mat[1][1] = vld1_u8(src_ptr);
+      mat[1][2] = vld1_u8(src_ptr + 1);
+      mat[2][0] = vld1_u8(src_ptr + stride - 1);
+      mat[2][1] = vld1_u8(src_ptr + stride);
+      mat[2][2] = vld1_u8(src_ptr + stride + 1);
+
+      // Compute Sobel gradients.
+      int16x8_t x_coeff0 =
+          vreinterpretq_s16_u16(vsubl_u8(mat[0][0], mat[0][2]));
+      int16x8_t x_coeff1 =
+          vreinterpretq_s16_u16(vsubl_u8(mat[2][0], mat[2][2]));
+      int16x8_t x_coeff2 =
+          vreinterpretq_s16_u16(vsubl_u8(mat[1][0], mat[1][2]));
+      x_coeff2 = vshlq_n_s16(x_coeff2, 1);
+      int16x8_t Gx = vaddq_s16(x_coeff0, x_coeff1);
+      Gx = vaddq_s16(Gx, x_coeff2);
+
+      int16x8_t y_coeff0 =
+          vreinterpretq_s16_u16(vsubl_u8(mat[0][0], mat[2][0]));
+      int16x8_t y_coeff1 =
+          vreinterpretq_s16_u16(vsubl_u8(mat[0][2], mat[2][2]));
+      int16x8_t y_coeff2 =
+          vreinterpretq_s16_u16(vsubl_u8(mat[0][1], mat[2][1]));
+      y_coeff2 = vshlq_n_s16(y_coeff2, 1);
+      int16x8_t Gy = vaddq_s16(y_coeff0, y_coeff1);
+      Gy = vaddq_s16(Gy, y_coeff2);
+
+      int16x8_t Ga = vaddq_s16(vabsq_s16(Gx), vabsq_s16(Gy));
+
+      // Check which vector elements are under the threshold. The Laplacian is
+      // then unconditionally computed and we accumulate zeros if we're not
+      // under the threshold. This is much faster than using an if statement.
+      uint16x8_t thresh_u16 = vcltq_s16(Ga, thresh);
+
+      uint16x8_t center = vshll_n_u8(mat[1][1], 2);
+
+      uint16x8_t adj0 = vaddl_u8(mat[0][1], mat[2][1]);
+      uint16x8_t adj1 = vaddl_u8(mat[1][0], mat[1][2]);
+      uint16x8_t adj = vshlq_n_u16(vaddq_u16(adj0, adj1), 1);
+
+      uint16x8_t diag0 = vaddl_u8(mat[0][0], mat[0][2]);
+      uint16x8_t diag1 = vaddl_u8(mat[2][0], mat[2][2]);
+      uint16x8_t diag = vaddq_u16(diag0, diag1);
+
+      int16x8_t v = vreinterpretq_s16_u16(vsubq_u16(center, adj));
+      v = vaddq_s16(v, vreinterpretq_s16_u16(diag));
+
+      acc = vpadalq_s16(
+          acc, vabsq_s16(vandq_s16(v, vreinterpretq_s16_u16(thresh_u16))));
+      count = vpadalq_u16(count, vshrq_n_u16(thresh_u16, 15));
+
+      w += 8;
+      src_ptr += 8;
+    }
+
+    if (w <= (width - 1) - 4) {
+      uint16x8_t mask = vcombine_u16(vdup_n_u16(65535), vdup_n_u16(0));
+      uint8x8_t mat[3][3];
+      mat[0][0] = load_u8_4x1_lane0(src_ptr - stride - 1);
+      mat[0][1] = load_u8_4x1_lane0(src_ptr - stride);
+      mat[0][2] = load_u8_4x1_lane0(src_ptr - stride + 1);
+      mat[1][0] = load_u8_4x1_lane0(src_ptr - 1);
+      mat[1][1] = load_u8_4x1_lane0(src_ptr);
+      mat[1][2] = load_u8_4x1_lane0(src_ptr + 1);
+      mat[2][0] = load_u8_4x1_lane0(src_ptr + stride - 1);
+      mat[2][1] = load_u8_4x1_lane0(src_ptr + stride);
+      mat[2][2] = load_u8_4x1_lane0(src_ptr + stride + 1);
+
+      // Compute Sobel gradients.
+      int16x8_t x_coeff0 =
+          vreinterpretq_s16_u16(vsubl_u8(mat[0][0], mat[0][2]));
+      int16x8_t x_coeff1 =
+          vreinterpretq_s16_u16(vsubl_u8(mat[2][0], mat[2][2]));
+      int16x8_t x_coeff2 =
+          vreinterpretq_s16_u16(vsubl_u8(mat[1][0], mat[1][2]));
+      x_coeff2 = vshlq_n_s16(x_coeff2, 1);
+      int16x8_t Gx = vaddq_s16(x_coeff0, x_coeff1);
+      Gx = vaddq_s16(Gx, x_coeff2);
+
+      int16x8_t y_coeff0 =
+          vreinterpretq_s16_u16(vsubl_u8(mat[0][0], mat[2][0]));
+      int16x8_t y_coeff1 =
+          vreinterpretq_s16_u16(vsubl_u8(mat[0][2], mat[2][2]));
+      int16x8_t y_coeff2 =
+          vreinterpretq_s16_u16(vsubl_u8(mat[0][1], mat[2][1]));
+      y_coeff2 = vshlq_n_s16(y_coeff2, 1);
+      int16x8_t Gy = vaddq_s16(y_coeff0, y_coeff1);
+      Gy = vaddq_s16(Gy, y_coeff2);
+
+      int16x8_t Ga = vaddq_s16(vabsq_s16(Gx), vabsq_s16(Gy));
+
+      // Check which vector elements are under the threshold. The Laplacian is
+      // then unconditionally computed and we accumulate zeros if we're not
+      // under the threshold. This is much faster than using an if statement.
+      uint16x8_t thresh_u16 = vandq_u16(vcltq_s16(Ga, thresh), mask);
+
+      uint16x8_t center = vshll_n_u8(mat[1][1], 2);
+
+      uint16x8_t adj0 = vaddl_u8(mat[0][1], mat[2][1]);
+      uint16x8_t adj1 = vaddl_u8(mat[1][0], mat[1][2]);
+      uint16x8_t adj = vshlq_n_u16(vaddq_u16(adj0, adj1), 1);
+
+      uint16x8_t diag0 = vaddl_u8(mat[0][0], mat[0][2]);
+      uint16x8_t diag1 = vaddl_u8(mat[2][0], mat[2][2]);
+      uint16x8_t diag = vaddq_u16(diag0, diag1);
+
+      int16x8_t v = vreinterpretq_s16_u16(vsubq_u16(center, adj));
+      v = vaddq_s16(v, vreinterpretq_s16_u16(diag));
+
+      acc = vpadalq_s16(
+          acc, vabsq_s16(vandq_s16(v, vreinterpretq_s16_u16(thresh_u16))));
+      count = vpadalq_u16(count, vshrq_n_u16(thresh_u16, 15));
+
+      w += 4;
+      src_ptr += 4;
+    }
+
+    while (w != width - 1) {
+      int mat[3][3];
+      mat[0][0] = *(src_ptr - stride - 1);
+      mat[0][1] = *(src_ptr - stride);
+      mat[0][2] = *(src_ptr - stride + 1);
+      mat[1][0] = *(src_ptr - 1);
+      mat[1][1] = *(src_ptr);
+      mat[1][2] = *(src_ptr + 1);
+      mat[2][0] = *(src_ptr + stride - 1);
+      mat[2][1] = *(src_ptr + stride);
+      mat[2][2] = *(src_ptr + stride + 1);
+
+      // Compute Sobel gradients.
+      const int Gx = (mat[0][0] - mat[0][2]) + (mat[2][0] - mat[2][2]) +
+                     2 * (mat[1][0] - mat[1][2]);
+      const int Gy = (mat[0][0] - mat[2][0]) + (mat[0][2] - mat[2][2]) +
+                     2 * (mat[0][1] - mat[2][1]);
+      const int Ga = abs(Gx) + abs(Gy);
+
+      // Accumulate Laplacian.
+      const int is_under = Ga < edge_thresh;
+      const int v = 4 * mat[1][1] -
+                    2 * (mat[0][1] + mat[2][1] + mat[1][0] + mat[1][2]) +
+                    (mat[0][0] + mat[0][2] + mat[2][0] + mat[2][2]);
+      final_acc += abs(v) * is_under;
+      final_count += is_under;
+
+      src_ptr++;
+      w++;
+    }
+    src_start += stride;
+  } while (++h != height - 1);
+
+  final_count += horizontal_add_u32x4(count);
+  final_acc += horizontal_long_add_s32x4(acc);
+  return (final_count < 16)
+             ? -1.0
+             : (double)final_acc / (6 * final_count) * SQRT_PI_BY_2;
+}
