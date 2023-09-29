@@ -37,6 +37,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "03252518_6c74a0aa",
+        "filename": "av1/encoder/var_based_part.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 1346,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2023-09-29T01:53:28Z",
+      "side": 1,
+      "message": "i can fix these two in another CL.",
+      "parentUuid": "8007b74d_9ff8aaf4",
+      "revId": "9a9c141c7bf37b2c55a0480f724316534d9a87ca",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "1c462cda_b14e1d8a",
         "filename": "av1/encoder/var_based_part.c",
         "patchSetId": 6
@@ -48,6 +66,24 @@
       "writtenOn": "2023-09-29T00:15:28Z",
       "side": 1,
       "message": "It seems that these three lines can be moved into `setup_planes`. Then it won\u0027t need the new `sf_no_scale` parameter.\n\nI guess `sf_no_scale` needs to be declared here so that its lifetime is long enough?",
+      "revId": "9a9c141c7bf37b2c55a0480f724316534d9a87ca",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bf5b5319_da357cad",
+        "filename": "av1/encoder/var_based_part.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 1599,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2023-09-29T01:53:28Z",
+      "side": 1,
+      "message": "yes that is why I defined it in this top function (choose_var_based_partitioning).",
+      "parentUuid": "1c462cda_b14e1d8a",
       "revId": "9a9c141c7bf37b2c55a0480f724316534d9a87ca",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
