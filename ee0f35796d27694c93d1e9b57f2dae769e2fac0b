@@ -16,6 +16,24 @@
       "message": "This is just for the examples, but in general I prefer not to have `abort()` in library code.",
       "revId": "ee0f35796d27694c93d1e9b57f2dae769e2fac0b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3614c25d_d1664d83",
+        "filename": "av1/common/resize.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1142,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-09-30T03:43:46Z",
+      "side": 1,
+      "message": "After this CL, this function will be unused and we are keeping it around only because it is exported.\n\nHmm... This means function can simply call abort() to prevent itself from being used. I will make this change in a follow-up CL.",
+      "parentUuid": "ceaa5e12_ff9f3eeb",
+      "revId": "ee0f35796d27694c93d1e9b57f2dae769e2fac0b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
