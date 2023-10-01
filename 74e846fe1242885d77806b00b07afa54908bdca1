@@ -88,6 +88,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "da3ce524_10ac12c9",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 32952
+      },
+      "writtenOn": "2023-10-01T06:46:57Z",
+      "side": 1,
+      "message": "@jzern@google.com:\n\nSorry for my delayed response; the command line that reproduces this is as simple as `cmake -S . -B _build`. However note that I believe you need CMake 3.27.0+ to be able to reproduce it (please see my response to @wtc@google.com). Please try:\n\n```\ncurl -fL https://github.com/Kitware/CMake/releases/download/v3.27.0/cmake-3.27.0-macos-universal.tar.gz | tar -xz --strip-components\u003d1\nCMake.app/Contents/bin/cmake -S \u003cpath-to-aom\u003e -B _build\n```",
+      "parentUuid": "2532a1fd_47993a88",
+      "revId": "74e846fe1242885d77806b00b07afa54908bdca1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "c86365c6_48b3fb23",
