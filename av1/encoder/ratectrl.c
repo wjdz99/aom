@@ -2070,12 +2070,13 @@ static void rc_compute_variance_onepass_rt(AV1_COMP *cpi) {
   AV1_COMMON *const cm = &cpi->common;
   YV12_BUFFER_CONFIG const *const unscaled_src = cpi->unscaled_source;
   if (unscaled_src == NULL) return;
-
   const uint8_t *src_y = unscaled_src->y_buffer;
   const int src_ystride = unscaled_src->y_stride;
+  const int src_is_hbd = (unscaled_src->flags & YV12_FLAG_HIGHBITDEPTH);
   const YV12_BUFFER_CONFIG *yv12 = get_ref_frame_yv12_buf(cm, LAST_FRAME);
   const uint8_t *pre_y = yv12->buffers[0];
   const int pre_ystride = yv12->strides[0];
+  const int pre_is_hbd = (yv12->flags & YV12_FLAG_HIGHBITDEPTH);
 
   // TODO(yunqing): support scaled reference frames.
   if (cpi->scaled_ref_buf[LAST_FRAME - 1]) return;
@@ -2098,19 +2099,29 @@ static void rc_compute_variance_onepass_rt(AV1_COMP *cpi) {
     for (int sbi_col = 0; sbi_col < sb_cols; ++sbi_col) {
       unsigned int sse;
       uint8_t src[64 * 64] = { 0 };
+      uint16_t src_hbd[64 * 64] = { 0 };
       // Apply 4x4 block averaging/denoising on source frame.
       for (int i = 0; i < 64; i += 4) {
         for (int j = 0; j < 64; j += 4) {
           const unsigned int avg =
-              aom_avg_4x4(src_y + i * src_ystride + j, src_ystride);
+              src_is_hbd
+                  ? aom_highbd_avg_4x4(src_y + i * src_ystride + j, src_ystride)
+                  : aom_avg_4x4(src_y + i * src_ystride + j, src_ystride);
 
           for (int m = 0; m < 4; ++m) {
-            for (int n = 0; n < 4; ++n) src[i * 64 + j + m * 64 + n] = avg;
+            for (int n = 0; n < 4; ++n) {
+              if (pre_is_hbd) {
+                src_hbd[i * 64 + j + m * 64 + n] = avg;
+              } else {
+                src[i * 64 + j + m * 64 + n] = avg;
+              }
+            }
           }
         }
       }
 
-      cpi->ppi->fn_ptr[bsize].vf(src, 64, pre_y, pre_ystride, &sse);
+      cpi->ppi->fn_ptr[bsize].vf(pre_is_hbd ? CONVERT_TO_BYTEPTR(src_hbd) : src,
+                                 64, pre_y, pre_ystride, &sse);
       fsse += sse;
       num_samples++;
       src_y += 64;
