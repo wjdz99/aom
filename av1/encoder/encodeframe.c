@@ -538,8 +538,12 @@ static AOM_INLINE void encode_nonrd_sb(AV1_COMP *cpi, ThreadData *td,
   if (sf->part_sf.partition_search_type == FIXED_PARTITION || seg_skip) {
     // set a fixed-size partition
     av1_set_offsets(cpi, tile_info, x, mi_row, mi_col, sb_size);
-    const BLOCK_SIZE bsize =
-        seg_skip ? sb_size : sf->part_sf.fixed_partition_size;
+    BLOCK_SIZE bsize_select = sf->part_sf.fixed_partition_size;
+    if (sf->rt_sf.use_fast_fixed_part) {
+      if (x->content_state_sb.source_sad_nonrd > kMedSad)
+        bsize_select = BLOCK_16X16;
+    }
+    const BLOCK_SIZE bsize = seg_skip ? sb_size : bsize_select;
     av1_set_fixed_partitioning(cpi, tile_info, mi, mi_row, mi_col, bsize);
   } else if (sf->part_sf.partition_search_type == VAR_BASED_PARTITION) {
     // set a variance-based partition
