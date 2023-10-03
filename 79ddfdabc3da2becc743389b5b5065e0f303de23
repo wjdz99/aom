@@ -49,6 +49,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "03de5036_c5dcb974",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 1821,
+      "author": {
+        "id": 33002
+      },
+      "writtenOn": "2023-10-03T16:58:59Z",
+      "side": 1,
+      "message": "Thank you for the suggestion. In the latest patchset, we have abstracted the code to free the local buffers (`block_hash_values` and `is_block_same`) into a function free_block_hash_buffers() and combined the early termination in case of these buffer allocation failures along with the aom_internal_error() call in line 1775.\n\nIn the latest patchset, the below changes related to hash buffers are also taken care of:\n- Invoke av1_hash_table_destroy() in dealloc_compressor_data() to avoid memory leaks in case of early termination.\n- Fixed the memory allocation check for `p_hash_table-\u003ep_lookup_table` (refer line 131 in av1/encoder/hash_motion.c file)\n- Handle the return status of `aom_vector_setup()` and `aom_vector_push_back()` in `hash_table_add_to_table()`",
+      "parentUuid": "91d70831_6b2a6ecf",
+      "range": {
+        "startLine": 1813,
+        "startChar": 1,
+        "endLine": 1821,
+        "endChar": 5
+      },
+      "revId": "79ddfdabc3da2becc743389b5b5065e0f303de23",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "faa1c8b2_895fe6c1",
         "filename": "av1/encoder/encodeframe.c",
         "patchSetId": 5
@@ -60,6 +84,30 @@
       "writtenOn": "2023-09-27T17:31:08Z",
       "side": 1,
       "message": "Can this 2 be merged together with \"if (error) and a merged error message? 1 error message might be enough for the intra hash. Hopefully that can make the code simpler?",
+      "range": {
+        "startLine": 1823,
+        "startChar": 0,
+        "endLine": 1831,
+        "endChar": 5
+      },
+      "revId": "79ddfdabc3da2becc743389b5b5065e0f303de23",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "055452eb_ca924de3",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 1831,
+      "author": {
+        "id": 33002
+      },
+      "writtenOn": "2023-10-03T16:58:59Z",
+      "side": 1,
+      "message": "Since the local buffers (`block_hash_values` and `is_block_same`) will be accessed by the function `av1_generate_block_hash_value()` before the allocation in `av1_add_to_hash_map_by_row_with_precal_data()`, we will not be able to combine these checks. However, we have made use of the existing `aom_internal_error()` call in line 1798 to handle the early termination in case of allocation failure of the these buffers.",
+      "parentUuid": "faa1c8b2_895fe6c1",
       "range": {
         "startLine": 1823,
         "startChar": 0,
