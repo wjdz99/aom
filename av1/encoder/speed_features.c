@@ -1420,6 +1420,11 @@ static void set_rt_speed_feature_framesize_dependent(const AV1_COMP *const cpi,
     if (speed == 7) {
       sf->rt_sf.nonrd_check_partition_merge_mode = 2;
     }
+    if (speed >= 11) {
+      sf->rt_sf.skip_cdef_sb = 2;
+      sf->rt_sf.force_only_last_ref = 1;
+      sf->rt_sf.selective_cdf_update = 1;
+    }
   }
   if (!is_720p_or_larger) {
     if (speed >= 9) {
@@ -2248,6 +2253,8 @@ static AOM_INLINE void init_rt_sf(REAL_TIME_SPEED_FEATURES *rt_sf) {
   rt_sf->enable_ref_short_signaling = false;
   rt_sf->check_globalmv_on_single_ref = true;
   rt_sf->increase_color_thresh_palette = false;
+  rt_sf->selective_cdf_update = 0;
+  rt_sf->force_only_last_ref = 0;
 }
 
 static fractional_mv_step_fp
