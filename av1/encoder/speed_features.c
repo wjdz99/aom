@@ -1453,7 +1453,13 @@ static void set_rt_speed_feature_framesize_dependent(const AV1_COMP *const cpi,
     if (speed >= 9) sf->lpf_sf.cdef_pick_method = CDEF_PICK_FROM_Q;
     if (speed >= 10) sf->rt_sf.nonrd_aggressive_skip = 1;
   }
-
+  // TODO(Any): Tune settings for speed 11 video mode.
+  if (speed >= 11 && cpi->oxcf.tune_cfg.content != AOM_CONTENT_SCREEN) {
+    sf->rt_sf.skip_cdef_sb = 2;
+    sf->rt_sf.force_only_last_ref = 1;
+    sf->rt_sf.selective_cdf_update = 1;
+    sf->rt_sf.use_nonrd_filter_search = 0;
+  }
   // Setting for SVC, or when the ref_frame_config control is
   // used to set the reference structure.
   if (cpi->ppi->use_svc || cpi->ppi->rtc_ref.set_ref_frame_config) {
@@ -2248,6 +2254,8 @@ static AOM_INLINE void init_rt_sf(REAL_TIME_SPEED_FEATURES *rt_sf) {
   rt_sf->enable_ref_short_signaling = false;
   rt_sf->check_globalmv_on_single_ref = true;
   rt_sf->increase_color_thresh_palette = false;
+  rt_sf->selective_cdf_update = 0;
+  rt_sf->force_only_last_ref = 0;
 }
 
 static fractional_mv_step_fp
