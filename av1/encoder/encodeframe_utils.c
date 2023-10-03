@@ -1398,6 +1398,12 @@ void av1_source_content_sb(AV1_COMP *cpi, MACROBLOCK *x, TileDataEnc *tile_data,
                                                36000 };  // ~3*3*(64*64)
 
   uint64_t avg_source_sse_threshold_high = 1000000;  // ~15*15*(64*64)
+  if (cpi->oxcf.speed >= 11 &&
+      cpi->oxcf.tune_cfg.content != AOM_CONTENT_SCREEN) {
+    avg_source_sse_threshold_high = avg_source_sse_threshold_high << 1;
+    avg_source_sse_threshold_low[0] = avg_source_sse_threshold_low[0] << 1;
+    avg_source_sse_threshold_verylow = avg_source_sse_threshold_verylow << 1;
+  }
   uint64_t sum_sq_thresh = 10000;  // sum = sqrt(thresh / 64*64)) ~1.5
   src_y += src_offset;
   last_src_y += last_src_offset;
