@@ -1,0 +1,191 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9f536463_c76ad70a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 29
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-10-03T21:02:45Z",
+      "side": 1,
+      "message": "Marco: Please see my suggestions below.",
+      "revId": "a1f29689b2fe1b8ca74598a7ef03d1b1d1c0dc31",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "90690055_b148c8e7",
+        "filename": "av1/encoder/nonrd_opt.h",
+        "patchSetId": 29
+      },
+      "lineNbr": 427,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-10-03T21:02:45Z",
+      "side": 1,
+      "message": "Remove \"to 1\" from this comment after making the change I suggested at line 478.",
+      "revId": "a1f29689b2fe1b8ca74598a7ef03d1b1d1c0dc31",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f0e18d55_e51972be",
+        "filename": "av1/encoder/nonrd_opt.h",
+        "patchSetId": 29
+      },
+      "lineNbr": 433,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-10-03T21:02:45Z",
+      "side": 1,
+      "message": "Optional: Declare `use_scaled_ref_frame` as `bool *` to match the `bool` type of the `bool use_scaled_ref_frame[REF_FRAMES]` array.",
+      "revId": "a1f29689b2fe1b8ca74598a7ef03d1b1d1c0dc31",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "dd920fb0_4e8b1ca9",
+        "filename": "av1/encoder/nonrd_opt.h",
+        "patchSetId": 29
+      },
+      "lineNbr": 441,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-10-03T21:02:45Z",
+      "side": 1,
+      "message": "Optional: We can replace lines 438 and 440-441 with:\n\n```\n  const bool ref_is_scaled \u003d ref-\u003ey_crop_height !\u003d cm-\u003eheight || ref-\u003ey_crop_width !\u003d cm-\u003ewidth;\n```",
+      "revId": "a1f29689b2fe1b8ca74598a7ef03d1b1d1c0dc31",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9c354f97_7ae44472",
+        "filename": "av1/encoder/nonrd_opt.h",
+        "patchSetId": 29
+      },
+      "lineNbr": 455,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-10-03T21:02:45Z",
+      "side": 1,
+      "message": "I am wondering if the `scaled_ref` condition here should be replaced by the `ref_is_scaled \u0026\u0026 scaled_ref` condition (used in line 445).",
+      "revId": "a1f29689b2fe1b8ca74598a7ef03d1b1d1c0dc31",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "78401e88_044be2de",
+        "filename": "av1/encoder/nonrd_opt.h",
+        "patchSetId": 29
+      },
+      "lineNbr": 478,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-10-03T21:02:45Z",
+      "side": 1,
+      "message": "I suggest changing this line to the following so that the caller doesn\u0027t need to initialize `use_scaled_ref_frame` to 0:\n\n```\n  *use_scaled_ref_frame \u003d ref_is_scaled \u0026\u0026 scaled_ref;\n```",
+      "revId": "a1f29689b2fe1b8ca74598a7ef03d1b1d1c0dc31",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5ccf766e_fff0610b",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 29
+      },
+      "lineNbr": 2238,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-10-03T21:02:45Z",
+      "side": 1,
+      "message": "Delete this.",
+      "revId": "a1f29689b2fe1b8ca74598a7ef03d1b1d1c0dc31",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0b7b02a2_f8a8b413",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 29
+      },
+      "lineNbr": 2288,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-10-03T21:02:45Z",
+      "side": 1,
+      "message": "Pass `\u0026search_state-\u003euse_scaled_ref_frame[LAST_FRAME]` as the last argument.",
+      "revId": "a1f29689b2fe1b8ca74598a7ef03d1b1d1c0dc31",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9abc2304_31386aec",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 29
+      },
+      "lineNbr": 2308,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-10-03T21:02:45Z",
+      "side": 1,
+      "message": "Pass `\u0026search_state-\u003euse_scaled_ref_frame[ref_frame_iter]` as the last argument.",
+      "revId": "a1f29689b2fe1b8ca74598a7ef03d1b1d1c0dc31",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1c3991e1_b494bb28",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 29
+      },
+      "lineNbr": 3323,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-10-03T21:02:45Z",
+      "side": 1,
+      "message": "The pointer `\u0026sf_no_scale` will become invalid after this function returns. As defensive programming, we should set `xd-\u003eblock_ref_scale_factors[i]` to some valid address or to `NULL` before this function returns. This is similar to setting a pointer field to `NULL` after freeing it.\n\nOn the other hand, if we always set `xd-\u003eblock_ref_scale_factors[i]` before use, then this is fine.",
+      "revId": "a1f29689b2fe1b8ca74598a7ef03d1b1d1c0dc31",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "380ba8c2_93206b72",
+        "filename": "av1/encoder/partition_search.c",
+        "patchSetId": 29
+      },
+      "lineNbr": 2795,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-10-03T21:02:45Z",
+      "side": 1,
+      "message": "Nit: No need to initialize this variable with the change to `find_predictors()`",
+      "revId": "a1f29689b2fe1b8ca74598a7ef03d1b1d1c0dc31",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
