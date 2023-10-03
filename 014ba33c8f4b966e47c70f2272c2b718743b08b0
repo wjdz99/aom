@@ -18,6 +18,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "c18f6a1e_be92566a",
+        "filename": "test/reconinter_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 31957
+      },
+      "writtenOn": "2023-10-03T16:13:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8ae537a3_0bf31e97",
+      "revId": "014ba33c8f4b966e47c70f2272c2b718743b08b0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e8c03bd5_f6fbe242",
@@ -31,6 +49,30 @@
       "writtenOn": "2023-10-02T23:27:20Z",
       "side": 1,
       "message": "This is a part of the original code, but make `is_speed` a bool while you\u0027re here.",
+      "range": {
+        "startLine": 56,
+        "startChar": 56,
+        "endLine": 56,
+        "endChar": 74
+      },
+      "revId": "014ba33c8f4b966e47c70f2272c2b718743b08b0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f58d9e6e_7ae70eb7",
+        "filename": "test/reconinter_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 31957
+      },
+      "writtenOn": "2023-10-03T16:13:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e8c03bd5_f6fbe242",
       "range": {
         "startLine": 56,
         "startChar": 56,
@@ -58,6 +100,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "1fef3cbe_0e812ad1",
+        "filename": "test/reconinter_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 143,
+      "author": {
+        "id": 31957
+      },
+      "writtenOn": "2023-10-03T16:13:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b36e93c7_9d5a9340",
+      "revId": "014ba33c8f4b966e47c70f2272c2b718743b08b0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "7cf4fe99_745b11da",
@@ -75,6 +135,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "d17df67e_158a5469",
+        "filename": "test/reconinter_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 31957
+      },
+      "writtenOn": "2023-10-03T16:13:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7cf4fe99_745b11da",
+      "revId": "014ba33c8f4b966e47c70f2272c2b718743b08b0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "0924fac5_1098ffdf",
@@ -88,6 +166,24 @@
       "writtenOn": "2023-10-02T23:27:20Z",
       "side": 1,
       "message": "member variables come after functions:\n\nhttps://google.github.io/styleguide/cppguide.html#Declaration_Order\n\nThis one might be made private too.",
+      "revId": "014ba33c8f4b966e47c70f2272c2b718743b08b0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7f681227_4bbd79b7",
+        "filename": "test/reconinter_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 147,
+      "author": {
+        "id": 31957
+      },
+      "writtenOn": "2023-10-03T16:13:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0924fac5_1098ffdf",
       "revId": "014ba33c8f4b966e47c70f2272c2b718743b08b0",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
