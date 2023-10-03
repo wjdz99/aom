@@ -1641,6 +1641,8 @@ typedef struct REAL_TIME_SPEED_FEATURES {
   // rc->high_source_sad = 0 (non slide-changes), and color sensitivity off.
   int skip_cdef_sb;
 
+  int selective_cdf_update;
+
   // Forces larger partition blocks in variance based partitioning for intra
   // frames
   int force_large_partition_blocks_intra;
