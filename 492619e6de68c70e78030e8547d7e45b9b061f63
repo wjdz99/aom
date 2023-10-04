@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9fd1fbe3_32bca2ef",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-10-04T00:45:13Z",
+      "side": 1,
+      "message": "In the future, it would be helpful to do this separately, so it\u0027s easier to see the improvement in the code.",
+      "revId": "492619e6de68c70e78030e8547d7e45b9b061f63",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
