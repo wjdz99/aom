@@ -36,6 +36,23 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "524fc0fc_d75262c7",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 29
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2023-10-04T19:01:43Z",
+      "side": 1,
+      "message": "made the changes in:\nhttps://aomedia-review.googlesource.com/c/aom/+/182101",
+      "revId": "a1f29689b2fe1b8ca74598a7ef03d1b1d1c0dc31",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "90690055_b148c8e7",
@@ -49,6 +66,24 @@
       "writtenOn": "2023-10-03T21:02:45Z",
       "side": 1,
       "message": "Remove \"to 1\" from this comment after making the change I suggested at line 478.",
+      "revId": "a1f29689b2fe1b8ca74598a7ef03d1b1d1c0dc31",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f453785c_c1085d61",
+        "filename": "av1/encoder/nonrd_opt.h",
+        "patchSetId": 29
+      },
+      "lineNbr": 427,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2023-10-04T19:01:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "90690055_b148c8e7",
       "revId": "a1f29689b2fe1b8ca74598a7ef03d1b1d1c0dc31",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -70,6 +105,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "0c035f47_82ae7a17",
+        "filename": "av1/encoder/nonrd_opt.h",
+        "patchSetId": 29
+      },
+      "lineNbr": 433,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2023-10-04T19:01:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f0e18d55_e51972be",
+      "revId": "a1f29689b2fe1b8ca74598a7ef03d1b1d1c0dc31",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "dd920fb0_4e8b1ca9",
@@ -83,6 +136,24 @@
       "writtenOn": "2023-10-03T21:02:45Z",
       "side": 1,
       "message": "Optional: We can replace lines 438 and 440-441 with:\n\n```\n  const bool ref_is_scaled \u003d ref-\u003ey_crop_height !\u003d cm-\u003eheight || ref-\u003ey_crop_width !\u003d cm-\u003ewidth;\n```",
+      "revId": "a1f29689b2fe1b8ca74598a7ef03d1b1d1c0dc31",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cafcf239_87d3fb8e",
+        "filename": "av1/encoder/nonrd_opt.h",
+        "patchSetId": 29
+      },
+      "lineNbr": 441,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2023-10-04T19:01:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "dd920fb0_4e8b1ca9",
       "revId": "a1f29689b2fe1b8ca74598a7ef03d1b1d1c0dc31",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -104,6 +175,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a2cc8458_f86bf5c3",
+        "filename": "av1/encoder/nonrd_opt.h",
+        "patchSetId": 29
+      },
+      "lineNbr": 455,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2023-10-04T19:01:43Z",
+      "side": 1,
+      "message": "there is a use case in SVC where ref_is_scaled is true but scaled_ref is NULL, so prefer not to change this.",
+      "parentUuid": "9c354f97_7ae44472",
+      "revId": "a1f29689b2fe1b8ca74598a7ef03d1b1d1c0dc31",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "78401e88_044be2de",
@@ -117,6 +206,24 @@
       "writtenOn": "2023-10-03T21:02:45Z",
       "side": 1,
       "message": "I suggest changing this line to the following so that the caller doesn\u0027t need to initialize `use_scaled_ref_frame` to 0:\n\n```\n  *use_scaled_ref_frame \u003d ref_is_scaled \u0026\u0026 scaled_ref;\n```",
+      "revId": "a1f29689b2fe1b8ca74598a7ef03d1b1d1c0dc31",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8f137f81_523a69ab",
+        "filename": "av1/encoder/nonrd_opt.h",
+        "patchSetId": 29
+      },
+      "lineNbr": 478,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2023-10-04T19:01:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "78401e88_044be2de",
       "revId": "a1f29689b2fe1b8ca74598a7ef03d1b1d1c0dc31",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -155,6 +262,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "11a050d3_3b9e57a9",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 29
+      },
+      "lineNbr": 2288,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2023-10-04T19:01:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0b7b02a2_f8a8b413",
+      "revId": "a1f29689b2fe1b8ca74598a7ef03d1b1d1c0dc31",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "9abc2304_31386aec",
@@ -168,6 +293,24 @@
       "writtenOn": "2023-10-03T21:02:45Z",
       "side": 1,
       "message": "Pass `\u0026search_state-\u003euse_scaled_ref_frame[ref_frame_iter]` as the last argument.",
+      "revId": "a1f29689b2fe1b8ca74598a7ef03d1b1d1c0dc31",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "02d718e3_11b828fb",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 29
+      },
+      "lineNbr": 2308,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2023-10-04T19:01:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9abc2304_31386aec",
       "revId": "a1f29689b2fe1b8ca74598a7ef03d1b1d1c0dc31",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -191,6 +334,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "25ea2d2f_04e52772",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 29
+      },
+      "lineNbr": 3323,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2023-10-04T19:01:43Z",
+      "side": 1,
+      "message": "Ok added set_ref_ptrs(cm, xd, ref_frame, ref_frame2) at the end of the function.",
+      "parentUuid": "1c3991e1_b494bb28",
+      "revId": "a1f29689b2fe1b8ca74598a7ef03d1b1d1c0dc31",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "380ba8c2_93206b72",
         "filename": "av1/encoder/partition_search.c",
         "patchSetId": 29
@@ -202,6 +363,24 @@
       "writtenOn": "2023-10-03T21:02:45Z",
       "side": 1,
       "message": "Nit: No need to initialize this variable with the change to `find_predictors()`",
+      "revId": "a1f29689b2fe1b8ca74598a7ef03d1b1d1c0dc31",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2e18cc1a_659f87cd",
+        "filename": "av1/encoder/partition_search.c",
+        "patchSetId": 29
+      },
+      "lineNbr": 2795,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2023-10-04T19:01:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "380ba8c2_93206b72",
       "revId": "a1f29689b2fe1b8ca74598a7ef03d1b1d1c0dc31",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
