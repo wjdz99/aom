@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "dc7f9cfe_b01cce90",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 3436,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-10-04T20:03:45Z",
+      "side": 1,
+      "message": "Is it easy to explain why this is a good place to reset `xd-\u003eblock_ref_scale_factors[i]`?\n\nTo avoid dangling pointers to a local variable, it suffices to reset `xd-\u003eblock_ref_scale_factors[i]` right before the function returns. But this is quite far from the end of the function. So I am curious as to why we reset here.\n\nSee also my comment at line 3485.",
+      "revId": "e855477b59f35adb9f32ffb7000aa28e3a0ec572",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "92995bf9_ae2e2420",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 3485,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-10-04T20:03:45Z",
+      "side": 1,
+      "message": "Note that `xd` is used here. But `recheck_zeromv_after_denoising` calls `set_ref_ptrs`, so it won\u0027t be using `\u0026sf_no_scale`.",
+      "revId": "e855477b59f35adb9f32ffb7000aa28e3a0ec572",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4ee0299b_92980fcc",
+        "filename": "av1/encoder/partition_search.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 2795,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-10-04T20:03:45Z",
+      "side": 1,
+      "message": "It is no longer necessary to initialize this variable because `find_predictors` always sets it.",
+      "revId": "e855477b59f35adb9f32ffb7000aa28e3a0ec572",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
