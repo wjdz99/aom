@@ -18,6 +18,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "3636a228_fc40f9ec",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 3436,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2023-10-04T21:23:52Z",
+      "side": 1,
+      "message": "I put them here since it follows the setting of the best ref_frame (lines 3430-3431). But ok to move it to end of the function. Done",
+      "parentUuid": "dc7f9cfe_b01cce90",
+      "revId": "e855477b59f35adb9f32ffb7000aa28e3a0ec572",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "92995bf9_ae2e2420",
@@ -37,6 +55,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "e6cf0e0d_c5d320c8",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 3485,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2023-10-04T21:23:52Z",
+      "side": 1,
+      "message": "Yes I know, but didn\u0027t intend to change denoiser behavior here, which we don\u0027t use yet. Will follow-up in another CL for this. In VP9, where similar denoiser is actually used, we disable denoising for scaled ref frames, so likely will make sure the same is done here.",
+      "parentUuid": "92995bf9_ae2e2420",
+      "revId": "e855477b59f35adb9f32ffb7000aa28e3a0ec572",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "4ee0299b_92980fcc",
         "filename": "av1/encoder/partition_search.c",
         "patchSetId": 1
@@ -48,6 +84,24 @@
       "writtenOn": "2023-10-04T20:03:45Z",
       "side": 1,
       "message": "It is no longer necessary to initialize this variable because `find_predictors` always sets it.",
+      "revId": "e855477b59f35adb9f32ffb7000aa28e3a0ec572",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c190ab45_d4fdb61e",
+        "filename": "av1/encoder/partition_search.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 2795,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2023-10-04T21:23:52Z",
+      "side": 1,
+      "message": "done",
+      "parentUuid": "4ee0299b_92980fcc",
       "revId": "e855477b59f35adb9f32ffb7000aa28e3a0ec572",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
