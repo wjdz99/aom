@@ -1388,7 +1388,7 @@ static void set_rt_speed_feature_framesize_dependent(const AV1_COMP *const cpi,
       // Only enable for low bitdepth: see issue: b/303023614.
       if (!cpi->rc.rtc_external_ratectrl &&
           AOMMIN(cm->width, cm->height) <= 720 &&
-          cm->seq_params->bit_depth == 8)
+          !cpi->oxcf.use_highbitdepth)
         sf->hl_sf.accurate_bit_estimate = cpi->oxcf.q_cfg.aq_mode == NO_AQ;
     }
     if (speed >= 7) {
