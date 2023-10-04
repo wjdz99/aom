@@ -53,7 +53,7 @@ class SumSquaresTest : public ::testing::TestWithParam<TestFuncs> {
   }
 
   void TearDown() override { aom_free(src_); }
-  void RunTest(int isRandom);
+  void RunTest(int is_random);
   void RunSpeedTest();
 
   void GenRandomData(int width, int height, int stride) {
@@ -84,7 +84,7 @@ class SumSquaresTest : public ::testing::TestWithParam<TestFuncs> {
 };
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(SumSquaresTest);
 
-void SumSquaresTest::RunTest(int isRandom) {
+void SumSquaresTest::RunTest(int is_random) {
   int failed = 0;
   for (int k = 0; k < kNumIterations; k++) {
     const int width = 4 * (rnd_(31) + 1);   // Up to 128x128
@@ -93,7 +93,7 @@ void SumSquaresTest::RunTest(int isRandom) {
     while (stride < width) {                // Make sure it's valid
       stride = 4 << rnd_(7);
     }
-    if (isRandom) {
+    if (is_random) {
       GenRandomData(width, height, stride);
     } else {
       GenExtremeData(width, height, stride);
@@ -183,7 +183,7 @@ INSTANTIATE_TEST_SUITE_P(
 // 1D version
 //////////////////////////////////////////////////////////////////////////////
 
-typedef uint64_t (*F1D)(const int16_t *src, uint32_t N);
+typedef uint64_t (*F1D)(const int16_t *src, uint32_t n);
 typedef libaom_test::FuncParam<F1D> TestFuncs1D;
 
 class SumSquares1DTest : public FunctionEquivalenceTest<F1D> {
@@ -200,12 +200,12 @@ TEST_P(SumSquares1DTest, RandomValues) {
     for (int i = 0; i < kMaxSize * kMaxSize; ++i)
       src[i] = rng_(kInt13Max * 2 + 1) - kInt13Max;
 
-    const int N = rng_(2) ? rng_(kMaxSize * kMaxSize + 1 - kMaxSize) + kMaxSize
+    const int n = rng_(2) ? rng_(kMaxSize * kMaxSize + 1 - kMaxSize) + kMaxSize
                           : rng_(kMaxSize) + 1;
 
-    const uint64_t ref_res = params_.ref_func(src, N);
+    const uint64_t ref_res = params_.ref_func(src, n);
     uint64_t tst_res;
-    API_REGISTER_STATE_CHECK(tst_res = params_.tst_func(src, N));
+    API_REGISTER_STATE_CHECK(tst_res = params_.tst_func(src, n));
 
     ASSERT_EQ(ref_res, tst_res);
   }
@@ -221,12 +221,12 @@ TEST_P(SumSquares1DTest, ExtremeValues) {
       for (int i = 0; i < kMaxSize * kMaxSize; ++i) src[i] = -kInt13Max;
     }
 
-    const int N = rng_(2) ? rng_(kMaxSize * kMaxSize + 1 - kMaxSize) + kMaxSize
+    const int n = rng_(2) ? rng_(kMaxSize * kMaxSize + 1 - kMaxSize) + kMaxSize
                           : rng_(kMaxSize) + 1;
 
-    const uint64_t ref_res = params_.ref_func(src, N);
+    const uint64_t ref_res = params_.ref_func(src, n);
     uint64_t tst_res;
-    API_REGISTER_STATE_CHECK(tst_res = params_.tst_func(src, N));
+    API_REGISTER_STATE_CHECK(tst_res = params_.tst_func(src, n));
 
     ASSERT_EQ(ref_res, tst_res);
   }
@@ -246,9 +246,9 @@ INSTANTIATE_TEST_SUITE_P(NEON, SumSquares1DTest,
 
 #endif  // HAVE_NEON
 
-typedef int64_t (*sse_func)(const uint8_t *a, int a_stride, const uint8_t *b,
-                            int b_stride, int width, int height);
-typedef libaom_test::FuncParam<sse_func> TestSSEFuncs;
+typedef int64_t (*SSEFunc)(const uint8_t *a, int a_stride, const uint8_t *b,
+                           int b_stride, int width, int height);
+typedef libaom_test::FuncParam<SSEFunc> TestSSEFuncs;
 
 typedef std::tuple<TestSSEFuncs, int> SSETestParam;
 
@@ -258,7 +258,7 @@ class SSETest : public ::testing::TestWithParam<SSETestParam> {
   void SetUp() override {
     params_ = GET_PARAM(0);
     width_ = GET_PARAM(1);
-    isHbd_ =
+    is_hbd_ =
 #if CONFIG_AV1_HIGHBITDEPTH
         params_.ref_func == aom_highbd_sse_c;
 #else
@@ -275,21 +275,21 @@ class SSETest : public ::testing::TestWithParam<SSETestParam> {
     aom_free(src_);
     aom_free(ref_);
   }
-  void RunTest(int isRandom, int width, int height, int run_times);
+  void RunTest(int is_random, int width, int height, int run_times);
 
   void GenRandomData(int width, int height, int stride) {
-    uint16_t *pSrc = (uint16_t *)src_;
-    uint16_t *pRef = (uint16_t *)ref_;
+    uint16_t *p_src = (uint16_t *)src_;
+    uint16_t *p_ref = (uint16_t *)ref_;
     const int msb = 11;  // Up to 12 bit input
     const int limit = 1 << (msb + 1);
     for (int ii = 0; ii < height; ii++) {
       for (int jj = 0; jj < width; jj++) {
-        if (!isHbd_) {
+        if (!is_hbd_) {
           src_[ii * stride + jj] = rnd_.Rand8();
           ref_[ii * stride + jj] = rnd_.Rand8();
         } else {
-          pSrc[ii * stride + jj] = rnd_(limit);
-          pRef[ii * stride + jj] = rnd_(limit);
+          p_src[ii * stride + jj] = rnd_(limit);
+          p_ref[ii * stride + jj] = rnd_(limit);
         }
       }
     }
@@ -300,7 +300,7 @@ class SSETest : public ::testing::TestWithParam<SSETestParam> {
     uint16_t *pData = (uint16_t *)data;
     for (int ii = 0; ii < height; ii++) {
       for (int jj = 0; jj < width; jj++) {
-        if (!isHbd_) {
+        if (!is_hbd_) {
           data[ii * stride + jj] = (uint8_t)val;
         } else {
           pData[ii * stride + jj] = val;
@@ -310,7 +310,7 @@ class SSETest : public ::testing::TestWithParam<SSETestParam> {
   }
 
  protected:
-  int isHbd_;
+  int is_hbd_;
   int width_;
   TestSSEFuncs params_;
   uint8_t *src_;
@@ -319,7 +319,7 @@ class SSETest : public ::testing::TestWithParam<SSETestParam> {
 };
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(SSETest);
 
-void SSETest::RunTest(int isRandom, int width, int height, int run_times) {
+void SSETest::RunTest(int is_random, int width, int height, int run_times) {
   int failed = 0;
   aom_usec_timer ref_timer, test_timer;
   for (int k = 0; k < 3; k++) {
@@ -327,10 +327,10 @@ void SSETest::RunTest(int isRandom, int width, int height, int run_times) {
     while (stride < width) {    // Make sure it's valid
       stride = 4 << rnd_(7);
     }
-    if (isRandom) {
+    if (is_random) {
       GenRandomData(width, height, stride);
     } else {
-      const int msb = isHbd_ ? 12 : 8;  // Up to 12 bit input
+      const int msb = is_hbd_ ? 12 : 8;  // Up to 12 bit input
       const int limit = (1 << msb) - 1;
       if (k == 0) {
         GenExtremeData(width, height, stride, src_, 0);
@@ -341,18 +341,18 @@ void SSETest::RunTest(int isRandom, int width, int height, int run_times) {
       }
     }
     int64_t res_ref, res_tst;
-    uint8_t *pSrc = src_;
-    uint8_t *pRef = ref_;
-    if (isHbd_) {
-      pSrc = CONVERT_TO_BYTEPTR(src_);
-      pRef = CONVERT_TO_BYTEPTR(ref_);
+    uint8_t *p_src = src_;
+    uint8_t *p_ref = ref_;
+    if (is_hbd_) {
+      p_src = CONVERT_TO_BYTEPTR(src_);
+      p_ref = CONVERT_TO_BYTEPTR(ref_);
     }
-    res_ref = params_.ref_func(pSrc, stride, pRef, stride, width, height);
-    res_tst = params_.tst_func(pSrc, stride, pRef, stride, width, height);
+    res_ref = params_.ref_func(p_src, stride, p_ref, stride, width, height);
+    res_tst = params_.tst_func(p_src, stride, p_ref, stride, width, height);
     if (run_times > 1) {
       aom_usec_timer_start(&ref_timer);
       for (int j = 0; j < run_times; j++) {
-        params_.ref_func(pSrc, stride, pRef, stride, width, height);
+        params_.ref_func(p_src, stride, p_ref, stride, width, height);
       }
       aom_usec_timer_mark(&ref_timer);
       const int elapsed_time_c =
@@ -360,7 +360,7 @@ void SSETest::RunTest(int isRandom, int width, int height, int run_times) {
 
       aom_usec_timer_start(&test_timer);
       for (int j = 0; j < run_times; j++) {
-        params_.tst_func(pSrc, stride, pRef, stride, width, height);
+        params_.tst_func(p_src, stride, p_ref, stride, width, height);
       }
       aom_usec_timer_mark(&test_timer);
       const int elapsed_time_simd =
@@ -375,7 +375,7 @@ void SSETest::RunTest(int isRandom, int width, int height, int run_times) {
       if (!failed) {
         failed = res_ref != res_tst;
         EXPECT_EQ(res_ref, res_tst)
-            << "Error:" << (isHbd_ ? "hbd " : " ") << k << " SSE Test ["
+            << "Error:" << (is_hbd_ ? "hbd " : " ") << k << " SSE Test ["
             << width << "x" << height
             << "] C output does not match optimized output.";
       }
@@ -464,7 +464,7 @@ class SSE_Sum_Test : public ::testing::TestWithParam<SSE_SumTestParam> {
   }
 
   void TearDown() override { aom_free(src_); }
-  void RunTest(int isRandom, int tx_size, int run_times);
+  void RunTest(int is_random, int tx_size, int run_times);
 
   void GenRandomData(int width, int height, int stride) {
     const int msb = 11;  // Up to 12 bit input
@@ -492,7 +492,7 @@ class SSE_Sum_Test : public ::testing::TestWithParam<SSE_SumTestParam> {
 };
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(SSE_Sum_Test);
 
-void SSE_Sum_Test::RunTest(int isRandom, int tx_size, int run_times) {
+void SSE_Sum_Test::RunTest(int is_random, int tx_size, int run_times) {
   aom_usec_timer ref_timer, test_timer;
   int width = tx_size_wide[tx_size];
   int height = tx_size_high[tx_size];
@@ -501,7 +501,7 @@ void SSE_Sum_Test::RunTest(int isRandom, int tx_size, int run_times) {
     while (stride < width) {    // Make sure it's valid
       stride = 4 << rnd_(7);
     }
-    if (isRandom) {
+    if (is_random) {
       GenRandomData(width, height, stride);
     } else {
       const int msb = 12;  // Up to 12 bit input
@@ -616,7 +616,7 @@ class Lowbd2dVarTest : public ::testing::TestWithParam<TestFuncVar2D> {
   }
 
   void TearDown() override { aom_free(src_); }
-  void RunTest(int isRandom);
+  void RunTest(int is_random);
   void RunSpeedTest();
 
   void GenRandomData(int width, int height, int stride) {
@@ -647,7 +647,7 @@ class Lowbd2dVarTest : public ::testing::TestWithParam<TestFuncVar2D> {
 };
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(Lowbd2dVarTest);
 
-void Lowbd2dVarTest::RunTest(int isRandom) {
+void Lowbd2dVarTest::RunTest(int is_random) {
   int failed = 0;
   for (int k = 0; k < kNumIterations; k++) {
     const int width = 4 * (rnd_(63) + 1);   // Up to 256x256
@@ -656,7 +656,7 @@ void Lowbd2dVarTest::RunTest(int isRandom) {
     while (stride < width) {                // Make sure it's valid
       stride = 4 << rnd_(8);
     }
-    if (isRandom) {
+    if (is_random) {
       GenRandomData(width, height, stride);
     } else {
       GenExtremeData(width, height, stride);
@@ -760,7 +760,7 @@ class Highbd2dVarTest : public ::testing::TestWithParam<TestFuncVar2D> {
   }
 
   void TearDown() override { aom_free(src_); }
-  void RunTest(int isRandom);
+  void RunTest(int is_random);
   void RunSpeedTest();
 
   void GenRandomData(int width, int height, int stride) {
@@ -791,7 +791,7 @@ class Highbd2dVarTest : public ::testing::TestWithParam<TestFuncVar2D> {
 };
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(Highbd2dVarTest);
 
-void Highbd2dVarTest::RunTest(int isRandom) {
+void Highbd2dVarTest::RunTest(int is_random) {
   int failed = 0;
   for (int k = 0; k < kNumIterations; k++) {
     const int width = 4 * (rnd_(63) + 1);   // Up to 256x256
@@ -800,7 +800,7 @@ void Highbd2dVarTest::RunTest(int isRandom) {
     while (stride < width) {                // Make sure it's valid
       stride = 4 << rnd_(8);
     }
-    if (isRandom) {
+    if (is_random) {
       GenRandomData(width, height, stride);
     } else {
       GenExtremeData(width, height, stride);
