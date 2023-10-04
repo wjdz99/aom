@@ -207,6 +207,51 @@ TEST(EncodeAPI, HighBDEncoderHighBDImage) {
 #endif
 }
 
+TEST(EncodeAPI, HighBDEncoderHighBDImageSpeed7AqMode0) {
+  aom_codec_iface_t *iface = aom_codec_av1_cx();
+  aom_codec_enc_cfg_t cfg;
+  ASSERT_EQ(aom_codec_enc_config_default(iface, &cfg, AOM_USAGE_REALTIME),
+            AOM_CODEC_OK);
+  cfg.g_w = 500;
+  cfg.g_h = 400;
+
+  aom_codec_ctx_t enc;
+  aom_codec_err_t init_status =
+      aom_codec_enc_init(&enc, iface, &cfg, AOM_CODEC_USE_HIGHBITDEPTH);
+#if !CONFIG_AV1_HIGHBITDEPTH
+  ASSERT_EQ(init_status, AOM_CODEC_INCAPABLE);
+#else
+  ASSERT_EQ(init_status, AOM_CODEC_OK);
+
+  ASSERT_EQ(aom_codec_control(&enc, AOME_SET_CPUUSED, 7), AOM_CODEC_OK);
+  ASSERT_EQ(aom_codec_control(&enc, AV1E_SET_AQ_MODE, 0), AOM_CODEC_OK);
+
+  aom_image_t *image =
+      aom_img_alloc(NULL, AOM_IMG_FMT_I42016, cfg.g_w, cfg.g_h, 0);
+  ASSERT_NE(image, nullptr);
+
+  // Set the image to two colors so that av1_set_screen_content_options() will
+  // call av1_get_perpixel_variance().
+  int luma_value = 0;
+  for (unsigned int i = 0; i < image->d_h; ++i) {
+    Memset16(image->planes[0] + i * image->stride[0], luma_value, image->d_w);
+    luma_value = 255 - luma_value;
+  }
+  unsigned int uv_h = (image->d_h + 1) / 2;
+  unsigned int uv_w = (image->d_w + 1) / 2;
+  for (unsigned int i = 0; i < uv_h; ++i) {
+    Memset16(image->planes[1] + i * image->stride[1], 128, uv_w);
+    Memset16(image->planes[2] + i * image->stride[2], 128, uv_w);
+  }
+
+  ASSERT_EQ(aom_codec_encode(&enc, image, 0, 1, 0), AOM_CODEC_OK);
+  ASSERT_EQ(aom_codec_encode(&enc, image, 0, 1, 0), AOM_CODEC_OK);
+
+  aom_img_free(image);
+  ASSERT_EQ(aom_codec_destroy(&enc), AOM_CODEC_OK);
+#endif
+}
+
 TEST(EncodeAPI, HighBDEncoderLowBDImage) {
   aom_codec_iface_t *iface = aom_codec_av1_cx();
   aom_codec_enc_cfg_t cfg;
