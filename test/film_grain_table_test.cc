@@ -280,7 +280,7 @@ const ::libaom_test::TestMode kFilmGrainEncodeTestModes[] = {
 };
 
 class FilmGrainEncodeTest
-    : public ::libaom_test::CodecTestWith2Params<bool, ::libaom_test::TestMode>,
+    : public ::libaom_test::CodecTestWith2Params<int, ::libaom_test::TestMode>,
       public ::libaom_test::EncoderTest {
  protected:
   FilmGrainEncodeTest()
@@ -289,23 +289,32 @@ class FilmGrainEncodeTest
   ~FilmGrainEncodeTest() override = default;
 
   void SetUp() override {
+    printf("SETUP: test_mode, test_monochrome %d %d \n", test_mode_, test_monochrome_);
     InitializeConfig(test_mode_);
-    cfg_.monochrome = test_monochrome_;
+    if (test_monochrome_ == 0 || test_monochrome_ == 2)
+      cfg_.monochrome = 0;
+    else
+     cfg_.monochrome = 1;
     cfg_.rc_target_bitrate = 300;
-    cfg_.kf_max_dist = 0;
+    cfg_.kf_max_dist = 10;
+    cfg_.g_lag_in_frames = 0;
   }
 
   void PreEncodeFrameHook(::libaom_test::VideoSource *video,
                           ::libaom_test::Encoder *encoder) override {
     if (video->frame() == 0) {
       encoder->Control(AOME_SET_CPUUSED, 5);
-      encoder->Control(AV1E_SET_TUNE_CONTENT, AOM_CONTENT_FILM);
-      encoder->Control(AV1E_SET_DENOISE_NOISE_LEVEL, 1);
     } else if (video->frame() == 1) {
-      cfg_.monochrome = 0;
+      if (test_monochrome_ == 0 || test_monochrome_ == 3)
+        cfg_.monochrome = 0;
+      else
+        cfg_.monochrome = 1;
       encoder->Config(&cfg_);
     } else {
-      cfg_.monochrome = test_monochrome_;
+      if (test_monochrome_ == 0 || test_monochrome_ == 2)
+        cfg_.monochrome = 0;
+      else
+        cfg_.monochrome = 1;
       encoder->Config(&cfg_);
     }
   }
@@ -313,24 +322,29 @@ class FilmGrainEncodeTest
   bool DoDecode() const override { return false; }
 
   void DoTest() {
-    if (test_monochrome_ && test_mode_ == ::libaom_test::kRealTime) {
-      // TODO(bohanli): Running real time mode with monochrome will cause the
-      // encoder to crash. Check if this is intended or there is a bug.
+    if (test_monochrome_ && test_mode_ == 3) {
+      // Running with encoder initialized with monochrome = 1 and then
+      // encoding subsequent frame with monochrome = 0 will crash.
       GTEST_SKIP();
     }
     ::libaom_test::I420VideoSource video("hantro_collage_w352h288.yuv", 352,
-                                         288, 30, 1, 0, 3);
+                                         288, 30, 1, 0, 10);
     cfg_.g_w = video.img()->d_w;
     cfg_.g_h = video.img()->d_h;
     ASSERT_NO_FATAL_FAILURE(RunLoop(&video));
   }
 
  private:
-  bool test_monochrome_;
+  // 0: monochroome always off.
+  // 1: monochrome always on.
+  // Dynamic modes:
+  // 2: monochrome changes from 0, 1, 0, for encoded frames 0, 1, 2.
+  // 3: monochrome changes from 1, 0, 1, for encoded frames 0, 1, 2.
+  int test_monochrome_;
   ::libaom_test::TestMode test_mode_;
 };
 
 TEST_P(FilmGrainEncodeTest, Test) { DoTest(); }
 
-AV1_INSTANTIATE_TEST_SUITE(FilmGrainEncodeTest, ::testing::Bool(),
+AV1_INSTANTIATE_TEST_SUITE(FilmGrainEncodeTest, ::testing::Range(0, 4),
                            ::testing::ValuesIn(kFilmGrainEncodeTestModes));
