@@ -856,7 +856,7 @@ static void foreach_rest_unit_in_planes_mt(AV1LrStruct *lr_ctxt,
 
   if (!lr_sync->sync_range || num_rows_lr > lr_sync->rows ||
       num_workers > lr_sync->num_workers || num_planes > lr_sync->num_planes) {
-    av1_loop_restoration_dealloc(lr_sync, num_workers);
+    av1_loop_restoration_dealloc(lr_sync, lr_sync->num_workers);
     av1_loop_restoration_alloc(lr_sync, cm, num_workers, num_rows_lr,
                                num_planes, cm->width);
   }
