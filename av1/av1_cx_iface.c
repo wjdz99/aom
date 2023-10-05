@@ -3085,6 +3085,9 @@ static aom_codec_err_t encoder_encode(aom_codec_alg_priv_t *ctx,
     int is_frame_visible = 0;
     int has_no_show_keyframe = 0;
     int num_workers = 0;
+    int prev_num_mod_workers[NUM_MT_MODULES];
+    memcpy(prev_num_mod_workers, ppi->p_mt_info.num_mod_workers,
+           sizeof(ppi->p_mt_info.num_mod_workers));
 
     if (cpi->oxcf.pass == AOM_RC_FIRST_PASS) {
 #if !CONFIG_REALTIME_ONLY
@@ -3095,7 +3098,16 @@ static aom_codec_err_t encoder_encode(aom_codec_alg_priv_t *ctx,
       av1_compute_num_workers_for_mt(cpi);
       num_workers = av1_get_max_num_workers(cpi);
     }
-    if ((num_workers > 1) && (ppi->p_mt_info.num_workers == 0)) {
+    const bool has_num_mod_workers_changed =
+        memcmp(prev_num_mod_workers, ppi->p_mt_info.num_mod_workers,
+               sizeof(ppi->p_mt_info.num_mod_workers));
+    if (num_workers > 1 &&
+        (ppi->p_mt_info.num_workers == 0 || has_num_mod_workers_changed)) {
+      free_thread_data(ppi);
+      for (int j = 0; j < ppi->num_fp_contexts; j++) {
+        aom_free(ppi->parallel_cpi[j]->td.tctx);
+        ppi->parallel_cpi[j]->td.tctx = NULL;
+      }
       // Obtain the maximum no. of frames that can be supported in a parallel
       // encode set.
       if (is_stat_consumption_stage(cpi)) {
@@ -3121,8 +3133,10 @@ static aom_codec_err_t encoder_encode(aom_codec_alg_priv_t *ctx,
     if (ppi->p_mt_info.prev_num_enc_workers < num_enc_workers &&
         num_enc_workers <= ppi->p_mt_info.num_workers) {
       free_thread_data(ppi);
-      for (int j = 0; j < ppi->num_fp_contexts; j++)
+      for (int j = 0; j < ppi->num_fp_contexts; j++) {
         aom_free(ppi->parallel_cpi[j]->td.tctx);
+        ppi->parallel_cpi[j]->td.tctx = NULL;
+      }
       av1_init_tile_thread_data(ppi, cpi->oxcf.pass == AOM_RC_FIRST_PASS);
     }
 
