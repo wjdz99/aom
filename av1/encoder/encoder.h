@@ -3665,6 +3665,17 @@ struct AV1_PRIMARY *av1_create_primary_compressor(
     struct aom_codec_pkt_list *pkt_list_head, int num_lap_buffers,
     const AV1EncoderConfig *oxcf);
 
+// This function will change the state and free the mutex of corresponding
+// workers and terminate the object. The object can not be re-used unless a call
+// to reset() is made.
+static AOM_INLINE void terminate_worker_data(AV1_PRIMARY *ppi) {
+  PrimaryMultiThreadInfo *const p_mt_info = &ppi->p_mt_info;
+  for (int t = p_mt_info->num_workers - 1; t >= 0; --t) {
+    AVxWorker *const worker = &p_mt_info->workers[t];
+    aom_get_worker_interface()->end(worker);
+  }
+}
+
 void av1_remove_compressor(AV1_COMP *cpi);
 
 void av1_remove_primary_compressor(AV1_PRIMARY *ppi);

@@ -883,23 +883,21 @@ void av1_init_mt_sync(AV1_COMP *cpi, int is_first_pass) {
     tpl_row_mt->tpl_mt_exit = false;
 
 #if !CONFIG_REALTIME_ONLY
-    if (is_restoration_used(cm)) {
-      // Initialize loop restoration MT object.
-      AV1LrSync *lr_sync = &mt_info->lr_row_sync;
-      int rst_unit_size;
-      if (cm->width * cm->height > 352 * 288)
-        rst_unit_size = RESTORATION_UNITSIZE_MAX;
-      else
-        rst_unit_size = (RESTORATION_UNITSIZE_MAX >> 1);
-      int num_rows_lr = av1_lr_count_units(rst_unit_size, cm->height);
-      int num_lr_workers = av1_get_num_mod_workers_for_alloc(p_mt_info, MOD_LR);
-      if (!lr_sync->sync_range || num_rows_lr > lr_sync->rows ||
-          num_lr_workers > lr_sync->num_workers ||
-          MAX_MB_PLANE > lr_sync->num_planes) {
-        av1_loop_restoration_dealloc(lr_sync, num_lr_workers);
-        av1_loop_restoration_alloc(lr_sync, cm, num_lr_workers, num_rows_lr,
-                                   MAX_MB_PLANE, cm->width);
-      }
+    // Initialize loop restoration MT object.
+    AV1LrSync *lr_sync = &mt_info->lr_row_sync;
+    int rst_unit_size;
+    if (cm->width * cm->height > 352 * 288)
+      rst_unit_size = RESTORATION_UNITSIZE_MAX;
+    else
+      rst_unit_size = (RESTORATION_UNITSIZE_MAX >> 1);
+    int num_rows_lr = av1_lr_count_units(rst_unit_size, cm->height);
+    int num_lr_workers = av1_get_num_mod_workers_for_alloc(p_mt_info, MOD_LR);
+    if (!lr_sync->sync_range || num_rows_lr > lr_sync->rows ||
+        num_lr_workers > lr_sync->num_workers ||
+        MAX_MB_PLANE > lr_sync->num_planes) {
+      av1_loop_restoration_dealloc(lr_sync, lr_sync->num_workers);
+      av1_loop_restoration_alloc(lr_sync, cm, num_lr_workers, num_rows_lr,
+                                 MAX_MB_PLANE, cm->width);
     }
 #endif
 
@@ -1058,8 +1056,15 @@ void av1_init_tile_thread_data(AV1_PRIMARY *ppi, int is_first_pass) {
 
 void av1_create_workers(AV1_PRIMARY *ppi, int num_workers) {
   PrimaryMultiThreadInfo *const p_mt_info = &ppi->p_mt_info;
+  if (p_mt_info->num_workers >= num_workers) return;
+
   const AVxWorkerInterface *const winterface = aom_get_worker_interface();
 
+  if (p_mt_info->num_workers > 0) {
+    terminate_worker_data(ppi);
+    aom_free(ppi->p_mt_info.tile_thr_data);
+    aom_free(p_mt_info->workers);
+  }
   AOM_CHECK_MEM_ERROR(&ppi->error, p_mt_info->workers,
                       aom_malloc(num_workers * sizeof(*p_mt_info->workers)));
 
@@ -3273,7 +3278,8 @@ static AOM_INLINE int compute_num_ai_workers(AV1_COMP *cpi) {
   return AOMMIN(num_mb_rows, cpi->oxcf.max_threads);
 }
 
-int compute_num_mod_workers(AV1_COMP *cpi, MULTI_THREADED_MODULES mod_name) {
+static int compute_num_mod_workers(AV1_COMP *cpi,
+                                   MULTI_THREADED_MODULES mod_name) {
   int num_mod_workers = 0;
   switch (mod_name) {
     case MOD_FP:
@@ -3313,7 +3319,8 @@ int compute_num_mod_workers(AV1_COMP *cpi, MULTI_THREADED_MODULES mod_name) {
 }
 // Computes the number of workers for each MT modules in the encoder
 void av1_compute_num_workers_for_mt(AV1_COMP *cpi) {
-  for (int i = MOD_FP; i < NUM_MT_MODULES; i++)
+  for (int i = MOD_FP; i < NUM_MT_MODULES; i++) {
     cpi->ppi->p_mt_info.num_mod_workers[i] =
         compute_num_mod_workers(cpi, (MULTI_THREADED_MODULES)i);
+  }
 }
