@@ -293,7 +293,6 @@ aom_fixed_buf_t *aom_codec_get_global_headers(aom_codec_ctx_t *ctx) {
 aom_codec_err_t aom_codec_enc_config_set(aom_codec_ctx_t *ctx,
                                          const aom_codec_enc_cfg_t *cfg) {
   aom_codec_err_t res;
-
   if (!ctx || !ctx->iface || !ctx->priv || !cfg)
     res = AOM_CODEC_INVALID_PARAM;
   else if (!(ctx->iface->caps & AOM_CODEC_CAP_ENCODER))
