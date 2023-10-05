@@ -1442,6 +1442,7 @@ typedef struct RD_COUNTS {
 
 typedef struct ThreadData {
   MACROBLOCK mb;
+  MvCosts *mv_costs_base_ptr;
   RD_COUNTS rd_counts;
   FRAME_COUNTS *counts;
   PC_TREE_SHARED_BUFFERS shared_coeff_buf;
