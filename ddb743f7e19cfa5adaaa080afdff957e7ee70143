@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "31c6d749_8432b0be",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 1780,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-10-05T19:47:46Z",
+      "side": 1,
+      "message": "you can break here and add a check in the outer loop for !error.",
+      "revId": "ddb743f7e19cfa5adaaa080afdff957e7ee70143",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "40af2a50_04b3a3b3",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 1785,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-10-05T19:47:46Z",
+      "side": 1,
+      "message": "make this a loop condition",
+      "revId": "ddb743f7e19cfa5adaaa080afdff957e7ee70143",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
