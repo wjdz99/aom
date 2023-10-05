@@ -1470,10 +1470,12 @@ static AOM_INLINE void accumulate_counters_enc_workers(AV1_COMP *cpi,
       // Keep these conditional expressions in sync with the corresponding ones
       // in prepare_enc_workers().
       if (cpi->sf.inter_sf.mv_cost_upd_level != INTERNAL_COST_UPD_OFF) {
-        aom_free(thread_data->td->mb.mv_costs);
+        aom_free(thread_data->td->mv_costs_base_ptr);
+        thread_data->td->mv_costs_base_ptr = NULL;
       }
       if (cpi->sf.intra_sf.dv_cost_upd_level != INTERNAL_COST_UPD_OFF) {
-        aom_free(thread_data->td->mb.dv_costs);
+        aom_free(thread_data->td->dv_costs_base_ptr);
+        thread_data->td->dv_costs_base_ptr = NULL;
       }
     }
     av1_dealloc_mb_data(&cpi->common, &thread_data->td->mb);
@@ -1540,8 +1542,10 @@ static AOM_INLINE void prepare_enc_workers(AV1_COMP *cpi, AVxWorkerHook hook,
       // Keep these conditional expressions in sync with the corresponding ones
       // in accumulate_counters_enc_workers().
       if (cpi->sf.inter_sf.mv_cost_upd_level != INTERNAL_COST_UPD_OFF) {
-        CHECK_MEM_ERROR(cm, thread_data->td->mb.mv_costs,
-                        (MvCosts *)aom_malloc(sizeof(MvCosts)));
+        CHECK_MEM_ERROR(
+            cm, thread_data->td->mv_costs_base_ptr,
+            (MvCosts *)aom_malloc(sizeof(*thread_data->td->mv_costs_base_ptr)));
+        thread_data->td->mb.mv_costs = thread_data->td->mv_costs_base_ptr;
         memcpy(thread_data->td->mb.mv_costs, cpi->td.mb.mv_costs,
                sizeof(MvCosts));
       }
@@ -1551,8 +1555,10 @@ static AOM_INLINE void prepare_enc_workers(AV1_COMP *cpi, AVxWorkerHook hook,
         // aom_free() call for the same.
         thread_data->td->mb.dv_costs = NULL;
         if (av1_need_dv_costs(cpi)) {
-          CHECK_MEM_ERROR(cm, thread_data->td->mb.dv_costs,
-                          (IntraBCMVCosts *)aom_malloc(sizeof(IntraBCMVCosts)));
+          CHECK_MEM_ERROR(cm, thread_data->td->dv_costs_base_ptr,
+                          (IntraBCMVCosts *)aom_malloc(
+                              sizeof(*thread_data->td->dv_costs_base_ptr)));
+          thread_data->td->mb.dv_costs = thread_data->td->dv_costs_base_ptr;
           memcpy(thread_data->td->mb.dv_costs, cpi->td.mb.dv_costs,
                  sizeof(IntraBCMVCosts));
         }

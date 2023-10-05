@@ -809,10 +809,11 @@ void av1_initialize_rd_consts(AV1_COMP *cpi) {
 
   // Frame level dv cost update
   if (av1_need_dv_costs(cpi)) {
-    if (cpi->td.mb.dv_costs == NULL) {
+    if (cpi->td.dv_costs_base_ptr == NULL) {
       CHECK_MEM_ERROR(
-          cm, cpi->td.mb.dv_costs,
-          (IntraBCMVCosts *)aom_malloc(sizeof(*cpi->td.mb.dv_costs)));
+          cm, cpi->td.dv_costs_base_ptr,
+          (IntraBCMVCosts *)aom_malloc(sizeof(*cpi->td.dv_costs_base_ptr)));
+      cpi->td.mb.dv_costs = cpi->td.dv_costs_base_ptr;
     }
     av1_fill_dv_costs(&cm->fc->ndvc, x->dv_costs);
   }
