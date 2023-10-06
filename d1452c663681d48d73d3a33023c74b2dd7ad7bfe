@@ -20,6 +20,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "24857e68_cc094fd9",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2023-10-06T19:17:49Z",
+      "side": 1,
+      "message": "The description will be added to the issue tracker.",
+      "parentUuid": "16652d49_f645e945",
+      "revId": "d1452c663681d48d73d3a33023c74b2dd7ad7bfe",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "d0205ef5_7b4bb7e2",
         "filename": "/PATCHSET_LEVEL",
         "patchSetId": 4
@@ -70,6 +88,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "7cf5eb68_8770f31b",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 3088,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2023-10-06T19:17:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8c4af293_0149674d",
+      "revId": "d1452c663681d48d73d3a33023c74b2dd7ad7bfe",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c6fe388f_fc4eafe7",
@@ -83,6 +119,24 @@
       "writtenOn": "2023-10-06T18:47:51Z",
       "side": 1,
       "message": "To avoid dangling pointers, set a pointer to null after freeing it (unless it\u0027s clear that we immediately set the pointer to a new value):\n\n```\n      for (int j \u003d 0; j \u003c ppi-\u003enum_fp_contexts; j++) {\n        aom_free(ppi-\u003eparallel_cpi[j]-\u003etd.tctx);\n        ppi-\u003eparallel_cpi[j]-\u003etd.tctx \u003d NULL;\n      }\n```",
+      "revId": "d1452c663681d48d73d3a33023c74b2dd7ad7bfe",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "96f7e06b_6f005cd7",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 3108,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2023-10-06T19:17:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c6fe388f_fc4eafe7",
       "revId": "d1452c663681d48d73d3a33023c74b2dd7ad7bfe",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -104,6 +158,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f7a6d05b_b83bca86",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 3135,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2023-10-06T19:17:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2b781a51_0a2963d2",
+      "revId": "d1452c663681d48d73d3a33023c74b2dd7ad7bfe",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "56468618_de66fca3",
@@ -121,6 +193,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "952f39cb_1224c2f2",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1059,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2023-10-06T19:17:49Z",
+      "side": 1,
+      "message": "When p_mt_info is not initialized, i.e. the first time av1_create_workers is called, p_mt_info-\u003enum_workers \u003d 0.\nSo, we need to make sure the first time av1_create_workers is called, it should not early exit.\nFrom av1_cx_iface.c line 3105, you can see that initially, p_mt_info-\u003enum_workers \u003d 0.",
+      "parentUuid": "56468618_de66fca3",
+      "revId": "d1452c663681d48d73d3a33023c74b2dd7ad7bfe",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d4b8719e_5e3198b7",
@@ -134,6 +224,24 @@
       "writtenOn": "2023-10-06T18:47:51Z",
       "side": 1,
       "message": "The early return implies that we may reach here with `p_mt_info-\u003enum_workers \u003c num_workers \u0026\u0026 p_mt_info-\u003enum_workers \u003e 0`. If so, we should free `p_mt_info-\u003eworkers`  and `p_mt_info-\u003etile_thr_data` first, otherwise they will be leaked. Right?",
+      "revId": "d1452c663681d48d73d3a33023c74b2dd7ad7bfe",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9018b063_6c7ae2fc",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1066,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2023-10-06T19:17:49Z",
+      "side": 1,
+      "message": "That\u0027s a good catch!\nnote that tile_thr_data has been freed at line 3106 in av1_cx_iface.c\nI added free of p_mt_info-\u003eworkers here.",
+      "parentUuid": "d4b8719e_5e3198b7",
       "revId": "d1452c663681d48d73d3a33023c74b2dd7ad7bfe",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
