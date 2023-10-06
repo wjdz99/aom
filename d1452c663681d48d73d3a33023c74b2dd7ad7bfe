@@ -213,6 +213,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "739f2fc3_2991475c",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1059,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-10-06T21:24:58Z",
+      "side": 1,
+      "message": "I was asking about the `num_workers` input parameter of `av1_create_workers()`. Do we ever call `av1_create_workers()` with the `num_workers` input parameter equal to 0?\n\nThe reason I asked is that, if we can assume `num_workers \u003e 0`, then the condition\n\n```\np_mt_info-\u003enum_workers \u003e\u003d num_workers \u0026\u0026 p_mt_info-\u003enum_workers \u003e 0\n```\n\ncan be simplified to\n\n```\np_mt_info-\u003enum_workers \u003e\u003d num_workers\n```",
+      "parentUuid": "952f39cb_1224c2f2",
+      "revId": "d1452c663681d48d73d3a33023c74b2dd7ad7bfe",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "d4b8719e_5e3198b7",
         "filename": "av1/encoder/ethread.c",
         "patchSetId": 4
@@ -242,6 +260,24 @@
       "side": 1,
       "message": "That\u0027s a good catch!\nnote that tile_thr_data has been freed at line 3106 in av1_cx_iface.c\nI added free of p_mt_info-\u003eworkers here.",
       "parentUuid": "d4b8719e_5e3198b7",
+      "revId": "d1452c663681d48d73d3a33023c74b2dd7ad7bfe",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2e52dbbf_b4d823c9",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1066,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-10-06T21:24:58Z",
+      "side": 1,
+      "message": "\u003e note that tile_thr_data has been freed at line 3106 in av1_cx_iface.c\n\nAre you referring to the `free_thread_data(ppi)` call?\n\n`free_thread_data()` does not free the `tile_thr_data` array.",
+      "parentUuid": "9018b063_6c7ae2fc",
       "revId": "d1452c663681d48d73d3a33023c74b2dd7ad7bfe",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }

@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9dbfc302_96242579",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 1066,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-10-06T21:24:58Z",
+      "side": 1,
+      "message": "Before we can free the `p_mt_info-\u003eworkers` array, I think we need to shut down the worker threads and free them properly.\n\nNote that `av1_remove_primary_compressor()` does the following:\n\n```\n  terminate_worker_data(ppi);\n  free_thread_data(ppi);\n\n  aom_free(ppi-\u003ep_mt_info.tile_thr_data);\n  aom_free(ppi-\u003ep_mt_info.workers);\n```\n\nSo we also need to call `terminate_worker_data()` and free `tile_thr_data`.",
+      "revId": "1657826cd0832d4a5a4667da3dc5b09a0e1a1c3f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
