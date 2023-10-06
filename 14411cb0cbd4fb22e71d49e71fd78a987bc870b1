@@ -22,6 +22,30 @@
       },
       "revId": "14411cb0cbd4fb22e71d49e71fd78a987bc870b1",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c24fd172_aeac7970",
+        "filename": "test/film_grain_table_test.cc",
+        "patchSetId": 15
+      },
+      "lineNbr": 297,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2023-10-06T17:25:04Z",
+      "side": 1,
+      "message": "Ok, will follow up cleanup in next CL.",
+      "parentUuid": "b6215128_49309338",
+      "range": {
+        "startLine": 297,
+        "startChar": 6,
+        "endLine": 297,
+        "endChar": 22
+      },
+      "revId": "14411cb0cbd4fb22e71d49e71fd78a987bc870b1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
