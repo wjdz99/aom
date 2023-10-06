@@ -34,6 +34,24 @@
       "parentUuid": "08d659f6_196800e5",
       "revId": "26497ba5cc485c7220eeca6ebfb822a66d0322dd",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "69123724_cdf6cda6",
+        "filename": "aom_dsp/arm/variance_neon.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 464,
+      "author": {
+        "id": 32618
+      },
+      "writtenOn": "2023-10-06T20:49:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3a91516b_403ef3c0",
+      "revId": "26497ba5cc485c7220eeca6ebfb822a66d0322dd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
