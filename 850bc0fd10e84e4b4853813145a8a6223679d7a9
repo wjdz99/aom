@@ -59,6 +59,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "593d24fe_6d5cced6",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1509,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2023-10-06T23:46:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a760d73b_0f2b089b",
+      "range": {
+        "startLine": 1509,
+        "startChar": 21,
+        "endLine": 1509,
+        "endChar": 39
+      },
+      "revId": "850bc0fd10e84e4b4853813145a8a6223679d7a9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "855c1618_9ecb4c2b",
@@ -72,6 +96,24 @@
       "writtenOn": "2023-10-06T17:01:56Z",
       "side": 1,
       "message": "This could get a TODO comment since I don\u0027t see it being impossible to switch if going in the other direction works, though that\u0027s easier given the allocations.",
+      "revId": "850bc0fd10e84e4b4853813145a8a6223679d7a9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "60e492f9_915e5488",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1510,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2023-10-06T23:46:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "855c1618_9ecb4c2b",
       "revId": "850bc0fd10e84e4b4853813145a8a6223679d7a9",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -160,6 +202,24 @@
       "side": 1,
       "message": "That works for this CL and for this particular case.\n\nWhat I suggested is just inspired by this CL as we don\u0027t have many tests expecting the encoder to fail.\nIt\u0027s not against what you suggested for this CL but that would benefit other tests and potentially new tests. If `RunLoop()` (and other functions within `encode_test_driver.h`) returns the error code / message we can check it more precisely against what kind of error the test is expecting, instead of just fatal or no failure.",
       "parentUuid": "7479e886_d3199845",
+      "revId": "850bc0fd10e84e4b4853813145a8a6223679d7a9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "03a67959_41c87952",
+        "filename": "test/film_grain_table_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 332,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2023-10-06T23:46:21Z",
+      "side": 1,
+      "message": "Don\u0027t see an ASSERT_FATAL_FAILURE or ASSERT_FAILURE option, so not sure what to use here.",
+      "parentUuid": "f16ae125_49f28fbb",
       "revId": "850bc0fd10e84e4b4853813145a8a6223679d7a9",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
