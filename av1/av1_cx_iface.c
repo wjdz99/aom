@@ -1506,6 +1506,10 @@ static aom_codec_err_t encoder_set_config(aom_codec_alg_priv_t *ctx,
       force_key = 1;
   }
 
+  if (ctx->ppi->cpi->monochrome_on_init && cfg->monochrome == 0) {
+    ERROR("Cannot change to monochrome = 0 after init with monochrome");
+  }
+
   // Prevent increasing lag_in_frames. This check is stricter than it needs
   // to be -- the limit is not increasing past the first lag_in_frames
   // value, but we don't track the initial config, only the last successful

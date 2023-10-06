@@ -3494,6 +3494,11 @@ typedef struct AV1_COMP {
    */
   bool is_dropped_frame;
 
+  /*!
+   * Flag to indicate encoder is initialized with monochrome.
+   */
+  bool monochrome_on_init;
+
 #if CONFIG_BITRATE_ACCURACY
   /*!
    * Structure stores information needed for bitrate accuracy experiment.

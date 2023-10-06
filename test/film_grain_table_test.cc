@@ -327,7 +327,9 @@ class FilmGrainEncodeTest
   void DoTest() {
     if (test_monochrome_ == 3) {
       // Running with encoder initialized with monochrome = 1 and then
-      // encoding subsequent frame with monochrome = 0 will crash.
+      // encoding subsequent frame with monochrome = 0 will result in
+      // an error, see the following check in encoder_set_config() in
+      // av1/av1_cx_iface.c.
       GTEST_SKIP();
     }
     ::libaom_test::I420VideoSource video("hantro_collage_w352h288.yuv", 352,

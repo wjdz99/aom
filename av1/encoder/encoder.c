@@ -641,6 +641,7 @@ static void init_config(struct AV1_COMP *cpi, const AV1EncoderConfig *oxcf) {
   cm->width = oxcf->frm_dim_cfg.width;
   cm->height = oxcf->frm_dim_cfg.height;
   cpi->is_dropped_frame = false;
+  cpi->monochrome_on_init = cpi->oxcf.tool_cfg.enable_monochrome;
 
   alloc_compressor_data(cpi);
 
