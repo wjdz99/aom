@@ -308,16 +308,10 @@ class FilmGrainEncodeTest
       encoder->Control(AV1E_SET_TUNE_CONTENT, AOM_CONTENT_FILM);
       encoder->Control(AV1E_SET_DENOISE_NOISE_LEVEL, 1);
     } else if (video->frame() == 1) {
-      if (test_monochrome_ == 0 || test_monochrome_ == 3)
-        cfg_.monochrome = 0;
-      else
-        cfg_.monochrome = 1;
+      cfg_.monochrome = !(test_monochrome_ == 0 || test_monochrome_ == 3);
       encoder->Config(&cfg_);
     } else {
-      if (test_monochrome_ == 0 || test_monochrome_ == 2)
-        cfg_.monochrome = 0;
-      else
-        cfg_.monochrome = 1;
+      cfg_.monochrome = !(test_monochrome_ == 0 || test_monochrome_ == 2);
       encoder->Config(&cfg_);
     }
   }
@@ -327,7 +321,9 @@ class FilmGrainEncodeTest
   void DoTest() {
     if (test_monochrome_ == 3) {
       // Running with encoder initialized with monochrome = 1 and then
-      // encoding subsequent frame with monochrome = 0 will crash.
+      // encoding subsequent frame with monochrome = 0 will result in
+      // an error, see the following check in encoder_set_config() in
+      // av1/av1_cx_iface.c.
       GTEST_SKIP();
     }
     ::libaom_test::I420VideoSource video("hantro_collage_w352h288.yuv", 352,
