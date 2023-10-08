@@ -291,10 +291,7 @@ class FilmGrainEncodeTest
 
   void SetUp() override {
     InitializeConfig(test_mode_);
-    if (test_monochrome_ == 0 || test_monochrome_ == 2)
-      cfg_.monochrome = 0;
-    else
-      cfg_.monochrome = 1;
+    cfg_.monochrome = !(test_monochrome_ == 0 || test_monochrome_ == 2);
     cfg_.rc_target_bitrate = 300;
     cfg_.kf_max_dist = key_frame_dist_;
     cfg_.g_lag_in_frames = 0;
@@ -308,16 +305,10 @@ class FilmGrainEncodeTest
       encoder->Control(AV1E_SET_TUNE_CONTENT, AOM_CONTENT_FILM);
       encoder->Control(AV1E_SET_DENOISE_NOISE_LEVEL, 1);
     } else if (video->frame() == 1) {
-      if (test_monochrome_ == 0 || test_monochrome_ == 3)
-        cfg_.monochrome = 0;
-      else
-        cfg_.monochrome = 1;
+      cfg_.monochrome = !(test_monochrome_ == 0 || test_monochrome_ == 3);
       encoder->Config(&cfg_);
     } else {
-      if (test_monochrome_ == 0 || test_monochrome_ == 2)
-        cfg_.monochrome = 0;
-      else
-        cfg_.monochrome = 1;
+      cfg_.monochrome = !(test_monochrome_ == 0 || test_monochrome_ == 2);
       encoder->Config(&cfg_);
     }
   }
@@ -327,7 +318,9 @@ class FilmGrainEncodeTest
   void DoTest() {
     if (test_monochrome_ == 3) {
       // Running with encoder initialized with monochrome = 1 and then
-      // encoding subsequent frame with monochrome = 0 will crash.
+      // encoding subsequent frame with monochrome = 0 will result in
+      // an error, see the following check in encoder_set_config() in
+      // av1/av1_cx_iface.c.
       GTEST_SKIP();
     }
     ::libaom_test::I420VideoSource video("hantro_collage_w352h288.yuv", 352,
@@ -335,6 +328,58 @@ class FilmGrainEncodeTest
     cfg_.g_w = video.img()->d_w;
     cfg_.g_h = video.img()->d_h;
     ASSERT_NO_FATAL_FAILURE(RunLoop(&video));
+  }
+
+  void DoTest2() {
+    const int kWidth = 352;
+    const int kHeight = 288;
+    const int usage =
+        (test_mode_ == 0) ? AOM_USAGE_REALTIME : AOM_USAGE_GOOD_QUALITY;
+    aom_codec_iface_t *iface = aom_codec_av1_cx();
+    aom_codec_enc_cfg_t cfg;
+    ASSERT_EQ(aom_codec_enc_config_default(iface, &cfg, usage), AOM_CODEC_OK);
+    aom_codec_ctx_t enc;
+    cfg = cfg_;
+    cfg.g_w = kWidth;
+    cfg.g_h = kHeight;
+     // Initialize encoder.
+    aom_codec_err_t init_status = aom_codec_enc_init(&enc, iface, &cfg, 0);
+    ASSERT_EQ(init_status, AOM_CODEC_OK);
+    const int speed = (usage == AOM_USAGE_REALTIME) ? 7 : 5;
+    ASSERT_EQ(aom_codec_control(&enc, AOME_SET_CPUUSED, speed), AOM_CODEC_OK);
+    // Set image with zero values.
+    constexpr size_t kBufferSize =
+        kWidth * kHeight + 2 * (kWidth + 1) / 2 * (kHeight + 1) / 2;
+    std::vector<unsigned char> buffer(kBufferSize);
+    aom_image_t img;
+    EXPECT_EQ(&img, aom_img_wrap(&img, AOM_IMG_FMT_I420, kWidth, kHeight, 1,
+                                 buffer.data()));
+    /*
+    aom_image_t *image =
+       aom_img_alloc(NULL, AOM_IMG_FMT_I420, cfg.g_w, cfg.g_h, 0);
+    ASSERT_NE(image, nullptr);
+    for (unsigned int i = 0; i < image->d_h; ++i) {
+      memset(image->planes[0] + i * image->stride[0], 128, image->d_w);
+    }
+    unsigned int uv_h = (image->d_h + 1) / 2;
+    unsigned int uv_w = (image->d_w + 1) / 2;
+    for (unsigned int i = 0; i < uv_h; ++i) {
+      memset(image->planes[1] + i * image->stride[1], 128, uv_w);
+      memset(image->planes[2] + i * image->stride[2], 128, uv_w);
+    }
+    */
+    // Encode first frame.
+    ASSERT_EQ(aom_codec_encode(&enc, &img, 0, 1, 0), AOM_CODEC_OK);
+    // Second frame: update config with monochrome setting.
+    cfg.monochrome = !(test_monochrome_ == 0 || test_monochrome_ == 3);
+    if (test_monochrome_ == 3) {
+      ASSERT_EQ(aom_codec_enc_config_set(&enc, &cfg), AOM_CODEC_INVALID_PARAM);
+    }
+    else {
+      ASSERT_EQ(aom_codec_enc_config_set(&enc, &cfg), AOM_CODEC_OK);
+    }
+    //aom_img_free(image);
+    ASSERT_EQ(aom_codec_destroy(&enc), AOM_CODEC_OK);
   }
 
  private:
@@ -349,6 +394,8 @@ class FilmGrainEncodeTest
 };
 
 TEST_P(FilmGrainEncodeTest, Test) { DoTest(); }
+
+TEST_P(FilmGrainEncodeTest, Test2) { DoTest2(); }
 
 AV1_INSTANTIATE_TEST_SUITE(FilmGrainEncodeTest, ::testing::Range(0, 4),
                            ::testing::Values(0, 10),
