@@ -1,6 +1,125 @@
 {
   "comments": [
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "524ab4e8_519cd2c3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-10-09T23:46:21Z",
+      "side": 1,
+      "message": "Cheng: I took a closer look at the bug and found that a simpler version of your fix can also pass the test.",
+      "revId": "de16080db2ec343c7652477584fbafdc7a340830",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8cd55a7f_959a5fdd",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 3110,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-10-09T23:46:21Z",
+      "side": 1,
+      "message": "I found that we don\u0027t need any of the changes here (from line 3088 to line 3110) and also the changes to `av1_create_workers()` if we make the change below. See my comment at line 3126.",
+      "revId": "de16080db2ec343c7652477584fbafdc7a340830",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "18e126a7_5d3b05b6",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 3126,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-10-09T23:46:21Z",
+      "side": 1,
+      "message": "This is the most important simplification to your fix.\n\nI inspected `av1_init_mt_sync()` and found that it is safe to call that function unconditionally. So we can move lines 3118-3126 out of the if statement. This allows us to respond to changes to the number of loop filtering and loop restoration threads.\n\nTo be precise, here is what the code after line 3100 should look like:\n\n```\n    if ((num_workers \u003e 1) \u0026\u0026 (ppi-\u003ep_mt_info.num_workers \u003d\u003d 0)) {\n      // Obtain the maximum no. of frames that can be supported in a parallel\n      // encode set.\n      if (is_stat_consumption_stage(cpi)) {\n        ppi-\u003enum_fp_contexts \u003d av1_compute_num_fp_contexts(ppi, \u0026cpi-\u003eoxcf);\n      }\n      av1_create_workers(ppi, num_workers);\n      av1_init_tile_thread_data(ppi, cpi-\u003eoxcf.pass \u003d\u003d AOM_RC_FIRST_PASS);\n    }\n#if CONFIG_MULTITHREAD\n    for (int i \u003d 0; i \u003c ppi-\u003enum_fp_contexts; i++) {\n      av1_init_mt_sync(ppi-\u003eparallel_cpi[i],\n                       ppi-\u003eparallel_cpi[i]-\u003eoxcf.pass \u003d\u003d AOM_RC_FIRST_PASS);\n    } \n    if (cpi_lap !\u003d NULL) {\n      av1_init_mt_sync(cpi_lap, 1);\n    }\n#endif  // CONFIG_MULTITHREAD\n```",
+      "revId": "de16080db2ec343c7652477584fbafdc7a340830",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e23c3d1f_c4ac30cf",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 3139,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-10-09T23:46:21Z",
+      "side": 1,
+      "message": "We can keep this change to avoid a dangling pointer.",
+      "revId": "de16080db2ec343c7652477584fbafdc7a340830",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0b2248b1_d8e96c4e",
+        "filename": "av1/common/thread_common.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 859,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-10-09T23:46:21Z",
+      "side": 1,
+      "message": "Instead of correcting the second argument to the `av1_loop_restoration_dealloc()` calls, I suggest removing the second parameter from that function.\n\nTo be precise, make the following change to av1/common/thread_common.c:\n\n```\ndiff --git a/av1/common/thread_common.c b/av1/common/thread_common.c\nindex 54d78f7585..e5c440930a 100644\n--- a/av1/common/thread_common.c\n+++ b/av1/common/thread_common.c\n@@ -631,7 +631,7 @@ void av1_loop_restoration_alloc(AV1LrSync *lr_sync, AV1_COMMON *cm,\n }\n \n // Deallocate loop restoration synchronization related mutex and data\n-void av1_loop_restoration_dealloc(AV1LrSync *lr_sync, int num_workers) {\n+void av1_loop_restoration_dealloc(AV1LrSync *lr_sync) {\n   if (lr_sync !\u003d NULL) {\n     int j;\n #if CONFIG_MULTITHREAD\n@@ -662,7 +662,7 @@ void av1_loop_restoration_dealloc(AV1LrSync *lr_sync, int num_workers) {\n     aom_free(lr_sync-\u003ejob_queue);\n \n     if (lr_sync-\u003elrworkerdata) {\n-      for (int worker_idx \u003d 0; worker_idx \u003c num_workers - 1; worker_idx++) {\n+      for (int worker_idx \u003d 0; worker_idx \u003c lr_sync-\u003enum_workers - 1; worker_idx++) {\n         LRWorkerData *const workerdata_data \u003d\n             lr_sync-\u003elrworkerdata + worker_idx;\n \n```",
+      "revId": "de16080db2ec343c7652477584fbafdc7a340830",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "750513ee_078db6ee",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 3677,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-10-09T23:46:21Z",
+      "side": 1,
+      "message": "Undo this change.",
+      "revId": "de16080db2ec343c7652477584fbafdc7a340830",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b6ff6130_995bcd47",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 886,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-10-09T23:46:21Z",
+      "side": 1,
+      "message": "I can pass the test without deleting the `if (is_restoration_used(cm))` check. I suggest undoing this change.",
+      "revId": "de16080db2ec343c7652477584fbafdc7a340830",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e5eda2b1_a9497842",
@@ -32,6 +151,58 @@
       "side": 1,
       "message": "I think this part of the CL can be improved, so I am taking a closer look at the bug and the CL. I will make sure to suggest this kind of change in my comments.",
       "parentUuid": "e5eda2b1_a9497842",
+      "revId": "de16080db2ec343c7652477584fbafdc7a340830",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5e1a65a0_8eae2771",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 1066,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-10-09T23:46:21Z",
+      "side": 1,
+      "message": "Undo the changes to this function.",
+      "parentUuid": "1b3f1213_04c9433d",
+      "revId": "de16080db2ec343c7652477584fbafdc7a340830",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "91f8142a_4b062013",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 3282,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-10-09T23:46:21Z",
+      "side": 1,
+      "message": "Keep the rest of the (code cleanup) changes in this file.",
+      "revId": "de16080db2ec343c7652477584fbafdc7a340830",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b54534be_672ac0c0",
+        "filename": "test/resize_test.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 1093,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-10-09T23:46:21Z",
+      "side": 1,
+      "message": "Nit: Pass 1 as the third argument.\n\nThe third argument is the `pts`. In the first `aom_codec_encode()` call, `pts\u003d0` and `duration\u003d1`. So in the second call, `pts` needs to be \u003e\u003d 0 + 1 \u003d 1.",
       "revId": "de16080db2ec343c7652477584fbafdc7a340830",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
