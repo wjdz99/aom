@@ -896,7 +896,7 @@ void av1_init_mt_sync(AV1_COMP *cpi, int is_first_pass) {
       if (!lr_sync->sync_range || num_rows_lr > lr_sync->rows ||
           num_lr_workers > lr_sync->num_workers ||
           MAX_MB_PLANE > lr_sync->num_planes) {
-        av1_loop_restoration_dealloc(lr_sync, num_lr_workers);
+        av1_loop_restoration_dealloc(lr_sync);
         av1_loop_restoration_alloc(lr_sync, cm, num_lr_workers, num_rows_lr,
                                    MAX_MB_PLANE, cm->width);
       }
@@ -916,7 +916,7 @@ void av1_init_mt_sync(AV1_COMP *cpi, int is_first_pass) {
 
 // Computes the number of workers to be considered while allocating memory for a
 // multi-threaded module under FPMT.
-int av1_get_num_mod_workers_for_alloc(PrimaryMultiThreadInfo *const p_mt_info,
+int av1_get_num_mod_workers_for_alloc(const PrimaryMultiThreadInfo *p_mt_info,
                                       MULTI_THREADED_MODULES mod_name) {
   int num_mod_workers = p_mt_info->num_mod_workers[mod_name];
   if (p_mt_info->num_mod_workers[MOD_FRAME_ENC] > 1) {
