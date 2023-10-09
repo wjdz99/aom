@@ -193,6 +193,11 @@ void EncoderTest::RunLoop(VideoSource *video) {
     ASSERT_NE(encoder, nullptr);
 
     ASSERT_NO_FATAL_FAILURE(video->Begin());
+    if (video->img() && (cfg_.g_w != video->img()->d_w ||
+                         cfg_.g_h != video->img()->d_h)) {
+      cfg_.g_w = video->img()->d_w;
+      cfg_.g_h = video->img()->d_h;
+    }
     encoder->InitEncoder(video);
 
     if (mode_ == kRealTime) {

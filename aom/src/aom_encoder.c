@@ -298,8 +298,16 @@ aom_codec_err_t aom_codec_enc_config_set(aom_codec_ctx_t *ctx,
     res = AOM_CODEC_INVALID_PARAM;
   else if (!(ctx->iface->caps & AOM_CODEC_CAP_ENCODER))
     res = AOM_CODEC_INCAPABLE;
-  else
+  else {
     res = ctx->iface->enc.cfg_set(get_alg_priv(ctx), cfg);
+    if (res != AOM_CODEC_OK) return SAVE_STATUS(ctx, res);
+    // Whenever config is reset, free memory and destroy codec context. Then
+    // initialize it according to the new config.
+    aom_codec_iface_t *iface = ctx->iface;
+    res = aom_codec_destroy(ctx);
+    if (res != AOM_CODEC_OK) return SAVE_STATUS(ctx, res);
+    res = aom_codec_enc_init(ctx, iface, cfg, 0);
+  }
 
   return SAVE_STATUS(ctx, res);
 }

@@ -966,6 +966,8 @@ aom_codec_err_t aom_codec_enc_config_default(aom_codec_iface_t *iface,
 /*!\brief Set or change configuration
  *
  * Reconfigures an encoder instance according to the given configuration.
+ * Free memory and destroy the codec context by calling aom_codec_destroy().
+ * Then initialize the condec context by calling aom_codec_enc_init_ver().
  *
  * \param[in]    ctx     Pointer to this instance's context
  * \param[in]    cfg     Configuration buffer to use

@@ -1486,6 +1486,10 @@ AV1_COMP *av1_create_compressor(AV1_PRIMARY *ppi, const AV1EncoderConfig *oxcf,
     max_mi_rows = size_in_mi(oxcf->frm_dim_cfg.forced_max_frame_height);
   }
 
+  if (cpi->consec_zero_mv) {
+    aom_free(cpi->consec_zero_mv);
+    cpi->consec_zero_mv = NULL;
+  }
   CHECK_MEM_ERROR(cm, cpi->consec_zero_mv,
                   aom_calloc((max_mi_rows * max_mi_cols) >> 2,
                              sizeof(*cpi->consec_zero_mv)));
