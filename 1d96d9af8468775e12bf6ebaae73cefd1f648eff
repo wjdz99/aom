@@ -1,0 +1,106 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b1f163fa_9cd96961",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-10-09T17:30:41Z",
+      "side": 1,
+      "message": "Marco: This looks good. I suggest a few simple changes. Thanks.",
+      "revId": "1d96d9af8468775e12bf6ebaae73cefd1f648eff",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "efa27ba7_d2bafd3e",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1511,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-10-09T17:30:41Z",
+      "side": 1,
+      "message": "Nit: Change \"Any\" to the bug number \"aomedia:3465\" in the TODO.",
+      "revId": "1d96d9af8468775e12bf6ebaae73cefd1f648eff",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f27754f1_fb4495ec",
+        "filename": "test/film_grain_table_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 294,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-10-09T17:30:41Z",
+      "side": 1,
+      "message": "Nit: In the new form, I think it is clearer to list the monochrome test modes that set `cfg_.monochrome` to 1. For example, here it would be clearer to say:\n\n```\n    cfg_.monochrome \u003d test_monochrome_ \u003d\u003d 1;\n```\n\nMake the same change to line 311.",
+      "revId": "1d96d9af8468775e12bf6ebaae73cefd1f648eff",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "72ce7403_74ce8a59",
+        "filename": "test/film_grain_table_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 308,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-10-09T17:30:41Z",
+      "side": 1,
+      "message": "Nit: Note that monochrome test mode 3 no longer exists. Here it\u0027d be clearer to say\n\n```\n     cfg_.monochrome \u003d (test_monochrome_ \u003d\u003d 1 || test_monochrome_ \u003d\u003d 2);\n```",
+      "revId": "1d96d9af8468775e12bf6ebaae73cefd1f648eff",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f108825c_84895f26",
+        "filename": "test/film_grain_table_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 349,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-10-09T17:30:41Z",
+      "side": 1,
+      "message": "Nit: Remove the underscore in the test name. See https://clang.llvm.org/extra/clang-tidy/checks/google/readability-avoid-underscore-in-googletest-name.html\n\nand https://github.com/google/googletest/blob/main/docs/faq.md.",
+      "revId": "1d96d9af8468775e12bf6ebaae73cefd1f648eff",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e2422e95_6332b951",
+        "filename": "test/film_grain_table_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 363,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-10-09T17:30:41Z",
+      "side": 1,
+      "message": "Just set `speed` to 7 unconditionally? See line 352. `usage \u003d\u003d AOM_USAGE_REALTIME` is always true.",
+      "revId": "1d96d9af8468775e12bf6ebaae73cefd1f648eff",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
