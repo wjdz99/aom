@@ -3112,6 +3112,8 @@ static aom_codec_err_t encoder_encode(aom_codec_alg_priv_t *ctx,
       }
       av1_create_workers(ppi, num_workers);
       av1_init_tile_thread_data(ppi, cpi->oxcf.pass == AOM_RC_FIRST_PASS);
+    }
+    if (ppi->p_mt_info.num_workers > 1) {
 #if CONFIG_MULTITHREAD
       for (int i = 0; i < ppi->num_fp_contexts; i++) {
         av1_init_mt_sync(ppi->parallel_cpi[i],
