@@ -16,6 +16,24 @@
       "message": "this could be `const int32_t *const cospi` to reinforce the commit message.",
       "revId": "01aadcb066b3f731091f3865f1071807750e3091",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cea6b37e_3d1e38d7",
+        "filename": "av1/encoder/arm/neon/highbd_fwd_txfm_neon.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1603,
+      "author": {
+        "id": 31817
+      },
+      "writtenOn": "2023-10-09T14:30:23Z",
+      "side": 1,
+      "message": "Done. Also added to other cospi definitions to match.",
+      "parentUuid": "5716c967_0c46f6fd",
+      "revId": "01aadcb066b3f731091f3865f1071807750e3091",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
