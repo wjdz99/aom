@@ -10,6 +10,7 @@
 
 #include <arm_neon.h>
 
+#include "config/aom_config.h"
 #include "config/aom_dsp_rtcd.h"
 #include "aom_dsp/arm/mem_neon.h"
 #include "aom_dsp/arm/sum_neon.h"
