@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "91419c36_710d8295",
+        "filename": "aom_dsp/aom_dsp_rtcd_defs.pl",
+        "patchSetId": 1
+      },
+      "lineNbr": 768,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-10-10T21:45:19Z",
+      "side": 1,
+      "message": "Here is the outer `if (aom_config(\"CONFIG_AV1_ENCODER\") eq \"yes\")` conditional. So the inner conditional is redundant and can be safely removed.",
+      "revId": "0e83e9d6cefdfdeef602615fd4fcd3fd2214db39",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
