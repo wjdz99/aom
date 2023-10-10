@@ -69,6 +69,24 @@
       "parentUuid": "40af2a50_04b3a3b3",
       "revId": "ddb743f7e19cfa5adaaa080afdff957e7ee70143",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3e524e39_0389b1cd",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 1785,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-10-10T05:07:27Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "b5180e4a_9a3bcb44",
+      "revId": "ddb743f7e19cfa5adaaa080afdff957e7ee70143",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
