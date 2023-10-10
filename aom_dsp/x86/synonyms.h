@@ -15,8 +15,6 @@
 #include <immintrin.h>
 #include <string.h>
 
-#include "config/aom_config.h"
-
 #include "aom/aom_integer.h"
 
 /**
