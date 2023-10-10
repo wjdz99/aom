@@ -16,6 +16,24 @@
       "message": "this block could also have a break to avoid the duplicate test at line 1776.",
       "revId": "2eb319d457a9d89e61e3ea6714c4e8dd0f979d22",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3678a3f3_12dae474",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 1779,
+      "author": {
+        "id": 33002
+      },
+      "writtenOn": "2023-10-10T13:34:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "62749840_0ec729a5",
+      "revId": "2eb319d457a9d89e61e3ea6714c4e8dd0f979d22",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
