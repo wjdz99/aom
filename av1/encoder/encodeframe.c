@@ -809,13 +809,12 @@ static AOM_INLINE void encode_rd_sb(AV1_COMP *cpi, ThreadData *td,
     av1_free_pc_tree_recursive(pc_root, num_planes, 0, 0,
                                sf->part_sf.partition_search_type);
   } else {
-    SB_FIRST_PASS_STATS *sb_org_stats = NULL;
-
     if (cpi->oxcf.sb_qp_sweep) {
       AOM_CHECK_MEM_ERROR(
-          x->e_mbd.error_info, sb_org_stats,
+          x->e_mbd.error_info, td->mb.sb_org_stats,
           (SB_FIRST_PASS_STATS *)aom_malloc(sizeof(SB_FIRST_PASS_STATS)));
-      av1_backup_sb_state(sb_org_stats, cpi, td, tile_data, mi_row, mi_col);
+      av1_backup_sb_state(td->mb.sb_org_stats, cpi, td, tile_data, mi_row,
+                          mi_col);
     }
     // The most exhaustive recursive partition search
     SuperBlockEnc *sb_enc = &x->sb_enc;
@@ -844,11 +843,11 @@ static AOM_INLINE void encode_rd_sb(AV1_COMP *cpi, ThreadData *td,
           cpi->oxcf.gf_cfg.lag_in_frames == 0) &&
         cm->delta_q_info.delta_q_present_flag) {
       assert(x->rdmult_delta_qindex == x->delta_qindex);
-      assert(sb_org_stats);
+      assert(td->mb.sb_org_stats);
 
       const int best_qp_diff =
           sb_qp_sweep(cpi, td, tile_data, tp, mi_row, mi_col, sb_size, sms_root,
-                      sb_org_stats) -
+                      td->mb.sb_org_stats) -
           x->rdmult_delta_qindex;
 
       sb_qp_sweep_init_quantizers(cpi, td, tile_data, sms_root, &dummy_rdc,
@@ -859,7 +858,8 @@ static AOM_INLINE void encode_rd_sb(AV1_COMP *cpi, ThreadData *td,
           cm->mi_params.mi_alloc[alloc_mi_idx].current_qindex;
 
       av1_reset_mbmi(&cm->mi_params, sb_size, mi_row, mi_col);
-      av1_restore_sb_state(sb_org_stats, cpi, td, tile_data, mi_row, mi_col);
+      av1_restore_sb_state(td->mb.sb_org_stats, cpi, td, tile_data, mi_row,
+                           mi_col);
 
       cm->mi_params.mi_alloc[alloc_mi_idx].current_qindex =
           backup_current_qindex;
@@ -906,7 +906,8 @@ static AOM_INLINE void encode_rd_sb(AV1_COMP *cpi, ThreadData *td,
                             &dummy_rdc, dummy_rdc, pc_root_p1, sms_root, NULL,
                             SB_WET_PASS, NULL);
     }
-    aom_free(sb_org_stats);
+    aom_free(td->mb.sb_org_stats);
+    td->mb.sb_org_stats = NULL;
 
     // Reset to 0 so that it wouldn't be used elsewhere mistakenly.
     sb_enc->tpl_data_count = 0;
