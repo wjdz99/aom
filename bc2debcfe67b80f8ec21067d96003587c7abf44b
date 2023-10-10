@@ -18,6 +18,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "603ba35b_eb46bd97",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 1624,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2023-10-10T01:04:52Z",
+      "side": 0,
+      "message": "Done",
+      "parentUuid": "974f08c1_fc2fd640",
+      "revId": "bc2debcfe67b80f8ec21067d96003587c7abf44b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "cb5510a4_9c2e6682",
