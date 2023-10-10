@@ -1380,6 +1380,10 @@ typedef struct macroblock {
    * fast encoding stage for screen content tool detemination.
    */
   int palette_pixels;
+
+  //! Pointer to the structure which stores the statistics used by sb-level
+  // multi-pass encoding.
+  struct SB_FIRST_PASS_STATS *sb_org_stats;
 } MACROBLOCK;
 #undef SINGLE_REF_MODES
 

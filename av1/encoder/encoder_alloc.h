@@ -236,6 +236,9 @@ static AOM_INLINE void dealloc_compressor_data(AV1_COMP *cpi) {
     cpi->td.mb.dv_costs = NULL;
   }
 
+  aom_free(cpi->td.mb.sb_org_stats);
+  cpi->td.mb.sb_org_stats = NULL;
+
   for (int i = 0; i < 2; i++)
     for (int j = 0; j < 2; j++) {
       aom_free(cpi->td.mb.intrabc_hash_info.hash_value_buffer[i][j]);
@@ -488,6 +491,8 @@ static AOM_INLINE void free_thread_data(AV1_PRIMARY *ppi) {
     // case of an error during gm.
     gm_dealloc_data(&thread_data->td->gm_data);
     av1_dealloc_mb_data(&thread_data->td->mb, num_planes);
+    aom_free(thread_data->td->mb.sb_org_stats);
+    thread_data->td->mb.sb_org_stats = NULL;
     aom_free(thread_data->td);
   }
 }
