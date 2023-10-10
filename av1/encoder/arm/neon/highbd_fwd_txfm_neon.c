@@ -146,23 +146,26 @@ static INLINE void av1_round_shift_rect_array_32_neon(const int32x4_t *input,
 
 LOAD_BUFFER_4XH(4, 4)
 LOAD_BUFFER_4XH(4, 8)
-LOAD_BUFFER_4XH(4, 16)
 LOAD_BUFFER_WXH(8, 4)
 LOAD_BUFFER_WXH(8, 8)
 LOAD_BUFFER_WXH(8, 16)
-LOAD_BUFFER_WXH(8, 32)
-LOAD_BUFFER_WXH(16, 4)
 LOAD_BUFFER_WXH(16, 8)
 LOAD_BUFFER_WXH(16, 16)
 LOAD_BUFFER_WXH(16, 32)
-LOAD_BUFFER_WXH(16, 64)
-LOAD_BUFFER_WXH(32, 8)
 LOAD_BUFFER_WXH(32, 16)
 LOAD_BUFFER_WXH(32, 32)
 LOAD_BUFFER_WXH(32, 64)
-LOAD_BUFFER_WXH(64, 16)
 LOAD_BUFFER_WXH(64, 32)
 LOAD_BUFFER_WXH(64, 64)
+
+#if !CONFIG_REALTIME_ONLY
+LOAD_BUFFER_4XH(4, 16)
+LOAD_BUFFER_WXH(8, 32)
+LOAD_BUFFER_WXH(16, 4)
+LOAD_BUFFER_WXH(16, 64)
+LOAD_BUFFER_WXH(32, 8)
+LOAD_BUFFER_WXH(64, 16)
+#endif  // !CONFIG_REALTIME_ONLY
 
 #define STORE_BUFFER_WXH(w, h)                                   \
   static INLINE void store_buffer_##w##x##h(const int32x4_t *in, \
@@ -177,20 +180,23 @@ LOAD_BUFFER_WXH(64, 64)
 
 STORE_BUFFER_WXH(4, 4)
 STORE_BUFFER_WXH(4, 8)
-STORE_BUFFER_WXH(4, 16)
 STORE_BUFFER_WXH(8, 4)
 STORE_BUFFER_WXH(8, 8)
 STORE_BUFFER_WXH(8, 16)
-STORE_BUFFER_WXH(8, 32)
-STORE_BUFFER_WXH(16, 4)
 STORE_BUFFER_WXH(16, 8)
 STORE_BUFFER_WXH(16, 16)
 STORE_BUFFER_WXH(16, 32)
-STORE_BUFFER_WXH(32, 8)
 STORE_BUFFER_WXH(32, 16)
 STORE_BUFFER_WXH(32, 32)
-STORE_BUFFER_WXH(64, 16)
 STORE_BUFFER_WXH(64, 32)
+
+#if !CONFIG_REALTIME_ONLY
+STORE_BUFFER_WXH(4, 16)
+STORE_BUFFER_WXH(8, 32)
+STORE_BUFFER_WXH(16, 4)
+STORE_BUFFER_WXH(32, 8)
+STORE_BUFFER_WXH(64, 16)
+#endif  // !CONFIG_REALTIME_ONLY
 
 static void fdct4x4_neon(int32x4_t *in, int32x4_t *out, int bit) {
   const int32_t *const cospi = cospi_arr(bit);
@@ -2810,6 +2816,7 @@ void av1_fwd_txfm2d_4x16_neon(const int16_t *input, int32_t *coeff, int stride,
 }
 #endif
 
+#if !CONFIG_REALTIME_ONLY
 void av1_fwd_txfm2d_16x4_neon(const int16_t *input, int32_t *coeff, int stride,
                               TX_TYPE tx_type, int bd) {
   (void)bd;
@@ -2836,6 +2843,7 @@ void av1_fwd_txfm2d_16x4_neon(const int16_t *input, int32_t *coeff, int stride,
   row_txfm(buf0, buf0, bitrow, 1);
   store_buffer_16x4(buf0, coeff);
 }
+#endif  // !CONFIG_REALTIME_ONLY
 
 void av1_fwd_txfm2d_16x32_neon(const int16_t *input, int32_t *coeff, int stride,
                                TX_TYPE tx_type, int bd) {
