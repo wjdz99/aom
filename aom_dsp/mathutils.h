@@ -15,47 +15,79 @@
 #include <assert.h>
 #include <math.h>
 #include <string.h>
+#include <stdbool.h>
 
 #include "aom_dsp/aom_dsp_common.h"
 #include "aom_mem/aom_mem.h"
 
 static const double TINY_NEAR_ZERO = 1.0E-16;
 
-// Solves Ax = b, where x and b are column vectors of size nx1 and A is nxn
-static INLINE int linsolve(int n, double *A, int stride, double *b, double *x) {
+// Solves the matrix equation AX = B, where X and B are matrices of size n x m
+// and A is n x n. This can be used to solve multiple systems of linear
+// equations with the same left-hand-side (A matrix) at the same time, with less
+// computational cost than solving each problem independently.
+//
+// The argument pivot determines whether we use pivoting. This improves
+// numerical stability by rearranging A and B at each step to maximize the
+// diagonal elements of A, but at the cost of additional compute time.
+// In some cases, this may not be necessary - in particular, least squares
+// matrices already have A[i][i] >= A[i][j] for all i, j, by construction.
+// This property is not guaranteed to be maintained throughout solving,
+// but it means that least squares matrices may not need pivoting,
+// saving some compute time.
+static INLINE int linsolve_multi(int n, int m, double *A, int A_stride,
+                                 double *B, int B_stride, double *X,
+                                 int X_stride, bool pivot) {
   int i, j, k;
   double c;
   // Forward elimination
   for (k = 0; k < n - 1; k++) {
-    // Bring the largest magnitude to the diagonal position
-    for (i = n - 1; i > k; i--) {
-      if (fabs(A[(i - 1) * stride + k]) < fabs(A[i * stride + k])) {
-        for (j = 0; j < n; j++) {
-          c = A[i * stride + j];
-          A[i * stride + j] = A[(i - 1) * stride + j];
-          A[(i - 1) * stride + j] = c;
+    if (pivot) {
+      // Bring the largest magnitude to the diagonal position
+      for (i = n - 1; i > k; i--) {
+        if (fabs(A[(i - 1) * A_stride + k]) < fabs(A[i * A_stride + k])) {
+          // Swap rows i and i-1
+          for (j = 0; j < n; j++) {
+            c = A[i * A_stride + j];
+            A[i * A_stride + j] = A[(i - 1) * A_stride + j];
+            A[(i - 1) * A_stride + j] = c;
+          }
+          for (j = 0; j < m; j++) {
+            c = B[i * B_stride + j];
+            B[i * B_stride + j] = B[(i - 1) * B_stride + j];
+            B[(i - 1) * B_stride + j] = c;
+          }
         }
-        c = b[i];
-        b[i] = b[i - 1];
-        b[i - 1] = c;
       }
     }
+
+    // Subtract this row from all subsequent rows
     for (i = k; i < n - 1; i++) {
-      if (fabs(A[k * stride + k]) < TINY_NEAR_ZERO) return 0;
-      c = A[(i + 1) * stride + k] / A[k * stride + k];
-      for (j = 0; j < n; j++) A[(i + 1) * stride + j] -= c * A[k * stride + j];
-      b[i + 1] -= c * b[k];
+      if (fabs(A[k * A_stride + k]) < TINY_NEAR_ZERO) return 0;
+      c = A[(i + 1) * A_stride + k] / A[k * A_stride + k];
+      for (j = 0; j < n; j++)
+        A[(i + 1) * A_stride + j] -= c * A[k * A_stride + j];
+      for (j = 0; j < m; j++)
+        B[(i + 1) * B_stride + j] -= c * B[k * B_stride + j];
     }
   }
+
   // Backward substitution
   for (i = n - 1; i >= 0; i--) {
-    if (fabs(A[i * stride + i]) < TINY_NEAR_ZERO) return 0;
-    c = 0;
-    for (j = i + 1; j <= n - 1; j++) c += A[i * stride + j] * x[j];
-    x[i] = (b[i] - c) / A[i * stride + i];
+    if (fabs(A[i * A_stride + i]) < TINY_NEAR_ZERO) return 0;
+    for (j = 0; j < m; j++) {
+      c = 0;
+      for (k = i + 1; k <= n - 1; k++)
+        c += A[i * A_stride + k] * X[k * X_stride + j];
+      X[i * X_stride + j] = (B[i * B_stride + j] - c) / A[i * A_stride + i];
+    }
   }
 
   return 1;
+}
+
+static INLINE int linsolve(int n, double *A, int stride, double *b, double *x) {
+  return linsolve_multi(n, 1, A, stride, b, 1, x, 1, true);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -68,23 +100,31 @@ static INLINE int linsolve(int n, double *A, int stride, double *b, double *x) {
 // explicitly allocate the A matrix, which may be very large if there
 // are many equations to solve.
 //
+// We can also allow multiple right-hand-sides to be solved simultaneously,
+// to reduce computational complexity
+//
 // The process for using this is (in pseudocode):
 //
-// Allocate mat (size n*n), y (size n), a (size n), x (size n)
-// least_squares_init(mat, y, n)
-// for each equation a . x = b {
-//    least_squares_accumulate(mat, y, a, b, n)
+// Allocate mat (size n*n), y (size n*m), a (size n), x (size nxm)
+// least_squares_init(mat, y, n, m)
+// for each (set of) equation(s) a . x = b {
+//    least_squares_accumulate(mat, y, a, b, n, m)
 // }
-// least_squares_solve(mat, y, x, n)
+// least_squares_solve(mat, y, x, n, m)
 //
 // where:
 // * mat, y are accumulators for the values A'A and A'b respectively,
 // * a, b are the coefficients of each individual equation,
 // * x is the result vector
-// * and n is the problem size
-static INLINE void least_squares_init(double *mat, double *y, int n) {
+// * n is the problem size
+// * m is the number of simultaneous problems
+//
+// The solution to the j'th problem is stored in the j'th column of x.
+// In other words, the solution to the j'th problem is
+//   { x[j], x[j+m], ... x[(n-1)*m + j] }
+static INLINE void least_squares_init(double *mat, double *y, int n, int m) {
   memset(mat, 0, n * n * sizeof(double));
-  memset(y, 0, n * sizeof(double));
+  memset(y, 0, n * m * sizeof(double));
 }
 
 // Round the given positive value to nearest integer
@@ -94,20 +134,23 @@ static AOM_FORCE_INLINE int iroundpf(float x) {
 }
 
 static INLINE void least_squares_accumulate(double *mat, double *y,
-                                            const double *a, double b, int n) {
+                                            const double *a, double *b, int n,
+                                            int m) {
   for (int i = 0; i < n; i++) {
     for (int j = 0; j < n; j++) {
       mat[i * n + j] += a[i] * a[j];
     }
   }
   for (int i = 0; i < n; i++) {
-    y[i] += a[i] * b;
+    for (int j = 0; j < m; j++) {
+      y[i * m + j] += a[i] * b[j];
+    }
   }
 }
 
-static INLINE int least_squares_solve(double *mat, double *y, double *x,
-                                      int n) {
-  return linsolve(n, mat, n, y, x);
+static INLINE int least_squares_solve(double *mat, double *y, double *x, int n,
+                                      int m) {
+  return linsolve_multi(n, m, mat, n, y, m, x, m, false);
 }
 
 // Matrix multiply

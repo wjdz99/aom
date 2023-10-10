@@ -114,12 +114,13 @@ static bool find_translation(int np, const double *pts1, const double *pts2,
 static bool find_rotzoom(int np, const double *pts1, const double *pts2,
                          double *params) {
   const int n = 4;    // Size of least-squares problem
+  const int m = 1;    // Number of simultaneous right-hand-sides
   double mat[4 * 4];  // Accumulator for A'A
   double y[4];        // Accumulator for A'b
   double a[4];        // Single row of A
-  double b;           // Single element of b
+  double b[1];        // Single element of b
 
-  least_squares_init(mat, y, n);
+  least_squares_init(mat, y, n, m);
   for (int i = 0; i < np; ++i) {
     double dx = *(pts2++);
     double dy = *(pts2++);
@@ -130,19 +131,19 @@ static bool find_rotzoom(int np, const double *pts1, const double *pts2,
     a[1] = 0;
     a[2] = sx;
     a[3] = sy;
-    b = dx;
-    least_squares_accumulate(mat, y, a, b, n);
+    b[0] = dx;
+    least_squares_accumulate(mat, y, a, b, n, m);
 
     a[0] = 0;
     a[1] = 1;
     a[2] = sy;
     a[3] = -sx;
-    b = dy;
-    least_squares_accumulate(mat, y, a, b, n);
+    b[0] = dy;
+    least_squares_accumulate(mat, y, a, b, n, m);
   }
 
   // Fill in params[0] .. params[3] with output model
-  if (!least_squares_solve(mat, y, params, n)) {
+  if (!least_squares_solve(mat, y, params, n, m)) {
     return false;
   }
 
@@ -165,48 +166,42 @@ static bool find_affine(int np, const double *pts1, const double *pts2,
   // to the x output of the model, and all the parameters which contribute
   // to the y output, respectively.
 
-  const int n = 3;       // Size of each least-squares problem
-  double mat[2][3 * 3];  // Accumulator for A'A
-  double y[2][3];        // Accumulator for A'b
-  double x[2][3];        // Output vector
-  double a[2][3];        // Single row of A
-  double b[2];           // Single element of b
+  const int n = 3;    // Size of each least-squares problem
+  const int m = 2;    // Number of simultaneous right-hand-sides
+  double mat[3 * 3];  // Accumulator for A'A
+  double y[3 * 2];    // Accumulator for A'b
+  double x[3 * 2];    // Output vector
+  double a[3];        // Single row of A
+  double b[2];        // Single element of b
 
-  least_squares_init(mat[0], y[0], n);
-  least_squares_init(mat[1], y[1], n);
+  least_squares_init(mat, y, n, m);
   for (int i = 0; i < np; ++i) {
     double dx = *(pts2++);
     double dy = *(pts2++);
     double sx = *(pts1++);
     double sy = *(pts1++);
 
-    a[0][0] = 1;
-    a[0][1] = sx;
-    a[0][2] = sy;
+    // Accumulate y[0] + sx * y[1] + sy * y[2] = {dx, dy}
+    // into the two equations
+    a[0] = 1;
+    a[1] = sx;
+    a[2] = sy;
     b[0] = dx;
-    least_squares_accumulate(mat[0], y[0], a[0], b[0], n);
-
-    a[1][0] = 1;
-    a[1][1] = sx;
-    a[1][2] = sy;
     b[1] = dy;
-    least_squares_accumulate(mat[1], y[1], a[1], b[1], n);
+    least_squares_accumulate(mat, y, a, b, n, m);
   }
 
-  if (!least_squares_solve(mat[0], y[0], x[0], n)) {
-    return false;
-  }
-  if (!least_squares_solve(mat[1], y[1], x[1], n)) {
+  if (!least_squares_solve(mat, y, x, n, m)) {
     return false;
   }
 
   // Rearrange least squares result to form output model
-  params[0] = x[0][0];
-  params[1] = x[1][0];
-  params[2] = x[0][1];
-  params[3] = x[0][2];
-  params[4] = x[1][1];
-  params[5] = x[1][2];
+  params[0] = x[0];
+  params[1] = x[1];
+  params[2] = x[2];
+  params[3] = x[4];
+  params[4] = x[3];
+  params[5] = x[5];
 
   return true;
 }
