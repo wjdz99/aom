@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bc3e7ffb_c66b44f7",
+        "filename": "test/resize_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 1078,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-10-11T17:34:12Z",
+      "side": 1,
+      "message": "Another solution is to see whether these two tests can use `AOM_USAGE_REALTIME`. But it is fine to exclude the tests in realtime-only build.",
+      "revId": "5a8a29efd7f8387749df590869043eb0a5c0266b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
