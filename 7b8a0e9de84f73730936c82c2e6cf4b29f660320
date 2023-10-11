@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0574fb76_6372a6a2",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-10-11T20:05:39Z",
+      "side": 1,
+      "message": "Cherry-picking to the libaom 3.7 release branch.",
+      "revId": "7b8a0e9de84f73730936c82c2e6cf4b29f660320",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
