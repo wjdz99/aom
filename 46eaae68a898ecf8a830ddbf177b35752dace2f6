@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2020f6db_9f627a67",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-10-11T23:26:22Z",
+      "side": 1,
+      "message": "Thanks! I suggest some naming changes.",
+      "revId": "46eaae68a898ecf8a830ddbf177b35752dace2f6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f55a6d83_21f1921d",
+        "filename": "test/resize_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 1057,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-10-11T23:26:22Z",
+      "side": 1,
+      "message": "Nit: Use the plural \"kUsages\".",
+      "revId": "46eaae68a898ecf8a830ddbf177b35752dace2f6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d9acc30e_be497211",
+        "filename": "test/resize_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 1130,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-10-11T23:26:22Z",
+      "side": 1,
+      "message": "Nit/optional: \"DecreasingThreads\" and \"IncreasingThreads\"?",
+      "revId": "46eaae68a898ecf8a830ddbf177b35752dace2f6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
