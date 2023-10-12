@@ -56,6 +56,47 @@
       },
       "revId": "1522e7ffeac69e15100550a78338694296a22c11",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "942cb860_4ef05ddc",
+        "filename": "aom_dsp/flow_estimation/corner_detect.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-10-12T15:12:59Z",
+      "side": 1,
+      "message": "Done. If nothing went wrong but we didn\u0027t find any corners, we get a null `frame_corners_xy` and a zero `num_corners`. Since it is undefined behavior to pass a null pointer to `memcpy()` (even when the number of bytes is 0), I am guarding the `memcpy()` call with `if (num_corners !\u003d 0)`.\n\nhttps://en.cppreference.com/w/c/string/byte/memcpy",
+      "parentUuid": "f4126f1c_f5d72d5d",
+      "range": {
+        "startLine": 54,
+        "startChar": 0,
+        "endLine": 56,
+        "endChar": 29
+      },
+      "revId": "1522e7ffeac69e15100550a78338694296a22c11",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "960d63c4_3b9ce9c3",
+        "filename": "third_party/fastfeat/nonmax.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-10-12T15:12:59Z",
+      "side": 1,
+      "message": "Note that if `num_corners` is 0, this function returns NULL (0) and sets `*ret_num_nonmax` to 0. This is why we need to guard the `memcpy()` call with `if (num_corners !\u003d 0)` in aom_dsp/flow_estimation/corner_detect.c.",
+      "revId": "1522e7ffeac69e15100550a78338694296a22c11",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
