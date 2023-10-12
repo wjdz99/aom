@@ -738,15 +738,9 @@ static int firstpass_inter_prediction(
   // Compute the motion error of the 0,0 motion using the last source
   // frame as the reference. Skip the further motion search on
   // reconstructed frame if this error is small.
-  // TODO(chiyotsai): The unscaled last source might be different dimension
-  // as the current source. See BUG=aomedia:3413
-  struct buf_2d unscaled_last_source_buf_2d;
-  unscaled_last_source_buf_2d.buf =
-      cpi->unscaled_last_source->y_buffer + src_yoffset;
-  unscaled_last_source_buf_2d.stride = cpi->unscaled_last_source->y_stride;
-  const int raw_motion_error = get_prediction_error_bitdepth(
-      is_high_bitdepth, bitdepth, bsize, &x->plane[0].src,
-      &unscaled_last_source_buf_2d);
+  int raw_motion_error =
+      get_prediction_error_bitdepth(is_high_bitdepth, bitdepth, bsize,
+                                    &x->plane[0].src, &xd->plane[0].pre[0]);
   raw_motion_err_list[raw_motion_err_counts] = raw_motion_error;
   const FIRST_PASS_SPEED_FEATURES *const fp_sf = &cpi->sf.fp_sf;
 
@@ -774,9 +768,8 @@ static int firstpass_inter_prediction(
   if ((current_frame->frame_number > 1) && golden_frame != NULL) {
     FULLPEL_MV tmp_mv = kZeroFullMv;
     // Assume 0,0 motion with no mv overhead.
-    xd->plane[0].pre[0].buf = golden_frame->y_buffer + recon_yoffset;
-    xd->plane[0].pre[0].stride = golden_frame->y_stride;
-    xd->plane[0].pre[0].width = golden_frame->y_width;
+    av1_setup_pre_planes(xd, 0, golden_frame, 0, 0, NULL, 1);
+    xd->plane[0].pre[0].buf += recon_yoffset;
     gf_motion_error =
         get_prediction_error_bitdepth(is_high_bitdepth, bitdepth, bsize,
                                       &x->plane[0].src, &xd->plane[0].pre[0]);
