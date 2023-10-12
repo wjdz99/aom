@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "97aa69fb_d4c60d0e",
+        "filename": "third_party/fastfeat/nonmax.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 171,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-10-12T16:08:46Z",
+      "side": 1,
+      "message": "Note that we may return a non-null return value and a zero `*ret_num_nonmax` here, if we found some corners (`num_corners` \u003e 0) but never executed line 163 (`num_nonmax++;`).\n\nSo when this function sets `*ret_num_nonmax` to 0, its return value may or may not be NULL.\n\nThis is quite complicated.",
+      "revId": "7a62727b6d73865c1f63f9d96ec2ffc2fae0c36e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
