@@ -52,6 +52,60 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e7d6afd5_acafbb75",
+        "filename": "aom_util/aom_thread.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 150,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-10-13T05:08:33Z",
+      "side": 1,
+      "message": "\u003e We should add `\u0026\u0026 AOM_ARCH_ARM` because we only have this problem with Arm.\n\nGood point, we can start with that (I added `__APPLE__` too). I didn\u0027t try this on x86-64 macOS, emulated or not.",
+      "parentUuid": "9012ae99_aaf3b9cb",
+      "revId": "99c369ae9435f9f07172bfa7b9ce66cb8a50ef07",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b81c06e0_1959ef8d",
+        "filename": "aom_util/aom_thread.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 150,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-10-13T05:08:33Z",
+      "side": 1,
+      "message": "\u003e Ideally we should only do this in a Debug build. But I guess it is impossible to detect that.\n\nI was thinking that too. I can use `NDEBUG` as a test, which in most cases will hold except where we enable asserts.",
+      "parentUuid": "c1eb2a93_b6563ec5",
+      "revId": "99c369ae9435f9f07172bfa7b9ce66cb8a50ef07",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "54b05844_9ce04bff",
+        "filename": "aom_util/aom_thread.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 150,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-10-13T05:08:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a9161120_c464d58a",
+      "revId": "99c369ae9435f9f07172bfa7b9ce66cb8a50ef07",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "6acd0e10_14e0ba98",
@@ -69,6 +123,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ae8e71fa_b27f096f",
+        "filename": "aom_util/aom_thread.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 153,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-10-13T05:08:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6acd0e10_14e0ba98",
+      "revId": "99c369ae9435f9f07172bfa7b9ce66cb8a50ef07",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "6e37d137_43d76be4",
@@ -82,6 +154,24 @@
       "writtenOn": "2023-10-12T19:54:15Z",
       "side": 1,
       "message": "Move this call outside the critical section. We should do as little work as possible inside the critical section.\n\nIf we must set `worker-\u003estatus_` inside the critcal section, I think it is fine to assume the `pthread_attr_destroy()` call will succeed and ignore its return value. Note that we ignore the return value of `pthread_attr_destroy()` at line 156.",
+      "revId": "99c369ae9435f9f07172bfa7b9ce66cb8a50ef07",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "be978a10_41471d73",
+        "filename": "aom_util/aom_thread.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-10-13T05:08:33Z",
+      "side": 1,
+      "message": "\u003e Move this call outside the critical section. We should do as little work as possible inside the critical section.\n\u003e \n\u003e If we must set `worker-\u003estatus_` inside the critcal section, I think it is fine to assume the `pthread_attr_destroy()` call will succeed and ignore its return value. Note that we ignore the return value of `pthread_attr_destroy()` at line 156.\n\nAt 156 we already had an error, but we can ignore it here too, likely at the cost of at least a static analysis warning.",
+      "parentUuid": "6e37d137_43d76be4",
       "revId": "99c369ae9435f9f07172bfa7b9ce66cb8a50ef07",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
