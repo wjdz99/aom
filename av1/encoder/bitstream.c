@@ -1003,34 +1003,35 @@ static AOM_INLINE void write_intra_prediction_modes(const AV1_COMMON *cm,
                                                     aom_writer *w) {
   FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
   const MB_MODE_INFO *const mbmi = xd->mi[0];
-  const PREDICTION_MODE mode = mbmi->mode;
+  const PREDICTION_MODE y_mode = mbmi->mode;
   const BLOCK_SIZE bsize = mbmi->bsize;
 
   // Y mode.
   if (is_keyframe) {
     const MB_MODE_INFO *const above_mi = xd->above_mbmi;
     const MB_MODE_INFO *const left_mi = xd->left_mbmi;
-    write_intra_y_mode_kf(ec_ctx, mbmi, above_mi, left_mi, mode, w);
+    write_intra_y_mode_kf(ec_ctx, mbmi, above_mi, left_mi, y_mode, w);
   } else {
-    write_intra_y_mode_nonkf(ec_ctx, bsize, mode, w);
+    write_intra_y_mode_nonkf(ec_ctx, bsize, y_mode, w);
   }
 
   // Y angle delta.
   const int use_angle_delta = av1_use_angle_delta(bsize);
-  if (use_angle_delta && av1_is_directional_mode(mode)) {
+  if (use_angle_delta && av1_is_directional_mode(y_mode)) {
     write_angle_delta(w, mbmi->angle_delta[PLANE_TYPE_Y],
-                      ec_ctx->angle_delta_cdf[mode - V_PRED]);
+                      ec_ctx->angle_delta_cdf[y_mode - V_PRED]);
   }
 
   // UV mode and UV angle delta.
   if (!cm->seq_params->monochrome && xd->is_chroma_ref) {
     const UV_PREDICTION_MODE uv_mode = mbmi->uv_mode;
-    write_intra_uv_mode(ec_ctx, uv_mode, mode, is_cfl_allowed(xd), w);
+    write_intra_uv_mode(ec_ctx, uv_mode, y_mode, is_cfl_allowed(xd), w);
     if (uv_mode == UV_CFL_PRED)
       write_cfl_alphas(ec_ctx, mbmi->cfl_alpha_idx, mbmi->cfl_alpha_signs, w);
-    if (use_angle_delta && av1_is_directional_mode(get_uv_mode(uv_mode))) {
+    const PREDICTION_MODE mode = get_uv_mode(uv_mode);
+    if (use_angle_delta && av1_is_directional_mode(mode)) {
       write_angle_delta(w, mbmi->angle_delta[PLANE_TYPE_UV],
-                        ec_ctx->angle_delta_cdf[uv_mode - V_PRED]);
+                        ec_ctx->angle_delta_cdf[mode - V_PRED]);
     }
   }
 
