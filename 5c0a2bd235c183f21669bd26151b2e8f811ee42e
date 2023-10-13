@@ -16,6 +16,23 @@
       "message": "This CL fixes the memory leaks due to the thread-specific `mv_costs` and `dv_costs` allocated in `prepare_enc_workers()` in case of an early termination by adding the aom_free() calls for the same in `free_thread_data()`.\n \nDirectly invoking aom_free() on thread-specific `mv_costs` and `dv_costs` in `free_thread_data()` can result in double free error for some cases. For e.g., freeing `thread_data-\u003etd-\u003emb.mv_costs` after first pass encode as it points to the same address as `cpi-\u003etd.mb.mv_costs` which would have already been freed in `dealloc_compressor_data()`. Hence, the allocation and freeing of `x-\u003emv_costs` and `x-\u003edv_costs` are done using newly introduced `mv_costs_base_ptr` and `dv_costs_base_ptr` respectively in ThreadData structure. `x-\u003emv_costs` and `x-\u003edv_costs` are initialized appropriately using these base pointers.\n\nThis change is bit-exact and has been verified using bitstream-match tests for a combination of various configuration values for --threads, --tile-rows, --tile-columns, --cpu-used, --end-usage, --row-mt, --fp-mt, etc. Validated all unit-tests with sanitizers (address and thread) and valgrind.",
       "revId": "5c0a2bd235c183f21669bd26151b2e8f811ee42e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2c97740e_683a6778",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 1445,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-10-13T22:15:45Z",
+      "side": 1,
+      "message": "is this extra indirection necessary, could the original pointers just be freed and nulled?",
+      "revId": "5c0a2bd235c183f21669bd26151b2e8f811ee42e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
