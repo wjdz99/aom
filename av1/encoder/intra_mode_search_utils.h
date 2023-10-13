@@ -555,9 +555,9 @@ static AOM_INLINE int intra_mode_info_cost_y(const AV1_COMP *cpi,
   if (av1_is_directional_mode(mbmi->mode)) {
     if (av1_use_angle_delta(bsize)) {
       total_rate +=
-          mode_costs->angle_delta_cost[mbmi->mode - V_PRED]
-                                      [MAX_ANGLE_DELTA +
-                                       mbmi->angle_delta[PLANE_TYPE_Y]];
+          mode_costs->angle_delta_costx[mbmi->mode - V_PRED]
+                                       [MAX_ANGLE_DELTA +
+                                        mbmi->angle_delta[PLANE_TYPE_Y]];
     }
   }
   if (av1_allow_intrabc(&cpi->common))
@@ -576,13 +576,13 @@ static AOM_INLINE int intra_mode_info_cost_uv(const AV1_COMP *cpi,
   int total_rate = mode_cost;
   const ModeCosts *mode_costs = &x->mode_costs;
   const int use_palette = mbmi->palette_mode_info.palette_size[1] > 0;
-  const UV_PREDICTION_MODE mode = mbmi->uv_mode;
+  const UV_PREDICTION_MODE uv_mode = mbmi->uv_mode;
   // Can only activate one mode.
-  assert(((mode != UV_DC_PRED) + use_palette + mbmi->use_intrabc) <= 1);
+  assert(((uv_mode != UV_DC_PRED) + use_palette + mbmi->use_intrabc) <= 1);
 
   const int try_palette = av1_allow_palette(
       cpi->common.features.allow_screen_content_tools, mbmi->bsize);
-  if (try_palette && mode == UV_DC_PRED) {
+  if (try_palette && uv_mode == UV_DC_PRED) {
     const PALETTE_MODE_INFO *pmi = &mbmi->palette_mode_info;
     total_rate +=
         mode_costs->palette_uv_mode_cost[pmi->palette_size[0] > 0][use_palette];
@@ -604,12 +604,13 @@ static AOM_INLINE int intra_mode_info_cost_uv(const AV1_COMP *cpi,
       total_rate += palette_mode_cost;
     }
   }
-  if (av1_is_directional_mode(get_uv_mode(mode))) {
+  const PREDICTION_MODE mode = get_uv_modex(uv_mode);
+  if (av1_is_directional_mode(mode)) {
     if (av1_use_angle_delta(bsize)) {
       total_rate +=
-          mode_costs->angle_delta_cost[mode - V_PRED]
-                                      [mbmi->angle_delta[PLANE_TYPE_UV] +
-                                       MAX_ANGLE_DELTA];
+          mode_costs->angle_delta_costx[mode - V_PRED]
+                                       [mbmi->angle_delta[PLANE_TYPE_UV] +
+                                        MAX_ANGLE_DELTA];
     }
   }
   return total_rate;

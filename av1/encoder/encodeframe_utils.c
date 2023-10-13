@@ -549,7 +549,7 @@ void av1_sum_intra_stats(const AV1_COMMON *const cm, FRAME_COUNTS *counts,
     ++counts->angle_delta[mbmi->mode - V_PRED]
                          [mbmi->angle_delta[PLANE_TYPE_Y] + MAX_ANGLE_DELTA];
 #endif
-    update_cdf(fc->angle_delta_cdf[mbmi->mode - V_PRED],
+    update_cdf(fc->angle_delta_cdfx[mbmi->mode - V_PRED],
                mbmi->angle_delta[PLANE_TYPE_Y] + MAX_ANGLE_DELTA,
                2 * MAX_ANGLE_DELTA + 1);
   }
@@ -588,13 +588,13 @@ void av1_sum_intra_stats(const AV1_COMMON *const cm, FRAME_COUNTS *counts,
       update_cdf(cdf_v, CFL_IDX_V(idx), CFL_ALPHABET_SIZE);
     }
   }
-  if (av1_is_directional_mode(get_uv_mode(uv_mode)) &&
-      av1_use_angle_delta(bsize)) {
+  const PREDICTION_MODE mode = get_uv_modex(uv_mode);
+  if (av1_is_directional_mode(mode) && av1_use_angle_delta(bsize)) {
 #if CONFIG_ENTROPY_STATS
-    ++counts->angle_delta[uv_mode - UV_V_PRED]
+    ++counts->angle_delta[mode - V_PRED]
                          [mbmi->angle_delta[PLANE_TYPE_UV] + MAX_ANGLE_DELTA];
 #endif
-    update_cdf(fc->angle_delta_cdf[uv_mode - UV_V_PRED],
+    update_cdf(fc->angle_delta_cdfx[mode - V_PRED],
                mbmi->angle_delta[PLANE_TYPE_UV] + MAX_ANGLE_DELTA,
                2 * MAX_ANGLE_DELTA + 1);
   }
@@ -1274,7 +1274,7 @@ void av1_avg_cdf_symbols(FRAME_CONTEXT *ctx_left, FRAME_CONTEXT *ctx_tr,
   AVERAGE_CDF(ctx_left->switchable_interp_cdf, ctx_tr->switchable_interp_cdf,
               SWITCHABLE_FILTERS);
   AVERAGE_CDF(ctx_left->kf_y_cdf, ctx_tr->kf_y_cdf, INTRA_MODES);
-  AVERAGE_CDF(ctx_left->angle_delta_cdf, ctx_tr->angle_delta_cdf,
+  AVERAGE_CDF(ctx_left->angle_delta_cdfx, ctx_tr->angle_delta_cdfx,
               2 * MAX_ANGLE_DELTA + 1);
   AVG_CDF_STRIDE(ctx_left->tx_size_cdf[0], ctx_tr->tx_size_cdf[0], MAX_TX_DEPTH,
                  CDF_SIZE(MAX_TX_DEPTH + 1));

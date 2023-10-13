@@ -200,8 +200,8 @@ void av1_fill_mode_rates(AV1_COMMON *const cm, ModeCosts *mode_costs,
     }
   }
   for (i = 0; i < DIRECTIONAL_MODES; ++i) {
-    av1_cost_tokens_from_cdf(mode_costs->angle_delta_cost[i],
-                             fc->angle_delta_cdf[i], NULL);
+    av1_cost_tokens_from_cdf(mode_costs->angle_delta_costx[i],
+                             fc->angle_delta_cdfx[i], NULL);
   }
   av1_cost_tokens_from_cdf(mode_costs->intrabc_cost, fc->intrabc_cdf, NULL);
 

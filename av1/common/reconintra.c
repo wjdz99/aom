@@ -1658,7 +1658,7 @@ void av1_predict_intra_block_facade(const AV1_COMMON *cm, MACROBLOCKD *xd,
   const int dst_stride = pd->dst.stride;
   uint8_t *dst = &pd->dst.buf[(blk_row * dst_stride + blk_col) << MI_SIZE_LOG2];
   const PREDICTION_MODE mode =
-      (plane == AOM_PLANE_Y) ? mbmi->mode : get_uv_mode(mbmi->uv_mode);
+      (plane == AOM_PLANE_Y) ? mbmi->mode : get_uv_modex(mbmi->uv_mode);
   const int use_palette = mbmi->palette_mode_info.palette_size[plane != 0] > 0;
   const FILTER_INTRA_MODE filter_intra_mode =
       (plane == AOM_PLANE_Y && mbmi->filter_intra_mode_info.use_filter_intra)

@@ -883,9 +883,9 @@ void av1_estimate_intra_mode(AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bsize,
     int mode_cost = 0;
     if (av1_is_directional_mode(this_mode) && av1_use_angle_delta(bsize)) {
       mode_cost +=
-          x->mode_costs.angle_delta_cost[this_mode - V_PRED]
-                                        [MAX_ANGLE_DELTA +
-                                         mi->angle_delta[PLANE_TYPE_Y]];
+          x->mode_costs.angle_delta_costx[this_mode - V_PRED]
+                                         [MAX_ANGLE_DELTA +
+                                          mi->angle_delta[PLANE_TYPE_Y]];
     }
     if (this_mode == DC_PRED && av1_filter_intra_allowed_bsize(cm, bsize)) {
       mode_cost += x->mode_costs.filter_intra_cost[bsize][0];
