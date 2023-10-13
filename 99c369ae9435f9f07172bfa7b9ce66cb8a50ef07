@@ -106,6 +106,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "9a017680_3d78fffd",
+        "filename": "aom_util/aom_thread.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 150,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-10-13T18:40:13Z",
+      "side": 1,
+      "message": "\u003e \u003e We should add `\u0026\u0026 AOM_ARCH_ARM` because we only have this problem with Arm.\n\u003e \n\u003e Good point, we can start with that (I added `__APPLE__` too). I didn\u0027t try this on x86-64 macOS, emulated or not.\n\nA native x86-64 macOS build does not show the issue.",
+      "parentUuid": "e7d6afd5_acafbb75",
+      "revId": "99c369ae9435f9f07172bfa7b9ce66cb8a50ef07",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "6acd0e10_14e0ba98",
