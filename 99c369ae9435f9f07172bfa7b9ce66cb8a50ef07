@@ -37,6 +37,23 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "9012ae99_aaf3b9cb",
+        "filename": "aom_util/aom_thread.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 150,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-10-13T02:05:32Z",
+      "side": 1,
+      "message": "We should add `\u0026\u0026 AOM_ARCH_ARM` because we only have this problem with Arm.",
+      "revId": "99c369ae9435f9f07172bfa7b9ce66cb8a50ef07",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "6acd0e10_14e0ba98",
         "filename": "aom_util/aom_thread.c",
         "patchSetId": 2
