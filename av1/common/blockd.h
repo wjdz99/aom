@@ -346,7 +346,7 @@ static INLINE int is_intrabc_block(const MB_MODE_INFO *mbmi) {
   return mbmi->use_intrabc;
 }
 
-static INLINE PREDICTION_MODE get_uv_mode(UV_PREDICTION_MODE mode) {
+static INLINE PREDICTION_MODE get_uv_modex(UV_PREDICTION_MODE mode) {
   assert(mode < UV_INTRA_MODES);
   static const PREDICTION_MODE uv2y[] = {
     DC_PRED,        // UV_DC_PRED
@@ -1017,7 +1017,7 @@ static TX_TYPE intra_mode_to_tx_type(const MB_MODE_INFO *mbmi,
     ADST_ADST,  // PAETH_PRED
   };
   const PREDICTION_MODE mode =
-      (plane_type == PLANE_TYPE_Y) ? mbmi->mode : get_uv_mode(mbmi->uv_mode);
+      (plane_type == PLANE_TYPE_Y) ? mbmi->mode : get_uv_modex(mbmi->uv_mode);
   assert(mode < INTRA_MODES);
   return _intra_mode_to_tx_type[mode];
 }

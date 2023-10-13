@@ -600,7 +600,7 @@ typedef struct {
   //! filter_intra_mode_cost
   int filter_intra_mode_cost[FILTER_INTRA_MODES];
   //! angle_delta_cost
-  int angle_delta_cost[DIRECTIONAL_MODES][2 * MAX_ANGLE_DELTA + 1];
+  int angle_delta_costx[DIRECTIONAL_MODES][2 * MAX_ANGLE_DELTA + 1];
 
   //! Rate rate associated with each alpha codeword
   int cfl_cost[CFL_JOINT_SIGNS][CFL_PRED_PLANES][CFL_ALPHABET_SIZE];
