@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9ebc04ef_d6783c8d",
+        "filename": "av1/decoder/decodemv.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 832,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-10-14T00:28:19Z",
+      "side": 1,
+      "message": "There are a lot of changes in this CL. About half of the changes are to follow the new naming convention. Only the changes like this one here are the actual fix for the Coverity defect.\n\nThe new code makes the following proof clear:\n\nIf `av1_is_directional_mode(equiv_mode)` returns true, we know `1 \u003c\u003d equiv_mode \u003c\u003d 8`. (Note that `V_PRED` is equal to 1 and `D67_PRED` is equal to 8.) So `0 \u003c\u003d equiv_mode - V_PRED \u003c\u003d 7`, which means it is safe to use `equiv_mode - V_PRED` as the index for an array of size 8 (`DIRECTIONAL_MODES`).\n\nA good static analyzer should be able to construct the above proof.",
+      "revId": "55ff4ea60e9c4556d3769a52fade4c14863d27b9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
