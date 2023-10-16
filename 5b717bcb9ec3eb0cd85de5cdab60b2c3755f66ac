@@ -16,6 +16,24 @@
       "message": "Change the type of `attr` to `const pthread_attr_t *`:\nhttps://pubs.opengroup.org/onlinepubs/9699919799/functions/pthread_create.html",
       "revId": "5b717bcb9ec3eb0cd85de5cdab60b2c3755f66ac",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9c84accc_fba071e4",
+        "filename": "aom_util/aom_thread.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-10-16T21:01:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2b308cb0_4668fc9e",
+      "revId": "5b717bcb9ec3eb0cd85de5cdab60b2c3755f66ac",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
