@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "08b5ec57_cc629518",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 33002
+      },
+      "writtenOn": "2023-10-16T13:10:23Z",
+      "side": 1,
+      "message": "In this CL, the memory allocation checks in `av1_intra_mode_cnn_partition()` and\n`av1_choose_var_based_partitioning()` are modified to use `xd-\u003eerror_info` instead of `cm-\u003eerror` as this code belongs to a multi-threaded stage. The memory allocation of the local buffer `vt2` in `av1_choose_var_based_partitioning()` has also been modified to prevent memory leak that can arise from the other local buffer(`vt`) in case of an early exit.",
+      "revId": "666be0d999252829dbec360c16cb5a9370692a58",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
