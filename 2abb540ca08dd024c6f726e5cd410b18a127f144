@@ -22,6 +22,30 @@
       },
       "revId": "2abb540ca08dd024c6f726e5cd410b18a127f144",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a4c1e38a_9df0063b",
+        "filename": "av1/encoder/partition_search.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 4022,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2023-10-16T21:28:55Z",
+      "side": 1,
+      "message": "I suspect that this was a false alarm, since the table in question does contain invalid entries, although we have filtered their access out implicitly.\n\nAdding an explicit check condition would likely silence the warning.",
+      "parentUuid": "c343d454_cd6afb87",
+      "range": {
+        "startLine": 4022,
+        "startChar": 28,
+        "endLine": 4022,
+        "endChar": 59
+      },
+      "revId": "2abb540ca08dd024c6f726e5cd410b18a127f144",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
