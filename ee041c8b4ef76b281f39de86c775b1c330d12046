@@ -20,6 +20,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "cd4521f9_00ebe0a8",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-10-17T19:11:40Z",
+      "side": 1,
+      "message": "\u003e I assume this is referring to the changes in av1/encoder/var_based_part.c. I probably would only change\n\u003e \n\u003e ```\n\u003e   if (vt) aom_free(vt);\n\u003e ```\n\u003e \n\u003e to\n\u003e \n\u003e ```\n\u003e   aom_free(vt);\n\u003e ```\n\u003e \n\u003e Doing a null check before freeing the pointer is so common, I am afraid that it is futile to try to avoid it.\n\nYes vt was called out in the report. For this function I did both for consistency and I made a full pass assuming others might get uncovered as other changes were made.",
+      "parentUuid": "84780226_f93ca131",
+      "revId": "ee041c8b4ef76b281f39de86c775b1c330d12046",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "530730f8_4f84524b",
         "filename": "av1/encoder/var_based_part.c",
         "patchSetId": 1
