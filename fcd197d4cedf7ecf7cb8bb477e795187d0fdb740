@@ -51,6 +51,24 @@
       "parentUuid": "7710e40a_12cfa3b1",
       "revId": "fcd197d4cedf7ecf7cb8bb477e795187d0fdb740",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "79e6991f_bb7d6d90",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 813,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-10-17T20:01:45Z",
+      "side": 1,
+      "message": "\u003e \u003d\u003e can this be moved to the block at 846? \n\u003e As per our code study, moving the allocation of `sb_org_stats` to the block at 846 seems to be feasible. But this change needs to be validated by running some tests.\n\u003e In case the above change can be done, do you recommend using a stack allocation for this structure (similar to line 889) and thus avoiding the heap memory allocation ?\n\u003e \n\nThe structure is ~19K. It\u0027s good to try to keep the stack size down, we have some warnings for this. I wonder if this is the reason it was made an allocation. Lin, any comments on the reasoning?\n\nIf you can scope the variable, then for consistency a stack variable would be all right. If there are size issues identified later then both instances should be addressed.\n\n\u003e \u003d\u003e Are there any aom_internal_error calls in that scope?\n\u003e Yes, there are multiple `aom_internal_error()` calls within this scope. For e.g., \n\u003e `av1_alloc_pc_tree_node()` calls in `sb_qp_sweep() -\u003e av1_rd_pick_partition()`.",
+      "parentUuid": "865814ca_81e43cb9",
+      "revId": "fcd197d4cedf7ecf7cb8bb477e795187d0fdb740",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
