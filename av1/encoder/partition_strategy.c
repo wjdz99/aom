@@ -1964,6 +1964,10 @@ static void prepare_features_after_part_ab(
   {
     BLOCK_SIZE horz_4_bs = get_partition_subsize(bsize, PARTITION_HORZ_4);
     BLOCK_SIZE vert_4_bs = get_partition_subsize(bsize, PARTITION_VERT_4);
+
+    assert(horz_4_bs != BLOCK_INVALID);
+    assert(vert_4_bs != BLOCK_INVALID);
+
     av1_setup_src_planes(x, cpi->source, mi_row, mi_col,
                          av1_num_planes(&cpi->common), bsize);
     const int src_stride = x->plane[0].src.stride;
