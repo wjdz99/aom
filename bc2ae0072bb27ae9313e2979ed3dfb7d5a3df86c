@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4c3ba843_e7c90eb3",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-10-17T18:51:35Z",
+      "side": 1,
+      "message": "We should rewrite a new commit message because the current change is very different from \"Add explicit condition check to guard av1_ml_prune_4_partition()\".",
+      "revId": "bc2ae0072bb27ae9313e2979ed3dfb7d5a3df86c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5e4d358a_26befa7f",
+        "filename": "av1/encoder/partition_strategy.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1377,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-10-17T18:51:35Z",
+      "side": 1,
+      "message": "This is a copy of the code below. We should make the same change here.",
+      "revId": "bc2ae0072bb27ae9313e2979ed3dfb7d5a3df86c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
