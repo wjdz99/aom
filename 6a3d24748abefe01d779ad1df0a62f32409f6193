@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "891fac6c_3fc1d759",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-10-18T03:50:34Z",
+      "side": 1,
+      "message": "I determined the valid range by code analysis only. You may know what the valid range should be based on your knowledge of the AV1 encoder. Please see if it is the same as what I found. Thanks.",
+      "revId": "6a3d24748abefe01d779ad1df0a62f32409f6193",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7007fccd_07682bbc",
+        "filename": "av1/encoder/partition_search.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 4020,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-10-18T03:50:34Z",
+      "side": 1,
+      "message": "This condition ensures that `bsize` is `BLOCK_16X16` or higher.",
+      "revId": "6a3d24748abefe01d779ad1df0a62f32409f6193",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "395758d3_0ffee9f4",
+        "filename": "av1/encoder/partition_search.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 4023,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-10-18T03:50:34Z",
+      "side": 1,
+      "message": "Note that the conditional `bsize \u003e part4_min_bsize_allowed` looks off by one, because \"minimum bsize allowed\" implies we should be checking `bsize \u003e\u003d part4_min_bsize_allowed`.\n\nI am ignoring this minor issue.",
+      "revId": "6a3d24748abefe01d779ad1df0a62f32409f6193",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fe18d0c6_8db7b90d",
+        "filename": "av1/encoder/speed_features.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 688,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-10-18T03:50:34Z",
+      "side": 1,
+      "message": "For `get_partition_subsize(bsize, PARTITION_HORZ_4)` to return a valid block size, `bsize` must be `BLOCK_16X16`, `BLOCK_32X32`, or `BLOCK_64X64`. Because of the check at partition_search.c:4023, `ext_partition_eval_thresh` must be `BLOCK_8X8` or higher.",
+      "revId": "6a3d24748abefe01d779ad1df0a62f32409f6193",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
