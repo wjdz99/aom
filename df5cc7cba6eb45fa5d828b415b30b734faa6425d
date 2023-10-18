@@ -16,6 +16,24 @@
       "message": "`aom_malloc` takes only one parameter, so we need to multiply these two.",
       "revId": "df5cc7cba6eb45fa5d828b415b30b734faa6425d",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f77e3d86_67bea6ec",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 2575,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-10-18T22:19:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1e3c8c5e_3b0e3fa6",
+      "revId": "df5cc7cba6eb45fa5d828b415b30b734faa6425d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
