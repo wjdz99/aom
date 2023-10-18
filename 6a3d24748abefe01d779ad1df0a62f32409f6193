@@ -67,6 +67,24 @@
       "message": "For `get_partition_subsize(bsize, PARTITION_HORZ_4)` to return a valid block size, `bsize` must be `BLOCK_16X16`, `BLOCK_32X32`, or `BLOCK_64X64`. Because of the check at partition_search.c:4023, `ext_partition_eval_thresh` must be `BLOCK_8X8` or higher.",
       "revId": "6a3d24748abefe01d779ad1df0a62f32409f6193",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e255ed6d_9aa18c2c",
+        "filename": "av1/encoder/speed_features.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 688,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-10-18T22:31:35Z",
+      "side": 1,
+      "message": "\u003e For `get_partition_subsize(bsize, PARTITION_HORZ_4)` to return a valid block size, `bsize` must be `BLOCK_16X16`, `BLOCK_32X32`, or `BLOCK_64X64`. Because of the check at partition_search.c:4023, `ext_partition_eval_thresh` must be `BLOCK_8X8` or higher.\n\nThat check alone doesn\u0027t mean it isn\u0027t `BLOCK_8X16` or another of the values in that range.",
+      "parentUuid": "fe18d0c6_8db7b90d",
+      "revId": "6a3d24748abefe01d779ad1df0a62f32409f6193",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
