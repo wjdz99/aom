@@ -90,7 +90,7 @@ void av1_ml_prune_ab_partition(AV1_COMP *const cpi, int part_ctx, int var_ctx,
 // Use a ML model to predict if horz4 and vert4 should be considered.
 void av1_ml_prune_4_partition(AV1_COMP *const cpi, MACROBLOCK *const x,
                               int part_ctx, int64_t best_rd,
-                              PartitionSearchState *part_state,
+                              const PartitionSearchState *part_state,
                               int *part4_allowed,
                               unsigned int pb_source_variance);
 

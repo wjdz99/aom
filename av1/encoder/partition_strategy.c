@@ -73,10 +73,11 @@ static bool ext_ml_model_decision_after_rect(
 
 static bool ext_ml_model_decision_after_part_ab(
     AV1_COMP *const cpi, MACROBLOCK *const x, BLOCK_SIZE bsize, int part_ctx,
-    int64_t best_rd, int64_t rect_part_rd[NUM_RECT_PARTS][SUB_PARTITIONS_RECT],
-    int64_t split_rd[SUB_PARTITIONS_SPLIT], int *const partition_horz4_allowed,
-    int *const partition_vert4_allowed, unsigned int pb_source_variance,
-    int mi_row, int mi_col);
+    int64_t best_rd,
+    const int64_t rect_part_rd[NUM_RECT_PARTS][SUB_PARTITIONS_RECT],
+    const int64_t split_rd[SUB_PARTITIONS_SPLIT],
+    int *const partition_horz4_allowed, int *const partition_vert4_allowed,
+    unsigned int pb_source_variance, int mi_row, int mi_col);
 
 static INLINE int convert_bsize_to_idx(BLOCK_SIZE bsize) {
   switch (bsize) {
@@ -1209,10 +1210,10 @@ void av1_ml_prune_ab_partition(AV1_COMP *const cpi, int part_ctx, int var_ctx,
                                int64_t best_rd,
                                PartitionSearchState *part_state,
                                int *ab_partitions_allowed) {
-  const PartitionBlkParams blk_params = part_state->part_blk_params;
-  const int mi_row = blk_params.mi_row;
-  const int mi_col = blk_params.mi_col;
-  const int bsize = blk_params.bsize;
+  const PartitionBlkParams *blk_params = &part_state->part_blk_params;
+  const int mi_row = blk_params->mi_row;
+  const int mi_col = blk_params->mi_col;
+  const int bsize = blk_params->bsize;
 
   if (bsize < BLOCK_8X8 || best_rd >= 1000000000) return;
   const NN_CONFIG *nn_config = NULL;
@@ -1309,16 +1310,16 @@ void av1_ml_prune_ab_partition(AV1_COMP *const cpi, int part_ctx, int var_ctx,
 // Use a ML model to predict if horz4 and vert4 should be considered.
 void av1_ml_prune_4_partition(AV1_COMP *const cpi, MACROBLOCK *const x,
                               int part_ctx, int64_t best_rd,
-                              PartitionSearchState *part_state,
+                              const PartitionSearchState *part_state,
                               int *part4_allowed,
                               unsigned int pb_source_variance) {
-  const PartitionBlkParams blk_params = part_state->part_blk_params;
-  const int mi_row = blk_params.mi_row;
-  const int mi_col = blk_params.mi_col;
-  const int bsize = blk_params.bsize;
+  const PartitionBlkParams *blk_params = &part_state->part_blk_params;
+  const int mi_row = blk_params->mi_row;
+  const int mi_col = blk_params->mi_col;
+  const int bsize = blk_params->bsize;
 
-  int64_t(*rect_part_rd)[SUB_PARTITIONS_RECT] = part_state->rect_part_rd;
-  int64_t *split_rd = part_state->split_rd;
+  const int64_t(*rect_part_rd)[SUB_PARTITIONS_RECT] = part_state->rect_part_rd;
+  const int64_t *split_rd = part_state->split_rd;
   if (ext_ml_model_decision_after_part_ab(
           cpi, x, bsize, part_ctx, best_rd, rect_part_rd, split_rd,
           &part4_allowed[HORZ4], &part4_allowed[VERT4], pb_source_variance,
@@ -1326,8 +1327,8 @@ void av1_ml_prune_4_partition(AV1_COMP *const cpi, MACROBLOCK *const x,
     return;
 
   if (best_rd >= 1000000000) return;
-  int64_t *horz_rd = rect_part_rd[HORZ4];
-  int64_t *vert_rd = rect_part_rd[VERT4];
+  const int64_t *horz_rd = rect_part_rd[HORZ4];
+  const int64_t *vert_rd = rect_part_rd[VERT4];
   const NN_CONFIG *nn_config = NULL;
   switch (bsize) {
     case BLOCK_16X16: nn_config = &av1_4_partition_nnconfig_16; break;
@@ -1920,11 +1921,12 @@ void av1_prune_ab_partitions(AV1_COMP *cpi, const MACROBLOCK *x,
 static void prepare_features_after_part_ab(
     const AV1_COMP *const cpi, MACROBLOCK *const x, BLOCK_SIZE bsize,
     int part_ctx, int64_t best_rd,
-    int64_t rect_part_rd[NUM_RECT_PARTS][SUB_PARTITIONS_RECT],
-    int64_t split_rd[SUB_PARTITIONS_SPLIT], unsigned int pb_source_variance,
-    int mi_row, int mi_col, aom_partition_features_t *const features) {
-  int64_t *horz_rd = rect_part_rd[HORZ];
-  int64_t *vert_rd = rect_part_rd[VERT];
+    const int64_t rect_part_rd[NUM_RECT_PARTS][SUB_PARTITIONS_RECT],
+    const int64_t split_rd[SUB_PARTITIONS_SPLIT],
+    unsigned int pb_source_variance, int mi_row, int mi_col,
+    aom_partition_features_t *const features) {
+  const int64_t *horz_rd = rect_part_rd[HORZ];
+  const int64_t *vert_rd = rect_part_rd[VERT];
 
   // Generate features.
   int feature_index = 0;
@@ -2258,10 +2260,11 @@ static bool ext_ml_model_decision_after_rect(
 // partition_horz4_allowed
 static bool ext_ml_model_decision_after_part_ab(
     AV1_COMP *const cpi, MACROBLOCK *const x, BLOCK_SIZE bsize, int part_ctx,
-    int64_t best_rd, int64_t rect_part_rd[NUM_RECT_PARTS][SUB_PARTITIONS_RECT],
-    int64_t split_rd[SUB_PARTITIONS_SPLIT], int *const partition_horz4_allowed,
-    int *const partition_vert4_allowed, unsigned int pb_source_variance,
-    int mi_row, int mi_col) {
+    int64_t best_rd,
+    const int64_t rect_part_rd[NUM_RECT_PARTS][SUB_PARTITIONS_RECT],
+    const int64_t split_rd[SUB_PARTITIONS_SPLIT],
+    int *const partition_horz4_allowed, int *const partition_vert4_allowed,
+    unsigned int pb_source_variance, int mi_row, int mi_col) {
   const AV1_COMMON *const cm = &cpi->common;
   ExtPartController *const ext_part_controller = &cpi->ext_part_controller;
 
