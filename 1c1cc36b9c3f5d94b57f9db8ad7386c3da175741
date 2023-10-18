@@ -1,0 +1,106 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6095ee6f_3b3da680",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-10-18T18:08:37Z",
+      "side": 1,
+      "message": "Thanks for the patch. After looking at the code more closely, I suggest a few more changes.",
+      "revId": "1c1cc36b9c3f5d94b57f9db8ad7386c3da175741",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d8884040_451cc4e4",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1490,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-10-18T18:08:37Z",
+      "side": 1,
+      "message": "Nit: I believe we can use `aom_malloc` instead of `aom_calloc` here, because we always memset the buffer before use (see line 2577). Please double check.",
+      "revId": "1c1cc36b9c3f5d94b57f9db8ad7386c3da175741",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a35f6524_b53021d7",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1491,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-10-18T18:08:37Z",
+      "side": 1,
+      "message": "Please make one more change. In av1/encoder/encoder_alloc.h, function `dealloc_compressor_data()`, let\u0027s set `cpi-\u003econsec_zero_mv_alloc_size` to 0 after freeing `cpi-\u003econsec_zero_mv`:\n\n```\ndiff --git a/av1/encoder/encoder_alloc.h b/av1/encoder/encoder_alloc.h\nindex 15fd075a83..30c89e5c1c 100644\n--- a/av1/encoder/encoder_alloc.h\n+++ b/av1/encoder/encoder_alloc.h\n@@ -323,6 +323,7 @@ static AOM_INLINE void dealloc_compressor_data(AV1_COMP *cpi) {\n \n   aom_free(cpi-\u003econsec_zero_mv);\n   cpi-\u003econsec_zero_mv \u003d NULL;\n+  cpi-\u003econsec_zero_mv_alloc_size \u003d 0;\n \n   aom_free(cpi-\u003esrc_sad_blk_64x64);\n   cpi-\u003esrc_sad_blk_64x64 \u003d NULL;\n```",
+      "revId": "1c1cc36b9c3f5d94b57f9db8ad7386c3da175741",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c848fd16_4662195e",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 2568,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-10-18T18:08:37Z",
+      "side": 1,
+      "message": "Nit: I suggest parenthesizing the multiplication:\n\n```\n(cm-\u003emi_params.mi_rows * cm-\u003emi_params.mi_cols) \u003e\u003e 2\n```",
+      "revId": "1c1cc36b9c3f5d94b57f9db8ad7386c3da175741",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "62b709f5_aab72357",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 2574,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-10-18T18:08:37Z",
+      "side": 1,
+      "message": "Nit: I believe we can use `aom_malloc` instead of `aom_calloc` here, because we always memset the buffer before use (see line 2577).",
+      "revId": "1c1cc36b9c3f5d94b57f9db8ad7386c3da175741",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e95b2d69_76823bb5",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 2578,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-10-18T18:08:37Z",
+      "side": 1,
+      "message": "IMPORTANT: Move this inside the if statement above, after line 2574. Otherwise we may be reducing `cpi-\u003econsec_zero_mv_alloc_size` unnecessarily.",
+      "revId": "1c1cc36b9c3f5d94b57f9db8ad7386c3da175741",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
