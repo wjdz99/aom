@@ -1330,6 +1330,7 @@ void av1_ml_prune_4_partition(AV1_COMP *const cpi, MACROBLOCK *const x,
   int64_t *horz_rd = rect_part_rd[HORZ4];
   int64_t *vert_rd = rect_part_rd[VERT4];
   const NN_CONFIG *nn_config = NULL;
+  // 4-way partitions are only allowed for these three square block sizes.
   switch (bsize) {
     case BLOCK_16X16: nn_config = &av1_4_partition_nnconfig_16; break;
     case BLOCK_32X32: nn_config = &av1_4_partition_nnconfig_32; break;
@@ -1958,6 +1959,9 @@ static void prepare_features_after_part_ab(
       rd_ratio = (float)sub_block_rdcost[i] / (float)rdcost;
     features->after_part_ab.f[feature_index++] = rd_ratio;
   }
+
+  // 4-way partitions are only allowed for these three square block sizes.
+  assert(bsize == BLOCK_16X16 || bsize == BLOCK_32X32 || bsize == BLOCK_64X64);
 
   // Get variance of the 1:4 and 4:1 sub-blocks.
   unsigned int horz_4_source_var[SUB_PARTITIONS_PART4] = { 0 };
