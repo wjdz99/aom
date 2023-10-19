@@ -87,6 +87,24 @@
       "parentUuid": "79e6991f_bb7d6d90",
       "revId": "fcd197d4cedf7ecf7cb8bb477e795187d0fdb740",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8258ef82_0629ac1e",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 813,
+      "author": {
+        "id": 31132
+      },
+      "writtenOn": "2023-10-19T14:15:18Z",
+      "side": 1,
+      "message": "James, I saw the stack size warnings before, but I can\u0027t remember if this one does.\n\nSatheesh, thanks for the tests. When you ran the tests, did you turn sb_qp_sweep on? It\u0027s off by default, and it\u0027s configurable in av1_cx_iface.c.\n\nIf no size warning by using it to stack allocation, nor no behavior impact with sb_qp_sweep\u003d1, I\u0027m fine to move this one to line 846 block. Thanks.",
+      "parentUuid": "ac9c3906_41c8b830",
+      "revId": "fcd197d4cedf7ecf7cb8bb477e795187d0fdb740",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
