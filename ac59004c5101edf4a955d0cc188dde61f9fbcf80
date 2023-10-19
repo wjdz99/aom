@@ -18,6 +18,23 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e60a223e_348a69df",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-10-19T18:20:56Z",
+      "side": 1,
+      "message": "Thanks for the review!",
+      "revId": "ac59004c5101edf4a955d0cc188dde61f9fbcf80",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "2f060759_0ac63ac4",
@@ -41,6 +58,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "1e4a9498_58e502fb",
+        "filename": "av1/decoder/decodemv.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 314,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-10-19T18:20:56Z",
+      "side": 1,
+      "message": "This issue is a little complicated.\n\nThe Google C++ Style Guide **recommends against** marking pass-by-value function parameters as `const` in **function declaratons**, but **allows** it in **function definitions**. In C++, the function prototypes in declaration and definition can differ only in `const`, but in C they must be exactly the same. See https://google.github.io/styleguide/cppguide.html#Use_of_const and https://abseil.io/tips/109.\n\nThis is why in libaom (a C library) I do not mark pass-by-value function parameters as `const` unless the code already does that.",
+      "parentUuid": "2f060759_0ac63ac4",
+      "range": {
+        "startLine": 314,
+        "startChar": 62,
+        "endLine": 314,
+        "endChar": 72
+      },
+      "revId": "ac59004c5101edf4a955d0cc188dde61f9fbcf80",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "326a41c9_307100d8",
@@ -54,6 +95,30 @@
       "writtenOn": "2023-10-19T17:05:36Z",
       "side": 1,
       "message": "Similar here.",
+      "range": {
+        "startLine": 51,
+        "startChar": 46,
+        "endLine": 51,
+        "endChar": 56
+      },
+      "revId": "ac59004c5101edf4a955d0cc188dde61f9fbcf80",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1b72b704_f7343698",
+        "filename": "av1/encoder/aq_cyclicrefresh.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-10-19T18:20:56Z",
+      "side": 1,
+      "message": "Please see my answer in av1/decoder/decodemv.c.",
+      "parentUuid": "326a41c9_307100d8",
       "range": {
         "startLine": 51,
         "startChar": 46,
