@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7f1fc4c0_239f8efb",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-10-19T21:31:43Z",
+      "side": 1,
+      "message": "James, Jingning: Please review the new patchset. This CL now fixed the four Coverity defects.\n\nCherma, Neeraj: Just FYI. This CL modifies the code related to our recent discussion about `partition4_allowed` and its comment.",
+      "revId": "53365546ef9da5bc4d631f18cc10e97d4bbe0521",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ee92df86_bf743975",
+        "filename": "av1/encoder/partition_strategy.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1338,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-10-19T21:31:43Z",
+      "side": 1,
+      "message": "Note that this assertion did not prevent the Coverity defects.",
+      "revId": "53365546ef9da5bc4d631f18cc10e97d4bbe0521",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "18896795_2c278ab9",
+        "filename": "av1/encoder/partition_strategy.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1382,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-10-19T21:31:43Z",
+      "side": 1,
+      "message": "These assertions fixed the Coverity defects.",
+      "revId": "53365546ef9da5bc4d631f18cc10e97d4bbe0521",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fa9e500e_5cd1ba1b",
+        "filename": "av1/encoder/partition_strategy.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1968,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-10-19T21:31:43Z",
+      "side": 1,
+      "message": "As I feared, this new assertion did not fix the Coverity defects.",
+      "revId": "53365546ef9da5bc4d631f18cc10e97d4bbe0521",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4b5c89e6_02328e8a",
+        "filename": "av1/encoder/partition_strategy.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1978,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-10-19T21:31:43Z",
+      "side": 1,
+      "message": "These assertions fixed the Coverity defects.",
+      "revId": "53365546ef9da5bc4d631f18cc10e97d4bbe0521",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
