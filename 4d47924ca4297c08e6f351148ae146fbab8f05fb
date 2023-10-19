@@ -51,6 +51,24 @@
       "parentUuid": "7d35a36b_dc547d94",
       "revId": "4d47924ca4297c08e6f351148ae146fbab8f05fb",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6a1a96ad_7d13abfb",
+        "filename": "av1/encoder/partition_search.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 3982,
+      "author": {
+        "id": 9101
+      },
+      "writtenOn": "2023-10-19T13:12:31Z",
+      "side": 1,
+      "message": "Hi Wan-Teh,\nThank you for the suggestions. We agree with your points.\nWe will correct the comments and refactor the code in some time.",
+      "parentUuid": "8d99623f_20a55667",
+      "revId": "4d47924ca4297c08e6f351148ae146fbab8f05fb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
