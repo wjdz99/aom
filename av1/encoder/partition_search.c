@@ -4018,6 +4018,9 @@ static void prune_4_way_partition_search(
   if (cpi->sf.part_sf.ext_part_eval_based_on_cur_best &&
       !x->must_find_valid_partition && pc_tree->partitioning == PARTITION_NONE)
     part4_min_bsize_allowed = BLOCK_128X128;
+  // 4-way partitions are only allowed for BLOCK_16X16, BLOCK_32X32, and
+  // BLOCK_64X64, so part4_min_bsize_allowed must be large enough to exclude
+  // BLOCK_4X4 and BLOCK_8X8.
   assert(part4_min_bsize_allowed >= BLOCK_8X8);
 
   bool partition4_allowed = part_search_state->do_rectangular_split &&
