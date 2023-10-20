@@ -16,6 +16,41 @@
       "message": "Could you explain more about self_allocd? I\u0027ve see aom_img_free will free img buffer if self_allocd is true.",
       "revId": "7af3a95c0e71393a587e2b93cbe35c18dbe5ee42",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c4db011c_2ee3db9d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-10-20T23:23:22Z",
+      "side": 1,
+      "message": "Cheng: Since this code path is frequently taken, and any future mistake we make here will immediately be detected by AddressSanitizer and valgrind, I am also fine with not adding this assertion if the purpose of this assertion is not clear. Please let me know what you think. Thanks!",
+      "revId": "7af3a95c0e71393a587e2b93cbe35c18dbe5ee42",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ab13e61d_e5116403",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-10-20T23:23:22Z",
+      "side": 1,
+      "message": "I am wondering if you were thinking of `img-\u003eimg_data_owner`, which is another boolean field in the `img` struct.\n\n`img-\u003eself_allocd` means whether the `img` struct itself is also heap-allocated and should be freed by `aom_img_free()`.\n\n`aom_img_free()` always frees the \"metadata\" and the image data (if `img-\u003eimg_data_owner` is true). But `aom_img_free()` will only free the `img` struct itself if `img-\u003eself_allocd` is true.",
+      "parentUuid": "1187c4cb_e7d9a0c0",
+      "revId": "7af3a95c0e71393a587e2b93cbe35c18dbe5ee42",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
