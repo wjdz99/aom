@@ -9,6 +9,7 @@
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
  */
 
+#include "aom_mem/aom_mem.h"
 #include "av1/common/cfl.h"
 #include "av1/common/reconintra.h"
 #include "av1/encoder/block.h"
@@ -2027,12 +2028,6 @@ static void search_tx_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
   uint16_t best_eob = 0;
   TX_TYPE best_tx_type = DCT_DCT;
   int rate_cost = 0;
-  // The buffer used to swap dqcoeff in macroblockd_plane so we can keep dqcoeff
-  // of the best tx_type
-  DECLARE_ALIGNED(32, tran_low_t, this_dqcoeff[MAX_SB_SQUARE]);
-  struct macroblock_plane *const p = &x->plane[plane];
-  tran_low_t *orig_dqcoeff = p->dqcoeff;
-  tran_low_t *best_dqcoeff = this_dqcoeff;
   const int tx_type_map_idx =
       plane ? 0 : blk_row * xd->tx_type_map_stride + blk_col;
   av1_invalid_rd_stats(best_rd_stats);
@@ -2072,6 +2067,16 @@ static void search_tx_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
                                     txsize_to_bsize[tx_size], &block_mse_q8);
     assert(block_mse_q8 != UINT_MAX);
   }
+
+  // The buffer used to swap dqcoeff in macroblockd_plane so we can keep dqcoeff
+  // of the best tx_type
+  tran_low_t *this_dqcoeff;
+  AOM_CHECK_MEM_ERROR(
+      cm->error, this_dqcoeff,
+      (tran_low_t *)aom_memalign(32, MAX_SB_SQUARE * sizeof(tran_low_t)));
+  struct macroblock_plane *const p = &x->plane[plane];
+  tran_low_t *orig_dqcoeff = p->dqcoeff;
+  tran_low_t *best_dqcoeff = this_dqcoeff;
 
   // Bit mask to indicate which transform types are allowed in the RD search.
   uint16_t tx_mask;
@@ -2326,6 +2331,7 @@ static void search_tx_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
   recon_intra(cpi, x, plane, block, blk_row, blk_col, plane_bsize, tx_size,
               txb_ctx, skip_trellis, best_tx_type, 0, &rate_cost, best_eob);
   p->dqcoeff = orig_dqcoeff;
+  aom_free(this_dqcoeff);
 }
 
 // Pick transform type for a luma transform block of tx_size. Note this function
