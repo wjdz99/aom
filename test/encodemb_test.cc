@@ -14,6 +14,7 @@
 
 #include "third_party/googletest/src/googletest/include/gtest/gtest.h"
 
+#include "aom_mem/aom_mem.h"
 #include "av1/encoder/block.h"
 #include "av1/encoder/encodemb.h"
 #include "av1/common/scan.h"
@@ -61,18 +62,20 @@ void Dropout(TX_SIZE tx_size, TX_TYPE tx_type, int dropout_num_before,
   uint16_t eob = max_eob;
   while (eob > 0 && qcoeff_scan[eob - 1] == 0) --eob;
 
-  MACROBLOCK mb;
+  MACROBLOCK *mb =
+      reinterpret_cast<MACROBLOCK *>(aom_memalign(32, sizeof(MACROBLOCK)));
+  ASSERT_NE(mb, nullptr);
   const int kPlane = 0;
   const int kBlock = 0;
-  memset(&mb, 0, sizeof(mb));
+  memset(mb, 0, sizeof(*mb));
   uint16_t eobs[] = { eob };
-  mb.plane[kPlane].eobs = eobs;
-  mb.plane[kPlane].qcoeff = qcoeff;
-  mb.plane[kPlane].dqcoeff = dqcoeff;
+  mb->plane[kPlane].eobs = eobs;
+  mb->plane[kPlane].qcoeff = qcoeff;
+  mb->plane[kPlane].dqcoeff = dqcoeff;
   uint8_t txb_entropy_ctx[1];
-  mb.plane[kPlane].txb_entropy_ctx = txb_entropy_ctx;
+  mb->plane[kPlane].txb_entropy_ctx = txb_entropy_ctx;
 
-  av1_dropout_qcoeff_num(&mb, kPlane, kBlock, tx_size, tx_type,
+  av1_dropout_qcoeff_num(mb, kPlane, kBlock, tx_size, tx_type,
                          dropout_num_before, dropout_num_after);
 
   ToScanOrder(tx_size, tx_type, qcoeff, qcoeff_scan);
@@ -80,12 +83,14 @@ void Dropout(TX_SIZE tx_size, TX_TYPE tx_type, int dropout_num_before,
   // Check updated eob value is valid.
   uint16_t new_eob = max_eob;
   while (new_eob > 0 && qcoeff_scan[new_eob - 1] == 0) --new_eob;
-  EXPECT_EQ(new_eob, mb.plane[kPlane].eobs[0]);
+  EXPECT_EQ(new_eob, mb->plane[kPlane].eobs[0]);
 
-  // Check qqcoeff is still valid.
+  // Check dqcoeff is still valid.
   for (int i = 0; i < max_eob; ++i) {
     EXPECT_EQ(qcoeff[i] * kDequantFactor, dqcoeff[i]);
   }
+
+  aom_free(mb);
 }
 
 void ExpectArrayEq(tran_low_t *actual, std::vector<tran_low_t> expected) {
