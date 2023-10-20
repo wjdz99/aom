@@ -20,6 +20,23 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "15320084_3e5ae65f",
+        "filename": "av1/encoder/block.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 1387,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-10-20T16:36:39Z",
+      "side": 1,
+      "message": "I think \u0027org\u0027 might have meant original (it could have been orig), but now the declaration and used are removed from each other something like `sb_stats_cache` might work.",
+      "revId": "fcd197d4cedf7ecf7cb8bb477e795187d0fdb740",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "7710e40a_12cfa3b1",
         "filename": "av1/encoder/encodeframe.c",
         "patchSetId": 5
@@ -121,6 +138,41 @@
       "side": 1,
       "message": "Hi Lin, James,\n\nYes, we observed bit-match after setting `--sb-qp-sweep\u003d1`. But while testing for a windows VS build, we observed that the existing stack allocation (line no: 889) throws stack overflow warnings as below\n`C6262 Function uses \u002719540\u0027 bytes of stack: exceeds /analyze:stacksize \u002716384\u0027.`  `Consider moving some data to heap. aom_av1_encoder \u003c\u003e \\aom\\av1\\encoder\\encodeframe.c 757.`\n\nWe can overcome this issue by either increasing the allowed stack size (-Wstack-usage) or by moving the existing stack allocation to heap. Since these allocations are not present in a typical use-case we think the later solution would be preferred.\n\nWe shall proceed by adding one more pointer named `sb_fp_stats` in MACROBLOCK structure to handle the allocation at 889 similar to the changes done for `sb_org_stats`. Though the usage of these 2 structures do not overlap and the relevant memory can be overlaid, we shall add 2 separate instances as highlighted above for readability. Please let us know your opinion.",
       "parentUuid": "8258ef82_0629ac1e",
+      "revId": "fcd197d4cedf7ecf7cb8bb477e795187d0fdb740",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fad6836b_7aebeef1",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 813,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-10-20T16:36:39Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "d45aef46_61287342",
+      "revId": "fcd197d4cedf7ecf7cb8bb477e795187d0fdb740",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "278ffe3c_b3e39904",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 910,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-10-20T16:36:39Z",
+      "side": 1,
+      "message": "move this to the same block as the allocation",
       "revId": "fcd197d4cedf7ecf7cb8bb477e795187d0fdb740",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
