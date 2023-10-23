@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b89afb18_a6fa9390",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 31957
+      },
+      "writtenOn": "2023-10-23T16:20:11Z",
+      "side": 1,
+      "message": "Looks like the CI didn\u0027t start properly?",
+      "revId": "8115bee9814a42cc75a504575507e11876768c57",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
