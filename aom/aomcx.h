@@ -1527,6 +1527,11 @@ enum aome_enc_control_id {
    */
   AV1E_SET_BITRATE_ONE_PASS_CBR = 163,
 
+  /*!\brief Codec control to set the maxium number of consecutive frame drops
+   * allowed for the frame_dropper in 1 pass CBR mode.
+   */
+  AV1E_SET_MAX_CONSEC_FRAME_DROP_CBR = 164,
+
   // Any new encoder control IDs should be added above.
   // Maximum allowed encoder control ID is 229.
   // No encoder control ID should be added below.
@@ -2171,6 +2176,9 @@ AOM_CTRL_USE_TYPE(AV1E_GET_LUMA_CDEF_STRENGTH, int *)
 
 AOM_CTRL_USE_TYPE(AV1E_SET_BITRATE_ONE_PASS_CBR, unsigned int)
 #define AOM_CTRL_AV1E_SET_BITRATE_ONE_PASS_CBR
+
+AOM_CTRL_USE_TYPE(AV1E_SET_MAX_CONSEC_FRAME_DROP_CBR, unsigned int)
+#define AOM_CTRL_AV1E_SET_MAX_CONSEC_FRAME_DROP_CBR
 
 /*!\endcond */
 /*! @} - end defgroup aom_encoder */
