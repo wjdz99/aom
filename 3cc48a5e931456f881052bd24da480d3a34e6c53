@@ -35,6 +35,47 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "fc6e0de3_d961d10f",
+        "filename": "av1/encoder/block.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 1330,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2023-10-24T23:37:21Z",
+      "side": 1,
+      "message": "I would go with either `temp_dqcoeff` or `dqcoeff_buf` since this is only used locally by a single function.",
+      "parentUuid": "576cf7eb_3bf3cfaa",
+      "revId": "3cc48a5e931456f881052bd24da480d3a34e6c53",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ca8e5e2b_e56f6ecb",
+        "filename": "test/encodemb_test.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2023-10-24T23:37:21Z",
+      "side": 1,
+      "message": "Why do we need to move this allocation to the heap?",
+      "range": {
+        "startLine": 66,
+        "startChar": 7,
+        "endLine": 66,
+        "endChar": 75
+      },
+      "revId": "3cc48a5e931456f881052bd24da480d3a34e6c53",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "2c17913d_448a4cf2",
