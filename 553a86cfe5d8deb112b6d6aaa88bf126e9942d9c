@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "55ab3f85_d71d2b95",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2023-10-24T15:26:02Z",
+      "side": 1,
+      "message": "The function `av1_alloc_pc_tree_node()` handles the allocation of `PC_TREE` node. In the parent version, the caller sites of this function didn\u0027t check the allocation status. In this CL, the return status of `av1_alloc_pc_tree_node()` is verified at all call sites, and `aom_internal_error()` is invoked with the appropriate error information in case of an allocation failure.\n\nWe have validated this CL by introducing allocation failure at all instances of `av1_alloc_pc_tree_node()` and ensuring that the encoder exits gracefully. The allocation sites under `CONFIG_PARTITION_SEARCH_ORDER` are tested through the unit-test `ExternalPartitionTestAPI`.\n\nThis change is bit-exact and has been verified using bitstream-match tests for a combination of various configuration values for --threads, --tile-rows, --tile-columns, --cpu-used, --end-usage, --row-mt, --fp-mt, etc. Validated all unit-tests with sanitizers (address and thread) and valgrind.",
+      "revId": "553a86cfe5d8deb112b6d6aaa88bf126e9942d9c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
