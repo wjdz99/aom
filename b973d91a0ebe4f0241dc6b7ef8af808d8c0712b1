@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e14bec99_bd9e2b1c",
+        "filename": "test/encodemb_test.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-10-25T00:13:43Z",
+      "side": 0,
+      "message": "Since I added a 64 KB member to the `MACROBLOCK` struct, this local variable becomes too big. There is a compiler warning here if I don\u0027t change it:\n\n```\naom/test/encodemb_test.cc: In function ‘void {anonymous}::Dropout(TX_SIZE, TX_TYPE, int, int, tran_low_t*)’:\naom/test/encodemb_test.cc:46:6: warning: stack usage might be 251856 bytes [-Wstack-usage\u003d]\n   46 | void Dropout(TX_SIZE tx_size, TX_TYPE tx_type, int dropout_num_before,\n      |      ^~~~~~~\n```",
+      "revId": "b973d91a0ebe4f0241dc6b7ef8af808d8c0712b1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
