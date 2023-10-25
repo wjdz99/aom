@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5ca795c7_ae5445be",
+        "filename": "av1/encoder/encodeframe_utils.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 475,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-10-25T15:00:49Z",
+      "side": 1,
+      "message": "I am allocating the `mb-\u003edqcoeff_buf` buffer in `av1_alloc_mb_data()`. This is the simplest, but has the downside that the buffer is allocated and deallocated when we encode each frame. But this is a big improvement over statically allocating the buffer in the `MACROBLOCK` structure.\n\nIdeally we just need to allocate and deallocate this buffer once for the entire video sequence.",
+      "revId": "b33df870a838af5bfbf21ca4894162d19d57a3e3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3117fd86_d02d3526",
+        "filename": "av1/encoder/encodeframe_utils.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 502,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-10-25T15:00:49Z",
+      "side": 1,
+      "message": "I emulate how the related `shared_bufs-\u003edqcoeff_buf[i]` buffers are allocated in `av1_setup_shared_coeff_buffer()`.",
+      "revId": "b33df870a838af5bfbf21ca4894162d19d57a3e3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
