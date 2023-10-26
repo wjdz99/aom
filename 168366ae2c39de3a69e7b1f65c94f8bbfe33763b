@@ -33,6 +33,24 @@
       "message": "Is this safe to do given the check above? It sounds like there would be dangling pointers in this case.",
       "revId": "168366ae2c39de3a69e7b1f65c94f8bbfe33763b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "72ec8c7e_1f5b8a00",
+        "filename": "av1/encoder/partition_search.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 5759,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2023-10-26T12:32:56Z",
+      "side": 1,
+      "message": "Thank you for pointing this out. Setting `td-\u003epc_root` to NULL here is incorrect as the pointer `pc_tree` used in the `av1_free_pc_tree_recursive()` call above is  not the same as `td-\u003epc_root`.  Also we should not set `pc_tree` to NULL inside the scope of `if (pc_tree_dealloc \u003d\u003d 0)`, as `pc_tree` is not freed in this call as `keep_best` and `keep_none` parameters are set to 1 here. \n\nWhereas in the block of line 5723, where  `bsize\u003d\u003dsbsize`, `pc_tree` and `\u0027td-\u003epc_root` point to the same address. In the latest patch set, we have added an assert to check the same and have set the `pc_tree` pointer also to NULL to eliminate the case of a dangling pointer.\n\nWe have rebased the CL to avoid merge conflict. Please review.",
+      "parentUuid": "e008e808_4c9f0cd5",
+      "revId": "168366ae2c39de3a69e7b1f65c94f8bbfe33763b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
