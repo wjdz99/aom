@@ -33,6 +33,24 @@
       "message": "will the remainder of the allocations be freed somewhere?",
       "revId": "553a86cfe5d8deb112b6d6aaa88bf126e9942d9c",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "60ba623c_0cf49946",
+        "filename": "av1/encoder/partition_search.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 4821,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2023-10-26T12:25:12Z",
+      "side": 1,
+      "message": "Yes, complete pc_tree will be freed in `encoder_destroy()` by the `av1_free_pc_tree_recursive()` call added in this [CL](https://aomedia-review.googlesource.com/c/aom/+/182601).",
+      "parentUuid": "ec4baeb3_6fad06c9",
+      "revId": "553a86cfe5d8deb112b6d6aaa88bf126e9942d9c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
