@@ -57,6 +57,7 @@ static INLINE void *aom_memset16(void *dest, int val, size_t length) {
 #if CONFIG_DEBUG
 #define AOM_CHECK_MEM_ERROR(error_info, lval, expr)                         \
   do {                                                                      \
+    assert((error_info)->setjmp);                                           \
     lval = (expr);                                                          \
     if (!lval)                                                              \
       aom_internal_error(error_info, AOM_CODEC_MEM_ERROR,                   \
@@ -66,6 +67,7 @@ static INLINE void *aom_memset16(void *dest, int val, size_t length) {
 #else
 #define AOM_CHECK_MEM_ERROR(error_info, lval, expr)       \
   do {                                                    \
+    assert((error_info)->setjmp);                         \
     lval = (expr);                                        \
     if (!lval)                                            \
       aom_internal_error(error_info, AOM_CODEC_MEM_ERROR, \
