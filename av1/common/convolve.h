@@ -101,7 +101,9 @@ static INLINE ConvolveParams get_conv_params(int do_average, int plane,
 
 static INLINE ConvolveParams get_conv_params_wiener(int bd) {
   ConvolveParams conv_params;
-  (void)bd;
+  conv_params.use_dist_wtd_comp_avg = 0;
+  conv_params.bck_offset = 0;
+  conv_params.fwd_offset = 0;
   conv_params.do_average = 0;
   conv_params.is_compound = 0;
   conv_params.round_0 = WIENER_ROUND0_BITS;
