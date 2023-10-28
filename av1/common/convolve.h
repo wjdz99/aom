@@ -103,6 +103,7 @@ static INLINE ConvolveParams get_conv_params_wiener(int bd) {
   ConvolveParams conv_params;
   (void)bd;
   conv_params.do_average = 0;
+  conv_params.use_dist_wtd_comp_avg = 0;
   conv_params.is_compound = 0;
   conv_params.round_0 = WIENER_ROUND0_BITS;
   conv_params.round_1 = 2 * FILTER_BITS - conv_params.round_0;
