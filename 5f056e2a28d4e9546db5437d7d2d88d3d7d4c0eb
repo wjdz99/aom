@@ -18,6 +18,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "7d500e76_95b9748f",
+        "filename": "av1/common/convolve.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2023-10-28T22:47:06Z",
+      "side": 1,
+      "message": "Done\n\nGood idea. Thanks!",
+      "parentUuid": "155085ad_b8bb3d16",
+      "revId": "5f056e2a28d4e9546db5437d7d2d88d3d7d4c0eb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d6d06c6c_09e9d668",
@@ -31,6 +49,24 @@
       "writtenOn": "2023-10-28T20:57:00Z",
       "side": 1,
       "message": "We can delete this line because `bd` is used by this function (line 110).",
+      "revId": "5f056e2a28d4e9546db5437d7d2d88d3d7d4c0eb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "863be219_d2a8ce61",
+        "filename": "av1/common/convolve.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2023-10-28T22:47:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d6d06c6c_09e9d668",
       "revId": "5f056e2a28d4e9546db5437d7d2d88d3d7d4c0eb",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
