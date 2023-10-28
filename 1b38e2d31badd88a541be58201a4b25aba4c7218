@@ -33,6 +33,24 @@
       "message": "should we look at how to tell Coverity that this function shouldn\u0027t return? It\u0027s not certain that\u0027s true in all cases, but for memory allocations it should be.\n\nhttps://aomedia-review.googlesource.com/c/aom/+/183101 might be premature.",
       "revId": "1b38e2d31badd88a541be58201a4b25aba4c7218",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7844a095_664b7f86",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-10-28T00:15:49Z",
+      "side": 1,
+      "message": "Assuming Coverity understands `longjmp()`, we can try asserting `info-\u003esetjmp` is 1, If that doesn\u0027t help, we will need to figure out how to create a function model for `aom_internal_error()`.",
+      "parentUuid": "739cfad1_97da027e",
+      "revId": "1b38e2d31badd88a541be58201a4b25aba4c7218",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
