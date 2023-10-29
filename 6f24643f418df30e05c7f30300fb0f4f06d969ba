@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bfa00997_d45e9078",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-10-29T16:54:37Z",
+      "side": 1,
+      "message": "Please see my comment in convolve.h. The current form doesn\u0027t have the benefit you have in mind.",
+      "revId": "6f24643f418df30e05c7f30300fb0f4f06d969ba",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
