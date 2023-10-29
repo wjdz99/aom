@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "05f46374_de584e7e",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-10-29T16:15:31Z",
+      "side": 1,
+      "message": "This should be updated because we also initialize fwd_offset and bck_offset now.",
+      "revId": "4009d4f5bc73e96eae71286d82e3d955ddedaf57",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9c3cabe0_f72af2d9",
+        "filename": "av1/common/convolve.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-10-29T16:15:31Z",
+      "side": 1,
+      "message": "Hmm... this is less readable than the previous version (patchset 4) because it is not clear which struct members these initializers correspond to. (This struct has 10 members.) It is also error-prone if we ever reorder the struct members.\n\nI suggest we go back to patchset 4. I didn\u0027t mean to make you spend too much time on this issue.\n\nIf you prefer this version, we need to delete lines 113-115. They are redundant now.",
+      "revId": "4009d4f5bc73e96eae71286d82e3d955ddedaf57",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
