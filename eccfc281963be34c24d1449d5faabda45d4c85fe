@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "615b1cde_9218e4da",
+        "filename": "av1/common/arm/cdef_block_neon.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-10-30T23:28:43Z",
+      "side": 1,
+      "message": "I missed the casts during the review.\n\n```\ncommon\\arm\\cdef_block_neon.c(62,1): error C2440: \u0027type cast\u0027: cannot convert from \u0027__n64\u0027 to \u0027uint64_t\u0027\ncommon\\arm\\cdef_block_neon.c(62,1): error C2198: \u0027v128_from_64_neon\u0027: too few arguments for call\ncommon\\arm\\cdef_block_neon.c(63,1): error C2440: \u0027type cast\u0027: cannot convert from \u0027__n64\u0027 to \u0027uint64_t\u0027\ncommon\\arm\\cdef_block_neon.c(63,1): error C2198: \u0027v128_from_64_neon\u0027: too few arguments for call\ncommon\\arm\\cdef_block_neon.c(64,1): error C2440: \u0027type cast\u0027: cannot convert from \u0027__n64\u0027 to \u0027uint64_t\u0027\ncommon\\arm\\cdef_block_neon.c(64,1): error C2198: \u0027v128_from_64_neon\u0027: too few arguments for call\ncommon\\arm\\cdef_block_neon.c(65,1): error C2440: \u0027type cast\u0027: cannot convert from \u0027__n64\u0027 to \u0027uint64_t\u0027\ncommon\\arm\\cdef_block_neon.c(65,1): error C2198: \u0027v128_from_64_neon\u0027: too few arguments for call\ncommon\\arm\\cdef_block_neon.c(66,1): error C2440: \u0027type cast\u0027: cannot convert from \u0027__n64\u0027 to \u0027uint64_t\u0027\ncommon\\arm\\cdef_block_neon.c(66,1): error C2198: \u0027v128_from_64_neon\u0027: too few arguments for call\ncommon\\arm\\cdef_block_neon.c(67,1): error C2440: \u0027type cast\u0027: cannot convert from \u0027__n64\u0027 to \u0027uint64_t\u0027\ncommon\\arm\\cdef_block_neon.c(67,1): error C2198: \u0027v128_from_64_neon\u0027: too few arguments for call\ncommon\\arm\\cdef_block_neon.c(68,1): error C2440: \u0027type cast\u0027: cannot convert from \u0027__n64\u0027 to \u0027uint64_t\u0027\ncommon\\arm\\cdef_block_neon.c(68,1): error C2198: \u0027v128_from_64_neon\u0027: too few arguments for call\ncommon\\arm\\cdef_block_neon.c(100,1): error C2440: \u0027type cast\u0027: cannot convert from \u0027__n64\u0027 to \u0027uint64_t\u0027\ncommon\\arm\\cdef_block_neon.c(100,1): error C2198: \u0027v128_from_64_neon\u0027: too few arguments for call\ncommon\\arm\\cdef_block_neon.c(101,1): error C2440: \u0027type cast\u0027: cannot convert from \u0027__n64\u0027 to \u0027uint64_t\u0027\ncommon\\arm\\cdef_block_neon.c(101,1): error C2198: \u0027v128_from_64_neon\u0027: too few arguments for call\ncommon\\arm\\cdef_block_neon.c(102,1): error C2440: \u0027type cast\u0027: cannot convert from \u0027__n64\u0027 to \u0027uint64_t\u0027\ncommon\\arm\\cdef_block_neon.c(102,1): error C2198: \u0027v128_from_64_neon\u0027: too few arguments for call\ncommon\\arm\\cdef_block_neon.c(103,1): error C2440: \u0027type cast\u0027: cannot convert from \u0027__n64\u0027 to \u0027uint64_t\u0027\ncommon\\arm\\cdef_block_neon.c(103,1): error C2198: \u0027v128_from_64_neon\u0027: too few arguments for call\ncommon\\arm\\cdef_block_neon.c(104,1): error C2440: \u0027type cast\u0027: cannot convert from \u0027__n64\u0027 to \u0027uint64_t\u0027\ncommon\\arm\\cdef_block_neon.c(104,1): error C2198: \u0027v128_from_64_neon\u0027: too few arguments for call\ncommon\\arm\\cdef_block_neon.c(105,1): error C2440: \u0027type cast\u0027: cannot convert from \u0027__n64\u0027 to \u0027uint64_t\u0027\ncommon\\arm\\cdef_block_neon.c(105,1): error C2198: \u0027v128_from_64_neon\u0027: too few arguments for call\ncommon\\arm\\cdef_block_neon.c(106,1): error C2440: \u0027type cast\u0027: cannot convert from \u0027__n64\u0027 to \u0027uint64_t\u0027\ncommon\\arm\\cdef_block_neon.c(106,1): error C2198: \u0027v128_from_64_neon\u0027: too few arguments for call\n```",
+      "revId": "eccfc281963be34c24d1449d5faabda45d4c85fe",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
