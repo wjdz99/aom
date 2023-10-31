@@ -4472,6 +4472,12 @@ static void update_rc_counts(AV1_COMP *cpi) {
   update_keyframe_counters(cpi);
   update_frames_till_gf_update(cpi);
   update_gf_group_index(cpi);
+  // Reset gf_frame_index in case it reaches MAX_STATIC_GF_GROUP_LENGTH for
+  // real time encoding.
+  if (is_one_pass_rt_params(cpi) &&
+      cpi->gf_frame_index == MAX_STATIC_GF_GROUP_LENGTH) {
+    cpi->gf_frame_index = 0;
+  }
 }
 
 static void update_end_of_frame_stats(AV1_COMP *cpi) {
