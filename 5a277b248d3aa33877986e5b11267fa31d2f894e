@@ -16,6 +16,23 @@
       "message": "Thanks for the fix. I verified this CL fixes the crash (memory error). I will take a closer look at this bug.",
       "revId": "5a277b248d3aa33877986e5b11267fa31d2f894e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1e3461b8_9f14c63c",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 827,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-11-01T16:43:47Z",
+      "side": 1,
+      "message": "I studied the relevant code yesterday afternoon. It is very complicated and I still don\u0027t fully understand it. But I have roughly identified two reasons this code is brittle.\n\n1. Although this function, `av1_init_mt_sync()`, calls `av1_loop_restoration_alloc()` if the `lr_sync-\u003elrworkerdata` buffer is not large enough, `encoder_encode()` calls this function only once, before entering the while loop that encodes the frames. So if we (inadvertently) modified the `lr_sync-\u003elrworkerdata` buffer size during the post-processing of a frame, the while loop won\u0027t call this function to check the `lr_sync-\u003elrworkerdata` buffer size.\n\n2. During the post-processing of a frame, the encoder calls `av1_loop_restoration_filter_frame_mt()`, a function that is shared with the decoder. `av1_loop_restoration_filter_frame_mt()` may also call `av1_loop_restoration_alloc()`. The `num_workers` parameter the encoder passes to `av1_loop_restoration_filter_frame_mt()` is used for two purposes, but when FPMT is enabled, the `num_workers` parameter seems incorrect for one purpose (for the `av1_loop_restoration_alloc()` call). So it is important that the encoder\u0027s `av1_loop_restoration_filter_frame_mt()` call NOT call `av1_loop_restoration_alloc()`. I believe Rachel\u0027s fix works by making sure this doesn\u0027t happen.",
+      "revId": "5a277b248d3aa33877986e5b11267fa31d2f894e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ],
   "submitRequirementResults": [
