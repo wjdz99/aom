@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c49ab091_316b6282",
+        "filename": "test/cdef_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 571,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2023-11-02T17:40:29Z",
+      "side": 1,
+      "message": "Would it be good to put this under a guard like\n```\n#if !(HAVE_SSE2 || HAVE_SSSE3 || HAVE_SSE4_1 || HAVE_AVX2 || HAVE_NEON)\nGTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(CDEFCopyRect16to16Test);\n#endif\n```",
+      "range": {
+        "startLine": 571,
+        "startChar": 0,
+        "endLine": 571,
+        "endChar": 70
+      },
+      "revId": "67e319494ec05966b3c63d49f68338c118454bb3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
