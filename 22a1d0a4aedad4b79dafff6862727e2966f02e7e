@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "443e0f68_4d3ba7e9",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2023-11-03T17:48:13Z",
+      "side": 1,
+      "message": "In the parent version, inside a hook function the main thread’s `xd-\u003eerror_info` (originally pointing to cm-\u003eerror) made point to `thread_data-\u003eerror_info` for thread specific error reporting and `thread_data-\u003eerror_info.setjmp` will be set to 0 in the end. Because of this, after the hook function, the main thread’s `xd-\u003eerror_info` will be invalid to report an error while executing a multithreaded code using a single thread. To resolve this issue, this CL restores the main thread’s `xd-\u003eerror_info` back to `cm-\u003eerror` inside `sync_enc_workers()`.\n\nIn case of global motion multithreading, `num_workers` computed in `av1_global_motion_estimation_mt()` can become 0 for some cases because of which `thread_data` of the main/worker threads will not get correctly initialized in `prepare_gm_workers()`. This will cause the change in this CL to crash. In order to address this issue, correct early termination checks are added to the GM module in this [CL](https://aomedia-review.googlesource.com/c/aom/+/183361) and thereby facilitating the current fix. \n\nThis change is bit-exact and has been verified using bitstream-match tests for a combination of various configuration values for --threads, --tile-rows, --tile-columns, --cpu-used, --end-usage, --row-mt, --fp-mt, etc. Validated all unit-tests with sanitizers (address and thread) and valgrind.",
+      "revId": "22a1d0a4aedad4b79dafff6862727e2966f02e7e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
