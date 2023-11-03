@@ -318,7 +318,8 @@ typedef struct {
 typedef void (*rest_unit_visitor_t)(const RestorationTileLimits *limits,
                                     int rest_unit_idx, void *priv,
                                     int32_t *tmpbuf,
-                                    RestorationLineBuffers *rlbs);
+                                    RestorationLineBuffers *rlbs,
+                                    struct aom_internal_error_info *error_info);
 
 typedef struct FilterFrameCtxt {
   const RestorationInfo *rsi;
@@ -382,14 +383,12 @@ void av1_decode_xq(const int *xqd, int *xq, const sgr_params_type *params);
  * \remark Nothing is returned. Instead, the filtered unit is output in
  * \c dst8 at the proper restoration unit offset.
  */
-void av1_loop_restoration_filter_unit(const RestorationTileLimits *limits,
-                                      const RestorationUnitInfo *rui,
-                                      const RestorationStripeBoundaries *rsb,
-                                      RestorationLineBuffers *rlbs, int plane_w,
-                                      int plane_h, int ss_x, int ss_y,
-                                      int highbd, int bit_depth, uint8_t *data8,
-                                      int stride, uint8_t *dst8, int dst_stride,
-                                      int32_t *tmpbuf, int optimized_lr);
+void av1_loop_restoration_filter_unit(
+    const RestorationTileLimits *limits, const RestorationUnitInfo *rui,
+    const RestorationStripeBoundaries *rsb, RestorationLineBuffers *rlbs,
+    int plane_w, int plane_h, int ss_x, int ss_y, int highbd, int bit_depth,
+    uint8_t *data8, int stride, uint8_t *dst8, int dst_stride, int32_t *tmpbuf,
+    int optimized_lr, struct aom_internal_error_info *error_info);
 
 /*!\brief Function for applying loop restoration filter to a frame
  *
