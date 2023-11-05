@@ -270,13 +270,20 @@ void av1_calc_mb_wiener_var_row(AV1_COMP *const cpi, MACROBLOCK *x,
   const int coeff_count = block_size * block_size;
   const int mb_step = mi_size_wide[bsize];
   const BitDepthInfo bd_info = get_bit_depth_info(xd);
-  const AV1EncAllIntraMultiThreadInfo *const intra_mt = &cpi->mt_info.intra_mt;
+  const MultiThreadInfo *const mt_info = &cpi->mt_info;
+  const AV1EncAllIntraMultiThreadInfo *const intra_mt = &mt_info->intra_mt;
   AV1EncRowMultiThreadSync *const intra_row_mt_sync =
       &cpi->ppi->intra_row_mt_sync;
+#if CONFIG_MULTITHREAD
+  const AV1EncRowMultiThreadInfo *const enc_row_mt = &cpi->mt_info.enc_row_mt;
+  const int num_workers =
+      AOMMIN(mt_info->num_mod_workers[MOD_AI], mt_info->num_workers);
+#endif
+  bool mb_wiener_mt_exit = false;
   const int mi_cols = cm->mi_params.mi_cols;
   const int mt_thread_id = mi_row / mb_step;
   // TODO(chengchen): test different unit step size
-  const int mt_unit_step = mi_size_wide[BLOCK_64X64];
+  const int mt_unit_step = mi_size_wide[MB_WIENER_MT_UNIT_SIZE];
   const int mt_unit_cols = (mi_cols + (mt_unit_step >> 1)) / mt_unit_step;
   int mt_unit_col = 0;
   const int is_high_bitdepth = is_cur_buf_hbd(xd);
@@ -293,6 +300,20 @@ void av1_calc_mb_wiener_var_row(AV1_COMP *const cpi, MACROBLOCK *x,
     if (mi_col % mt_unit_step == 0) {
       intra_mt->intra_sync_read_ptr(intra_row_mt_sync, mt_thread_id,
                                     mt_unit_col);
+#if CONFIG_MULTITHREAD
+      if (num_workers > 1) {
+        pthread_mutex_lock(enc_row_mt->mutex_);
+        mb_wiener_mt_exit = enc_row_mt->mb_wiener_mt_exit;
+        pthread_mutex_unlock(enc_row_mt->mutex_);
+        // Exit in case any worker has encountered an error.
+        if (mb_wiener_mt_exit) {
+          // Set the pointer to null since mbmi is only allocated inside this
+          // function.
+          xd->mi = NULL;
+          return;
+        }
+      }
+#endif
     }
 
     PREDICTION_MODE best_mode = DC_PRED;
@@ -440,9 +461,22 @@ void av1_calc_mb_wiener_var_row(AV1_COMP *const cpi, MACROBLOCK *x,
 
     if ((mi_col + mb_step) % mt_unit_step == 0 ||
         (mi_col + mb_step) >= mi_cols) {
-      intra_mt->intra_sync_write_ptr(intra_row_mt_sync, mt_thread_id,
-                                     mt_unit_col, mt_unit_cols);
-      ++mt_unit_col;
+#if CONFIG_MULTITHREAD
+      if (num_workers > 1) {
+        pthread_mutex_lock(enc_row_mt->mutex_);
+        mb_wiener_mt_exit = enc_row_mt->mb_wiener_mt_exit;
+        pthread_mutex_unlock(enc_row_mt->mutex_);
+      }
+#endif
+      // Invoke sync_write here only if 'mb_wiener_mt_exit' falg is false, else
+      // this would overwrite the sync_write invoked in
+      // set_mb_wiener_var_calc_done() and could result in a deadlock
+      // condition in case of early termination of any thread.
+      if (!mb_wiener_mt_exit) {
+        intra_mt->intra_sync_write_ptr(intra_row_mt_sync, mt_thread_id,
+                                       mt_unit_col, mt_unit_cols);
+        ++mt_unit_col;
+      }
     }
   }
   // Set the pointer to null since mbmi is only allocated inside this function.
