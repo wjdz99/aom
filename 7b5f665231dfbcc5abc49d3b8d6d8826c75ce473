@@ -1,5 +1,23 @@
 {
-  "comments": [],
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d18ed097_267ce8cc",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-11-06T20:44:27Z",
+      "side": 1,
+      "message": "If we use a power of 2 as the maximum frame area, then 2^30 is the highest we can go without any UBSan errors. Since my encoder test is quite simple (I just encode two neutral gray frames, in both lowbd and highbd modes), it may be safer to use a smaller maximum. Chrome\u0027s WebCodecs VideoEncoder implementation (third_party/blink/renderer/modules/webcodecs/video_encoder.cc) uses 2^28: media::limits::kMaxCanvas (16384 x 16384).",
+      "revId": "7b5f665231dfbcc5abc49d3b8d6d8826c75ce473",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ],
   "submitRequirementResults": [
     {
       "submitRequirement": {
