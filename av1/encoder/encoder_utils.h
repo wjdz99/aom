@@ -1014,9 +1014,13 @@ static AOM_INLINE void set_size_independent_vars(AV1_COMP *cpi) {
 
 static AOM_INLINE void release_scaled_references(AV1_COMP *cpi) {
   // TODO(isbs): only refresh the necessary frames, rather than all of them
+  // For now: don't release scaled_ref_buf for golden reference unless it's
+  // being refreshed.
+  const int refresh_golden = (cpi->refresh_frame.golden_frame) ? 1 : 0;
   for (int i = 0; i < INTER_REFS_PER_FRAME; ++i) {
     RefCntBuffer *const buf = cpi->scaled_ref_buf[i];
-    if (buf != NULL) {
+    if (buf != NULL && (i != (GOLDEN_FRAME - 1) ||
+                        (i == (GOLDEN_FRAME - 1) && refresh_golden))) {
       --buf->ref_count;
       cpi->scaled_ref_buf[i] = NULL;
     }
