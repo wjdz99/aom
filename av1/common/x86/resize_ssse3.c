@@ -148,6 +148,36 @@ static INLINE __m128i scale_plane_bilinear_kernel(const __m128i *const s,
   return _mm_packus_epi16(t4, t5);
 }
 
+static void scale_plane_2_to_1_bilinear_horiz(const uint8_t *src,
+                                              const ptrdiff_t src_stride,
+                                              uint8_t *dst,
+                                              const ptrdiff_t dst_stride,
+                                              const int dst_w,
+                                              const int dst_h,
+                                              const __m128i c0c1) {
+  const int max_width = (dst_w + 15) & ~15;
+  int y = dst_h;
+
+  do {
+    int x = max_width;
+    do {
+      __m128i s[2], d[2];
+
+      // Horizontal
+      // Even rows
+      s[0] = _mm_loadu_si128((const __m128i *)(src + 0));
+      s[1] = _mm_loadu_si128((const __m128i *)(src + 16));
+      d[0] = scale_plane_bilinear_kernel(s, c0c1);
+
+      _mm_storeu_si128((__m128i *)dst, d[0]);
+      src += 32;
+      dst += 16;
+      x -= 16;
+    } while (x);
+    src += src_stride - max_width;
+    dst += dst_stride - max_width;
+  } while (--y);
+}
 static void scale_plane_2_to_1_bilinear(const uint8_t *src,
                                         const ptrdiff_t src_stride,
                                         uint8_t *dst,
@@ -816,6 +846,7 @@ static INLINE bool has_normative_scaler_ssse3(const int src_width,
                                               const int dst_width,
                                               const int dst_height) {
   const bool has_normative_scaler =
+      (2 * dst_width == src_width && dst_height == src_height) ||
       (2 * dst_width == src_width && 2 * dst_height == src_height) ||
       (4 * dst_width == src_width && 4 * dst_height == src_height) ||
       (4 * dst_width == 3 * src_width && 4 * dst_height == 3 * src_height) ||
@@ -857,7 +888,8 @@ void av1_resize_and_extend_frame_ssse3(const YV12_BUFFER_CONFIG *src,
     const int dst_y_w = (dst->crop_widths[0] + 1) & ~1;
     const int dst_y_h = (dst->crop_heights[0] + 1) & ~1;
 
-    if (2 * dst_w == src_w && 2 * dst_h == src_h) {
+    if ((2 * dst_w == src_w && 2 * dst_h == src_h) ||
+        (2 * dst_w == src_w && dst_h == src_h)) {
       // 2 to 1
       if (phase == 0) {
         scale_plane_2_to_1_phase_0(src->buffers[i], src->strides[is_uv],
@@ -867,9 +899,14 @@ void av1_resize_and_extend_frame_ssse3(const YV12_BUFFER_CONFIG *src,
         const int16_t c0 = av1_bilinear_filters[phase][3];
         const int16_t c1 = av1_bilinear_filters[phase][4];
         const __m128i c0c1 = _mm_set1_epi16(c0 | (c1 << 8));  // c0 and c1 >= 0
-        scale_plane_2_to_1_bilinear(src->buffers[i], src->strides[is_uv],
-                                    dst->buffers[i], dst->strides[is_uv], dst_w,
-                                    dst_h, c0c1);
+        if (2 * dst_w == src_w && dst_h == src_h)
+          scale_plane_2_to_1_bilinear_horiz(src->buffers[i], src->strides[is_uv],
+                                            dst->buffers[i], dst->strides[is_uv], dst_w,
+                                            dst_h, c0c1);
+        else 
+          scale_plane_2_to_1_bilinear(src->buffers[i], src->strides[is_uv],
+                                      dst->buffers[i], dst->strides[is_uv], dst_w,
+                                      dst_h, c0c1);
       } else {
         const int buffer_stride = (dst_y_w + 3) & ~3;
         const int buffer_height = (2 * dst_y_h + SUBPEL_TAPS - 2 + 7) & ~7;
