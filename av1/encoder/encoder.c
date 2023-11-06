@@ -2537,9 +2537,14 @@ static int encode_without_recode(AV1_COMP *cpi) {
   }
 #endif
 
+ struct aom_usec_timer timer;
+ aom_usec_timer_start(&timer);
   cpi->source = av1_realloc_and_scale_if_required(
       cm, unscaled, &cpi->scaled_source, filter_scaler, phase_scaler, true,
       false, cpi->oxcf.border_in_pixels, cpi->image_pyramid_levels);
+  aom_usec_timer_mark(&timer);
+  printf("scaliing time: %f \n", 1.0*aom_usec_timer_elapsed(&timer));
+
   if (frame_is_intra_only(cm) || resize_pending != 0) {
     const int current_size =
         (cm->mi_params.mi_rows * cm->mi_params.mi_cols) >> 2;
