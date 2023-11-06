@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ac6b0e4b_29b75ba7",
+        "filename": "aom/aomcx.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 1531,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-11-06T23:35:31Z",
+      "side": 1,
+      "message": "Note that I added \"int parameter\" to the comment. This information is required in the comment for each codec control.",
+      "revId": "d17e8dc41ee23995045b6f78dac22f9eb64412e8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "348b6104_1aac60a8",
+        "filename": "aom/aomcx.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 2181,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-11-06T23:35:31Z",
+      "side": 1,
+      "message": "After looking at https: //aomedia-review.googlesource.com/c/aom/+/182921, I concluded the intended type was `int`. So I changed the type in the public header to `int` to match the type used internally.",
+      "revId": "d17e8dc41ee23995045b6f78dac22f9eb64412e8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
