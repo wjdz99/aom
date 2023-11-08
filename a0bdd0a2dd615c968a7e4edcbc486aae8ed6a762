@@ -33,6 +33,24 @@
       "message": "are there plans on using this later? Why add the parameter to a local function only to not use it?",
       "revId": "a0bdd0a2dd615c968a7e4edcbc486aae8ed6a762",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2460c43f_f55d4560",
+        "filename": "av1/common/restoration.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 391,
+      "author": {
+        "id": 33002
+      },
+      "writtenOn": "2023-11-08T14:37:17Z",
+      "side": 1,
+      "message": "`wiener_filter_stripe()` is invoked using the same function pointer `stripe_filter_fun` as `sgrproj_filter_stripe()`\u0027. Please see the below code:\n\n`\nstatic const stripe_filter_fun stripe_filters[NUM_STRIPE_FILTERS] \u003d {\n  wiener_filter_stripe, sgrproj_filter_stripe, wiener_filter_stripe_highbd,\n  sgrproj_filter_stripe_highbd\n};\n`\n\nSince `error_info` has to be passed to `sgrproj_filter_stripe()` and `sgrproj_filter_stripe_highbd()` to handle memory allocations within, the function pointer declaration is modified and hence the functions `wiener_filter_stripe()` and `wiener_filter_stripe_highbd()` will have the unused `error_info` parameter.\n\nThe function pointer `rest_unit_visitor_t` has also been modified similarly.",
+      "parentUuid": "681189e4_396aec2b",
+      "revId": "a0bdd0a2dd615c968a7e4edcbc486aae8ed6a762",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
