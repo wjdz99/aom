@@ -51,6 +51,64 @@
       "parentUuid": "681189e4_396aec2b",
       "revId": "a0bdd0a2dd615c968a7e4edcbc486aae8ed6a762",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2f6b68ca_0064c2fc",
+        "filename": "av1/common/restoration.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 391,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-11-08T20:05:15Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "2460c43f_f55d4560",
+      "revId": "a0bdd0a2dd615c968a7e4edcbc486aae8ed6a762",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6f6996b6_af541c6c",
+        "filename": "av1/common/restoration.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 912,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-11-08T20:05:15Z",
+      "side": 1,
+      "message": "this could be fragile. prefer `!\u003d 0` or remove the comparison for consistency",
+      "range": {
+        "startLine": 912,
+        "startChar": 15,
+        "endLine": 912,
+        "endChar": 20
+      },
+      "revId": "a0bdd0a2dd615c968a7e4edcbc486aae8ed6a762",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5d1d4d9f_31b7bf63",
+        "filename": "test/selfguided_filter_test.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-11-08T20:05:15Z",
+      "side": 1,
+      "message": "make this and the others a positive check: `ASSERT_EQ(ret_c, 0);`",
+      "revId": "a0bdd0a2dd615c968a7e4edcbc486aae8ed6a762",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
