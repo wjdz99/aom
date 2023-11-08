@@ -268,7 +268,8 @@ static void update_layer_buffer_level(SVC *svc, int encoded_frame_size,
     LAYER_CONTEXT *lc = &svc->layer_context[layer];
     PRIMARY_RATE_CONTROL *lp_rc = &lc->p_rc;
     lp_rc->bits_off_target +=
-        (int)round(lc->target_bandwidth / lc->framerate) - encoded_frame_size;
+        (int64_t)round(lc->target_bandwidth / lc->framerate) -
+        encoded_frame_size;
     // Clip buffer level to maximum buffer size for the layer.
     lp_rc->bits_off_target =
         AOMMIN(lp_rc->bits_off_target, lp_rc->maximum_buffer_size);
@@ -404,10 +405,10 @@ void av1_primary_rc_init(const AV1EncoderConfig *oxcf,
   p_rc->rate_correction_factors[KF_STD] = 1.0;
   p_rc->bits_off_target = p_rc->starting_buffer_level;
 
-  p_rc->rolling_target_bits =
-      (int)(oxcf->rc_cfg.target_bandwidth / oxcf->input_cfg.init_framerate);
-  p_rc->rolling_actual_bits =
-      (int)(oxcf->rc_cfg.target_bandwidth / oxcf->input_cfg.init_framerate);
+  p_rc->rolling_target_bits = (int)AOMMIN(
+      oxcf->rc_cfg.target_bandwidth / oxcf->input_cfg.init_framerate, INT_MAX);
+  p_rc->rolling_actual_bits = (int)AOMMIN(
+      oxcf->rc_cfg.target_bandwidth / oxcf->input_cfg.init_framerate, INT_MAX);
 }
 
 void av1_rc_init(const AV1EncoderConfig *oxcf, RATE_CONTROL *rc) {
@@ -2503,8 +2504,8 @@ void av1_rc_update_framerate(AV1_COMP *cpi, int width, int height) {
   int vbr_max_bits;
   const int MBs = av1_get_MBs(width, height);
 
-  rc->avg_frame_bandwidth =
-      (int)round(oxcf->rc_cfg.target_bandwidth / cpi->framerate);
+  rc->avg_frame_bandwidth = (int)AOMMIN(
+      round(oxcf->rc_cfg.target_bandwidth / cpi->framerate), INT_MAX);
   rc->min_frame_bandwidth =
       (int)(rc->avg_frame_bandwidth * oxcf->rc_cfg.vbrmin_section / 100);
 
