@@ -303,6 +303,49 @@ TEST(EncodeAPI, LowBDEncoderHighBDImage) {
   ASSERT_EQ(aom_codec_destroy(&enc), AOM_CODEC_OK);
 }
 
+TEST(EncodeAPI, AomediaIssue3509) {
+  // Create input file
+  FILE *in_file = fopen("crash-6888a1e6834847afc0894cd0283d4227e15a8883", "rb");
+  ASSERT_NE(in_file, nullptr);
+
+  // Initialize encoder
+  aom_codec_err_t res;
+  aom_codec_ctx_t encoder;
+  aom_codec_iface_t *encoder_iface = aom_codec_av1_cx();
+  aom_codec_enc_cfg_t encoder_cfg;
+  res = aom_codec_enc_config_default(encoder_iface, &encoder_cfg, 0);
+  ASSERT_EQ(res, AOM_CODEC_OK);
+  encoder_cfg.g_w = 1920;                   // Set width
+  encoder_cfg.g_h = 1080;                   // Set height
+  encoder_cfg.rc_target_bitrate = 1000000;  // Set target bitrate
+
+  res = aom_codec_enc_init_ver(&encoder, encoder_iface, &encoder_cfg, 0,
+                               AOM_ENCODER_ABI_VERSION);
+  ASSERT_EQ(res, AOM_CODEC_OK);
+
+  // Allocate image buffer
+  aom_image_t *image = aom_img_alloc(nullptr, AOM_IMG_FMT_I420, encoder_cfg.g_w,
+                                     encoder_cfg.g_h, 32);
+  ASSERT_NE(image, nullptr);
+
+  // Encode frames
+  size_t n = fread(image->img_data, 1,
+                   encoder_cfg.g_w * encoder_cfg.g_h * 3 / 2, in_file);
+  ASSERT_EQ(n, 67u);
+
+  // Encode the frame
+  // NOTE(wtc): The original POC program uses 0x6f as the `duration` argument.
+  // I found that `duration` can go as high as 0x12c, but the UBSan error is
+  // gone if `duration` is 0x12d or higher.
+  res = aom_codec_encode(&encoder, image, 0, /*duration=*/0x12c, 0);
+  ASSERT_EQ(res, AOM_CODEC_OK);
+
+  aom_img_free(image);
+  res = aom_codec_destroy(&encoder);
+  ASSERT_EQ(res, AOM_CODEC_OK);
+  fclose(in_file);
+}
+
 class EncodeAPIParameterized
     : public testing::TestWithParam<std::tuple<
           /*usage=*/unsigned int, /*speed=*/int, /*aq_mode=*/unsigned int>> {};
