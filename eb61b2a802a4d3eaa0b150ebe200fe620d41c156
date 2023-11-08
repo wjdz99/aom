@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "44b2c3b1_a6a7b776",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9616
+      },
+      "writtenOn": "2023-11-08T16:59:33Z",
+      "side": 1,
+      "message": "In the parent commit, `pred_buffer` was allocated and deallocated for every row in `av1_calc_mb_wiener_var_row()`. In this CL, this buffer allocation is done once per frame using the newly introduced pointer `wiener_tmp_pred_buf` in `ThreadData` structure. This facilitates freeing of this buffer during `encoder_destroy()` to avoid leaks in case of an early termination. \n\nThe allocation and deallocation has been abstracted into `av1_alloc_mb_wiener_var_pred_buf()` and `av1_dealloc_mb_wiener_var_pred_buf()` functions. Also added a call to `av1_row_mt_sync_mem_dealloc()` in `av1_remove_compressor()` to free intra mode row multithreading sync objects.\n  \nThis CL has been validated on all unit-tests with sanitizers (address and thread) and valgrind.",
+      "revId": "eb61b2a802a4d3eaa0b150ebe200fe620d41c156",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
