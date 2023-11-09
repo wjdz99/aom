@@ -39,6 +39,24 @@
       "message": "`width` should be 4 here. You can make the loop condition constant or make this a memcpy. Modern compilers will likely inline it in that case.",
       "revId": "8b34cbdb42b846f2777ab0ef1affcda7190e7db7",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c387493c_ab1a425a",
+        "filename": "av1/common/arm/cdef_block_neon.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 31957
+      },
+      "writtenOn": "2023-11-09T21:50:58Z",
+      "side": 1,
+      "message": "Is it the case for the other copy_rect8 function as well? I added a testcase with width \u003d 2 in the tests to make sure it worked for small values of width, but if it never actually happens I should change that value to 4",
+      "parentUuid": "757f4eda_d415f356",
+      "revId": "8b34cbdb42b846f2777ab0ef1affcda7190e7db7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
