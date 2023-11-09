@@ -1658,7 +1658,8 @@ typedef struct {
 } RestUnitSearchInfo;
 
 /*!
- * \brief Buffers used during loop restoration search.
+ * \brief Buffers allocated and used as local variables in
+ * av1_pick_filter_restoration() during loop restoration search.
  */
 typedef struct {
   /*!
