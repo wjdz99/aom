@@ -89,6 +89,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "1fa586ca_3cb71ba5",
+        "filename": "av1/encoder/allintra_vis.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 310,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-11-09T16:55:50Z",
+      "side": 1,
+      "message": "I found that we are at the first level of this nested loop, so we can simply use a `break` statement to exit the loop. We will end up at line 482. No need to use a `goto` statement.",
+      "parentUuid": "ec46415c_e8b96c45",
+      "revId": "cc1d7a48925c8b87ff9b4ea3060560396a488c99",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "45045160_d432ba6a",
         "filename": "av1/encoder/allintra_vis.c",
         "patchSetId": 7
@@ -193,6 +211,23 @@
       "writtenOn": "2023-11-09T03:16:59Z",
       "side": 1,
       "message": "This is event B.\n\nPlease see av1/encoder/ethread.c for event C and event D.",
+      "revId": "cc1d7a48925c8b87ff9b4ea3060560396a488c99",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d6d020a9_f49e4dc9",
+        "filename": "av1/encoder/allintra_vis.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 483,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-11-09T16:55:50Z",
+      "side": 1,
+      "message": "Cheng: Could you please clarify this comment (line 482)? James doesn\u0027t understand it, and I also forgot what it means. I can\u0027t find where this function allocates `mbmi`, and it\u0027s not clear how `mbmi` is related to `xd-\u003emi`. Thanks!\n\nI seem to remember this function sets `xd-\u003emi` to the address of a local variable, which becomes an invalid pointer after this function returns. Perhaps we can add a comment to indicate where this function does that.",
       "revId": "cc1d7a48925c8b87ff9b4ea3060560396a488c99",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
