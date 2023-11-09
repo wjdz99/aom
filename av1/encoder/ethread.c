@@ -581,6 +581,12 @@ static void set_encoding_done(AV1_COMP *cpi) {
   }
 }
 
+static bool lpf_pipelined_allowed(int pipeline_lpf_mt_with_enc,
+                                  int *filter_level) {
+  return pipeline_lpf_mt_with_enc &&
+         (filter_level[PLANE_TYPE_Y] || filter_level[PLANE_TYPE_UV]);
+}
+
 static int enc_row_mt_worker_hook(void *arg1, void *unused) {
   EncWorkerData *const thread_data = (EncWorkerData *)arg1;
   AV1_COMP *const cpi = thread_data->cpi;
@@ -595,6 +601,9 @@ static int enc_row_mt_worker_hook(void *arg1, void *unused) {
   AV1LfSync *const lf_sync = thread_data->lf_sync;
   MACROBLOCKD *const xd = &thread_data->td->mb.e_mbd;
   xd->error_info = error_info;
+  AV1_COMMON *const cm = &cpi->common;
+  volatile const bool is_lpf_pipelined = lpf_pipelined_allowed(
+      cpi->mt_info.pipeline_lpf_mt_with_enc, cm->lf.filter_level);
 
   // The jmp_buf is valid only for the duration of the function that calls
   // setjmp(). Therefore, this function must reset the 'setjmp' field to 0
@@ -611,7 +620,7 @@ static int enc_row_mt_worker_hook(void *arg1, void *unused) {
 #endif
     set_encoding_done(cpi);
 
-    if (cpi->mt_info.pipeline_lpf_mt_with_enc) {
+    if (is_lpf_pipelined) {
 #if CONFIG_MULTITHREAD
       pthread_mutex_lock(lf_sync->job_mutex);
       lf_sync->lf_mt_exit = true;
@@ -624,7 +633,6 @@ static int enc_row_mt_worker_hook(void *arg1, void *unused) {
   }
   error_info->setjmp = 1;
 
-  AV1_COMMON *const cm = &cpi->common;
   const int mib_size_log2 = cm->seq_params->mib_size_log2;
   int cur_tile_id = enc_row_mt->thread_id_to_tile_id[thread_id];
 
@@ -724,9 +732,7 @@ static int enc_row_mt_worker_hook(void *arg1, void *unused) {
     pthread_mutex_unlock(enc_row_mt_mutex_);
 #endif
   }
-  if (cpi->mt_info.pipeline_lpf_mt_with_enc &&
-      (cm->lf.filter_level[PLANE_TYPE_Y] ||
-       cm->lf.filter_level[PLANE_TYPE_UV])) {
+  if (is_lpf_pipelined) {
     // Loop-filter a superblock row if encoding of the current and next
     // superblock row is complete.
     // TODO(deepa.kg @ittiam.com) Evaluate encoder speed by interleaving
