@@ -57,6 +57,24 @@
       "parentUuid": "757f4eda_d415f356",
       "revId": "8b34cbdb42b846f2777ab0ef1affcda7190e7db7",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "280bca9e_eb251490",
+        "filename": "av1/common/arm/cdef_block_neon.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-11-09T23:33:22Z",
+      "side": 1,
+      "message": "\u003e Is it the case for the other copy_rect8 function as well? I added a testcase with width \u003d 2 in the tests to make sure it worked for small values of width, but if it never actually happens I should change that value to 4\n\nYes, I\u0027m sorry I missed that. CDEF works on 8x8 blocks, subsampled for UV with 4:2:0. 2xH and Wx2 blocks are not possible.\n\nhttps://aomediacodec.github.io/av1-spec/#cdef-process",
+      "parentUuid": "c387493c_ab1a425a",
+      "revId": "8b34cbdb42b846f2777ab0ef1affcda7190e7db7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
