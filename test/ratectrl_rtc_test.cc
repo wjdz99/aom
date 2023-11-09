@@ -58,7 +58,11 @@ class RcInterfaceTest : public ::libaom_test::EncoderTest,
     if (video->frame() == 0 && layer_frame_cnt_ == 0) {
       encoder->Control(AOME_SET_CPUUSED, 7);
       encoder->Control(AV1E_SET_AQ_MODE, aq_mode_);
-      encoder->Control(AV1E_SET_TUNE_CONTENT, AOM_CONTENT_DEFAULT);
+      if (rc_cfg_.is_screen) {
+        encoder->Control(AV1E_SET_TUNE_CONTENT, AOM_CONTENT_SCREEN);
+      } else {
+        encoder->Control(AV1E_SET_TUNE_CONTENT, AOM_CONTENT_DEFAULT);
+      }
       encoder->Control(AOME_SET_MAX_INTRA_BITRATE_PCT,
                        rc_cfg_.max_intra_bitrate_pct);
       if (use_svc) encoder->Control(AV1E_SET_SVC_PARAMS, &svc_params_);
@@ -176,6 +180,20 @@ class RcInterfaceTest : public ::libaom_test::EncoderTest,
   void RunOneLayer() {
     key_interval_ = 10000;
     SetConfig();
+    rc_api_ = aom::AV1RateControlRTC::Create(rc_cfg_);
+    frame_params_.spatial_layer_id = 0;
+    frame_params_.temporal_layer_id = 0;
+
+    ::libaom_test::I420VideoSource video("niklas_640_480_30.yuv", 640, 480, 30,
+                                         1, 0, kNumFrames);
+
+    ASSERT_NO_FATAL_FAILURE(RunLoop(&video));
+  }
+
+  void RunOneLayerScreen() {
+    key_interval_ = 10000;
+    SetConfig();
+    rc_cfg_.is_screen = true;
     rc_api_ = aom::AV1RateControlRTC::Create(rc_cfg_);
     frame_params_.spatial_layer_id = 0;
     frame_params_.temporal_layer_id = 0;
@@ -466,6 +484,8 @@ TEST_P(RcInterfaceTest, OneLayer) { RunOneLayer(); }
 TEST_P(RcInterfaceTest, OneLayerDropFramesCBR) { RunOneLayerDropFramesCBR(); }
 
 TEST_P(RcInterfaceTest, OneLayerPeriodicKey) { RunOneLayerPeriodicKey(); }
+
+TEST_P(RcInterfaceTest, OneLayerScreen) { RunOneLayerScreen(); }
 
 TEST_P(RcInterfaceTest, Svc) { RunSvc(); }
 
