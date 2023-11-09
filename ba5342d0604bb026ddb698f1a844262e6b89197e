@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7036fe20_4c9ec52a",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 1661,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-11-09T06:00:07Z",
+      "side": 1,
+      "message": "Optional: It seems useful to be more specific and say these are allocated and used essentially as local variables in `av1_pick_filter_restoration()`.",
+      "revId": "ba5342d0604bb026ddb698f1a844262e6b89197e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
