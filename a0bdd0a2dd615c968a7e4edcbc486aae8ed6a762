@@ -73,6 +73,23 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "355f282d_2f82c597",
+        "filename": "av1/common/restoration.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 868,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-11-09T02:27:28Z",
+      "side": 1,
+      "message": "Nit: it is better to say:\n\n```\n  if (ret !\u003d 0) return ret;\n```",
+      "revId": "a0bdd0a2dd615c968a7e4edcbc486aae8ed6a762",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "6f6996b6_af541c6c",
         "filename": "av1/common/restoration.c",
         "patchSetId": 3
@@ -90,6 +107,125 @@
         "endLine": 912,
         "endChar": 20
       },
+      "revId": "a0bdd0a2dd615c968a7e4edcbc486aae8ed6a762",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2f352bc0_e6f6d56e",
+        "filename": "av1/common/restoration.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 915,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-11-09T02:27:28Z",
+      "side": 1,
+      "message": "Nit: Remove \"SIMD\", because `av1_apply_selfguided_restoration` may point to `av1_apply_selfguided_restoration_c`.\n\nWe can just say \"Error allocating buffer in av1_apply_selfguided_restoration\".\n\nAlso at line 954.",
+      "revId": "a0bdd0a2dd615c968a7e4edcbc486aae8ed6a762",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "dd0a7393_f0036c25",
+        "filename": "av1/common/restoration.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 951,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-11-09T02:27:28Z",
+      "side": 1,
+      "message": "Nit: Test `!\u003d 0` instead.",
+      "revId": "a0bdd0a2dd615c968a7e4edcbc486aae8ed6a762",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7d604eb3_dd710b0f",
+        "filename": "av1/common/restoration.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 382,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-11-09T02:27:28Z",
+      "side": 1,
+      "message": "Nit: The error_info should be considered as in/out.\n\nChange \"tracking\" to \"reporting\"?",
+      "revId": "a0bdd0a2dd615c968a7e4edcbc486aae8ed6a762",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bcfac2d2_b4d1a744",
+        "filename": "av1/common/x86/selfguided_avx2.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 643,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-11-09T02:27:28Z",
+      "side": 1,
+      "message": "Nit: It is better to say:\n\n```\n  if (ret !\u003d 0) return ret;\n```",
+      "revId": "a0bdd0a2dd615c968a7e4edcbc486aae8ed6a762",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3cdd5ee5_9d20c8ce",
+        "filename": "av1/common/x86/selfguided_sse4.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 595,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-11-09T02:27:28Z",
+      "side": 1,
+      "message": "Nit: It is better to say\n\n```\n  if (ret !\u003d 0) return ret;\n```",
+      "revId": "a0bdd0a2dd615c968a7e4edcbc486aae8ed6a762",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "09582fe0_8bdc6aab",
+        "filename": "av1/encoder/pickrst.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 780,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-11-09T02:27:28Z",
+      "side": 1,
+      "message": "Nit: Test `!\u003d 0` instead.",
+      "revId": "a0bdd0a2dd615c968a7e4edcbc486aae8ed6a762",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "570ad64e_9a7a5709",
+        "filename": "av1/encoder/pickrst.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 783,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-11-09T02:27:28Z",
+      "side": 1,
+      "message": "Nit: Remove \"SIMD\", because `av1_apply_selfguided_restoration` may point to `av1_selfguided_restoration_c`.\n\nWe can just say \"Error allocating buffer in av1_selfguided_restoration\".",
       "revId": "a0bdd0a2dd615c968a7e4edcbc486aae8ed6a762",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
