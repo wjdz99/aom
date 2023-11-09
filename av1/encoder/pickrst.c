@@ -230,7 +230,7 @@ static int64_t try_restoration_unit(const RestSearchCtxt *rsc,
       is_uv && cm->seq_params->subsampling_x,
       is_uv && cm->seq_params->subsampling_y, highbd, bit_depth,
       fts->buffers[plane], fts->strides[is_uv], rsc->dst->buffers[plane],
-      rsc->dst->strides[is_uv], cm->rst_tmpbuf, optimized_lr);
+      rsc->dst->strides[is_uv], cm->rst_tmpbuf, optimized_lr, cm->error);
 
   return sse_restoration_unit(limits, rsc->src, rsc->dst, plane, highbd);
 }
@@ -764,7 +764,8 @@ static AOM_INLINE void apply_sgr(int sgr_params_idx, const uint8_t *dat8,
                                  int width, int height, int dat_stride,
                                  int use_highbd, int bit_depth, int pu_width,
                                  int pu_height, int32_t *flt0, int32_t *flt1,
-                                 int flt_stride) {
+                                 int flt_stride,
+                                 struct aom_internal_error_info *error_info) {
   for (int i = 0; i < height; i += pu_height) {
     const int h = AOMMIN(pu_height, height - i);
     int32_t *flt0_row = flt0 + i * flt_stride;
@@ -774,11 +775,13 @@ static AOM_INLINE void apply_sgr(int sgr_params_idx, const uint8_t *dat8,
     // Iterate over the stripe in blocks of width pu_width
     for (int j = 0; j < width; j += pu_width) {
       const int w = AOMMIN(pu_width, width - j);
-      const int ret = av1_selfguided_restoration(
-          dat8_row + j, w, h, dat_stride, flt0_row + j, flt1_row + j,
-          flt_stride, sgr_params_idx, bit_depth, use_highbd);
-      (void)ret;
-      assert(!ret);
+      if (av1_selfguided_restoration(
+              dat8_row + j, w, h, dat_stride, flt0_row + j, flt1_row + j,
+              flt_stride, sgr_params_idx, bit_depth, use_highbd) != 0) {
+        aom_internal_error(
+            error_info, AOM_CODEC_MEM_ERROR,
+            "Error allocating buffer in av1_selfguided_restoration");
+      }
     }
   }
 }
@@ -788,10 +791,11 @@ static AOM_INLINE void compute_sgrproj_err(
     const int dat_stride, const uint8_t *src8, const int src_stride,
     const int use_highbitdepth, const int bit_depth, const int pu_width,
     const int pu_height, const int ep, int32_t *flt0, int32_t *flt1,
-    const int flt_stride, int *exqd, int64_t *err) {
+    const int flt_stride, int *exqd, int64_t *err,
+    struct aom_internal_error_info *error_info) {
   int exq[2];
   apply_sgr(ep, dat8, width, height, dat_stride, use_highbitdepth, bit_depth,
-            pu_width, pu_height, flt0, flt1, flt_stride);
+            pu_width, pu_height, flt0, flt1, flt_stride, error_info);
   const sgr_params_type *const params = &av1_sgr_params[ep];
   get_proj_subspace(src8, width, height, src_stride, dat8, dat_stride,
                     use_highbitdepth, flt0, flt_stride, flt1, flt_stride, exq,
@@ -816,7 +820,8 @@ static AOM_INLINE void get_best_error(int64_t *besterr, const int64_t err,
 static SgrprojInfo search_selfguided_restoration(
     const uint8_t *dat8, int width, int height, int dat_stride,
     const uint8_t *src8, int src_stride, int use_highbitdepth, int bit_depth,
-    int pu_width, int pu_height, int32_t *rstbuf, int enable_sgr_ep_pruning) {
+    int pu_width, int pu_height, int32_t *rstbuf, int enable_sgr_ep_pruning,
+    struct aom_internal_error_info *error_info) {
   int32_t *flt0 = rstbuf;
   int32_t *flt1 = flt0 + RESTORATION_UNITPELS_MAX;
   int ep, idx, bestep = 0;
@@ -832,7 +837,7 @@ static SgrprojInfo search_selfguided_restoration(
       int64_t err;
       compute_sgrproj_err(dat8, width, height, dat_stride, src8, src_stride,
                           use_highbitdepth, bit_depth, pu_width, pu_height, ep,
-                          flt0, flt1, flt_stride, exqd, &err);
+                          flt0, flt1, flt_stride, exqd, &err, error_info);
       get_best_error(&besterr, err, exqd, bestxqd, &bestep, ep);
     }
   } else {
@@ -842,7 +847,7 @@ static SgrprojInfo search_selfguided_restoration(
       int64_t err;
       compute_sgrproj_err(dat8, width, height, dat_stride, src8, src_stride,
                           use_highbitdepth, bit_depth, pu_width, pu_height, ep,
-                          flt0, flt1, flt_stride, exqd, &err);
+                          flt0, flt1, flt_stride, exqd, &err, error_info);
       get_best_error(&besterr, err, exqd, bestxqd, &bestep, ep);
     }
     // evaluate left and right ep of winner in seed ep
@@ -853,7 +858,7 @@ static SgrprojInfo search_selfguided_restoration(
       int64_t err;
       compute_sgrproj_err(dat8, width, height, dat_stride, src8, src_stride,
                           use_highbitdepth, bit_depth, pu_width, pu_height, ep,
-                          flt0, flt1, flt_stride, exqd, &err);
+                          flt0, flt1, flt_stride, exqd, &err, error_info);
       get_best_error(&besterr, err, exqd, bestxqd, &bestep, ep);
     }
     // evaluate last two group
@@ -862,7 +867,7 @@ static SgrprojInfo search_selfguided_restoration(
       int64_t err;
       compute_sgrproj_err(dat8, width, height, dat_stride, src8, src_stride,
                           use_highbitdepth, bit_depth, pu_width, pu_height, ep,
-                          flt0, flt1, flt_stride, exqd, &err);
+                          flt0, flt1, flt_stride, exqd, &err, error_info);
       get_best_error(&besterr, err, exqd, bestxqd, &bestep, ep);
     }
   }
@@ -891,10 +896,10 @@ static int count_sgrproj_bits(SgrprojInfo *sgrproj_info,
   return bits;
 }
 
-static AOM_INLINE void search_sgrproj(const RestorationTileLimits *limits,
-                                      int rest_unit_idx, void *priv,
-                                      int32_t *tmpbuf,
-                                      RestorationLineBuffers *rlbs) {
+static AOM_INLINE void search_sgrproj(
+    const RestorationTileLimits *limits, int rest_unit_idx, void *priv,
+    int32_t *tmpbuf, RestorationLineBuffers *rlbs,
+    struct aom_internal_error_info *error_info) {
   (void)rlbs;
   RestSearchCtxt *rsc = (RestSearchCtxt *)priv;
   RestUnitSearchInfo *rusi = &rsc->rusi[rest_unit_idx];
@@ -929,7 +934,7 @@ static AOM_INLINE void search_sgrproj(const RestorationTileLimits *limits,
       dgd_start, limits->h_end - limits->h_start,
       limits->v_end - limits->v_start, rsc->dgd_stride, src_start,
       rsc->src_stride, highbd, bit_depth, procunit_width, procunit_height,
-      tmpbuf, rsc->lpf_sf->enable_sgr_ep_pruning);
+      tmpbuf, rsc->lpf_sf->enable_sgr_ep_pruning, error_info);
 
   RestorationUnitInfo rui;
   rui.restoration_type = RESTORE_SGRPROJ;
@@ -1588,12 +1593,13 @@ static int64_t finer_search_wiener(const RestSearchCtxt *rsc,
   return err;
 }
 
-static AOM_INLINE void search_wiener(const RestorationTileLimits *limits,
-                                     int rest_unit_idx, void *priv,
-                                     int32_t *tmpbuf,
-                                     RestorationLineBuffers *rlbs) {
+static AOM_INLINE void search_wiener(
+    const RestorationTileLimits *limits, int rest_unit_idx, void *priv,
+    int32_t *tmpbuf, RestorationLineBuffers *rlbs,
+    struct aom_internal_error_info *error_info) {
   (void)tmpbuf;
   (void)rlbs;
+  (void)error_info;
   RestSearchCtxt *rsc = (RestSearchCtxt *)priv;
   RestUnitSearchInfo *rusi = &rsc->rusi[rest_unit_idx];
 
@@ -1732,13 +1738,14 @@ static AOM_INLINE void search_wiener(const RestorationTileLimits *limits,
   if (cost_wiener < cost_none) rsc->ref_wiener = rusi->wiener;
 }
 
-static AOM_INLINE void search_norestore(const RestorationTileLimits *limits,
-                                        int rest_unit_idx, void *priv,
-                                        int32_t *tmpbuf,
-                                        RestorationLineBuffers *rlbs) {
+static AOM_INLINE void search_norestore(
+    const RestorationTileLimits *limits, int rest_unit_idx, void *priv,
+    int32_t *tmpbuf, RestorationLineBuffers *rlbs,
+    struct aom_internal_error_info *error_info) {
   (void)rest_unit_idx;
   (void)tmpbuf;
   (void)rlbs;
+  (void)error_info;
 
   RestSearchCtxt *rsc = (RestSearchCtxt *)priv;
 
@@ -1749,13 +1756,14 @@ static AOM_INLINE void search_norestore(const RestorationTileLimits *limits,
   rsc->total_sse[RESTORE_NONE] += rsc->sse[RESTORE_NONE];
 }
 
-static AOM_INLINE void search_switchable(const RestorationTileLimits *limits,
-                                         int rest_unit_idx, void *priv,
-                                         int32_t *tmpbuf,
-                                         RestorationLineBuffers *rlbs) {
+static AOM_INLINE void search_switchable(
+    const RestorationTileLimits *limits, int rest_unit_idx, void *priv,
+    int32_t *tmpbuf, RestorationLineBuffers *rlbs,
+    struct aom_internal_error_info *error_info) {
   (void)limits;
   (void)tmpbuf;
   (void)rlbs;
+  (void)error_info;
   RestSearchCtxt *rsc = (RestSearchCtxt *)priv;
   RestUnitSearchInfo *rusi = &rsc->rusi[rest_unit_idx];
 
@@ -1920,7 +1928,8 @@ static void restoration_search(AV1_COMMON *cm, int plane, RestSearchCtxt *rsc,
               for (RestorationType r = RESTORE_NONE; r < num_rtypes; r++) {
                 if (disable_lr_filter[r]) continue;
 
-                funs[r](&limits, unit_idx, rsc, rsc->cm->rst_tmpbuf, NULL);
+                funs[r](&limits, unit_idx, rsc, rsc->cm->rst_tmpbuf, NULL,
+                        cm->error);
               }
             }
           }
