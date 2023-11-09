@@ -234,6 +234,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "91fc5db5_66dca6a7",
+        "filename": "av1/encoder/allintra_vis.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 483,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2023-11-09T17:08:37Z",
+      "side": 1,
+      "message": "xd-\u003emi is a pointer to pointer (**).\nIt is used to point to the mbmi memory which is separately allocated in the normal frame coding.\nHere, we only need a mbmi structure, not a large memory of frame size.\nThis mbmi is declared at the top of the function, line 263-265.\n\nAnd note that xd-\u003emi will be set at the beginning of coding a block by set offset functions. So, whether set it to NULL on line 483 does not affect the normal coding.",
+      "parentUuid": "d6d020a9_f49e4dc9",
+      "revId": "cc1d7a48925c8b87ff9b4ea3060560396a488c99",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "55a564b2_d656bd39",
         "filename": "av1/encoder/ethread.c",
         "patchSetId": 7
