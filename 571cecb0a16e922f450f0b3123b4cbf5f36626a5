@@ -16,6 +16,23 @@
       "message": "In the parent commit, `rusi` and `rsc.dgd_avg` buffers are allocated locally in `av1_pick_filter_restoration()` and freed at the end of the function. In case of an early termination between this allocation and free call, this will show up as a leak. In order to fix this issue,these pointers are added in the newly created structure `AV1LrPickStruct`. This structure is introduced as a member in AV1_COMP so that it can be freed in `encoder_destroy()` in case of early termination. In order to facilitate this refactoring, `RestUnitSearchInfo` structure has been moved from `pickrst.c` to `encoder.h`.\n\nThis change is bit-exact and has been verified using bitstream-match tests for a combination of various configuration values for --threads, --tile-rows, --tile-columns, --cpu-used, --end-usage, --row-mt, --fp-mt, etc. Validated all unit-tests with sanitizers (address and thread) and valgrind.",
       "revId": "571cecb0a16e922f450f0b3123b4cbf5f36626a5",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "24238660_70134e7f",
+        "filename": "av1/encoder/pickrst.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 2206,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-11-09T04:23:24Z",
+      "side": 1,
+      "message": "Can we free `cm-\u003erst_info[plane].unit_info` here? Or is that the output of this function?",
+      "revId": "571cecb0a16e922f450f0b3123b4cbf5f36626a5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
