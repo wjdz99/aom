@@ -24,6 +24,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "4b91ab61_8281e6ec",
+        "filename": "av1/common/arm/cdef_block_neon.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 31957
+      },
+      "writtenOn": "2023-11-10T15:32:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "afb3e63b_32beb729",
+      "range": {
+        "startLine": 45,
+        "startChar": 39,
+        "endLine": 45,
+        "endChar": 40
+      },
+      "revId": "8b34cbdb42b846f2777ab0ef1affcda7190e7db7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "757f4eda_d415f356",
@@ -73,6 +97,24 @@
       "side": 1,
       "message": "\u003e Is it the case for the other copy_rect8 function as well? I added a testcase with width \u003d 2 in the tests to make sure it worked for small values of width, but if it never actually happens I should change that value to 4\n\nYes, I\u0027m sorry I missed that. CDEF works on 8x8 blocks, subsampled for UV with 4:2:0. 2xH and Wx2 blocks are not possible.\n\nhttps://aomediacodec.github.io/av1-spec/#cdef-process",
       "parentUuid": "c387493c_ab1a425a",
+      "revId": "8b34cbdb42b846f2777ab0ef1affcda7190e7db7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "37ece34a_0378f7a5",
+        "filename": "av1/common/arm/cdef_block_neon.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 31957
+      },
+      "writtenOn": "2023-11-10T15:32:27Z",
+      "side": 1,
+      "message": "Ok, done, and I amended the tests as well: https://aomedia-review.googlesource.com/c/aom/+/183621",
+      "parentUuid": "280bca9e_eb251490",
       "revId": "8b34cbdb42b846f2777ab0ef1affcda7190e7db7",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
