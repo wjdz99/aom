@@ -16,6 +16,125 @@
       "message": "I ran the test locally, and all tests passed.",
       "revId": "be05fa37706b47ef619330fbbba38a7ccbbab6e8",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "465a1b89_ee07430f",
+        "filename": "test/av1_c_vs_simd_encode.sh",
+        "patchSetId": 6
+      },
+      "lineNbr": 215,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-11-10T23:52:06Z",
+      "side": 1,
+      "message": "Nit: instruction_set \u003d\u003e instruction set",
+      "revId": "be05fa37706b47ef619330fbbba38a7ccbbab6e8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6815b75b_0dde5460",
+        "filename": "test/av1_c_vs_simd_encode.sh",
+        "patchSetId": 6
+      },
+      "lineNbr": 377,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-11-10T23:52:06Z",
+      "side": 1,
+      "message": "Nit: Find the \u003d\u003e Found a\n\nI think this comment meant to say \"The test just found a mismatch\", right?\n\n\"Find\" sounds like a command, i.e., \"go find the mismatch\".",
+      "revId": "be05fa37706b47ef619330fbbba38a7ccbbab6e8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9af48b42_5f56aba2",
+        "filename": "test/av1_c_vs_simd_encode.sh",
+        "patchSetId": 6
+      },
+      "lineNbr": 459,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-11-10T23:52:06Z",
+      "side": 1,
+      "message": "Nit: Find the \u003d\u003e Found a",
+      "revId": "be05fa37706b47ef619330fbbba38a7ccbbab6e8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "158aaded_e4eff61a",
+        "filename": "test/av1_c_vs_simd_encode.sh",
+        "patchSetId": 6
+      },
+      "lineNbr": 484,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-11-10T23:52:06Z",
+      "side": 1,
+      "message": "Nit: Find the \u003d\u003e Found a",
+      "revId": "be05fa37706b47ef619330fbbba38a7ccbbab6e8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8c5ba3cd_364e6051",
+        "filename": "test/av1_c_vs_simd_encode.sh",
+        "patchSetId": 6
+      },
+      "lineNbr": 500,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-11-10T23:52:06Z",
+      "side": 1,
+      "message": "I think we should NOT exit this script after a failure on one CPU architecture. It seems better to continue and test the next CPU architecture.\n\nFor example, suppose we have mismatches for all three CPU architectures. With the new code, we can detect only one mismatch per day. With the original code, we can detect all three mismatches in one day.",
+      "revId": "be05fa37706b47ef619330fbbba38a7ccbbab6e8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3a0d091a_df7d0767",
+        "filename": "test/av1_c_vs_simd_encode.sh",
+        "patchSetId": 6
+      },
+      "lineNbr": 530,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-11-10T23:52:06Z",
+      "side": 1,
+      "message": "Should we delete these two lines?\n\nOr add a comment to explain why we keep the commented-out line 530.",
+      "revId": "be05fa37706b47ef619330fbbba38a7ccbbab6e8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "15e5a3c1_dfefaf66",
+        "filename": "test/tools_common.sh",
+        "patchSetId": 6
+      },
+      "lineNbr": 472,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-11-10T23:52:06Z",
+      "side": 1,
+      "message": "Nit: I don\u0027t understand this comment...",
+      "revId": "be05fa37706b47ef619330fbbba38a7ccbbab6e8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
