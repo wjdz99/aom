@@ -33,6 +33,24 @@
       "message": "Nit: This probably doesn\u0027t matter, but the examples I found in libaom all use `[in,out]`, with no space after the comma.",
       "revId": "f77683213209a8f8f2444984b83ca92a96c89c7d",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f2010deb_b03dec97",
+        "filename": "av1/common/restoration.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 383,
+      "author": {
+        "id": 33002
+      },
+      "writtenOn": "2023-11-10T13:21:54Z",
+      "side": 1,
+      "message": "Done. We have also taken care of two other instances in the same file.",
+      "parentUuid": "d432fb31_4222b8d4",
+      "revId": "f77683213209a8f8f2444984b83ca92a96c89c7d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
