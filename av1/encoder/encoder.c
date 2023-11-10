@@ -2467,7 +2467,6 @@ static int encode_without_recode(AV1_COMP *cpi) {
   const QuantizationCfg *const q_cfg = &cpi->oxcf.q_cfg;
   SVC *const svc = &cpi->svc;
   const int resize_pending = is_frame_resize_pending(cpi);
-
   int top_index = 0, bottom_index = 0, q = 0;
   YV12_BUFFER_CONFIG *unscaled = cpi->unscaled_source;
   InterpFilter filter_scaler =
@@ -2538,6 +2537,18 @@ static int encode_without_recode(AV1_COMP *cpi) {
   }
 #endif
 
+  if (cm->current_frame.frame_number > 1 &&
+      cpi->scaled_source.y_buffer != NULL &&
+      cpi->scaled_last_source.y_buffer != NULL &&
+      cpi->scaled_source.y_crop_width ==
+          cpi->scaled_last_source.y_crop_width &&
+      cpi->scaled_source.y_crop_height ==
+          cpi->scaled_last_source.y_crop_height) {
+    aom_yv12_copy_y(&cpi->scaled_source, &cpi->scaled_last_source);
+    aom_yv12_copy_u(&cpi->scaled_source, &cpi->scaled_last_source);
+    aom_yv12_copy_v(&cpi->scaled_source, &cpi->scaled_last_source);
+  }
+
   cpi->source = av1_realloc_and_scale_if_required(
       cm, unscaled, &cpi->scaled_source, filter_scaler, phase_scaler, true,
       false, cpi->oxcf.border_in_pixels, cpi->image_pyramid_levels);
@@ -2556,11 +2567,13 @@ static int encode_without_recode(AV1_COMP *cpi) {
     memset(cpi->consec_zero_mv, 0, current_size * sizeof(*cpi->consec_zero_mv));
   }
 
-  if (cpi->unscaled_last_source != NULL) {
+  if (cpi->unscaled_last_source != NULL && cm->current_frame.frame_number <= 1) {
     cpi->last_source = av1_realloc_and_scale_if_required(
         cm, cpi->unscaled_last_source, &cpi->scaled_last_source, filter_scaler,
         phase_scaler, true, false, cpi->oxcf.border_in_pixels,
         cpi->image_pyramid_levels);
+  } else {
+    cpi->last_source = &cpi->scaled_last_source;
   }
 
   if (cpi->sf.rt_sf.use_temporal_noise_estimate) {
