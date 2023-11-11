@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "efd71668_6ee6df2e",
+        "filename": "aom/aom_encoder.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 940,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-11-11T01:27:48Z",
+      "side": 1,
+      "message": "I am also tempted to move the definitions of the `AOM_USAGE_*` macros here, because they are already referenced by the comments for the `aom_codec_enc_config_default()` function.",
+      "revId": "88b2d9fbeedbb8d57f02cc524e1211fe88dc1c1e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
