@@ -52,6 +52,26 @@
 // this gives the correct offset of 0 instead of -1.
 #define UPSAMPLE_CENTER_OFFSET ((DOWNSAMPLE_FACTOR - 1) / 2)
 
+// Macros to control refinement at pyramid level 0
+//
+// At all pyramid levels above level 0, we need to refine every element of the
+// dense flow field, as they are all needed in order to generate the initial
+// flow field at the next level down. But at level 0, we don't necessarily use
+// all entries of the flow field. Instead, we interpolate to find the flow
+// vectors at a set of feature points.
+//
+// This means we have two possible places that we could apply refinement at
+// level 0:
+//
+// 1) Refine the dense flow field, before interpolating to find the flow at the
+//    selected feature points
+// 2) Refine generated correspondences after interpolation
+//
+// These options are technically independent, so we allow them to be enabled
+// or disabled independently. Tuning has found that the best combination is:
+#define REFINE_LEVEL_0 0
+#define REFINE_CORRESPONDENCES 1
+
 static INLINE void get_cubic_kernel_dbl(double x, double *kernel) {
   assert(0 <= x && x < 1);
   double x2 = x * x;
@@ -96,9 +116,16 @@ static INLINE double bicubic_interp_one(const double *arr, int stride,
   return get_cubic_value_dbl(tmp, v_kernel);
 }
 
-static int determine_disflow_correspondence(CornerList *corners,
+static int determine_disflow_correspondence(const ImagePyramid *src_pyr,
+                                            const ImagePyramid *ref_pyr,
+                                            CornerList *corners,
                                             const FlowField *flow,
                                             Correspondence *correspondences) {
+#if !REFINE_CORRESPONDENCES
+  (void)src_pyr;
+  (void)ref_pyr;
+#endif  // !REFINE_CORRESPONDENCES
+
   const int width = flow->width;
   const int height = flow->height;
   const int stride = flow->stride;
@@ -134,10 +161,20 @@ static int determine_disflow_correspondence(CornerList *corners,
     get_cubic_kernel_dbl(flow_sub_x, h_kernel);
     get_cubic_kernel_dbl(flow_sub_y, v_kernel);
 
-    const double flow_u = bicubic_interp_one(&flow->u[flow_y * stride + flow_x],
-                                             stride, h_kernel, v_kernel);
-    const double flow_v = bicubic_interp_one(&flow->v[flow_y * stride + flow_x],
-                                             stride, h_kernel, v_kernel);
+    double flow_u = bicubic_interp_one(&flow->u[flow_y * stride + flow_x],
+                                       stride, h_kernel, v_kernel);
+    double flow_v = bicubic_interp_one(&flow->v[flow_y * stride + flow_x],
+                                       stride, h_kernel, v_kernel);
+
+#if REFINE_CORRESPONDENCES
+    // Refine the interpolated flow vector one last time
+    const int patch_tl_x = x0 - DISFLOW_PATCH_CENTER;
+    const int patch_tl_y = y0 - DISFLOW_PATCH_CENTER;
+    aom_compute_flow_at_point(
+        src_pyr->layers[0].buffer, ref_pyr->layers[0].buffer, patch_tl_x,
+        patch_tl_y, src_pyr->layers[0].width, src_pyr->layers[0].height,
+        src_pyr->layers[0].stride, &flow_u, &flow_v);
+#endif  // REFINE_CORRESPONDENCES
 
     // Use original points (without offsets) when filling in correspondence
     // array
@@ -470,6 +507,10 @@ static bool compute_flow_field(const ImagePyramid *src_pyr,
 
   // Compute flow field from coarsest to finest level of the pyramid
   for (int level = src_pyr->n_levels - 1; level >= 0; --level) {
+#if !REFINE_LEVEL_0
+    if (level == 0) break;
+#endif  // !REFINE_LEVEL_0
+
     const PyramidLayer *cur_layer = &src_pyr->layers[level];
     const int cur_width = cur_layer->width;
     const int cur_height = cur_layer->height;
@@ -657,8 +698,8 @@ bool av1_compute_global_motion_disflow(TransformationType type,
     return false;
   }
 
-  const int num_correspondences =
-      determine_disflow_correspondence(src_corners, flow, correspondences);
+  const int num_correspondences = determine_disflow_correspondence(
+      src_pyramid, ref_pyramid, src_corners, flow, correspondences);
 
   bool result = ransac(correspondences, num_correspondences, type,
                        motion_models, num_motion_models, mem_alloc_failed);
