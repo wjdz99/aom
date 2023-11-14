@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "84359560_ddda7da2",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-11-14T21:56:57Z",
+      "side": 1,
+      "message": "LGTM. I suggest a few small changes.",
+      "revId": "3c41ecfe3af7b6d6856d1e72ff8e6b0bd359de8e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9ed85edb_a0dfbc32",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 154,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-11-14T21:56:57Z",
+      "side": 1,
+      "message": "1) Nit: num_finished_cols[row] \u003d\u003e num_finished_cols[r]\n\nAlso at line 156.\n\n2) Nit: max cols \u003d\u003e cols - 1\n\nAlternatively, change \"max cols\" to \"max column number\" or \"maximum column number\".",
+      "revId": "3c41ecfe3af7b6d6856d1e72ff8e6b0bd359de8e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c243e383_fedf1a48",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 155,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-11-14T21:56:57Z",
+      "side": 1,
+      "message": "Nit/optional: maximum \u003d\u003e AOMMAX\n\nWhen I read this comment (before I saw the code below), it wasn\u0027t clear what the maximum operation was referring to, because \"max cols\" was just mentioned in the previous sentence.",
+      "revId": "3c41ecfe3af7b6d6856d1e72ff8e6b0bd359de8e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d0c6396b_f1d43620",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 2725,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-11-14T21:56:57Z",
+      "side": 1,
+      "message": "Why do we get `mi_rows` from `cpi-\u003eframe_info` (here) but get `mi_cols` from `cpi-\u003ecommon.mi_params` (line 2714)?\n\nShould we use `cpi-\u003ecommon.mi_params.mi_rows` instead?",
+      "revId": "3c41ecfe3af7b6d6856d1e72ff8e6b0bd359de8e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a8e90c2e_e6cc79d6",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 2772,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-11-14T21:56:57Z",
+      "side": 1,
+      "message": "Nit/optional: I think we can say `while (true)` here, and declare the `has_jobs` variable inside the while loop, at line 2777.",
+      "revId": "3c41ecfe3af7b6d6856d1e72ff8e6b0bd359de8e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
