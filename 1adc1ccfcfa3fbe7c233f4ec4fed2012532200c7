@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6d5623c3_7e497f74",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 29052
+      },
+      "writtenOn": "2023-11-14T22:03:55Z",
+      "side": 1,
+      "message": "Some context - During review of one of my AVM submissions, the reviewers there asked if the magic number of 14 could be replaced",
+      "revId": "1adc1ccfcfa3fbe7c233f4ec4fed2012532200c7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
