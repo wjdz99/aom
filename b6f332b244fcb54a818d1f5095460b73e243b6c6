@@ -52,6 +52,24 @@
       "parentUuid": "a6e72982_38231724",
       "revId": "b6f332b244fcb54a818d1f5095460b73e243b6c6",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0b362576_a5092fd6",
+        "filename": "test/cdef_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 446,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-11-15T01:44:43Z",
+      "side": 1,
+      "message": "\u003e \u003e While fixing the test failures in the other patches, I did a bit more investigation into the block sizes, and printing the width and height used in both cdef_copy_rect8 functions on a real-time encode seems to return only multiples of 8 for width.\n\u003e \n\u003e Realtime restricts the size of blocks used (no 1:4 or 4:1), but otherwise the HBORDER analysis looks correct.\n\u003e \n\u003e From your link it seems to make sense as CDEF_HBORDER \u003d 8 and MI_SIZE_64X64 is a multiple of 8.\n\u003e \u003e The other place the copy functions are used is here: https://aomedia.googlesource.com/aom/+/refs/heads/main/av1/common/cdef.c#175 and similar considerations seem to point to a value of width that\u0027s always a multiple of 8.\n\u003e \u003e Can we make this assumption for width? If so then we can further amend the tests and greatly simplify the Neon code compared to the original simd implementation.\n\u003e \u003e \n\u003e \n\u003e I think that\u0027s the intention.\n\u003e \n\nThough there is chroma, so 4 should be the smallest size.\n\n\u003e The `hsize` is based on blocks and will be multiplied by at least 2:\n\u003e https://aomedia.googlesource.com/aom/+/refs/tags/v3.7.0/av1/common/cdef.c#155\n\u003e https://aomedia.googlesource.com/aom/+/refs/tags/v3.7.0/av1/common/cdef.c#280\n\u003e \n\u003e `mi_rows` and `mi_cols` are aligned to 8:\n\u003e \n\u003e https://aomedia.googlesource.com/aom/+/refs/tags/v3.7.0/av1/encoder/encoder_utils.h#67\n\u003e https://aomedia.googlesource.com/aom/+/refs/tags/v3.7.0/av1/decoder/decoder.c#57\n\u003e \n\u003e \u003e On a side note printing the block sizes also showed values of 2 for h (but that doesn\u0027t impact the code).",
+      "parentUuid": "52ff752d_08060290",
+      "revId": "b6f332b244fcb54a818d1f5095460b73e243b6c6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ],
   "submitRequirementResults": [
