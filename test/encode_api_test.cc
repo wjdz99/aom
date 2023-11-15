@@ -303,6 +303,92 @@ TEST(EncodeAPI, LowBDEncoderHighBDImage) {
   ASSERT_EQ(aom_codec_destroy(&enc), AOM_CODEC_OK);
 }
 
+aom_image_t *create_gray_image(aom_img_fmt_t fmt, unsigned int w,
+                               unsigned int h) {
+  aom_image_t *const image = aom_img_alloc(nullptr, fmt, w, h, 1);
+  if (!image) return image;
+
+  for (unsigned int i = 0; i < image->d_h; ++i) {
+    memset(image->planes[0] + i * image->stride[0], 128, image->d_w);
+  }
+  const unsigned int uv_h = (image->d_h + 1) / 2;
+  const unsigned int uv_w = (image->d_w + 1) / 2;
+  for (unsigned int i = 0; i < uv_h; ++i) {
+    memset(image->planes[1] + i * image->stride[1], 128, uv_w);
+    memset(image->planes[2] + i * image->stride[2], 128, uv_w);
+  }
+  return image;
+}
+
+// Run this test in the debugger and set a breakpoint in aom_internal_error.
+TEST(EncodeAPI, Buganizer310548198) {
+  aom_codec_iface_t *const iface = aom_codec_av1_cx();
+  aom_codec_enc_cfg_t cfg;
+  const unsigned int usage = AOM_USAGE_REALTIME;
+  ASSERT_EQ(aom_codec_enc_config_default(iface, &cfg, usage), AOM_CODEC_OK);
+  cfg.g_w = 1;
+  cfg.g_h = 444;
+  cfg.g_pass = AOM_RC_ONE_PASS;
+  cfg.g_lag_in_frames = 0;
+
+  aom_codec_ctx_t enc;
+  ASSERT_EQ(aom_codec_enc_init(&enc, iface, &cfg, 0), AOM_CODEC_OK);
+
+  const int speed = 6;
+  ASSERT_EQ(aom_codec_control(&enc, AOME_SET_CPUUSED, speed), AOM_CODEC_OK);
+
+  const aom_enc_frame_flags_t flags = 0;
+  int frame_index = 0;
+
+  // Encode a frame.
+  aom_image_t *image = create_gray_image(AOM_IMG_FMT_I420, cfg.g_w, cfg.g_h);
+  ASSERT_NE(image, nullptr);
+  ASSERT_EQ(aom_codec_encode(&enc, image, frame_index, 1, flags), AOM_CODEC_OK);
+  frame_index++;
+  const aom_codec_cx_pkt_t *pkt;
+  aom_codec_iter_t iter = nullptr;
+  while ((pkt = aom_codec_get_cx_data(&enc, &iter)) != nullptr) {
+    ASSERT_EQ(pkt->kind, AOM_CODEC_CX_FRAME_PKT);
+  }
+  aom_img_free(image);
+
+  // Uncomment this code to reproduce the bug.
+#if 0
+  cfg.g_w = 1;
+  cfg.g_h = 254;
+  ASSERT_EQ(aom_codec_enc_config_set(&enc, &cfg), AOM_CODEC_OK)
+      << aom_codec_error_detail(&enc);
+#endif
+
+  cfg.g_w = 1;
+  cfg.g_h = 154;
+  ASSERT_EQ(aom_codec_enc_config_set(&enc, &cfg), AOM_CODEC_OK)
+      << aom_codec_error_detail(&enc);
+
+  // Encode a frame.
+  image = create_gray_image(AOM_IMG_FMT_I420, cfg.g_w, cfg.g_h);
+  ASSERT_EQ(aom_codec_encode(&enc, image, frame_index, 1, flags), AOM_CODEC_OK);
+  frame_index++;
+  iter = nullptr;
+  while ((pkt = aom_codec_get_cx_data(&enc, &iter)) != nullptr) {
+    ASSERT_EQ(pkt->kind, AOM_CODEC_CX_FRAME_PKT);
+  }
+  aom_img_free(image);
+
+  // Flush the encoder.
+  bool got_data;
+  do {
+    ASSERT_EQ(aom_codec_encode(&enc, nullptr, 0, 0, 0), AOM_CODEC_OK);
+    got_data = false;
+    iter = nullptr;
+    while ((pkt = aom_codec_get_cx_data(&enc, &iter)) != nullptr) {
+      got_data = true;
+    }
+  } while (got_data);
+
+  ASSERT_EQ(aom_codec_destroy(&enc), AOM_CODEC_OK);
+}
+
 class EncodeAPIParameterized
     : public testing::TestWithParam<std::tuple<
           /*usage=*/unsigned int, /*speed=*/int, /*aq_mode=*/unsigned int>> {};
