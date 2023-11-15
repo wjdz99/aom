@@ -35,6 +35,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "433c0bb6_2403f012",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 154,
+      "author": {
+        "id": 9616
+      },
+      "writtenOn": "2023-11-15T14:39:59Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9ed85edb_a0dfbc32",
+      "revId": "3c41ecfe3af7b6d6856d1e72ff8e6b0bd359de8e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c243e383_fedf1a48",
@@ -48,6 +66,24 @@
       "writtenOn": "2023-11-14T21:56:57Z",
       "side": 1,
       "message": "Nit/optional: maximum \u003d\u003e AOMMAX\n\nWhen I read this comment (before I saw the code below), it wasn\u0027t clear what the maximum operation was referring to, because \"max cols\" was just mentioned in the previous sentence.",
+      "revId": "3c41ecfe3af7b6d6856d1e72ff8e6b0bd359de8e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "35d458e2_8eddb534",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 155,
+      "author": {
+        "id": 9616
+      },
+      "writtenOn": "2023-11-15T14:39:59Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c243e383_fedf1a48",
       "revId": "3c41ecfe3af7b6d6856d1e72ff8e6b0bd359de8e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -71,6 +107,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "e7fc83cd_cd1290b2",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 2725,
+      "author": {
+        "id": 9616
+      },
+      "writtenOn": "2023-11-15T14:39:59Z",
+      "side": 1,
+      "message": "`mi_rows` here was derived using the same loop condition in `calc_mb_wiener_var()` (caller function of `av1_calc_mb_wiener_var_row` in single thread encode path).\n\nBut as `cpi-\u003ecommon.mi_params` holds the updated frame info (please refer `set_mb_mi()`) and as the same is used for allocating MT specific variables and assigning jobs in `av1_calc_mb_wiener_var_mt`, we think it is correct to use `cpi-\u003ecommon.mi_params` in `set_mb_wiener_var_calc_done()` instead of `cpi-\u003eframe_info`. We have done this change in the latest patchset.\n\nApart from `calc_mb_wiener_var()`, `cpi-\u003eframe_info` is used in other related functions like `ext_rate_guided_quantization()` and  `av1_init_mb_wiener_var_buffer()` inconsistently. All these cases might also need to use `cpi-\u003ecommon.mi_params` but this needs further study and testing.",
+      "parentUuid": "d0c6396b_f1d43620",
+      "revId": "3c41ecfe3af7b6d6856d1e72ff8e6b0bd359de8e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "a8e90c2e_e6cc79d6",
         "filename": "av1/encoder/ethread.c",
         "patchSetId": 8
@@ -82,6 +136,24 @@
       "writtenOn": "2023-11-14T21:56:57Z",
       "side": 1,
       "message": "Nit/optional: I think we can say `while (true)` here, and declare the `has_jobs` variable inside the while loop, at line 2777.",
+      "revId": "3c41ecfe3af7b6d6856d1e72ff8e6b0bd359de8e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "62895ad5_fcd66bfc",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 2772,
+      "author": {
+        "id": 9616
+      },
+      "writtenOn": "2023-11-15T14:39:59Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a8e90c2e_e6cc79d6",
       "revId": "3c41ecfe3af7b6d6856d1e72ff8e6b0bd359de8e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
