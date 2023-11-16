@@ -1601,11 +1601,25 @@ static aom_codec_err_t update_extra_cfg(aom_codec_alg_priv_t *ctx,
     bool is_sb_size_changed = false;
     av1_change_config_seq(ctx->ppi, &ctx->oxcf, &is_sb_size_changed);
     for (int i = 0; i < ctx->ppi->num_fp_contexts; i++) {
+      AV1_COMP *cpi = ctx->ppi->parallel_cpi[i];
+      if (setjmp(cpi->common.error->jmp)) {
+        cpi->common.error->setjmp = 0;
+        return AOM_CODEC_MEM_ERROR;
+      }
+      cpi->common.error->setjmp = 1;
       av1_change_config(ctx->ppi->parallel_cpi[i], &ctx->oxcf,
                         is_sb_size_changed);
+      cpi->common.error->setjmp = 0;
     }
     if (ctx->ppi->cpi_lap != NULL) {
+      AV1_COMP *cpi_lap = ctx->ppi->cpi_lap;
+      if (setjmp(cpi_lap->common.error->jmp)) {
+        cpi_lap->common.error->setjmp = 0;
+        return AOM_CODEC_MEM_ERROR;
+      }
+      cpi_lap->common.error->setjmp = 1;
       av1_change_config(ctx->ppi->cpi_lap, &ctx->oxcf, is_sb_size_changed);
+      cpi_lap->common.error->setjmp = 0;
     }
   }
   return res;
