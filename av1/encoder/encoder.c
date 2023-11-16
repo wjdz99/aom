@@ -680,6 +680,17 @@ static void init_config(struct AV1_COMP *cpi, const AV1EncoderConfig *oxcf) {
   init_buffer_indices(&cpi->force_intpel_info, cm->remapped_ref_idx);
 
   av1_noise_estimate_init(&cpi->noise_estimate, cm->width, cm->height);
+   
+  // HACK
+  cpi->sum_source_scaling_time = 0.0;
+  cpi->sum_last_source_scaling_time = 0.0;
+  cpi->sum_reference_scaling_time = 0.0;
+  cpi->sum_encoding_frame_time = 0.0;
+  cpi->sum_deblocker_time = 0.0;
+  cpi->sum_cdef_time = 0.0;
+  cpi->sum_superres_time = 0.0;
+  cpi->sum_loopfilter_time = 0.0;
+  cpi->sum_qp = 0.0;
 }
 
 void av1_change_config_seq(struct AV1_PRIMARY *ppi,
@@ -2295,6 +2306,8 @@ static void cdef_restoration_frame(AV1_COMP *cpi, AV1_COMMON *cm,
   (void)use_restoration;
 #endif
 
+struct aom_usec_timer timer;
+ aom_usec_timer_start(&timer);
   if (use_cdef) {
 #if CONFIG_COLLECT_COMPONENT_TIMING
     start_timing(cpi, cdef_time);
@@ -2322,13 +2335,20 @@ static void cdef_restoration_frame(AV1_COMP *cpi, AV1_COMMON *cm,
     end_timing(cpi, cdef_time);
 #endif
   }
+ aom_usec_timer_mark(&timer);
+ printf("cdef time: %f \n", 1.0*aom_usec_timer_elapsed(&timer));
+  cpi->sum_cdef_time += 1.0*aom_usec_timer_elapsed(&timer);
 
+  aom_usec_timer_start(&timer);
   const int use_superres = av1_superres_scaled(cm);
   if (use_superres) {
     if ((skip_apply_postproc_filters & SKIP_APPLY_SUPERRES) == 0) {
       av1_superres_post_encode(cpi);
     }
   }
+  aom_usec_timer_mark(&timer);
+  printf("superres time: %f \n", 1.0*aom_usec_timer_elapsed(&timer));
+  cpi->sum_superres_time += 1.0*aom_usec_timer_elapsed(&timer);
 
 #if !CONFIG_REALTIME_ONLY
 #if CONFIG_COLLECT_COMPONENT_TIMING
@@ -2400,6 +2420,9 @@ static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
   const unsigned int skip_apply_postproc_filters =
       derive_skip_apply_postproc_filters(cpi, use_loopfilter, use_cdef,
                                          use_superres, use_restoration);
+  
+  struct aom_usec_timer timer;
+  aom_usec_timer_start(&timer);
 
 #if CONFIG_COLLECT_COMPONENT_TIMING
   start_timing(cpi, loop_filter_time);
@@ -2424,6 +2447,10 @@ static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
                                &mt_info->lf_row_sync, lpf_opt_level);
     }
   }
+  aom_usec_timer_mark(&timer);
+  printf("deblocker time: %f \n", 1.0*aom_usec_timer_elapsed(&timer));
+  cpi->sum_deblocker_time += 1.0*aom_usec_timer_elapsed(&timer);
+
 
 #if CONFIG_COLLECT_COMPONENT_TIMING
   end_timing(cpi, loop_filter_time);
@@ -2527,6 +2554,9 @@ static int encode_without_recode(AV1_COMP *cpi) {
     }
   }
 
+ filter_scaler = BILINEAR;
+
+  // For lower resolutions use eighttap_smooth.
   allocate_gradient_info_for_hog(cpi);
 
   allocate_src_var_of_4x4_sub_block_buf(cpi);
@@ -2549,9 +2579,17 @@ static int encode_without_recode(AV1_COMP *cpi) {
   }
 #endif
 
+  struct aom_usec_timer timer;
+   printf("********** start frame# %d %d %d \n", cm->current_frame.frame_number, cm->width, cm->height);
+   aom_usec_timer_start(&timer);
+
   cpi->source = av1_realloc_and_scale_if_required(
       cm, unscaled, &cpi->scaled_source, filter_scaler, phase_scaler, true,
       false, cpi->oxcf.border_in_pixels, cpi->image_pyramid_levels);
+   aom_usec_timer_mark(&timer);
+   printf("scale source time: %f \n", 1.0*aom_usec_timer_elapsed(&timer));
+   cpi->sum_source_scaling_time += 1.0*aom_usec_timer_elapsed(&timer);
+
   if (frame_is_intra_only(cm) || resize_pending != 0) {
     const int current_size =
         (cm->mi_params.mi_rows * cm->mi_params.mi_cols) >> 2;
@@ -2567,6 +2605,7 @@ static int encode_without_recode(AV1_COMP *cpi) {
     memset(cpi->consec_zero_mv, 0, current_size * sizeof(*cpi->consec_zero_mv));
   }
 
+  aom_usec_timer_start(&timer);
   if (cpi->scaled_last_source_available) {
     cpi->last_source = &cpi->scaled_last_source;
     cpi->scaled_last_source_available = 0;
@@ -2576,6 +2615,9 @@ static int encode_without_recode(AV1_COMP *cpi) {
         phase_scaler, true, false, cpi->oxcf.border_in_pixels,
         cpi->image_pyramid_levels);
   }
+  aom_usec_timer_mark(&timer);
+  printf("scale last_source time: %f \n", 1.0*aom_usec_timer_elapsed(&timer));
+  cpi->sum_last_source_scaling_time += 1.0*aom_usec_timer_elapsed(&timer);
 
   if (cpi->sf.rt_sf.use_temporal_noise_estimate) {
     av1_update_noise_estimate(cpi);
@@ -2609,7 +2651,8 @@ static int encode_without_recode(AV1_COMP *cpi) {
         cpi->ref_frame_flags ^= AOM_ALT_FLAG;
     }
   }
-
+ 
+  aom_usec_timer_start(&timer);
   int scale_references = 0;
 #if CONFIG_FPMT_TEST
   scale_references =
@@ -2621,6 +2664,9 @@ static int encode_without_recode(AV1_COMP *cpi) {
       av1_scale_references(cpi, filter_scaler, phase_scaler, 1);
     }
   }
+  aom_usec_timer_mark(&timer);
+  printf("scale reference_frame time: %f \n", 1.0*aom_usec_timer_elapsed(&timer));
+  cpi->sum_reference_scaling_time += 1.0*aom_usec_timer_elapsed(&timer);
 
   av1_set_quantizer(cm, q_cfg->qm_minlevel, q_cfg->qm_maxlevel, q,
                     q_cfg->enable_chroma_deltaq, q_cfg->enable_hdr_deltaq);
@@ -2697,8 +2743,12 @@ static int encode_without_recode(AV1_COMP *cpi) {
   // frame.
   if (!frame_is_intra_only(cm)) av1_pick_and_set_high_precision_mv(cpi, q);
 
+  aom_usec_timer_start(&timer);
   // transform / motion compensation build reconstruction frame
   av1_encode_frame(cpi);
+  aom_usec_timer_mark(&timer);
+  printf("basic encode_frame time: %f \n", 1.0*aom_usec_timer_elapsed(&timer));
+  cpi->sum_encoding_frame_time += 1.0*aom_usec_timer_elapsed(&timer);
 
   if (!cpi->rc.rtc_external_ratectrl && !frame_is_intra_only(cm))
     update_motion_stat(cpi);
@@ -3238,10 +3288,15 @@ static int encode_with_recode_loop_and_filter(AV1_COMP *cpi, size_t *size,
 
   if (!cpi->mt_info.pipeline_lpf_mt_with_enc)
     set_postproc_filter_default_params(&cpi->common);
-
+ 
+  struct aom_usec_timer timer;
+  aom_usec_timer_start(&timer);
   if (!cm->features.allow_intrabc) {
     loopfilter_frame(cpi, cm);
   }
+ aom_usec_timer_mark(&timer);
+ printf("total loopfilter (deblock+cdef+superes) time: %f \n", 1.0*aom_usec_timer_elapsed(&timer));
+ cpi->sum_loopfilter_time += 1.0*aom_usec_timer_elapsed(&timer);
 
   if (cpi->oxcf.mode != ALLINTRA && !cpi->ppi->rtc_ref.non_reference_frame) {
     extend_frame_borders(cpi);

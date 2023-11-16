@@ -3661,6 +3661,17 @@ typedef struct AV1_COMP {
    */
   int palette_pixel_num;
 
+  // HACK
+  float sum_source_scaling_time;
+  float sum_last_source_scaling_time;
+  float sum_reference_scaling_time;
+  float sum_encoding_frame_time;
+  float sum_deblocker_time;
+  float sum_cdef_time;
+  float sum_superres_time;
+  float sum_loopfilter_time;
+  float sum_qp;
+
   /*!
    * Flag to indicate scaled_last_source is available,
    * so scaling is not needed for last_source.

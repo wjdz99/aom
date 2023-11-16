@@ -2288,6 +2288,25 @@ void av1_rc_postencode_update(AV1_COMP *cpi, uint64_t bytes_used) {
   // Update rate control heuristics
   rc->projected_frame_size = (int)(bytes_used << 3);
 
+   // HACK
+  cpi->sum_qp += qindex;
+  printf("***Done encoding, qp: %d %d %d %d \n", current_frame->frame_number, cm->width, cm->height, qindex);
+  printf("Average timing for source/last_source/reference scaling: %f %f %f \n",
+    cpi->sum_source_scaling_time / current_frame->frame_number,
+    cpi->sum_last_source_scaling_time / current_frame->frame_number,
+    cpi->sum_reference_scaling_time / current_frame->frame_number);
+  printf("Average timing for basic frame encoding: %f \n",
+    cpi->sum_encoding_frame_time / current_frame->frame_number);
+  printf("Average timing for deblocker/cdef/superres/tot_loopfilter: %f %f %f %f \n",
+    cpi->sum_deblocker_time / current_frame->frame_number,
+    cpi->sum_cdef_time / current_frame->frame_number,
+    cpi->sum_superres_time / current_frame->frame_number,
+    cpi->sum_loopfilter_time / current_frame->frame_number);
+  printf("Average QP: %f \n", cpi->sum_qp / current_frame->frame_number);
+  printf("*************** \n");
+
+
+
   // Post encode loop adjustment of Q prediction.
   av1_rc_update_rate_correction_factors(cpi, 0, cm->width, cm->height);
 
