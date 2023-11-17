@@ -16,6 +16,40 @@
       "message": "In the parent commit, when `av1_change_config()` is invoked from `update_extra_cfg()` there was no valid setjmp target to fall back in case of an allocation failure. This CL fixes this issue by adding correct setjmp targets for `cpi` and `cpi_lap` inside `update_extra_cfg()`.\n\nThis change is bit-exact and has been verified using bitstream-match tests for a combination of various configuration values for --threads, --tile-rows, --tile-columns, --cpu-used, --end-usage, --row-mt, --fp-mt, etc. Validated all unit-tests with sanitizers (address and thread) and valgrind.",
       "revId": "c9ad5f4bfa923b3a5069c3dbcfa9abe68005e40c",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d6e9d2c3_3ddc8827",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1607,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-11-17T23:27:06Z",
+      "side": 1,
+      "message": "We should not blindly assume the error is `AOM_CODEC_MEM_ERROR`.\n\nIt seems that we should return `cpi-\u003ecommon.error-\u003eerror_code`",
+      "revId": "c9ad5f4bfa923b3a5069c3dbcfa9abe68005e40c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "be7f6dbd_167c4885",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1617,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-11-17T23:27:06Z",
+      "side": 1,
+      "message": "I think we should return `cpi_lap-\u003ecommon.error-\u003eerror_code`.",
+      "revId": "c9ad5f4bfa923b3a5069c3dbcfa9abe68005e40c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
