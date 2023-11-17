@@ -274,7 +274,6 @@ static void row_mt_mem_alloc(AV1_COMP *cpi, int max_rows, int max_cols,
   enc_row_mt->allocated_sb_rows = sb_rows;
   enc_row_mt->row_mt_exit = false;
   enc_row_mt->firstpass_mt_exit = false;
-  enc_row_mt->mb_wiener_mt_exit = false;
 }
 
 void av1_row_mt_mem_dealloc(AV1_COMP *cpi) {
@@ -2831,6 +2830,7 @@ void av1_calc_mb_wiener_var_mt(AV1_COMP *cpi, int num_workers,
   const int mi_rows = cm->mi_params.mi_rows;
   row_mt_sync_mem_alloc(intra_row_mt_sync, cm, mi_rows);
 
+  mt_info->enc_row_mt.mb_wiener_mt_exit = false;
   intra_row_mt_sync->intrabc_extra_top_right_sb_delay = 0;
   intra_row_mt_sync->num_threads_working = num_workers;
   intra_row_mt_sync->next_mi_row = 0;
