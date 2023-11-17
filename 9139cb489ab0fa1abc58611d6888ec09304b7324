@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ba22e252_7721f792",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-11-17T18:55:48Z",
+      "side": 1,
+      "message": "LGTM. I suggest a small tweak. I also think we should make a similar change to the other two `mt_exit` flags.",
+      "revId": "9139cb489ab0fa1abc58611d6888ec09304b7324",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6e6cd460_ec6456fe",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 276,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-11-17T18:55:48Z",
+      "side": 1,
+      "message": "I think it is safer to move these two lines to `av1_encode_tiles_row_mt()` and `av1_fp_encode_tiles_row_mt()`, respectively.\n\nThe reason is that those two functions call `row_mt_mem_alloc()` only under certain conditions:\n\n```\n  if (alloc_row_mt_mem) {\n    row_mt_mem_alloc(cpi, ...);\n  }\n```\n\nSo they won\u0027t set these two `mt_exit` flags to false when `alloc_row_mt_mem` is false. Suppose these `mt_exit` flags were set to true in an earlier failed `aom_codec_encode()` call. In the next `aom_codec_encode()` call, if `alloc_row_mt_mem` is false, we will launch the workers with the `mt_exit` flags equal to true. That is bad.\n\nIs my analysis correct?",
+      "range": {
+        "startLine": 275,
+        "startChar": 0,
+        "endLine": 276,
+        "endChar": 40
+      },
+      "revId": "9139cb489ab0fa1abc58611d6888ec09304b7324",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bdf750f4_01695592",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 2833,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-11-17T18:55:48Z",
+      "side": 1,
+      "message": "Nit: I suggest moving this line either before line 2830 or after line 2838 so that it doesn\u0027t go in the middle of the code that sets up `intra_row_mt_sync`,",
+      "revId": "9139cb489ab0fa1abc58611d6888ec09304b7324",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
