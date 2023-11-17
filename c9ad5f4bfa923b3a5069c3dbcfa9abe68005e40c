@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d0341d77_3d3e121d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2023-11-17T15:53:32Z",
+      "side": 1,
+      "message": "In the parent commit, when `av1_change_config()` is invoked from `update_extra_cfg()` there was no valid setjmp target to fall back in case of an allocation failure. This CL fixes this issue by adding correct setjmp targets for `cpi` and `cpi_lap` inside `update_extra_cfg()`.\n\nThis change is bit-exact and has been verified using bitstream-match tests for a combination of various configuration values for --threads, --tile-rows, --tile-columns, --cpu-used, --end-usage, --row-mt, --fp-mt, etc. Validated all unit-tests with sanitizers (address and thread) and valgrind.",
+      "revId": "c9ad5f4bfa923b3a5069c3dbcfa9abe68005e40c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
