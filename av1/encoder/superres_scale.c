@@ -347,10 +347,11 @@ static size_params_type calculate_next_size_params(AV1_COMP *cpi) {
                            SCALE_NUMERATOR };
   int resize_denom = SCALE_NUMERATOR;
   if (has_no_stats_stage(cpi) && cpi->ppi->use_svc &&
-      cpi->svc.spatial_layer_id < cpi->svc.number_spatial_layers - 1) {
-    rsz.resize_width = cpi->common.width;
-    rsz.resize_height = cpi->common.height;
-    return rsz;
+      (cpi->common.width != cpi->oxcf.frm_dim_cfg.width ||
+       cpi->common.height != cpi->oxcf.frm_dim_cfg.height)) {
+      rsz.resize_width = cpi->common.width;
+      rsz.resize_height = cpi->common.height;
+      return rsz;
   }
   if (is_stat_generation_stage(cpi)) return rsz;
   if (resize_pending_params->width && resize_pending_params->height) {
