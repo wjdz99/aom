@@ -346,11 +346,21 @@ static size_params_type calculate_next_size_params(AV1_COMP *cpi) {
   size_params_type rsz = { frm_dim_cfg->width, frm_dim_cfg->height,
                            SCALE_NUMERATOR };
   int resize_denom = SCALE_NUMERATOR;
-  if (has_no_stats_stage(cpi) && cpi->ppi->use_svc &&
-      cpi->svc.spatial_layer_id < cpi->svc.number_spatial_layers - 1) {
-    rsz.resize_width = cpi->common.width;
-    rsz.resize_height = cpi->common.height;
-    return rsz;
+  if (has_no_stats_stage(cpi) && cpi->ppi->use_svc) {
+    SVC *const svc = &cpi->svc;
+    LAYER_CONTEXT *lc = NULL;
+    int width = 0, height = 0;
+    lc = &svc->layer_context[svc->spatial_layer_id * svc->number_temporal_layers +
+                             svc->temporal_layer_id];
+    av1_get_layer_resolution(cpi->oxcf.frm_dim_cfg.width,
+                             cpi->oxcf.frm_dim_cfg.height, lc->scaling_factor_num,
+                             lc->scaling_factor_den, &width, &height);
+    if (cpi->common.width != cpi->oxcf.frm_dim_cfg.width &&
+        cpi->common.height != cpi->oxcf.frm_dim_cfg.height) {
+      rsz.resize_width = cpi->common.width;
+      rsz.resize_height = cpi->common.height;
+      return rsz;
+    }
   }
   if (is_stat_generation_stage(cpi)) return rsz;
   if (resize_pending_params->width && resize_pending_params->height) {
