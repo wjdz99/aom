@@ -52,6 +52,8 @@ void av1_init_layer_context(AV1_COMP *const cpi) {
       lrc->worst_quality = av1_quantizer_to_qindex(lc->max_q);
       lrc->best_quality = av1_quantizer_to_qindex(lc->min_q);
       lrc->rtc_external_ratectrl = 0;
+      lc->scaling_factor_den = 1;
+      lc->scaling_factor_num = 1;
       for (int i = 0; i < RATE_FACTOR_LEVELS; ++i) {
         lp_rc->rate_correction_factors[i] = 1.0;
       }
