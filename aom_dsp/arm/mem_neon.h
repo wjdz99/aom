@@ -1228,4 +1228,18 @@ static INLINE void store_unaligned_u16_4x2(uint16_t *dst, uint32_t dst_stride,
   store_unaligned_u16_4x1(dst, src, 1);
 }
 
+static INLINE uint8x8_t load_u8_gather_s16_x8(const uint8_t *src,
+                                              int16x8_t indices) {
+  uint8x8_t ret = vdup_n_u8(0);
+  ret = vld1_lane_u8(src + indices[0], ret, 0);
+  ret = vld1_lane_u8(src + indices[1], ret, 1);
+  ret = vld1_lane_u8(src + indices[2], ret, 2);
+  ret = vld1_lane_u8(src + indices[3], ret, 3);
+  ret = vld1_lane_u8(src + indices[4], ret, 4);
+  ret = vld1_lane_u8(src + indices[5], ret, 5);
+  ret = vld1_lane_u8(src + indices[6], ret, 6);
+  ret = vld1_lane_u8(src + indices[7], ret, 7);
+  return ret;
+}
+
 #endif  // AOM_AOM_DSP_ARM_MEM_NEON_H_
