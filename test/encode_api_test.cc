@@ -172,6 +172,7 @@ TEST(EncodeAPI, LowBDEncoderLowBDImage) {
   ASSERT_EQ(aom_codec_enc_init(&enc, iface, &cfg, 0), AOM_CODEC_OK);
 
   aom_image_t *image =
+<<<<<<< HEAD   (5d7986 Remove Neon backend of architecture agnostic intrinsics laye)
       aom_img_alloc(nullptr, AOM_IMG_FMT_I420, cfg.g_w, cfg.g_h, 0);
   ASSERT_NE(image, nullptr);
 
@@ -364,6 +365,200 @@ TEST_P(EncodeAPIParameterized, HighBDEncoderHighBDFrames) {
 }
 
 const unsigned int kUsages[] = {
+=======
+      aom_img_alloc(NULL, AOM_IMG_FMT_I420, cfg.g_w, cfg.g_h, 0);
+  ASSERT_NE(image, nullptr);
+
+  // Set the image to two colors so that av1_set_screen_content_options() will
+  // call av1_get_perpixel_variance().
+  int luma_value = 0;
+  for (unsigned int i = 0; i < image->d_h; ++i) {
+    memset(image->planes[0] + i * image->stride[0], luma_value, image->d_w);
+    luma_value = 255 - luma_value;
+  }
+  unsigned int uv_h = (image->d_h + 1) / 2;
+  unsigned int uv_w = (image->d_w + 1) / 2;
+  for (unsigned int i = 0; i < uv_h; ++i) {
+    memset(image->planes[1] + i * image->stride[1], 128, uv_w);
+    memset(image->planes[2] + i * image->stride[2], 128, uv_w);
+  }
+
+  ASSERT_EQ(aom_codec_encode(&enc, image, 0, 1, 0), AOM_CODEC_OK);
+
+  aom_img_free(image);
+  ASSERT_EQ(aom_codec_destroy(&enc), AOM_CODEC_OK);
+}
+
+TEST(EncodeAPI, HighBDEncoderHighBDImage) {
+  aom_codec_iface_t *iface = aom_codec_av1_cx();
+  aom_codec_enc_cfg_t cfg;
+  ASSERT_EQ(aom_codec_enc_config_default(iface, &cfg, kUsage), AOM_CODEC_OK);
+
+  aom_codec_ctx_t enc;
+  aom_codec_err_t init_status =
+      aom_codec_enc_init(&enc, iface, &cfg, AOM_CODEC_USE_HIGHBITDEPTH);
+#if !CONFIG_AV1_HIGHBITDEPTH
+  ASSERT_EQ(init_status, AOM_CODEC_INCAPABLE);
+#else
+  ASSERT_EQ(init_status, AOM_CODEC_OK);
+
+  aom_image_t *image =
+      aom_img_alloc(NULL, AOM_IMG_FMT_I42016, cfg.g_w, cfg.g_h, 0);
+  ASSERT_NE(image, nullptr);
+
+  // Set the image to two colors so that av1_set_screen_content_options() will
+  // call av1_get_perpixel_variance().
+  int luma_value = 0;
+  for (unsigned int i = 0; i < image->d_h; ++i) {
+    Memset16(image->planes[0] + i * image->stride[0], luma_value, image->d_w);
+    luma_value = 255 - luma_value;
+  }
+  unsigned int uv_h = (image->d_h + 1) / 2;
+  unsigned int uv_w = (image->d_w + 1) / 2;
+  for (unsigned int i = 0; i < uv_h; ++i) {
+    Memset16(image->planes[1] + i * image->stride[1], 128, uv_w);
+    Memset16(image->planes[2] + i * image->stride[2], 128, uv_w);
+  }
+
+  ASSERT_EQ(aom_codec_encode(&enc, image, 0, 1, 0), AOM_CODEC_OK);
+
+  aom_img_free(image);
+  ASSERT_EQ(aom_codec_destroy(&enc), AOM_CODEC_OK);
+#endif
+}
+
+TEST(EncodeAPI, HighBDEncoderLowBDImage) {
+  aom_codec_iface_t *iface = aom_codec_av1_cx();
+  aom_codec_enc_cfg_t cfg;
+  ASSERT_EQ(aom_codec_enc_config_default(iface, &cfg, kUsage), AOM_CODEC_OK);
+
+  aom_codec_ctx_t enc;
+  aom_codec_err_t init_status =
+      aom_codec_enc_init(&enc, iface, &cfg, AOM_CODEC_USE_HIGHBITDEPTH);
+#if !CONFIG_AV1_HIGHBITDEPTH
+  ASSERT_EQ(init_status, AOM_CODEC_INCAPABLE);
+#else
+  ASSERT_EQ(init_status, AOM_CODEC_OK);
+
+  aom_image_t *image =
+      aom_img_alloc(NULL, AOM_IMG_FMT_I420, cfg.g_w, cfg.g_h, 0);
+  ASSERT_NE(image, nullptr);
+
+  // Set the image to two colors so that av1_set_screen_content_options() will
+  // call av1_get_perpixel_variance().
+  int luma_value = 0;
+  for (unsigned int i = 0; i < image->d_h; ++i) {
+    memset(image->planes[0] + i * image->stride[0], luma_value, image->d_w);
+    luma_value = 255 - luma_value;
+  }
+  unsigned int uv_h = (image->d_h + 1) / 2;
+  unsigned int uv_w = (image->d_w + 1) / 2;
+  for (unsigned int i = 0; i < uv_h; ++i) {
+    memset(image->planes[1] + i * image->stride[1], 128, uv_w);
+    memset(image->planes[2] + i * image->stride[2], 128, uv_w);
+  }
+
+  ASSERT_EQ(aom_codec_encode(&enc, image, 0, 1, 0), AOM_CODEC_INVALID_PARAM);
+
+  aom_img_free(image);
+  ASSERT_EQ(aom_codec_destroy(&enc), AOM_CODEC_OK);
+#endif
+}
+
+TEST(EncodeAPI, LowBDEncoderHighBDImage) {
+  aom_codec_iface_t *iface = aom_codec_av1_cx();
+  aom_codec_enc_cfg_t cfg;
+  ASSERT_EQ(aom_codec_enc_config_default(iface, &cfg, kUsage), AOM_CODEC_OK);
+
+  aom_codec_ctx_t enc;
+  ASSERT_EQ(aom_codec_enc_init(&enc, iface, &cfg, 0), AOM_CODEC_OK);
+
+  aom_image_t *image =
+      aom_img_alloc(NULL, AOM_IMG_FMT_I42016, cfg.g_w, cfg.g_h, 0);
+  ASSERT_NE(image, nullptr);
+
+  // Set the image to two colors so that av1_set_screen_content_options() will
+  // call av1_get_perpixel_variance().
+  int luma_value = 0;
+  for (unsigned int i = 0; i < image->d_h; ++i) {
+    Memset16(image->planes[0] + i * image->stride[0], luma_value, image->d_w);
+    luma_value = 255 - luma_value;
+  }
+  unsigned int uv_h = (image->d_h + 1) / 2;
+  unsigned int uv_w = (image->d_w + 1) / 2;
+  for (unsigned int i = 0; i < uv_h; ++i) {
+    Memset16(image->planes[1] + i * image->stride[1], 128, uv_w);
+    Memset16(image->planes[2] + i * image->stride[2], 128, uv_w);
+  }
+
+  ASSERT_EQ(aom_codec_encode(&enc, image, 0, 1, 0), AOM_CODEC_INVALID_PARAM);
+
+  aom_img_free(image);
+  ASSERT_EQ(aom_codec_destroy(&enc), AOM_CODEC_OK);
+}
+
+class EncodeAPIParameterized
+    : public testing::TestWithParam<
+          std::tuple</*usage=*/int, /*speed=*/int, /*aq_mode=*/int>> {};
+
+// Encodes two frames at a given usage, speed, and aq_mode setting.
+// Reproduces b/303023614
+TEST_P(EncodeAPIParameterized, HighBDEncoderHighBDFrames) {
+  const int usage = std::get<0>(GetParam());
+  int speed = std::get<1>(GetParam());
+
+  if (speed == 10 && usage != AOM_USAGE_REALTIME) {
+    speed = 9;  // 10 is only allowed in AOM_USAGE_REALTIME
+  }
+
+  aom_codec_iface_t *iface = aom_codec_av1_cx();
+  aom_codec_enc_cfg_t cfg;
+  ASSERT_EQ(aom_codec_enc_config_default(iface, &cfg, usage), AOM_CODEC_OK);
+  cfg.g_w = 500;
+  cfg.g_h = 400;
+
+  aom_codec_ctx_t enc;
+  aom_codec_err_t init_status =
+      aom_codec_enc_init(&enc, iface, &cfg, AOM_CODEC_USE_HIGHBITDEPTH);
+#if !CONFIG_AV1_HIGHBITDEPTH
+  ASSERT_EQ(init_status, AOM_CODEC_INCAPABLE);
+#else
+  const int aq_mode = std::get<2>(GetParam());
+
+  ASSERT_EQ(init_status, AOM_CODEC_OK);
+
+  ASSERT_EQ(aom_codec_control(&enc, AOME_SET_CPUUSED, speed), AOM_CODEC_OK);
+  ASSERT_EQ(aom_codec_control(&enc, AV1E_SET_AQ_MODE, aq_mode), AOM_CODEC_OK);
+
+  aom_image_t *image =
+      aom_img_alloc(NULL, AOM_IMG_FMT_I42016, cfg.g_w, cfg.g_h, 0);
+  ASSERT_NE(image, nullptr);
+
+  for (unsigned int i = 0; i < image->d_h; ++i) {
+    Memset16(image->planes[0] + i * image->stride[0], 128, image->d_w);
+  }
+  unsigned int uv_h = (image->d_h + 1) / 2;
+  unsigned int uv_w = (image->d_w + 1) / 2;
+  for (unsigned int i = 0; i < uv_h; ++i) {
+    Memset16(image->planes[1] + i * image->stride[1], 128, uv_w);
+    Memset16(image->planes[2] + i * image->stride[2], 128, uv_w);
+  }
+
+  // Encode two frames.
+  ASSERT_EQ(
+      aom_codec_encode(&enc, image, /*pts=*/0, /*duration=*/1, /*flags=*/0),
+      AOM_CODEC_OK);
+  ASSERT_EQ(
+      aom_codec_encode(&enc, image, /*pts=*/1, /*duration=*/1, /*flags=*/0),
+      AOM_CODEC_OK);
+
+  aom_img_free(image);
+  ASSERT_EQ(aom_codec_destroy(&enc), AOM_CODEC_OK);
+#endif
+}
+
+const int kUsages[] = {
+>>>>>>> BRANCH (aca387 Update CHANGELOG and CMakeLists.txt for v3.7.1)
   AOM_USAGE_REALTIME,
 #if !CONFIG_REALTIME_ONLY
   AOM_USAGE_GOOD_QUALITY,

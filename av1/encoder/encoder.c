@@ -1733,6 +1733,10 @@ void av1_remove_compressor(AV1_COMP *cpi) {
     av1_cdef_mt_dealloc(&mt_info->cdef_sync);
 #if !CONFIG_REALTIME_ONLY
     av1_loop_restoration_dealloc(&mt_info->lr_row_sync);
+<<<<<<< HEAD   (5d7986 Remove Neon backend of architecture agnostic intrinsics laye)
+=======
+    av1_gm_dealloc(&mt_info->gm_sync);
+>>>>>>> BRANCH (aca387 Update CHANGELOG and CMakeLists.txt for v3.7.1)
     av1_tf_mt_dealloc(&mt_info->tf_sync);
 #endif
   }

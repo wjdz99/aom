@@ -347,9 +347,17 @@ static AOM_INLINE void dealloc_compressor_data(AV1_COMP *cpi) {
   aom_free(cpi->svc.layer_context);
   cpi->svc.layer_context = NULL;
 
+<<<<<<< HEAD   (5d7986 Remove Neon backend of architecture agnostic intrinsics laye)
   aom_free(cpi->consec_zero_mv);
   cpi->consec_zero_mv = NULL;
   cpi->consec_zero_mv_alloc_size = 0;
+=======
+  if (cpi->consec_zero_mv) {
+    aom_free(cpi->consec_zero_mv);
+    cpi->consec_zero_mv = NULL;
+    cpi->consec_zero_mv_alloc_size = 0;
+  }
+>>>>>>> BRANCH (aca387 Update CHANGELOG and CMakeLists.txt for v3.7.1)
 
   aom_free(cpi->src_sad_blk_64x64);
   cpi->src_sad_blk_64x64 = NULL;
