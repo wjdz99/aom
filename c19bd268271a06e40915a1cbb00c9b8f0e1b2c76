@@ -35,6 +35,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "07d64b59_6d47bba9",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-11-20T22:49:35Z",
+      "side": 1,
+      "message": "\u003e Also avoided the use of enums `PLANE_TYPE_Y` and `PLANE_TYPE_UV` with `lf.filter_level` as `lf.filter_level(0,1)` corresponds to horizontal and vertical filter.\n\nNit: This sentence (from the second paragraph) can be copied to the commit message.\n\nAlso, the first paragraph is more informative than the commit message. I think it is fine to add this level of detail to the commit message. The last paragraph, which summarizes the testing you did, does not need to go into the commit message.",
+      "parentUuid": "a523340f_f3f315ea",
+      "revId": "c19bd268271a06e40915a1cbb00c9b8f0e1b2c76",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "01a0e5a3_9b3dcc5d",
@@ -82,6 +100,24 @@
       "writtenOn": "2023-11-20T22:39:54Z",
       "side": 1,
       "message": "Nit: The original code uses `PLANE_TYPE_Y` and `PLANE_TYPE_UV` instead of 0 and 1. Should we also do that here?",
+      "revId": "c19bd268271a06e40915a1cbb00c9b8f0e1b2c76",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0b7caff2_8e2347dc",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 586,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-11-20T22:49:35Z",
+      "side": 1,
+      "message": "Please disregard this comment. You explained this in a comment. So the answer is No.",
+      "parentUuid": "785d51e3_5f28774d",
       "revId": "c19bd268271a06e40915a1cbb00c9b8f0e1b2c76",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
