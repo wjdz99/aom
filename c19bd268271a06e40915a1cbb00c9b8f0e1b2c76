@@ -309,6 +309,30 @@
       },
       "revId": "c19bd268271a06e40915a1cbb00c9b8f0e1b2c76",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "57ff43ea_b9b9ef19",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 1861,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2023-11-21T23:19:11Z",
+      "side": 1,
+      "message": "I also take a look at this function. It seems plane_start and plane_end makes this function unnecessarily complex. It seems that plane_start is always 0 unless the function is called in pick_lpf.c.\n\nSo, it is ok in this cl. Maybe in the follow-up, this function could be simplified.",
+      "parentUuid": "e3f703cf_bf290dd5",
+      "range": {
+        "startLine": 1861,
+        "startChar": 4,
+        "endLine": 1861,
+        "endChar": 74
+      },
+      "revId": "c19bd268271a06e40915a1cbb00c9b8f0e1b2c76",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
