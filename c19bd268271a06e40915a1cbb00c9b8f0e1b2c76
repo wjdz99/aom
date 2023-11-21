@@ -211,6 +211,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "1ec305bd_923e789c",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 604,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-11-21T22:32:42Z",
+      "side": 1,
+      "message": "James: I have seen GCC warn about variables that should not need to be declared as volatile. On the other hand, I have also seen compilers NOT warn about variables that should be declared as volatile (these variables were all structs if I remember correctly). So after painstakingly understanding setjmp\u0027s documentation, we still need to appease the compilers.",
+      "parentUuid": "21180da2_3e7e0447",
+      "revId": "c19bd268271a06e40915a1cbb00c9b8f0e1b2c76",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "17074f06_f1f27ee4",
@@ -265,6 +283,30 @@
       "side": 1,
       "message": "Done. We have abstracted it to a new function `set_planes_to_loop_filter()`.",
       "parentUuid": "b2baf12d_dcdfcad2",
+      "revId": "c19bd268271a06e40915a1cbb00c9b8f0e1b2c76",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e3f703cf_bf290dd5",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 1861,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-11-21T22:32:42Z",
+      "side": 1,
+      "message": "It took me a while to understand this change. I proved that the `check_planes_to_loop_filter()` call in the original code always returns 1 because `plane_start` is 0 and `plane_end` is 1 or 3, and `(lf-\u003efilter_level[0] || lf-\u003efilter_level[1])` is true. This is why we can move the `check_planes_to_loop_filter()` call inside the if block.",
+      "parentUuid": "17074f06_f1f27ee4",
+      "range": {
+        "startLine": 1861,
+        "startChar": 4,
+        "endLine": 1861,
+        "endChar": 74
+      },
       "revId": "c19bd268271a06e40915a1cbb00c9b8f0e1b2c76",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }

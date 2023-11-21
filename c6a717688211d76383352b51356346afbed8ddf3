@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3c0f743a_91a2d671",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-11-21T22:32:42Z",
+      "side": 1,
+      "message": "Mudassir: I read the CL carefully and fully understand it now. Please see my question marked with \"IMPORTANT\". The other comments summarize my understanding of the code, which you can ignore.",
+      "revId": "c6a717688211d76383352b51356346afbed8ddf3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c5d7564d_0af2a6be",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 1844,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-11-21T22:32:42Z",
+      "side": 1,
+      "message": "Because of this early return, `mt_info-\u003epipeline_lpf_mt_with_enc` is true in the rest of this function.",
+      "revId": "c6a717688211d76383352b51356346afbed8ddf3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bbbf58f1_2243c295",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 1848,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-11-21T22:32:42Z",
+      "side": 1,
+      "message": "IMPORTANT: Should the `lpf_mt_with_enc_enabled()` function also check this condition (`use_loopfilter`)?",
+      "revId": "c6a717688211d76383352b51356346afbed8ddf3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bae33d62_96c699eb",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 1861,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-11-21T22:32:42Z",
+      "side": 1,
+      "message": "It is a little unfortunate that the `lpf_mt_with_enc_enabled()` call checks `mt_info-\u003epipeline_lpf_mt_with_enc` redundantly (already checked at line 1844). But this is a minor issue.",
+      "revId": "c6a717688211d76383352b51356346afbed8ddf3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
