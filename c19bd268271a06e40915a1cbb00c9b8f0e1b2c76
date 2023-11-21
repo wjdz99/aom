@@ -53,6 +53,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "68dfbb94_47fb48eb",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2023-11-21T17:00:21Z",
+      "side": 1,
+      "message": "Done.",
+      "parentUuid": "07d64b59_6d47bba9",
+      "revId": "c19bd268271a06e40915a1cbb00c9b8f0e1b2c76",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "01a0e5a3_9b3dcc5d",
@@ -70,6 +88,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "6ff2a839_afb7163d",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2023-11-21T17:00:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "01a0e5a3_9b3dcc5d",
+      "revId": "c19bd268271a06e40915a1cbb00c9b8f0e1b2c76",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "50da88a3_92000bcc",
@@ -83,6 +119,24 @@
       "writtenOn": "2023-11-20T22:39:54Z",
       "side": 1,
       "message": "Nit: Add `const`:  `const int *filter_level`\n\nBetter yet, use the array notation: `const int filter_level[2]`\n\nEven though the array size is ignored in a function parameter, it serves as documentation of the array size expected by the function:",
+      "revId": "c19bd268271a06e40915a1cbb00c9b8f0e1b2c76",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0960cb03_83dda6fd",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 585,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2023-11-21T17:00:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "50da88a3_92000bcc",
       "revId": "c19bd268271a06e40915a1cbb00c9b8f0e1b2c76",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -141,6 +195,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "21180da2_3e7e0447",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 604,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2023-11-21T17:00:21Z",
+      "side": 1,
+      "message": "Yes, we observed the warning below in [jenkins build](https://build.aomedia.org/jenkins/job/libaom__compile/58464/arch\u003dgeneric-gnu,config\u003dinternal-stats/consoleFull) (patchset 3).\n```\n15:40:06 /var/jenkins/workspace/libaom__compile/arch/generic-gnu/config/internal-stats/aom/av1/encoder/ethread.c:605:14: warning: variable ‘is_lpf_pipelined’ might be clobbered by ‘longjmp’ or ‘vfork’ [-Wclobbered]\n```",
+      "parentUuid": "75686501_a86b7714",
+      "revId": "c19bd268271a06e40915a1cbb00c9b8f0e1b2c76",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "17074f06_f1f27ee4",
         "filename": "av1/encoder/ethread.c",
         "patchSetId": 7
@@ -175,6 +247,24 @@
       "writtenOn": "2023-11-20T22:39:54Z",
       "side": 1,
       "message": "We should document why it is fine to discard the return value of `check_planes_to_loop_filter()` here.\n\nIt may be better to create a new function for the first three statements of `check_planes_to_loop_filter()`:\n\n```\n  // For each luma and chroma plane, whether to filter it or not.\n  planes_to_lf[0] \u003d (lf-\u003efilter_level[0] || lf-\u003efilter_level[1]) \u0026\u0026\n                    plane_start \u003c\u003d 0 \u0026\u0026 0 \u003c plane_end;\n  planes_to_lf[1] \u003d lf-\u003efilter_level_u \u0026\u0026 plane_start \u003c\u003d 1 \u0026\u0026 1 \u003c plane_end;\n  planes_to_lf[2] \u003d lf-\u003efilter_level_v \u0026\u0026 plane_start \u003c\u003d 2 \u0026\u0026 2 \u003c plane_end;\n```",
+      "revId": "c19bd268271a06e40915a1cbb00c9b8f0e1b2c76",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fd06adf4_912912cf",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 1861,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2023-11-21T17:00:21Z",
+      "side": 1,
+      "message": "Done. We have abstracted it to a new function `set_planes_to_loop_filter()`.",
+      "parentUuid": "b2baf12d_dcdfcad2",
       "revId": "c19bd268271a06e40915a1cbb00c9b8f0e1b2c76",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
