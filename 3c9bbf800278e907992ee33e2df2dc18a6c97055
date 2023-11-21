@@ -16,6 +16,23 @@
       "message": "I missed running this through the Argon test vectors. This change causes some failures. For example:\n\n```\nprofile0_core/streams/test10046.obu: FAILED\nactual: 9e3f159ff52db4c1c3be43cf944ac18d\nexpected: 22451a86610cd8f930480771b8305ec0\n\nprofile0_core/streams/test10111.obu: FAILED\nactual: 862b02e8bc4142d8d8f10df6d9fed779\nexpected: 89423f7e54eb372e06d106774efa7109\n\nprofile0_core/streams/test10072_2027.obu: FAILED\nactual: 892f60aacf5e70d5ca49d95449cba7c9\nexpected: 2018037293cc147a9b3cce458c9762b9\n```",
       "revId": "3c9bbf800278e907992ee33e2df2dc18a6c97055",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "46dab4b0_d99fbce6",
+        "filename": "av1/common/arm/cdef_block_neon.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-11-21T01:36:38Z",
+      "side": 1,
+      "message": "the way the copy is used, width can be something like e.g., 20. This should be `width - w` and the pointers offset.",
+      "revId": "3c9bbf800278e907992ee33e2df2dc18a6c97055",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
