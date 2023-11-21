@@ -43,6 +43,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "943339e4_45bfa569",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 276,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2023-11-21T10:55:06Z",
+      "side": 1,
+      "message": "aomenc application treats `AOM_CODEC_MEM_ERROR` as a fatal error and exits from `ctx_exit_on_error()` without calling `aom_codec_encode()` again.\n\nBut as per our code study, `AOM_CODEC_MEM_ERROR` is not a fatal error, so it is possible that `aom_codec_encode()` can be called again even after an error is encountered and the scenario as you mentioned can occur. \n\nAs suggested we shall move these two `mt_exit` flags to ensure that they are initialized unconditionally, similar change might be required for other MT modules and we shall submit a CL addressing all.",
+      "parentUuid": "6e6cd460_ec6456fe",
+      "range": {
+        "startLine": 275,
+        "startChar": 0,
+        "endLine": 276,
+        "endChar": 40
+      },
+      "revId": "9139cb489ab0fa1abc58611d6888ec09304b7324",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "bdf750f4_01695592",
         "filename": "av1/encoder/ethread.c",
         "patchSetId": 1
