@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "df5738ed_82a36d50",
+        "filename": "test/encode_api_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 306,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-11-22T16:26:59Z",
+      "side": 1,
+      "message": "Nit: Change the function name to \"CreateGrayImage\". I found that is the naming convention used in this file.",
+      "revId": "97dd1f8fd0d900db0fee88887e7ebb3b2a658ded",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cce03e6a_a8b9cfae",
+        "filename": "test/encode_api_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 325,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-11-22T16:26:59Z",
+      "side": 1,
+      "message": "Nit: B310766628 \u003d\u003e Buganizer310766628 ?\n\nMake the same change to line 409.\n\nIdeally the test names should describe what the tests do. But this could be difficult for fuzzer test cases. So please see if this is possible.",
+      "revId": "97dd1f8fd0d900db0fee88887e7ebb3b2a658ded",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "34aa0b7e_e9f362b2",
+        "filename": "test/encode_api_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 371,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-11-22T16:26:59Z",
+      "side": 1,
+      "message": "Nit: bug \u003d\u003e failure",
+      "revId": "97dd1f8fd0d900db0fee88887e7ebb3b2a658ded",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "edf9b907_751f5bbb",
+        "filename": "test/encode_api_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 456,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-11-22T16:26:59Z",
+      "side": 1,
+      "message": "Optional: overflow \u003d\u003e float-cast-overflow ?\n\nThere are several kinds of overflow. So it would be good to be specific. Also, I wonder if we should mention the overflow (inf) was caused by division by zero?",
+      "revId": "97dd1f8fd0d900db0fee88887e7ebb3b2a658ded",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
