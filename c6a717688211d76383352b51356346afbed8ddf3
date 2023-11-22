@@ -52,6 +52,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "bcf82bae_3203b981",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 1848,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2023-11-22T12:56:11Z",
+      "side": 1,
+      "message": "`lf-\u003efilter_level[]` is set to 0 by the function `set_postproc_filter_default_params()` and when `use_loopfilter\u003d0` the function `av1_pick_filter_level()` is not called and `lf-\u003efilter_level[]` remains zero.  Thus, checking `use_loopfilter` may be redundant and checking for non-zero filter levels would be sufficient.",
+      "parentUuid": "bbbf58f1_2243c295",
+      "revId": "c6a717688211d76383352b51356346afbed8ddf3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "bae33d62_96c699eb",
