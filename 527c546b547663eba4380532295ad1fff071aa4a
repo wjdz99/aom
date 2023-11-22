@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b91609e3_dfa0c3cf",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 33002
+      },
+      "writtenOn": "2023-11-22T13:55:29Z",
+      "side": 1,
+      "message": "In the parent commit, the allocations of `hist-\u003epts` and `hist-\u003esz` buffers in `init_rate_histogram()` are not checked. In case of allocation failure, this can result in SEGV error when these buffers are accessed in `update_rate_histogram()`. This CL fixes this issue by adding allocation checks at appropriate places.\n\nIn this CL, the allocation failures within `init_rate_histogram()` are not treated as fatal and the encoding continues. However, in order to flag the allocation failure, an error message is shown.\n\nThis change is bit-exact and has been verified using bitstream-match tests for a combination of various configuration values for --threads, --tile-rows, --tile-columns, --cpu-used, --end-usage, --row-mt, --fp-mt, etc. Validated all unit-tests with sanitizers (address and thread) and valgrind.",
+      "revId": "527c546b547663eba4380532295ad1fff071aa4a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
