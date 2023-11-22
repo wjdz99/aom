@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4c9c7f85_e14f9720",
+        "filename": "test/kf_test.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-11-22T22:19:05Z",
+      "side": 1,
+      "message": "According to the comment for `kf_max_dist` in aom/aom_encoder.h\n\n```\n  /*!\\brief Keyframe maximum interval\n   *\n   * This value, expressed as a number of frames, forces the encoder to code\n   * a keyframe if one has not been coded in the last kf_max_dist frames.\n   * A value of 0 implies all frames will be keyframes. Set kf_min_dist\n   * equal to kf_max_dist for a fixed interval.\n   */\n  unsigned int kf_max_dist;\n```\n\nthis test should be:\n\n```\nif (i % (kf_max_dist + 1) \u003d\u003d 0)\n```\n\nBut the behavior of `kf_max_dist` differs from the comment by one.",
+      "revId": "05ab4106b9cb4b164bbd9c7c6d916b6311c59b4a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
