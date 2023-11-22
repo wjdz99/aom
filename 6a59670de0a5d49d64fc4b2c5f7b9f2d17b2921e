@@ -69,6 +69,24 @@
       "parentUuid": "96dd3e01_1702dfe8",
       "revId": "6a59670de0a5d49d64fc4b2c5f7b9f2d17b2921e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "afafdd02_a4e59330",
+        "filename": "CHANGELOG",
+        "patchSetId": 1
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-11-22T15:21:24Z",
+      "side": 1,
+      "message": "Thank you, Jonathan. I will check in this version first as a placeholder. Our release process usually takes two weeks, and I just started yesterday. So we can still update this next week.",
+      "parentUuid": "a2170594_43ad2b23",
+      "revId": "6a59670de0a5d49d64fc4b2c5f7b9f2d17b2921e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
