@@ -895,10 +895,7 @@ static aom_image_t *decoder_get_frame(aom_codec_alg_priv_t *ctx,
         if (pbi->skip_film_grain) grain_params->apply_grain = 0;
         aom_image_t *res =
             add_grain_if_needed(ctx, img, &ctx->image_with_grain, grain_params);
-        if (!res) {
-          aom_internal_error(&pbi->error, AOM_CODEC_CORRUPT_FRAME,
-                             "Grain systhesis failed\n");
-        }
+        if (!res) pbi->error.error_code = AOM_CODEC_CORRUPT_FRAME;
         *index += 1;  // Advance the iterator to point to the next image
         return res;
       }
@@ -1239,6 +1236,8 @@ static aom_codec_err_t ctrl_get_frame_corrupted(aom_codec_alg_priv_t *ctx,
       AV1Decoder *const pbi = frame_worker_data->pbi;
       if (pbi->seen_frame_header && pbi->num_output_frames == 0)
         return AOM_CODEC_ERROR;
+      if (pbi->error.error_code == AOM_CODEC_CORRUPT_FRAME)
+        return AOM_CODEC_CORRUPT_FRAME;
       if (ctx->last_show_frame != NULL)
         *corrupted = ctx->last_show_frame->buf.corrupted;
       return AOM_CODEC_OK;

@@ -834,9 +834,8 @@ static int main_loop(int argc, const char **argv_) {
     dx_time += aom_usec_timer_elapsed(&timer);
 
     got_data = 0;
-    while ((img = aom_codec_get_frame(&decoder, &iter))) {
-      ++frame_out;
-      got_data = 1;
+    while (1) {
+      img = aom_codec_get_frame(&decoder, &iter);
 
       if (AOM_CODEC_CONTROL_TYPECHECKED(&decoder, AOMD_GET_FRAME_CORRUPTED,
                                         &corrupted)) {
@@ -844,6 +843,9 @@ static int main_loop(int argc, const char **argv_) {
                        aom_codec_error(&decoder));
         if (!keep_going) goto fail;
       }
+      if (!img) break;
+      ++frame_out;
+      got_data = 1;
       frames_corrupted += corrupted;
 
       if (progress) show_progress(frame_in, frame_out, dx_time);
