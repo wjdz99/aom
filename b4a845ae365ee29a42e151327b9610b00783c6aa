@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "00a53e6b_105e5ecd",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-11-22T20:20:05Z",
+      "side": 1,
+      "message": "LGTM. I suggest two small changes.",
+      "revId": "b4a845ae365ee29a42e151327b9610b00783c6aa",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9617f21c_feb5f76b",
+        "filename": "test/encode_api_test.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 382,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-11-22T20:20:05Z",
+      "side": 1,
+      "message": "Nit: Add after this line:\n\n```\n  ASSERT_NE(image, nullptr);\n```",
+      "revId": "b4a845ae365ee29a42e151327b9610b00783c6aa",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "721ef12b_b34a37fa",
+        "filename": "test/encode_api_test.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 440,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-11-22T20:20:05Z",
+      "side": 1,
+      "message": "Nit: Move this comment to the comment at line 465?",
+      "revId": "b4a845ae365ee29a42e151327b9610b00783c6aa",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
