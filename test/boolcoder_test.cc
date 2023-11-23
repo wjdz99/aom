@@ -53,6 +53,13 @@ TEST(AV1, TestBitIO) {
         const int kBufferSize = 10000;
         ACMRandom bit_rnd(random_seed);
         aom_writer bw;
+        aom_internal_error_info error = { 0 };
+        if (setjmp(error.jmp)) {
+          error.setjmp = 0;
+          GTEST_ASSERT_EQ(error.error_code, AOM_CODEC_OK) << error.detail;
+        }
+        error.setjmp = 1;
+        bw.ec.error_info = &error;
         uint8_t bw_buffer[kBufferSize];
         aom_start_encode(&bw, bw_buffer);
 
@@ -91,6 +98,13 @@ TEST(AV1, TestBitIO) {
 TEST(AV1, TestTell) {
   const int kBufferSize = 10000;
   aom_writer bw;
+  aom_internal_error_info error = { 0 };
+  if (setjmp(error.jmp)) {
+    error.setjmp = 0;
+    GTEST_ASSERT_EQ(error.error_code, AOM_CODEC_OK) << error.detail;
+  }
+  error.setjmp = 1;
+  bw.ec.error_info = &error;
   uint8_t bw_buffer[kBufferSize];
   const int kSymbols = 1024;
   // Coders are noisier at low probabilities, so we start at p = 4.
@@ -138,6 +152,13 @@ TEST(AV1, TestTell) {
 TEST(AV1, TestHasOverflowed) {
   const int kBufferSize = 10000;
   aom_writer bw;
+  aom_internal_error_info error = { 0 };
+  if (setjmp(error.jmp)) {
+    error.setjmp = 0;
+    GTEST_ASSERT_EQ(error.error_code, AOM_CODEC_OK) << error.detail;
+  }
+  error.setjmp = 1;
+  bw.ec.error_info = &error;
   uint8_t bw_buffer[kBufferSize];
   const int kSymbols = 1024;
   // Coders are noisier at low probabilities, so we start at p = 4.
