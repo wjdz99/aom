@@ -35,6 +35,15 @@ TEST(AV1, TestPrimitiveRefsubexpfin) {
   ACMRandom rnd(ACMRandom::DeterministicSeed());
   const int kBufferSize = 65536;
   aom_writer bw;
+  struct aom_internal_error_info error;
+  memset(&error, 0, sizeof(error));
+  if (setjmp(error.jmp)) {
+    error.setjmp = 0;
+    GTEST_ASSERT_EQ(error.error_code, AOM_CODEC_OK) << error.detail;
+    return;
+  }
+  error.setjmp = 1;
+  bw.ec.error_info = &error;
   uint8_t bw_buffer[kBufferSize];
   const uint16_t kRanges = 8;
   const uint16_t kSubexpParams = 6;
