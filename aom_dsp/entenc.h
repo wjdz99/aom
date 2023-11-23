@@ -14,6 +14,7 @@
 #include <stddef.h>
 #include "aom_dsp/entcode.h"
 #include "aom_util/endian_inl.h"
+#include "aom/internal/aom_codec_internal.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -41,8 +42,8 @@ struct od_ec_enc {
   uint16_t rng;
   /*The number of bits of data in the current value.*/
   int16_t cnt;
-  /*Nonzero if an error occurred.*/
-  int error;
+  /*Error code and details about current error status.*/
+  struct aom_internal_error_info *error_info;
 #if OD_MEASURE_EC_OVERHEAD
   double entropy;
   int nb_symbols;

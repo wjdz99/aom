@@ -28,6 +28,14 @@ const int num_tests = 10;
 
 TEST(AV1, TestBitIO) {
   ACMRandom rnd(ACMRandom::DeterministicSeed());
+  struct aom_internal_error_info error;
+  memset(&error, 0, sizeof(error));
+  if (setjmp(error.jmp)) {
+    error.setjmp = 0;
+    GTEST_FAIL() << aom_codec_err_to_string(error.error_code) << ": "
+                 << error.detail;
+  }
+  error.setjmp = 1;
   for (int n = 0; n < num_tests; ++n) {
     for (int method = 0; method <= 7; ++method) {  // we generate various proba
       const int kBitsToTest = 1000;
@@ -53,6 +61,7 @@ TEST(AV1, TestBitIO) {
         const int kBufferSize = 10000;
         ACMRandom bit_rnd(random_seed);
         aom_writer bw;
+        bw.ec.error_info = &error;
         uint8_t bw_buffer[kBufferSize];
         aom_start_encode(&bw, bw_buffer);
 
@@ -84,6 +93,7 @@ TEST(AV1, TestBitIO) {
       }
     }
   }
+  error.setjmp = 0;
 }
 
 #define FRAC_DIFF_TOTAL_ERROR 0.18
@@ -91,6 +101,15 @@ TEST(AV1, TestBitIO) {
 TEST(AV1, TestTell) {
   const int kBufferSize = 10000;
   aom_writer bw;
+  struct aom_internal_error_info error;
+  memset(&error, 0, sizeof(error));
+  if (setjmp(error.jmp)) {
+    error.setjmp = 0;
+    GTEST_FAIL() << aom_codec_err_to_string(error.error_code) << ": "
+                 << error.detail;
+  }
+  error.setjmp = 1;
+  bw.ec.error_info = &error;
   uint8_t bw_buffer[kBufferSize];
   const int kSymbols = 1024;
   // Coders are noisier at low probabilities, so we start at p = 4.
@@ -133,11 +152,21 @@ TEST(AV1, TestTell) {
         << " frac_diff_total: " << frac_diff_total;
     ASSERT_FALSE(aom_reader_has_overflowed(&br));
   }
+  error.setjmp = 0;
 }
 
 TEST(AV1, TestHasOverflowed) {
   const int kBufferSize = 10000;
   aom_writer bw;
+  struct aom_internal_error_info error;
+  memset(&error, 0, sizeof(error));
+  if (setjmp(error.jmp)) {
+    error.setjmp = 0;
+    GTEST_FAIL() << aom_codec_err_to_string(error.error_code) << ": "
+                 << error.detail;
+  }
+  error.setjmp = 1;
+  bw.ec.error_info = &error;
   uint8_t bw_buffer[kBufferSize];
   const int kSymbols = 1024;
   // Coders are noisier at low probabilities, so we start at p = 4.
@@ -170,4 +199,5 @@ TEST(AV1, TestHasOverflowed) {
     }
     ASSERT_TRUE(aom_reader_has_overflowed(&br));
   }
+  error.setjmp = 0;
 }

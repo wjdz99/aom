@@ -3640,6 +3640,7 @@ static void write_large_scale_tile_obu(
       mode_bc.allow_update_cdf = !tiles->large_scale;
       mode_bc.allow_update_cdf =
           mode_bc.allow_update_cdf && !cm->features.disable_cdf_update;
+      mode_bc.ec.error_info = cm->error;
       aom_start_encode(&mode_bc, buf->data + data_offset);
       write_modes(cpi, &cpi->td, &tile_info, &mode_bc, tile_row, tile_col);
       aom_stop_encode(&mode_bc);
@@ -3764,7 +3765,7 @@ void av1_pack_tile_info(AV1_COMP *const cpi, ThreadData *const td,
   mode_bc.allow_update_cdf = 1;
   mode_bc.allow_update_cdf =
       mode_bc.allow_update_cdf && !cm->features.disable_cdf_update;
-
+  mode_bc.ec.error_info = td->mb.e_mbd.error_info;
   unsigned int tile_size;
 
   const int num_planes = av1_num_planes(cm);
