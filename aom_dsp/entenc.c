@@ -82,9 +82,9 @@ static void od_ec_enc_normalize(od_ec_enc *enc, od_ec_enc_window low,
       storage = 2 * storage + 8;
       out = (unsigned char *)realloc(out, sizeof(*out) * storage);
       if (out == NULL) {
-        enc->error = -1;
-        enc->offs = 0;
-        return;
+        aom_internal_error(
+            enc->error_info, AOM_CODEC_MEM_ERROR,
+            "Error reallocating context buffer during entropy coding");
       }
       enc->buf = out;
       enc->storage = storage;
@@ -124,13 +124,16 @@ static void od_ec_enc_normalize(od_ec_enc *enc, od_ec_enc_window low,
 
 /*Initializes the encoder.
   size: The initial size of the buffer, in bytes.*/
-void od_ec_enc_init(od_ec_enc *enc, uint32_t size) {
+void od_ec_enc_init(od_ec_enc *enc, uint32_t size,
+                    struct aom_internal_error_info *error_info) {
   od_ec_enc_reset(enc);
   enc->buf = (unsigned char *)malloc(sizeof(*enc->buf) * size);
   enc->storage = size;
+  enc->error_info = error_info;
   if (size > 0 && enc->buf == NULL) {
     enc->storage = 0;
-    enc->error = -1;
+    aom_internal_error(enc->error_info, AOM_CODEC_MEM_ERROR,
+                       "Error allocating context buffer during entropy coding");
   }
 }
 
@@ -142,7 +145,6 @@ void od_ec_enc_reset(od_ec_enc *enc) {
   /*This is initialized to -9 so that it crosses zero after we've accumulated
      one byte + one carry bit.*/
   enc->cnt = -9;
-  enc->error = 0;
 #if OD_MEASURE_EC_OVERHEAD
   enc->entropy = 0;
   enc->nb_symbols = 0;
@@ -259,7 +261,7 @@ void od_ec_enc_patch_initial_bits(od_ec_enc *enc, unsigned val, int nbits) {
                (od_ec_enc_window)val << (16 + enc->cnt + shift);
   } else {
     /*The encoder hasn't even encoded _nbits of data yet.*/
-    enc->error = -1;
+    enc->error_info->error_code = AOM_CODEC_ERROR;
   }
 }
 
@@ -271,8 +273,7 @@ void od_ec_enc_patch_initial_bits(od_ec_enc *enc, unsigned val, int nbits) {
   All remaining output bytes are flushed to the output buffer.
   od_ec_enc_reset() should be called before using the encoder again.
   bytes: Returns the size of the encoded data in the returned buffer.
-  Return: A pointer to the start of the final buffer, or NULL if there was an
-           encoding error.*/
+  Return: A pointer to the start of the final buffer.*/
 unsigned char *od_ec_enc_done(od_ec_enc *enc, uint32_t *nbytes) {
   unsigned char *out;
   uint32_t storage;
@@ -282,7 +283,6 @@ unsigned char *od_ec_enc_done(od_ec_enc *enc, uint32_t *nbytes) {
   od_ec_enc_window l;
   int c;
   int s;
-  if (enc->error) return NULL;
 #if OD_MEASURE_EC_OVERHEAD
   {
     uint32_t tell;
@@ -312,8 +312,9 @@ unsigned char *od_ec_enc_done(od_ec_enc *enc, uint32_t *nbytes) {
     storage = offs + b;
     out = (unsigned char *)realloc(out, sizeof(*out) * storage);
     if (out == NULL) {
-      enc->error = -1;
-      return NULL;
+      aom_internal_error(
+          enc->error_info, AOM_CODEC_MEM_ERROR,
+          "Error reallocating context buffer during entropy coding");
     }
     enc->buf = out;
     enc->storage = storage;

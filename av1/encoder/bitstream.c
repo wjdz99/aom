@@ -3640,7 +3640,7 @@ static void write_large_scale_tile_obu(
       mode_bc.allow_update_cdf = !tiles->large_scale;
       mode_bc.allow_update_cdf =
           mode_bc.allow_update_cdf && !cm->features.disable_cdf_update;
-      aom_start_encode(&mode_bc, buf->data + data_offset);
+      aom_start_encode(&mode_bc, buf->data + data_offset, cm->error);
       write_modes(cpi, &cpi->td, &tile_info, &mode_bc, tile_row, tile_col);
       aom_stop_encode(&mode_bc);
       tile_size = mode_bc.pos;
@@ -3776,7 +3776,8 @@ void av1_pack_tile_info(AV1_COMP *const cpi, ThreadData *const td,
   if (!pack_bs_params->is_last_tile_in_tg) *total_size += 4;
 
   // Pack tile data
-  aom_start_encode(&mode_bc, pack_bs_params->dst + *total_size);
+  aom_start_encode(&mode_bc, pack_bs_params->dst + *total_size,
+                   td->mb.e_mbd.error_info);
   write_modes(cpi, td, &tile_info, &mode_bc, tile_row, tile_col);
   aom_stop_encode(&mode_bc);
   tile_size = mode_bc.pos;

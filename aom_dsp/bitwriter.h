@@ -60,7 +60,8 @@ static INLINE void init_token_stats(TOKEN_STATS *token_stats) {
   token_stats->cost = 0;
 }
 
-void aom_start_encode(aom_writer *w, uint8_t *buffer);
+void aom_start_encode(aom_writer *w, uint8_t *buffer,
+                      struct aom_internal_error_info *error_info);
 
 int aom_stop_encode(aom_writer *w);
 

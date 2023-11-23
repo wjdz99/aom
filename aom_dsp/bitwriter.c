@@ -12,10 +12,11 @@
 #include <string.h>
 #include "aom_dsp/bitwriter.h"
 
-void aom_start_encode(aom_writer *w, uint8_t *source) {
+void aom_start_encode(aom_writer *w, uint8_t *source,
+                      struct aom_internal_error_info *error_info) {
   w->buffer = source;
   w->pos = 0;
-  od_ec_enc_init(&w->ec, 62025);
+  od_ec_enc_init(&w->ec, 62025, error_info);
 }
 
 int aom_stop_encode(aom_writer *w) {

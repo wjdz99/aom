@@ -21,6 +21,14 @@
 TEST(EC_TEST, random_ec_test) {
   od_ec_enc enc;
   od_ec_dec dec;
+  struct aom_internal_error_info error;
+  memset(&error, 0, sizeof(error));
+  if (setjmp(error.jmp)) {
+    error.setjmp = 0;
+    GTEST_FAIL() << aom_codec_err_to_string(error.error_code) << ": "
+                 << error.detail;
+  }
+  error.setjmp = 1;
   int sz;
   int i;
   int ret;
@@ -36,7 +44,7 @@ TEST(EC_TEST, random_ec_test) {
     seed = 0xdaa1a;
   }
   srand(seed);
-  od_ec_enc_init(&enc, 1);
+  od_ec_enc_init(&enc, 1, &error);
   /*Test compatibility between multiple different encode/decode routines.*/
   for (i = 0; i < 409600; i++) {
     int j;
@@ -131,17 +139,20 @@ TEST(EC_TEST, random_ec_test) {
   od_ec_encode_bool_q15(&enc, 0, OD_ICDF(16384));
   od_ec_encode_bool_q15(&enc, 0, OD_ICDF(24576));
   od_ec_enc_patch_initial_bits(&enc, 3, 2);
-  EXPECT_FALSE(enc.error) << "od_ec_enc_patch_initial_bits() failed.\n";
+  EXPECT_FALSE(enc.error_info->error_code)
+      << "od_ec_enc_patch_initial_bits() failed.\n";
   od_ec_enc_patch_initial_bits(&enc, 0, 5);
-  EXPECT_TRUE(enc.error)
+  EXPECT_TRUE(enc.error_info->error_code)
       << "od_ec_enc_patch_initial_bits() didn't fail when it should have.\n";
   od_ec_enc_reset(&enc);
+  memset(&error, 0, sizeof(error));
   od_ec_encode_bool_q15(&enc, 0, OD_ICDF(16384));
   od_ec_encode_bool_q15(&enc, 0, OD_ICDF(16384));
   od_ec_encode_bool_q15(&enc, 1, OD_ICDF(32256));
   od_ec_encode_bool_q15(&enc, 0, OD_ICDF(24576));
   od_ec_enc_patch_initial_bits(&enc, 0, 2);
-  EXPECT_FALSE(enc.error) << "od_ec_enc_patch_initial_bits() failed.\n";
+  EXPECT_FALSE(enc.error_info->error_code)
+      << "od_ec_enc_patch_initial_bits() failed.\n";
   ptr = od_ec_enc_done(&enc, &ptr_sz);
   EXPECT_EQ(ptr_sz, 2u);
   EXPECT_EQ(ptr[0], 63)
@@ -149,4 +160,5 @@ TEST(EC_TEST, random_ec_test) {
       << " when expecting 63 for od_ec_enc_patch_initial_bits().\n";
   od_ec_enc_clear(&enc);
   EXPECT_EQ(ret, 0);
+  error.setjmp = 0;
 }
