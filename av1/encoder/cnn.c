@@ -33,11 +33,11 @@ typedef struct {
 
 typedef float (*activation_fn)(float);
 
-static float softsign(float x) { return x / (float)(fabsf(x) + 1.0); }
+static INLINE float softsign(float x) { return x / (float)(fabsf(x) + 1.0); }
 
-static float relu(float x) { return (x < 0) ? 0 : x; }
+static INLINE float relu(float x) { return (x < 0) ? 0 : x; }
 
-static float identity(float x) { return x; }
+static INLINE float identity(float x) { return x; }
 
 typedef struct {
   int allocsize;
@@ -291,18 +291,6 @@ void av1_find_cnn_output_size(int in_width, int in_height,
   }
 }
 
-activation_fn get_activation(ACTIVATION layer_activation) {
-  switch (layer_activation) {
-    case NONE: return identity;
-    case RELU: return relu;
-    case SOFTSIGN: return softsign;
-    case SIGMOID:
-      assert(0 && "Sigmoid has not been supported in CNN.");  // TO DO
-      return NULL;
-    default: assert(0 && "Unknown activation type"); return NULL;
-  }
-}
-
 static INLINE int get_start_shift_convolve(int width, int filt_width,
                                            int stride) {
   const int mod = (width % stride);
@@ -322,11 +310,28 @@ void av1_cnn_add_c(float **output, int channels, int width, int height,
 
 void av1_cnn_activate_c(float **output, int channels, int width, int height,
                         int stride, ACTIVATION layer_activation) {
-  activation_fn activation = get_activation(layer_activation);
-  for (int c = 0; c < channels; ++c) {
-    for (int i = 0; i < height; ++i)
-      for (int j = 0; j < width; ++j)
-        output[c][i * stride + j] = activation(output[c][i * stride + j]);
+  if (layer_activation == RELU) {
+    for (int c = 0; c < channels; ++c) {
+      for (int i = 0; i < height; ++i)
+        for (int j = 0; j < width; ++j)
+          output[c][i * stride + j] = relu(output[c][i * stride + j]);
+    }
+  } else if (layer_activation == NONE) {
+    for (int c = 0; c < channels; ++c) {
+      for (int i = 0; i < height; ++i)
+        for (int j = 0; j < width; ++j)
+          output[c][i * stride + j] = identity(output[c][i * stride + j]);
+    }
+  } else if (layer_activation == SOFTSIGN) {
+    for (int c = 0; c < channels; ++c) {
+      for (int i = 0; i < height; ++i)
+        for (int j = 0; j < width; ++j)
+          output[c][i * stride + j] = softsign(output[c][i * stride + j]);
+    }
+  } else if (layer_activation == SIGMOID) {
+    assert(0 && "Sigmoid has not been supported in CNN.");  // TO DO
+  } else {
+    assert(0 && "Unknown activation type");
   }
 }
 
