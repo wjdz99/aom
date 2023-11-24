@@ -16,6 +16,24 @@
       "message": "Mudassir: One way to to simplify this is to record in some boolean flag (can be a flag in `cpi` or `cm`, or a per-thread flag in `thread_data`) that indicates `lf_sync` is in use if we reach here. Then `enc_row_mt_worker_hook()` can simply use that boolean flag as the value of `do_pipelined_lpf_mt_with_enc` -- no need for the `lpf_mt_with_enc_enabled()` function.\n\nCould you look into this and see if this is a good idea? Thanks.",
       "revId": "133605a73afc6daddb9d9a9b871a28c33ebacc54",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "036ff2e4_73711e38",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 1880,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2023-11-24T12:02:42Z",
+      "side": 1,
+      "message": "Thank you for the suggestion. Yes, this approach will simplify the conditional check. An alternate approach would be to check `lf_sync!\u003dNULL` in `enc_row_mt_worker_hook()` and add a comment explaining the same (as the cpi structure is memset to zero during encoder initialization `lf_sync` is by default a NULL pointer). Please let us know your opinion and we shall submit a CL for the same.",
+      "parentUuid": "fe55dd9b_49eaba1a",
+      "revId": "133605a73afc6daddb9d9a9b871a28c33ebacc54",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
