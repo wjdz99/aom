@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8a9d2291_e7d3dce0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 33002
+      },
+      "writtenOn": "2023-11-27T04:50:26Z",
+      "side": 1,
+      "message": "In the parent commit, the allocation and reallocation status of the buffer `enc-\u003ebuf` in `od_ec_enc_init()`, `od_ec_enc_normalize()` and `od_ec_enc_done()` is checked and the flag `enc-\u003eerror` is set to -1 but not serviced later on. In this CL, the error flag is replaced with an `error_info`(pointer to `aom_internal_error_info`) to invoke `aom_internal_error()` in case of an allocation failure.\n\nSince the above functions can be invoked through unit tests, these tests have been modified to add setjmp targets for the `aom_internal_error()` calls.\n\nThis change is bit-exact and has been verified using bitstream-match tests for a combination of various configuration values for --threads, --tile-rows, --tile-columns, --cpu-used, --end-usage, --row-mt, --fp-mt, etc. Validated all unit-tests with sanitizers (address and thread) and valgrind.",
+      "revId": "760c8aa50086b66b0934f73dd8a5b3d990a02cd5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
