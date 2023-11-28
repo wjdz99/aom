@@ -68,6 +68,24 @@
       "parentUuid": "fef4aa4f_3e840ced",
       "revId": "5462898768151541238da10b981ac1c07a132d45",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "97ee65f5_c228f82f",
+        "filename": "av1/encoder/cnn.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 311,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-11-28T17:38:44Z",
+      "side": 1,
+      "message": "Yes, the new code is fine. I see you were trying to avoid an empty block. An empty block is perfectly fine. Also, since assertions are compiled away in release builds (when the NDEBUG macro is defined), the last two blocks of this function are also empty in release builds.",
+      "parentUuid": "76a550dd_067e22d6",
+      "revId": "5462898768151541238da10b981ac1c07a132d45",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
