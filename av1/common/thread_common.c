@@ -57,7 +57,6 @@ static INLINE int get_lr_sync_range(int width) {
 void av1_loop_filter_alloc(AV1LfSync *lf_sync, AV1_COMMON *cm, int rows,
                            int width, int num_workers) {
   lf_sync->rows = rows;
-  lf_sync->lf_mt_exit = false;
 #if CONFIG_MULTITHREAD
   {
     int i, j;
@@ -617,7 +616,6 @@ void av1_loop_restoration_alloc(AV1LrSync *lr_sync, AV1_COMMON *cm,
   }
 
   lr_sync->num_workers = num_workers;
-  lr_sync->lr_mt_exit = false;
 
   for (int j = 0; j < num_planes; j++) {
     CHECK_MEM_ERROR(
@@ -932,6 +930,7 @@ static void foreach_rest_unit_in_planes_mt(AV1LrStruct *lr_ctxt,
     av1_loop_restoration_alloc(lr_sync, cm, num_workers, num_rows_lr,
                                num_planes, cm->width);
   }
+  lr_sync->lr_mt_exit = false;
 
   // Initialize cur_sb_col to -1 for all SB rows.
   for (i = 0; i < num_planes; i++) {
@@ -1222,6 +1221,7 @@ void av1_cdef_frame_mt(AV1_COMMON *const cm, MACROBLOCKD *const xd,
                        int do_extend_border) {
   YV12_BUFFER_CONFIG *frame = &cm->cur_frame->buf;
   const int num_planes = av1_num_planes(cm);
+  cdef_sync->cdef_mt_exit = false;
 
   av1_setup_dst_planes(xd->plane, cm->seq_params->sb_size, frame, 0, 0, 0,
                        num_planes);
