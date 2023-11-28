@@ -2083,7 +2083,8 @@ void av1_tpl_row_mt_sync_write(AV1TplRowMultiThreadSync *tpl_row_mt_sync, int r,
   if (sig) {
     pthread_mutex_lock(&tpl_row_mt_sync->mutex_[r]);
 
-    tpl_row_mt_sync->num_finished_cols[r] = cur;
+    tpl_row_mt_sync->num_finished_cols[r] =
+        AOMMAX(tpl_row_mt_sync->num_finished_cols[r], cur);
 
     pthread_cond_signal(&tpl_row_mt_sync->cond_[r]);
     pthread_mutex_unlock(&tpl_row_mt_sync->mutex_[r]);

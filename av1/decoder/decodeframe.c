@@ -2566,7 +2566,8 @@ static INLINE void sync_write(AV1DecRowMTSync *const dec_row_mt_sync, int r,
   if (sig) {
     pthread_mutex_lock(&dec_row_mt_sync->mutex_[r]);
 
-    dec_row_mt_sync->cur_sb_col[r] = cur;
+    dec_row_mt_sync->cur_sb_col[r] =
+        AOMMAX(dec_row_mt_sync->cur_sb_col[r], cur);
 
     pthread_cond_signal(&dec_row_mt_sync->cond_[r]);
     pthread_mutex_unlock(&dec_row_mt_sync->mutex_[r]);

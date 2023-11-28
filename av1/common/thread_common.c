@@ -234,7 +234,7 @@ static INLINE void sync_write(AV1LfSync *const lf_sync, int r, int c,
   if (sig) {
     pthread_mutex_lock(&lf_sync->mutex_[plane][r]);
 
-    lf_sync->cur_sb_col[plane][r] = cur;
+    lf_sync->cur_sb_col[plane][r] = AOMMAX(lf_sync->cur_sb_col[plane][r], cur);
 
     pthread_cond_broadcast(&lf_sync->cond_[plane][r]);
     pthread_mutex_unlock(&lf_sync->mutex_[plane][r]);
@@ -551,7 +551,8 @@ static INLINE void lr_sync_write(void *const lr_sync, int r, int c,
   if (sig) {
     pthread_mutex_lock(&loop_res_sync->mutex_[plane][r]);
 
-    loop_res_sync->cur_sb_col[plane][r] = cur;
+    loop_res_sync->cur_sb_col[plane][r] =
+        AOMMAX(loop_res_sync->cur_sb_col[plane][r], cur);
 
     pthread_cond_broadcast(&loop_res_sync->cond_[plane][r]);
     pthread_mutex_unlock(&loop_res_sync->mutex_[plane][r]);
