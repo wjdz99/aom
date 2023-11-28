@@ -16,6 +16,148 @@
       "message": "In the parent commit, the allocation and reallocation status of the buffer `enc-\u003ebuf` in `od_ec_enc_init()`, `od_ec_enc_normalize()` and `od_ec_enc_done()` is checked and the flag `enc-\u003eerror` is set to -1 but not serviced later on. In this CL, the error flag is replaced with an `error_info`(pointer to `aom_internal_error_info`) to invoke `aom_internal_error()` in case of an allocation failure.\n\nSince the above functions can be invoked through unit tests, these tests have been modified to add setjmp targets for the `aom_internal_error()` calls.\n\nThis change is bit-exact and has been verified using bitstream-match tests for a combination of various configuration values for --threads, --tile-rows, --tile-columns, --cpu-used, --end-usage, --row-mt, --fp-mt, etc. Validated all unit-tests with sanitizers (address and thread) and valgrind.",
       "revId": "760c8aa50086b66b0934f73dd8a5b3d990a02cd5",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7583a5e2_a1940cca",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-11-28T23:44:26Z",
+      "side": 1,
+      "message": "Satheesh: It is a little tricky to modify EC_TEST.random_ec_test so that od_ec_enc_patch_initial_bits() can call aom_internal_error(), but I think that is the right thing to do. Please consider it. Thanks.",
+      "revId": "760c8aa50086b66b0934f73dd8a5b3d990a02cd5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7296ccd3_2607918f",
+        "filename": "aom_dsp/entenc.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-11-28T23:44:26Z",
+      "side": 1,
+      "message": "It doesn\u0027t seem necessary to reset `enc-\u003eoffs` to 0 on memory allocation error. I think we should delete this line so that when memory allocation fails, we simply return an error without modifying `enc`.",
+      "revId": "760c8aa50086b66b0934f73dd8a5b3d990a02cd5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8de7ed61_b27b70b6",
+        "filename": "aom_dsp/entenc.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 147,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-11-28T23:44:26Z",
+      "side": 1,
+      "message": "IMPORTANT: We probably should not do this here. I think this should be done by the code that sets up the jump buffer.\n\nAlso, if we want to reset `enc-\u003eerror_info`, then `error_code` is not the only field we need to reset. We should also set `has_detail` to 0 and set `detail` to an empty string.",
+      "revId": "760c8aa50086b66b0934f73dd8a5b3d990a02cd5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8e0e43c9_907a2cf9",
+        "filename": "aom_dsp/entenc.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 264,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-11-28T23:44:26Z",
+      "side": 1,
+      "message": "IMPORTANT: Call `aom_internal_error(AOM_CODEC_ERROR)` instead.\n\nUpdate: I see EC_TEST.random_ec_test won\u0027t work if this function calls `aom_internal_error()`. I think we should probably modify EC_TEST.random_ec_test to handle `aom_internal_error()`.\n\nAlternatively, we can let od_ec_enc_done check `enc-\u003eerror_info-\u003eerror_code` and call `aom_internal_error()` if it\u0027s not `AOM_CODEC_OK`, at line 285 in the original code. But I think that is not as good as calling `aom_internal_error()` here, where we have the context for the error.",
+      "revId": "760c8aa50086b66b0934f73dd8a5b3d990a02cd5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "de30009b_c46782dc",
+        "filename": "aom_dsp/entenc.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 277,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-11-28T23:44:26Z",
+      "side": 1,
+      "message": "The comment \", or NULL if there was an encoding error\" should be deleted. This function no longer returns NULL. If there is an error, this function will now call aom_internal_error.",
+      "range": {
+        "startLine": 276,
+        "startChar": 54,
+        "endLine": 277,
+        "endChar": 25
+      },
+      "revId": "760c8aa50086b66b0934f73dd8a5b3d990a02cd5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fb30aced_e05afe13",
+        "filename": "aom_dsp/entenc.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-11-28T23:44:26Z",
+      "side": 1,
+      "message": "Nit: Code \u003d\u003e Error code",
+      "revId": "760c8aa50086b66b0934f73dd8a5b3d990a02cd5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bd5d9f58_eeb39746",
+        "filename": "test/binary_codes_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-11-28T23:44:26Z",
+      "side": 1,
+      "message": "I think `GTEST_FAIL()` makes the intention clearer, and we can print `error.error_code` and `error.detail`.\n\nMake the same change to similar code elsewhere.",
+      "revId": "760c8aa50086b66b0934f73dd8a5b3d990a02cd5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bfbab1e9_65a1c153",
+        "filename": "test/binary_codes_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-11-28T23:44:26Z",
+      "side": 1,
+      "message": "Nit: set `error.setjmp` to 0 at the end of the function, so that this function consistently sets `error.setjmp` to 0 before it returns.\n\nMake the same change to similar code elsewhere.",
+      "revId": "760c8aa50086b66b0934f73dd8a5b3d990a02cd5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
