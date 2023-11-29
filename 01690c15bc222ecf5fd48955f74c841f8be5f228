@@ -16,6 +16,24 @@
       "message": "Please update this comment.",
       "revId": "01690c15bc222ecf5fd48955f74c841f8be5f228",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "36551e35_4b5463f4",
+        "filename": "av1/common/x86/resize_ssse3.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 862,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2023-11-29T20:16:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "09ad3eae_3eea54b7",
+      "revId": "01690c15bc222ecf5fd48955f74c841f8be5f228",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
