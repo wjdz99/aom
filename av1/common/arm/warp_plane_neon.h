@@ -119,11 +119,12 @@ static INLINE void warp_affine_horizontal(
     return;
   }
 
+  const int out_of_boundary_left = -(ix4 - 6);
+  const int out_of_boundary_right = (ix4 + 8) - width;
+
 #define APPLY_HORIZONTAL_SHIFT(fn, ...)                                \
   do {                                                                 \
-    if (((ix4 - 7) < 0) || ((ix4 + 9) > width)) {                      \
-      const int out_of_boundary_left = -(ix4 - 6);                     \
-      const int out_of_boundary_right = (ix4 + 8) - width;             \
+    if (out_of_boundary_left >= 0 || out_of_boundary_right >= 0) {     \
       for (int k = 0; k < height_limit; ++k) {                         \
         const int iy = clamp_iy(iy4 + k - 7, height);                  \
         const uint8_t *src = ref + iy * stride + ix4 - 7;              \
