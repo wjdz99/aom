@@ -24,6 +24,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "973ec2a1_5e239df1",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 31957
+      },
+      "writtenOn": "2023-12-01T09:46:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0714a7ae_a5f8c87e",
+      "range": {
+        "startLine": 10,
+        "startChar": 36,
+        "endLine": 10,
+        "endChar": 47
+      },
+      "revId": "6c70934261c07c6733014efa348c017bcf1c992e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "674f8c54_9e34217b",
@@ -37,6 +61,24 @@
       "writtenOn": "2023-12-01T03:08:03Z",
       "side": 1,
       "message": "clang-format shouldn\u0027t affect comment structure.",
+      "revId": "6c70934261c07c6733014efa348c017bcf1c992e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e316d64e_0bd6d5a0",
+        "filename": "av1/common/arm/cdef_block_neon.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 31957
+      },
+      "writtenOn": "2023-12-01T09:46:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "674f8c54_9e34217b",
       "revId": "6c70934261c07c6733014efa348c017bcf1c992e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
