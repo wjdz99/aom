@@ -18,6 +18,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "cd3763ae_c927f1b4",
+        "filename": "aom_dsp/arm/highbd_intrapred_neon.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1440,
+      "author": {
+        "id": 31817
+      },
+      "writtenOn": "2023-12-01T18:20:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "98537170_144dc25a",
+      "revId": "92847f1180d2b01c203e9c15e42a78929789e5a0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "21e77282_1053e6f6",
@@ -31,6 +49,24 @@
       "writtenOn": "2023-12-01T05:55:12Z",
       "side": 1,
       "message": "make this static",
+      "revId": "92847f1180d2b01c203e9c15e42a78929789e5a0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8fa2b235_3a0f47f6",
+        "filename": "aom_dsp/arm/highbd_intrapred_neon.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1461,
+      "author": {
+        "id": 31817
+      },
+      "writtenOn": "2023-12-01T18:20:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "21e77282_1053e6f6",
       "revId": "92847f1180d2b01c203e9c15e42a78929789e5a0",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -52,6 +88,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "548d06ae_fc8c37bf",
+        "filename": "aom_dsp/arm/highbd_intrapred_neon.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1559,
+      "author": {
+        "id": 31817
+      },
+      "writtenOn": "2023-12-01T18:20:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ab959828_008cb682",
+      "revId": "92847f1180d2b01c203e9c15e42a78929789e5a0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d9516e47_8ba55340",
@@ -69,6 +123,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "0dfaa4c5_e2d4f6c7",
+        "filename": "aom_dsp/arm/highbd_intrapred_neon.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1710,
+      "author": {
+        "id": 31817
+      },
+      "writtenOn": "2023-12-01T18:20:23Z",
+      "side": 1,
+      "message": "I\u0027ve tried to get rid of all the ones I could spot here, but I don\u0027t have access to a copy of MSVC to check for sure I\u0027m afraid. Done.",
+      "parentUuid": "d9516e47_8ba55340",
+      "revId": "92847f1180d2b01c203e9c15e42a78929789e5a0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e5731a7b_f57bd8ea",
@@ -82,6 +154,30 @@
       "writtenOn": "2023-12-01T05:55:12Z",
       "side": 1,
       "message": "use an intrinsic function for this",
+      "range": {
+        "startLine": 1715,
+        "startChar": 44,
+        "endLine": 1715,
+        "endChar": 53
+      },
+      "revId": "92847f1180d2b01c203e9c15e42a78929789e5a0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9af47b9c_37543ae6",
+        "filename": "aom_dsp/arm/highbd_intrapred_neon.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1715,
+      "author": {
+        "id": 31817
+      },
+      "writtenOn": "2023-12-01T18:20:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e5731a7b_f57bd8ea",
       "range": {
         "startLine": 1715,
         "startChar": 44,
@@ -115,6 +211,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "2f74ed48_5dce512f",
+        "filename": "aom_dsp/arm/highbd_intrapred_neon.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1723,
+      "author": {
+        "id": 31817
+      },
+      "writtenOn": "2023-12-01T18:20:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a9fc1877_7a675db2",
+      "range": {
+        "startLine": 1723,
+        "startChar": 18,
+        "endLine": 1723,
+        "endChar": 23
+      },
+      "revId": "92847f1180d2b01c203e9c15e42a78929789e5a0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "50084bfa_d8bee234",
@@ -132,6 +252,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "dcae4308_123bdf4e",
+        "filename": "aom_dsp/arm/highbd_intrapred_neon.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1760,
+      "author": {
+        "id": 31817
+      },
+      "writtenOn": "2023-12-01T18:20:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "50084bfa_d8bee234",
+      "revId": "92847f1180d2b01c203e9c15e42a78929789e5a0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "961c6495_b809e058",
@@ -145,6 +283,30 @@
       "writtenOn": "2023-12-01T05:55:12Z",
       "side": 1,
       "message": "use an intrinsic function for the shift and add",
+      "range": {
+        "startLine": 1765,
+        "startChar": 49,
+        "endLine": 1765,
+        "endChar": 58
+      },
+      "revId": "92847f1180d2b01c203e9c15e42a78929789e5a0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9bc6e41f_bfb8df8f",
+        "filename": "aom_dsp/arm/highbd_intrapred_neon.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1765,
+      "author": {
+        "id": 31817
+      },
+      "writtenOn": "2023-12-01T18:20:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "961c6495_b809e058",
       "range": {
         "startLine": 1765,
         "startChar": 49,
