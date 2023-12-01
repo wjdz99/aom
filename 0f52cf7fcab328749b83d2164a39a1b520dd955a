@@ -71,6 +71,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "a61d5ecc_746e1243",
+        "filename": "apps/aomdec.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 840,
+      "author": {
+        "id": 33002
+      },
+      "writtenOn": "2023-12-01T18:19:52Z",
+      "side": 1,
+      "message": "Thank you for the suggestions. `aom_codec_get_frame()`only passes`decoder-\u003epriv` to `decoder_get_frame()`. Since `decoder-\u003eerr` is not visible, \n `AOM_CODEC_CONTROL_TYPECHECKED()` is invoked every time which in turn sets `decoder-\u003eerr` (please refer `aom_codec_control()`). Hence approach 1 is already taken care as a part of current implementation.\n\nThe second approach of making use of `iter` in order to flag an erroneous case is feasible but the documentation of `aom_codec_iter_t` states it as an opaque structure. Hence we are not sure if that approach would be recommended. \n\nPlease let us know your opinion.",
+      "parentUuid": "b701ca16_fdb7cf96",
+      "revId": "0f52cf7fcab328749b83d2164a39a1b520dd955a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "741e53ba_e9183503",
@@ -101,6 +119,24 @@
       "writtenOn": "2023-11-29T00:35:45Z",
       "side": 1,
       "message": "IMPORTANT: If the original code expects `aom_internal_error()` to call `longjmp`, then it also expects that `*index +\u003d 1` is executed only when this function returns successfully. We should preserve that property in the new code.\n\nA simple way to do that is to change line 898 to an early return:\n\n```\n        if (!res) {\n          pbi-\u003eerror.error_code \u003d AOM_CODEC_CORRUPT_FRAME;\n          return res;\n        }\n```\n\nAnother way is to use an if-else:\n\n```\n        if (!res) {\n          pbi-\u003eerror.error_code \u003d AOM_CODEC_CORRUPT_FRAME;\n        } else {\n          *index +\u003d 1;  // Advance the iterator to point to the next image\n        }\n```",
+      "revId": "0f52cf7fcab328749b83d2164a39a1b520dd955a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "29b46092_31577e9f",
+        "filename": "av1/av1_dx_iface.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 899,
+      "author": {
+        "id": 33002
+      },
+      "writtenOn": "2023-12-01T18:19:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "683db6ef_d7bbf028",
       "revId": "0f52cf7fcab328749b83d2164a39a1b520dd955a",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
