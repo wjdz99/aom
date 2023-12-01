@@ -1,0 +1,158 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "98537170_144dc25a",
+        "filename": "aom_dsp/arm/highbd_intrapred_neon.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1440,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-12-01T05:55:12Z",
+      "side": 1,
+      "message": "make this static",
+      "revId": "92847f1180d2b01c203e9c15e42a78929789e5a0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "21e77282_1053e6f6",
+        "filename": "aom_dsp/arm/highbd_intrapred_neon.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1461,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-12-01T05:55:12Z",
+      "side": 1,
+      "message": "make this static",
+      "revId": "92847f1180d2b01c203e9c15e42a78929789e5a0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ab959828_008cb682",
+        "filename": "aom_dsp/arm/highbd_intrapred_neon.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1559,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-12-01T05:55:12Z",
+      "side": 1,
+      "message": "add `// AOM_ARCH_AARCH64`",
+      "revId": "92847f1180d2b01c203e9c15e42a78929789e5a0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d9516e47_8ba55340",
+        "filename": "aom_dsp/arm/highbd_intrapred_neon.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1710,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-12-01T05:55:12Z",
+      "side": 1,
+      "message": "set this using an intrinsic function; int16x4_t is a union with Microsoft\u0027s compiler",
+      "revId": "92847f1180d2b01c203e9c15e42a78929789e5a0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e5731a7b_f57bd8ea",
+        "filename": "aom_dsp/arm/highbd_intrapred_neon.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1715,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-12-01T05:55:12Z",
+      "side": 1,
+      "message": "use an intrinsic function for this",
+      "range": {
+        "startLine": 1715,
+        "startChar": 44,
+        "endLine": 1715,
+        "endChar": 53
+      },
+      "revId": "92847f1180d2b01c203e9c15e42a78929789e5a0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a9fc1877_7a675db2",
+        "filename": "aom_dsp/arm/highbd_intrapred_neon.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1723,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-12-01T05:55:12Z",
+      "side": 1,
+      "message": "value",
+      "range": {
+        "startLine": 1723,
+        "startChar": 18,
+        "endLine": 1723,
+        "endChar": 23
+      },
+      "revId": "92847f1180d2b01c203e9c15e42a78929789e5a0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "50084bfa_d8bee234",
+        "filename": "aom_dsp/arm/highbd_intrapred_neon.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1760,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-12-01T05:55:12Z",
+      "side": 1,
+      "message": "set this using an intrinsic function (loading from a static array should compile reasonably I think)",
+      "revId": "92847f1180d2b01c203e9c15e42a78929789e5a0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "961c6495_b809e058",
+        "filename": "aom_dsp/arm/highbd_intrapred_neon.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1765,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-12-01T05:55:12Z",
+      "side": 1,
+      "message": "use an intrinsic function for the shift and add",
+      "range": {
+        "startLine": 1765,
+        "startChar": 49,
+        "endLine": 1765,
+        "endChar": 58
+      },
+      "revId": "92847f1180d2b01c203e9c15e42a78929789e5a0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
