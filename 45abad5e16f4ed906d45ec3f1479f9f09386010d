@@ -26,6 +26,30 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "a314d4ff_fcbfb73d",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2023-12-01T17:48:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3f963ec2_f76345ac",
+      "range": {
+        "startLine": 7,
+        "startChar": 25,
+        "endLine": 7,
+        "endChar": 39
+      },
+      "revId": "45abad5e16f4ed906d45ec3f1479f9f09386010d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "9f204981_3f1d6739",
         "filename": "/PATCHSET_LEVEL",
         "patchSetId": 2
@@ -75,6 +99,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "bd022ef6_bca0cf64",
+        "filename": "av1/common/thread_common.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1224,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2023-12-01T17:48:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9e0eb4ec_445b6e01",
+      "revId": "45abad5e16f4ed906d45ec3f1479f9f09386010d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "211aeb94_03b28e33",
@@ -88,6 +130,24 @@
       "writtenOn": "2023-11-30T18:52:56Z",
       "side": 1,
       "message": "Optional: I found that `reset_cdef_job_info()` and `cdef_reset_job_info()` are essentially the same:\n\n```\nstatic AOM_INLINE void reset_cdef_job_info(AV1CdefSync *const cdef_sync) {\n  cdef_sync-\u003eend_of_frame \u003d 0;\n  cdef_sync-\u003efbr \u003d 0;\n  cdef_sync-\u003efbc \u003d 0;\n}\n```\n\nvs.\n\n```\n// Initializes cdef_sync parameters.\nstatic AOM_INLINE void cdef_reset_job_info(AV1CdefSync *cdef_sync) {\n#if CONFIG_MULTITHREAD\n  if (cdef_sync-\u003emutex_) pthread_mutex_init(cdef_sync-\u003emutex_, NULL);\n#endif  // CONFIG_MULTITHREAD\n  cdef_sync-\u003eend_of_frame \u003d 0;\n  cdef_sync-\u003efbr \u003d 0;\n  cdef_sync-\u003efbc \u003d 0;\n}\n```\n\nWould be good to merge these two functions. This can be done in a separate CL.",
+      "revId": "45abad5e16f4ed906d45ec3f1479f9f09386010d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6d79c25f_a0286a78",
+        "filename": "av1/common/thread_common.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1229,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2023-12-01T17:48:27Z",
+      "side": 1,
+      "message": "We shall study and do this clean up in a separate CL as suggested.",
+      "parentUuid": "211aeb94_03b28e33",
       "revId": "45abad5e16f4ed906d45ec3f1479f9f09386010d",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -109,6 +169,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "66182ac3_c479c7c9",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 3184,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2023-12-01T17:48:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "41922e2d_f27fa7b2",
+      "revId": "45abad5e16f4ed906d45ec3f1479f9f09386010d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "60439356_bfacc150",
@@ -122,6 +200,24 @@
       "writtenOn": "2023-11-30T18:52:56Z",
       "side": 1,
       "message": "Nit/optional: It seems better to move this into the `cdef_reset_job_info(cdef_sync)` call.",
+      "revId": "45abad5e16f4ed906d45ec3f1479f9f09386010d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5d0ddde5_73a88f94",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 3331,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2023-12-01T17:48:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "60439356_bfacc150",
       "revId": "45abad5e16f4ed906d45ec3f1479f9f09386010d",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
