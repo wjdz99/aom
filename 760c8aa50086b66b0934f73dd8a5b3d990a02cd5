@@ -52,6 +52,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "19405712_ee612d16",
+        "filename": "aom_dsp/entenc.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 33002
+      },
+      "writtenOn": "2023-12-01T18:28:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7296ccd3_2607918f",
+      "revId": "760c8aa50086b66b0934f73dd8a5b3d990a02cd5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "8de7ed61_b27b70b6",
@@ -69,6 +87,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "5a9a915f_b84790b4",
+        "filename": "aom_dsp/entenc.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 147,
+      "author": {
+        "id": 33002
+      },
+      "writtenOn": "2023-12-01T18:28:04Z",
+      "side": 1,
+      "message": "Done. `EC_TEST.random_ec_test` needs `error_code` to be reset to `AOM_CODEC_OK`  before invoking `od_ec_enc_patch_initial_bits()` for the third time (line 153 in the original code). Hence the error structure is explicitly memset for this case.",
+      "parentUuid": "8de7ed61_b27b70b6",
+      "revId": "760c8aa50086b66b0934f73dd8a5b3d990a02cd5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "8e0e43c9_907a2cf9",
@@ -82,6 +118,24 @@
       "writtenOn": "2023-11-28T23:44:26Z",
       "side": 1,
       "message": "IMPORTANT: Call `aom_internal_error(AOM_CODEC_ERROR)` instead.\n\nUpdate: I see EC_TEST.random_ec_test won\u0027t work if this function calls `aom_internal_error()`. I think we should probably modify EC_TEST.random_ec_test to handle `aom_internal_error()`.\n\nAlternatively, we can let od_ec_enc_done check `enc-\u003eerror_info-\u003eerror_code` and call `aom_internal_error()` if it\u0027s not `AOM_CODEC_OK`, at line 285 in the original code. But I think that is not as good as calling `aom_internal_error()` here, where we have the context for the error.",
+      "revId": "760c8aa50086b66b0934f73dd8a5b3d990a02cd5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "aa4383bf_be658458",
+        "filename": "aom_dsp/entenc.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 264,
+      "author": {
+        "id": 33002
+      },
+      "writtenOn": "2023-12-01T18:28:04Z",
+      "side": 1,
+      "message": "Thank you for the suggestion. Please note that currently the function `od_ec_enc_patch_initial_bits()` is not used in the library and is invoked only from `EC_TEST.random_ec_test`. Hence, do you think it is okay to retain the existing approach of setting the error code instead of calling `aom_internal_error()`?\n\nIn case it is preferred to add an `aom_internal_error()` call in `od_ec_enc_patch_initial_bits()`, we feel that the handling in EC_TEST.random_ec_test can be simplified if we reset `setjmp` to 0  (this will avoid a `longjmp` but the required error code would be obtained by the unit test as required and continue with further testing) before calling `od_ec_enc_patch_initial_bits()` and set it back to 1 after the call.\n\nPlease let us know your opinion.",
+      "parentUuid": "8e0e43c9_907a2cf9",
       "revId": "760c8aa50086b66b0934f73dd8a5b3d990a02cd5",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -109,6 +163,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "2ec74dd9_fa3cba21",
+        "filename": "aom_dsp/entenc.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 277,
+      "author": {
+        "id": 33002
+      },
+      "writtenOn": "2023-12-01T18:28:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "de30009b_c46782dc",
+      "range": {
+        "startLine": 276,
+        "startChar": 54,
+        "endLine": 277,
+        "endChar": 25
+      },
+      "revId": "760c8aa50086b66b0934f73dd8a5b3d990a02cd5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "fb30aced_e05afe13",
@@ -122,6 +200,24 @@
       "writtenOn": "2023-11-28T23:44:26Z",
       "side": 1,
       "message": "Nit: Code \u003d\u003e Error code",
+      "revId": "760c8aa50086b66b0934f73dd8a5b3d990a02cd5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a4f5b781_94aa6e3e",
+        "filename": "aom_dsp/entenc.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 33002
+      },
+      "writtenOn": "2023-12-01T18:28:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fb30aced_e05afe13",
       "revId": "760c8aa50086b66b0934f73dd8a5b3d990a02cd5",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -143,6 +239,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "324a4222_1f3b5d75",
+        "filename": "test/binary_codes_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 33002
+      },
+      "writtenOn": "2023-12-01T18:28:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bd5d9f58_eeb39746",
+      "revId": "760c8aa50086b66b0934f73dd8a5b3d990a02cd5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "bfbab1e9_65a1c153",
@@ -156,6 +270,24 @@
       "writtenOn": "2023-11-28T23:44:26Z",
       "side": 1,
       "message": "Nit: set `error.setjmp` to 0 at the end of the function, so that this function consistently sets `error.setjmp` to 0 before it returns.\n\nMake the same change to similar code elsewhere.",
+      "revId": "760c8aa50086b66b0934f73dd8a5b3d990a02cd5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "607f2002_e4de8ff0",
+        "filename": "test/binary_codes_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 33002
+      },
+      "writtenOn": "2023-12-01T18:28:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bfbab1e9_65a1c153",
       "revId": "760c8aa50086b66b0934f73dd8a5b3d990a02cd5",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
