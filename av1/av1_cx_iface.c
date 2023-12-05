@@ -2611,6 +2611,17 @@ static aom_codec_err_t ctrl_set_max_consec_frame_drop_cbr(
   return AOM_CODEC_OK;
 }
 
+static aom_codec_err_t ctrl_set_svc_duration_spatial_layer(
+    aom_codec_alg_priv_t *ctx, va_list args) {
+  AV1_PRIMARY *const ppi = ctx->ppi;
+  AV1_COMP *const cpi = ppi->cpi;
+  aom_svc_duration_spatial_layer_t *const params = va_arg(args, aom_svc_duration_spatial_layer_t *);
+  for (int sl = 0; sl < cpi->svc.number_spatial_layers; ++sl) {
+    cpi->svc.duration[sl] = params->duration[sl];
+  }
+  return AOM_CODEC_OK;
+}
+
 #if !CONFIG_REALTIME_ONLY
 aom_codec_err_t av1_create_stats_buffer(FIRSTPASS_STATS **frame_stats_buffer,
                                         STATS_BUFFER_CTX *stats_buf_context,
@@ -3052,6 +3063,9 @@ static aom_codec_err_t encoder_encode(aom_codec_alg_priv_t *ctx,
           timebase_units_to_ticks(cpi_data.timestamp_ratio, ptsvol);
       int64_t src_end_time_stamp =
           timebase_units_to_ticks(cpi_data.timestamp_ratio, ptsvol + duration);
+
+      cpi->svc.timebase_fac =
+          timebase_units_to_ticks(cpi_data.timestamp_ratio, 1);
 
       YV12_BUFFER_CONFIG sd;
       res = image2yuvconfig(img, &sd);
@@ -3607,6 +3621,7 @@ static aom_codec_err_t ctrl_set_svc_params(aom_codec_alg_priv_t *ctx,
         if (tl == ppi->number_temporal_layers - 1)
           target_bandwidth += lc->layer_target_bitrate;
       }
+      cpi->svc.duration[sl] = params->duration[sl];
     }
     if (cm->current_frame.frame_number == 0) {
       if (!cpi->ppi->seq_params_locked) {
@@ -4390,6 +4405,7 @@ static aom_codec_ctrl_fn_map_t encoder_ctrl_maps[] = {
   { AV1E_SET_QUANTIZER_ONE_PASS, ctrl_set_quantizer_one_pass },
   { AV1E_SET_BITRATE_ONE_PASS_CBR, ctrl_set_bitrate_one_pass_cbr },
   { AV1E_SET_MAX_CONSEC_FRAME_DROP_CBR, ctrl_set_max_consec_frame_drop_cbr },
+  { AV1E_SET_SVC_DURATION_SPATIAL_LAYER, ctrl_set_svc_duration_spatial_layer },
 
   // Getters
   { AOME_GET_LAST_QUANTIZER, ctrl_get_quantizer },

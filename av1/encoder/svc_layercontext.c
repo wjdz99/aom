@@ -692,3 +692,9 @@ void av1_svc_set_reference_was_previous(AV1_COMP *cpi) {
     }
   }
 }
+
+void av1_svc_adjust_frame_rate(AV1_COMP *cpi) {
+  int64_t this_duration =
+      cpi->svc.timebase_fac * cpi->svc.duration[cpi->svc.spatial_layer_id];
+  av1_new_framerate(cpi, 10000000.0 / this_duration);
+}

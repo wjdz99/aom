@@ -1533,6 +1533,10 @@ enum aome_enc_control_id {
    */
   AV1E_SET_MAX_CONSEC_FRAME_DROP_CBR = 164,
 
+  /*!\brief Codec control to set the frame duration for spatial layers.
+   */
+  AV1E_SET_SVC_DURATION_SPATIAL_LAYER = 165,
+
   // Any new encoder control IDs should be added above.
   // Maximum allowed encoder control ID is 229.
   // No encoder control ID should be added below.
@@ -1698,6 +1702,11 @@ typedef struct aom_svc_ref_frame_comp_pred {
   // LAST2_LAST (1), and ALTREF_LAST (2).
   int use_comp_pred[3]; /**<Compound reference flag. */
 } aom_svc_ref_frame_comp_pred_t;
+
+/*!brief Parameters for setting frame duration per spatial layer. */
+typedef struct aom_svc_duration_spatial_layer {
+  int64_t duration[AOM_MAX_SS_LAYERS]; /**< Duration per spatial layer. */
+} aom_svc_duration_spatial_layer_t;
 
 /*!\cond */
 /*!\brief Encoder control function parameter type
@@ -2181,6 +2190,8 @@ AOM_CTRL_USE_TYPE(AV1E_SET_BITRATE_ONE_PASS_CBR, unsigned int)
 AOM_CTRL_USE_TYPE(AV1E_SET_MAX_CONSEC_FRAME_DROP_CBR, int)
 #define AOM_CTRL_AV1E_SET_MAX_CONSEC_FRAME_DROP_CBR
 
+AOM_CTRL_USE_TYPE(AV1E_SET_SVC_DURATION_SPATIAL_LAYER, int)
+#define AOM_CTRL_AV1E_SET_SVC_DURATION_SPATIAL_LAYER
 /*!\endcond */
 /*! @} - end defgroup aom_encoder */
 #ifdef __cplusplus
