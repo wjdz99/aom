@@ -1680,6 +1680,7 @@ typedef struct aom_svc_params {
   int layer_target_bitrate[AOM_MAX_LAYERS];
   /*! Frame rate factor for each temporal layer */
   int framerate_factor[AOM_MAX_TS_LAYERS];
+  int64_t duration[AOM_MAX_SS_LAYERS];      /**< Duration per spatial layer. */
 } aom_svc_params_t;
 
 /*!brief Parameters for setting ref frame config */

@@ -237,7 +237,8 @@ static void adjust_frame_rate(AV1_COMP *cpi, int64_t ts_start, int64_t ts_end) {
 
   // Clear down mmx registers
 
-  if (cpi->ppi->use_svc && cpi->svc.spatial_layer_id > 0) {
+  if (cpi->ppi->use_svc && cpi->svc.spatial_layer_id > 0 &&
+      cpi->svc.duration[cpi->svc.spatial_layer_id] > 0) {
     cpi->framerate = cpi->svc.base_framerate;
     av1_rc_update_framerate(cpi, cpi->common.width, cpi->common.height);
     return;
@@ -1456,8 +1457,13 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
 #endif  // CONFIG_FPMT_TEST
 
   // Shown frames and arf-overlay frames need frame-rate considering
-  if (frame_params.show_frame)
-    adjust_frame_rate(cpi, source->ts_start, source->ts_end);
+  if (frame_params.show_frame) {
+     if (cpi->ppi->use_svc && cpi->ppi->rtc_ref.set_ref_frame_config &&
+         cpi->svc.duration[cpi->svc.spatial_layer_id] > 0)
+       av1_svc_adjust_frame_rate(cpi);
+    else
+      adjust_frame_rate(cpi, source->ts_start, source->ts_end);
+  }
 
   if (!frame_params.show_existing_frame) {
     if (cpi->film_grain_table) {

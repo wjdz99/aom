@@ -147,6 +147,10 @@ typedef struct SVC {
    * different/lower bitrate.
    */
   int has_lower_quality_layer;
+
+  int64_t duration[AOM_MAX_SS_LAYERS];
+
+  int64_t timebase_fac;
 } SVC;
 
 struct AV1_COMP;
@@ -301,6 +305,8 @@ void av1_svc_update_buffer_slot_refreshed(struct AV1_COMP *const cpi);
 int av1_svc_get_min_ref_dist(const struct AV1_COMP *cpi);
 
 void av1_svc_set_reference_was_previous(struct AV1_COMP *cpi);
+
+void av1_svc_adjust_frame_rate(struct AV1_COMP *const cpi);
 #ifdef __cplusplus
 }  // extern "C"
 #endif

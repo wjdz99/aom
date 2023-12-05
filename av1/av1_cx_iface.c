@@ -3053,6 +3053,8 @@ static aom_codec_err_t encoder_encode(aom_codec_alg_priv_t *ctx,
       int64_t src_end_time_stamp =
           timebase_units_to_ticks(cpi_data.timestamp_ratio, ptsvol + duration);
 
+      cpi->svc.timebase_fac = timebase_units_to_ticks(cpi_data.timestamp_ratio, 1);
+
       YV12_BUFFER_CONFIG sd;
       res = image2yuvconfig(img, &sd);
       // When generating a monochrome stream, make |sd| a monochrome image.
@@ -3607,6 +3609,7 @@ static aom_codec_err_t ctrl_set_svc_params(aom_codec_alg_priv_t *ctx,
         if (tl == ppi->number_temporal_layers - 1)
           target_bandwidth += lc->layer_target_bitrate;
       }
+      cpi->svc.duration[sl] = params->duration[sl];
     }
     if (cm->current_frame.frame_number == 0) {
       if (!cpi->ppi->seq_params_locked) {
