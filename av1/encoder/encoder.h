@@ -3644,6 +3644,18 @@ typedef struct AV1_COMP {
    * so scaling is not needed for last_source.
    */
   int scaled_last_source_available;
+
+  /*!
+   * The width of the frame that is lastly encoded.
+   * It is updated in the function "encoder_encode()".
+   */
+  int last_coded_width;
+
+  /*!
+   * The height of the frame that is lastly encoded.
+   * It is updated in the function "encoder_encode()".
+   */
+  int last_coded_height;
 } AV1_COMP;
 
 /*!

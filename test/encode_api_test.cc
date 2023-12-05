@@ -352,13 +352,10 @@ TEST(EncodeAPI, Buganizer310548198) {
   }
   aom_img_free(image);
 
-  // Uncomment this code to reproduce the bug.
-#if 0
   cfg.g_w = 1;
   cfg.g_h = 254;
   ASSERT_EQ(aom_codec_enc_config_set(&enc, &cfg), AOM_CODEC_OK)
       << aom_codec_error_detail(&enc);
-#endif
 
   cfg.g_w = 1;
   cfg.g_h = 154;
