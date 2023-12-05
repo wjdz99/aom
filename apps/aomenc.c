@@ -1539,24 +1539,29 @@ static void initialize_encoder(struct stream_state *stream,
     AOM_CODEC_CONTROL_TYPECHECKED(&stream->encoder,
                                   AV1E_SET_PARTITION_INFO_PATH,
                                   stream->config.partition_info_path);
+    ctx_exit_on_error(&stream->encoder, "Failed to set partition info path");
   }
   if (stream->config.enable_rate_guide_deltaq) {
     AOM_CODEC_CONTROL_TYPECHECKED(&stream->encoder,
                                   AV1E_ENABLE_RATE_GUIDE_DELTAQ,
                                   stream->config.enable_rate_guide_deltaq);
+    ctx_exit_on_error(&stream->encoder, "Failed to enable rate guide deltaq");
   }
   if (stream->config.rate_distribution_info) {
     AOM_CODEC_CONTROL_TYPECHECKED(&stream->encoder,
                                   AV1E_SET_RATE_DISTRIBUTION_INFO,
                                   stream->config.rate_distribution_info);
+    ctx_exit_on_error(&stream->encoder, "Failed to set rate distribution info");
   }
 
   if (stream->config.film_grain_filename) {
     AOM_CODEC_CONTROL_TYPECHECKED(&stream->encoder, AV1E_SET_FILM_GRAIN_TABLE,
                                   stream->config.film_grain_filename);
+    ctx_exit_on_error(&stream->encoder, "Failed to set film grain table");
   }
   AOM_CODEC_CONTROL_TYPECHECKED(&stream->encoder, AV1E_SET_COLOR_RANGE,
                                 stream->config.color_range);
+  ctx_exit_on_error(&stream->encoder, "Failed to set codec color range");
 
 #if CONFIG_AV1_DECODER
   if (global->test_decode != TEST_DECODE_OFF) {
