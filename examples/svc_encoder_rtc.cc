@@ -1694,6 +1694,9 @@ int main(int argc, const char **argv) {
     svc_params.scaling_factor_num[1] = 1;
     svc_params.scaling_factor_den[1] = 2;
   }
+  for (i = 0; i < ss_number_layers; ++i) {
+    svc_params.duration[i] = 1;
+  }
   aom_codec_control(&codec, AV1E_SET_SVC_PARAMS, &svc_params);
   // TODO(aomedia:3032): Configure KSVC in fixed mode.
 
