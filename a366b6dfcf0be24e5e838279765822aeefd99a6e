@@ -16,6 +16,24 @@
       "message": "Looks like this needs a rebase. Gerrit shows a merge conflict.",
       "revId": "a366b6dfcf0be24e5e838279765822aeefd99a6e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ceb6979e_eb0e4554",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-12-05T19:42:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ced1d18f_85f21463",
+      "revId": "a366b6dfcf0be24e5e838279765822aeefd99a6e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
