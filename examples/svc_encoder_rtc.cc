@@ -1871,6 +1871,23 @@ int main(int argc, const char **argv) {
         }
       }
 
+      // Example on how to set the duration per spatial layer, here all set to
+      // the same value of 1 for this example encoder. Set it once per superframe,
+      // so only once on the base layer (slx == 0), and just before the
+      // codec_encode() call. If set this will override the duration passed
+      // via codec_encode(). This can also be set once for the sequence, if the
+      // prediction pattern repeats, but it has to be after SET_SVC_PARAMS control
+      // (which sets the number of spatial layers).
+      if (ss_number_layers > 1 && slx == 0) {
+        int duration_per_spatial_layer[AOM_MAX_SS_LAYERS];
+        for (int sl = 0; sl < ss_number_layers; ++sl)
+          duration_per_spatial_layer[ss_number_layers] = 1;
+        if (aom_codec_control(&codec, AV1E_SET_SVC_DURATION_SPATIAL_LAYER,
+                              duration_per_spatial_layer)) {
+          die_codec(&codec, "Failed to AV1E_SET_SVC_DURATION_SPATIAL_LAYER");
+        }
+      }
+
       // Do the layer encode.
       aom_usec_timer_start(&timer);
       if (aom_codec_encode(&codec, frame_avail ? &raw : NULL, pts, 1, flags))
