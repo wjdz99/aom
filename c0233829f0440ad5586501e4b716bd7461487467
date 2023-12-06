@@ -16,6 +16,91 @@
       "message": "Hi Wan-Teh, Please review the latest patch set.",
       "revId": "c0233829f0440ad5586501e4b716bd7461487467",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ffbda4ec_526c307b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-12-06T19:14:09Z",
+      "side": 1,
+      "message": "Satheesh: I think we need to think about carefully how to let `aom_codec_get_frame()` report an error. I suggest the following:\n\n1. This CL just makes the changes to the `decoder_get_frame()` function.\n2. File a bug report on how `aom_codec_get_frame()` should report an error, so that it can be differentiated from a successful completion of iteration.\n\nI added James Zern\u0027s findings on your proposed change to aomdec.c.",
+      "revId": "c0233829f0440ad5586501e4b716bd7461487467",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4d3a85f1_ed55e797",
+        "filename": "apps/aomdec.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 847,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-12-06T19:14:09Z",
+      "side": 1,
+      "message": "James did some source code archaelogy. Here are his findings:\n\nvpxdec.c uses it in this way:\n\nhttps://chromium.googlesource.com/webm/libvpx/+/refs/heads/main/vpxdec.c#903\n\nIt looks like aomdec was changed. The origin would have been vpxdec and the code there is from 2011.\nhttps://aomedia-review.googlesource.com/c/aom/+/60681",
+      "revId": "c0233829f0440ad5586501e4b716bd7461487467",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f35b9d63_4f35f64f",
+        "filename": "av1/av1_dx_iface.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 806,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-12-06T19:14:09Z",
+      "side": 1,
+      "message": "It would be good to change the function prototype of the `get_frame` callback to return an error code to the caller (via the return value or an output parameter). Then we don\u0027t need to go through `pbi-\u003eerror.error_code` and the `AOMD_GET_FRAME_CORRUPTED` codec control.",
+      "revId": "c0233829f0440ad5586501e4b716bd7461487467",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "43d035b0_5bfd79b5",
+        "filename": "av1/av1_dx_iface.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 821,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-12-06T19:14:09Z",
+      "side": 1,
+      "message": "Now that the caller will check `pbi-\u003eerror.error_code`, we should clear it first:\n\n```\n    pbi-\u003eerror.error_code \u003d AOM_CODEC_OK;\n    pbi-\u003eerror.has_detail \u003d 0;\n```",
+      "revId": "c0233829f0440ad5586501e4b716bd7461487467",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "457eb1a9_406bc85d",
+        "filename": "av1/av1_dx_iface.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 899,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-12-06T19:14:09Z",
+      "side": 1,
+      "message": "Nit: Also add the error detail string:\n\n```\n          pbi-\u003eerror.has_detail \u003d 1;\n          snprintf(pbi-\u003eerror.detail, sizeof(pbi-\u003eerror.detail),\n                   \"Grain synthesis failed\\n\");\n```\n\nAlternatively, we can keep the `aom_internal_error()` call and just add a `return res;` statement. If you do that, fix the spelling error \"systhesis\" in the error detail string.",
+      "revId": "c0233829f0440ad5586501e4b716bd7461487467",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
