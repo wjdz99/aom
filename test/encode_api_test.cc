@@ -320,6 +320,7 @@ aom_image_t *CreateGrayImage(aom_img_fmt_t fmt, unsigned int w,
   return image;
 }
 
+<<<<<<< HEAD   (751960 Add a test to reproduce bug b:310548198)
 // Run this test in the debugger and set a breakpoint in aom_internal_error.
 TEST(EncodeAPI, Buganizer310548198) {
   aom_codec_iface_t *const iface = aom_codec_av1_cx();
@@ -390,6 +391,8 @@ TEST(EncodeAPI, Buganizer310548198) {
   ASSERT_EQ(aom_codec_destroy(&enc), AOM_CODEC_OK);
 }
 
+=======
+>>>>>>> BRANCH (b681ea Update CHANGELOG for libaom 3.8.0)
 // Run this test to reproduce the bug in fuzz test: ASSERT: cpi->rec_sse !=
 // UINT64_MAX in av1_rc_bits_per_mb.
 TEST(EncodeAPI, Buganizer310766628) {

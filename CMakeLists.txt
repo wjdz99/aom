@@ -58,9 +58,15 @@ endif()
 # passed to libtool.
 #
 # We set SO_FILE_VERSION = [c-a].a.r
+<<<<<<< HEAD   (751960 Add a test to reproduce bug b:310548198)
 set(LT_CURRENT 10)
 set(LT_REVISION 1)
 set(LT_AGE 7)
+=======
+set(LT_CURRENT 11)
+set(LT_REVISION 0)
+set(LT_AGE 8)
+>>>>>>> BRANCH (b681ea Update CHANGELOG for libaom 3.8.0)
 math(EXPR SO_VERSION "${LT_CURRENT} - ${LT_AGE}")
 set(SO_FILE_VERSION "${SO_VERSION}.${LT_AGE}.${LT_REVISION}")
 unset(LT_CURRENT)
