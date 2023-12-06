@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a9d8645b_3be883ac",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 33002
+      },
+      "writtenOn": "2023-12-06T16:12:02Z",
+      "side": 1,
+      "message": "In the parent commit, `src_diff` buffer is allocated for the main thread in `av1_first_pass()`(please refer line 1393 in the original code) such that it can be used either in `first_pass_tiles()` or `av1_fp_encode_tiles_row_mt()` depending on num_workers. During multithreading, the copy of MACROBLOCK structure from main thread (`cpi-\u003etd.mb`) to worker threads (`thread_data-\u003etd-\u003emb`) initializes the thread-specific `src_diff` buffers with that of the main thread. Later if the allocation of `thread_data-\u003etd-\u003emb.plane[].src_diff` fails, it will result in a double free error in `free_thread_data()` as the buffer allocated for the main thread would have already been freed in `dealloc_compressor_data()` during `encoder_destroy()`.\n\nIn order to fix this issue, `src_diff` buffer is allocated separately for ST encode in `first_pass_tiles()` and MT encode in `fp_prepare_enc_workers()`. A similar implementation is present for the encode stage (please see `av1_alloc_mb_data()`).\n\nThis change is bit-exact and has been verified using bitstream-match tests for a combination of various configuration values for --threads, --tile-rows, --tile-columns, --cpu-used, --end-usage, --row-mt, --fp-mt, etc. Validated all unit-tests with sanitizers (address and thread) and valgrind.",
+      "revId": "268a7167946fcd2f273817ccb84ae596b6310986",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
