@@ -16,6 +16,40 @@
       "message": "In the parent commit, `src_diff` buffer is allocated for the main thread in `av1_first_pass()`(please refer line 1393 in the original code) such that it can be used either in `first_pass_tiles()` or `av1_fp_encode_tiles_row_mt()` depending on num_workers. During multithreading, the copy of MACROBLOCK structure from main thread (`cpi-\u003etd.mb`) to worker threads (`thread_data-\u003etd-\u003emb`) initializes the thread-specific `src_diff` buffers with that of the main thread. Later if the allocation of `thread_data-\u003etd-\u003emb.plane[].src_diff` fails, it will result in a double free error in `free_thread_data()` as the buffer allocated for the main thread would have already been freed in `dealloc_compressor_data()` during `encoder_destroy()`.\n\nIn order to fix this issue, `src_diff` buffer is allocated separately for ST encode in `first_pass_tiles()` and MT encode in `fp_prepare_enc_workers()`. A similar implementation is present for the encode stage (please see `av1_alloc_mb_data()`).\n\nThis change is bit-exact and has been verified using bitstream-match tests for a combination of various configuration values for --threads, --tile-rows, --tile-columns, --cpu-used, --end-usage, --row-mt, --fp-mt, etc. Validated all unit-tests with sanitizers (address and thread) and valgrind.",
       "revId": "268a7167946fcd2f273817ccb84ae596b6310986",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4840db3b_23f3ac75",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-12-06T22:35:49Z",
+      "side": 1,
+      "message": "Satheesh: The CL is correct. Since the reason for the new code is not clear, I have two suggestions that may or may not help. Please consider them. Thanks.\n\nIf you think the new way of allocating the src_diff buffer is better, then we just need to add the assertions in av1_alloc_src_diff_bu().",
+      "revId": "268a7167946fcd2f273817ccb84ae596b6310986",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "154bfc75_65638c0e",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1651,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-12-06T22:35:49Z",
+      "side": 1,
+      "message": "This bug is quite subtle. To prevent this bug from coming back, I suggest `av1_alloc_src_diff_buf()` first check the src_diff buffers are all null pointers. This can be debug only code, something like this:\n\n```\n  void av1_alloc_src_diff_buf(const struct AV1Common *cm, struct macroblock *mb) {\n    const int num_planes \u003d av1_num_planes(cm);\n+ #ifndef NDEBUG\n+   for (int plane \u003d 0; plane \u003c num_planes; ++plane) {\n+     assert(!mb-\u003eplane[plane].src_diff);\n+   }\n+ #endif\n    ...\n  }\n```",
+      "revId": "268a7167946fcd2f273817ccb84ae596b6310986",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
