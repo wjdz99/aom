@@ -3038,7 +3038,8 @@ static void rc_scene_detection_onepass_rt(AV1_COMP *cpi,
   const int border =
       rc->prev_frame_is_dropped || cpi->svc.number_temporal_layers > 1;
   // Store blkwise SAD for later use
-  if (width == cm->render_width && height == cm->render_height) {
+  if (cpi->oxcf.superres_cfg.enable_superres ||
+      (width == cm->render_width && height == cm->render_height)) {
     if (cpi->src_sad_blk_64x64 == NULL) {
       CHECK_MEM_ERROR(cm, cpi->src_sad_blk_64x64,
                       (uint64_t *)aom_calloc(sb_cols * sb_rows,
