@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "709fb0eb_236310b2",
+        "filename": "aom/aomcx.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 1683,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2023-12-06T02:07:32Z",
+      "side": 1,
+      "message": "this will break the backwards compatibility of the future release. similar to the CL to add speed per layer before, and documented in the following bug:\n\nhttps://bugs.chromium.org/p/aomedia/issues/detail?id\u003d3411\n\nAssuming we don\u0027t want to break the backwards compatibility for the next release, you can mitigate this issue by adding a new codec control.",
+      "range": {
+        "startLine": 1683,
+        "startChar": 0,
+        "endLine": 1683,
+        "endChar": 74
+      },
+      "revId": "aacf9ddfce41f39b16eb21ee995ba0a7b0e433ab",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
