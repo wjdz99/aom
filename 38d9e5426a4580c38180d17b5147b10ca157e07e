@@ -16,6 +16,23 @@
       "message": "In the parent commit, if an allocation fails when `ctrl_set_color_range()` is invoked, (`initialize_encoder() -\u003eAOM_CODEC_CONTROL_TYPECHECKED()` in line 1558), it will result in SEGV error since there is no `ctx_exit_on_error()` call to stop further processing. This CL fixes this issue by adding `ctx_exit_on_error()` after the `AOM_CODEC_CONTROL_TYPECHECKED()` call so that the application exits gracefully if an error is encountered without further processing. Also added the missing `ctx_exit_on_error()` call for other instances of `AOM_CODEC_CONTROL_TYPECHECKED()` in `aomenc.c` to ensure that an error is correctly serviced.\n\nThis change is bit-exact and has been verified using bitstream-match tests for a combination of various configuration values for --threads, --tile-rows, --tile-columns, --cpu-used, --end-usage, --row-mt, --fp-mt, etc. Validated all unit-tests with sanitizers (address and thread) and valgrind.",
       "revId": "38d9e5426a4580c38180d17b5147b10ca157e07e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4305219e_c29dd4db",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1536,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-12-06T19:34:24Z",
+      "side": 1,
+      "message": "Are these hiding any known failures if execution continues?",
+      "revId": "38d9e5426a4580c38180d17b5147b10ca157e07e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
