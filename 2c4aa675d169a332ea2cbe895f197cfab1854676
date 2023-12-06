@@ -18,6 +18,23 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "2bb227aa_66dfd342",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2233,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-12-06T14:25:15Z",
+      "side": 1,
+      "message": "Optional: I wonder if we should also copy the comment from av1/decoder/decodeframe.c:\n\n```\n  // Check to make sure at least one of frames that this frame references\n  // has valid dimensions.\n```\n\nSince the code here is doing more than this check, I am worried that this comment will be confusing here. (The decoder code only does this check, so the comment is clear there.)",
+      "revId": "2c4aa675d169a332ea2cbe895f197cfab1854676",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "4f5f6cf9_a69f820a",
@@ -31,6 +48,24 @@
       "writtenOn": "2023-12-06T04:55:35Z",
       "side": 1,
       "message": "Should we skip the valid_ref_frame_size() call if frame_is_intra_only(cm) is true?\n\nOtherwise the work is wasted.",
+      "revId": "2c4aa675d169a332ea2cbe895f197cfab1854676",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2854f2c0_cb8254fe",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2241,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-12-06T14:25:15Z",
+      "side": 1,
+      "message": "I found a good answer to my question.\n\n`av1_setup_scale_factors_for_frame()` calls `valid_ref_frame_size()` internally. So we can detect the return value of that `valid_ref_frame_size()` call by inspecting `sf`:\n\n```\n      has_valid_ref_frame |\u003d av1_is_valid_scale(sf);\n```\n\nNote: The `av1_is_scaled(sf)` call at line 2243 calls `av1_is_valid_scale(sf)` internally, so we will end up calling `av1_is_valid_scale(sf)` twice. But we cannot avoid that unless we manually inline this `av1_is_scaled(sf)` call.",
+      "parentUuid": "4f5f6cf9_a69f820a",
       "revId": "2c4aa675d169a332ea2cbe895f197cfab1854676",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
