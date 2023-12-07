@@ -53,6 +53,42 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "11971cdc_ff103b0e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-12-07T19:12:40Z",
+      "side": 1,
+      "message": "Thanks for the suggestion. You suggested this when we worked on the libvpx bugs and I didn\u0027t ignore it. I decided to go with the current approach mainly because `std::variant` is a C++17 feature. But the current approach also makes it easier to annotate each test case with comments, and we can even give a test case a meaningful name (although most test cases just use the bug number).",
+      "parentUuid": "9c045b65_fb23f879",
+      "revId": "72e167cc42355e8377de7407749505451c861f46",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7d71515f_9266b156",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-12-07T19:12:40Z",
+      "side": 1,
+      "message": "Lin: I verified your two tests still reproduce the bug if I revert your bug fix (https://aomedia-review.googlesource.com/c/aom/+/184001).",
+      "parentUuid": "0f6552df_53ec7089",
+      "revId": "72e167cc42355e8377de7407749505451c861f46",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "72d8988c_f3de1f44",
@@ -78,6 +114,30 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "78bda8bc_fc5bb0ac",
+        "filename": "test/encode_api_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 398,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-12-07T19:12:40Z",
+      "side": 1,
+      "message": "Done. I also made the destructor call `Flush()` automatically so that the tests don\u0027t need to call `Flush()`.\n\n\nNote: I use \"should\" in the comment because `aom_codec_destroy()` must be able to destroy the encoder cleanly when the caller doesn\u0027t flush the encoder after all frames are encoded.",
+      "parentUuid": "72d8988c_f3de1f44",
+      "range": {
+        "startLine": 398,
+        "startChar": 7,
+        "endLine": 398,
+        "endChar": 12
+      },
+      "revId": "72e167cc42355e8377de7407749505451c861f46",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "26371853_74658c0e",
         "filename": "test/encode_api_test.cc",
         "patchSetId": 1
@@ -89,6 +149,30 @@
       "writtenOn": "2023-12-07T18:39:32Z",
       "side": 1,
       "message": "is this the only `usage` being used in the fuzzer?",
+      "range": {
+        "startLine": 417,
+        "startChar": 19,
+        "endLine": 417,
+        "endChar": 37
+      },
+      "revId": "72e167cc42355e8377de7407749505451c861f46",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e90a21f3_45a9ffd4",
+        "filename": "test/encode_api_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 417,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-12-07T19:12:40Z",
+      "side": 1,
+      "message": "Yes. The current version of av1_encoder_fuzz_test.cc always chooses usage\u003dAOM_USAGE_REALTIME. This also means `usage` is fixed during each test case.\n\nI am planning to make av1_encoder_fuzz_test.cc choose AOM_USAGE_GOOD_QUALITY after we have fixed the current bugs. But I may still keep `usage` fixed during each test case.",
+      "parentUuid": "26371853_74658c0e",
       "range": {
         "startLine": 417,
         "startChar": 19,
