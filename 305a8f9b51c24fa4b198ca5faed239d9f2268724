@@ -38,6 +38,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "f1f6a5ee_ac204a91",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-12-07T16:10:35Z",
+      "side": 1,
+      "message": "I am not familiar with the multithreading code in av1/decoder/decodeframe.c, so this comment is based on a quick analysis.\n\nWhen I compare `decode_tile_sb_row()` in decodeframe.c with `encode_sb_row()` in encodeframe.c, I see an important difference in whether `row_mt_exit` causes the function to exit the for loop. I am wondering if we should change `decode_tile_sb_row()` to also exit the for loop when `row_mt_exit` is true.\n\nAs for whether the `sync_write()` function in decodeframe.c needs this fix, I am sorry that I don\u0027t know. The question is whether one thread will deadlock in this for loop when the other thread has encountered an error and exited:\n\n```\n  for (int mi_col \u003d tile_info-\u003emi_col_start; mi_col \u003c tile_info-\u003emi_col_end;\n       mi_col +\u003d cm-\u003eseq_params-\u003emib_size, sb_col_in_tile++) {\n    ...\n\n    sync_read(\u0026tile_data-\u003edec_row_mt_sync, sb_row_in_tile, sb_col_in_tile);\n\n#if CONFIG_MULTITHREAD\n    pthread_mutex_lock(pbi-\u003erow_mt_mutex_);\n#endif\n    row_mt_exit \u003d pbi-\u003eframe_row_mt_info.row_mt_exit;\n#if CONFIG_MULTITHREAD\n    pthread_mutex_unlock(pbi-\u003erow_mt_mutex_);\n#endif\n\n    if (!row_mt_exit) {\n      // Decoding of the super-block\n      decode_partition(pbi, td, mi_row, mi_col, td-\u003ebit_reader,\n                       cm-\u003eseq_params-\u003esb_size, 0x2);\n    }\n\n    sync_write(\u0026tile_data-\u003edec_row_mt_sync, sb_row_in_tile, sb_col_in_tile,\n               sb_cols_in_tile);\n  }\n```\n\nIf this `sync_write()` call decreases the col number from the  max col number (written by the failed thread) to `sb_col_in_tile`, will  this thread deadlock in the next `sync_read()` call when it loops around?\n\nIf this deadlock cannot happen when AOM_MAX_THREADS_PER_TILE is 2 but can happen when AOM_MAX_THREADS_PER_TILE is \u003e 2, then I suggest one of the following:\n- Add a comment at the definition of the AOM_MAX_THREADS_PER_TILE macro to remind people that they need to add the fix if they increase AOM_MAX_THREADS_PER_TILE to 3 or more.\n- Just add the fix.\n\nWhile researching this issue, I found another potential issue:\n\n```\n#if CONFIG_MULTITHREAD\n    pthread_mutex_lock(pbi-\u003erow_mt_mutex_);\n#endif\n    frame_row_mt_info-\u003erow_mt_exit \u003d 1;\n\n    // If any SB row (erroneous row) processed by a thread encounters an\n    // internal error, there is a need to indicate other threads that decoding\n    // of the erroneous row is complete. This ensures that other threads which\n    // wait upon the completion of SB\u0027s present in erroneous row are not waiting\n    // indefinitely.\n    signal_decoding_done_for_erroneous_row(pbi, \u0026thread_data-\u003etd-\u003edcb.xd);\n\n#if CONFIG_MULTITHREAD\n    pthread_cond_broadcast(pbi-\u003erow_mt_cond_);\n    pthread_mutex_unlock(pbi-\u003erow_mt_mutex_);\n#endif\n```\n\nSince the `signal_decoding_done_for_erroneous_row()` call also locks a mutex internally, the code here needs to lock two mutexes. If it is not necessary to call `signal_decoding_done_for_erroneous_row()` while holding `pbi-\u003erow_mt_mutex_`, I suggest we call `signal_decoding_done_for_erroneous_row()` after unlocking `pbi-\u003erow_mt_mutex_`.",
+      "parentUuid": "abfdebac_8bdd5879",
+      "revId": "305a8f9b51c24fa4b198ca5faed239d9f2268724",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "c5bcb4f4_c8a09db1",
         "filename": "/PATCHSET_LEVEL",
         "patchSetId": 3
