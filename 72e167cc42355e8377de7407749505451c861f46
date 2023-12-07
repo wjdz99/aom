@@ -34,6 +34,69 @@
       "parentUuid": "a45e5b7e_9fe146e4",
       "revId": "72e167cc42355e8377de7407749505451c861f46",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9c045b65_fb23f879",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2023-12-07T18:39:32Z",
+      "side": 1,
+      "message": "LGTM.\n\nThis could be parameterized to accept the sequence of \"encoder actions\", like what the fuzzer is actually doing, to further simplify the process of adding tests. Then we can just add a new sequence for the test case, instead of writing a new test case.",
+      "revId": "72e167cc42355e8377de7407749505451c861f46",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "72d8988c_f3de1f44",
+        "filename": "test/encode_api_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 398,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2023-12-07T18:39:32Z",
+      "side": 1,
+      "message": "can we add a comment here saying this needs to be called at the end of the sequence?",
+      "range": {
+        "startLine": 398,
+        "startChar": 7,
+        "endLine": 398,
+        "endChar": 12
+      },
+      "revId": "72e167cc42355e8377de7407749505451c861f46",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "26371853_74658c0e",
+        "filename": "test/encode_api_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 417,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2023-12-07T18:39:32Z",
+      "side": 1,
+      "message": "is this the only `usage` being used in the fuzzer?",
+      "range": {
+        "startLine": 417,
+        "startChar": 19,
+        "endLine": 417,
+        "endChar": 37
+      },
+      "revId": "72e167cc42355e8377de7407749505451c861f46",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
