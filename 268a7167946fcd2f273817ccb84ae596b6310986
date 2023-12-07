@@ -50,6 +50,24 @@
       "message": "This bug is quite subtle. To prevent this bug from coming back, I suggest `av1_alloc_src_diff_buf()` first check the src_diff buffers are all null pointers. This can be debug only code, something like this:\n\n```\n  void av1_alloc_src_diff_buf(const struct AV1Common *cm, struct macroblock *mb) {\n    const int num_planes \u003d av1_num_planes(cm);\n+ #ifndef NDEBUG\n+   for (int plane \u003d 0; plane \u003c num_planes; ++plane) {\n+     assert(!mb-\u003eplane[plane].src_diff);\n+   }\n+ #endif\n    ...\n  }\n```",
       "revId": "268a7167946fcd2f273817ccb84ae596b6310986",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f8e1194c_ae78a664",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1651,
+      "author": {
+        "id": 33002
+      },
+      "writtenOn": "2023-12-07T14:30:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "154bfc75_65638c0e",
+      "revId": "268a7167946fcd2f273817ccb84ae596b6310986",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }

@@ -16,6 +16,24 @@
       "message": "Optional: I would probably fix this bug by explicitly clearing the src_diff pointers here:\n\n```\n      // Add a comment to explain why we do this\n      for (int plane \u003d 0; plane \u003c MAX_MB_PLANE; ++plane) {\n        thread_data-\u003etd-\u003emb.plane[plane].src_diff \u003d NULL;\n      }\n```",
       "revId": "d583f4f6e6005ecdc622dfc62518b5b85565f57f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cdda8b91_e9e13dfd",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1652,
+      "author": {
+        "id": 33002
+      },
+      "writtenOn": "2023-12-07T14:30:32Z",
+      "side": 0,
+      "message": "Ack. We have gone ahead with the current approach as it is consistent with the `src_diff` buffer allocation in 2nd pass (Please refer calls to `av1_alloc_mb_data()`).",
+      "parentUuid": "10295d4b_2ff75e91",
+      "revId": "d583f4f6e6005ecdc622dfc62518b5b85565f57f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
