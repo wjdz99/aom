@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c99330f5_2611ad88",
+        "filename": "av1/encoder/encode_strategy.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 251,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2023-12-07T22:08:22Z",
+      "side": 1,
+      "message": "not sure if this is correct.\n\nThe code below (line 270) only sets new frame rate if `this_duration` is non zero; otherwise it simply just ignores it.\n\nAlso I think you need to set `time_stamps-\u003eprev_ts_start` and `time_stamps-\u003eprev_ts_end` before exiting this function, like line 294-295.",
+      "range": {
+        "startLine": 251,
+        "startChar": 9,
+        "endLine": 251,
+        "endChar": 22
+      },
+      "revId": "44898584d0bd4fba353045d92a0ff58052788189",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
