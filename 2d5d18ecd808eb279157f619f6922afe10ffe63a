@@ -18,6 +18,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "7037e882_bee3a528",
+        "filename": "aom_dsp/arm/mem_neon.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 1233,
+      "author": {
+        "id": 31817
+      },
+      "writtenOn": "2023-12-07T11:13:58Z",
+      "side": 1,
+      "message": "I\u0027m not particularly well-versed on armv7-a performance unfortunately. A quick look at the assembly that gets generated https://godbolt.org/z/jP9Tqsnve makes me think that this is fine as-is though:\n* Clang generates identical code for both foo and bar here.\n* GCC avoids a pointless broadcast (vdup.8  d0, ip) by initialising with zero rather than the 0th element.\n\nI\u0027ve added a comment to that effect. Let me know if you\u0027d prefer a re-wording!",
+      "parentUuid": "9380e89e_863bf8e9",
+      "revId": "2d5d18ecd808eb279157f619f6922afe10ffe63a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e1dcbc69_0a7eb41b",
@@ -31,6 +49,30 @@
       "writtenOn": "2023-12-05T19:41:41Z",
       "side": 1,
       "message": "I think I missed this because I was only building arm64 using visual studio. These should use intrinsics.",
+      "range": {
+        "startLine": 1234,
+        "startChar": 27,
+        "endLine": 1234,
+        "endChar": 37
+      },
+      "revId": "2d5d18ecd808eb279157f619f6922afe10ffe63a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bd737411_87e5ae99",
+        "filename": "aom_dsp/arm/mem_neon.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 1234,
+      "author": {
+        "id": 31817
+      },
+      "writtenOn": "2023-12-07T11:13:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e1dcbc69_0a7eb41b",
       "range": {
         "startLine": 1234,
         "startChar": 27,
