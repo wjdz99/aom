@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6feae902_1272ce12",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 3156,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2023-12-08T21:59:04Z",
+      "side": 1,
+      "message": "Does the issue happen while the user-set number of threads changes from frame to frame?",
+      "range": {
+        "startLine": 3155,
+        "startChar": 9,
+        "endLine": 3156,
+        "endChar": 49
+      },
+      "revId": "3861515b7a6b350329ea3ac7753e231c3ea16555",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7b439565_da6e60a2",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 3168,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2023-12-08T21:59:04Z",
+      "side": 1,
+      "message": "So this is needed besides terminate_worker_data()?",
+      "range": {
+        "startLine": 3162,
+        "startChar": 6,
+        "endLine": 3168,
+        "endChar": 7
+      },
+      "revId": "3861515b7a6b350329ea3ac7753e231c3ea16555",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3390d07f_935d53d1",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 3169,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2023-12-08T21:59:04Z",
+      "side": 1,
+      "message": "Here the threads and thread-related buffers are deleted, and re-created them if # of threads changes. Only adding those extra threads might be better?",
+      "range": {
+        "startLine": 3169,
+        "startChar": 6,
+        "endLine": 3169,
+        "endChar": 24
+      },
+      "revId": "3861515b7a6b350329ea3ac7753e231c3ea16555",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1d4c4f61_121e9059",
+        "filename": "test/encode_api_test.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 502,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2023-12-08T21:59:04Z",
+      "side": 1,
+      "message": "Could you add a comment to describe the test?",
+      "range": {
+        "startLine": 502,
+        "startChar": 0,
+        "endLine": 502,
+        "endChar": 4
+      },
+      "revId": "3861515b7a6b350329ea3ac7753e231c3ea16555",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
