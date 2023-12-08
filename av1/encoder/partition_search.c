@@ -4233,6 +4233,51 @@ static void prune_partitions_after_split(
   }
 }
 
+// Returns 1 if either of the left and top neighbor blocks are larger than that
+// of current block; 0 otherwise.
+static AOM_INLINE int is_neighbor_blk_larger_than_cur_blk(MACROBLOCKD *const xd,
+                                                          BLOCK_SIZE bsize) {
+  const int cur_blk_area = (block_size_high[bsize] * block_size_wide[bsize]);
+  if (xd->left_available) {
+    const BLOCK_SIZE left_bsize = xd->left_mbmi->bsize;
+    if (block_size_high[left_bsize] * block_size_wide[left_bsize] >
+        cur_blk_area)
+      return 1;
+  }
+
+  if (xd->up_available) {
+    const BLOCK_SIZE above_bsize = xd->above_mbmi->bsize;
+    if (block_size_high[above_bsize] * block_size_wide[above_bsize] >
+        cur_blk_area)
+      return 1;
+  }
+  return 0;
+}
+
+static AOM_INLINE void prune_rect_part_using_none_pred_mode(
+    MACROBLOCKD *const xd, PartitionSearchState *part_state,
+    PREDICTION_MODE mode, BLOCK_SIZE bsize) {
+  if (mode == DC_PRED || mode == SMOOTH_PRED) {
+    // If the prediction mode of NONE partition is either DC_PRED or
+    // SMOOTH_PRED, it indicates that the current block has lesser variation. In
+    // this case, HORZ and VERT partitions are pruned if at least one of left
+    // and top neighbor blocks are larger than the current block.
+    if (is_neighbor_blk_larger_than_cur_blk(xd, bsize)) {
+      part_state->prune_rect_part[HORZ] = 1;
+      part_state->prune_rect_part[VERT] = 1;
+    }
+  } else if (mode == D67_PRED || mode == V_PRED || mode == D113_PRED) {
+    // Prune horizontal partition if center angle of the prediction mode chosen
+    // by NONE partition is close to the 90 degrees (i.e. vertical direction).
+    part_state->prune_rect_part[HORZ] = 1;
+  } else if (mode == D157_PRED || mode == H_PRED || mode == D203_PRED) {
+    // Prune vertical partition if center angle of the prediction mode chosen
+    // by NONE partition is close to the 180 degrees (i.e. horizontal
+    // direction).
+    part_state->prune_rect_part[VERT] = 1;
+  }
+}
+
 // PARTITION_NONE search.
 static void none_partition_search(
     AV1_COMP *const cpi, ThreadData *td, TileDataEnc *tile_data, MACROBLOCK *x,
@@ -4322,6 +4367,10 @@ static void none_partition_search(
                                   part_search_state, best_rdc,
                                   pb_source_variance);
     }
+
+    if (cpi->sf.part_sf.prune_rect_part_using_none_pred_mode)
+      prune_rect_part_using_none_pred_mode(&x->e_mbd, part_search_state,
+                                           pc_tree->none->mic.mode, bsize);
   }
   av1_restore_context(x, x_ctx, mi_row, mi_col, bsize, av1_num_planes(cm));
 }

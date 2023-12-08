@@ -520,6 +520,7 @@ static void set_allintra_speed_features_framesize_independent(
     // TODO(jingning): This might not be a good trade off if the
     // target image quality is very low.
     sf->part_sf.default_max_partition_size = BLOCK_32X32;
+    sf->part_sf.prune_rect_part_using_none_pred_mode = true;
 
     sf->mv_sf.use_bsize_dependent_search_method = 1;
 
@@ -2008,6 +2009,7 @@ static AOM_INLINE void init_part_sf(PARTITION_SPEED_FEATURES *part_sf) {
   part_sf->use_best_rd_for_pruning = 0;
   part_sf->skip_non_sq_part_based_on_none = 0;
   part_sf->disable_8x8_part_based_on_qidx = 0;
+  part_sf->prune_rect_part_using_none_pred_mode = false;
 }
 
 static AOM_INLINE void init_mv_sf(MV_SPEED_FEATURES *mv_sf) {
