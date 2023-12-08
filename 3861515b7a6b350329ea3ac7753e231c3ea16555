@@ -24,6 +24,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "05ce500c_6d91b0aa",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 3156,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2023-12-08T22:07:14Z",
+      "side": 1,
+      "message": "It only happens when frame size changes too. Because when frame size changes, the number of required threads will be recomputed based on frame size.",
+      "parentUuid": "6feae902_1272ce12",
+      "range": {
+        "startLine": 3155,
+        "startChar": 9,
+        "endLine": 3156,
+        "endChar": 49
+      },
+      "revId": "3861515b7a6b350329ea3ac7753e231c3ea16555",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "7b439565_da6e60a2",
@@ -37,6 +61,30 @@
       "writtenOn": "2023-12-08T21:59:04Z",
       "side": 1,
       "message": "So this is needed besides terminate_worker_data()?",
+      "range": {
+        "startLine": 3162,
+        "startChar": 6,
+        "endLine": 3168,
+        "endChar": 7
+      },
+      "revId": "3861515b7a6b350329ea3ac7753e231c3ea16555",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6b00cfa8_7f70ba1c",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 3168,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2023-12-08T22:07:14Z",
+      "side": 1,
+      "message": "Yes. It is necessary, otherwise we will see thread racing.",
+      "parentUuid": "7b439565_da6e60a2",
       "range": {
         "startLine": 3162,
         "startChar": 6,
@@ -70,6 +118,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "2a9fd5fe_57d516f8",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 3169,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2023-12-08T22:07:14Z",
+      "side": 1,
+      "message": "I thought about that too. But the memory is allocated according to the number of threads. I don\u0027t think we have a easy way to extend the memory, or appending on the original memory. So we have to de-allocate and reallocate.",
+      "parentUuid": "3390d07f_935d53d1",
+      "range": {
+        "startLine": 3169,
+        "startChar": 6,
+        "endLine": 3169,
+        "endChar": 24
+      },
+      "revId": "3861515b7a6b350329ea3ac7753e231c3ea16555",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "1d4c4f61_121e9059",
@@ -83,6 +155,30 @@
       "writtenOn": "2023-12-08T21:59:04Z",
       "side": 1,
       "message": "Could you add a comment to describe the test?",
+      "range": {
+        "startLine": 502,
+        "startChar": 0,
+        "endLine": 502,
+        "endChar": 4
+      },
+      "revId": "3861515b7a6b350329ea3ac7753e231c3ea16555",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "16f7cd34_45424814",
+        "filename": "test/encode_api_test.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 502,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2023-12-08T22:07:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1d4c4f61_121e9059",
       "range": {
         "startLine": 502,
         "startChar": 0,
