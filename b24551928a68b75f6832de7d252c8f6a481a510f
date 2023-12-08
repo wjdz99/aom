@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "aad669a9_de52b9a9",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 2088,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-12-08T23:48:11Z",
+      "side": 1,
+      "message": "Nit: It would be good to add a comment to explain why we need to check this.",
+      "revId": "b24551928a68b75f6832de7d252c8f6a481a510f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
