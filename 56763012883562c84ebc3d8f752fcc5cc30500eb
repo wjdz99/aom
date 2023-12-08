@@ -35,6 +35,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ca87048f_c91acb29",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 33002
+      },
+      "writtenOn": "2023-12-08T17:49:03Z",
+      "side": 1,
+      "message": "Hi Wan-Teh, Thanks for the suggestion. Initially, we had considered this alternate approach of using the existing error flag. But, in order to avoid further processing after a memory allocation failure and to terminate immediately, we have gone ahead with the current implementation. We have taken care of your suggested changes in the latest patch set. Please review.",
+      "parentUuid": "b0dedc16_6db8fe2d",
+      "revId": "56763012883562c84ebc3d8f752fcc5cc30500eb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a5396742_763c8f16",
@@ -52,6 +70,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "c2511424_31bdadcf",
+        "filename": "aom_dsp/entenc.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 33002
+      },
+      "writtenOn": "2023-12-08T17:49:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a5396742_763c8f16",
+      "revId": "56763012883562c84ebc3d8f752fcc5cc30500eb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "3e557269_8a376fb8",
@@ -65,6 +101,24 @@
       "writtenOn": "2023-12-07T23:09:02Z",
       "side": 1,
       "message": "If we use `aom_internal_error()` to report errors, I suggest the following:\n\nAdd a `struct aom_internal_error_info *error_info` input parameter to `od_ec_enc_init()` and `aom_start_encode()`.\n\nThe new input parameter ensures that the `error_info` field of `struct od_ec_enc` is always set.",
+      "revId": "56763012883562c84ebc3d8f752fcc5cc30500eb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "15a566ac_5536ae16",
+        "filename": "aom_dsp/entenc.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 33002
+      },
+      "writtenOn": "2023-12-08T17:49:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3e557269_8a376fb8",
       "revId": "56763012883562c84ebc3d8f752fcc5cc30500eb",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
