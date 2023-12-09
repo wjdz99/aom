@@ -225,12 +225,14 @@ typedef aom_codec_err_t (*aom_codec_decode_fn_t)(aom_codec_alg_priv_t *ctx,
  *
  * \param[in]     ctx      Pointer to this instance's context
  * \param[in out] iter     Iterator storage, initialized to NULL
+ * \param[out]    err      Error code when the function returns NULL
  *
  * \return Returns a pointer to an image, if one is ready for display. Frames
  *         produced will always be in PTS (presentation time stamp) order.
  */
 typedef aom_image_t *(*aom_codec_get_frame_fn_t)(aom_codec_alg_priv_t *ctx,
-                                                 aom_codec_iter_t *iter);
+                                                 aom_codec_iter_t *iter,
+                                                 aom_codec_err_t *err);
 
 /*!\brief Pass in external frame buffers for the decoder to use.
  *

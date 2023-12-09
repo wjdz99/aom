@@ -109,10 +109,12 @@ aom_codec_err_t aom_codec_decode(aom_codec_ctx_t *ctx, const uint8_t *data,
 aom_image_t *aom_codec_get_frame(aom_codec_ctx_t *ctx, aom_codec_iter_t *iter) {
   aom_image_t *img;
 
-  if (!ctx || !iter || !ctx->iface || !ctx->priv)
+  if (!ctx || !iter || !ctx->iface || !ctx->priv) {
     img = NULL;
-  else
-    img = ctx->iface->dec.get_frame(get_alg_priv(ctx), iter);
+    if (ctx) ctx->err = AOM_CODEC_INVALID_PARAM;
+  } else {
+    img = ctx->iface->dec.get_frame(get_alg_priv(ctx), iter, &ctx->err);
+  }
 
   return img;
 }
