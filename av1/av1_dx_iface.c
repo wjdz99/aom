@@ -803,10 +803,12 @@ static void move_decoder_metadata_to_img(AV1Decoder *pbi, aom_image_t *img) {
 }
 
 static aom_image_t *decoder_get_frame(aom_codec_alg_priv_t *ctx,
-                                      aom_codec_iter_t *iter) {
+                                      aom_codec_iter_t *iter,
+                                      aom_codec_err_t *err) {
   aom_image_t *img = NULL;
 
   if (!iter) {
+    *err = AOM_CODEC_INVALID_PARAM;
     return NULL;
   }
 
@@ -814,7 +816,9 @@ static aom_image_t *decoder_get_frame(aom_codec_alg_priv_t *ctx,
   // simply a pointer to an integer index
   uintptr_t *index = (uintptr_t *)iter;
 
-  if (ctx->frame_worker != NULL) {
+  if (ctx->frame_worker == NULL) {
+    *err = AOM_CODEC_ERROR;
+  } else {
     const AVxWorkerInterface *const winterface = aom_get_worker_interface();
     AVxWorker *const worker = ctx->frame_worker;
     FrameWorkerData *const frame_worker_data = (FrameWorkerData *)worker->data1;
@@ -832,11 +836,15 @@ static aom_image_t *decoder_get_frame(aom_codec_alg_priv_t *ctx,
       }
       YV12_BUFFER_CONFIG *sd;
       aom_film_grain_t *grain_params;
+      *err = AOM_CODEC_OK;
       if (av1_get_raw_frame(frame_worker_data->pbi, *index, &sd,
                             &grain_params) == 0) {
         RefCntBuffer *const output_frame_buf = pbi->output_frames[*index];
         ctx->last_show_frame = output_frame_buf;
-        if (ctx->need_resync) return NULL;
+        if (ctx->need_resync) {
+          *err = AOM_CODEC_ERROR;
+          return NULL;
+        }
         aom_img_remove_metadata(&ctx->img);
         yuvconfig2image(&ctx->img, sd, frame_worker_data->user_priv);
         move_decoder_metadata_to_img(pbi, &ctx->img);
@@ -902,6 +910,7 @@ static aom_image_t *decoder_get_frame(aom_codec_alg_priv_t *ctx,
           pbi->error.has_detail = 1;
           snprintf(pbi->error.detail, sizeof(pbi->error.detail),
                    "Grain synthesis failed\n");
+          *err = update_error_state(ctx, &pbi->error);
           return res;
         }
         *index += 1;  // Advance the iterator to point to the next image
@@ -911,7 +920,10 @@ static aom_image_t *decoder_get_frame(aom_codec_alg_priv_t *ctx,
       // Decoding failed. Release the worker thread.
       frame_worker_data->received_frame = 0;
       ctx->need_resync = 1;
-      if (ctx->flushed != 1) return NULL;
+      if (ctx->flushed != 1) {
+        *err = AOM_CODEC_ERROR;
+        return NULL;
+      }
     }
   }
   return NULL;
