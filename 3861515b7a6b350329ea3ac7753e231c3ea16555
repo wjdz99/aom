@@ -159,6 +159,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "62b79c30_52ad2273",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 3169,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2023-12-09T00:28:26Z",
+      "side": 1,
+      "message": "If this situation won\u0027t happen in production, then an easy-to-read fix could be ok.",
+      "parentUuid": "2a9fd5fe_57d516f8",
+      "range": {
+        "startLine": 3169,
+        "startChar": 6,
+        "endLine": 3169,
+        "endChar": 24
+      },
+      "revId": "3861515b7a6b350329ea3ac7753e231c3ea16555",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "216ccb84_4c4ee9fe",
@@ -172,6 +196,24 @@
       "writtenOn": "2023-12-08T22:17:34Z",
       "side": 1,
       "message": "The code here (lines 3154-3196) is very complicated, and the newly-added code is the same as lines 3190-3194. I think someone who fully understands the code here should be able to simplify it. For example, I was able to simplify the conditional expression at line 3156. But I don\u0027t understand the rest of the code.\n\nPerhaps Yunqing can help us here?",
+      "revId": "3861515b7a6b350329ea3ac7753e231c3ea16555",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b8fc6405_52260410",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 3196,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2023-12-09T00:28:26Z",
+      "side": 1,
+      "message": "Here the implementation supports all different encoding options. I agree it is quite complicated. I feel the simplification may not be trivial. We probably do not have the resource now. Let\u0027s see.",
+      "parentUuid": "216ccb84_4c4ee9fe",
       "revId": "3861515b7a6b350329ea3ac7753e231c3ea16555",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
