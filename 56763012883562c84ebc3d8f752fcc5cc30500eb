@@ -55,6 +55,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "4a04175e_0e30fd26",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-12-09T18:29:46Z",
+      "side": 1,
+      "message": "Hi Satheesh,\n\nI looked at the code more closely, including aom_dsp/bitreader.c and `od_ec_dec`. I suggest we stick with the original design of `od_ec_enc` and change `aom_stop_encode()` to return -1 if `od_ec_enc_done()` returns NULL. Although this won\u0027t terminate encoding immediately after a memory allocation failure, this is a good trade-off because memory allocation failures are uncommon.\n\nI have prototyped the alternative approach and it requires slightly fewer changes than the current approach (because the changes to the tests are simpler).",
+      "parentUuid": "ca87048f_c91acb29",
+      "revId": "56763012883562c84ebc3d8f752fcc5cc30500eb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "a5396742_763c8f16",
         "filename": "aom_dsp/entenc.c",
         "patchSetId": 5
