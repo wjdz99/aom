@@ -65,6 +65,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "2f8ad096_b5808845",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 3156,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2023-12-09T01:40:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b2c1ec1b_f0bb04d1",
+      "revId": "3861515b7a6b350329ea3ac7753e231c3ea16555",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "7b439565_da6e60a2",
@@ -220,6 +238,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "4e6ee8a6_4facc485",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 3196,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2023-12-09T01:40:16Z",
+      "side": 1,
+      "message": "How about in this CL we keep it as is, Wan-Teh?",
+      "parentUuid": "b8fc6405_52260410",
+      "revId": "3861515b7a6b350329ea3ac7753e231c3ea16555",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "828fcb72_255e1ac6",
         "filename": "av1/encoder/ethread.c",
         "patchSetId": 5
@@ -231,6 +267,24 @@
       "writtenOn": "2023-12-08T22:17:34Z",
       "side": 1,
       "message": "I compared your new code with the `create_enc_workers()` function in libvpx (vp9/encoder/vp9_ethread.c). I confirm that your new code is using the same approach. The only optimization I want to suggest is a shortcut if we happen to have the request number of workers already:\n\n```\n  assert(num_workers \u003e 0);\n  if (num_workers \u003d\u003d p_mt_info-\u003enum_workers) return;\n```",
+      "revId": "3861515b7a6b350329ea3ac7753e231c3ea16555",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8522cda0_7ae0b627",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 1078,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2023-12-09T01:40:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "828fcb72_255e1ac6",
       "revId": "3861515b7a6b350329ea3ac7753e231c3ea16555",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -252,6 +306,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "6a20033d_02d8a0ad",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 1081,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2023-12-09T01:40:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ef7b7195_870a83fb",
+      "revId": "3861515b7a6b350329ea3ac7753e231c3ea16555",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "3b87cd6a_6d262d59",
@@ -269,6 +341,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ddbe29ef_55feb0f8",
+        "filename": "av1/encoder/ethread.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2023-12-09T01:40:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3b87cd6a_6d262d59",
+      "revId": "3861515b7a6b350329ea3ac7753e231c3ea16555",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d1b72134_c20f8458",
@@ -282,6 +372,24 @@
       "writtenOn": "2023-12-08T22:17:34Z",
       "side": 1,
       "message": "Optional: If we reverse the direction of this loop, then it will work with p_mt_info-\u003enum_workers \u003d\u003d 0:\n\n```\n  for (int t \u003d 0; t \u003c p_mt_info-\u003enum_workers; ++t) {\n```\n\nand we can omit the `if (p_mt_info-\u003enum_workers \u003e 0) {` check in `av1_create_workers()`.",
+      "revId": "3861515b7a6b350329ea3ac7753e231c3ea16555",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0bf02d64_57fd13ed",
+        "filename": "av1/encoder/ethread.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2023-12-09T01:40:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d1b72134_c20f8458",
       "revId": "3861515b7a6b350329ea3ac7753e231c3ea16555",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
