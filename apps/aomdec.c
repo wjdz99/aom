@@ -1004,6 +1004,8 @@ static int main_loop(int argc, const char **argv_) {
         }
       }
     }
+    // TODO(aomedia:3519): Check decoder.err to see if aom_codec_get_frame()
+    // failed.
   }
 
   if (summary || progress) {

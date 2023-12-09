@@ -112,7 +112,7 @@ aom_image_t *aom_codec_get_frame(aom_codec_ctx_t *ctx, aom_codec_iter_t *iter) {
   if (!ctx || !iter || !ctx->iface || !ctx->priv)
     img = NULL;
   else
-    img = ctx->iface->dec.get_frame(get_alg_priv(ctx), iter);
+    img = ctx->iface->dec.get_frame(get_alg_priv(ctx), iter, &ctx->err);
 
   return img;
 }
