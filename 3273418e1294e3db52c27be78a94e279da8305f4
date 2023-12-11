@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1ae4de27_6b121bc8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-12-11T20:01:56Z",
+      "side": 1,
+      "message": "LGTM. I have some questions.\n\nPlease make the function parameter type change in a separate CL.",
+      "revId": "3273418e1294e3db52c27be78a94e279da8305f4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0a23d326_3db54606",
+        "filename": "aom_dsp/flow_estimation/arm/disflow_neon.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-12-11T20:01:56Z",
+      "side": 1,
+      "message": "Declare the `kernel` parameter as `double kernel[4]`.\n\nSome compilers (such as GCC) can check the buffer passed to the function is at least that size.",
+      "revId": "3273418e1294e3db52c27be78a94e279da8305f4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bc0f7a17_f3df043e",
+        "filename": "aom_dsp/flow_estimation/arm/disflow_neon.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-12-11T20:01:56Z",
+      "side": 1,
+      "message": "Declare the `kernel` parameter as `int kernel[4]`.\n\nSome compilers (such as GCC) can check the buffer passed to the function is at least that size.",
+      "revId": "3273418e1294e3db52c27be78a94e279da8305f4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6922ebbf_80f8f769",
+        "filename": "aom_dsp/flow_estimation/arm/disflow_neon.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-12-11T20:01:56Z",
+      "side": 1,
+      "message": "Should we use the libc `modf` function?\n\nhttps://en.cppreference.com/w/c/numeric/math/modf",
+      "revId": "3273418e1294e3db52c27be78a94e279da8305f4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e99ba37f_c231a52c",
+        "filename": "aom_dsp/flow_estimation/arm/disflow_neon.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-12-11T20:01:56Z",
+      "side": 1,
+      "message": "It makes me wonder if it would be better to check if `u_frac` is 1 here and change it to 0 and add 1 to `u_int`.",
+      "revId": "3273418e1294e3db52c27be78a94e279da8305f4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
