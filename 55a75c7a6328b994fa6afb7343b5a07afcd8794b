@@ -16,6 +16,24 @@
       "message": "Nit: aom_codec_get_frame() \u003d\u003e aom_codec_get_frame_fn_t\n\n`aom_codec_get_frame()` is a public function, so we can\u0027t change its prototype without breaking compatibility. But we can change the prototype of `aom_codec_get_frame_fn_t`, which is an internal function, so that `aom_codec_get_frame()` sets `ctx-\u003eerr` when it returns NULL because of an error.",
       "revId": "55a75c7a6328b994fa6afb7343b5a07afcd8794b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "32f86a93_7ad4a685",
+        "filename": "apps/aomdec.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 837,
+      "author": {
+        "id": 33002
+      },
+      "writtenOn": "2023-12-11T15:57:59Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ff4153af_2138e547",
+      "revId": "55a75c7a6328b994fa6afb7343b5a07afcd8794b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
