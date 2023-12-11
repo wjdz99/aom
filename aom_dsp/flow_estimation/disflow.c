@@ -52,7 +52,7 @@
 // this gives the correct offset of 0 instead of -1.
 #define UPSAMPLE_CENTER_OFFSET ((DOWNSAMPLE_FACTOR - 1) / 2)
 
-static INLINE void get_cubic_kernel_dbl(double x, double *kernel) {
+static INLINE void get_cubic_kernel_dbl(double x, double kernel[4]) {
   // Check that the fractional position is in range.
   //
   // Note: x is calculated from (eg.) `u_frac = u - floor(u)`.
@@ -69,7 +69,7 @@ static INLINE void get_cubic_kernel_dbl(double x, double *kernel) {
   kernel[3] = -0.5 * x2 + 0.5 * x3;
 }
 
-static INLINE void get_cubic_kernel_int(double x, int *kernel) {
+static INLINE void get_cubic_kernel_int(double x, int kernel[4]) {
   double kernel_dbl[4];
   get_cubic_kernel_dbl(x, kernel_dbl);
 
@@ -79,13 +79,13 @@ static INLINE void get_cubic_kernel_int(double x, int *kernel) {
   kernel[3] = (int)rint(kernel_dbl[3] * (1 << DISFLOW_INTERP_BITS));
 }
 
-static INLINE double get_cubic_value_dbl(const double *p,
-                                         const double *kernel) {
+static INLINE double get_cubic_value_dbl(const double p[4],
+                                         const double kernel[4]) {
   return kernel[0] * p[0] + kernel[1] * p[1] + kernel[2] * p[2] +
          kernel[3] * p[3];
 }
 
-static INLINE int get_cubic_value_int(const int *p, const int *kernel) {
+static INLINE int get_cubic_value_int(const int p[4], const int kernel[4]) {
   return kernel[0] * p[0] + kernel[1] * p[1] + kernel[2] * p[2] +
          kernel[3] * p[3];
 }
