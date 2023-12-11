@@ -145,6 +145,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "f3049faa_e40b61ea",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1536,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-12-11T21:29:03Z",
+      "side": 1,
+      "message": "\u003e Satheesh: It\u0027s not clear why setting the color range will cause `alloc_compressor_data()` to be called in `av1_change_config()`, because the color range should be unrelated to width, height, and sb_size:\n\u003e \n\u003e ```\n\u003e   if (cm-\u003ewidth \u003e initial_dimensions-\u003ewidth ||\n\u003e       cm-\u003eheight \u003e initial_dimensions-\u003eheight || is_sb_size_changed) {\n\u003e     av1_free_context_buffers(cm);\n\u003e     av1_free_shared_coeff_buffer(\u0026cpi-\u003etd.shared_coeff_buf);\n\u003e     av1_free_sms_tree(\u0026cpi-\u003etd);\n\u003e     av1_free_pmc(cpi-\u003etd.firstpass_ctx, av1_num_planes(cm));\n\u003e     cpi-\u003etd.firstpass_ctx \u003d NULL;\n\u003e     alloc_compressor_data(cpi);\n\u003e     realloc_segmentation_maps(cpi);\n\u003e     initial_dimensions-\u003ewidth \u003d initial_dimensions-\u003eheight \u003d 0;\n\u003e   }\n\u003e ```\n\u003e \n\u003e If it\u0027s too much work, could you reproduce the error and find out why this conditional expression is true when we set the color range?\n\u003e \n\u003e James: The code snippet above is a typical example of how libaom reallocate buffers. It first frees the old buffers and then allocates the new buffers. This has the downside that if memory allocation fails, we have no buffers and the object is left in a bad state.\n\u003e \n\u003e Therefore, I am afraid that we will need to treat `AOM_CODEC_MEM_ERROR` as an unrecoverable error. It is not safe to call any `aom_codec_` function other than `aom_codec_destroy()`.\n\u003e \n\u003e In fact, I think any error raised by `aom_internal_error()` is running the risk of leaving the object in a bad state. If we want to defend against this, a good solution is to add an \"error state\" boolean flag to the codec object. A public codec function will first check if the codec object is in the error state.\n\nYes, I think that would be a good option. Note the decoder has been positioned to be able to recover from earlier errors though.",
+      "parentUuid": "4b3cb02f_fe463069",
+      "revId": "38d9e5426a4580c38180d17b5147b10ca157e07e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "501add97_2d30442c",
         "filename": "apps/aomenc.c",
         "patchSetId": 3
