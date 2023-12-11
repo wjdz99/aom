@@ -436,6 +436,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "5a6e4ca3_927736f0",
+        "filename": "av1/encoder/ethread.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-12-11T22:57:54Z",
+      "side": 1,
+      "message": "I just realized that my reasoning was wrong. The original direction of the for loop also works with p_mt_info-\u003enum_workers \u003d\u003d 0 because p_mt_info-\u003enum_workers is signed int.",
+      "parentUuid": "0bf02d64_57fd13ed",
+      "revId": "3861515b7a6b350329ea3ac7753e231c3ea16555",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "1d4c4f61_121e9059",
