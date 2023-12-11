@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f145f09b_33b8e3c8",
+        "filename": "aom_dsp/flow_estimation/disflow.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-12-11T21:03:04Z",
+      "side": 1,
+      "message": "Nit: I suggest we leave `p` unchanged and just document that it needs to have at least four elements.\n\nThe reason is that the caller of `get_cubic_value_dbl` doesn\u0027t pass an array of size 4 as the `p` argument.",
+      "revId": "bf092a34732b39c2ba52961e40b801c9c2aa815f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c6b34b6a_b7f4ac58",
+        "filename": "aom_dsp/flow_estimation/disflow.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-12-11T21:03:04Z",
+      "side": 1,
+      "message": "Nit: Declare both `h_kernel` and `v_kernel` as arrays of size 4.",
+      "revId": "bf092a34732b39c2ba52961e40b801c9c2aa815f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
