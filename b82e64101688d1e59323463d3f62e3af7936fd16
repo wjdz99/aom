@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "894d0190_896ecdee",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 1652,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-12-11T22:06:22Z",
+      "side": 1,
+      "message": "Nit/optional: Here we don\u0027t need to set these two pointers in `ppi` to null because we are freeing the entire `ppi` struct right away (line 1653).\n\nIf you prefer to set these pointers to NULL, also add:\n\n```\n  ppi-\u003ep_mt_info.num_workers \u003d 0;\n```",
+      "revId": "b82e64101688d1e59323463d3f62e3af7936fd16",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}

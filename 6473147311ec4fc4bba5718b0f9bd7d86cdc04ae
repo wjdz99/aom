@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "381cecbe_579fed4d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-12-11T22:06:22Z",
+      "side": 1,
+      "message": "Cheng: I believe patchset 8 is correct. However, I suggest moving some code around to make the code easier to analyze.",
+      "revId": "6473147311ec4fc4bba5718b0f9bd7d86cdc04ae",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b67ae086_13496c53",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 3166,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-12-11T22:06:22Z",
+      "side": 1,
+      "message": "I suggest we move `av1_terminate_workers()` call here. So this if statement becomes:\n\n```\n       if (ppi-\u003ep_mt_info.num_workers \u003e 0) {\n+        av1_terminate_workers(ppi);\n         free_thread_data(ppi);\n+        aom_free(p_mt_info-\u003etile_thr_data);\n+        p_mt_info-\u003etile_thr_data \u003d NULL;\n+        aom_free(p_mt_info-\u003eworkers);\n+        p_mt_info-\u003eworkers \u003d NULL;\n+        p_mt_info-\u003enum_workers \u003d 0;\n         for (int j \u003d 0; j \u003c ppi-\u003enum_fp_contexts; j++) {\n           aom_free(ppi-\u003eparallel_cpi[j]-\u003etd.tctx);\n           ppi-\u003eparallel_cpi[j]-\u003etd.tctx \u003d NULL;\n         }\n       }\n```\n\nNote: I suggest we call `av1_terminate_workers()` to terminate the threads first. This probably doesn\u0027t matter, but it\u0027s safer so that no threads can possibly reference the memory we are about to free.",
+      "revId": "6473147311ec4fc4bba5718b0f9bd7d86cdc04ae",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "edb7225a_273cea1c",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 1080,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-12-11T22:06:22Z",
+      "side": 1,
+      "message": "[Please see my next comment at line 1089 first.]\n\nDelete this. Or change this to `assert(p_mt_info-\u003enum_workers \u003d\u003d 0);`.",
+      "revId": "6473147311ec4fc4bba5718b0f9bd7d86cdc04ae",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ecf767aa_96fa491a",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 1089,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-12-11T22:06:22Z",
+      "side": 1,
+      "message": "I suggest we move this if statement to av1/av1_cx_iface.c.",
+      "revId": "6473147311ec4fc4bba5718b0f9bd7d86cdc04ae",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
