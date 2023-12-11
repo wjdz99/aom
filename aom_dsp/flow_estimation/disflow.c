@@ -53,7 +53,7 @@
 #define UPSAMPLE_CENTER_OFFSET ((DOWNSAMPLE_FACTOR - 1) / 2)
 
 static INLINE void get_cubic_kernel_dbl(double x, double *kernel) {
-  assert(0 <= x && x < 1);
+  assert(0 <= x && x <= 1);
   double x2 = x * x;
   double x3 = x2 * x;
   kernel[0] = -0.5 * x + x2 - 0.5 * x3;
