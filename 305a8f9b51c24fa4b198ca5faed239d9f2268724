@@ -56,6 +56,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "d097fe7b_58a48362",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2023-12-12T16:19:59Z",
+      "side": 1,
+      "message": "After studying the decoder’s design of error handling we see that it is different from that of the encoder, and this issue is not possible even when the constraint of 2 threads is removed. This is because an erroneous thread in the decoder will set `row_mt_exit` to 1 and invoke `signal_decoding_done_for_erroneous_row()` which sets `num_finished_cols[r]` to the maximum column number where `r` is the erroneous row (not for all the rows in the frame/tile). The non erroneous threads which have already picked jobs (`decode_tile_sb_row()`) will skip `decode_partition()` based on the `row_mt_exit` flag but will invoke `sync_write()` for all SB columns to avoid dependent threads from waiting indefinitely. The non-erroneous threads would later exit while picking the next job (please see `get_next_job_info()`). Hence the threads do not exit immediately in `decode_tile_sb_row()` after checking the `row_mt_exit` flag.\n\nWe see 2 possible approaches if we want the non-erroneous threads (which are in progress) to exit immediately:\nApproach 1: If `row_mt_exit` is true, invoke `sync_write()` for the current row with maximum column number and exit\nApproach 2: Implement a design similar to encoder which would involve the below 3 changes: \n           a. Modify `signal_decoding_done_for_erroneous_row()` to update decoding done for all rows\n           b. Modify `sync_write()` similar to current CL\n           c. Exit early after checking `row_mt_exit` flag      \n \nApproach 1 would adhere to the current error handling design of the decoder, whereas Approach 2 may require more changes to current error handling design. Please let us know your opinion.\n\n\n\u003e Since the signal_decoding_done_for_erroneous_row() call also locks a mutex internally, the code here needs to lock two mutexes. If it is not necessary to call signal_decoding_done_for_erroneous_row() while holding pbi-\u003erow_mt_mutex_, I suggest we call signal_decoding_done_for_erroneous_row() after unlocking pbi-\u003erow_mt_mutex_.\n\nAcknowledge. As per our code study `signal_decoding_done_for_erroneous_row()` doesn\u0027t need to be called under `pbi-\u003erow_mt_mutex_` lock. We shall submit a CL addressing this.",
+      "parentUuid": "f1f6a5ee_ac204a91",
+      "revId": "305a8f9b51c24fa4b198ca5faed239d9f2268724",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "c5bcb4f4_c8a09db1",
         "filename": "/PATCHSET_LEVEL",
         "patchSetId": 3
@@ -85,6 +103,24 @@
       "side": 1,
       "message": "\u003e This issue is reproducible only if a minimum of three threads are working in parallel on a tile. A similar fix is currently not required for the `sync_write()` function of decoder, as the decoder has a constraint of maximum 2 threads per tile (`AOM_MAX_THREADS_PER_TILE`). Please let us know if we should do this fix for the decoder as well to avoid  deadlock issues in the future if this constraint is removed.\n\nHi Mudassir,\n\nI am sorry I started reviewing this CL without reading this review message. Please consider this when you read my earlier comments.\n\nAlso, if it\u0027s easy to explain why this bug requires at least three threads, I\u0027d love to understand it. Don\u0027t worry about it if the explanation is complicated.",
       "parentUuid": "c5bcb4f4_c8a09db1",
+      "revId": "305a8f9b51c24fa4b198ca5faed239d9f2268724",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "324c6c2c_55d0e7a0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2023-12-12T16:19:59Z",
+      "side": 1,
+      "message": "Hi Wan-Teh,\nThank you for reviewing and merging the CL.\n\nOn further study of the error handling framework on the decoder side, we see that this deadlock scenario is not possible even if the number of threads \u003e\u003d 3. However the deadlock is possible in encoder only if number of threads \u003e\u003d 3 as explained below.\n\nConsider that threads t0, t1, and t2 are encoding rows r0, r1 and r2 respectively. When t0 encounters an error it will set `num_finished_cols[r]` to the maximum column number for all the rows in the frame. Thread t1 which just finishes encoding a block in row r1 can overwrite `num_finished_cols[r1]` with a smaller column number. This overwrite can cause its dependent thread t2 to wait indefinitely in `sync_read()` but will not affect t1 from exiting early (as t1 is only dependent on `num_finished_cols[r0]`). \n\nWe have described our findings on decoder framework as response to your other comments.",
+      "parentUuid": "57eaeb69_cd6e4fe8",
       "revId": "305a8f9b51c24fa4b198ca5faed239d9f2268724",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
