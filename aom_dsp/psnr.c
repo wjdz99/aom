@@ -349,7 +349,11 @@ void aom_calc_highbd_psnr(const YV12_BUFFER_CONFIG *a,
   int i;
   uint64_t total_sse = 0;
   uint32_t total_samples = 0;
-  double peak = (double)((1 << in_bit_depth) - 1);
+#if CONFIG_LIBVMAF_PSNR_PEAK
+  const double peak = (double)(255 << (in_bit_depth - 8));
+#else
+  const double peak = (double)((1 << in_bit_depth) - 1);
+#endif  // CONFIG_LIBVMAF_PSNR_PEAK
   const unsigned int input_shift = bit_depth - in_bit_depth;
 
   for (i = 0; i < 3; ++i) {

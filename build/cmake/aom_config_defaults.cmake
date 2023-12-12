@@ -168,6 +168,9 @@ set_aom_config_var(
   "AV1 experiment: Enable saliency map based encoding tuning for VMAF.")
 set_aom_config_var(CONFIG_CWG_C013 0
                    "AV1 experiment: Support for 7.x and 8.x levels.")
+# Add this change to make PSNR reported consistent with libvmaf.
+set_aom_config_var(CONFIG_LIBVMAF_PSNR_PEAK 1
+                   "Use AV2 CTC type PSNR peak for 10- and 12-bit")
 
 #
 # Variables in this section control optional features of the build system.
