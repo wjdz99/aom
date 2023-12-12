@@ -1521,10 +1521,8 @@ static aom_codec_err_t encoder_set_config(aom_codec_alg_priv_t *ctx,
          !valid_ref_frame_size(ctx->ppi->cpi->last_coded_width,
                                ctx->ppi->cpi->last_coded_height, cfg->g_w,
                                cfg->g_h)) ||
-        (initial_dimensions->width &&
-         (int)cfg->g_w > initial_dimensions->width) ||
-        (initial_dimensions->height &&
-         (int)cfg->g_h > initial_dimensions->height))
+        ((int)cfg->g_w > initial_dimensions->width) ||
+        ((int)cfg->g_h > initial_dimensions->height))
       force_key = 1;
   }
 

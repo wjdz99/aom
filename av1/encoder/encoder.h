@@ -3183,6 +3183,12 @@ typedef struct AV1_COMP {
   int initial_mbs;
 
   /*!
+   * Flag to indicate whether the frame size inforamation has been
+   * setup and propagated to associated allocations.
+   */
+  bool frame_size_related_setup_done;
+
+  /*!
    * The width of the frame that is lastly encoded.
    * It is updated in the function "encoder_encode()".
    */
