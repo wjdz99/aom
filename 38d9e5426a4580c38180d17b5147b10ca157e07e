@@ -163,6 +163,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "e4dd2679_27f04e31",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1536,
+      "author": {
+        "id": 33002
+      },
+      "writtenOn": "2023-12-12T14:18:18Z",
+      "side": 1,
+      "message": "\u003e Satheesh: It\u0027s not clear why setting the color range will cause `alloc_compressor_data()` to be called in `av1_change_config()`, because the color range should be unrelated to width, height, and sb_size:\n```  \n\u003e if (cm-\u003ewidth \u003e initial_dimensions-\u003ewidth ||\n      cm-\u003eheight \u003e initial_dimensions-\u003eheight || is_sb_size_changed) {\n    av1_free_context_buffers(cm);\n    av1_free_shared_coeff_buffer(\u0026cpi-\u003etd.shared_coeff_buf);\n    av1_free_sms_tree(\u0026cpi-\u003etd);\n    av1_free_pmc(cpi-\u003etd.firstpass_ctx, av1_num_planes(cm));\n    cpi-\u003etd.firstpass_ctx \u003d NULL;\n    alloc_compressor_data(cpi);\n    realloc_segmentation_maps(cpi);\n    initial_dimensions-\u003ewidth \u003d initial_dimensions-\u003eheight \u003d 0;\n  }\n```\n\u003e If it\u0027s too much work, could you reproduce the error and find out why this conditional expression is true when we set the color range?\n   \nHi Wan-Teh,\nWe see that `cpi-\u003einitial_dimensions.width` and ` cpi-\u003einitial_dimensions.height` are initialized to zero during `av1_create_compressor()` and not updated until `av1_check_initial_width()` is invoked during the process calls (encoder_encode()). Because of this, the condition `\nif (cm-\u003ewidth \u003e initial_dimensions-\u003ewidth || \ncm-\u003eheight \u003e initial_dimensions-\u003eheight)` will always be true for all the control calls before the first encoder_encode() call and hence `alloc_compressor_data()` is invoked even if color range is being set (in this case).\n\nWe feel that these repeated calls to `alloc_compressor_data()` are not intended and seem to have come due to the changes done in the CL \nhttps://aomedia-review.googlesource.com/c/aom/+/182413.",
+      "parentUuid": "f3049faa_e40b61ea",
+      "revId": "38d9e5426a4580c38180d17b5147b10ca157e07e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "501add97_2d30442c",
         "filename": "apps/aomenc.c",
         "patchSetId": 3
