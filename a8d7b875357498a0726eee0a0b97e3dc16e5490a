@@ -16,6 +16,24 @@
       "message": "This parameter could be dropped entirely.",
       "revId": "a8d7b875357498a0726eee0a0b97e3dc16e5490a",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "57cc2511_186be7c3",
+        "filename": "aom_dsp/arm/intrapred_neon.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 2363,
+      "author": {
+        "id": 31817
+      },
+      "writtenOn": "2023-12-12T09:26:31Z",
+      "side": 1,
+      "message": "I\u0027ve left these here to enable the later commit adding the z3 kernel table lookup: in that case we need the prototypes of the kernels to match but we need the parameter in the {4,8}xN and Nx{4,8} cases?",
+      "parentUuid": "d76ca590_6a0c5110",
+      "revId": "a8d7b875357498a0726eee0a0b97e3dc16e5490a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
