@@ -3658,6 +3658,12 @@ typedef struct AV1_COMP {
    * so scaling is not needed for last_source.
    */
   int scaled_last_source_available;
+
+  /*!
+   * Flag to indicate whether the frame size inforamation has been
+   * setup and propagated to associated allocations.
+   */
+  bool initial_setup;
 } AV1_COMP;
 
 /*!
