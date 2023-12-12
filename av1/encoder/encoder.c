@@ -642,6 +642,10 @@ static void init_config(struct AV1_COMP *cpi, const AV1EncoderConfig *oxcf) {
   cm->height = oxcf->frm_dim_cfg.height;
   cpi->is_dropped_frame = false;
 
+  InitialDimensions *const initial_dimensions = &cpi->initial_dimensions;
+  initial_dimensions->width = cm->width;
+  initial_dimensions->height = cm->height;
+
   alloc_compressor_data(cpi);
 
   // Single thread case: use counts in common.
@@ -2069,9 +2073,10 @@ void av1_check_initial_width(AV1_COMP *cpi, int use_highbitdepth,
   AV1_COMMON *const cm = &cpi->common;
   SequenceHeader *const seq_params = cm->seq_params;
   InitialDimensions *const initial_dimensions = &cpi->initial_dimensions;
+  initial_dimensions->width = cm->width;
+  initial_dimensions->height = cm->height;
 
-  if (!initial_dimensions->width ||
-      seq_params->use_highbitdepth != use_highbitdepth ||
+  if (seq_params->use_highbitdepth != use_highbitdepth ||
       seq_params->subsampling_x != subsampling_x ||
       seq_params->subsampling_y != subsampling_y) {
     seq_params->subsampling_x = subsampling_x;
@@ -2090,8 +2095,6 @@ void av1_check_initial_width(AV1_COMP *cpi, int use_highbitdepth,
 
     init_motion_estimation(cpi);  // TODO(agrange) This can be removed.
 
-    initial_dimensions->width = cm->width;
-    initial_dimensions->height = cm->height;
     cpi->initial_mbs = cm->mi_params.MBs;
   }
 }
