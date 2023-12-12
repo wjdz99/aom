@@ -1502,8 +1502,6 @@ AV1EncoderConfig av1_get_encoder_config(const aom_codec_enc_cfg_t *cfg) {
 
 static aom_codec_err_t encoder_set_config(aom_codec_alg_priv_t *ctx,
                                           const aom_codec_enc_cfg_t *cfg) {
-  InitialDimensions *const initial_dimensions =
-      &ctx->ppi->cpi->initial_dimensions;
   aom_codec_err_t res;
   int force_key = 0;
 
@@ -1521,11 +1519,10 @@ static aom_codec_err_t encoder_set_config(aom_codec_alg_priv_t *ctx,
          !valid_ref_frame_size(ctx->ppi->cpi->last_coded_width,
                                ctx->ppi->cpi->last_coded_height, cfg->g_w,
                                cfg->g_h)) ||
-        (initial_dimensions->width &&
-         (int)cfg->g_w > initial_dimensions->width) ||
-        (initial_dimensions->height &&
-         (int)cfg->g_h > initial_dimensions->height))
+        (((int)cfg->g_w > ctx->ppi->cpi->last_coded_width) ||
+        ((int)cfg->g_h > ctx->ppi->cpi->last_coded_height))) {
       force_key = 1;
+    }
   }
 
   if (ctx->monochrome_on_init && cfg->monochrome == 0) {
