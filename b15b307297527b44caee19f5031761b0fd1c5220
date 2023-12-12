@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6ac62856_2a4544b3",
+        "filename": "aom_dsp/entenc.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-12-12T00:18:08Z",
+      "side": 1,
+      "message": "Could you explain why this is needed?\n\nIf we need this early return, we should do it before line 61.\n\nNote: In my testing, test_libaom passed without this change.",
+      "revId": "b15b307297527b44caee19f5031761b0fd1c5220",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9dac3de2_bb4ac0b9",
+        "filename": "aom_dsp/entenc.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-12-12T00:18:08Z",
+      "side": 1,
+      "message": "Optional: I think we should delete this line. It is not necessary.\n\nAre you trying to avoid unrelated cleanup in this CL?",
+      "revId": "b15b307297527b44caee19f5031761b0fd1c5220",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5cc3fbe2_12168f03",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 3645,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-12-12T00:18:08Z",
+      "side": 1,
+      "message": "Please delete this line. (It was for debugging only.)",
+      "revId": "b15b307297527b44caee19f5031761b0fd1c5220",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e9c04679_0180de5f",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 3784,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-12-12T00:18:08Z",
+      "side": 1,
+      "message": "Delete this line.",
+      "revId": "b15b307297527b44caee19f5031761b0fd1c5220",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
