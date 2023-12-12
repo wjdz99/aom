@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "af9c44d3_6384e25d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-12-12T15:52:16Z",
+      "side": 1,
+      "message": "LGTM. Thanks.\n\nNote: Honestly I am not sure if `p` and `arr` should be declared with the array notation. The C language discards the array size in function parameter declarations. I don\u0027t fully know how compilers such as GCC use that information in there warnings.",
+      "revId": "c329e1dc9fe878df126d92e7151c8bf9096c1558",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2b3e1207_50852814",
+        "filename": "aom_dsp/flow_estimation/disflow.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-12-12T15:52:16Z",
+      "side": 1,
+      "message": "`h_kernel` and `v_kernel` can be declared as const.",
+      "revId": "c329e1dc9fe878df126d92e7151c8bf9096c1558",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
