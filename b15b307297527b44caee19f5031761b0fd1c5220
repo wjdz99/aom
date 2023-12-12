@@ -20,6 +20,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "6d5d1d89_c761e2bb",
+        "filename": "aom_dsp/entenc.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-12-12T02:15:47Z",
+      "side": 1,
+      "message": "I just realized that my testing did not have memory allocation failures because I only ran test_libaom. Perhaps this is needed after an out-of-memory error?",
+      "parentUuid": "6ac62856_2a4544b3",
+      "revId": "b15b307297527b44caee19f5031761b0fd1c5220",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "9dac3de2_bb4ac0b9",
         "filename": "aom_dsp/entenc.c",
         "patchSetId": 7
@@ -31,6 +49,24 @@
       "writtenOn": "2023-12-12T00:18:08Z",
       "side": 1,
       "message": "Optional: I think we should delete this line. It is not necessary.\n\nAre you trying to avoid unrelated cleanup in this CL?",
+      "revId": "b15b307297527b44caee19f5031761b0fd1c5220",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5d6f7cf8_53c986cb",
+        "filename": "aom_dsp/entenc.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-12-12T02:15:47Z",
+      "side": 1,
+      "message": "I\u0027d be happy to make this change in a separate CL if you want this CL to focus on reporting memory allocation failures.",
+      "parentUuid": "9dac3de2_bb4ac0b9",
       "revId": "b15b307297527b44caee19f5031761b0fd1c5220",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
