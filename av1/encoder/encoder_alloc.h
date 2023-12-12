@@ -458,6 +458,7 @@ static AOM_INLINE void free_thread_data(AV1_PRIMARY *ppi) {
   for (int t = 1; t < p_mt_info->num_workers; ++t) {
     EncWorkerData *const thread_data = &p_mt_info->tile_thr_data[t];
     thread_data->td = thread_data->original_td;
+    if (!thread_data->td) continue;
     aom_free(thread_data->td->tctx);
     aom_free(thread_data->td->palette_buffer);
     aom_free(thread_data->td->tmp_conv_dst);
