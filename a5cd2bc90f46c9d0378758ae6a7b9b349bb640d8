@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "67182bc5_b0f49bcf",
+        "filename": "av1/encoder/speed_features.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1624,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2023-12-13T23:42:21Z",
+      "side": 1,
+      "message": "you can do\n```\nsf-\u003ert_sf.nonrd_prune_ref_frame_search \u003d sf-\u003ert_sf.nonrd_prune_ref_frame_search \u003e 1 ? 1 : 0;\n```\n\nthis seems to contradict to the CL description:\n\n\"This change also makes sure nonrd_prune_ref_frame_search \u003e\u003d 1\"\n\ndo you want to just make sure it\u0027s 1?",
+      "range": {
+        "startLine": 1624,
+        "startChar": 6,
+        "endLine": 1624,
+        "endChar": 44
+      },
+      "revId": "a5cd2bc90f46c9d0378758ae6a7b9b349bb640d8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
