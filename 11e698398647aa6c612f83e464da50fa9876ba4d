@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bf4b247c_e5c6357a",
+        "filename": "av1/common/av1_rtcd_defs.pl",
+        "patchSetId": 1
+      },
+      "lineNbr": 487,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-12-13T23:54:17Z",
+      "side": 1,
+      "message": "We can assume for now that this matches since it\u0027s calling C-code. Given AVX2 mismatches, yet the CNN test passes, it\u0027s uncertain that if the assertion is fixed in the NEON that it will be sufficient.",
+      "revId": "11e698398647aa6c612f83e464da50fa9876ba4d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
