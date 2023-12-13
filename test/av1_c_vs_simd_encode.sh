@@ -320,7 +320,7 @@ av1_enc_build() {
       elog "cmake failure"
       return 1
     fi
-    if ! eval make -j$(nproc) ${devnull}; then
+    if ! eval make -j$(nproc) aomenc ${devnull}; then
       elog "build failure"
       return 1
     fi
