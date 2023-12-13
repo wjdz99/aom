@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "355dd712_b9fa3ba3",
+        "filename": "av1/encoder/arm/neon/cnn_neon.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1095,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-12-13T17:53:44Z",
+      "side": 0,
+      "message": "This void cast is not necessary because `cstep` is used as long as this function calls `av1_cnn_convolve_no_maxpool_padding_valid_c()`.",
+      "revId": "0ed46f67a0a38dcce3cc1ea2dbf3fb61014bb33a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
