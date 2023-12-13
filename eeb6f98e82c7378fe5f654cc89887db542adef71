@@ -33,6 +33,261 @@
       "message": "Hi Apurve,\n\nI will review this CL tomorrow (Wednesday). Sorry about the delay.",
       "revId": "eeb6f98e82c7378fe5f654cc89887db542adef71",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9cfd1a03_e7e77d45",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-12-13T21:44:29Z",
+      "side": 1,
+      "message": "LGTM. I\u0027m sorry I wrote many comments. Most of them are simple comment fixes.\n\nTwo of the comments, marked as optional, are requests for explanation/rationale for this speed feature.",
+      "revId": "eeb6f98e82c7378fe5f654cc89887db542adef71",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d260a50b_a8319c2b",
+        "filename": "av1/encoder/partition_search.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 4236,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-12-13T21:44:29Z",
+      "side": 1,
+      "message": "Nit: are \u003d\u003e is\n\nAlso remove \"that of\". I guess \"that\" is intended to refer to the area, but the word \"area\" is not in this sentence.",
+      "revId": "eeb6f98e82c7378fe5f654cc89887db542adef71",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f9db6d16_5414dfd7",
+        "filename": "av1/encoder/partition_search.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 4237,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-12-13T21:44:29Z",
+      "side": 1,
+      "message": "Nit: `bool` is already used in this file. I suggest replacing `int` with `bool`. Remember to change \"1\" and \"0\" in the comment to \"true\" and \"false\".",
+      "revId": "eeb6f98e82c7378fe5f654cc89887db542adef71",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8d1a93ff_64b4cfbe",
+        "filename": "av1/encoder/partition_search.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 4238,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-12-13T21:44:29Z",
+      "side": 1,
+      "message": "Nit: Change `MACROBLOCKD *const xd` to `const MACROBLOCKD *xd`\n\nNote: The use of `const` on a pointer parameter is common in libaom, but it is not useful because functions rarely modify their pointer parameters. Here it is more useful to use `const` on `MACROBLOCKD`.\n\nNo need to say `const MACROBLOCKD *const xd` -- too verbose.",
+      "revId": "eeb6f98e82c7378fe5f654cc89887db542adef71",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f27de620_585a86ad",
+        "filename": "av1/encoder/partition_search.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 4257,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-12-13T21:44:29Z",
+      "side": 1,
+      "message": "Optional: It would be helpful to explain why horizontal or vertical partiion is pruned in each case.\n\nYou can adapt the following from your message:\n\n\u003e we observed that the prediction mode chosen for NONE partition correlates with the evaluation of rectangular partitions. The accurate logic used to prune rectangular partitions seems to depend on the nature of prediction mode chosen for NONE and neighbor blocks information.",
+      "revId": "eeb6f98e82c7378fe5f654cc89887db542adef71",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f164de98_bfa7a06a",
+        "filename": "av1/encoder/partition_search.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 4258,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-12-13T21:44:29Z",
+      "side": 1,
+      "message": "Nit: Change `MACROBLOCKD *const xd` to `const MACROBLOCKD *xd`",
+      "revId": "eeb6f98e82c7378fe5f654cc89887db542adef71",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d58fadc1_625263ba",
+        "filename": "av1/encoder/partition_search.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 4262,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-12-13T21:44:29Z",
+      "side": 1,
+      "message": "Nit: lesser \u003d\u003e less",
+      "revId": "eeb6f98e82c7378fe5f654cc89887db542adef71",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "48c071bb_78e1c8ae",
+        "filename": "av1/encoder/partition_search.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 4264,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-12-13T21:44:29Z",
+      "side": 1,
+      "message": "Nit: are \u003d\u003e is",
+      "revId": "eeb6f98e82c7378fe5f654cc89887db542adef71",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "26425ae8_13369b03",
+        "filename": "av1/encoder/partition_search.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 4271,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-12-13T21:44:29Z",
+      "side": 1,
+      "message": "Nit: remove \"the\"",
+      "revId": "eeb6f98e82c7378fe5f654cc89887db542adef71",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7be8acd3_ee39a886",
+        "filename": "av1/encoder/partition_search.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 4275,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-12-13T21:44:29Z",
+      "side": 1,
+      "message": "Nit: remove \"the\"",
+      "revId": "eeb6f98e82c7378fe5f654cc89887db542adef71",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "311b2adb_a1e93fc9",
+        "filename": "av1/encoder/speed_features.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 516,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-12-13T21:44:29Z",
+      "side": 1,
+      "message": "Set `sf-\u003epart_sf.prune_rect_part_using_none_pred_mode` to true after this line, to match the declaration order of the fields in the struct.",
+      "revId": "eeb6f98e82c7378fe5f654cc89887db542adef71",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "39cfbf90_d47cafe8",
+        "filename": "av1/encoder/speed_features.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2002,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-12-13T21:44:29Z",
+      "side": 1,
+      "message": "Set `part_sf-\u003eprune_rect_part_using_none_pred_mode` after this line, to match the declaration order of these fields in the struct.",
+      "revId": "eeb6f98e82c7378fe5f654cc89887db542adef71",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f8e96084_51dcd101",
+        "filename": "av1/encoder/speed_features.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 724,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-12-13T21:44:29Z",
+      "side": 1,
+      "message": "Optional: It would be helpful to explain (somewhere, not necessarily here) why the pruning decision is based on the NONE prediction mode.\n\nYou can adapt the following from your message:\n\n\u003e we observed that the prediction mode chosen for NONE partition correlates with the evaluation of rectangular partitions. The accurate logic used to prune rectangular partitions seems to depend on the nature of prediction mode chosen for NONE and neighbor blocks information.",
+      "revId": "eeb6f98e82c7378fe5f654cc89887db542adef71",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b0b40423_5a976cb7",
+        "filename": "av1/encoder/speed_features.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 734,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-12-13T21:44:29Z",
+      "side": 1,
+      "message": "Nit: delete \"the\"",
+      "revId": "eeb6f98e82c7378fe5f654cc89887db542adef71",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a98487f8_7be8d2a2",
+        "filename": "av1/encoder/speed_features.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 740,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-12-13T21:44:29Z",
+      "side": 1,
+      "message": "I am curious why this speed feature is not applicable to speed \u003e\u003d 7. Is it because `none_partition_search()` is not called for speed \u003e\u003d 7?\n\nYou can adapt the following from your message:\n\n\u003e Though the sf is enabled for speed presets \u003e\u003d6, it is applicable for only speed\u003d6. For speeds \u003e\u003d7, variance based partition logic is used to decide partition structure and the current logic will not be invoked.",
+      "revId": "eeb6f98e82c7378fe5f654cc89887db542adef71",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
