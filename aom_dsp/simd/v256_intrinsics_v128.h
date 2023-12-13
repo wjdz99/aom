@@ -14,9 +14,7 @@
 
 #include "config/aom_config.h"
 
-#if HAVE_NEON
-#include "aom_dsp/simd/v128_intrinsics_arm.h"
-#elif HAVE_SSE2
+#if HAVE_SSE2
 #include "aom_dsp/simd/v128_intrinsics_x86.h"
 #else
 #include "aom_dsp/simd/v128_intrinsics.h"
