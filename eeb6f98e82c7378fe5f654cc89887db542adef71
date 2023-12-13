@@ -16,6 +16,23 @@
       "message": "In this CL, we introduced a speed feature `prune_rect_part_using_none_pred_mode` to prune horizontal and vertical partitions. As per the analysis, we observed that the prediction mode chosen for NONE partition correlates with the evaluation of rectangular partitions. The accurate logic used to prune rectangular partitions seems to depend on the nature of prediction mode chosen for NONE and neighbor blocks information. If the prediction mode chosen for NONE partitions is\nDC_PRED or SMOOTH_PRED: It indicates that the current block has lesser variation. In this case, HORZ and VERT partitions are pruned if at least one of the left and top neighbor blocks are larger than the current block.\nDirectional Mode: Prunes either of the HORZ and VERT partitions based on the center angle of the prediction mode chosen by NONE partition. For example, the vertical partition is pruned if the center angle of the prediction mode chosen by NONE partition is close to the 180 degrees (i.e. horizontal direction) and vice versa. \n\nThough the sf is enabled for speed presets \u003e\u003d6, it is applicable for only speed\u003d6. For speeds \u003e\u003d7, variance based partition logic is used to decide partition structure and the current logic will not be invoked. \n\nFor AVIF still-image encode with tune\u003dssim,\n```\n               Encode Time             BD-Rate Loss(%)\ncpu-used       Reduction(%)            psnr          ssim\n    6            4.439                 0.1508        0.2304\n```\nFollowing are the instruction count reduction results when libaom allintra frame encoding (50 frames) was tested for a borg setup:\n```\n               Instruction Count       BD-Rate Loss(%)\ncpu-used       Reduction(%)            psnr        ssim\n    6            5.094                 0.2215      0.3247\n```\nFor libaom AV1 video encode, bit-match is verified (w.r.t. parent commit) for \u0027GOOD\u0027 and \u0027RT\u0027 encoding modes for a few contents with different encoding configurations. It is verified that the CL is bit-exact for allintra encode, speed \u003e 6, with no speed impact.\n\nLibavif commit used for testing: `15fa36c4c1b1beb409ec7ef44e41fadf8a38b944`",
       "revId": "eeb6f98e82c7378fe5f654cc89887db542adef71",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cf91c2da_d1014afd",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-12-13T02:09:06Z",
+      "side": 1,
+      "message": "Hi Apurve,\n\nI will review this CL tomorrow (Wednesday). Sorry about the delay.",
+      "revId": "eeb6f98e82c7378fe5f654cc89887db542adef71",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
