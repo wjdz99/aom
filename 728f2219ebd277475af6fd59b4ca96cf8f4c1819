@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "76d8f6d1_76fde055",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 33002
+      },
+      "writtenOn": "2023-12-13T13:14:44Z",
+      "side": 1,
+      "message": "In the parent commit, if the allocation of `thread_data-\u003etd` fails in `av1_init_tile_thread_data()`, during `encoder_destroy()` the missing NULL check of `thread_data-\u003etd` in `free_thread_data()` can result in SEGV error. This CL fixes this issue by adding a NULL check for `thread_data-\u003etd` in `free_thread_data()`.\n\nThis change is bit-exact and has been verified using bitstream-match tests for a combination of various configuration values for --threads, --tile-rows, --tile-columns, --cpu-used, --end-usage, --row-mt, --fp-mt, etc. Validated all unit-tests with sanitizers (address and thread) and valgrind.",
+      "revId": "728f2219ebd277475af6fd59b4ca96cf8f4c1819",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
