@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1547b29d_e9ed986e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 33002
+      },
+      "writtenOn": "2023-12-13T13:23:30Z",
+      "side": 1,
+      "message": "In the parent commit, if the allocation in `av1_int_pro_motion_estimation()` (`av1_choose_var_based_partitioning()-\u003esetup_planes()-\u003eav1_int_pro_motion_estimation()`) fails, the local buffer `vt` in `av1_choose_var_based_partitioning()` will show up as leak. This CL fixes this issue by moving the allocation of the `vt` buffer (to line number 1722) after the call to `setup_planes()`.\n\nThis CL also uses thread-specific `xd-\u003eerror_info` instead of `cm-\u003eerror` for error handling in `av1_int_pro_motion_estimation()`, as it can be called from a multi-threaded path.\n\nThis change is bit-exact and has been verified using bitstream-match tests for a combination of various configuration values for --threads, --tile-rows, --tile-columns, --cpu-used, --end-usage, --row-mt, --fp-mt, etc. Validated all unit-tests with sanitizers (address and thread) and valgrind.",
+      "revId": "80c1d4f80f6890ca2a4395423b1470119179ad34",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
