@@ -56,6 +56,23 @@
       "message": "Mudassir: Thank you very much for the bug fix.\n\nThis bug was introduced in https://aomedia-review.googlesource.com/c/aom/+/184761 at my suggestion. So it\u0027s my fault. In case there is some subtle reason for the original order, I suggest we change `av1_terminate_workers()` back to the original order.\n\nIn the interest of time, I will write a CL to do that, with due credit to your CL.",
       "revId": "3864eb29e4003c8748c54f9563e243713efa170c",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d1ad5ad3_31c7dd7d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-12-14T21:34:16Z",
+      "side": 1,
+      "message": "Mudassir: It seems that only your fix will work. Let me study this bug carefully.",
+      "revId": "3864eb29e4003c8748c54f9563e243713efa170c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
