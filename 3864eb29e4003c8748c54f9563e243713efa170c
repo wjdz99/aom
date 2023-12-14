@@ -26,6 +26,30 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "ce9faf5b_508f6a86",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-12-14T22:36:19Z",
+      "side": 1,
+      "message": "\"The parent commit\" is used to refer to the current code, before this change. I suggest omitting \"In the parent commit\".",
+      "parentUuid": "6cb1e0ac_24f573ce",
+      "range": {
+        "startLine": 9,
+        "startChar": 0,
+        "endLine": 9,
+        "endChar": 20
+      },
+      "revId": "3864eb29e4003c8748c54f9563e243713efa170c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "ed358311_60b23f2a",
         "filename": "/PATCHSET_LEVEL",
         "patchSetId": 1
@@ -71,6 +95,23 @@
       "writtenOn": "2023-12-14T21:34:16Z",
       "side": 1,
       "message": "Mudassir: It seems that only your fix will work. Let me study this bug carefully.",
+      "revId": "3864eb29e4003c8748c54f9563e243713efa170c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2380b1ab_de2dd194",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1088,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-12-14T22:36:19Z",
+      "side": 1,
+      "message": "I studied the code and tested it in ASan. I understand this bug now. Unless we also store `num_workers` in the `p_mt_info` struct, e.g., as a new `p_mt_info-\u003eworkers_alloc_size` field, we will need to create the workers in ascending order.\n\nI don\u0027t know why the original code creates the workers in descending order.",
       "revId": "3864eb29e4003c8748c54f9563e243713efa170c",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
