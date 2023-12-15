@@ -71,6 +71,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "9ed206b7_cbb8a71f",
+        "filename": "av1/encoder/encoder_alloc.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 461,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-12-15T14:46:14Z",
+      "side": 1,
+      "message": "Let\u0027s not add the assertion. The reason is that the purpose of the assertion in that function is not obvious unless one also looks at the code in this function.\n\nHowever, I think it may be clearer to check `thread_data-\u003eoriginal_td` instead here:\n\n```\n     EncWorkerData *const thread_data \u003d \u0026p_mt_info-\u003etile_thr_data[t];\n+    if (!thread_data-\u003eoriginal_td) continue;\n     thread_data-\u003etd \u003d thread_data-\u003eoriginal_td;\n-    if (!thread_data-\u003etd) continue;\n```\n\nThis is a very minor issue, so the current version is also fine.\n\nNote: A better cleanup is to not assign `thread_data-\u003etd \u003d thread_data-\u003eoriginal_td;`. Instead, assign a local variable to `thread_data-\u003eoriginal_td` and just use that local variable. The reason is that we will set `thread_data-\u003etd` to NULL later, so we don\u0027t really need to assign it to `thread_data-\u003eoriginal_td`, and using `thread_data-\u003etd` in so many lines of code is quite verbose.",
+      "parentUuid": "dc7cdde1_52d426b8",
+      "revId": "728f2219ebd277475af6fd59b4ca96cf8f4c1819",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "afe094ab_0659a558",
