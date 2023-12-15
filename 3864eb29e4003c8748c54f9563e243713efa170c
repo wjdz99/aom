@@ -50,6 +50,30 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "0e7db567_744c844c",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2023-12-15T06:37:33Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "ce9faf5b_508f6a86",
+      "range": {
+        "startLine": 9,
+        "startChar": 0,
+        "endLine": 9,
+        "endChar": 20
+      },
+      "revId": "3864eb29e4003c8748c54f9563e243713efa170c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "ed358311_60b23f2a",
         "filename": "/PATCHSET_LEVEL",
         "patchSetId": 1
@@ -119,6 +143,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "790ae01f_cd1ae27b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2023-12-15T06:37:33Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "5ac4b576_aa81ec50",
+      "revId": "3864eb29e4003c8748c54f9563e243713efa170c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "2380b1ab_de2dd194",
         "filename": "av1/encoder/ethread.c",
         "patchSetId": 1
@@ -130,6 +172,24 @@
       "writtenOn": "2023-12-14T22:36:19Z",
       "side": 1,
       "message": "I studied the code and tested it in ASan. I understand this bug now. Unless we also store `num_workers` in the `p_mt_info` struct, e.g., as a new `p_mt_info-\u003eworkers_alloc_size` field, we will need to create the workers in ascending order.\n\nI don\u0027t know why the original code creates the workers in descending order.",
+      "revId": "3864eb29e4003c8748c54f9563e243713efa170c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "57f50ec1_0bfeb063",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1088,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2023-12-15T06:37:33Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "2380b1ab_de2dd194",
       "revId": "3864eb29e4003c8748c54f9563e243713efa170c",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
