@@ -35,6 +35,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "98ee0dfc_a8d274e5",
+        "filename": "av1/encoder/encoder_alloc.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 461,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-12-15T06:55:44Z",
+      "side": 1,
+      "message": "On second thought, let\u0027s not add this assertion.",
+      "parentUuid": "b083cdd1_822f269d",
+      "revId": "728f2219ebd277475af6fd59b4ca96cf8f4c1819",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "afe094ab_0659a558",
