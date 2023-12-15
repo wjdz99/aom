@@ -55,6 +55,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "dc7cdde1_52d426b8",
+        "filename": "av1/encoder/encoder_alloc.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 461,
+      "author": {
+        "id": 33002
+      },
+      "writtenOn": "2023-12-15T11:43:38Z",
+      "side": 1,
+      "message": "With the latest patchset, we have validated the change of adding assertion for `thread_data-\u003eoriginal_td` in `av1_init_tile_thread_data()` with unit-test sanitizers (address and thread) and valgrind. Please let us know whether we should add the assertion.",
+      "parentUuid": "98ee0dfc_a8d274e5",
+      "revId": "728f2219ebd277475af6fd59b4ca96cf8f4c1819",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "afe094ab_0659a558",
         "filename": "av1/encoder/encoder_alloc.h",
         "patchSetId": 1
@@ -66,6 +84,24 @@
       "writtenOn": "2023-12-15T03:15:55Z",
       "side": 1,
       "message": "It seems that we should set both `thread_data-\u003etd` and `thread_data-\u003eoriginal_td` to NULL after freeing `thread_data-\u003etd`.\n\nNote the following code in `encoder_encode()` in av1/av1_cx_iface.c:\n\n```\n    if (ppi-\u003ep_mt_info.prev_num_enc_workers \u003c num_enc_workers \u0026\u0026\n        num_enc_workers \u003c\u003d ppi-\u003ep_mt_info.num_workers) {\n      free_thread_data(ppi);\n      for (int j \u003d 0; j \u003c ppi-\u003enum_fp_contexts; j++) {\n        aom_free(ppi-\u003eparallel_cpi[j]-\u003etd.tctx);\n        ppi-\u003eparallel_cpi[j]-\u003etd.tctx \u003d NULL;\n      }\n      av1_init_tile_thread_data(ppi, cpi-\u003eoxcf.pass \u003d\u003d AOM_RC_FIRST_PASS);\n    }\n```\n\nSo the `free_thread_data()` call should not leave dangling pointers. Otherwise if we call `aom_internal_error()` in the middle of `av1_init_tile_thread_data()`, we will have double-free errors when `encoder_destroy()` calls `free_thread_data()`.",
+      "revId": "728f2219ebd277475af6fd59b4ca96cf8f4c1819",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9ecc4251_d8b29870",
+        "filename": "av1/encoder/encoder_alloc.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 516,
+      "author": {
+        "id": 33002
+      },
+      "writtenOn": "2023-12-15T11:43:38Z",
+      "side": 1,
+      "message": "Thank you for pointing this out. As suggested, we have set `thread_data-\u003etd` and `thread_data-\u003eoriginal_td` to NULL after freeing `thread_data-\u003etd` in `free_thread_data()` in the latest patchset.",
+      "parentUuid": "afe094ab_0659a558",
       "revId": "728f2219ebd277475af6fd59b4ca96cf8f4c1819",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
