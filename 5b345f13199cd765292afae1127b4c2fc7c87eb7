@@ -16,6 +16,24 @@
       "message": "Marco: Please see if I updated the comment correctly.",
       "revId": "5b345f13199cd765292afae1127b4c2fc7c87eb7",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "55de3df6_fccb2e36",
+        "filename": "av1/encoder/var_based_part.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1743,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2023-12-18T19:37:20Z",
+      "side": 1,
+      "message": "looks good.",
+      "parentUuid": "e285aae0_fc8ffece",
+      "revId": "5b345f13199cd765292afae1127b4c2fc7c87eb7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
