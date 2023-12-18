@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a5a30557_f3e9a65e",
+        "filename": "av1/encoder/arm/neon/av1_error_sve.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2023-12-18T20:44:39Z",
+      "side": 1,
+      "message": "you can save some indent and remove this else since the other branch returns.",
+      "revId": "3e64a64911d8433d699ade81bef3e84b4728a7e0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
