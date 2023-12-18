@@ -16,6 +16,24 @@
       "message": "I\u0027d prefer if you could split this to 2 changes. One that does the move and another that updates in the implementation. Either order is fine, but I\u0027d like to try to keep cosmetic changes and functional ones separate. It also makes things easier to diff verify the alpha/beta\u003d\u003d0 case.",
       "revId": "84ec400153172f73169055d152b9eed1801f24b1",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7da92264_76431b90",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 31817
+      },
+      "writtenOn": "2023-12-18T17:03:41Z",
+      "side": 1,
+      "message": "Makes sense, will put the extraction to a header file up as a later commit. Done.",
+      "parentUuid": "2f6b07cc_9eba5ef8",
+      "revId": "84ec400153172f73169055d152b9eed1801f24b1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
