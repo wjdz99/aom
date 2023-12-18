@@ -1465,77 +1465,6 @@ static DECLARE_ALIGNED(16, uint8_t, LoadMaskz2[4][16]) = {
     0xff, 0xff, 0xff, 0xff }
 };
 
-// clang-format off
-static uint8_t z2_merge_shuffles_u8x8[9][8] = {
-  {  0,  1,  2,  3,  4,  5,  6,  7 },
-  { 16,  0,  1,  2,  3,  4,  5,  6 },
-  { 16, 16,  0,  1,  2,  3,  4,  5 },
-  { 16, 16, 16,  0,  1,  2,  3,  4 },
-  { 16, 16, 16, 16,  0,  1,  2,  3 },
-  { 16, 16, 16, 16, 16,  0,  1,  2 },
-  { 16, 16, 16, 16, 16, 16,  0,  1 },
-  { 16, 16, 16, 16, 16, 16, 16,  0 },
-  { 16, 16, 16, 16, 16, 16, 16, 16 },
-};
-// clang-format on
-
-#if AOM_ARCH_AARCH64
-// clang-format off
-static uint8_t z2_merge_shuffles_u8x16[17][16] = {
-  {  0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15 },
-  { 16,  0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14 },
-  { 16, 16,  0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13 },
-  { 16, 16, 16,  0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12 },
-  { 16, 16, 16, 16,  0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11 },
-  { 16, 16, 16, 16, 16,  0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10 },
-  { 16, 16, 16, 16, 16, 16,  0,  1,  2,  3,  4,  5,  6,  7,  8,  9 },
-  { 16, 16, 16, 16, 16, 16, 16,  0,  1,  2,  3,  4,  5,  6,  7,  8 },
-  { 16, 16, 16, 16, 16, 16, 16, 16,  0,  1,  2,  3,  4,  5,  6,  7 },
-  { 16, 16, 16, 16, 16, 16, 16, 16, 16,  0,  1,  2,  3,  4,  5,  6 },
-  { 16, 16, 16, 16, 16, 16, 16, 16, 16, 16,  0,  1,  2,  3,  4,  5 },
-  { 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16,  0,  1,  2,  3,  4 },
-  { 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16,  0,  1,  2,  3 },
-  { 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16,  0,  1,  2 },
-  { 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16,  0,  1 },
-  { 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16,  0 },
-  { 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16 },
-};
-// clang-format on
-#endif
-
-static AOM_FORCE_INLINE uint8x8_t dr_prediction_z2_shuffle_x8(uint8x8_t vec,
-                                                              int shift_value) {
-  return vtbl1_u8(vec, vld1_u8(z2_merge_shuffles_u8x8[shift_value]));
-}
-
-static AOM_FORCE_INLINE uint8x16_t
-dr_prediction_z2_shuffle_x16(uint8x16_t vec, int shift_value) {
-#if AOM_ARCH_AARCH64
-  return vqtbl1q_u8(vec, vld1q_u8(z2_merge_shuffles_u8x16[shift_value]));
-#else
-  const uint8x16_t vzero = vdupq_n_u8(0);
-  switch (shift_value) {
-    case 1: vec = vextq_u8(vzero, vec, 15); break;
-    case 2: vec = vextq_u8(vzero, vec, 14); break;
-    case 3: vec = vextq_u8(vzero, vec, 13); break;
-    case 4: vec = vextq_u8(vzero, vec, 12); break;
-    case 5: vec = vextq_u8(vzero, vec, 11); break;
-    case 6: vec = vextq_u8(vzero, vec, 10); break;
-    case 7: vec = vextq_u8(vzero, vec, 9); break;
-    case 8: vec = vextq_u8(vzero, vec, 8); break;
-    case 9: vec = vextq_u8(vzero, vec, 7); break;
-    case 10: vec = vextq_u8(vzero, vec, 6); break;
-    case 11: vec = vextq_u8(vzero, vec, 5); break;
-    case 12: vec = vextq_u8(vzero, vec, 4); break;
-    case 13: vec = vextq_u8(vzero, vec, 3); break;
-    case 14: vec = vextq_u8(vzero, vec, 2); break;
-    case 15: vec = vextq_u8(vzero, vec, 1); break;
-    default: break;
-  }
-  return vec;
-#endif
-}
-
 static void dr_prediction_z2_Nx4_neon(int N, uint8_t *dst, ptrdiff_t stride,
                                       const uint8_t *above, const uint8_t *left,
                                       int upsample_above, int upsample_left,
@@ -1595,9 +1524,8 @@ static void dr_prediction_z2_Nx4_neon(int N, uint8_t *dst, ptrdiff_t stride,
         a1_x = vmovl_u8(vtbl2_u8(v_tmp, v_index_high));
         shift0 = vand_u16(vsub_u16(r6, ydx), vdup_n_u16(0x1f));
       } else {
-        uint8x8_t v_a0_x64 = vld1_u8(above + base_x + base_shift);
-        v_a0_x64 = dr_prediction_z2_shuffle_x8(v_a0_x64, base_shift);
-        uint8x8_t v_a1_x64 = vext_u8(v_a0_x64, vdup_n_u8(0), 1);
+        uint8x8_t v_a0_x64 = load_u8_4x1(above + base_x);
+        uint8x8_t v_a1_x64 = load_u8_4x1(above + base_x + 1);
         shift0 = vshr_n_u16(vand_u16(vsub_u16(r6, ydx), vdup_n_u16(0x3f)), 1);
         a0_x = vmovl_u8(v_a0_x64);
         a1_x = vmovl_u8(v_a1_x64);
@@ -1734,10 +1662,8 @@ static void dr_prediction_z2_Nx8_neon(int N, uint8_t *dst, ptrdiff_t stride,
         a0_x0 = vtbl2_u8(v_tmp, v_index_low);
         a1_x0 = vtbl2_u8(v_tmp, v_index_high);
       } else {
-        const uint8x8_t a0_x128 = vld1_u8(above + base_x + base_shift);
-        const uint8x8_t a1_x128 = vld1_u8(above + base_x + base_shift + 1);
-        a0_x0 = dr_prediction_z2_shuffle_x8(a0_x128, base_shift);
-        a1_x0 = dr_prediction_z2_shuffle_x8(a1_x128, base_shift);
+        a0_x0 = vld1_u8(above + base_x);
+        a1_x0 = vld1_u8(above + base_x + 1);
         shift0 =
             vshrq_n_u16(vandq_u16(vsubq_u16(r6, ydx), vdupq_n_u16(0x3f)), 1);
       }
@@ -1807,6 +1733,7 @@ static void dr_prediction_z2_HxW_neon(int H, int W, uint8_t *dst,
   const int min_base_y = -1;
 
   int16x8_t min_base_y256 = vdupq_n_s16(min_base_y);
+  int16x8_t half_min_base_y256 = vdupq_n_s16(min_base_y >> 1);
   int16x8_t dy256 = vdupq_n_s16(dy);
   uint16x8x2_t c0123 = { { vcombine_u16(vcreate_u16(0x0003000200010000),
                                         vcreate_u16(0x0007000600050004)),
@@ -1844,10 +1771,8 @@ static void dr_prediction_z2_HxW_neon(int H, int W, uint8_t *dst,
 
       uint8x16_t resx;
       if (base_shift < 16) {
-        uint8x16_t a0_x128 = vld1q_u8(above + base_x + base_shift + j);
-        uint8x16_t a1_x128 = vld1q_u8(above + base_x + base_shift + 1 + j);
-        a0_x128 = dr_prediction_z2_shuffle_x16(a0_x128, base_shift);
-        a1_x128 = dr_prediction_z2_shuffle_x16(a1_x128, base_shift);
+        const uint8x16_t a0_x128 = vld1q_u8(above + base_x + j);
+        const uint8x16_t a1_x128 = vld1q_u8(above + base_x + j + 1);
         uint16x8_t res6_0 = vshlq_n_u16(vaddq_u16(c0123.val[0], j256), 6);
         uint16x8_t res6_1 = vshlq_n_u16(vaddq_u16(c0123.val[1], j256), 6);
         uint16x8_t shift0 = vshrq_n_u16(
@@ -1873,29 +1798,24 @@ static void dr_prediction_z2_HxW_neon(int H, int W, uint8_t *dst,
       // y calc
       uint8x16_t resy;
       if (base_x < min_base_x) {
-        uint16x8x2_t mask256;
         int16x8_t v_r6 = vdupq_n_s16(r << 6);
 
         int16x8_t c256_0 = vreinterpretq_s16_u16(vaddq_u16(j256, c1234.val[0]));
         int16x8_t c256_1 = vreinterpretq_s16_u16(vaddq_u16(j256, c1234.val[1]));
         int16x8_t mul16_lo = vreinterpretq_s16_u16(
             vminq_u16(vreinterpretq_u16_s16(vmulq_s16(c256_0, dy256)),
-                      vshrq_n_u16(vreinterpretq_u16_s16(min_base_y256), 1)));
+                      vreinterpretq_u16_s16(half_min_base_y256)));
         int16x8_t mul16_hi = vreinterpretq_s16_u16(
             vminq_u16(vreinterpretq_u16_s16(vmulq_s16(c256_1, dy256)),
-                      vshrq_n_u16(vreinterpretq_u16_s16(min_base_y256), 1)));
+                      vreinterpretq_u16_s16(half_min_base_y256)));
         int16x8_t y_c256_lo = vsubq_s16(v_r6, mul16_lo);
         int16x8_t y_c256_hi = vsubq_s16(v_r6, mul16_hi);
 
         int16x8_t base_y_c256_lo = vshrq_n_s16(y_c256_lo, 6);
         int16x8_t base_y_c256_hi = vshrq_n_s16(y_c256_hi, 6);
-        mask256.val[0] = vcgtq_s16(min_base_y256, base_y_c256_lo);
-        mask256.val[1] = vcgtq_s16(min_base_y256, base_y_c256_hi);
 
-        base_y_c256_lo =
-            vbslq_s16(mask256.val[0], min_base_y256, base_y_c256_lo);
-        base_y_c256_hi =
-            vbslq_s16(mask256.val[1], min_base_y256, base_y_c256_hi);
+        base_y_c256_lo = vmaxq_s16(min_base_y256, base_y_c256_lo);
+        base_y_c256_hi = vmaxq_s16(min_base_y256, base_y_c256_hi);
 
         int16_t min_y = vgetq_lane_s16(base_y_c256_hi, 7);
         int16_t max_y = vgetq_lane_s16(base_y_c256_lo, 0);
@@ -1949,11 +1869,14 @@ static void dr_prediction_z2_HxW_neon(int H, int W, uint8_t *dst,
           a1_y0 = vget_low_u8(a1_y128);
           a1_y1 = vget_high_u8(a1_y128);
         } else {
+          uint16x8_t mask_lo = vcgtq_s16(min_base_y256, base_y_c256_lo);
+          uint16x8_t mask_hi = vcgtq_s16(min_base_y256, base_y_c256_hi);
+
           // Values in base_y_c256 range from -1 through 62 inclusive.
           base_y_c256_lo =
-              vbicq_s16(base_y_c256_lo, vreinterpretq_s16_u16(mask256.val[0]));
+              vbicq_s16(base_y_c256_lo, vreinterpretq_s16_u16(mask_lo));
           base_y_c256_hi =
-              vbicq_s16(base_y_c256_hi, vreinterpretq_s16_u16(mask256.val[1]));
+              vbicq_s16(base_y_c256_hi, vreinterpretq_s16_u16(mask_hi));
 
 #if AOM_ARCH_AARCH64
           // Values in left_idx{0,1} range from 0 through 63 inclusive.
