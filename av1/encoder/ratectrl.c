@@ -441,6 +441,55 @@ void av1_rc_init(const AV1EncoderConfig *oxcf, RATE_CONTROL *rc) {
   rc->use_external_qp_one_pass = 0;
 }
 
+static int check_buffer_above_thresh(AV1_COMP *cpi, int64_t buffer_level,
+                                     int drop_mark) {
+  SVC *svc = &cpi->svc;
+  if (!cpi->ppi->use_svc || cpi->svc.framedrop_mode != FULL_SUPERFRAME_DROP) {
+    return (buffer_level > drop_mark);
+  } else {
+    int i;
+    // For SVC in the FULL_SUPERFRAME_DROP): the condition on
+    // buffer (if its above threshold, so no drop) is checked on current and
+    // upper spatial layers. If any spatial layer is not above threshold then
+    // we return 0.
+    for (i = svc->spatial_layer_id; i < svc->number_spatial_layers; ++i) {
+      const int layer = LAYER_IDS_TO_IDX(i, svc->temporal_layer_id,
+                                         svc->number_temporal_layers);
+      LAYER_CONTEXT *lc = &svc->layer_context[layer];
+      PRIMARY_RATE_CONTROL *lrc = &lc->p_rc;
+      // Exclude check for layer whose bitrate is 0.
+      if (lc->target_bandwidth > 0) {
+        if (!(lrc->buffer_level > drop_mark)) return 0;
+      }
+    }
+    return 1;
+  }
+}
+
+static int check_buffer_below_thresh(AV1_COMP *cpi, int64_t buffer_level,
+                                     int drop_mark) {
+  SVC *svc = &cpi->svc;
+  if (!cpi->ppi->use_svc || cpi->svc.framedrop_mode == LAYER_DROP) {
+    return (buffer_level <= drop_mark);
+  } else {
+    int i;
+    // For SVC in the FULL_SUPERFRAME_DROP): the condition on
+    // buffer (if its below threshold, so drop frame) is checked on current
+    // and upper spatial layers.
+    for (i = svc->spatial_layer_id; i < svc->number_spatial_layers; ++i) {
+      const int layer = LAYER_IDS_TO_IDX(i, svc->temporal_layer_id,
+                                         svc->number_temporal_layers);
+      LAYER_CONTEXT *lc = &svc->layer_context[layer];
+      PRIMARY_RATE_CONTROL *lrc = &lc->p_rc;
+      // Exclude check for layer whose bitrate is 0.
+      if (lc->target_bandwidth > 0) {
+        if (lrc->buffer_level <= drop_mark) return 1;
+      }
+    }
+    return 0;
+  }
+}
+
 int av1_rc_drop_frame(AV1_COMP *cpi) {
   const AV1EncoderConfig *oxcf = &cpi->oxcf;
   RATE_CONTROL *const rc = &cpi->rc;
@@ -464,7 +513,14 @@ int av1_rc_drop_frame(AV1_COMP *cpi) {
        rc->drop_count_consec >= rc->max_consec_drop)) {
     return 0;
   } else {
-    if (buffer_level < 0) {
+    SVC *svc = &cpi->svc;
+    // In the full_superframe framedrop mode for svc, if the previous spatial
+    // layer was dropped, drop the current spatial layer.
+    if (cpi->ppi->use_svc && svc->spatial_layer_id > 0 &&
+        svc->drop_spatial_layer[svc->spatial_layer_id - 1] &&
+        svc->framedrop_mode == FULL_SUPERFRAME_DROP)
+      return 1;
+    if (check_buffer_below_thresh(cpi, buffer_level, -1)) {
       // Always drop if buffer is below 0.
       rc->drop_count_consec++;
       return 1;
@@ -473,9 +529,11 @@ int av1_rc_drop_frame(AV1_COMP *cpi) {
       // (starting with the next frame) until it increases back over drop_mark.
       int drop_mark = (int)(oxcf->rc_cfg.drop_frames_water_mark *
                             p_rc->optimal_buffer_level / 100);
-      if ((buffer_level > drop_mark) && (rc->decimation_factor > 0)) {
+      if (check_buffer_above_thresh(cpi, buffer_level, drop_mark) &&
+          rc->decimation_factor > 0) {
         --rc->decimation_factor;
-      } else if (buffer_level <= drop_mark && rc->decimation_factor == 0) {
+      } else if (check_buffer_below_thresh(cpi, buffer_level, drop_mark) &&
+                 rc->decimation_factor == 0) {
         rc->decimation_factor = 1;
       }
       if (rc->decimation_factor > 0) {
@@ -2394,6 +2452,10 @@ void av1_rc_postencode_update_drop_frame(AV1_COMP *cpi) {
   // otherwise the avg_source_sad can get too large and subsequent frames
   // may miss the scene/slide detection.
   if (cpi->rc.high_source_sad) cpi->rc.avg_source_sad = 0;
+  if (cpi->ppi->use_svc) {
+    cpi->svc.last_layer_dropped[cpi->svc.spatial_layer_id] = 1;
+    cpi->svc.drop_spatial_layer[cpi->svc.spatial_layer_id] = 1;
+  }
 }
 
 int av1_find_qindex(double desired_q, aom_bit_depth_t bit_depth,
