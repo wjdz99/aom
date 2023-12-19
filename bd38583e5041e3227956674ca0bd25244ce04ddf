@@ -20,6 +20,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "b2917ba2_069db7d2",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2023-12-19T22:07:29Z",
+      "side": 1,
+      "message": "Thanks.",
+      "parentUuid": "5beb34c1_d4bedb3f",
+      "revId": "bd38583e5041e3227956674ca0bd25244ce04ddf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "d9331bb5_51edf00c",
         "filename": "/PATCHSET_LEVEL",
         "patchSetId": 4
@@ -31,6 +49,23 @@
       "writtenOn": "2023-12-19T18:26:17Z",
       "side": 1,
       "message": "Cheng: Thank you for the fix. It seems that this CL fixes the root cause of the bug. I am wondering if we could first make a more conservative fix that reverts the change at av1/encoder/encoder.c:910 in https://aomedia-review.googlesource.com/c/aom/+/182413 ?",
+      "revId": "bd38583e5041e3227956674ca0bd25244ce04ddf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "70883898_f7d58935",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2023-12-19T22:07:29Z",
+      "side": 1,
+      "message": "Before addressing the comments that improves naming and",
       "revId": "bd38583e5041e3227956674ca0bd25244ce04ddf",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -52,6 +87,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "4f5165d9_0e0a1230",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 923,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2023-12-19T22:07:29Z",
+      "side": 1,
+      "message": "Set inital_dimensions here.",
+      "parentUuid": "57663d0f_bd58cc90",
+      "revId": "bd38583e5041e3227956674ca0bd25244ce04ddf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "9c24ee97_f9e5a3bd",
@@ -65,6 +118,24 @@
       "writtenOn": "2023-12-19T18:26:17Z",
       "side": 1,
       "message": "IMPORTANT: This change seems wrong. With this change, every `encoder_encode()` call will update `cpi-\u003einitial_dimensions`.",
+      "revId": "bd38583e5041e3227956674ca0bd25244ce04ddf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b1c17ebb_dd0942ad",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 2077,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2023-12-19T22:07:29Z",
+      "side": 1,
+      "message": "Removed this. Let initial_dimensions be set inside the following if condition.",
+      "parentUuid": "9c24ee97_f9e5a3bd",
       "revId": "bd38583e5041e3227956674ca0bd25244ce04ddf",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -86,6 +157,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "1e7323f8_58f6313f",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 2136,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2023-12-19T22:07:29Z",
+      "side": 1,
+      "message": "I removed initial_dimensions-\u003ewidth and initial_dimensions-\u003eheight check, as they are now initialized in init_config, and are not zero.",
+      "parentUuid": "2eb1c4a3_f156bedb",
+      "revId": "bd38583e5041e3227956674ca0bd25244ce04ddf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "7d643ae2_3b130f34",
@@ -99,6 +188,24 @@
       "writtenOn": "2023-12-19T18:26:17Z",
       "side": 1,
       "message": "Please see my comment at line 923.",
+      "revId": "bd38583e5041e3227956674ca0bd25244ce04ddf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fa5aee4f_bc9e5156",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 2147,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2023-12-19T22:07:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7d643ae2_3b130f34",
       "revId": "bd38583e5041e3227956674ca0bd25244ce04ddf",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -120,6 +227,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "5eb63cf8_26dca066",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 3183,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2023-12-19T22:07:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "eb76a8ca_d87006de",
+      "revId": "bd38583e5041e3227956674ca0bd25244ce04ddf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "0622e25a_b78ebc19",
@@ -133,6 +258,24 @@
       "writtenOn": "2023-12-19T18:26:17Z",
       "side": 1,
       "message": "Nit: If this boolean flag is only concerned with the frame size, then the name should reflect that. The current name \"initial_setup\" sounds broad and general.\n\nPerhaps something like \"frame_size_initialized\" or \"frame_dimensions_initialized\"?\n\nUPDATE: After reading the whole CL, I guess something like \"frame_size_related_setup_done\" would be clearer, even though it\u0027s a little verbose.",
+      "revId": "bd38583e5041e3227956674ca0bd25244ce04ddf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8d51614c_336c094f",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 3666,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2023-12-19T22:07:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0622e25a_b78ebc19",
       "revId": "bd38583e5041e3227956674ca0bd25244ce04ddf",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
