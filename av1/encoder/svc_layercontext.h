@@ -147,6 +147,15 @@ typedef struct SVC {
    * different/lower bitrate.
    */
   int has_lower_quality_layer;
+
+  /*!
+   * Flag to indicate the frame drop mode for SVC: one of the three settings:
+   * CONSTRAINED_LAYER_DROP, LAYER_DROP, FULL_SUPERFRAME_DROP.
+   */
+  int framedrop_mode;
+
+  int last_layer_dropped[AOM_MAX_SS_LAYERS];
+  int drop_spatial_layer[AOM_MAX_SS_LAYERS];
 } SVC;
 
 struct AV1_COMP;
