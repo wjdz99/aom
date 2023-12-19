@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bed58c95_6b24b79e",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 2080,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2023-12-19T22:11:24Z",
+      "side": 1,
+      "message": "This and line 2103 should prevent initial_dimensions-\u003ewidth and height to set whenever encoder_encode() is called.",
+      "range": {
+        "startLine": 2080,
+        "startChar": 12,
+        "endLine": 2080,
+        "endChar": 41
+      },
+      "revId": "fdae81bc750e80a15c36c3b2f51ba587b305a6ea",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
