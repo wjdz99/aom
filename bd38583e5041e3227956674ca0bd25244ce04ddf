@@ -1,0 +1,140 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5beb34c1_d4bedb3f",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-12-19T18:26:17Z",
+      "side": 1,
+      "message": "I filed a bug report. Please add \"Bug: aomedia:3526\" before this line.",
+      "revId": "bd38583e5041e3227956674ca0bd25244ce04ddf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d9331bb5_51edf00c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-12-19T18:26:17Z",
+      "side": 1,
+      "message": "Cheng: Thank you for the fix. It seems that this CL fixes the root cause of the bug. I am wondering if we could first make a more conservative fix that reverts the change at av1/encoder/encoder.c:910 in https://aomedia-review.googlesource.com/c/aom/+/182413 ?",
+      "revId": "bd38583e5041e3227956674ca0bd25244ce04ddf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "57663d0f_bd58cc90",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 923,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-12-19T18:26:17Z",
+      "side": 1,
+      "message": "IMPORTANT: We reset initial width and height to 0 here. Should the new code also reset `initial_setup` to false?\n\nAlternatively, should we do the following instead?\n\n```\n  initial_dimensions-\u003ewidth \u003d cm-\u003ewidth;\n  initial_dimensions-\u003eheight \u003d cm-\u003eheight;\n```",
+      "revId": "bd38583e5041e3227956674ca0bd25244ce04ddf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9c24ee97_f9e5a3bd",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 2077,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-12-19T18:26:17Z",
+      "side": 1,
+      "message": "IMPORTANT: This change seems wrong. With this change, every `encoder_encode()` call will update `cpi-\u003einitial_dimensions`.",
+      "revId": "bd38583e5041e3227956674ca0bd25244ce04ddf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2eb1c4a3_f156bedb",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 2136,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-12-19T18:26:17Z",
+      "side": 1,
+      "message": "Should we remove these two checks?\n\nSimilarly, in `encoder_set_config()` (in av1/av1_cx_iface.c), we have:\n\n```\n    if ((ctx-\u003eppi-\u003ecpi-\u003elast_coded_width \u0026\u0026 ctx-\u003eppi-\u003ecpi-\u003elast_coded_height \u0026\u0026\n         !valid_ref_frame_size(ctx-\u003eppi-\u003ecpi-\u003elast_coded_width,\n                               ctx-\u003eppi-\u003ecpi-\u003elast_coded_height, cfg-\u003eg_w,\n                               cfg-\u003eg_h)) ||\n        (initial_dimensions-\u003ewidth \u0026\u0026\n         (int)cfg-\u003eg_w \u003e initial_dimensions-\u003ewidth) ||\n        (initial_dimensions-\u003eheight \u0026\u0026\n         (int)cfg-\u003eg_h \u003e initial_dimensions-\u003eheight))\n      force_key \u003d 1;\n```\n\nShould we remove the `initial_dimensions-\u003ewidth` and `initial_dimensions-\u003eheight` checks?",
+      "revId": "bd38583e5041e3227956674ca0bd25244ce04ddf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7d643ae2_3b130f34",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 2147,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-12-19T18:26:17Z",
+      "side": 1,
+      "message": "Please see my comment at line 923.",
+      "revId": "bd38583e5041e3227956674ca0bd25244ce04ddf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "eb76a8ca_d87006de",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 3183,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-12-19T18:26:17Z",
+      "side": 1,
+      "message": "Add the new boolean flag here, because it is related to `initial_dimensions` and `initial_mbs`.",
+      "revId": "bd38583e5041e3227956674ca0bd25244ce04ddf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0622e25a_b78ebc19",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 3666,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-12-19T18:26:17Z",
+      "side": 1,
+      "message": "Nit: If this boolean flag is only concerned with the frame size, then the name should reflect that. The current name \"initial_setup\" sounds broad and general.\n\nPerhaps something like \"frame_size_initialized\" or \"frame_dimensions_initialized\"?\n\nUPDATE: After reading the whole CL, I guess something like \"frame_size_related_setup_done\" would be clearer, even though it\u0027s a little verbose.",
+      "revId": "bd38583e5041e3227956674ca0bd25244ce04ddf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
