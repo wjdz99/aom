@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8ed2cd4d_8c61d35a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 33002
+      },
+      "writtenOn": "2023-12-19T08:41:42Z",
+      "side": 1,
+      "message": "In `alloc_cdef_row_sync()`, since `cdef_row_mt` is allocated using `aom_malloc()` initially the buffers `cdef_row_mt[].row_mutex_` and `cdef_row_mt[].row_cond_` would hold garbage values. If the allocation of the above pthread objects fail, it will result in SEGV error when `free_cdef_row_sync()` is invoked during codec destroy. To fix this, this CL uses `aom_calloc()` instead of `aom_malloc()` so that the unallocated pthread objects remain NULL in case of allocation failure. This CL also adds the missing NULL checks for `pthread_mutex_destroy()` and `pthread_cond_destroy()` in` free_cdef_row_sync()`.\n\nThis change is bit-exact and has been verified using bitstream-match tests for a combination of various configuration values for --threads, --tile-rows, --tile-columns, --cpu-used, --end-usage, --row-mt, --fp-mt, etc. Validated all unit-tests with sanitizers (address and thread) and valgrind.",
+      "revId": "07ca249dca6a6f434c6b647752675a79b1aa8458",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
