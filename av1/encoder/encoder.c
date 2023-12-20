@@ -781,6 +781,9 @@ void av1_change_config(struct AV1_COMP *cpi, const AV1EncoderConfig *oxcf,
     lap_lag_in_frames = cpi->oxcf.gf_cfg.lag_in_frames;
   }
 
+  const int prev_configured_width = frm_dim_cfg->width;
+  const int prev_configured_height = frm_dim_cfg->height;
+
   cpi->oxcf = *oxcf;
 
   av1_update_film_grain_parameters(cpi, oxcf);
@@ -907,8 +910,8 @@ void av1_change_config(struct AV1_COMP *cpi, const AV1EncoderConfig *oxcf,
   cm->width = frm_dim_cfg->width;
   cm->height = frm_dim_cfg->height;
 
-  if (cm->width > initial_dimensions->width ||
-      cm->height > initial_dimensions->height || is_sb_size_changed) {
+  if (cm->width > prev_configured_width ||
+      cm->height > prev_configured_height || is_sb_size_changed) {
     av1_free_context_buffers(cm);
     av1_free_shared_coeff_buffer(&cpi->td.shared_coeff_buf);
     av1_free_sms_tree(&cpi->td);
