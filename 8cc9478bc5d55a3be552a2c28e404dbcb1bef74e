@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ca1d152f_fd7801e8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-12-20T21:42:49Z",
+      "side": 1,
+      "message": "Please rebase the CL.",
+      "revId": "8cc9478bc5d55a3be552a2c28e404dbcb1bef74e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0373fa9b_c982f232",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 2139,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-12-20T21:42:49Z",
+      "side": 1,
+      "message": "Let\u0027s add an assertion here:\n\n```\n  // No need to reallocate compressor data.\n  assert(cm-\u003ewidth \u003c\u003d initial_dimensions-\u003ewidth \u0026\u0026\n         cm-\u003eheight \u003c\u003d initial_dimensions-\u003eheight);\n```",
+      "revId": "8cc9478bc5d55a3be552a2c28e404dbcb1bef74e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
