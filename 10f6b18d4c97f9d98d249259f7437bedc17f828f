@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "db1134ad_12e71cee",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 921,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-12-20T21:50:28Z",
+      "side": 0,
+      "message": "We call `av1_update_frame_size()` here, and `av1_update_frame_size()` calls `set_tile_info()` at the end:\n\n```\nvoid av1_update_frame_size(AV1_COMP *cpi) {\n  AV1_COMMON *const cm \u003d \u0026cpi-\u003ecommon;\n  MACROBLOCKD *const xd \u003d \u0026cpi-\u003etd.mb.e_mbd;\n\n  // Setup mi_params here in case we need more mi\u0027s.\n  CommonModeInfoParams *const mi_params \u003d \u0026cm-\u003emi_params;\n  mi_params-\u003eset_mb_mi(mi_params, cm-\u003ewidth, cm-\u003eheight,\n                       cpi-\u003esf.part_sf.default_min_partition_size);\n    \n  av1_init_macroblockd(cm, xd);\n  \n  if (!cpi-\u003eppi-\u003eseq_params_locked)\n    set_sb_size(cm-\u003eseq_params,\n                av1_select_sb_size(\u0026cpi-\u003eoxcf, cm-\u003ewidth, cm-\u003eheight,\n                                   cpi-\u003eppi-\u003enumber_spatial_layers));\n\n  set_tile_info(cm, \u0026cpi-\u003eoxcf.tile_cfg);\n}\n```",
+      "revId": "10f6b18d4c97f9d98d249259f7437bedc17f828f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
