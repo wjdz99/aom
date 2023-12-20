@@ -3761,7 +3761,7 @@ void av1_change_config_seq(AV1_PRIMARY *ppi, const AV1EncoderConfig *oxcf,
 void av1_change_config(AV1_COMP *cpi, const AV1EncoderConfig *oxcf,
                        bool sb_size_changed);
 
-void av1_check_initial_width(AV1_COMP *cpi, int use_highbitdepth,
+bool av1_check_initial_width(AV1_COMP *cpi, int use_highbitdepth,
                              int subsampling_x, int subsampling_y);
 
 void av1_init_seq_coding_tools(AV1_PRIMARY *const ppi,
