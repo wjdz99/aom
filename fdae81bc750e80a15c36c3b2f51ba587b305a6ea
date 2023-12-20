@@ -1,6 +1,40 @@
 {
   "comments": [
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "74490799_45c5a7a4",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-12-20T00:01:43Z",
+      "side": 1,
+      "message": "Update `initial_setup` to the new name.",
+      "revId": "fdae81bc750e80a15c36c3b2f51ba587b305a6ea",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0b98fb62_602cf2e6",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 926,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-12-20T00:01:43Z",
+      "side": 1,
+      "message": "Should we set `cpi-\u003eframe_size_related_setup_done` to false?",
+      "revId": "fdae81bc750e80a15c36c3b2f51ba587b305a6ea",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "bed58c95_6b24b79e",
@@ -20,6 +54,23 @@
         "endLine": 2080,
         "endChar": 41
       },
+      "revId": "fdae81bc750e80a15c36c3b2f51ba587b305a6ea",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4e19f171_1fe064d2",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 2150,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-12-20T00:01:43Z",
+      "side": 1,
+      "message": "This should match lines 925-926.\n\nAlso, should we set `cpi-\u003eframe_size_related_setup_done` to false?",
       "revId": "fdae81bc750e80a15c36c3b2f51ba587b305a6ea",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
