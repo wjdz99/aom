@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "488d80fe_77d87544",
+        "filename": "av1/common/alloccommon.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 475,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-12-20T19:03:13Z",
+      "side": 1,
+      "message": "`mi_params-\u003emi_grid_size` is the size of both `mi_params-\u003emi_grid_base` and `mi_params-\u003etx_type_map`.",
+      "revId": "9d34a2bb9cc28460131a5c6a72cd05718e51d012",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
