@@ -2119,6 +2119,7 @@ int av1_set_size_literal(AV1_COMP *cpi, int width, int height) {
   av1_check_initial_width(cpi, cm->seq_params->use_highbitdepth,
                           cm->seq_params->subsampling_x,
                           cm->seq_params->subsampling_y);
+  assert(initial_dimensions->width && initial_dimensions->height);
 
   if (width <= 0 || height <= 0) return 1;
 
@@ -2129,9 +2130,8 @@ int av1_set_size_literal(AV1_COMP *cpi, int width, int height) {
   setup_denoiser_buffer(cpi);
 #endif
 
-  if (initial_dimensions->width && initial_dimensions->height &&
-      (cm->width > initial_dimensions->width ||
-       cm->height > initial_dimensions->height)) {
+  if (cm->width > initial_dimensions->width ||
+      cm->height > initial_dimensions->height) {
     av1_free_context_buffers(cm);
     av1_free_shared_coeff_buffer(&cpi->td.shared_coeff_buf);
     av1_free_sms_tree(&cpi->td);
