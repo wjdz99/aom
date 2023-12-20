@@ -2064,7 +2064,7 @@ static void init_ref_frame_bufs(AV1_COMP *cpi) {
 #endif
 }
 
-void av1_check_initial_width(AV1_COMP *cpi, int use_highbitdepth,
+bool av1_check_initial_width(AV1_COMP *cpi, int use_highbitdepth,
                              int subsampling_x, int subsampling_y) {
   AV1_COMMON *const cm = &cpi->common;
   SequenceHeader *const seq_params = cm->seq_params;
@@ -2083,7 +2083,7 @@ void av1_check_initial_width(AV1_COMP *cpi, int use_highbitdepth,
 
     if (!is_stat_generation_stage(cpi)) {
 #if !CONFIG_REALTIME_ONLY
-      av1_tf_info_alloc(&cpi->ppi->tf_info, cpi);
+      if (!av1_tf_info_alloc(&cpi->ppi->tf_info, cpi)) return false;
 #endif  // !CONFIG_REALTIME_ONLY
     }
     init_ref_frame_bufs(cpi);
@@ -2094,6 +2094,7 @@ void av1_check_initial_width(AV1_COMP *cpi, int use_highbitdepth,
     initial_dimensions->height = cm->height;
     cpi->initial_mbs = cm->mi_params.MBs;
   }
+  return true;
 }
 
 #if CONFIG_AV1_TEMPORAL_DENOISING
@@ -2116,9 +2117,13 @@ static void setup_denoiser_buffer(AV1_COMP *cpi) {
 int av1_set_size_literal(AV1_COMP *cpi, int width, int height) {
   AV1_COMMON *cm = &cpi->common;
   InitialDimensions *const initial_dimensions = &cpi->initial_dimensions;
-  av1_check_initial_width(cpi, cm->seq_params->use_highbitdepth,
-                          cm->seq_params->subsampling_x,
-                          cm->seq_params->subsampling_y);
+  if (!av1_check_initial_width(cpi, cm->seq_params->use_highbitdepth,
+                               cm->seq_params->subsampling_x,
+                               cm->seq_params->subsampling_y)) {
+    aom_internal_error(cm->error, AOM_CODEC_MEM_ERROR,
+                       "Failed to allocate temporal filter frame buffer in "
+                       "av1_check_initial_width()");
+  }
 
   if (width <= 0 || height <= 0) return 1;
 
