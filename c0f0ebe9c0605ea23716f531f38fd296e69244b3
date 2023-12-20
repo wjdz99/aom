@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "06682bf9_243086c7",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-12-20T00:41:18Z",
+      "side": 1,
+      "message": "Just FYI. This is a polished version of a patch that Marco sent to me.",
+      "revId": "c0f0ebe9c0605ea23716f531f38fd296e69244b3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f1c0c988_7eb39f0c",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 772,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-12-20T00:41:18Z",
+      "side": 1,
+      "message": "Note that `frm_dim_cfg` points to `cpi-\u003eoxcf.frm_dim_cfg`.",
+      "revId": "c0f0ebe9c0605ea23716f531f38fd296e69244b3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ff3220b6_9bfec1a9",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 787,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-12-20T00:41:18Z",
+      "side": 1,
+      "message": "Here we overwrite `cpi-\u003eoxcf` with the new `*oxcf`. So we must set `prev_configured_width` and `prev_configured_height` before this line.",
+      "revId": "c0f0ebe9c0605ea23716f531f38fd296e69244b3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
