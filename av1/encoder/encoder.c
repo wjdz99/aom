@@ -772,6 +772,7 @@ void av1_change_config(struct AV1_COMP *cpi, const AV1EncoderConfig *oxcf,
   const FrameDimensionCfg *const frm_dim_cfg = &cpi->oxcf.frm_dim_cfg;
   const RateControlCfg *const rc_cfg = &oxcf->rc_cfg;
   FeatureFlags *const features = &cm->features;
+  int prev_configured_width, prev_configured_height;
 
   // in case of LAP, lag in frames is set according to number of lap buffers
   // calculated at init time. This stores and restores LAP's lag in frames to
@@ -779,6 +780,14 @@ void av1_change_config(struct AV1_COMP *cpi, const AV1EncoderConfig *oxcf,
   int lap_lag_in_frames = -1;
   if (cpi->ppi->lap_enabled && cpi->compressor_stage == LAP_STAGE) {
     lap_lag_in_frames = cpi->oxcf.gf_cfg.lag_in_frames;
+  }
+
+  if (initial_dimensions->width) {
+    prev_configured_width = initial_dimensions->width;
+    prev_configured_height = initial_dimensions->height;
+  } else {
+    prev_configured_width = cpi->oxcf.frm_dim_cfg.width;
+    prev_configured_height = cpi->oxcf.frm_dim_cfg.height;
   }
 
   cpi->oxcf = *oxcf;
@@ -907,8 +916,8 @@ void av1_change_config(struct AV1_COMP *cpi, const AV1EncoderConfig *oxcf,
   cm->width = frm_dim_cfg->width;
   cm->height = frm_dim_cfg->height;
 
-  if (cm->width > initial_dimensions->width ||
-      cm->height > initial_dimensions->height || is_sb_size_changed) {
+  if (cm->width > prev_configured_width ||
+      cm->height > prev_configured_height || is_sb_size_changed) {
     av1_free_context_buffers(cm);
     av1_free_shared_coeff_buffer(&cpi->td.shared_coeff_buf);
     av1_free_sms_tree(&cpi->td);
