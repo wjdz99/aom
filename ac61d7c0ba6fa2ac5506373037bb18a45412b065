@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bd71da7a_e835d5da",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 1525,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-12-20T23:50:24Z",
+      "side": 1,
+      "message": "Optional: Maybe add a TODO comment to see if we should use `last_coded_width` and `last_coded_height` in these two lines.",
+      "revId": "ac61d7c0ba6fa2ac5506373037bb18a45412b065",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "49938b83_645ff5e5",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 2075,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-12-20T23:50:24Z",
+      "side": 1,
+      "message": "Please add a TODO comment to rename this function, because it is no longer dealing with `initial_width` (the former name, from VP9, of `initial_dimensions-\u003ewidth`).",
+      "revId": "ac61d7c0ba6fa2ac5506373037bb18a45412b065",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "172df9d4_ced22f55",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 2102,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-12-20T23:50:24Z",
+      "side": 1,
+      "message": "As we discussed in person, we should delete these two lines under the new meaning of `initial_dimensions`. (We are not calling `alloc_compressor_data()` here.)",
+      "revId": "ac61d7c0ba6fa2ac5506373037bb18a45412b065",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0b62910f_04ff0d8c",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 3173,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-12-20T23:50:24Z",
+      "side": 1,
+      "message": "Please update the comment to describe the new meaning of `initial_dimensions` (i.e., it records the cm-\u003ewidth and cm-\u003eheight at the last `alloc_compressor_data()` call). Add a TODO comment to rename this field to reflect the new meaning of this field.\n\nWe should also add a TODO comment to review the use of this field in firstpass.c and pass2_strategy.c.",
+      "revId": "ac61d7c0ba6fa2ac5506373037bb18a45412b065",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
