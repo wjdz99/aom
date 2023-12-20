@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0690a78a_30481e4d",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 2145,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-12-20T19:47:32Z",
+      "side": 0,
+      "message": "Here is the second `alloc_mb_mode_info_buffers(cpi)` call.\n\nThe risk of deleting the first call at line 2140 is that the next two lines (2141-2142) may depend on its side effects. \n\nUPDATE:\n\nCheng, I wrote this CL last night. Given our new analysis that this if statement is dead code, deleting the first alloc_mb_mode_info_buffers(cpi)` call should have no risk.",
+      "revId": "30ff03f87194d8f9162e836d73572e8e0a55ae69",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
