@@ -1284,6 +1284,14 @@ void av1_alloc_tile_data(AV1_COMP *cpi) {
       aom_memalign(32, tile_cols * tile_rows * sizeof(*cpi->tile_data)));
 
   cpi->allocated_tiles = tile_cols * tile_rows;
+  for (int tile_row = 0; tile_row < tile_rows; ++tile_row) {
+    for (int tile_col = 0; tile_col < tile_cols; ++tile_col) {
+      const int tile_index = tile_row * tile_cols + tile_col;
+      TileDataEnc *const this_tile = &cpi->tile_data[tile_index];
+      av1_zero(this_tile->row_mt_sync);
+      this_tile->row_ctx = NULL;
+    }
+  }
 }
 
 void av1_init_tile_data(AV1_COMP *cpi) {
