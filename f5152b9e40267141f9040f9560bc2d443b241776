@@ -46,6 +46,30 @@
       },
       "revId": "f5152b9e40267141f9040f9560bc2d443b241776",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "705fd38a_e834c976",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 15
+      },
+      "lineNbr": 2078,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2023-12-21T18:37:10Z",
+      "side": 1,
+      "message": "Also, I think this function is the cause of the TODO here:\nhttp://google3/third_party/libaom/git_root/av1/encoder/encode_strategy.c;l\u003d864;rcl\u003d591328487",
+      "parentUuid": "090eda1b_4aa389ae",
+      "range": {
+        "startLine": 2078,
+        "startChar": 5,
+        "endLine": 2078,
+        "endChar": 28
+      },
+      "revId": "f5152b9e40267141f9040f9560bc2d443b241776",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
