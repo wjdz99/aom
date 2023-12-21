@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ea23da22_0be37f8d",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 444,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2023-12-21T16:44:34Z",
+      "side": 1,
+      "message": "I think it\u0027s better to make these two functions (check_buffer_above/below_thresh) into one: the return value of the new function can be used to indicate if it\u0027s above or below threshold.",
+      "range": {
+        "startLine": 444,
+        "startChar": 11,
+        "endLine": 444,
+        "endChar": 36
+      },
+      "revId": "f56d3ef66ee0ace44545f335f7c982ca55ddc7e8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3f7ab3f4_fb625c23",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 445,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2023-12-21T16:44:34Z",
+      "side": 1,
+      "message": "this is passed -1 when used, so it\u0027s better to add a comment what it means?",
+      "range": {
+        "startLine": 445,
+        "startChar": 41,
+        "endLine": 445,
+        "endChar": 50
+      },
+      "revId": "f56d3ef66ee0ace44545f335f7c982ca55ddc7e8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8a59393a_36b5c809",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 451,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2023-12-21T16:44:34Z",
+      "side": 1,
+      "message": "in the new function: this can be defined in for loop",
+      "range": {
+        "startLine": 451,
+        "startChar": 4,
+        "endLine": 451,
+        "endChar": 7
+      },
+      "revId": "f56d3ef66ee0ace44545f335f7c982ca55ddc7e8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
