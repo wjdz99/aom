@@ -16,6 +16,142 @@
       "message": "In `row_mt_ mem_alloc()`, if the allocations related to `this_tile-\u003erow_mt_sync` or `this_tile-\u003erow_ctx` fails in one of the tiles, `allocated_tile_cols` and `allocated_tile_rows` in `enc_row_mt` will not be set due to the longjmp and hence the allocated buffers will show up as leak. In order to fix this, this CL initializes the variables  `allocated_tile_cols` and `allocated_tile_rows` before the allocation.\n\nThis CL also sets the above buffers to NULL in `av1_alloc_tile_data()` to fix the SEGV error when `av1_row_mt_mem_dealloc()` is invoked in case of an allocation failure. Similar implementation of setting row mt related buffers to NULL is done for the decoder(please refer `decoder_alloc_tile_data()`).\n\nThis change is bit-exact and has been verified using bitstream-match tests for a combination of various configuration values for --threads, --tile-rows, --tile-columns, --cpu-used, --end-usage, --row-mt, --fp-mt, etc. Validated all unit-tests with sanitizers (address and thread) and valgrind.",
       "revId": "1ca03427c6dca15d8e8952d9130442193750b808",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2fe1ab77_c10ec5ab",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-12-21T19:36:41Z",
+      "side": 1,
+      "message": "Satheesh: Thanks for the CL. I suggest some changes.\n\nNote: I marked several changes with \"ALT\". These changes must be made together, and they are optional. The rationale for these \"ALT\" changes is that `enc_row_mt-\u003eallocated_tile_cols` and `enc_row_mt-\u003eallocated_tile_rows` record the configuration of the allocated `cpi-\u003etile_data` array, so conceptually they are closely related to `cpi-\u003eallocated_tiles` and should be set and reset together.",
+      "revId": "1ca03427c6dca15d8e8952d9130442193750b808",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c7681624_30a6f1db",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1275,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-12-21T19:36:41Z",
+      "side": 1,
+      "message": "ALT: Add\n\n```\n  AV1EncRowMultiThreadInfo *const enc_row_mt \u003d \u0026cpi-\u003emt_info.enc_row_mt;\n```",
+      "revId": "1ca03427c6dca15d8e8952d9130442193750b808",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9cd13080_bebfcd04",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1281,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-12-21T19:36:41Z",
+      "side": 1,
+      "message": "Please add:\n\n```\n  cpi-\u003etile_data \u003d NULL;  // This can be omitted because we\u0027ll immediately set it.\n  cpi-\u003eallocated_tiles \u003d 0;\n```",
+      "revId": "1ca03427c6dca15d8e8952d9130442193750b808",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f1f6a865_ff2d60ea",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1281,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-12-21T19:36:41Z",
+      "side": 1,
+      "message": "ALT: Also add\n\n```\n  enc_row_mt-\u003eallocated_tile_cols \u003d 0;\n  enc_row_mt-\u003eallocated_tile_rows \u003d 0;\n```",
+      "revId": "1ca03427c6dca15d8e8952d9130442193750b808",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "96f8d2ac_ff7c8315",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1286,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-12-21T19:36:41Z",
+      "side": 1,
+      "message": "ALT: Add\n\n```\n  enc_row_mt-\u003eallocated_tile_cols \u003d tile_cols;\n  enc_row_mt-\u003eallocated_tile_rows \u003d tile_rows;\n```",
+      "revId": "1ca03427c6dca15d8e8952d9130442193750b808",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7aa9ef9f_39e2b397",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 251,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-12-21T19:36:41Z",
+      "side": 1,
+      "message": "ALT: Ideally these two fields should be set when `cpi-\u003etile_data` is allocated. Move these to `av1_alloc_tile_data()`.\n\nNOTE: This assumes that the values of `cm-\u003etiles.cols` and `cm-\u003etiles.rows` do not change during the time interval between the `av1_alloc_tile_data()` call and this function. The new for loop in `av1_alloc_tile_data()` already assumes this.",
+      "revId": "1ca03427c6dca15d8e8952d9130442193750b808",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a32742f4_844e8ea2",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 276,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-12-21T19:36:41Z",
+      "side": 1,
+      "message": "Optional: I wonder if this should be set to `num_row_ctx` instead. See lines 263-266.\n\nPlease be careful with this suggestion, because we may want this to be `max_cols - 1` so that it can be equal to 0.",
+      "revId": "1ca03427c6dca15d8e8952d9130442193750b808",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "295a682a_e72fccb6",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 305,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-12-21T19:36:41Z",
+      "side": 1,
+      "message": "ALT: Delete these two lines, because this function does not deallocate `cpi-\u003etile_data`.",
+      "revId": "1ca03427c6dca15d8e8952d9130442193750b808",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
