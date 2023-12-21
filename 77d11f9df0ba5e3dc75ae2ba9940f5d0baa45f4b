@@ -1,6 +1,23 @@
 {
   "comments": [
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "cd5f0eee_95e5b374",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-12-21T16:05:06Z",
+      "side": 1,
+      "message": "Is it possible to initialize `cm-\u003eerror` before this point?\n\nWhen is `cm-\u003eerror` initialized\u003e",
+      "revId": "77d11f9df0ba5e3dc75ae2ba9940f5d0baa45f4b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "c63a5ca7_a57c41fd",
@@ -14,6 +31,108 @@
       "writtenOn": "2023-12-21T14:11:57Z",
       "side": 1,
       "message": "Currently, an allocation failure in `av1_tf_info_alloc()` is handled using `cm-\u003eerror` and when this function is invoked by `av1_check_initial_width()` call in `encoder_encode()`, it will result in a SEGV error in case of allocation failure since `cm-\u003eerror` is not initialized at this point. In order to fix this, this CL modifies the return type of `av1_check_initial_width()` and `av1_tf_info_alloc()` to propagate the error status so that the appropriate `error_info` can be used for error reporting.\n\nThis change is bit-exact and has been verified using bitstream-match tests for a combination of various configuration values for --threads, --tile-rows, --tile-columns, --cpu-used, --end-usage, --row-mt, --fp-mt, etc. Validated all unit-tests with sanitizers (address and thread) and valgrind.",
+      "revId": "77d11f9df0ba5e3dc75ae2ba9940f5d0baa45f4b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f867037d_8750bcc5",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-12-21T16:05:06Z",
+      "side": 1,
+      "message": "Satheesh: Thank you for the CL. I have some suggestions for error reporting and error messages.\n\nRe: error messages: It would be good if we had a way to propagate an error message without using `aom_internal_error()`. Since we don\u0027t have that, we can only propagate an error code.",
+      "revId": "77d11f9df0ba5e3dc75ae2ba9940f5d0baa45f4b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d06bd11e_abef581b",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 3112,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-12-21T16:05:06Z",
+      "side": 1,
+      "message": "Nit: Change `av1_check_initial_width()` to return an error code and use that error code here, instead of assuming the error must be memory allocation failure.",
+      "revId": "77d11f9df0ba5e3dc75ae2ba9940f5d0baa45f4b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e059bd36_22f628b2",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 3114,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-12-21T16:05:06Z",
+      "side": 1,
+      "message": "Nit: This error message is specific to the current implementation of `av1_check_initial_width()`. I suggest we just say \"av1_check_initial_width() failed\".",
+      "revId": "77d11f9df0ba5e3dc75ae2ba9940f5d0baa45f4b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5bd54e4e_9df9142a",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 3130,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-12-21T16:05:06Z",
+      "side": 1,
+      "message": "I changed this line from `\u0026ppi-\u003eerror` to `cpi-\u003ecommon.error` in https://aomedia-review.googlesource.com/c/aom/+/161981.\n\nDoes this mean `cm-\u003eerror` is initialized at this point? Or am I confusing `cpi-\u003ecommon.error` here with the `cm-\u003eerror` in `av1_tf_info_alloc()`?",
+      "revId": "77d11f9df0ba5e3dc75ae2ba9940f5d0baa45f4b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0c91472c_ebdfab8f",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2067,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-12-21T16:05:06Z",
+      "side": 1,
+      "message": "Nit: Return `aom_codec_err_t` so that the error code can be passed to `aom_internal_error()`.",
+      "revId": "77d11f9df0ba5e3dc75ae2ba9940f5d0baa45f4b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c7ce8156_b8de6da8",
+        "filename": "av1/encoder/temporal_filter.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 211,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-12-21T16:05:06Z",
+      "side": 1,
+      "message": "This function is named \"xxx_alloc\", so it is clear that memory allocation failure is the only reason of failure. So it is not necessary to return `aom_codec_err_t`.",
       "revId": "77d11f9df0ba5e3dc75ae2ba9940f5d0baa45f4b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
