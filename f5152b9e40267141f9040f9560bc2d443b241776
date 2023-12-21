@@ -70,6 +70,30 @@
       },
       "revId": "f5152b9e40267141f9040f9560bc2d443b241776",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ac5fdafd_a492781f",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 15
+      },
+      "lineNbr": 2078,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2023-12-21T18:42:24Z",
+      "side": 1,
+      "message": "\u003e Some function calls here are necessary, for example av1_set_speed_features_*.\n\nIs this really necessary here? they\u0027re also called in `av1_set_size_dependent_vars` which is called at the beginning of both `encode_with_recode_loop` and `encode_without_recode`, which should cover all encoding pathes?\n\nUnless there\u0027s some speed features that are used before we actually start encoding...",
+      "parentUuid": "705fd38a_e834c976",
+      "range": {
+        "startLine": 2078,
+        "startChar": 5,
+        "endLine": 2078,
+        "endChar": 28
+      },
+      "revId": "f5152b9e40267141f9040f9560bc2d443b241776",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
