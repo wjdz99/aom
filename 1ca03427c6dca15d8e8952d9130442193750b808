@@ -1,6 +1,40 @@
 {
   "comments": [
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "edd4565e_12dcd50b",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-12-21T19:46:52Z",
+      "side": 1,
+      "message": "In `dealloc_compressor_data()`:\n\n```\nstatic AOM_INLINE void dealloc_compressor_data(AV1_COMP *cpi) {\n  ...\n\n  aom_free(cpi-\u003etile_data);\n  cpi-\u003etile_data \u003d NULL;\n```\n\nit would be good to also add\n\n```\n cpi-\u003eallocated_tiles \u003d 0; \n```\n\nALT: Also add\n\n```\n  AV1EncRowMultiThreadInfo *const enc_row_mt \u003d \u0026cpi-\u003emt_info.enc_row_mt;\n  enc_row_mt-\u003eallocated_tile_cols \u003d 0;\n  enc_row_mt-\u003eallocated_tile_rows \u003d 0;\n```",
+      "revId": "1ca03427c6dca15d8e8952d9130442193750b808",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ec4ab793_241451be",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-12-21T19:46:52Z",
+      "side": 1,
+      "message": "Optional: Some of my suggested changes should also be made to the decoder side, if applicable.",
+      "revId": "1ca03427c6dca15d8e8952d9130442193750b808",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "49577358_c478fa34",
