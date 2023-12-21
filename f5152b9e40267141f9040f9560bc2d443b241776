@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "18c1fca5_50f954b0",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 15
+      },
+      "lineNbr": 2078,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2023-12-21T18:28:46Z",
+      "side": 1,
+      "message": "this function is actually really weird now because after this change, it has nothing to do with frame sizes any more - it sets `use_highbitdepth` and `subsampling_x` and `subsampling_y`\n\nand it doesn\u0027t need to call `av1_set_speed_features_*` either.\n\nAlso I don\u0027t know why `init_ref_frame_bufs` is called in this function - it has nothing to do with frame width or bitdepth or subsampling......\n\n`init_motion_estimation` also has nothing to do with these, and we have a comment there for it to be removed.\n\nSo this is a good opportunity here to clean up. If the unrelated code ends up being removed, all it does is `av1_tf_info_alloc` which does rely on subsampling and bitdepth.",
+      "range": {
+        "startLine": 2078,
+        "startChar": 5,
+        "endLine": 2078,
+        "endChar": 28
+      },
+      "revId": "f5152b9e40267141f9040f9560bc2d443b241776",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
