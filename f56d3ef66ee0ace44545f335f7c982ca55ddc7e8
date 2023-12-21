@@ -24,6 +24,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "b378a6af_53562319",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 444,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2023-12-21T18:54:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ea23da22_0be37f8d",
+      "range": {
+        "startLine": 444,
+        "startChar": 11,
+        "endLine": 444,
+        "endChar": 36
+      },
+      "revId": "f56d3ef66ee0ace44545f335f7c982ca55ddc7e8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "3f7ab3f4_fb625c23",
@@ -47,6 +71,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "49722a91_62660962",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 445,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2023-12-21T18:54:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3f7ab3f4_fb625c23",
+      "range": {
+        "startLine": 445,
+        "startChar": 41,
+        "endLine": 445,
+        "endChar": 50
+      },
+      "revId": "f56d3ef66ee0ace44545f335f7c982ca55ddc7e8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "8a59393a_36b5c809",
@@ -60,6 +108,30 @@
       "writtenOn": "2023-12-21T16:44:34Z",
       "side": 1,
       "message": "in the new function: this can be defined in for loop",
+      "range": {
+        "startLine": 451,
+        "startChar": 4,
+        "endLine": 451,
+        "endChar": 7
+      },
+      "revId": "f56d3ef66ee0ace44545f335f7c982ca55ddc7e8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8646c653_8e089029",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 451,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2023-12-21T18:54:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8a59393a_36b5c809",
       "range": {
         "startLine": 451,
         "startChar": 4,
