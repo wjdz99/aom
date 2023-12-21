@@ -1249,98 +1249,6 @@ static AOM_INLINE int compute_num_workers_per_frame(
   return workers_per_frame;
 }
 
-// Prepare level 1 workers. This function is only called for
-// parallel_frame_count > 1. This function populates the mt_info structure of
-// frame level contexts appropriately by dividing the total number of available
-// workers amongst the frames as level 2 workers. It also populates the hook and
-// data members of level 1 workers.
-static AOM_INLINE void prepare_fpmt_workers(AV1_PRIMARY *ppi,
-                                            AV1_COMP_DATA *first_cpi_data,
-                                            AVxWorkerHook hook,
-                                            int parallel_frame_count) {
-  assert(parallel_frame_count <= ppi->num_fp_contexts &&
-         parallel_frame_count > 1);
-
-  PrimaryMultiThreadInfo *const p_mt_info = &ppi->p_mt_info;
-  int num_workers = p_mt_info->num_workers;
-
-  int frame_idx = 0;
-  int i = 0;
-  while (i < num_workers) {
-    // Assign level 1 worker
-    AVxWorker *frame_worker = p_mt_info->p_workers[frame_idx] =
-        &p_mt_info->workers[i];
-    AV1_COMP *cur_cpi = ppi->parallel_cpi[frame_idx];
-    MultiThreadInfo *mt_info = &cur_cpi->mt_info;
-    AV1_COMMON *const cm = &cur_cpi->common;
-    const int num_planes = av1_num_planes(cm);
-
-    // Assign start of level 2 worker pool
-    mt_info->workers = &p_mt_info->workers[i];
-    mt_info->tile_thr_data = &p_mt_info->tile_thr_data[i];
-    // Assign number of workers for each frame in the parallel encode set.
-    mt_info->num_workers = compute_num_workers_per_frame(
-        num_workers - i, parallel_frame_count - frame_idx);
-    for (int j = MOD_FP; j < NUM_MT_MODULES; j++) {
-      mt_info->num_mod_workers[j] =
-          AOMMIN(mt_info->num_workers, ppi->p_mt_info.num_mod_workers[j]);
-    }
-    if (ppi->p_mt_info.cdef_worker != NULL) {
-      mt_info->cdef_worker = &ppi->p_mt_info.cdef_worker[i];
-
-      // Back up the original cdef_worker pointers.
-      mt_info->restore_state_buf.cdef_srcbuf = mt_info->cdef_worker->srcbuf;
-      for (int plane = 0; plane < num_planes; plane++)
-        mt_info->restore_state_buf.cdef_colbuf[plane] =
-            mt_info->cdef_worker->colbuf[plane];
-    }
-#if !CONFIG_REALTIME_ONLY
-    if (is_restoration_used(cm)) {
-      // Back up the original LR buffers before update.
-      int idx = i + mt_info->num_workers - 1;
-      assert(idx < mt_info->lr_row_sync.num_workers);
-      mt_info->restore_state_buf.rst_tmpbuf =
-          mt_info->lr_row_sync.lrworkerdata[idx].rst_tmpbuf;
-      mt_info->restore_state_buf.rlbs =
-          mt_info->lr_row_sync.lrworkerdata[idx].rlbs;
-
-      // Update LR buffers.
-      mt_info->lr_row_sync.lrworkerdata[idx].rst_tmpbuf = cm->rst_tmpbuf;
-      mt_info->lr_row_sync.lrworkerdata[idx].rlbs = cm->rlbs;
-    }
-#endif
-
-    // At this stage, the thread specific CDEF buffers for the current frame's
-    // 'common' and 'cdef_sync' only need to be allocated. 'cdef_worker' has
-    // already been allocated across parallel frames.
-    av1_alloc_cdef_buffers(cm, &p_mt_info->cdef_worker, &mt_info->cdef_sync,
-                           p_mt_info->num_workers, 0);
-
-    frame_worker->hook = hook;
-    frame_worker->data1 = cur_cpi;
-    frame_worker->data2 = (frame_idx == 0)
-                              ? first_cpi_data
-                              : &ppi->parallel_frames_data[frame_idx - 1];
-    frame_idx++;
-    i += mt_info->num_workers;
-  }
-  p_mt_info->p_num_workers = parallel_frame_count;
-}
-
-// Launch level 1 workers to perform frame parallel encode.
-static AOM_INLINE void launch_fpmt_workers(AV1_PRIMARY *ppi) {
-  const AVxWorkerInterface *const winterface = aom_get_worker_interface();
-  int num_workers = ppi->p_mt_info.p_num_workers;
-
-  for (int i = num_workers - 1; i >= 0; i--) {
-    AVxWorker *const worker = ppi->p_mt_info.p_workers[i];
-    if (i == 0)
-      winterface->execute(worker);
-    else
-      winterface->launch(worker);
-  }
-}
-
 // Restore worker states after parallel encode.
 static AOM_INLINE void restore_workers_after_fpmt(AV1_PRIMARY *ppi,
                                                   int parallel_frame_count) {
@@ -1349,7 +1257,7 @@ static AOM_INLINE void restore_workers_after_fpmt(AV1_PRIMARY *ppi,
   (void)parallel_frame_count;
 
   PrimaryMultiThreadInfo *const p_mt_info = &ppi->p_mt_info;
-  int num_workers = p_mt_info->num_workers;
+  int num_workers = p_mt_info->num_fpmt_workers_prepared;
 
   int frame_idx = 0;
   int i = 0;
@@ -1380,6 +1288,115 @@ static AOM_INLINE void restore_workers_after_fpmt(AV1_PRIMARY *ppi,
 
     frame_idx++;
     i += mt_info->num_workers;
+  }
+}
+
+// Prepare level 1 workers. This function is only called for
+// parallel_frame_count > 1. This function populates the mt_info structure of
+// frame level contexts appropriately by dividing the total number of available
+// workers amongst the frames as level 2 workers. It also populates the hook and
+// data members of level 1 workers.
+static AOM_INLINE aom_codec_err_t
+prepare_fpmt_workers(AV1_PRIMARY *ppi, AV1_COMP_DATA *first_cpi_data,
+                     AVxWorkerHook hook, int parallel_frame_count) {
+  assert(parallel_frame_count <= ppi->num_fp_contexts &&
+         parallel_frame_count > 1);
+
+  PrimaryMultiThreadInfo *const p_mt_info = &ppi->p_mt_info;
+  int num_workers = p_mt_info->num_workers;
+  struct aom_internal_error_info error;
+  struct aom_internal_error_info *backup_cm_error_info;
+
+  volatile int frame_idx = 0;
+  volatile int i = 0;
+  while (i < num_workers) {
+    // Assign level 1 worker
+    AVxWorker *frame_worker = p_mt_info->p_workers[frame_idx] =
+        &p_mt_info->workers[i];
+    AV1_COMP *cur_cpi = ppi->parallel_cpi[frame_idx];
+    MultiThreadInfo *mt_info = &cur_cpi->mt_info;
+    AV1_COMMON *const cm = &cur_cpi->common;
+
+    backup_cm_error_info = cm->error;
+    memset(&error, 0, sizeof(error));
+    if (setjmp(error.jmp)) {
+      error.setjmp = 0;
+      cm->error = backup_cm_error_info;
+      restore_workers_after_fpmt(ppi, parallel_frame_count);
+      return AOM_CODEC_MEM_ERROR;
+    }
+    error.setjmp = 1;
+    cm->error = &error;
+
+    // Assign start of level 2 worker pool
+    mt_info->workers = &p_mt_info->workers[i];
+    mt_info->tile_thr_data = &p_mt_info->tile_thr_data[i];
+    // Assign number of workers for each frame in the parallel encode set.
+    mt_info->num_workers = compute_num_workers_per_frame(
+        num_workers - i, parallel_frame_count - frame_idx);
+    for (int j = MOD_FP; j < NUM_MT_MODULES; j++) {
+      mt_info->num_mod_workers[j] =
+          AOMMIN(mt_info->num_workers, ppi->p_mt_info.num_mod_workers[j]);
+    }
+    if (ppi->p_mt_info.cdef_worker != NULL) {
+      mt_info->cdef_worker = &ppi->p_mt_info.cdef_worker[i];
+
+      // Back up the original cdef_worker pointers.
+      mt_info->restore_state_buf.cdef_srcbuf = mt_info->cdef_worker->srcbuf;
+      const int num_planes = av1_num_planes(cm);
+      for (int plane = 0; plane < num_planes; plane++)
+        mt_info->restore_state_buf.cdef_colbuf[plane] =
+            mt_info->cdef_worker->colbuf[plane];
+    }
+#if !CONFIG_REALTIME_ONLY
+    if (is_restoration_used(cm)) {
+      // Back up the original LR buffers before update.
+      int idx = i + mt_info->num_workers - 1;
+      assert(idx < mt_info->lr_row_sync.num_workers);
+      mt_info->restore_state_buf.rst_tmpbuf =
+          mt_info->lr_row_sync.lrworkerdata[idx].rst_tmpbuf;
+      mt_info->restore_state_buf.rlbs =
+          mt_info->lr_row_sync.lrworkerdata[idx].rlbs;
+
+      // Update LR buffers.
+      mt_info->lr_row_sync.lrworkerdata[idx].rst_tmpbuf = cm->rst_tmpbuf;
+      mt_info->lr_row_sync.lrworkerdata[idx].rlbs = cm->rlbs;
+    }
+#endif
+
+    i += mt_info->num_workers;
+    ppi->p_mt_info.num_fpmt_workers_prepared = i;
+
+    // At this stage, the thread specific CDEF buffers for the current frame's
+    // 'common' and 'cdef_sync' only need to be allocated. 'cdef_worker' has
+    // already been allocated across parallel frames.
+    av1_alloc_cdef_buffers(cm, &p_mt_info->cdef_worker, &mt_info->cdef_sync,
+                           p_mt_info->num_workers, 0);
+
+    frame_worker->hook = hook;
+    frame_worker->data1 = cur_cpi;
+    frame_worker->data2 = (frame_idx == 0)
+                              ? first_cpi_data
+                              : &ppi->parallel_frames_data[frame_idx - 1];
+    frame_idx++;
+    error.setjmp = 0;
+    cm->error = backup_cm_error_info;
+  }
+  p_mt_info->p_num_workers = parallel_frame_count;
+  return AOM_CODEC_OK;
+}
+
+// Launch level 1 workers to perform frame parallel encode.
+static AOM_INLINE void launch_fpmt_workers(AV1_PRIMARY *ppi) {
+  const AVxWorkerInterface *const winterface = aom_get_worker_interface();
+  int num_workers = ppi->p_mt_info.p_num_workers;
+
+  for (int i = num_workers - 1; i >= 0; i--) {
+    AVxWorker *const worker = ppi->p_mt_info.p_workers[i];
+    if (i == 0)
+      winterface->execute(worker);
+    else
+      winterface->launch(worker);
   }
 }
 
@@ -1425,8 +1442,11 @@ int av1_compress_parallel_frames(AV1_PRIMARY *const ppi,
   int ref_buffers_used_map = 0;
   int frames_in_parallel_set = av1_init_parallel_frame_context(
       first_cpi_data, ppi, &ref_buffers_used_map);
-  prepare_fpmt_workers(ppi, first_cpi_data, get_compressed_data_hook,
-                       frames_in_parallel_set);
+  aom_codec_err_t err = prepare_fpmt_workers(
+      ppi, first_cpi_data, get_compressed_data_hook, frames_in_parallel_set);
+  if (err != AOM_CODEC_OK) {
+    aom_internal_error(&ppi->error, err, "prepare_fpmt_workers() failed");
+  }
   launch_fpmt_workers(ppi);
   sync_fpmt_workers(ppi, frames_in_parallel_set);
 
