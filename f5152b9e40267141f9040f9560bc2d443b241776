@@ -22,6 +22,30 @@
       },
       "revId": "f5152b9e40267141f9040f9560bc2d443b241776",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "090eda1b_4aa389ae",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 15
+      },
+      "lineNbr": 2078,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2023-12-21T18:33:53Z",
+      "side": 1,
+      "message": "I agree. First the name of the function is misleading.\nI suppose it is inherited from vp9 (http://google3/third_party/libvpx/git_root/vp9/encoder/vp9_encoder.c;l\u003d2287;rcl\u003d592897423), but adding more things to it.\nThis function is called when the encoder starts to encode.\nSome function calls here are necessary, for example av1_set_speed_features_*.\nBut we could definitely organize them better, and give the function a better name.\nOr move them to a more meaningful place.",
+      "parentUuid": "18c1fca5_50f954b0",
+      "range": {
+        "startLine": 2078,
+        "startChar": 5,
+        "endLine": 2078,
+        "endChar": 28
+      },
+      "revId": "f5152b9e40267141f9040f9560bc2d443b241776",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
