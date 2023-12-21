@@ -18,6 +18,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "470c8af6_385d8e44",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 1527,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2023-12-21T02:06:22Z",
+      "side": 1,
+      "message": "Thanks for the suggestion.",
+      "parentUuid": "ed9cb9e0_7682219b",
+      "revId": "6931ed84a28178835d454c714d37fdb7ec41e958",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "dea83a3a_5bcc5da2",
@@ -31,6 +49,24 @@
       "writtenOn": "2023-12-21T01:51:11Z",
       "side": 1,
       "message": "Nit: might \u003d\u003e does",
+      "revId": "6931ed84a28178835d454c714d37fdb7ec41e958",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b3324390_b0a92394",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 2076,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2023-12-21T02:06:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "dea83a3a_5bcc5da2",
       "revId": "6931ed84a28178835d454c714d37fdb7ec41e958",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -52,6 +88,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "b70c8b31_e0131000",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 3174,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2023-12-21T02:06:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f28cddd0_c8dcf32c",
+      "revId": "6931ed84a28178835d454c714d37fdb7ec41e958",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "4ad7eff1_1186aa44",
@@ -65,6 +119,24 @@
       "writtenOn": "2023-12-21T01:51:11Z",
       "side": 1,
       "message": "Delete this TODO comment because you took care of this in https://aomedia-review.googlesource.com/c/aom/+/185542.",
+      "revId": "6931ed84a28178835d454c714d37fdb7ec41e958",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fffcce8b_6450adcc",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 3176,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2023-12-21T02:06:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4ad7eff1_1186aa44",
       "revId": "6931ed84a28178835d454c714d37fdb7ec41e958",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
