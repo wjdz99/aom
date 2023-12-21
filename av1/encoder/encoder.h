@@ -1727,6 +1727,11 @@ typedef struct PrimaryMultiThreadInfo {
    * Tracks the number of workers in encode stage multi-threading.
    */
   int prev_num_enc_workers;
+
+  /*!
+   * Tracks the number of workers prepared in prepare_fpmt_workers().
+   */
+  int num_fpmt_workers_prepared;
 } PrimaryMultiThreadInfo;
 
 /*!
