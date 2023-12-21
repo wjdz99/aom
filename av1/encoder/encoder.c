@@ -2128,6 +2128,10 @@ int av1_set_size_literal(AV1_COMP *cpi, int width, int height) {
 
   if (width <= 0 || height <= 0) return 1;
 
+  // av1_set_size_literal() is only called with the scaled superres size. In AV1
+  // superres only scales the width.
+  assert(width < cm->width && height == cm->height);
+
   cm->width = width;
   cm->height = height;
 
