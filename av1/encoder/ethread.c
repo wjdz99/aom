@@ -1247,23 +1247,26 @@ static AOM_INLINE int compute_num_workers_per_frame(
   return workers_per_frame;
 }
 
+static AOM_INLINE void restore_workers_after_fpmt(
+    AV1_PRIMARY *ppi, int parallel_frame_count, int num_fpmt_workers_prepared);
+
 // Prepare level 1 workers. This function is only called for
 // parallel_frame_count > 1. This function populates the mt_info structure of
 // frame level contexts appropriately by dividing the total number of available
 // workers amongst the frames as level 2 workers. It also populates the hook and
 // data members of level 1 workers.
-static AOM_INLINE void prepare_fpmt_workers(AV1_PRIMARY *ppi,
-                                            AV1_COMP_DATA *first_cpi_data,
-                                            AVxWorkerHook hook,
-                                            int parallel_frame_count) {
+static AOM_INLINE aom_codec_err_t
+prepare_fpmt_workers(AV1_PRIMARY *ppi, AV1_COMP_DATA *first_cpi_data,
+                     AVxWorkerHook hook, int parallel_frame_count) {
   assert(parallel_frame_count <= ppi->num_fp_contexts &&
          parallel_frame_count > 1);
 
   PrimaryMultiThreadInfo *const p_mt_info = &ppi->p_mt_info;
   int num_workers = p_mt_info->num_workers;
 
-  int frame_idx = 0;
-  int i = 0;
+  volatile int frame_idx = 0;
+  volatile int i = 0;
+  volatile int num_fpmt_workers_prepared = 0;
   while (i < num_workers) {
     // Assign level 1 worker
     AVxWorker *frame_worker = p_mt_info->p_workers[frame_idx] =
@@ -1271,7 +1274,18 @@ static AOM_INLINE void prepare_fpmt_workers(AV1_PRIMARY *ppi,
     AV1_COMP *cur_cpi = ppi->parallel_cpi[frame_idx];
     MultiThreadInfo *mt_info = &cur_cpi->mt_info;
     AV1_COMMON *const cm = &cur_cpi->common;
-    const int num_planes = av1_num_planes(cm);
+    struct aom_internal_error_info *const error = cm->error;
+
+    // The jmp_buf is valid only for the duration of the function that calls
+    // setjmp(). Therefore, this function must reset the 'setjmp' field to 0
+    // before it returns.
+    if (setjmp(error->jmp)) {
+      error->setjmp = 0;
+      restore_workers_after_fpmt(ppi, parallel_frame_count,
+                                 num_fpmt_workers_prepared);
+      return error->error_code;
+    }
+    error->setjmp = 1;
 
     // Assign start of level 2 worker pool
     mt_info->workers = &p_mt_info->workers[i];
@@ -1281,13 +1295,14 @@ static AOM_INLINE void prepare_fpmt_workers(AV1_PRIMARY *ppi,
         num_workers - i, parallel_frame_count - frame_idx);
     for (int j = MOD_FP; j < NUM_MT_MODULES; j++) {
       mt_info->num_mod_workers[j] =
-          AOMMIN(mt_info->num_workers, ppi->p_mt_info.num_mod_workers[j]);
+          AOMMIN(mt_info->num_workers, p_mt_info->num_mod_workers[j]);
     }
-    if (ppi->p_mt_info.cdef_worker != NULL) {
-      mt_info->cdef_worker = &ppi->p_mt_info.cdef_worker[i];
+    if (p_mt_info->cdef_worker != NULL) {
+      mt_info->cdef_worker = &p_mt_info->cdef_worker[i];
 
       // Back up the original cdef_worker pointers.
       mt_info->restore_state_buf.cdef_srcbuf = mt_info->cdef_worker->srcbuf;
+      const int num_planes = av1_num_planes(cm);
       for (int plane = 0; plane < num_planes; plane++)
         mt_info->restore_state_buf.cdef_colbuf[plane] =
             mt_info->cdef_worker->colbuf[plane];
@@ -1308,6 +1323,9 @@ static AOM_INLINE void prepare_fpmt_workers(AV1_PRIMARY *ppi,
     }
 #endif
 
+    i += mt_info->num_workers;
+    num_fpmt_workers_prepared = i;
+
     // At this stage, the thread specific CDEF buffers for the current frame's
     // 'common' and 'cdef_sync' only need to be allocated. 'cdef_worker' has
     // already been allocated across parallel frames.
@@ -1320,9 +1338,10 @@ static AOM_INLINE void prepare_fpmt_workers(AV1_PRIMARY *ppi,
                               ? first_cpi_data
                               : &ppi->parallel_frames_data[frame_idx - 1];
     frame_idx++;
-    i += mt_info->num_workers;
+    error->setjmp = 0;
   }
   p_mt_info->p_num_workers = parallel_frame_count;
+  return AOM_CODEC_OK;
 }
 
 // Launch level 1 workers to perform frame parallel encode.
@@ -1340,25 +1359,24 @@ static AOM_INLINE void launch_fpmt_workers(AV1_PRIMARY *ppi) {
 }
 
 // Restore worker states after parallel encode.
-static AOM_INLINE void restore_workers_after_fpmt(AV1_PRIMARY *ppi,
-                                                  int parallel_frame_count) {
+static AOM_INLINE void restore_workers_after_fpmt(
+    AV1_PRIMARY *ppi, int parallel_frame_count, int num_fpmt_workers_prepared) {
   assert(parallel_frame_count <= ppi->num_fp_contexts &&
          parallel_frame_count > 1);
   (void)parallel_frame_count;
 
   PrimaryMultiThreadInfo *const p_mt_info = &ppi->p_mt_info;
-  int num_workers = p_mt_info->num_workers;
 
   int frame_idx = 0;
   int i = 0;
-  while (i < num_workers) {
+  while (i < num_fpmt_workers_prepared) {
     AV1_COMP *cur_cpi = ppi->parallel_cpi[frame_idx];
     MultiThreadInfo *mt_info = &cur_cpi->mt_info;
     const AV1_COMMON *const cm = &cur_cpi->common;
     const int num_planes = av1_num_planes(cm);
 
     // Restore the original cdef_worker pointers.
-    if (ppi->p_mt_info.cdef_worker != NULL) {
+    if (p_mt_info->cdef_worker != NULL) {
       mt_info->cdef_worker->srcbuf = mt_info->restore_state_buf.cdef_srcbuf;
       for (int plane = 0; plane < num_planes; plane++)
         mt_info->cdef_worker->colbuf[plane] =
@@ -1399,7 +1417,8 @@ static AOM_INLINE void sync_fpmt_workers(AV1_PRIMARY *ppi,
     }
   }
 
-  restore_workers_after_fpmt(ppi, frames_in_parallel_set);
+  restore_workers_after_fpmt(ppi, frames_in_parallel_set,
+                             ppi->p_mt_info.num_workers);
 
   if (had_error) aom_internal_error_copy(&ppi->error, error);
 }
@@ -1422,8 +1441,11 @@ int av1_compress_parallel_frames(AV1_PRIMARY *const ppi,
   int ref_buffers_used_map = 0;
   int frames_in_parallel_set = av1_init_parallel_frame_context(
       first_cpi_data, ppi, &ref_buffers_used_map);
-  prepare_fpmt_workers(ppi, first_cpi_data, get_compressed_data_hook,
-                       frames_in_parallel_set);
+  aom_codec_err_t err = prepare_fpmt_workers(
+      ppi, first_cpi_data, get_compressed_data_hook, frames_in_parallel_set);
+  if (err != AOM_CODEC_OK) {
+    aom_internal_error(&ppi->error, err, "prepare_fpmt_workers() failed");
+  }
   launch_fpmt_workers(ppi);
   sync_fpmt_workers(ppi, frames_in_parallel_set);
 
