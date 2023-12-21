@@ -94,6 +94,30 @@
       },
       "revId": "f5152b9e40267141f9040f9560bc2d443b241776",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f395f37d_a82483d2",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 15
+      },
+      "lineNbr": 2078,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2023-12-21T18:48:14Z",
+      "side": 1,
+      "message": "I did a quick search. av1_set_size_dependent_vars seems to happen after av1_check_initial_width. I don\u0027t know whether removing set speed features in av1_check_initial_width is safe or not before actually testing it.\nDefinitely there are some redundancy here. These speed features do not need to be set multiple times.",
+      "parentUuid": "ac5fdafd_a492781f",
+      "range": {
+        "startLine": 2078,
+        "startChar": 5,
+        "endLine": 2078,
+        "endChar": 28
+      },
+      "revId": "f5152b9e40267141f9040f9560bc2d443b241776",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
