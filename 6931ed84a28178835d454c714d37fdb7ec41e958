@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ed9cb9e0_7682219b",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 1527,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-12-21T01:51:11Z",
+      "side": 1,
+      "message": "I suggest we replace `initial_dimensions` with `last_coded_width/height` in this CL.\n\n```\ndiff --git a/av1/av1_cx_iface.c b/av1/av1_cx_iface.c\nindex 1a5e867b36..77943048d7 100644\n--- a/av1/av1_cx_iface.c\n+++ b/av1/av1_cx_iface.c\n@@ -1502,8 +1502,6 @@ AV1EncoderConfig av1_get_encoder_config(const aom_codec_enc_cfg_t *cfg) {\n \n static aom_codec_err_t encoder_set_config(aom_codec_alg_priv_t *ctx,\n                                           const aom_codec_enc_cfg_t *cfg) {\n-  InitialDimensions *const initial_dimensions \u003d\n-      \u0026ctx-\u003eppi-\u003ecpi-\u003einitial_dimensions;\n   aom_codec_err_t res;\n   int force_key \u003d 0;\n \n@@ -1517,14 +1515,13 @@ static aom_codec_err_t encoder_set_config(aom_codec_alg_priv_t *ctx,\n     // to update the frame width and height only when the actual encoding is\n     // performed. cpi-\u003elast_coded_width and cpi-\u003elast_coded_height are used to\n     // track the actual coded frame size.\n-    if ((ctx-\u003eppi-\u003ecpi-\u003elast_coded_width \u0026\u0026 ctx-\u003eppi-\u003ecpi-\u003elast_coded_height \u0026\u0026\n-         !valid_ref_frame_size(ctx-\u003eppi-\u003ecpi-\u003elast_coded_width,\n+    if (ctx-\u003eppi-\u003ecpi-\u003elast_coded_width \u0026\u0026 ctx-\u003eppi-\u003ecpi-\u003elast_coded_height \u0026\u0026\n+        (!valid_ref_frame_size(ctx-\u003eppi-\u003ecpi-\u003elast_coded_width,\n                                ctx-\u003eppi-\u003ecpi-\u003elast_coded_height, cfg-\u003eg_w,\n-                               cfg-\u003eg_h)) ||\n-        ((int)cfg-\u003eg_w \u003e initial_dimensions-\u003ewidth) ||\n-        ((int)cfg-\u003eg_h \u003e initial_dimensions-\u003eheight)) {\n-      // TODO(chengchen): analyze and see if initial_dimensions could be\n-      // replaced by last_coded_width/height or removed.\n+                               cfg-\u003eg_h) ||\n+        // TODO(chengchen): analyze and see if this could be removed.\n+        ((int)cfg-\u003eg_w \u003e ctx-\u003eppi-\u003ecpi-\u003elast_coded_width) ||\n+        ((int)cfg-\u003eg_h \u003e ctx-\u003eppi-\u003ecpi-\u003elast_coded_height))) {\n       force_key \u003d 1;\n     }\n   }\n```",
+      "revId": "6931ed84a28178835d454c714d37fdb7ec41e958",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "dea83a3a_5bcc5da2",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 2076,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-12-21T01:51:11Z",
+      "side": 1,
+      "message": "Nit: might \u003d\u003e does",
+      "revId": "6931ed84a28178835d454c714d37fdb7ec41e958",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f28cddd0_c8dcf32c",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 3174,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-12-21T01:51:11Z",
+      "side": 1,
+      "message": "Delete \", and in av1_check_initial_width()\".",
+      "revId": "6931ed84a28178835d454c714d37fdb7ec41e958",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4ad7eff1_1186aa44",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 3176,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-12-21T01:51:11Z",
+      "side": 1,
+      "message": "Delete this TODO comment because you took care of this in https://aomedia-review.googlesource.com/c/aom/+/185542.",
+      "revId": "6931ed84a28178835d454c714d37fdb7ec41e958",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
