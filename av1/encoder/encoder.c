@@ -2152,6 +2152,10 @@ void av1_set_frame_size(AV1_COMP *cpi, int width, int height) {
   MACROBLOCKD *const xd = &cpi->td.mb.e_mbd;
   int ref_frame;
 
+  // av1_set_frame_size() is only called with the current size or a scaled
+  // size.
+  assert(width <= cm->width && height <= cm->height);
+
   if (width != cm->width || height != cm->height) {
     // There has been a change in the encoded frame size
     av1_set_size_literal(cpi, width, height);
