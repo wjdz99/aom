@@ -34,6 +34,24 @@
       "parentUuid": "de780c44_453f20ac",
       "revId": "01bf3574fdad42a76ba49b3e0339ac00f2f04d6e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "382d2c93_6456f977",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 2123,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-12-21T20:59:03Z",
+      "side": 1,
+      "message": "I will do the cleanup separately. (The function return value needs more analysis.)",
+      "parentUuid": "b8f45d69_eab22bb6",
+      "revId": "01bf3574fdad42a76ba49b3e0339ac00f2f04d6e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
