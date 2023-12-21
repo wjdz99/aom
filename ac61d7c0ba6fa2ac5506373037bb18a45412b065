@@ -18,6 +18,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "36052b01_ca6fce48",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 1525,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2023-12-21T01:07:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bd71da7a_e835d5da",
+      "revId": "ac61d7c0ba6fa2ac5506373037bb18a45412b065",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "49938b83_645ff5e5",
@@ -31,6 +49,24 @@
       "writtenOn": "2023-12-20T23:50:24Z",
       "side": 1,
       "message": "Please add a TODO comment to rename this function, because it is no longer dealing with `initial_width` (the former name, from VP9, of `initial_dimensions-\u003ewidth`).",
+      "revId": "ac61d7c0ba6fa2ac5506373037bb18a45412b065",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7102ed3d_37ac1aaf",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 2075,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2023-12-21T01:07:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "49938b83_645ff5e5",
       "revId": "ac61d7c0ba6fa2ac5506373037bb18a45412b065",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -52,6 +88,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f614e6d6_e14a180c",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 2102,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2023-12-21T01:07:24Z",
+      "side": 1,
+      "message": "When I remove these two lines, I could get unit test failures, in frame_size_tests.cc: Realtime/AV1ResolutionChange.RandomInput\n\nWhere a comment \"The frame following a resolution change should be a keyframe as the change is too extreme to allow previous references to be used.\"\n\nThe test requires the next frame to be a key frame when the width increases to double of the current frame.\n\nI don\u0027t know the intent of this test. It is from James. I could ask him later.",
+      "parentUuid": "172df9d4_ced22f55",
+      "revId": "ac61d7c0ba6fa2ac5506373037bb18a45412b065",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "0b62910f_04ff0d8c",
@@ -65,6 +119,24 @@
       "writtenOn": "2023-12-20T23:50:24Z",
       "side": 1,
       "message": "Please update the comment to describe the new meaning of `initial_dimensions` (i.e., it records the cm-\u003ewidth and cm-\u003eheight at the last `alloc_compressor_data()` call). Add a TODO comment to rename this field to reflect the new meaning of this field.\n\nWe should also add a TODO comment to review the use of this field in firstpass.c and pass2_strategy.c.",
+      "revId": "ac61d7c0ba6fa2ac5506373037bb18a45412b065",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4099e322_962ce866",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 3173,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2023-12-21T01:07:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0b62910f_04ff0d8c",
       "revId": "ac61d7c0ba6fa2ac5506373037bb18a45412b065",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
