@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bd9d5b79_1c03515d",
+        "filename": "av1/decoder/decoder.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 217,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-12-22T15:31:16Z",
+      "side": 1,
+      "message": "Optional: It is fine to not reset `pbi-\u003etile_data` and `pbi-\u003eallocated_tiles` here because we will free the entire `pbi` struct at line 233. I guess this is why nonoe of the `aom_free()` calls is followed by setting the pointer to null in this function.",
+      "revId": "3f1c0248511a1ae8c0ae78eb38a5c79bab085c3f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "05025271_b2700f8f",
+        "filename": "av1/decoder/decoder.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 233,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-12-22T15:31:16Z",
+      "side": 1,
+      "message": "Note that the entire `pbi` struct is freed at the end of the function.",
+      "revId": "3f1c0248511a1ae8c0ae78eb38a5c79bab085c3f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
