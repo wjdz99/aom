@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "38b7d364_1f2f7b15",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-12-22T00:17:20Z",
+      "side": 1,
+      "message": "This potential issue is found by code inspection. The new code seems more reasonable.",
+      "revId": "1e5da6a2e117d2a70c72399c2edbaefaa8facd86",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
