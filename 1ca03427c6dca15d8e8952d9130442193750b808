@@ -37,6 +37,42 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "c410c90c_2b880dd4",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 33002
+      },
+      "writtenOn": "2023-12-22T15:41:41Z",
+      "side": 1,
+      "message": "As suggested, we have done the changes which are applicable on the decoder side.",
+      "parentUuid": "ec4ab793_241451be",
+      "revId": "1ca03427c6dca15d8e8952d9130442193750b808",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0a8c0520_5ee0189b",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 33002
+      },
+      "writtenOn": "2023-12-22T15:41:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "edd4565e_12dcd50b",
+      "revId": "1ca03427c6dca15d8e8952d9130442193750b808",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "49577358_c478fa34",
         "filename": "/PATCHSET_LEVEL",
         "patchSetId": 1
@@ -86,6 +122,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ab9c16b9_f2cddfbb",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1275,
+      "author": {
+        "id": 33002
+      },
+      "writtenOn": "2023-12-22T15:41:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c7681624_30a6f1db",
+      "revId": "1ca03427c6dca15d8e8952d9130442193750b808",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "9cd13080_bebfcd04",
@@ -120,6 +174,42 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "7f144b3e_f174a379",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1281,
+      "author": {
+        "id": 33002
+      },
+      "writtenOn": "2023-12-22T15:41:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9cd13080_bebfcd04",
+      "revId": "1ca03427c6dca15d8e8952d9130442193750b808",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f9cfc41f_fdb10c41",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1281,
+      "author": {
+        "id": 33002
+      },
+      "writtenOn": "2023-12-22T15:41:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f1f6a865_ff2d60ea",
+      "revId": "1ca03427c6dca15d8e8952d9130442193750b808",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "96f8d2ac_ff7c8315",
@@ -137,6 +227,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "10bf5dc1_bbf776f6",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1286,
+      "author": {
+        "id": 33002
+      },
+      "writtenOn": "2023-12-22T15:41:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "96f8d2ac_ff7c8315",
+      "revId": "1ca03427c6dca15d8e8952d9130442193750b808",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "7aa9ef9f_39e2b397",
@@ -150,6 +258,24 @@
       "writtenOn": "2023-12-21T19:36:41Z",
       "side": 1,
       "message": "ALT: Ideally these two fields should be set when `cpi-\u003etile_data` is allocated. Move these to `av1_alloc_tile_data()`.\n\nNOTE: This assumes that the values of `cm-\u003etiles.cols` and `cm-\u003etiles.rows` do not change during the time interval between the `av1_alloc_tile_data()` call and this function. The new for loop in `av1_alloc_tile_data()` already assumes this.",
+      "revId": "1ca03427c6dca15d8e8952d9130442193750b808",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4b0414b8_2abd27be",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 251,
+      "author": {
+        "id": 33002
+      },
+      "writtenOn": "2023-12-22T15:41:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7aa9ef9f_39e2b397",
       "revId": "1ca03427c6dca15d8e8952d9130442193750b808",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -173,6 +299,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "7820ec20_7ce665b8",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 276,
+      "author": {
+        "id": 33002
+      },
+      "writtenOn": "2023-12-22T15:41:41Z",
+      "side": 1,
+      "message": "We shall study this suggestion carefully and take up this change in a separate CL.",
+      "parentUuid": "a32742f4_844e8ea2",
+      "revId": "1ca03427c6dca15d8e8952d9130442193750b808",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "295a682a_e72fccb6",
         "filename": "av1/encoder/ethread.c",
         "patchSetId": 1
@@ -184,6 +328,24 @@
       "writtenOn": "2023-12-21T19:36:41Z",
       "side": 1,
       "message": "ALT: Delete these two lines, because this function does not deallocate `cpi-\u003etile_data`.",
+      "revId": "1ca03427c6dca15d8e8952d9130442193750b808",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "82fc4f3f_5f3b06f0",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 305,
+      "author": {
+        "id": 33002
+      },
+      "writtenOn": "2023-12-22T15:41:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "295a682a_e72fccb6",
       "revId": "1ca03427c6dca15d8e8952d9130442193750b808",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
