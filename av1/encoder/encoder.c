@@ -2123,9 +2123,6 @@ static void setup_denoiser_buffer(AV1_COMP *cpi) {
 static int set_size_literal(AV1_COMP *cpi, int width, int height) {
   AV1_COMMON *cm = &cpi->common;
   InitialDimensions *const initial_dimensions = &cpi->initial_dimensions;
-  av1_check_initial_width(cpi, cm->seq_params->use_highbitdepth,
-                          cm->seq_params->subsampling_x,
-                          cm->seq_params->subsampling_y);
 
   if (width <= 0 || height <= 0) return 1;
 
@@ -2151,6 +2148,9 @@ static int set_size_literal(AV1_COMP *cpi, int width, int height) {
   }
   alloc_mb_mode_info_buffers(cpi);
   av1_update_frame_size(cpi);
+  av1_check_initial_width(cpi, cm->seq_params->use_highbitdepth,
+                          cm->seq_params->subsampling_x,
+                          cm->seq_params->subsampling_y);
 
   return 0;
 }
