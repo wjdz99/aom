@@ -33,6 +33,23 @@
       "message": "Thanks for getting this done.",
       "revId": "62a39da00de3f5ecc1907ad0ca23251bf2abc40f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "615432dc_72485495",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 2029,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-12-22T01:30:06Z",
+      "side": 1,
+      "message": "Hi Aniket and Ranjit,\n\nThis `alloc_mb_mode_info_buffers(cpi)` call seems like a duplicate, because we will call `alloc_mb_mode_info_buffers(cpi)` at line 2034.\n\nDo you remember why this is necessary? I wonder if lines 2030-2031 depend on some side effects of this `alloc_mb_mode_info_buffers(cpi)` call.\n\nI deleted this call in https://aomedia-review.googlesource.com/c/aom/+/185461 yesterday, but I am not sure if that is safe.\n\nThanks.",
+      "revId": "62a39da00de3f5ecc1907ad0ca23251bf2abc40f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
