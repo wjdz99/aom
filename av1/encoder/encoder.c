@@ -2122,14 +2122,15 @@ static void setup_denoiser_buffer(AV1_COMP *cpi) {
 // Returns 1 if the assigned width or height was <= 0.
 static int set_size_literal(AV1_COMP *cpi, int width, int height) {
   AV1_COMMON *cm = &cpi->common;
-  av1_check_initial_width(cpi, cm->seq_params->use_highbitdepth,
-                          cm->seq_params->subsampling_x,
-                          cm->seq_params->subsampling_y);
 
   if (width <= 0 || height <= 0) return 1;
 
   cm->width = width;
   cm->height = height;
+
+  av1_check_initial_width(cpi, cm->seq_params->use_highbitdepth,
+                          cm->seq_params->subsampling_x,
+                          cm->seq_params->subsampling_y);
 
 #if CONFIG_AV1_TEMPORAL_DENOISING
   setup_denoiser_buffer(cpi);
