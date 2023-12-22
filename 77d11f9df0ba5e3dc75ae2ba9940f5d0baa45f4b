@@ -20,6 +20,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "819b5dae_48859106",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 33002
+      },
+      "writtenOn": "2023-12-22T15:37:34Z",
+      "side": 1,
+      "message": "We would like to clarify that `cm-\u003eerror` is initialized but `cm-\u003eerror.setjmp` is not set at this point which is done in `av1_get_compressed_data()`. We have modified the commit message in the latest patchset.",
+      "parentUuid": "cd5f0eee_95e5b374",
+      "revId": "77d11f9df0ba5e3dc75ae2ba9940f5d0baa45f4b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "c63a5ca7_a57c41fd",
         "filename": "/PATCHSET_LEVEL",
         "patchSetId": 2
@@ -69,6 +87,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "eaa14634_68ebb3ab",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 3112,
+      "author": {
+        "id": 33002
+      },
+      "writtenOn": "2023-12-22T15:37:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d06bd11e_abef581b",
+      "revId": "77d11f9df0ba5e3dc75ae2ba9940f5d0baa45f4b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e059bd36_22f628b2",
@@ -82,6 +118,24 @@
       "writtenOn": "2023-12-21T16:05:06Z",
       "side": 1,
       "message": "Nit: This error message is specific to the current implementation of `av1_check_initial_width()`. I suggest we just say \"av1_check_initial_width() failed\".",
+      "revId": "77d11f9df0ba5e3dc75ae2ba9940f5d0baa45f4b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "87b3f709_01ba3122",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 3114,
+      "author": {
+        "id": 33002
+      },
+      "writtenOn": "2023-12-22T15:37:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e059bd36_22f628b2",
       "revId": "77d11f9df0ba5e3dc75ae2ba9940f5d0baa45f4b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -103,6 +157,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "004e75bc_78b1da50",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 3130,
+      "author": {
+        "id": 33002
+      },
+      "writtenOn": "2023-12-22T15:37:34Z",
+      "side": 1,
+      "message": "As `cm-\u003eerror` is initialized and used only to update the error status, change in this CL is correct. Also `cpi-\u003ecommon.error` and `cm-\u003eerror` are the same.",
+      "parentUuid": "5bd54e4e_9df9142a",
+      "revId": "77d11f9df0ba5e3dc75ae2ba9940f5d0baa45f4b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "0c91472c_ebdfab8f",
@@ -116,6 +188,24 @@
       "writtenOn": "2023-12-21T16:05:06Z",
       "side": 1,
       "message": "Nit: Return `aom_codec_err_t` so that the error code can be passed to `aom_internal_error()`.",
+      "revId": "77d11f9df0ba5e3dc75ae2ba9940f5d0baa45f4b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "458ef627_88f609b3",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2067,
+      "author": {
+        "id": 33002
+      },
+      "writtenOn": "2023-12-22T15:37:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0c91472c_ebdfab8f",
       "revId": "77d11f9df0ba5e3dc75ae2ba9940f5d0baa45f4b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
