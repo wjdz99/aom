@@ -175,6 +175,41 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "9d39631c_216df100",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 3130,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-12-22T23:27:16Z",
+      "side": 1,
+      "message": "I looked at `av1_receive_raw_frame()` to refresh my memory. I understand it now.\n\n`av1_receive_raw_frame()` returns 0 on success, -1 on failure. It calls `aom_internal_error()` to record an error code and error message in `cm-\u003eerror`, without doing a `longjmp()`.\n\nDo you think we can use this approach in `av1_check_initial_width()`? That will allow `av1_check_initial_width()` to return `bool` (which is simpler to check) and report a more specific error message on failure. See my comment at line 3216 below for an example.\n\nNote: I am adding a new `aom_set_error()` function for this use case:\nhttps://aomedia-review.googlesource.com/c/aom/+/185722\n\nIf you like my proposal, you can just call `aom_internal_error()` in `av1_check_initial_width()` for now. I will change it to `aom_set_error()` when my CL is approved and submitted.",
+      "parentUuid": "004e75bc_78b1da50",
+      "revId": "77d11f9df0ba5e3dc75ae2ba9940f5d0baa45f4b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "336ca1e5_21b2c8c8",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 3229,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-12-22T23:27:16Z",
+      "side": 1,
+      "message": "Here is an example of propagating the error code and error message from `cm-\u003eerror` (`cpi-\u003ecommon.error`) to `\u0026ppi-\u003eerror`.\n\nMudassir added this approach in https://aomedia-review.googlesource.com/c/aom/+/176342. I like this approach and I think we can use it elsewhere. Note: We should document when `av1_get_compressed_data()` returns a value other than `AOM_CODEC_OK` and -1, we can use the error code and error message in `cpi-\u003ecommon.error`.",
+      "revId": "77d11f9df0ba5e3dc75ae2ba9940f5d0baa45f4b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "0c91472c_ebdfab8f",
