@@ -13,6 +13,7 @@
  * \brief Provides the high level interface to wrap decoder algorithms.
  *
  */
+#include <assert.h>
 #include <stdarg.h>
 #include <stdlib.h>
 
@@ -127,6 +128,26 @@ aom_codec_err_t aom_codec_set_option(aom_codec_ctx_t *ctx, const char *name,
   ctx->err =
       ctx->iface->set_option((aom_codec_alg_priv_t *)ctx->priv, name, value);
   return ctx->err;
+}
+
+void aom_set_error(struct aom_internal_error_info *info, aom_codec_err_t error,
+                   const char *fmt, ...) {
+  va_list ap;
+
+  info->error_code = error;
+  info->has_detail = 0;
+
+  if (fmt) {
+    size_t sz = sizeof(info->detail);
+
+    info->has_detail = 1;
+    va_start(ap, fmt);
+    vsnprintf(info->detail, sz - 1, fmt, ap);
+    va_end(ap);
+    info->detail[sz - 1] = '\0';
+  }
+
+  assert(!info->setjmp);
 }
 
 void aom_internal_error(struct aom_internal_error_info *info,
