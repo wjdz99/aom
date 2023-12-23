@@ -4661,7 +4661,7 @@ void av1_post_encode_updates(AV1_COMP *const cpi,
   if (ppi->use_svc) av1_save_layer_context(cpi);
 
   // Note *size = 0 indicates a dropped frame for which psnr is not calculated
-  if (ppi->b_calculate_psnr && cpi_data->frame_size > 0) {
+  if (ppi->b_calculate_psnr && cpi_data->frame_size > 0 && !cpi->is_dropped_frame) {
     if (cm->show_existing_frame ||
         (!is_stat_generation_stage(cpi) && cm->show_frame)) {
       generate_psnr_packet(cpi);
