@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "370a3348_3dc64821",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-12-26T22:48:03Z",
+      "side": 1,
+      "message": "Jingning, Mudassir: Please review. I am not sure if \"aom_internal_error_copy\" is the best name for this function. If you have a good idea, please suggest it.\n\nJames, Satheesh, Yunqing: Just FYI.",
+      "revId": "e065e0fead8c9910e6a2249e8d96ddfedc805713",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "66d06475_c11553e2",
+        "filename": "aom/src/aom_codec.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-12-26T22:48:03Z",
+      "side": 1,
+      "message": "Note that one can call `aom_internal_error()` with `fmt\u003dNULL`. In that case, `info-\u003ehas_detail` is 0, and `info-\u003edetail` must not be used.",
+      "revId": "e065e0fead8c9910e6a2249e8d96ddfedc805713",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
