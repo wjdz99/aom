@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "17ed5516_93bbf7bb",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2023-12-26T13:05:22Z",
+      "side": 1,
+      "message": "Buffers `rst_tmpbuf` and `rlbs` are allocated in `av1_loop_restoration_alloc()` for each worker, and `lr_sync-\u003enum_workers` which is used to free these buffers is set after the allocations. If the allocation of either of these buffers fails, `lr_sync-\u003enum_workers` will not be set due to `longjmp`, and the allocated buffers will show up as leaks. This CL fixes this issue by setting `lr_sync-\u003enum_workers` before the allocation of buffers. Also used `aom_calloc()` instead of `aom_malloc()` to allocate `lrworkerdata` to avoid the SEGV error while trying to free the unallocated buffers in case of an early termination.\n\nThis change is bit-exact and has been verified using bitstream-match tests for a combination of various configuration values for --threads, --tile-rows, --tile-columns, --cpu-used, --end-usage, --row-mt, --fp-mt, etc. Validated all unit-tests with sanitizers (address and thread) and valgrind.",
+      "revId": "8d7e4d5af868dc89bd99a355ba4c6acd89bffd16",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
