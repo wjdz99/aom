@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "841331d0_8188c0f2",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 1252,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-12-27T00:21:34Z",
+      "side": 0,
+      "message": "Optional: I suggest we not move the `prepare_fpmt_workers()` and `launch_fpmt_workers()` functions. This will make it easier to see the changes made to `prepare_fpmt_workers()` in this CL. (`launch_fpmt_workers()` did not change.)\n\nSo just add a declaration of `restore_workers_after_fpmt()`  before this line.",
+      "revId": "4a8cfc3e1adfef5cbcb74aba538b0c86f3c7d0cc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
