@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0aee0e57_71f33964",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 31322
+      },
+      "writtenOn": "2023-12-27T18:01:36Z",
+      "side": 1,
+      "message": "The functions av1_predict_intra_block() and build_intra_predictors() are used to generate the pred data for intra modes. It is observed that the computations in these functions are generalized for all intra modes and some of these computations can be avoided based on neighbor availability and mode information. Specifically, redundant computations are observed for non-directional intra modes (i.e., DC, SMOOTH, SMOOTH_H, SMOOTH_V, and PAETH) since these modes only require left and top neighbors. Additionally, computations related to filter intra and edge filter type are not required for these modes. Hence, this CL introduces a new function build_non_directional_intra_predictor() to generate the pred data for non-directional intra modes by avoiding these redundant computations and condition checks.\n\nThis refactoring change is currently implemented only in the low-bit-depth path, and the same is applicable for the high-bit-depth path as well.\n\nFor AVIF still-image encode with tune\u003dssim,\n```                \n                   Instruction Count  / Encode Time\ncpu-used                     Reduction(%)\n    0                           0.236\n    1                           0.254\n    2                           0.204\n    3                           0.339\n    4                           0.415\n    5                           0.445\n    6                           0.836\n    7                           1.262\n    8                           0.766\n    9                           0.616\n```    \nIn the above data, instruction count reduction is quoted for speed \u003c6 and encode-time reduction is quoted for speed\u003e\u003d6.\n\nFollowing are the Borg test results for ALLINTRA encoding for 50 frames.\n```\n                   Instruction Count         \ncpu-used             Reduction(%)       \n   3                    0.426\n   4                    0.518\n   5                    0.577\n   6                    1.065\n```\nFor GOOD encoding mode, speed-up in the range of 0.155%-0.583% is observed for presets 3 to 6. For libaom AV1 video encode, bit-match is verified (w.r.t. parent commit) for \u0027GOOD\u0027, ‘ALLINTRA’ and \u0027RT\u0027 encoding modes for a few contents with different encoding configurations. It is verified that the CL is bit-exact for AVIF still-image encode for a typical image dataset.\n\nLibavif commit used for testing: a9709d3e2854c4d5879348b52573d236f004878d",
+      "revId": "1f7f83809da316f8cbbeff4c73145c40262f18d6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
