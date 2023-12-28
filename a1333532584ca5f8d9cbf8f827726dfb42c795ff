@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "32d10067_654d755a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 33002
+      },
+      "writtenOn": "2023-12-28T12:36:33Z",
+      "side": 1,
+      "message": "Currently `av1_init_mt_sync()` and its sub-functions are using `cm-\u003eerror` to report the allocation failure. It will result in a SEGV error in case of an allocation failure in `av1_init_mt_sync()` or its sub-functions `av1_loop_filter_alloc()` and `av1_loop_restoration_alloc()` as `cm-\u003eerror.setjmp` is not set at this stage (these sub-functions can also be invoked in another functions when `setjmp` is set). In order to fix this, this CL uses `cm-\u003eerror` to set a local jump target in `av1_init_mt_sync()` so that the correct error_info(`ppi-\u003eerror`) can be used to report an error.\n\nIn case of an allocation failure in `av1_init_mt_sync()`, `mt_info-\u003enum_workers` (please see line number 799 in `ethread.c`) will not be set because of an early termination. As `mt_info-\u003enum_workers` is used in `av1_remove_compressor()` during `encoder_destroy()`, this will cause memory leaks. This CL also fixes this issue by calling `av1_init_frame_mt()` before `av1_init_mt_sync()` so that the allocated buffers can be freed in case of failure.\n\nThis change is bit-exact and has been verified using bitstream-match tests for a combination of various configuration values for --threads, --tile-rows, --tile-columns, --cpu-used, --end-usage, --row-mt, --fp-mt, etc. Validated all unit-tests with sanitizers (address and thread) and valgrind.",
+      "revId": "a1333532584ca5f8d9cbf8f827726dfb42c795ff",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
