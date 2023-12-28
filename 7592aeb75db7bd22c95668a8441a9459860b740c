@@ -16,6 +16,40 @@
       "message": "This CL fixes an issue introduced in one of our earlier [CL](https://aomedia-review.googlesource.com/c/aom/+/176342).",
       "revId": "7592aeb75db7bd22c95668a8441a9459860b740c",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "95a02adf_df2b8899",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 3205,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-12-28T19:26:24Z",
+      "side": 1,
+      "message": "Optional: The nested if conditionals can be combined using `\u0026\u0026`:\n\n```\n      if (status !\u003d -1 \u0026\u0026 status !\u003d AOM_CODEC_OK) {\n        aom_internal_error_copy(\u0026ppi-\u003eerror, cpi_lap-\u003ecommon.error);\n      }\n```\n\nNote: We can also just test `if (status \u003e 0)` or `if (status \u003e AOM_CODEC_OK)`.",
+      "revId": "7592aeb75db7bd22c95668a8441a9459860b740c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1a468331_20011b85",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 3256,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2023-12-28T19:26:24Z",
+      "side": 1,
+      "message": "Please check this one. Here `status` comes from four sources (lines 3239, 3245, 3248, and 3250). In the third and fourth sources, it seems that `ppi` is used. Does this mean they will call `longjmp()`?",
+      "revId": "7592aeb75db7bd22c95668a8441a9459860b740c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
