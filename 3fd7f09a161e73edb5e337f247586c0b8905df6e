@@ -3,6 +3,23 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "583db4dc_2a4f7bc6",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-01-02T23:12:38Z",
+      "side": 1,
+      "message": "Nit/optional: The aom_internal_error() call in the original code can also be considered as an early exit, if longjmp() is considered as a way of exiting a function. It would be better to say this CL changes av1_setup_sms_tree() to return a failure status (-1) in case of an allocation failure.",
+      "revId": "3fd7f09a161e73edb5e337f247586c0b8905df6e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "0d391856_9bd99cc0",
         "filename": "/PATCHSET_LEVEL",
         "patchSetId": 3
@@ -14,6 +31,23 @@
       "writtenOn": "2023-12-27T15:50:56Z",
       "side": 1,
       "message": "Currently, an allocation failure in `av1_setup_sms_tree()` is handled using `cm-\u003eerror`. This works fine when the function is invoked from `alloc_compressor_data()`. But it can result in a SEGV error in case of an allocation failure when the function is invoked by `av1_init_tile_thread_data()` as `cm-\u003eerror.setjmp` is not set at this stage. In order to fix this, this CL adds an early exit in `av1_setup_sms_tree()` in case of an allocation failure and the caller functions are modified to report the error using appropriate `error_info`.\n\nThis change is bit-exact and has been verified using bitstream-match tests for a combination of various configuration values for --threads, --tile-rows, --tile-columns, --cpu-used, --end-usage, --row-mt, --fp-mt, etc. Validated all unit-tests with sanitizers (address and thread) and valgrind.",
+      "revId": "3fd7f09a161e73edb5e337f247586c0b8905df6e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "77c60718_0a5c572e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-01-02T23:12:38Z",
+      "side": 1,
+      "message": "LGTM. I suggest a minor edit of the commit message.",
       "revId": "3fd7f09a161e73edb5e337f247586c0b8905df6e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
