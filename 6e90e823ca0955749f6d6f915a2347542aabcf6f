@@ -3,6 +3,29 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "3d412162_45c6f0a0",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2024-01-02T19:37:50Z",
+      "side": 1,
+      "message": "can you put this part to a new line so the bug will be automatically udpated when this gets submitted?",
+      "range": {
+        "startLine": 9,
+        "startChar": 35,
+        "endLine": 9,
+        "endChar": 52
+      },
+      "revId": "6e90e823ca0955749f6d6f915a2347542aabcf6f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "a8d1e59b_ac7dfca8",
         "filename": "av1/encoder/encoder.c",
         "patchSetId": 5
@@ -14,6 +37,24 @@
       "writtenOn": "2024-01-02T18:30:36Z",
       "side": 1,
       "message": "for dropped frames frame_size should always be 0, so I don\u0027t understand why we need the extra condition?",
+      "revId": "6e90e823ca0955749f6d6f915a2347542aabcf6f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9491084f_dd1ecd44",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 4665,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2024-01-02T19:37:50Z",
+      "side": 1,
+      "message": "I\u0027ve verified that this is not needed to fix the assertion failure.",
+      "parentUuid": "a8d1e59b_ac7dfca8",
       "revId": "6e90e823ca0955749f6d6f915a2347542aabcf6f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
