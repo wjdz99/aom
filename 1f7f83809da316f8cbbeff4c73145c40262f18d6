@@ -16,6 +16,210 @@
       "message": "The functions av1_predict_intra_block() and build_intra_predictors() are used to generate the pred data for intra modes. It is observed that the computations in these functions are generalized for all intra modes and some of these computations can be avoided based on neighbor availability and mode information. Specifically, redundant computations are observed for non-directional intra modes (i.e., DC, SMOOTH, SMOOTH_H, SMOOTH_V, and PAETH) since these modes only require left and top neighbors. Additionally, computations related to filter intra and edge filter type are not required for these modes. Hence, this CL introduces a new function build_non_directional_intra_predictor() to generate the pred data for non-directional intra modes by avoiding these redundant computations and condition checks.\n\nThis refactoring change is currently implemented only in the low-bit-depth path, and the same is applicable for the high-bit-depth path as well.\n\nFor AVIF still-image encode with tune\u003dssim,\n```                \n                   Instruction Count  / Encode Time\ncpu-used                     Reduction(%)\n    0                           0.236\n    1                           0.254\n    2                           0.204\n    3                           0.339\n    4                           0.415\n    5                           0.445\n    6                           0.836\n    7                           1.262\n    8                           0.766\n    9                           0.616\n```    \nIn the above data, instruction count reduction is quoted for speed \u003c6 and encode-time reduction is quoted for speed\u003e\u003d6.\n\nFollowing are the Borg test results for ALLINTRA encoding for 50 frames.\n```\n                   Instruction Count         \ncpu-used             Reduction(%)       \n   3                    0.426\n   4                    0.518\n   5                    0.577\n   6                    1.065\n```\nFor GOOD encoding mode, speed-up in the range of 0.155%-0.583% is observed for presets 3 to 6. For libaom AV1 video encode, bit-match is verified (w.r.t. parent commit) for \u0027GOOD\u0027, ‘ALLINTRA’ and \u0027RT\u0027 encoding modes for a few contents with different encoding configurations. It is verified that the CL is bit-exact for AVIF still-image encode for a typical image dataset.\n\nLibavif commit used for testing: a9709d3e2854c4d5879348b52573d236f004878d",
       "revId": "1f7f83809da316f8cbbeff4c73145c40262f18d6",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3f7f117e_89ce0bfc",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-01-03T00:32:47Z",
+      "side": 1,
+      "message": "Apurve: Thank you for the CL. Overall this looks good. I have some questions and suggestions while trying to understand this CL. Please take a look. Thanks.",
+      "revId": "1f7f83809da316f8cbbeff4c73145c40262f18d6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "258f99f5_11773ab5",
+        "filename": "av1/common/reconintra.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1193,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-01-03T00:32:47Z",
+      "side": 1,
+      "message": "We can replace this `if` conditional with an `assert`.\n\nInside this function, `use_filter_intra || is_dr_mode` must be true. Because of the if statement above (lines 1187-1191), we know `is_dr_mode` must be true at this point.",
+      "revId": "1f7f83809da316f8cbbeff4c73145c40262f18d6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9dfa805a_a5fd5367",
+        "filename": "av1/common/reconintra.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1235,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-01-03T00:32:47Z",
+      "side": 1,
+      "message": "Delete the rest of this function because it is unreachable. Note the `return` statement at line 1232.",
+      "revId": "1f7f83809da316f8cbbeff4c73145c40262f18d6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5045b1ca_d6e4e92a",
+        "filename": "av1/common/reconintra.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1246,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-01-03T00:32:47Z",
+      "side": 1,
+      "message": "Nit: Delete `INLINE`.",
+      "revId": "1f7f83809da316f8cbbeff4c73145c40262f18d6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cb719325_6c4eb40a",
+        "filename": "av1/common/reconintra.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1254,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-01-03T00:32:47Z",
+      "side": 1,
+      "message": "Nit/optional: Also copy the `need_above_left` variable and use it in line 1303.\n\n```\n  const int need_above_left \u003d extend_modes[mode] \u0026 NEED_ABOVELEFT;\n```",
+      "revId": "1f7f83809da316f8cbbeff4c73145c40262f18d6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fbd381d5_4243ca99",
+        "filename": "av1/common/reconintra.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1258,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-01-03T00:32:47Z",
+      "side": 1,
+      "message": "Nit: List `mode \u003d\u003d PAETH_PRED` last to match the comment at line 1245.",
+      "revId": "1f7f83809da316f8cbbeff4c73145c40262f18d6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f9a25622_1052a3e9",
+        "filename": "av1/common/reconintra.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1293,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-01-03T00:32:47Z",
+      "side": 1,
+      "message": "IMPORTANT: I believe this new function makes only two simplifications:\n\n1. Omit if statements that will not be executed.\n2. Move `memset` calls of `left_data` and `above_data` inside if statements.\n\nI am wondering if most of the speedup comes from #2, because skipping if statements should not result in significant speedup.",
+      "revId": "1f7f83809da316f8cbbeff4c73145c40262f18d6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "893c69c1_14db10e8",
+        "filename": "av1/common/reconintra.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1316,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-01-03T00:32:47Z",
+      "side": 1,
+      "message": "Nit/optional: Should we also copy the `// predict` comment?\n\nAlternatively, delete the `// NEED_LEFT` and `// NEED_ABOVE` comments.",
+      "revId": "1f7f83809da316f8cbbeff4c73145c40262f18d6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9c6bb837_d524fe6c",
+        "filename": "av1/common/reconintra.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1665,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-01-03T00:32:47Z",
+      "side": 1,
+      "message": "Nit: change `use_palette \u003d\u003d 0` to `!use_palette`? I assume `use_palette` is a boolean.\n\nWhy assert `!use_palette`? This is guaranteed by the if statement at lines 1625-1647. Does the code below assume `use_palette` is false?",
+      "revId": "1f7f83809da316f8cbbeff4c73145c40262f18d6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8be5f372_0bb1a616",
+        "filename": "av1/common/reconintra.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1669,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-01-03T00:32:47Z",
+      "side": 1,
+      "message": "Nit: add a space before the opening parenthesis `(`.",
+      "revId": "1f7f83809da316f8cbbeff4c73145c40262f18d6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f7489fe4_e850f287",
+        "filename": "av1/common/reconintra.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1676,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-01-03T00:32:47Z",
+      "side": 1,
+      "message": "Optional: The `non_directional` and `directional` in the function names capture the `is_dr_mode` part but don\u0027t seem to capture the `use_filter_intra` part of this condition.\n\nI don\u0027t have a good suggestion though.",
+      "revId": "1f7f83809da316f8cbbeff4c73145c40262f18d6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "37fdbe8c_e6077700",
+        "filename": "av1/common/reconintra.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1682,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-01-03T00:32:47Z",
+      "side": 1,
+      "message": "Nit: Delete this assertion. It immediately follows a short if statement that guarantees the condition is true, so the assertion is not that useful.\n\nIf you prefer to keep this assertion, reorder the tests to match the order used in line 1675 (or reorder the tests in line 1675 to match the order used in this assertion):\n\n```\n  assert(is_hbd  || use_filter_intra || is_dr_mode);\n```\n\nUpdate: We could move this assertion into `build_directional_intra_predictors()` as follows:\n\n```\n  assert(use_filter_intra || is_dr_mode);\n```",
+      "revId": "1f7f83809da316f8cbbeff4c73145c40262f18d6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
