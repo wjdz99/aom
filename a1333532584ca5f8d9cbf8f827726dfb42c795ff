@@ -16,6 +16,63 @@
       "message": "Currently `av1_init_mt_sync()` and its sub-functions are using `cm-\u003eerror` to report the allocation failure. It will result in a SEGV error in case of an allocation failure in `av1_init_mt_sync()` or its sub-functions `av1_loop_filter_alloc()` and `av1_loop_restoration_alloc()` as `cm-\u003eerror.setjmp` is not set at this stage (these sub-functions can also be invoked in another functions when `setjmp` is set). In order to fix this, this CL uses `cm-\u003eerror` to set a local jump target in `av1_init_mt_sync()` so that the correct error_info(`ppi-\u003eerror`) can be used to report an error.\n\nIn case of an allocation failure in `av1_init_mt_sync()`, `mt_info-\u003enum_workers` (please see line number 799 in `ethread.c`) will not be set because of an early termination. As `mt_info-\u003enum_workers` is used in `av1_remove_compressor()` during `encoder_destroy()`, this will cause memory leaks. This CL also fixes this issue by calling `av1_init_frame_mt()` before `av1_init_mt_sync()` so that the allocated buffers can be freed in case of failure.\n\nThis change is bit-exact and has been verified using bitstream-match tests for a combination of various configuration values for --threads, --tile-rows, --tile-columns, --cpu-used, --end-usage, --row-mt, --fp-mt, etc. Validated all unit-tests with sanitizers (address and thread) and valgrind.",
       "revId": "a1333532584ca5f8d9cbf8f827726dfb42c795ff",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "576a23f9_2fa36a7e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-01-03T01:03:13Z",
+      "side": 1,
+      "message": "Satheesh: I suggest two changes. I am not sure if they will work, but they could make the code easier to understand. Thanks.",
+      "revId": "a1333532584ca5f8d9cbf8f827726dfb42c795ff",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0343ba29_429a27ab",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 3205,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-01-03T01:03:13Z",
+      "side": 1,
+      "message": "Could you try moving this block of code (lines 3193-3205) before line 3175?\n\nConceptually, it seems better to first set up `ppi`, and then set up the various `cpi`s.",
+      "range": {
+        "startLine": 3193,
+        "startChar": 0,
+        "endLine": 3205,
+        "endChar": 5
+      },
+      "revId": "a1333532584ca5f8d9cbf8f827726dfb42c795ff",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a403a80c_b0d8101a",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 842,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-01-03T01:03:13Z",
+      "side": 1,
+      "message": "Nit: Could you try getting rid of the `error` variable and using `cm-\u003eerror` directly?",
+      "revId": "a1333532584ca5f8d9cbf8f827726dfb42c795ff",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
