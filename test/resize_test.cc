@@ -740,6 +740,7 @@ TEST_P(ResizeRealtimeTest, TestInternalResizeDown) {
 TEST_P(ResizeRealtimeTest, TestInternalResizeDownUpChangeBitRate) {
   ::libaom_test::I420VideoSource video("niklas_640_480_30.yuv", 640, 480, 30, 1,
                                        0, 400);
+  init_flags_ = AOM_CODEC_USE_PSNR;
   cfg_.g_w = 640;
   cfg_.g_h = 480;
   change_bitrate_ = true;
