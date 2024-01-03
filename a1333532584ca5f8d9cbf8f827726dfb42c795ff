@@ -58,6 +58,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "620f8eb5_84f8c3f0",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 3205,
+      "author": {
+        "id": 33002
+      },
+      "writtenOn": "2024-01-03T13:24:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0343ba29_429a27ab",
+      "range": {
+        "startLine": 3193,
+        "startChar": 0,
+        "endLine": 3205,
+        "endChar": 5
+      },
+      "revId": "a1333532584ca5f8d9cbf8f827726dfb42c795ff",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a403a80c_b0d8101a",
@@ -71,6 +95,24 @@
       "writtenOn": "2024-01-03T01:03:13Z",
       "side": 1,
       "message": "Nit: Could you try getting rid of the `error` variable and using `cm-\u003eerror` directly?",
+      "revId": "a1333532584ca5f8d9cbf8f827726dfb42c795ff",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f6fbf31e_9112ad51",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 842,
+      "author": {
+        "id": 33002
+      },
+      "writtenOn": "2024-01-03T13:24:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a403a80c_b0d8101a",
       "revId": "a1333532584ca5f8d9cbf8f827726dfb42c795ff",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
