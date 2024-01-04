@@ -36,6 +36,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "dea6bb28_05eb61c4",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 1280,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-01-04T18:00:31Z",
+      "side": 1,
+      "message": "It is uncommon for a function to return the `aom_internal_error_info` struct. (I don\u0027t think any libaom function does this.) Your current approach is fine.",
+      "parentUuid": "2d07401f_a41b7e1d",
+      "revId": "6ab05716e001020f35abb02849c6f20ae469e4ce",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a050cb40_f18f1b43",
@@ -67,6 +85,24 @@
       "side": 1,
       "message": "Thank you for pointing this out. Added the setjmp target using cm-\u003eerror.",
       "parentUuid": "a050cb40_f18f1b43",
+      "revId": "6ab05716e001020f35abb02849c6f20ae469e4ce",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7232d07d_a8c37178",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 1283,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-01-04T18:00:31Z",
+      "side": 1,
+      "message": "Thanks.",
+      "parentUuid": "7c7344a9_024590a4",
       "revId": "6ab05716e001020f35abb02849c6f20ae469e4ce",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
