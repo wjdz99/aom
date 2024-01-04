@@ -16,6 +16,23 @@
       "message": "Hi Eric and Jian,\n\nRegarding the second issue in the Bug:aomedia:3531: I have a fix here for an issue with a speed feature with resizing and psnr_calc. Modified a unittest to verify the fix. Let me know if this is the same issue you\u0027re seeing. If not, can you give more detail on how to repro what you\u0027re seeing. Thanks.",
       "revId": "65e917a95fd843f2463869b2adc9784dffbd36b6",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "dfb6b51f_1b8eeb7f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2024-01-04T15:55:09Z",
+      "side": 1,
+      "message": "This seems to fix a different issue than the second one in aomedia: 3531.\n\nRunning the test with AOM_CODEC_USE_PSNR and without the fix in speed_features.c hits the assertion here:\n\n\u003e aom/aom_dsp/psnr.c:340: aom_calc_highbd_psnr: Assertion `a-\u003ey_crop_width \u003d\u003d b-\u003ey_crop_width\u0027 failed.\n\nwhich is different from the bug report.",
+      "revId": "65e917a95fd843f2463869b2adc9784dffbd36b6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
