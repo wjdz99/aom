@@ -52,6 +52,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "fcf82224_97c22965",
+        "filename": "av1/common/reconintra.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1193,
+      "author": {
+        "id": 31322
+      },
+      "writtenOn": "2024-01-04T10:25:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "258f99f5_11773ab5",
+      "revId": "1f7f83809da316f8cbbeff4c73145c40262f18d6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "9dfa805a_a5fd5367",
@@ -65,6 +83,24 @@
       "writtenOn": "2024-01-03T00:32:47Z",
       "side": 1,
       "message": "Delete the rest of this function because it is unreachable. Note the `return` statement at line 1232.",
+      "revId": "1f7f83809da316f8cbbeff4c73145c40262f18d6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "87345daf_fefc147e",
+        "filename": "av1/common/reconintra.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1235,
+      "author": {
+        "id": 31322
+      },
+      "writtenOn": "2024-01-04T10:25:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9dfa805a_a5fd5367",
       "revId": "1f7f83809da316f8cbbeff4c73145c40262f18d6",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -86,6 +122,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "66000313_95343263",
+        "filename": "av1/common/reconintra.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1246,
+      "author": {
+        "id": 31322
+      },
+      "writtenOn": "2024-01-04T10:25:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5045b1ca_d6e4e92a",
+      "revId": "1f7f83809da316f8cbbeff4c73145c40262f18d6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "cb719325_6c4eb40a",
@@ -103,6 +157,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "c6a94a34_f3cb7db7",
+        "filename": "av1/common/reconintra.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1254,
+      "author": {
+        "id": 31322
+      },
+      "writtenOn": "2024-01-04T10:25:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cb719325_6c4eb40a",
+      "revId": "1f7f83809da316f8cbbeff4c73145c40262f18d6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "fbd381d5_4243ca99",
@@ -116,6 +188,24 @@
       "writtenOn": "2024-01-03T00:32:47Z",
       "side": 1,
       "message": "Nit: List `mode \u003d\u003d PAETH_PRED` last to match the comment at line 1245.",
+      "revId": "1f7f83809da316f8cbbeff4c73145c40262f18d6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5b4fa790_08e9b29a",
+        "filename": "av1/common/reconintra.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1258,
+      "author": {
+        "id": 31322
+      },
+      "writtenOn": "2024-01-04T10:25:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fbd381d5_4243ca99",
       "revId": "1f7f83809da316f8cbbeff4c73145c40262f18d6",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -139,6 +229,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "e74bb904_c46655dd",
+        "filename": "av1/common/reconintra.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1293,
+      "author": {
+        "id": 31322
+      },
+      "writtenOn": "2024-01-04T10:25:58Z",
+      "side": 1,
+      "message": "While the change introduced by #2 does provide some gains, it alone is not significant enough to witness substantial improvements. The notable reduction is observed when avoiding calls to get_intra_edge_filter_type (specific to is_dr_mode) and the flags related to the top right and bottom left.",
+      "parentUuid": "f9a25622_1052a3e9",
+      "revId": "1f7f83809da316f8cbbeff4c73145c40262f18d6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "893c69c1_14db10e8",
         "filename": "av1/common/reconintra.c",
         "patchSetId": 2
@@ -150,6 +258,24 @@
       "writtenOn": "2024-01-03T00:32:47Z",
       "side": 1,
       "message": "Nit/optional: Should we also copy the `// predict` comment?\n\nAlternatively, delete the `// NEED_LEFT` and `// NEED_ABOVE` comments.",
+      "revId": "1f7f83809da316f8cbbeff4c73145c40262f18d6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a1ffa3fd_8dd405bc",
+        "filename": "av1/common/reconintra.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1316,
+      "author": {
+        "id": 31322
+      },
+      "writtenOn": "2024-01-04T10:25:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "893c69c1_14db10e8",
       "revId": "1f7f83809da316f8cbbeff4c73145c40262f18d6",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -173,6 +299,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "1b718894_346018d9",
+        "filename": "av1/common/reconintra.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1665,
+      "author": {
+        "id": 31322
+      },
+      "writtenOn": "2024-01-04T10:25:58Z",
+      "side": 1,
+      "message": "Yes. The code below is specific to the use_palette\u003d0 case and as pointed out the compiler will never enter this code for use_palette\u003d1 cases. Hence, we removed the assert check.",
+      "parentUuid": "9c6bb837_d524fe6c",
+      "revId": "1f7f83809da316f8cbbeff4c73145c40262f18d6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "8be5f372_0bb1a616",
         "filename": "av1/common/reconintra.c",
         "patchSetId": 2
@@ -184,6 +328,24 @@
       "writtenOn": "2024-01-03T00:32:47Z",
       "side": 1,
       "message": "Nit: add a space before the opening parenthesis `(`.",
+      "revId": "1f7f83809da316f8cbbeff4c73145c40262f18d6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0c74de77_56d2bb4d",
+        "filename": "av1/common/reconintra.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1669,
+      "author": {
+        "id": 31322
+      },
+      "writtenOn": "2024-01-04T10:25:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8be5f372_0bb1a616",
       "revId": "1f7f83809da316f8cbbeff4c73145c40262f18d6",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -205,6 +367,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a19ac5d3_cf093a9d",
+        "filename": "av1/common/reconintra.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1676,
+      "author": {
+        "id": 31322
+      },
+      "writtenOn": "2024-01-04T10:25:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f7489fe4_e850f287",
+      "revId": "1f7f83809da316f8cbbeff4c73145c40262f18d6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "37fdbe8c_e6077700",
@@ -218,6 +398,24 @@
       "writtenOn": "2024-01-03T00:32:47Z",
       "side": 1,
       "message": "Nit: Delete this assertion. It immediately follows a short if statement that guarantees the condition is true, so the assertion is not that useful.\n\nIf you prefer to keep this assertion, reorder the tests to match the order used in line 1675 (or reorder the tests in line 1675 to match the order used in this assertion):\n\n```\n  assert(is_hbd  || use_filter_intra || is_dr_mode);\n```\n\nUpdate: We could move this assertion into `build_directional_intra_predictors()` as follows:\n\n```\n  assert(use_filter_intra || is_dr_mode);\n```",
+      "revId": "1f7f83809da316f8cbbeff4c73145c40262f18d6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "01e12c56_8e7ef4cf",
+        "filename": "av1/common/reconintra.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1682,
+      "author": {
+        "id": 31322
+      },
+      "writtenOn": "2024-01-04T10:25:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "37fdbe8c_e6077700",
       "revId": "1f7f83809da316f8cbbeff4c73145c40262f18d6",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
