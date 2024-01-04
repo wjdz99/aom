@@ -245,6 +245,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "d589c763_dffd344c",
+        "filename": "av1/common/reconintra.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1293,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-01-04T18:44:59Z",
+      "side": 1,
+      "message": "Thank you for the reply. I realized my analysis has a mistake. I only focused on what the new function does and missed the point that the new function allows us to skip some of the setup (lines 1683-1730) for the old function.",
+      "parentUuid": "e74bb904_c46655dd",
+      "revId": "1f7f83809da316f8cbbeff4c73145c40262f18d6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "893c69c1_14db10e8",
@@ -311,6 +329,24 @@
       "side": 1,
       "message": "Yes. The code below is specific to the use_palette\u003d0 case and as pointed out the compiler will never enter this code for use_palette\u003d1 cases. Hence, we removed the assert check.",
       "parentUuid": "9c6bb837_d524fe6c",
+      "revId": "1f7f83809da316f8cbbeff4c73145c40262f18d6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bb7a007f_9a5b7bf9",
+        "filename": "av1/common/reconintra.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1665,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-01-04T18:44:59Z",
+      "side": 1,
+      "message": "Thanks.",
+      "parentUuid": "1b718894_346018d9",
       "revId": "1f7f83809da316f8cbbeff4c73145c40262f18d6",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
