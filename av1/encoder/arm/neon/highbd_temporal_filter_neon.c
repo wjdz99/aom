@@ -15,6 +15,7 @@
 #include "config/av1_rtcd.h"
 #include "av1/encoder/encoder.h"
 #include "av1/encoder/temporal_filter.h"
+#include "av1/encoder/arm/neon/highbd_temporal_filter_common.h"
 #include "aom_dsp/mathutils.h"
 #include "aom_dsp/arm/mem_neon.h"
 #include "aom_dsp/arm/sum_neon.h"
@@ -231,55 +232,10 @@ static void highbd_apply_temporal_filter(
   } while (row < block_height);
 
   // Perform filtering.
-  if (tf_wgt_calc_lvl == 0) {
-    for (unsigned int i = 0, k = 0; i < block_height; i++) {
-      for (unsigned int j = 0; j < block_width; j++, k++) {
-        const int pixel_value = frame[i * stride + j];
-        // Scale down the difference for high bit depth input.
-        const uint32_t diff_sse =
-            (acc_5x5_neon[i][j] + luma_sse_sum[i * BW + j]) >> ((bd - 8) * 2);
-
-        const double window_error = diff_sse * inv_num_ref_pixels;
-        const int subblock_idx =
-            (i >= block_height / 2) * 2 + (j >= block_width / 2);
-        const double block_error = (double)subblock_mses[subblock_idx];
-        const double combined_error =
-            weight_factor * window_error + block_error * inv_factor;
-        // Compute filter weight.
-        double scaled_error =
-            combined_error * d_factor[subblock_idx] * decay_factor;
-        scaled_error = AOMMIN(scaled_error, 7);
-        const int weight = (int)(exp(-scaled_error) * TF_WEIGHT_SCALE);
-        accumulator[k] += weight * pixel_value;
-        count[k] += weight;
-      }
-    }
-  } else {
-    for (unsigned int i = 0, k = 0; i < block_height; i++) {
-      for (unsigned int j = 0; j < block_width; j++, k++) {
-        const int pixel_value = frame[i * stride + j];
-        // Scale down the difference for high bit depth input.
-        const uint32_t diff_sse =
-            (acc_5x5_neon[i][j] + luma_sse_sum[i * BW + j]) >> ((bd - 8) * 2);
-
-        const double window_error = diff_sse * inv_num_ref_pixels;
-        const int subblock_idx =
-            (i >= block_height / 2) * 2 + (j >= block_width / 2);
-        const double block_error = (double)subblock_mses[subblock_idx];
-        const double combined_error =
-            weight_factor * window_error + block_error * inv_factor;
-        // Compute filter weight.
-        double scaled_error =
-            combined_error * d_factor[subblock_idx] * decay_factor;
-        scaled_error = AOMMIN(scaled_error, 7);
-        const float fweight =
-            approx_exp((float)-scaled_error) * TF_WEIGHT_SCALE;
-        const int weight = iroundpf(fweight);
-        accumulator[k] += weight * pixel_value;
-        count[k] += weight;
-      }
-    }
-  }
+  apply_temporal_filtering(
+      frame, stride, acc_5x5_neon, luma_sse_sum, inv_num_ref_pixels,
+      block_height, block_width, subblock_mses, weight_factor, inv_factor,
+      decay_factor, d_factor, accumulator, count, tf_wgt_calc_lvl, bd);
 }
 
 void av1_highbd_apply_temporal_filter_neon(

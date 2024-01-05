@@ -478,6 +478,9 @@ if(CONFIG_AV1_HIGHBITDEPTH)
               "${AOM_ROOT}/av1/common/arm/highbd_warp_plane_neon.c"
               "${AOM_ROOT}/av1/common/arm/highbd_wiener_convolve_neon.c")
 
+  list(APPEND AOM_AV1_ENCODER_INTRIN_SVE
+              "${AOM_ROOT}/av1/encoder/arm/neon/highbd_temporal_filter_sve.c")
+
   list(APPEND AOM_AV1_ENCODER_INTRIN_SSE2
               "${AOM_ROOT}/av1/encoder/x86/highbd_block_error_intrin_sse2.c"
               "${AOM_ROOT}/av1/encoder/x86/highbd_temporal_filter_sse2.c")
