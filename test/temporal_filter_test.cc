@@ -696,6 +696,16 @@ INSTANTIATE_TEST_SUITE_P(NEON, HBDTemporalFilterTest,
                                  Values(0, 1)));
 #endif  // HAVE_NEON
 
+#if HAVE_SVE
+HBDTemporalFilterFuncParam HBDtemporal_filter_test_sve[] = {
+  HBDTemporalFilterFuncParam(&av1_highbd_apply_temporal_filter_c,
+                             &av1_highbd_apply_temporal_filter_sve)
+};
+INSTANTIATE_TEST_SUITE_P(SVE, HBDTemporalFilterTest,
+                         Combine(ValuesIn(HBDtemporal_filter_test_sve),
+                                 Values(0, 1)));
+#endif  // HAVE_SVE
+
 using HBDEstimateNoiseFunc = double (*)(const uint16_t *src, int height,
                                         int width, int stride, int bit_depth,
                                         int edge_thresh);
