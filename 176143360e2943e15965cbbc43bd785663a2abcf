@@ -50,6 +50,24 @@
       "message": "Nit: Add \"filter\" or \"and_filter\" to the function name?\n\nThis function name should make it clear that it is the complement of `build_directional_and_filter_intra_predictors`.",
       "revId": "176143360e2943e15965cbbc43bd785663a2abcf",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0b2426aa_ba7fb42a",
+        "filename": "av1/common/reconintra.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1237,
+      "author": {
+        "id": 31322
+      },
+      "writtenOn": "2024-01-05T11:30:37Z",
+      "side": 1,
+      "message": "In the parent version, build_intra_predictors() generates the pred data for the following intra modes:\n1. Directional \n2. Non-Directional\n3. Filter intra\n\nIn this CL, `build_directional_and_filter_intra_predictors()` specifically addresses the pred data generation for categories (1) and (3). Meanwhile, the calculation of pred data for category (2) is handled by `build_non_directional_intra_predictors()`. We feel that incorporating \"filter\" into the latter\u0027s name wouldn\u0027t provide meaningful clarity and decided to keep the function name as it is now. Hope it is fine.",
+      "parentUuid": "68832332_a6cee314",
+      "revId": "176143360e2943e15965cbbc43bd785663a2abcf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
