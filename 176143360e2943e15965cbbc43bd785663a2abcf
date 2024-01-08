@@ -86,6 +86,24 @@
       "parentUuid": "0b2426aa_ba7fb42a",
       "revId": "176143360e2943e15965cbbc43bd785663a2abcf",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f7de0857_8ff1dc78",
+        "filename": "av1/common/reconintra.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1237,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-01-08T20:10:20Z",
+      "side": 1,
+      "message": "Thank you for the reply. I am not familiar with the intra modes, so my code review is mainly based on general code analysis. As a result, I assumed that category 3 (Filter intra) had non-empty intersections with category 1 (Directional) and category 2 (Non-Directional). Under that assumption, some non-directional modes are also filter intra, and they are handled by `build_directional_and_filter_intra_predictors()`. So `build_non_directional_intra_predictors()` handles only the non-directional modes that are not also filter intra. This is why I suggest a different name for `build_non_directional_intra_predictors()`.\n\nAlthough you didn\u0027t say it explicitly, your comment implies that the three catogories are mutually disjoint. (Please confirm this!) So I agree the function names you chose are good.",
+      "parentUuid": "222d9de7_0a1ec2e6",
+      "revId": "176143360e2943e15965cbbc43bd785663a2abcf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
