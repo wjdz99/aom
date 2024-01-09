@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4d6b9c6a_97edbd78",
+        "filename": "aom_dsp/arm/highbd_intrapred_neon.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-01-09T01:57:23Z",
+      "side": 1,
+      "message": "This change should not be reverted when bug aomedia:3536 is fixed.\n\nconfig/av1_rtcd.h declares `av1_highbd_dr_prediction_z3_c()` and `av1_highbd_dr_prediction_z3_neon()`.",
+      "revId": "783d4e1d4334b77b2d3e55ff9c5576be4bc137bc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
