@@ -23,6 +23,7 @@
 #include "aom/aom_decoder.h"
 #include "aom/aomdx.h"
 #include "aom_ports/mem_ops.h"
+#include "av1/av1_iface_common.h"
 
 #define IVF_FRAME_HDR_SZ (4 + 8) /* 4 byte size + 8 byte timestamp */
 #define IVF_FILE_HDR_SZ 32
@@ -33,8 +34,16 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
   if (size <= IVF_FILE_HDR_SZ) {
     return 0;
   }
+  Av1DecodeReturn adr;
 
-  aom_codec_iface_t *codec_interface = aom_codec_av1_dx();
+  aom_codec_iface_t *codec_interface;
+  void *user_priv = NULL;
+  if ((data[IVF_FILE_HDR_SZ - 1] & 1) != 0) {
+    codec_interface = &aom_codec_av1_inspect_algo;
+    user_priv = &adr;
+  } else {
+    codec_interface = aom_codec_av1_dx();
+  }
   aom_codec_ctx_t codec;
   // Set thread count in the range [1, 64].
   const unsigned int threads = (data[IVF_FILE_HDR_SZ] & 0x3f) + 1;
@@ -42,6 +51,12 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
   if (aom_codec_dec_init(&codec, codec_interface, &cfg, 0)) {
     return 0;
   }
+  AOM_CODEC_CONTROL_TYPECHECKED(&codec, AV1_SET_TILE_MODE,
+                                (data[IVF_FILE_HDR_SZ - 1] & 2) != 0);
+  AOM_CODEC_CONTROL_TYPECHECKED(&codec, AV1D_EXT_TILE_DEBUG,
+                                (data[IVF_FILE_HDR_SZ - 1] & 4) != 0);
+  AOM_CODEC_CONTROL_TYPECHECKED(&codec, AV1D_SET_IS_ANNEXB,
+                                (data[IVF_FILE_HDR_SZ - 1] & 8) != 0);
 
   data += IVF_FILE_HDR_SZ;
   size -= IVF_FILE_HDR_SZ;
@@ -53,7 +68,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
     frame_size = std::min(size, frame_size);
 
     const aom_codec_err_t err =
-        aom_codec_decode(&codec, data, frame_size, nullptr);
+        aom_codec_decode(&codec, data, frame_size, user_priv);
     static_cast<void>(err);
     aom_codec_iter_t iter = nullptr;
     aom_image_t *img = nullptr;
