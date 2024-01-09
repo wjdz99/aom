@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "92a114b6_4b724b29",
+        "filename": "aom_dsp/arm/highbd_intrapred_neon.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-01-09T15:16:14Z",
+      "side": 0,
+      "message": "Please add this back. This header declares not only `av1_highbd_dr_prediction_z3_c()` but also `av1_highbd_dr_prediction_z3_neon()`, which is defined in this file. This allows us to check that the prototpyes of the declaration and the definition match.",
+      "revId": "3d814179b0333e952d23f2c9f240b2f173915397",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
