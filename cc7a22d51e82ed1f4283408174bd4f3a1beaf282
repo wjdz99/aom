@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "51f5dd47_d0740c39",
+        "filename": "aom_dsp/arm/aom_convolve_copy_neon.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-01-09T01:20:02Z",
+      "side": 1,
+      "message": "To fix the data races reported in the referenced bugs, we only need the change at line 42. But this line is a similar over read, so I also fixed it.",
+      "revId": "cc7a22d51e82ed1f4283408174bd4f3a1beaf282",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
