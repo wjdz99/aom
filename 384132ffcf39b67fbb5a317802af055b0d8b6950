@@ -16,6 +16,24 @@
       "message": "We should document that this takes \"unsigned int parameter\" (specified at line 2191). See Lines 1523 and line 1531 for examples.\n\nAlso document that the valid values are constants of the AOM_SVC_FRAME_DROP_MODE enum type.",
       "revId": "384132ffcf39b67fbb5a317802af055b0d8b6950",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d7e90655_88ceb4e5",
+        "filename": "aom/aomcx.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 1536,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2024-01-09T23:55:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2d2f4e0f_77fcdaf9",
+      "revId": "384132ffcf39b67fbb5a317802af055b0d8b6950",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
