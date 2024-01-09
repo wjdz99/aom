@@ -1705,9 +1705,9 @@ typedef struct aom_svc_ref_frame_comp_pred {
 
 /*!brief Frame drop modes for spatial/quality layer SVC */
 typedef enum {
-  LAYER_DROP,           /**< Any spatial layer can drop. */
-  FULL_SUPERFRAME_DROP, /**< Only full superframe can drop. */
-} SVC_FRAME_DROP_MODE;
+  AOM_LAYER_DROP,           /**< Any spatial layer can drop. */
+  AOM_FULL_SUPERFRAME_DROP, /**< Only full superframe can drop. */
+} AOM_SVC_FRAME_DROP_MODE;
 
 /*!\cond */
 /*!\brief Encoder control function parameter type
