@@ -35,6 +35,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "754de4f6_1cefa90b",
+        "filename": "aom_dsp/arm/highbd_intrapred_neon.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 2663,
+      "author": {
+        "id": 31817
+      },
+      "writtenOn": "2024-01-09T15:36:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b8fecbbb_86a7325f",
+      "revId": "0994cb3eb2820a0acca36c15f4d2b0eaf9c0c24a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "10058bb7_64eafef0",
@@ -48,6 +66,24 @@
       "writtenOn": "2024-01-09T15:16:14Z",
       "side": 1,
       "message": "Do you know why the unit tests still pass in spite of this bug?\n\nOptional: Please see if the unit tests could be strengthened to detect this bug.",
+      "revId": "0994cb3eb2820a0acca36c15f4d2b0eaf9c0c24a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bf176b66_b8d6eb9f",
+        "filename": "aom_dsp/arm/highbd_intrapred_neon.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 2698,
+      "author": {
+        "id": 31817
+      },
+      "writtenOn": "2024-01-09T15:36:18Z",
+      "side": 1,
+      "message": "The code prior to this patch still produces the correct result, however it stores the correct result to most rows twice and stores off the end of the array.\n\nAddress sanitizer does not detect any issues here since the existing tests always allocate a 64*64 array for the output buffer regardless of the bw/bh sizes being tested: https://aomedia.googlesource.com/aom/+/refs/changes/62/185962/2/test/dr_prediction_test.cc#295\n\nWe could consider allocating a std::vector or similar with exact sizes for the input/output vectors. The output vectors are just bw * bh, however I\u0027m not sure what the precise sizes should be for the input vectors. The input vectors seem largely okay with over-reading the input data, we already over-read in both the z1 and z3 predictors as well but this seems harmless for now and I\u0027m not sure whether this is guaranteed to be okay or not.",
+      "parentUuid": "10058bb7_64eafef0",
       "revId": "0994cb3eb2820a0acca36c15f4d2b0eaf9c0c24a",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
