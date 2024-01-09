@@ -86,6 +86,24 @@
       "parentUuid": "10058bb7_64eafef0",
       "revId": "0994cb3eb2820a0acca36c15f4d2b0eaf9c0c24a",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b08815ab_5c5edf50",
+        "filename": "aom_dsp/arm/highbd_intrapred_neon.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 2698,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-01-09T15:46:55Z",
+      "side": 1,
+      "message": "Thank you for the reply. It would be good to allocate the output buffer with the exact sizes, or use ASan functions/macros to \"poison\" the unused parts of the buffer.\n\nIn our testing, over reads may also cause data race reports under TSan (see https://crbug.com/aomedia/3535). But we explicitly allow some of the functions to over read or over write, so I don\u0027t know whether the over read in both the z1 and z3 predictors is okay.",
+      "parentUuid": "bf176b66_b8d6eb9f",
+      "revId": "0994cb3eb2820a0acca36c15f4d2b0eaf9c0c24a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
