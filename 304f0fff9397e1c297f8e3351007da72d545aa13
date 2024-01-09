@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b826e38b_2bc7f692",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-01-09T22:15:22Z",
+      "side": 1,
+      "message": "The turnaround with tsan and only 48 cores is a bit long. I\u0027ll try to add a few more.",
+      "revId": "304f0fff9397e1c297f8e3351007da72d545aa13",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "06fe79bf_4c1d09aa",
+        "filename": "aom_dsp/arm/intrapred_neon.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1869,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-01-09T22:15:22Z",
+      "side": 1,
+      "message": "This will break compatibility with Microsoft\u0027s compiler.",
+      "range": {
+        "startLine": 1869,
+        "startChar": 11,
+        "endLine": 1869,
+        "endChar": 37
+      },
+      "revId": "304f0fff9397e1c297f8e3351007da72d545aa13",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
