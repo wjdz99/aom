@@ -3,6 +3,23 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "59c2e8f9_9743d396",
+        "filename": "aom_dsp/arm/aom_convolve_copy_neon.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-01-09T01:41:06Z",
+      "side": 1,
+      "message": "I wonder about the need for a `memmove` in the C code:\n\nhttps://aomedia.googlesource.com/aom/+/e21057eab7359eafa5152787279fde2c5d1f8251/aom_dsp/aom_convolve.c#159\n\nLooks like this came in with:\n\nhttps://aomedia-review.googlesource.com/c/aom/+/109184",
+      "revId": "cc7a22d51e82ed1f4283408174bd4f3a1beaf282",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "51f5dd47_d0740c39",
         "filename": "aom_dsp/arm/aom_convolve_copy_neon.c",
         "patchSetId": 1
