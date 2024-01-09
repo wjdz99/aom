@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f72684ba_5a2b89e5",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 33720
+      },
+      "writtenOn": "2024-01-09T14:58:15Z",
+      "side": 1,
+      "message": "I used Fuzz Introspector cf https://introspector.oss-fuzz.com/project-profile?project\u003dlibaom\n\nWe see `decoder_inspect` is the most \"complex\" function uncovered, where we need to use `aom_codec_av1_inspect_algo` instead of regular `aom_codec_av1_dx`\n\nAlso set some options like `AV1_SET_TILE_MODE`, needed to reach for instance `read_and_decode_one_tile_list` in obu.c\n\nWhat do you think about it ?",
+      "revId": "3a836d1029f13c9ccdf24eaf45c3975040697a2d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
