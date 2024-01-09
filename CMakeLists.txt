@@ -326,7 +326,7 @@ endif()
 if(CONFIG_AV1_ENCODER AND NOT BUILD_SHARED_LIBS)
   list(APPEND AOM_AV1_RC_SOURCES "${AOM_ROOT}/av1/ratectrl_rtc.h"
               "${AOM_ROOT}/av1/ratectrl_rtc.cc")
-  add_library(aom_av1_rc ${AOM_AV1_RC_SOURCES})
+  add_library(aom_av1_rc SHARED ${AOM_AV1_RC_SOURCES})
   target_link_libraries(aom_av1_rc ${AOM_LIB_LINK_TYPE} aom)
   if(NOT WIN32 AND NOT APPLE)
     target_link_libraries(aom_av1_rc ${AOM_LIB_LINK_TYPE} m)
