@@ -88,6 +88,24 @@
       "parentUuid": "ec15c038_222a0f29",
       "revId": "16ccdbde70c927a19263d8e895b4b3ef38a54885",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3250fa52_a52b737e",
+        "filename": "aom/aomcx.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 1708,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-01-10T18:27:02Z",
+      "side": 0,
+      "message": "\u003e SGTM.\n\nA compatible change would be to rename the enum\u0027s and `#define` the old values to the new ones (or leave them in place for now assigning them to the new values). Then in a later release they could be removed.",
+      "parentUuid": "31b388e4_6d545ff4",
+      "revId": "16ccdbde70c927a19263d8e895b4b3ef38a54885",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
