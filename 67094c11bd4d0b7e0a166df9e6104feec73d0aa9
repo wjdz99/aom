@@ -90,6 +90,24 @@
       "message": "I wonder if some SIMD function requires each row to be 32-byte or 64-byte aligned. If so, then `dst_stride` need to be a multiple of the alignment size.",
       "revId": "67094c11bd4d0b7e0a166df9e6104feec73d0aa9",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "22b258a6_9a9f2ede",
+        "filename": "test/dr_prediction_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 230,
+      "author": {
+        "id": 31817
+      },
+      "writtenOn": "2024-01-11T17:37:48Z",
+      "side": 1,
+      "message": "if we need to pad the vector to 32 or 64 bytes anyway then i guess that defeats the idea of being able to catch the over-write with address sanitizer? i could guard the allocation such that we only allocate the exact bounds on aarch64 and fall back to the old 64*64 allocation on other arches or something like that? what would you prefer?",
+      "parentUuid": "a3ebc8ab_77c41573",
+      "revId": "67094c11bd4d0b7e0a166df9e6104feec73d0aa9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
