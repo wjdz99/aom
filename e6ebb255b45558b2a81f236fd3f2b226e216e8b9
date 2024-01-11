@@ -3,6 +3,57 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "4b1f5b23_c7766d67",
+        "filename": "test/av1_c_vs_simd_encode.sh",
+        "patchSetId": 6
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-01-11T02:41:30Z",
+      "side": 1,
+      "message": "This function is unused. It should be replaced by `sse4_2()` that returns 0x13f.",
+      "revId": "e6ebb255b45558b2a81f236fd3f2b226e216e8b9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d2796f92_9eb10089",
+        "filename": "test/av1_c_vs_simd_encode.sh",
+        "patchSetId": 6
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-01-11T02:41:30Z",
+      "side": 1,
+      "message": "I think this should be 0x1ff.",
+      "revId": "e6ebb255b45558b2a81f236fd3f2b226e216e8b9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "156d72ca_d2256458",
+        "filename": "test/av1_c_vs_simd_encode.sh",
+        "patchSetId": 6
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-01-11T02:41:30Z",
+      "side": 1,
+      "message": "I think this should be 0x17f.",
+      "revId": "e6ebb255b45558b2a81f236fd3f2b226e216e8b9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "402be2d9_3e120fdf",
         "filename": "test/av1_c_vs_simd_encode.sh",
         "patchSetId": 6
@@ -14,6 +65,23 @@
       "writtenOn": "2024-01-11T02:33:53Z",
       "side": 1,
       "message": "I think this table has an error: the leftmost column should be SSE4_2, not AVX512.\n\nSee the following macros in aom_ports/x86.h:\n\n```\n#define HAS_MMX 0x01\n#define HAS_SSE 0x02\n#define HAS_SSE2 0x04\n#define HAS_SSE3 0x08\n#define HAS_SSSE3 0x10\n#define HAS_SSE4_1 0x20\n#define HAS_AVX 0x40\n#define HAS_AVX2 0x80\n#define HAS_SSE4_2 0x100\n```\n\nSee also the AOM_SIMD_CAPS_MASK values used in https://build.aomedia.org/jenkins/view/libaom-nightly-tests/job/libaom__nightly_optimization-levels/",
+      "revId": "e6ebb255b45558b2a81f236fd3f2b226e216e8b9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d6e23386_3388f9f2",
+        "filename": "test/av1_c_vs_simd_encode.sh",
+        "patchSetId": 6
+      },
+      "lineNbr": 443,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-01-11T02:41:30Z",
+      "side": 1,
+      "message": "Add sse4_2 to this list. See https://build.aomedia.org/jenkins/view/libaom-nightly-tests/job/libaom__nightly_optimization-levels/",
       "revId": "e6ebb255b45558b2a81f236fd3f2b226e216e8b9",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
