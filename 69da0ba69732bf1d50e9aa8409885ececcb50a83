@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7a6d72fd_f761ecd0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-01-11T03:18:52Z",
+      "side": 1,
+      "message": "@wtc@google.com I can\u0027t self-approve this (I uploaded the rebase to allow the tests to run), please take a look.",
+      "revId": "69da0ba69732bf1d50e9aa8409885ececcb50a83",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
