@@ -24,6 +24,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "d8be7b0a_f3238cce",
+        "filename": "test/dr_prediction_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 199,
+      "author": {
+        "id": 31817
+      },
+      "writtenOn": "2024-01-12T16:37:44Z",
+      "side": 1,
+      "message": "To avoid the poison this needs to be a pair of for-loops instead. Done.",
+      "parentUuid": "06819056_5bcab1b2",
+      "range": {
+        "startLine": 199,
+        "startChar": 26,
+        "endLine": 199,
+        "endChar": 35
+      },
+      "revId": "67094c11bd4d0b7e0a166df9e6104feec73d0aa9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "611a7e61_8eb3441a",
@@ -41,6 +65,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "b4debaeb_83811cea",
+        "filename": "test/dr_prediction_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 200,
+      "author": {
+        "id": 31817
+      },
+      "writtenOn": "2024-01-12T16:37:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "611a7e61_8eb3441a",
+      "revId": "67094c11bd4d0b7e0a166df9e6104feec73d0aa9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "f2096da6_35d86dc0",
@@ -54,6 +96,24 @@
       "writtenOn": "2024-01-10T18:48:03Z",
       "side": 1,
       "message": "add `#include \u003cvector\u003e`",
+      "revId": "67094c11bd4d0b7e0a166df9e6104feec73d0aa9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9a76d0b8_8ee8b7a3",
+        "filename": "test/dr_prediction_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 229,
+      "author": {
+        "id": 31817
+      },
+      "writtenOn": "2024-01-12T16:37:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f2096da6_35d86dc0",
       "revId": "67094c11bd4d0b7e0a166df9e6104feec73d0aa9",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -124,6 +184,42 @@
       "side": 1,
       "message": "You are right. If we set `dst_stride` to say 64, then this will not catch over-read or over-write beyond the end of a row, but should still be able to catch over-read or overwrite beyond the height.\n\nLet\u0027s go with what you have now. We can easily adjust the code if we run into alignment errors.\n\nNote: To detect over-read or over-write beyond the end of a row reliably, we need to add padding after the end of of each row and \"poison\" the padding using some ASan function or macro.",
       "parentUuid": "22b258a6_9a9f2ede",
+      "revId": "67094c11bd4d0b7e0a166df9e6104feec73d0aa9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "79e82b49_115a6de3",
+        "filename": "test/dr_prediction_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 230,
+      "author": {
+        "id": 31817
+      },
+      "writtenOn": "2024-01-12T16:37:44Z",
+      "side": 1,
+      "message": "Sorry about the confusion, I didn\u0027t realise that we already had the asan poison macros in aom_ports/sanitizer.h. I\u0027ve tried using those instead, so we now always allocate a MAX_TX_SIZE * bh_ block of data and just poison the trailing (MAX_TX_SIZE - bw_) portion of each row. What do you think?",
+      "parentUuid": "b17b3135_e72cfdc2",
+      "revId": "67094c11bd4d0b7e0a166df9e6104feec73d0aa9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6c7780d9_39d76628",
+        "filename": "test/dr_prediction_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 230,
+      "author": {
+        "id": 31817
+      },
+      "writtenOn": "2024-01-12T16:37:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4114a40d_dfd423af",
       "revId": "67094c11bd4d0b7e0a166df9e6104feec73d0aa9",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
