@@ -141,6 +141,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "29f99ce0_1837a7eb",
+        "filename": "test/av1_c_vs_simd_encode.sh",
+        "patchSetId": 6
+      },
+      "lineNbr": 413,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-01-12T20:42:11Z",
+      "side": 1,
+      "message": "Thanks a lot. I wrote https://aomedia-review.googlesource.com/c/aom/+/186103 before seeing your comment. Sorry. Let\u0027s go with your CL and use my CL as a reference.",
+      "parentUuid": "915a3e37_65cb468e",
+      "revId": "e6ebb255b45558b2a81f236fd3f2b226e216e8b9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d6e23386_3388f9f2",
@@ -172,6 +190,24 @@
       "side": 1,
       "message": "We see that all the SIMD optimization variants are not being tested. Only avx2, sse4_1 and sse2 are tested to reduce the test time in Jenkins. Please check https://aomedia.googlesource.com/aom/+/e845a86a4248adb4594e16b0f8487e18ab51b059\nThere is only function with sse4_2 variant, i.e., av1_get_crc32c_value_sse4_2(). This function would be tested with AOM_SIMD_CAPS_MASK\u003d1FF (avx2) as there is no avx2/avx counterpart. Please let us know if we should add sse4_2 to the list.",
       "parentUuid": "d6e23386_3388f9f2",
+      "revId": "e6ebb255b45558b2a81f236fd3f2b226e216e8b9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b784216a_b385e9e1",
+        "filename": "test/av1_c_vs_simd_encode.sh",
+        "patchSetId": 6
+      },
+      "lineNbr": 443,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-01-12T20:42:11Z",
+      "side": 1,
+      "message": "You are right. In the current version of this file, we just need to add sse4_2 to the comment. Don\u0027t add it to the x86_isa_variants list.",
+      "parentUuid": "2e8fb767_24a0c0b1",
       "revId": "e6ebb255b45558b2a81f236fd3f2b226e216e8b9",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
