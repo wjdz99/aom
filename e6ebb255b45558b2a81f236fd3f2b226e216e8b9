@@ -18,6 +18,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "52b88440_bba3be05",
+        "filename": "test/av1_c_vs_simd_encode.sh",
+        "patchSetId": 6
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 31022
+      },
+      "writtenOn": "2024-01-12T13:02:17Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "4b1f5b23_c7766d67",
+      "revId": "e6ebb255b45558b2a81f236fd3f2b226e216e8b9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d2796f92_9eb10089",
@@ -35,6 +53,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "1d680a6a_bdab9b32",
+        "filename": "test/av1_c_vs_simd_encode.sh",
+        "patchSetId": 6
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 31022
+      },
+      "writtenOn": "2024-01-12T13:02:17Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "d2796f92_9eb10089",
+      "revId": "e6ebb255b45558b2a81f236fd3f2b226e216e8b9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "156d72ca_d2256458",
@@ -48,6 +84,24 @@
       "writtenOn": "2024-01-11T02:41:30Z",
       "side": 1,
       "message": "I think this should be 0x17f.",
+      "revId": "e6ebb255b45558b2a81f236fd3f2b226e216e8b9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "898588ab_cd67de7c",
+        "filename": "test/av1_c_vs_simd_encode.sh",
+        "patchSetId": 6
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 31022
+      },
+      "writtenOn": "2024-01-12T13:02:17Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "156d72ca_d2256458",
       "revId": "e6ebb255b45558b2a81f236fd3f2b226e216e8b9",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -71,6 +125,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "915a3e37_65cb468e",
+        "filename": "test/av1_c_vs_simd_encode.sh",
+        "patchSetId": 6
+      },
+      "lineNbr": 413,
+      "author": {
+        "id": 31022
+      },
+      "writtenOn": "2024-01-12T13:02:17Z",
+      "side": 1,
+      "message": "We have corrected the script based on your inputs. We shall submit the CL for review after testing and validation of the changes is complete.",
+      "parentUuid": "402be2d9_3e120fdf",
+      "revId": "e6ebb255b45558b2a81f236fd3f2b226e216e8b9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "d6e23386_3388f9f2",
         "filename": "test/av1_c_vs_simd_encode.sh",
         "patchSetId": 6
@@ -82,6 +154,24 @@
       "writtenOn": "2024-01-11T02:41:30Z",
       "side": 1,
       "message": "Add sse4_2 to this list. See https://build.aomedia.org/jenkins/view/libaom-nightly-tests/job/libaom__nightly_optimization-levels/",
+      "revId": "e6ebb255b45558b2a81f236fd3f2b226e216e8b9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2e8fb767_24a0c0b1",
+        "filename": "test/av1_c_vs_simd_encode.sh",
+        "patchSetId": 6
+      },
+      "lineNbr": 443,
+      "author": {
+        "id": 31022
+      },
+      "writtenOn": "2024-01-12T13:02:17Z",
+      "side": 1,
+      "message": "We see that all the SIMD optimization variants are not being tested. Only avx2, sse4_1 and sse2 are tested to reduce the test time in Jenkins. Please check https://aomedia.googlesource.com/aom/+/e845a86a4248adb4594e16b0f8487e18ab51b059\nThere is only function with sse4_2 variant, i.e., av1_get_crc32c_value_sse4_2(). This function would be tested with AOM_SIMD_CAPS_MASK\u003d1FF (avx2) as there is no avx2/avx counterpart. Please let us know if we should add sse4_2 to the list.",
+      "parentUuid": "d6e23386_3388f9f2",
       "revId": "e6ebb255b45558b2a81f236fd3f2b226e216e8b9",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
