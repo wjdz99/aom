@@ -16,6 +16,46 @@
       "message": "Hi Wan-Teh,\nWe have taken care of your suggestions. We have also tested the script and all the tests have passed. Please review the CL.",
       "revId": "15f9a63aa935511b0bdea7cb8b6fecf7def8cceb",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bf3406f5_06e102a4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-01-16T20:01:28Z",
+      "side": 1,
+      "message": "LGTM. Thanks!",
+      "revId": "15f9a63aa935511b0bdea7cb8b6fecf7def8cceb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9e15f78c_4c04a974",
+        "filename": "test/av1_c_vs_simd_encode.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 452,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-01-16T20:01:28Z",
+      "side": 1,
+      "message": "Nit: the first right arrow is now right under the \"X\" in \"MMX\". It would be good for the first arrow to be completely outside the \"MMX\" column.",
+      "range": {
+        "startLine": 452,
+        "startChar": 47,
+        "endLine": 452,
+        "endChar": 49
+      },
+      "revId": "15f9a63aa935511b0bdea7cb8b6fecf7def8cceb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
