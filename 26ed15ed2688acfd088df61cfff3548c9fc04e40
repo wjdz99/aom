@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "adf9cee2_6ffd8c00",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-01-16T19:28:16Z",
+      "side": 1,
+      "message": "This is related to bug aomedia:3534. This test shows that the combination in the original summary of the bug report actually works.",
+      "revId": "26ed15ed2688acfd088df61cfff3548c9fc04e40",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
