@@ -1,6 +1,23 @@
 {
   "comments": [
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "2d071312_6dfaa1f7",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-01-17T00:34:59Z",
+      "side": 1,
+      "message": "Nit: In the commit message, \"exactly bw * bh\" should be updated...",
+      "revId": "0b5747c4117d6e8409d199bfc7f2119e0c8b2954",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "286d05d2_c705721b",
