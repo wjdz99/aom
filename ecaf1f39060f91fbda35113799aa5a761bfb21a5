@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "64144973_08f0548e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 31567
+      },
+      "writtenOn": "2024-01-17T16:06:16Z",
+      "side": 1,
+      "message": "For HBD encode/decode, pred data for intra modes was generated using the functions  av1_predict_intra_block() and highbd_build_intra_predictors(), in parent version. The computations in these functions were generalized for all intra modes, and evaluation of some of the intra modes can be optimized based on neighbor availability and mode information. Since non-directional intra modes (i.e., DC, SMOOTH, SMOOTH_H, SMOOTH_V, and PAETH) require only left and top neighbors, this CL avoids the redundant checks for these modes. Additionally, computations of filter intra and edge filter type are avoided as the same are not required for these modes.\n\nThe optimizations in this CL are similar to the LBD path, as in the following CL:\nhttps://aomedia-review.googlesource.com/c/aom/+/185801\n\nFor AVIF still-image encode with tune\u003dssim,\n````\n                    Instruction Count / Encode Time\ncpu-used                     Reduction(%)\n    0                            0.333\n    1                            0.429\n    2                            0.423 \n    3                            0.504\n    4                            0.555\n    5                            0.607\n    6                            1.328\n    7                            2.049\n    8                            1.495\n    9                            1.007\n````\nIn the above data, instruction count reduction is quoted for speed \u003c6 and encode-time reduction is quoted for speed\u003e\u003d6.\n\nFor libaom AV1 video encode, bit-match is verified (w.r.t. parent commit) for \u0027GOOD\u0027, ‘ALLINTRA’ and \u0027RT\u0027 encoding modes for a few contents with different encoding configurations. It is verified that the CL is bit-exact for AVIF still-image encode for a typical image dataset. All the above testing has been done using 8 bit input images with bit-depth set to 10.\n\nLibavif commit used for testing: 3ec01cefd1ddd266a622d5e114a0888581b68f4a",
+      "revId": "ecaf1f39060f91fbda35113799aa5a761bfb21a5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
