@@ -70,7 +70,7 @@ extern const int global_motion_pyr_levels[GLOBAL_MOTION_METHODS];
 // Disflow is both faster and gives better results than feature matching in
 // practically all cases, so we use disflow by default
 static const GlobalMotionMethod default_global_motion_method =
-    GLOBAL_MOTION_METHOD_DISFLOW;
+    GLOBAL_MOTION_METHOD_FEATURE_MATCH;
 
 extern const double kIdentityParams[MAX_PARAMDIM];
 
