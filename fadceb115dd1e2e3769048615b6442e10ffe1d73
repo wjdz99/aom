@@ -1,6 +1,23 @@
 {
   "comments": [
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "6a3878e8_c373cf11",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-01-18T21:39:04Z",
+      "side": 1,
+      "message": "Please summarize what the improvements are. I see testing the \"inspect\" interface and three codec controls (AV1_SET_TILE_MODE, AV1D_EXT_TILE_DEBUG, and AV1D_SET_IS_ANNEXB).",
+      "revId": "fadceb115dd1e2e3769048615b6442e10ffe1d73",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "2f21c935_65a08583",
@@ -14,6 +31,91 @@
       "writtenOn": "2024-01-09T20:11:00Z",
       "side": 1,
       "message": "Note that this fuzzer found in some minutes a null deref with setting AV1D_EXT_TILE_DEBUG",
+      "revId": "fadceb115dd1e2e3769048615b6442e10ffe1d73",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0b39f051_3fba1782",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-01-18T21:39:04Z",
+      "side": 1,
+      "message": "Hi Philippe,\n\nThank you for the CL. I am not familiar with the inspect interface, so I am learning about it as I review this CL. Please pardon me if some of my comments are naive or incorrect.",
+      "revId": "fadceb115dd1e2e3769048615b6442e10ffe1d73",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ab1aa820_0813298b",
+        "filename": "examples/av1_dec_fuzzer.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-01-18T21:39:04Z",
+      "side": 1,
+      "message": "av1/av1_iface_common.h is a private header. But I know it\u0027s the only way to get a declaration of `aom_codec_av1_inspect_algo`.\n\nWe should add a `aom_codec_av1_inspect()` function that returns the address of `aom_codec_av1_inspect_algo`.",
+      "revId": "fadceb115dd1e2e3769048615b6442e10ffe1d73",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f4ab42b2_e5366fcb",
+        "filename": "examples/av1_dec_fuzzer.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-01-18T21:39:04Z",
+      "side": 1,
+      "message": "Should we also call `aom_codec_control(AV1_SET_INSPECTION_CALLBACK)`?",
+      "revId": "fadceb115dd1e2e3769048615b6442e10ffe1d73",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5185463d_e71db7d3",
+        "filename": "examples/av1_dec_fuzzer.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-01-18T21:39:04Z",
+      "side": 1,
+      "message": "I wonder if we should add more input files to the corpus (e.g., some files encoded in the Annex B format).",
+      "revId": "fadceb115dd1e2e3769048615b6442e10ffe1d73",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c64c3f98_39120a43",
+        "filename": "examples/av1_dec_fuzzer.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-01-18T21:39:04Z",
+      "side": 1,
+      "message": "I suggest we still pass `nullptr` as the last argument when inspect is not used.",
       "revId": "fadceb115dd1e2e3769048615b6442e10ffe1d73",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
