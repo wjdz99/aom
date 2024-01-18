@@ -16,6 +16,159 @@
       "message": "For HBD encode/decode, pred data for intra modes was generated using the functions  av1_predict_intra_block() and highbd_build_intra_predictors(), in parent version. The computations in these functions were generalized for all intra modes, and evaluation of some of the intra modes can be optimized based on neighbor availability and mode information. Since non-directional intra modes (i.e., DC, SMOOTH, SMOOTH_H, SMOOTH_V, and PAETH) require only left and top neighbors, this CL avoids the redundant checks for these modes. Additionally, computations of filter intra and edge filter type are avoided as the same are not required for these modes.\n\nThe optimizations in this CL are similar to the LBD path, as in the following CL:\nhttps://aomedia-review.googlesource.com/c/aom/+/185801\n\nFor AVIF still-image encode with tune\u003dssim,\n````\n                    Instruction Count / Encode Time\ncpu-used                     Reduction(%)\n    0                            0.333\n    1                            0.429\n    2                            0.423 \n    3                            0.504\n    4                            0.555\n    5                            0.607\n    6                            1.328\n    7                            2.049\n    8                            1.495\n    9                            1.007\n````\nIn the above data, instruction count reduction is quoted for speed \u003c6 and encode-time reduction is quoted for speed\u003e\u003d6.\n\nFor libaom AV1 video encode, bit-match is verified (w.r.t. parent commit) for \u0027GOOD\u0027, ‘ALLINTRA’ and \u0027RT\u0027 encoding modes for a few contents with different encoding configurations. It is verified that the CL is bit-exact for AVIF still-image encode for a typical image dataset. All the above testing has been done using 8 bit input images with bit-depth set to 10.\n\nLibavif commit used for testing: 3ec01cefd1ddd266a622d5e114a0888581b68f4a",
       "revId": "ecaf1f39060f91fbda35113799aa5a761bfb21a5",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e1313222_6f35159b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-01-18T22:49:00Z",
+      "side": 1,
+      "message": "Hi Neha,\n\nI reviewed this CL by comparing it with the LBD CL https://aomedia-review.googlesource.com/c/aom/+/186302. So some of my suggestions are intended to make the HBD code similar to the LBD code.\n\nThe two variable naming suggestions are marked as optional and can be ignored.",
+      "revId": "ecaf1f39060f91fbda35113799aa5a761bfb21a5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9eeb7166_45c233db",
+        "filename": "av1/common/reconintra.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1379,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-01-18T22:49:00Z",
+      "side": 1,
+      "message": "Add `const`:\n\n```\n  const uint16_t *ref \u003d CONVERT_TO_SHORTPTR(ref8);\n```",
+      "revId": "ecaf1f39060f91fbda35113799aa5a761bfb21a5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f93993b4_e5a6169c",
+        "filename": "av1/common/reconintra.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1394,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-01-18T22:49:00Z",
+      "side": 1,
+      "message": "Add `const`:\n\n```\n  const int base \u003d 128 \u003c\u003c (bit_depth - 8);\n```",
+      "revId": "ecaf1f39060f91fbda35113799aa5a761bfb21a5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8537a8aa_49da116f",
+        "filename": "av1/common/reconintra.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1546,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-01-18T22:49:00Z",
+      "side": 1,
+      "message": "Add `const`:\n\n```\n  const uint16_t *ref \u003d CONVERT_TO_SHORTPTR(ref8);\n```",
+      "revId": "ecaf1f39060f91fbda35113799aa5a761bfb21a5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c548e167_50436ff8",
+        "filename": "av1/common/reconintra.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1559,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-01-18T22:49:00Z",
+      "side": 1,
+      "message": "Nit: test `SMOOTH_V_PRED` before `SMOOTH_H_PRED` to match the order in the enum type.",
+      "revId": "ecaf1f39060f91fbda35113799aa5a761bfb21a5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0bb39872_a7156828",
+        "filename": "av1/common/reconintra.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1584,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-01-18T22:49:00Z",
+      "side": 1,
+      "message": "Nit: omit the parentheses around `txhpx - i`\n\nAlso in line 1595.",
+      "revId": "ecaf1f39060f91fbda35113799aa5a761bfb21a5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3e88a610_9eeecbed",
+        "filename": "av1/common/reconintra.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1731,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-01-18T22:49:00Z",
+      "side": 1,
+      "message": "Nit: Delete this assertion, because this condition is clearly true after the if statement at lines 1691-1713. I made the same suggestion in https://aomedia-review.googlesource.com/c/aom/+/185801.\n\nNote: It is okay to have this assertion if the subsequent code clearly requires `use_palette` to be false. Since I am not familiar with this code, I defer to your judgment.",
+      "revId": "ecaf1f39060f91fbda35113799aa5a761bfb21a5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ea729c89_47cfd620",
+        "filename": "av1/common/reconintra.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1741,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-01-18T22:49:00Z",
+      "side": 1,
+      "message": "Nit/optional: Name these two variables `n_top_px` and `n_left_px`?\n\nThose are the parameter names used by `highbd_build_non_directional_intra_predictors()`.",
+      "revId": "ecaf1f39060f91fbda35113799aa5a761bfb21a5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d97241a1_59b9a182",
+        "filename": "av1/common/reconintra.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1806,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-01-18T22:49:00Z",
+      "side": 1,
+      "message": "Nit/optional: Similarly, name these two variables `n_topright_px` and `n_bottomleft_px`?",
+      "revId": "ecaf1f39060f91fbda35113799aa5a761bfb21a5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
