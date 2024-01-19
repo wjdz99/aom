@@ -3567,8 +3567,24 @@ int av1_encodedframe_overshoot_cbr(AV1_COMP *cpi, int *q) {
   // temporal layers.
   if (cpi->svc.number_temporal_layers > 1) {
     SVC *svc = &cpi->svc;
+    // For spatial layers: only reset on current spatial layer
+    // if there is no inter-layer (spatial) prediction. Othwerise if there is,
+    // we expect to pull up the quality from the lower spatial layer and so no
+    // max-qp/reset is needed.
+    // Check if any reference is being used that is the lower spatial layer.
+    int inter_layer_pred_on = 0;
+    if (cpi->ref_frame_flags & av1_ref_frame_flag_list[LAST_FRAME]) {
+      if (av1_check_ref_is_low_spatial_res_super_frame(cpi, LAST_FRAME))
+        inter_layer_pred_on = 1;
+    } else if (cpi->ref_frame_flags & av1_ref_frame_flag_list[GOLDEN_FRAME]) {
+      if (av1_check_ref_is_low_spatial_res_super_frame(cpi, GOLDEN_FRAME))
+        inter_layer_pred_on = 1;
+    } else if (cpi->ref_frame_flags & av1_ref_frame_flag_list[ALTREF_FRAME]) {
+      if (av1_check_ref_is_low_spatial_res_super_frame(cpi, ALTREF_FRAME))
+        inter_layer_pred_on = 1;
+    }
     for (int tl = 0; tl < svc->number_temporal_layers; ++tl) {
-      int sl = svc->spatial_layer_id;
+      int sl = inter_layer_pred_on ? 0 : svc->spatial_layer_id;
       const int layer = LAYER_IDS_TO_IDX(sl, tl, svc->number_temporal_layers);
       LAYER_CONTEXT *lc = &svc->layer_context[layer];
       RATE_CONTROL *lrc = &lc->rc;
