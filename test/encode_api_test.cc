@@ -655,6 +655,7 @@ TEST(EncodeAPI, AllIntraMode) {
   EXPECT_EQ(AOM_CODEC_INVALID_PARAM, aom_codec_enc_init(&enc, iface, &cfg, 0));
 }
 
+<<<<<<< HEAD   (b037bd Merge tag 'v3.7.2' into HEAD)
 TEST(EncodeAPI, AllIntraAndUsePsnr) {
   aom_codec_iface_t *iface = aom_codec_av1_cx();
   aom_codec_enc_cfg_t cfg;
@@ -681,6 +682,8 @@ TEST(EncodeAPI, AllIntraAndUsePsnr) {
   ASSERT_EQ(aom_codec_destroy(&enc), AOM_CODEC_OK);
 }
 
+=======
+>>>>>>> BRANCH (bb6430 Update AUTHORS,CHANGELOG,CMakeLists.txt for v3.8.1)
 // A test that reproduces bug aomedia:3534.
 TEST(EncodeAPI, AllIntraAndNoRefLast) {
   aom_codec_iface_t *iface = aom_codec_av1_cx();

@@ -642,6 +642,12 @@ static void init_config(struct AV1_COMP *cpi, const AV1EncoderConfig *oxcf) {
   cm->height = oxcf->frm_dim_cfg.height;
   cpi->is_dropped_frame = false;
 
+  InitialDimensions *const initial_dimensions = &cpi->initial_dimensions;
+  initial_dimensions->width = cm->width;
+  initial_dimensions->height = cm->height;
+
+  cpi->frame_size_related_setup_done = false;
+
   alloc_compressor_data(cpi);
 
   cpi->data_alloc_width = cm->width;
@@ -919,8 +925,13 @@ void av1_change_config(struct AV1_COMP *cpi, const AV1EncoderConfig *oxcf,
     cpi->td.firstpass_ctx = NULL;
     alloc_compressor_data(cpi);
     realloc_segmentation_maps(cpi);
+<<<<<<< HEAD   (b037bd Merge tag 'v3.7.2' into HEAD)
     cpi->data_alloc_width = cm->width;
     cpi->data_alloc_height = cm->height;
+=======
+    initial_dimensions->width = cm->width;
+    initial_dimensions->height = cm->height;
+>>>>>>> BRANCH (bb6430 Update AUTHORS,CHANGELOG,CMakeLists.txt for v3.8.1)
     cpi->frame_size_related_setup_done = false;
   }
   av1_update_frame_size(cpi);
@@ -2070,8 +2081,13 @@ static void init_ref_frame_bufs(AV1_COMP *cpi) {
 // TODO(chengchen): consider renaming this function as it is necessary
 // for the encoder to setup critical parameters, and it does not
 // deal with initial width any longer.
+<<<<<<< HEAD   (b037bd Merge tag 'v3.7.2' into HEAD)
 aom_codec_err_t av1_check_initial_width(AV1_COMP *cpi, int use_highbitdepth,
                                         int subsampling_x, int subsampling_y) {
+=======
+void av1_check_initial_width(AV1_COMP *cpi, int use_highbitdepth,
+                             int subsampling_x, int subsampling_y) {
+>>>>>>> BRANCH (bb6430 Update AUTHORS,CHANGELOG,CMakeLists.txt for v3.8.1)
   AV1_COMMON *const cm = &cpi->common;
   SequenceHeader *const seq_params = cm->seq_params;
 
@@ -2137,8 +2153,13 @@ static int set_size_literal(AV1_COMP *cpi, int width, int height) {
   setup_denoiser_buffer(cpi);
 #endif
 
+<<<<<<< HEAD   (b037bd Merge tag 'v3.7.2' into HEAD)
   if (cm->width > cpi->data_alloc_width ||
       cm->height > cpi->data_alloc_height) {
+=======
+  if (cm->width > initial_dimensions->width ||
+      cm->height > initial_dimensions->height) {
+>>>>>>> BRANCH (bb6430 Update AUTHORS,CHANGELOG,CMakeLists.txt for v3.8.1)
     av1_free_context_buffers(cm);
     av1_free_shared_coeff_buffer(&cpi->td.shared_coeff_buf);
     av1_free_sms_tree(&cpi->td);
@@ -2146,8 +2167,13 @@ static int set_size_literal(AV1_COMP *cpi, int width, int height) {
     cpi->td.firstpass_ctx = NULL;
     alloc_compressor_data(cpi);
     realloc_segmentation_maps(cpi);
+<<<<<<< HEAD   (b037bd Merge tag 'v3.7.2' into HEAD)
     cpi->data_alloc_width = cm->width;
     cpi->data_alloc_height = cm->height;
+=======
+    initial_dimensions->width = cm->width;
+    initial_dimensions->height = cm->height;
+>>>>>>> BRANCH (bb6430 Update AUTHORS,CHANGELOG,CMakeLists.txt for v3.8.1)
     cpi->frame_size_related_setup_done = false;
   }
   alloc_mb_mode_info_buffers(cpi);
@@ -2590,6 +2616,7 @@ static int encode_without_recode(AV1_COMP *cpi) {
   // references become available again after few frames.
   // For superres: don't disable golden reference.
   if (svc->number_spatial_layers == 1) {
+<<<<<<< HEAD   (b037bd Merge tag 'v3.7.2' into HEAD)
     if (!cpi->oxcf.superres_cfg.enable_superres) {
       if (cpi->ref_frame_flags & av1_ref_frame_flag_list[GOLDEN_FRAME]) {
         const YV12_BUFFER_CONFIG *const ref =
@@ -2598,6 +2625,14 @@ static int encode_without_recode(AV1_COMP *cpi) {
             ref->y_crop_height != cm->height) {
           cpi->ref_frame_flags ^= AOM_GOLD_FLAG;
         }
+=======
+    if (cpi->ref_frame_flags & av1_ref_frame_flag_list[GOLDEN_FRAME]) {
+      const YV12_BUFFER_CONFIG *const ref =
+          get_ref_frame_yv12_buf(cm, GOLDEN_FRAME);
+      if (ref == NULL || ref->y_crop_width != cm->width ||
+          ref->y_crop_height != cm->height) {
+        cpi->ref_frame_flags ^= AOM_GOLD_FLAG;
+>>>>>>> BRANCH (bb6430 Update AUTHORS,CHANGELOG,CMakeLists.txt for v3.8.1)
       }
     }
     if (cpi->ref_frame_flags & av1_ref_frame_flag_list[ALTREF_FRAME]) {

@@ -57,6 +57,7 @@
 // this gives the correct offset of 0 instead of -1.
 #define UPSAMPLE_CENTER_OFFSET ((DOWNSAMPLE_FACTOR - 1) / 2)
 
+<<<<<<< HEAD   (b037bd Merge tag 'v3.7.2' into HEAD)
 static double flow_upscale_filter[2][FLOW_UPSCALE_TAPS] = {
   // Cubic interpolation kernels for phase=0.75 and phase=0.25, respectively
   { -3 / 128., 29 / 128., 111 / 128., -9 / 128. },
@@ -67,6 +68,12 @@ static INLINE void get_cubic_kernel_dbl(double x, double kernel[4]) {
   // Check that the fractional position is in range.
   //
   // Note: x is calculated from, e.g., `u_frac = u - floor(u)`.
+=======
+static INLINE void get_cubic_kernel_dbl(double x, double *kernel) {
+  // Check that the fractional position is in range.
+  //
+  // Note: x is calculated from (eg.) `u_frac = u - floor(u)`.
+>>>>>>> BRANCH (bb6430 Update AUTHORS,CHANGELOG,CMakeLists.txt for v3.8.1)
   // Mathematically, this implies that 0 <= x < 1. However, in practice it is
   // possible to have x == 1 due to floating point rounding. This is fine,
   // and we still interpolate correctly if we allow x = 1.
