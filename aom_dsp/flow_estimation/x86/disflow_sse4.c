@@ -27,10 +27,17 @@
 #define CHECK_RESULTS 0
 
 // Note: Max sum(+ve coefficients) = 1.125 * scale
+<<<<<<< HEAD   (ba7c28 Fix clang-tidy misc-include-cleaner warnings)
 static INLINE void get_cubic_kernel_dbl(double x, double kernel[4]) {
   // Check that the fractional position is in range.
   //
   // Note: x is calculated from, e.g., `u_frac = u - floor(u)`.
+=======
+static INLINE void get_cubic_kernel_dbl(double x, double *kernel) {
+  // Check that the fractional position is in range.
+  //
+  // Note: x is calculated from (eg.) `u_frac = u - floor(u)`.
+>>>>>>> BRANCH (79a355 Update v3.7.2 CHANGELOG with aomedia:3520 bug fix)
   // Mathematically, this implies that 0 <= x < 1. However, in practice it is
   // possible to have x == 1 due to floating point rounding. This is fine,
   // and we still interpolate correctly if we allow x = 1.

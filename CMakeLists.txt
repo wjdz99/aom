@@ -58,9 +58,15 @@ endif()
 # passed to libtool.
 #
 # We set SO_FILE_VERSION = [c-a].a.r
+<<<<<<< HEAD   (ba7c28 Fix clang-tidy misc-include-cleaner warnings)
 set(LT_CURRENT 11)
 set(LT_REVISION 0)
 set(LT_AGE 8)
+=======
+set(LT_CURRENT 10)
+set(LT_REVISION 2)
+set(LT_AGE 7)
+>>>>>>> BRANCH (79a355 Update v3.7.2 CHANGELOG with aomedia:3520 bug fix)
 math(EXPR SO_VERSION "${LT_CURRENT} - ${LT_AGE}")
 set(SO_FILE_VERSION "${SO_VERSION}.${LT_AGE}.${LT_REVISION}")
 unset(LT_CURRENT)

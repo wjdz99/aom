@@ -910,6 +910,7 @@ void av1_change_config(struct AV1_COMP *cpi, const AV1EncoderConfig *oxcf,
   cm->width = frm_dim_cfg->width;
   cm->height = frm_dim_cfg->height;
 
+<<<<<<< HEAD   (ba7c28 Fix clang-tidy misc-include-cleaner warnings)
   if (cm->width > cpi->data_alloc_width ||
       cm->height > cpi->data_alloc_height || is_sb_size_changed) {
     av1_free_context_buffers(cm);
@@ -922,6 +923,20 @@ void av1_change_config(struct AV1_COMP *cpi, const AV1EncoderConfig *oxcf,
     cpi->data_alloc_width = cm->width;
     cpi->data_alloc_height = cm->height;
     cpi->frame_size_related_setup_done = false;
+=======
+  if (initial_dimensions->width || is_sb_size_changed) {
+    if (cm->width > initial_dimensions->width ||
+        cm->height > initial_dimensions->height || is_sb_size_changed) {
+      av1_free_context_buffers(cm);
+      av1_free_shared_coeff_buffer(&cpi->td.shared_coeff_buf);
+      av1_free_sms_tree(&cpi->td);
+      av1_free_pmc(cpi->td.firstpass_ctx, av1_num_planes(cm));
+      cpi->td.firstpass_ctx = NULL;
+      alloc_compressor_data(cpi);
+      realloc_segmentation_maps(cpi);
+      initial_dimensions->width = initial_dimensions->height = 0;
+    }
+>>>>>>> BRANCH (79a355 Update v3.7.2 CHANGELOG with aomedia:3520 bug fix)
   }
   av1_update_frame_size(cpi);
 

@@ -189,7 +189,12 @@ int av1_rc_bits_per_mb(const AV1_COMP *cpi, FRAME_TYPE frame_type, int qindex,
          correction_factor >= MIN_BPB_FACTOR);
 
   if (cpi->oxcf.rc_cfg.mode == AOM_CBR && frame_type != KEY_FRAME &&
+<<<<<<< HEAD   (ba7c28 Fix clang-tidy misc-include-cleaner warnings)
       accurate_estimate && cpi->rec_sse != UINT64_MAX) {
+=======
+      accurate_estimate) {
+    assert(cpi->rec_sse != UINT64_MAX);
+>>>>>>> BRANCH (79a355 Update v3.7.2 CHANGELOG with aomedia:3520 bug fix)
     const int mbs = cm->mi_params.MBs;
     const double sse_sqrt =
         (double)((int)sqrt((double)(cpi->rec_sse)) << BPER_MB_NORMBITS) /
