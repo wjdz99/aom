@@ -70,6 +70,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "4ce3c4af_c3676928",
+        "filename": "av1/common/reconintra.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1379,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-01-19T22:15:32Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "92ba35dd_5596e22e",
+      "revId": "ecaf1f39060f91fbda35113799aa5a761bfb21a5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "f93993b4_e5a6169c",
@@ -136,6 +154,24 @@
       "side": 1,
       "message": "Since the pointer is not modified in this function, declaring the same as const pointer.",
       "parentUuid": "8537a8aa_49da116f",
+      "revId": "ecaf1f39060f91fbda35113799aa5a761bfb21a5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9c8c6a65_f2ab6bed",
+        "filename": "av1/common/reconintra.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1546,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-01-19T22:15:32Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "4a7d3ee5_01660abb",
       "revId": "ecaf1f39060f91fbda35113799aa5a761bfb21a5",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
