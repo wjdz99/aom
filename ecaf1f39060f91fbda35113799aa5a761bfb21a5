@@ -54,6 +54,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "92ba35dd_5596e22e",
+        "filename": "av1/common/reconintra.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1379,
+      "author": {
+        "id": 31567
+      },
+      "writtenOn": "2024-01-19T15:20:41Z",
+      "side": 1,
+      "message": "Since the pointer is not modified in this function, declaring the same as const pointer.",
+      "parentUuid": "9eeb7166_45c233db",
+      "revId": "ecaf1f39060f91fbda35113799aa5a761bfb21a5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "f93993b4_e5a6169c",
         "filename": "av1/common/reconintra.c",
         "patchSetId": 2
@@ -65,6 +83,24 @@
       "writtenOn": "2024-01-18T22:49:00Z",
       "side": 1,
       "message": "Add `const`:\n\n```\n  const int base \u003d 128 \u003c\u003c (bit_depth - 8);\n```",
+      "revId": "ecaf1f39060f91fbda35113799aa5a761bfb21a5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fccd8a38_42300e31",
+        "filename": "av1/common/reconintra.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1394,
+      "author": {
+        "id": 31567
+      },
+      "writtenOn": "2024-01-19T15:20:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f93993b4_e5a6169c",
       "revId": "ecaf1f39060f91fbda35113799aa5a761bfb21a5",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -88,6 +124,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "4a7d3ee5_01660abb",
+        "filename": "av1/common/reconintra.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1546,
+      "author": {
+        "id": 31567
+      },
+      "writtenOn": "2024-01-19T15:20:41Z",
+      "side": 1,
+      "message": "Since the pointer is not modified in this function, declaring the same as const pointer.",
+      "parentUuid": "8537a8aa_49da116f",
+      "revId": "ecaf1f39060f91fbda35113799aa5a761bfb21a5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "c548e167_50436ff8",
         "filename": "av1/common/reconintra.c",
         "patchSetId": 2
@@ -99,6 +153,24 @@
       "writtenOn": "2024-01-18T22:49:00Z",
       "side": 1,
       "message": "Nit: test `SMOOTH_V_PRED` before `SMOOTH_H_PRED` to match the order in the enum type.",
+      "revId": "ecaf1f39060f91fbda35113799aa5a761bfb21a5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0e6bc588_7946d307",
+        "filename": "av1/common/reconintra.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1559,
+      "author": {
+        "id": 31567
+      },
+      "writtenOn": "2024-01-19T15:20:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c548e167_50436ff8",
       "revId": "ecaf1f39060f91fbda35113799aa5a761bfb21a5",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -120,6 +192,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "c81009d3_6bd4f144",
+        "filename": "av1/common/reconintra.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1584,
+      "author": {
+        "id": 31567
+      },
+      "writtenOn": "2024-01-19T15:20:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0bb39872_a7156828",
+      "revId": "ecaf1f39060f91fbda35113799aa5a761bfb21a5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "3e88a610_9eeecbed",
@@ -133,6 +223,24 @@
       "writtenOn": "2024-01-18T22:49:00Z",
       "side": 1,
       "message": "Nit: Delete this assertion, because this condition is clearly true after the if statement at lines 1691-1713. I made the same suggestion in https://aomedia-review.googlesource.com/c/aom/+/185801.\n\nNote: It is okay to have this assertion if the subsequent code clearly requires `use_palette` to be false. Since I am not familiar with this code, I defer to your judgment.",
+      "revId": "ecaf1f39060f91fbda35113799aa5a761bfb21a5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f05f6c37_49a1f3eb",
+        "filename": "av1/common/reconintra.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1731,
+      "author": {
+        "id": 31567
+      },
+      "writtenOn": "2024-01-19T15:20:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3e88a610_9eeecbed",
       "revId": "ecaf1f39060f91fbda35113799aa5a761bfb21a5",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -154,6 +262,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "2558d423_1369fa3b",
+        "filename": "av1/common/reconintra.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1741,
+      "author": {
+        "id": 31567
+      },
+      "writtenOn": "2024-01-19T15:20:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ea729c89_47cfd620",
+      "revId": "ecaf1f39060f91fbda35113799aa5a761bfb21a5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d97241a1_59b9a182",
@@ -167,6 +293,24 @@
       "writtenOn": "2024-01-18T22:49:00Z",
       "side": 1,
       "message": "Nit/optional: Similarly, name these two variables `n_topright_px` and `n_bottomleft_px`?",
+      "revId": "ecaf1f39060f91fbda35113799aa5a761bfb21a5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e08fe212_becaf9e0",
+        "filename": "av1/common/reconintra.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1806,
+      "author": {
+        "id": 31567
+      },
+      "writtenOn": "2024-01-19T15:20:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d97241a1_59b9a182",
       "revId": "ecaf1f39060f91fbda35113799aa5a761bfb21a5",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
