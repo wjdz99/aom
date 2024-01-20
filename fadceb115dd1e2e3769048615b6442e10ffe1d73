@@ -20,6 +20,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "b28afdb1_d950f3be",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 33720
+      },
+      "writtenOn": "2024-01-20T20:36:40Z",
+      "side": 1,
+      "message": "Indeed, I put more details in the commit message.",
+      "parentUuid": "6a3878e8_c373cf11",
+      "revId": "fadceb115dd1e2e3769048615b6442e10ffe1d73",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "2f21c935_65a08583",
         "filename": "/PATCHSET_LEVEL",
         "patchSetId": 2
@@ -69,6 +87,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f9ac70f5_789fcca7",
+        "filename": "examples/av1_dec_fuzzer.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 33720
+      },
+      "writtenOn": "2024-01-20T20:36:40Z",
+      "side": 1,
+      "message": "Do you really want me and this change to add a public API ? I meant only to improve fuzzing coverage... Adding a public API seems another kind of change...",
+      "parentUuid": "ab1aa820_0813298b",
+      "revId": "fadceb115dd1e2e3769048615b6442e10ffe1d73",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "f4ab42b2_e5366fcb",
@@ -82,6 +118,24 @@
       "writtenOn": "2024-01-18T21:39:04Z",
       "side": 1,
       "message": "Should we also call `aom_codec_control(AV1_SET_INSPECTION_CALLBACK)`?",
+      "revId": "fadceb115dd1e2e3769048615b6442e10ffe1d73",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a94b6ca8_6b23f1f5",
+        "filename": "examples/av1_dec_fuzzer.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 33720
+      },
+      "writtenOn": "2024-01-20T20:36:40Z",
+      "side": 1,
+      "message": "What for ? What should the callback do ?",
+      "parentUuid": "f4ab42b2_e5366fcb",
       "revId": "fadceb115dd1e2e3769048615b6442e10ffe1d73",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -103,6 +157,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "538f4c1f_15ce57fc",
+        "filename": "examples/av1_dec_fuzzer.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 33720
+      },
+      "writtenOn": "2024-01-20T20:36:40Z",
+      "side": 1,
+      "message": "The corpus is not part of this git repository but it is located at https://storage.googleapis.com/aom-test-data/fuzzer/dec_fuzzer_seed_corpus.zip is that correct ?\n\nGeneerally speaking, I think more diverse files are always welcome in the corpus, even if I do not know what this annex B is)",
+      "parentUuid": "5185463d_e71db7d3",
+      "revId": "fadceb115dd1e2e3769048615b6442e10ffe1d73",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c64c3f98_39120a43",
@@ -116,6 +188,24 @@
       "writtenOn": "2024-01-18T21:39:04Z",
       "side": 1,
       "message": "I suggest we still pass `nullptr` as the last argument when inspect is not used.",
+      "revId": "fadceb115dd1e2e3769048615b6442e10ffe1d73",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1639fe1b_773dac26",
+        "filename": "examples/av1_dec_fuzzer.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 33720
+      },
+      "writtenOn": "2024-01-20T20:36:40Z",
+      "side": 1,
+      "message": "ok",
+      "parentUuid": "c64c3f98_39120a43",
       "revId": "fadceb115dd1e2e3769048615b6442e10ffe1d73",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
