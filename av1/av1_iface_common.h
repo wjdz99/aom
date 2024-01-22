@@ -16,8 +16,6 @@
 #include "aom_ports/mem.h"
 #include "aom_scale/yv12config.h"
 
-extern aom_codec_iface_t aom_codec_av1_inspect_algo;
-
 static AOM_INLINE void yuvconfig2image(aom_image_t *img,
                                        const YV12_BUFFER_CONFIG *yv12,
                                        void *user_priv) {

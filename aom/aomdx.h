@@ -43,6 +43,10 @@ extern aom_codec_iface_t aom_codec_av1_dx_algo;
  */
 extern aom_codec_iface_t *aom_codec_av1_dx(void);
 
+/*!\brief The interface to the AV1 decoder inspector.
+ */
+extern aom_codec_iface_t *aom_codec_av1_inspect(void);
+
 /*!@} - end algorithm interface member group */
 
 /** Data structure that stores bit accounting for debug
