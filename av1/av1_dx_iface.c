@@ -1745,7 +1745,7 @@ aom_codec_iface_t aom_codec_av1_dx_algo = {
 // Decoder interface for inspecting frame data. It uses decoder_inspect instead
 // of decoder_decode so it only decodes one frame at a time, whether the frame
 // is shown or not.
-aom_codec_iface_t aom_codec_av1_inspect_algo = {
+static aom_codec_iface_t aom_codec_av1_inspect_algo = {
   "AOMedia Project AV1 Decoder Inspector" VERSION_STRING,
   AOM_CODEC_INTERNAL_ABI_VERSION,
   AOM_CODEC_CAP_DECODER |
@@ -1775,3 +1775,7 @@ aom_codec_iface_t aom_codec_av1_inspect_algo = {
 };
 
 aom_codec_iface_t *aom_codec_av1_dx(void) { return &aom_codec_av1_dx_algo; }
+
+aom_codec_iface_t *aom_codec_av1_inspect(void) {
+  return &aom_codec_av1_inspect_algo;
+}

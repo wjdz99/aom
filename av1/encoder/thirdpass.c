@@ -15,7 +15,6 @@
 #include "aom/aomdx.h"
 #include "aom_dsp/psnr.h"
 #include "aom_mem/aom_mem.h"
-#include "av1/av1_iface_common.h"
 #include "av1/encoder/encoder.h"
 #include "av1/encoder/firstpass.h"
 #include "av1/common/blockd.h"
@@ -62,7 +61,7 @@ static void init_third_pass(THIRD_PASS_DEC_CTX *ctx) {
   }
 
   if (!ctx->decoder.iface) {
-    aom_codec_iface_t *decoder_iface = &aom_codec_av1_inspect_algo;
+    aom_codec_iface_t *decoder_iface = aom_codec_av1_inspect();
     if (aom_codec_dec_init(&ctx->decoder, decoder_iface, NULL, 0)) {
       aom_internal_error(ctx->err_info, AOM_CODEC_ERROR,
                          "Failed to initialize decoder.");
