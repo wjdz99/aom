@@ -60,3 +60,31 @@ uint64_t av1_wedge_sse_from_residuals_sve(const int16_t *r1, const int16_t *d,
   uint64_t csse = (uint64_t)horizontal_add_s64x2(vaddq_s64(sse[0], sse[1]));
   return ROUND_POWER_OF_TWO(csse, 2 * WEDGE_WEIGHT_BITS);
 }
+
+int8_t av1_wedge_sign_from_residuals_sve(const int16_t *ds, const uint8_t *m,
+                                         int N, int64_t limit) {
+  assert(N % 16 == 0);
+
+  // Predicate pattern with first 8 elements true.
+  svbool_t pattern = svptrue_pat_b16(SV_VL8);
+  int64x2_t acc[2] = { vdupq_n_s64(0), vdupq_n_s64(0) };
+
+  do {
+    int16x8_t ds_l = vld1q_s16(ds);
+    int16x8_t ds_h = vld1q_s16(ds + 8);
+
+    // Use a zero-extending load to widen the vector elements.
+    int16x8_t m_l = svget_neonq_s16(svld1ub_s16(pattern, m));
+    int16x8_t m_h = svget_neonq_s16(svld1ub_s16(pattern, m + 8));
+
+    acc[0] = aom_sdotq_s16(acc[0], ds_l, m_l);
+    acc[1] = aom_sdotq_s16(acc[1], ds_h, m_h);
+
+    ds += 16;
+    m += 16;
+    N -= 16;
+  } while (N != 0);
+
+  int64x2_t sum = vaddq_s64(acc[0], acc[1]);
+  return (horizontal_add_s64x2(sum) > limit);
+}
