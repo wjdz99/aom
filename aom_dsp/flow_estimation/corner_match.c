@@ -23,48 +23,17 @@
 #include "aom_dsp/pyramid.h"
 #include "aom_scale/yv12config.h"
 
-#define THRESHOLD_NCC 0.75
-
-/* Compute mean and standard deviation of pixels in a window of size
-   MATCH_SZ by MATCH_SZ centered at (x, y).
-   Store results into *mean and *stddev
-*/
-static void compute_mean_stddev(const unsigned char *frame, int stride, int x,
-                                int y, double *mean, double *stddev) {
-  int sum = 0;
-  int sumsq = 0;
-  for (int i = 0; i < MATCH_SZ; ++i) {
-    for (int j = 0; j < MATCH_SZ; ++j) {
-      sum += frame[(i + y - MATCH_SZ_BY2) * stride + (j + x - MATCH_SZ_BY2)];
-      sumsq += frame[(i + y - MATCH_SZ_BY2) * stride + (j + x - MATCH_SZ_BY2)] *
-               frame[(i + y - MATCH_SZ_BY2) * stride + (j + x - MATCH_SZ_BY2)];
+// Compute SAD over a window that isn't necessarily 16px-aligned
+static INLINE unsigned int generic_sad(const uint8_t *const ref, int ref_stride,
+                                       const uint8_t *const dst, int dst_stride,
+                                       int p_width, int p_height) {
+  unsigned int sad = 0;
+  for (int i = 0; i < p_height; ++i) {
+    for (int j = 0; j < p_width; ++j) {
+      sad += abs(dst[j + i * dst_stride] - ref[j + i * ref_stride]);
     }
   }
-  *mean = (double)sum / MATCH_SZ_SQ;
-  *stddev = sqrt(sumsq / (double)MATCH_SZ_SQ - (*mean) * (*mean));
-}
-
-/* Compute corr(frame1, frame2) over a window of size MATCH_SZ by MATCH_SZ.
-   To save on computation, the mean and standard deviation of the window
-   in each frame are precomputed and passed into this function as arguments.
-*/
-static double compute_correlation(const unsigned char *frame1, int stride1,
-                                  int x1, int y1, double mean1, double stddev1,
-                                  const unsigned char *frame2, int stride2,
-                                  int x2, int y2, double mean2,
-                                  double stddev2) {
-  int v1, v2;
-  int cross = 0;
-  for (int i = 0; i < MATCH_SZ; ++i) {
-    for (int j = 0; j < MATCH_SZ; ++j) {
-      v1 = frame1[(i + y1 - MATCH_SZ_BY2) * stride1 + (j + x1 - MATCH_SZ_BY2)];
-      v2 = frame2[(i + y2 - MATCH_SZ_BY2) * stride2 + (j + x2 - MATCH_SZ_BY2)];
-      cross += v1 * v2;
-    }
-  }
-  double covariance = cross / (double)MATCH_SZ_SQ - mean1 * mean2;
-  double correlation = covariance / (stddev1 * stddev2);
-  return correlation;
+  return sad;
 }
 
 static int is_eligible_point(int pointx, int pointy, int width, int height) {
@@ -82,10 +51,8 @@ static int is_eligible_distance(int point1x, int point1y, int point2x,
 typedef struct {
   int x;
   int y;
-  double mean;
-  double stddev;
   int best_match_idx;
-  double best_match_corr;
+  unsigned int best_match_sad;
 } PointInfo;
 
 static int determine_correspondence(const unsigned char *src,
@@ -123,9 +90,7 @@ static int determine_correspondence(const unsigned char *src,
     PointInfo *point = &src_point_info[src_point_count];
     point->x = src_x;
     point->y = src_y;
-    point->best_match_corr = THRESHOLD_NCC;
-    compute_mean_stddev(src, src_stride, src_x, src_y, &point->mean,
-                        &point->stddev);
+    point->best_match_sad = UINT_MAX;
     src_point_count++;
   }
   if (src_point_count == 0) {
@@ -141,9 +106,7 @@ static int determine_correspondence(const unsigned char *src,
     PointInfo *point = &ref_point_info[ref_point_count];
     point->x = ref_x;
     point->y = ref_y;
-    point->best_match_corr = THRESHOLD_NCC;
-    compute_mean_stddev(ref, ref_stride, ref_x, ref_y, &point->mean,
-                        &point->stddev);
+    point->best_match_sad = UINT_MAX;
     ref_point_count++;
   }
   if (ref_point_count == 0) {
@@ -157,22 +120,29 @@ static int determine_correspondence(const unsigned char *src,
     PointInfo *src_point = &src_point_info[i];
     for (int j = 0; j < ref_point_count; ++j) {
       PointInfo *ref_point = &ref_point_info[j];
-      if (!is_eligible_distance(src_point->x, src_point->y, ref_point->x,
-                                ref_point->y, width, height))
-        continue;
+      const int sx = src_point->x;
+      const int sy = src_point->y;
+      const int rx = ref_point->x;
+      const int ry = ref_point->y;
 
-      double corr = compute_correlation(
-          src, src_stride, src_point->x, src_point->y, src_point->mean,
-          src_point->stddev, ref, ref_stride, ref_point->x, ref_point->y,
-          ref_point->mean, ref_point->stddev);
+      if (!is_eligible_distance(sx, sy, rx, ry, width, height)) continue;
 
-      if (corr > src_point->best_match_corr) {
+      const uint8_t *src_tl =
+          src + (sy - MATCH_SZ_BY2) * src_stride + (sx - MATCH_SZ_BY2);
+      const uint8_t *ref_tl =
+          ref + (ry - MATCH_SZ_BY2) * ref_stride + (rx - MATCH_SZ_BY2);
+
+      // TODO(rachelbarker): Modify aom_sad16x16_sse2 to not require the
+      // source pointer to be 16-byte aligned, then use aom_sad16x16() here
+      const unsigned int match_sad = generic_sad(
+          src_tl, src_stride, ref_tl, ref_stride, MATCH_SZ, MATCH_SZ);
+      if (match_sad < src_point->best_match_sad) {
         src_point->best_match_idx = j;
-        src_point->best_match_corr = corr;
+        src_point->best_match_sad = match_sad;
       }
-      if (corr > ref_point->best_match_corr) {
+      if (match_sad < ref_point->best_match_sad) {
         ref_point->best_match_idx = i;
-        ref_point->best_match_corr = corr;
+        ref_point->best_match_sad = match_sad;
       }
     }
   }
@@ -184,9 +154,8 @@ static int determine_correspondence(const unsigned char *src,
   for (int i = 0; i < src_point_count; i++) {
     PointInfo *point = &src_point_info[i];
 
-    // Skip corners which were not matched, or which didn't find
-    // a good enough match
-    if (point->best_match_corr < THRESHOLD_NCC) continue;
+    // Skip points with no match candidates
+    if (point->best_match_sad == UINT_MAX) continue;
 
     PointInfo *match_point = &ref_point_info[point->best_match_idx];
     if (match_point->best_match_idx == i) {
@@ -200,7 +169,6 @@ static int determine_correspondence(const unsigned char *src,
 
       const int patch_tl_x = sx - DISFLOW_PATCH_CENTER;
       const int patch_tl_y = sy - DISFLOW_PATCH_CENTER;
-
       aom_compute_flow_at_point(src, ref, patch_tl_x, patch_tl_y, width, height,
                                 src_stride, &u, &v);
 
