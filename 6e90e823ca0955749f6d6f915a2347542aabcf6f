@@ -24,6 +24,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "83ab00f1_2bc0e8c5",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 33597
+      },
+      "writtenOn": "2024-01-23T21:43:54Z",
+      "side": 1,
+      "message": "format changed.",
+      "parentUuid": "3d412162_45c6f0a0",
+      "range": {
+        "startLine": 9,
+        "startChar": 35,
+        "endLine": 9,
+        "endChar": 52
+      },
+      "revId": "6e90e823ca0955749f6d6f915a2347542aabcf6f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a8d1e59b_ac7dfca8",
@@ -72,6 +96,24 @@
       "writtenOn": "2024-01-23T20:17:12Z",
       "side": 1,
       "message": "Hi Jian, we\u0027re fine with this CL but can you address this comment first?",
+      "parentUuid": "9491084f_dd1ecd44",
+      "revId": "6e90e823ca0955749f6d6f915a2347542aabcf6f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ede4f27d_9f74e8de",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 4665,
+      "author": {
+        "id": 33597
+      },
+      "writtenOn": "2024-01-23T21:43:54Z",
+      "side": 1,
+      "message": "verified. This redundant check is removed in Patchset 6.",
       "parentUuid": "9491084f_dd1ecd44",
       "revId": "6e90e823ca0955749f6d6f915a2347542aabcf6f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
