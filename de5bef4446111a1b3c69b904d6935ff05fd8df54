@@ -16,6 +16,24 @@
       "message": "LGTM.\n\nHow was this bug discovered? Do you know why MemorySanitizer (MSan) or valgrind did not detect this bug when running test_libaom?",
       "revId": "de5bef4446111a1b3c69b904d6935ff05fd8df54",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "411e88be_bd46d28d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2024-01-23T18:05:58Z",
+      "side": 1,
+      "message": "I am reading code with respect of CDEF and try to improve it for AVM.\nI found the array is not initialized and verified random values could be possible.\nI then found AV1 has the same issue.\nBut I am also curious why MSAN can\u0027t detect this issue.\nOne thing to note is that this search function may be only triggered for speed 0.",
+      "parentUuid": "72ebcdef_239673cb",
+      "revId": "de5bef4446111a1b3c69b904d6935ff05fd8df54",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
