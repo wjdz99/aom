@@ -105,6 +105,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "22f34758_23226598",
+        "filename": "examples/av1_dec_fuzzer.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-01-23T00:17:25Z",
+      "side": 1,
+      "message": "I\u0027m sorry my comment was confusing. My comment is a note to the libaom maintainers (including myself). You don\u0027t need to add the `aom_codec_av1_inspect()` function in this CL. I just wrote a CL to do that:\nhttps://aomedia-review.googlesource.com/c/aom/+/186541\n\nbut I am not sure if we should expose the `aom_codec_av1_inspect_algo` interface in the public API.\n\nAre you using the `aom_codec_av1_inspect_algo` interface? If not, then I suggest we not test it in this file.",
+      "parentUuid": "f9ac70f5_789fcca7",
+      "revId": "fadceb115dd1e2e3769048615b6442e10ffe1d73",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "f4ab42b2_e5366fcb",
@@ -140,6 +158,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "9acb25f1_697981b3",
+        "filename": "examples/av1_dec_fuzzer.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-01-23T00:17:25Z",
+      "side": 1,
+      "message": "I saw `aom_codec_control(AV1_SET_INSPECTION_CALLBACK)` in examples/inspect.c, so I thought it may be related to `aom_codec_av1_inspect_algo`. If you don\u0027t know the answer to this question, I will ask my colleagues or try to find the answer myself.\n\nBut this question is moot if we don\u0027t test the `aom_codec_av1_inspect_algo` interface in this file. See my comment at line 26.",
+      "parentUuid": "a94b6ca8_6b23f1f5",
+      "revId": "fadceb115dd1e2e3769048615b6442e10ffe1d73",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "5185463d_e71db7d3",
@@ -171,6 +207,23 @@
       "side": 1,
       "message": "The corpus is not part of this git repository but it is located at https://storage.googleapis.com/aom-test-data/fuzzer/dec_fuzzer_seed_corpus.zip is that correct ?\n\nGeneerally speaking, I think more diverse files are always welcome in the corpus, even if I do not know what this annex B is)",
       "parentUuid": "5185463d_e71db7d3",
+      "revId": "fadceb115dd1e2e3769048615b6442e10ffe1d73",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f40bcb23_aa7457a4",
+        "filename": "examples/av1_dec_fuzzer.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-01-23T00:17:25Z",
+      "side": 1,
+      "message": "A problem with deriving these three boolean flags this way is that certain input data will only be tested with certain values of these boolean flags.\n\nFor example, if the fourth bit (0x8) is set in the middle byte of the input data, the input data will only be tested with AV1D_SET_IS_ANNEXB\u003d1. This is not ideal.\n\nI found that this function (before this CL) ignores the first `IVF_FILE_HDR_SZ` bytes in the input data (see lines 56-57). So it would be better to derive these three boolean flags from the first `IVF_FILE_HDR_SZ` bytes, so that they are independent of the data passed to the decoder.",
       "revId": "fadceb115dd1e2e3769048615b6442e10ffe1d73",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
