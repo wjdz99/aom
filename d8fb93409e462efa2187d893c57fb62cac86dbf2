@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a024e573_56b62b7e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-01-23T23:17:14Z",
+      "side": 1,
+      "message": "This issue was reported by Coverity.",
+      "revId": "d8fb93409e462efa2187d893c57fb62cac86dbf2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e2b53b08_0d513b7a",
+        "filename": "av1/common/reconintra.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1113,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-01-23T23:17:14Z",
+      "side": 1,
+      "message": "Note that `need_above_left` is always set to 1 inside the `if (is_dr_mode)` block.",
+      "revId": "d8fb93409e462efa2187d893c57fb62cac86dbf2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7fb11927_5b9a36d3",
+        "filename": "av1/common/reconintra.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1115,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-01-23T23:17:14Z",
+      "side": 1,
+      "message": "Even if this `if` statement is executed, `need_above_left` is still set to 1.\n\nAfter this point, `need_above_left` will not be modified. Therefore, if `is_dir_mode` is true, then `need_above_left` must be 1.",
+      "revId": "d8fb93409e462efa2187d893c57fb62cac86dbf2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0626d65d_d7cc4f01",
+        "filename": "av1/common/reconintra.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1192,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-01-23T23:17:14Z",
+      "side": 1,
+      "message": "This assertion means that from this point on, `is_dir_mode` is true. Therefore `need_above_left` must be equal to 1.",
+      "revId": "d8fb93409e462efa2187d893c57fb62cac86dbf2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2638c466_ee6f4834",
+        "filename": "av1/common/reconintra.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1418,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-01-23T23:17:14Z",
+      "side": 1,
+      "message": "The same analysis applies in this function.",
+      "revId": "d8fb93409e462efa2187d893c57fb62cac86dbf2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
