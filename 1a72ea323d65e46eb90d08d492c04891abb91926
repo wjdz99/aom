@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "64cf1d36_3f48dee1",
+        "filename": "av1/av1_iface_common.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-01-23T00:19:29Z",
+      "side": 0,
+      "message": "This declaration was added in https://aomedia-review.googlesource.com/c/aom/+/142721. This CL replaced it with the declaration of `aom_codec_av1_inspect()` in aom/aomdx.h.",
+      "revId": "1a72ea323d65e46eb90d08d492c04891abb91926",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "16eca2cb_ca37a76e",
+        "filename": "av1/encoder/thirdpass.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-01-23T00:19:29Z",
+      "side": 0,
+      "message": "Bohan: Why do you use `aom_codec_av1_inspect_algo` instead of `aom_codec_av1_dx_algo` here?",
+      "revId": "1a72ea323d65e46eb90d08d492c04891abb91926",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
