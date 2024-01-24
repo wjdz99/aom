@@ -1627,10 +1627,10 @@ static void set_rt_speed_feature_framesize_dependent(const AV1_COMP *const cpi,
   // rtc_tf feature allocates new source because of possible
   // temporal filtering which may change the input source during encoding:
   // this causes an issue on resized frames when psnr is calculated,
-  // so disable it here for frames that are resized (encoding width/height
-  // different from configured width/height).
-  if (is_psnr_calc_enabled(cpi) && (cpi->oxcf.frm_dim_cfg.width != cm->width ||
-                                    cpi->oxcf.frm_dim_cfg.height != cm->height))
+  // so disable it here for frames that are resized.
+  if (is_psnr_calc_enabled(cpi) && (cpi->orig_source.buffer_alloc_sz &&
+                                    (cpi->orig_source.y_width != cm->width ||
+                                     cpi->orig_source.y_height != cm->height)))
     sf->rt_sf.use_rtc_tf = 0;
 }
 
