@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f86cbf19_198e0a36",
+        "filename": "av1/encoder/arm/neon/temporal_filter_neon_dotprod.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-01-24T19:35:47Z",
+      "side": 1,
+      "message": "make this `kLoadPad`.",
+      "range": {
+        "startLine": 27,
+        "startChar": 42,
+        "endLine": 27,
+        "endChar": 50
+      },
+      "revId": "5e588eb5bd797f5e0203d31718ec9fc263786fa5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
