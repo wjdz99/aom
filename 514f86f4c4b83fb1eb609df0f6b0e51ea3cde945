@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "61f610c2_65a77b30",
+        "filename": "test/resize_test.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 698,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2024-01-24T22:47:51Z",
+      "side": 1,
+      "message": "can you clean this up please? Wan-Teh had a comment here:\nhttps://aomedia-review.googlesource.com/c/aom/+/181561/comment/2ab63080_e41980bd/\n\nAt least add some comments where they\u0027re declared.",
+      "range": {
+        "startLine": 696,
+        "startChar": 2,
+        "endLine": 698,
+        "endChar": 18
+      },
+      "revId": "514f86f4c4b83fb1eb609df0f6b0e51ea3cde945",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
