@@ -33,6 +33,24 @@
       "message": "Hi Jian,\n\nlet us know if you can submit it or not (there should be a \"submit\" button on top right corner). If not we\u0027ll need to submit it for you.\n\nThanks for the fix.",
       "revId": "01d7eaa78b7e25dab5b81ba0e1a37cf1b27540dc",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "58c88900_6ff9e112",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 10
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 33597
+      },
+      "writtenOn": "2024-01-24T17:43:44Z",
+      "side": 1,
+      "message": "Hi Jerome, \n\nThe submit button is greyed out, and says I don\u0027t the permission to submit the change. Could you help with it?\n\nThanks.\nJian",
+      "parentUuid": "104c3cac_275d01a2",
+      "revId": "01d7eaa78b7e25dab5b81ba0e1a37cf1b27540dc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
