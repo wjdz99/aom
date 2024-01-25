@@ -3095,6 +3095,7 @@ Segment::Segment()
       writer_header_(NULL) {
   const time_t curr_time = time(NULL);
   seed_ = static_cast<unsigned int>(curr_time);
+  // EMPORARY COMMENT: Note that srand(seed_) is called under #ifdef _WIN32.
 #ifdef _WIN32
   srand(seed_);
 #endif
