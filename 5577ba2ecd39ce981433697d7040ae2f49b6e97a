@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "53bda65f_5e3f4010",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-01-25T23:50:27Z",
+      "side": 1,
+      "message": "Marco: I think your change is correct. I found the origin of the code. I suggested another change.\n\nJingning: PTAL.",
+      "revId": "5577ba2ecd39ce981433697d7040ae2f49b6e97a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0095331f_995ff7c8",
+        "filename": "av1/encoder/lookahead.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-01-25T23:50:27Z",
+      "side": 1,
+      "message": "We should also review these two booleans.\n\nNote that we use crop_width/crop_height in `new_dimensions` but width/height in `larger_dimensions`. This doesn\u0027t seem consistent.\n\nI think we should use crop_width/crop_height in `larger_dimensions` as well.\n\nNote: This code was originally added to libvpx in https://chromium-review.googlesource.com/c/webm/libvpx/+/73600 and hasn\u0027t really changed.",
+      "revId": "5577ba2ecd39ce981433697d7040ae2f49b6e97a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cd53b59c_a0427875",
+        "filename": "av1/encoder/lookahead.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 149,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-01-25T23:50:27Z",
+      "side": 1,
+      "message": "Nit: I suggest we first copy the y/uv width/height, and then copy the y/uv crop_width/crop_height. This order seems clearer to me.",
+      "revId": "5577ba2ecd39ce981433697d7040ae2f49b6e97a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
