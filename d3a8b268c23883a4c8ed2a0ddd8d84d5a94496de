@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b445dfbb_dcd6fcda",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-01-25T19:32:08Z",
+      "side": 1,
+      "message": "James: I removed the Cygwin change from this CL. I will fix bug aomedia:3541 by changing `-std\u003dc++11` to `-std\u003dgnu++11`.",
+      "revId": "d3a8b268c23883a4c8ed2a0ddd8d84d5a94496de",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
