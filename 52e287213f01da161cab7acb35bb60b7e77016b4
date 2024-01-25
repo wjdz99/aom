@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "20c49577_3ee617ac",
+        "filename": "third_party/libwebm/mkvmuxer/mkvmuxer.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 3099,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-01-25T01:12:39Z",
+      "side": 1,
+      "message": "James: Do you know if `_WIN32` is defined in MinGW?\n\nIt seems that `_WIN32` is not defined in Cygwin. So I think I will need to change this line to:\n\n```\n#if defined(_WIN32) || defined(__CYGWIN__)\n```",
+      "revId": "52e287213f01da161cab7acb35bb60b7e77016b4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
