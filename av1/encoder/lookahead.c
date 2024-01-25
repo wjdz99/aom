@@ -139,6 +139,8 @@ int av1_lookahead_push(struct lookahead_ctx *ctx, const YV12_BUFFER_CONFIG *src,
     aom_free_frame_buffer(&buf->img);
     buf->img = new_img;
   } else if (new_dimensions) {
+    buf->img.y_width = src->y_width;
+    buf->img.y_height = src->y_height;
     buf->img.y_crop_width = src->y_crop_width;
     buf->img.y_crop_height = src->y_crop_height;
     buf->img.uv_crop_width = src->uv_crop_width;
