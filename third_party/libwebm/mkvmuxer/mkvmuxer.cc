@@ -3095,7 +3095,7 @@ Segment::Segment()
       writer_header_(NULL) {
   const time_t curr_time = time(NULL);
   seed_ = static_cast<unsigned int>(curr_time);
-#ifdef _WIN32
+#if defined(_WIN32) || defined(__CYGWIN__)
   srand(seed_);
 #endif
 }
