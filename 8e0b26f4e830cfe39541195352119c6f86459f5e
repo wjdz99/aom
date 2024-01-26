@@ -34,6 +34,24 @@
       "parentUuid": "476e8801_b6affebc",
       "revId": "8e0b26f4e830cfe39541195352119c6f86459f5e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "529a6c56_6fac546c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 29052
+      },
+      "writtenOn": "2024-01-26T22:00:22Z",
+      "side": 1,
+      "message": "That said, I do think there\u0027s a strong case to be made that we already de facto didn\u0027t support pre-SSE4 machines - on looking into it more, there are a *lot* of functions, including core decoder functions, which only have SSE4.1 implementations. Combining that with the age of pre-SSE4 machines, I can\u0027t imagine libaom performed adequately on those machines to start with.\n\nSo the best thing to do is probably to have a discussion about what level of support is needed for such machines, and figure out some kind of formal policy here. I\u0027m happy to set up a tracking bug if you think that would be a useful place to have that discussion.",
+      "parentUuid": "5953bdd6_7d8ed72b",
+      "revId": "8e0b26f4e830cfe39541195352119c6f86459f5e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
