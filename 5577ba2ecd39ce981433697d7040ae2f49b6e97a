@@ -35,6 +35,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "3323ef3b_475fa614",
+        "filename": "av1/encoder/lookahead.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2024-01-26T00:16:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0095331f_995ff7c8",
+      "revId": "5577ba2ecd39ce981433697d7040ae2f49b6e97a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "cd53b59c_a0427875",
@@ -48,6 +66,24 @@
       "writtenOn": "2024-01-25T23:50:27Z",
       "side": 1,
       "message": "Nit: I suggest we first copy the y/uv width/height, and then copy the y/uv crop_width/crop_height. This order seems clearer to me.",
+      "revId": "5577ba2ecd39ce981433697d7040ae2f49b6e97a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "79f2981a_d63a45be",
+        "filename": "av1/encoder/lookahead.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 149,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2024-01-26T00:16:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cd53b59c_a0427875",
       "revId": "5577ba2ecd39ce981433697d7040ae2f49b6e97a",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
