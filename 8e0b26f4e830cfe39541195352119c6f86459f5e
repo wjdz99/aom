@@ -52,6 +52,24 @@
       "parentUuid": "5953bdd6_7d8ed72b",
       "revId": "8e0b26f4e830cfe39541195352119c6f86459f5e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a81380f6_e0381d70",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-01-26T23:28:28Z",
+      "side": 1,
+      "message": "\u003e [...]  including core decoder functions, which only have SSE4.1 implementations.\n\nThe decoder is less of a concern at this point, dav1d is used in most cases.\n\n\u003e However, if it is important to keep SSSE3 support [...]\n\nChrome supports SSE3 (not just SSSE3). So if we really wanted to keep the coverage then we might need to reinstate some or all of the SSE2.\n\n\u003e That said, I do think there\u0027s a strong case to be made that we already de facto didn\u0027t support pre-SSE4 machines - on looking into it more, there are a *lot* of functions, including core decoder functions, which only have SSE4.1 implementations. Combining that with the age of pre-SSE4 machines, I can\u0027t imagine libaom performed adequately on those machines to start with.\n\u003e \n\u003e So the best thing to do is probably to have a discussion about what level of support is needed for such machines, and figure out some kind of formal policy here. I\u0027m happy to set up a tracking bug if you think that would be a useful place to have that discussion.\n\nI think the change is all right. In libgav1 we set the baseline to SSE4.1 based in part on the Chrome stats. My main point was that a bug helps to gather a conversation like this and explain the intent before making the change.",
+      "parentUuid": "529a6c56_6fac546c",
+      "revId": "8e0b26f4e830cfe39541195352119c6f86459f5e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
