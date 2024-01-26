@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "476e8801_b6affebc",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-01-26T17:21:17Z",
+      "side": 1,
+      "message": "Chrome targets sse3. There\u0027s a small proportion of users below sse4.1. It\u0027s unlikely, but everyone should be aware of this in case there are webrtc regressions.\n\nA change like this might have benefited from a tracking bug to allow any side effects to be noted.",
+      "revId": "8e0b26f4e830cfe39541195352119c6f86459f5e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
