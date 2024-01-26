@@ -16,6 +16,24 @@
       "message": "Should we add a \"Bug: aomedia:3531\" here so that this commit will be posted to the bug report?",
       "revId": "aa0ed1b0fb65d7b8b28b510185ab8aff16788a99",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "18fba35c_f60c7130",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-01-26T18:25:41Z",
+      "side": 1,
+      "message": "If this CL is no longer needed to fix bug aomedia:3531, we can remove the second paragraph and the \"Bug: aomedia:3531\" line from the commit message.\n\nLet\u0027s mention the change to the `larger_dimensions` conditional in the commit message.",
+      "parentUuid": "23c5cfcd_81556dd0",
+      "revId": "aa0ed1b0fb65d7b8b28b510185ab8aff16788a99",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
