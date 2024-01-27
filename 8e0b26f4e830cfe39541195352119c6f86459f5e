@@ -70,6 +70,24 @@
       "parentUuid": "529a6c56_6fac546c",
       "revId": "8e0b26f4e830cfe39541195352119c6f86459f5e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7c5573df_0edb7432",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 29052
+      },
+      "writtenOn": "2024-01-27T00:15:04Z",
+      "side": 1,
+      "message": "Understood. I was under the impression that it had already been decided that we (libaom) didn\u0027t support pre-SSE4.1, or else I would have filed an issue like you said.\n\nIt sounds like SSE4.1 is an acceptable baseline then? Perhaps in that case, I can file an issue proposing to update the official documentation to make that clear. That would help get everyone on the same page and avoid this problem coming up again in the future.",
+      "parentUuid": "a81380f6_e0381d70",
+      "revId": "8e0b26f4e830cfe39541195352119c6f86459f5e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
