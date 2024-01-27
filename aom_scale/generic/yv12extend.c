@@ -311,8 +311,8 @@ void aom_yv12_copy_y_c(const YV12_BUFFER_CONFIG *src_ybc,
   if (src_ybc->flags & YV12_FLAG_HIGHBITDEPTH) {
     const uint16_t *src16 = CONVERT_TO_SHORTPTR(src);
     uint16_t *dst16 = CONVERT_TO_SHORTPTR(dst);
-    for (row = 0; row < src_ybc->y_height; ++row) {
-      memcpy(dst16, src16, src_ybc->y_width * sizeof(uint16_t));
+    for (row = 0; row < src_ybc->y_crop_height; ++row) {
+      memcpy(dst16, src16, src_ybc->y_crop_width * sizeof(uint16_t));
       src16 += src_ybc->y_stride;
       dst16 += dst_ybc->y_stride;
     }
@@ -320,8 +320,8 @@ void aom_yv12_copy_y_c(const YV12_BUFFER_CONFIG *src_ybc,
   }
 #endif
 
-  for (row = 0; row < src_ybc->y_height; ++row) {
-    memcpy(dst, src, src_ybc->y_width);
+  for (row = 0; row < src_ybc->y_crop_height; ++row) {
+    memcpy(dst, src, src_ybc->y_crop_width);
     src += src_ybc->y_stride;
     dst += dst_ybc->y_stride;
   }
@@ -336,16 +336,16 @@ void aom_yv12_copy_u_c(const YV12_BUFFER_CONFIG *src_bc,
   if (src_bc->flags & YV12_FLAG_HIGHBITDEPTH) {
     const uint16_t *src16 = CONVERT_TO_SHORTPTR(src);
     uint16_t *dst16 = CONVERT_TO_SHORTPTR(dst);
-    for (row = 0; row < src_bc->uv_height; ++row) {
-      memcpy(dst16, src16, src_bc->uv_width * sizeof(uint16_t));
+    for (row = 0; row < src_bc->uv_crop_height; ++row) {
+      memcpy(dst16, src16, src_bc->uv_crop_width * sizeof(uint16_t));
       src16 += src_bc->uv_stride;
       dst16 += dst_bc->uv_stride;
     }
     return;
   }
 #endif
-  for (row = 0; row < src_bc->uv_height; ++row) {
-    memcpy(dst, src, src_bc->uv_width);
+  for (row = 0; row < src_bc->uv_crop_height; ++row) {
+    memcpy(dst, src, src_bc->uv_crop_width);
     src += src_bc->uv_stride;
     dst += dst_bc->uv_stride;
   }
@@ -360,16 +360,16 @@ void aom_yv12_copy_v_c(const YV12_BUFFER_CONFIG *src_bc,
   if (src_bc->flags & YV12_FLAG_HIGHBITDEPTH) {
     const uint16_t *src16 = CONVERT_TO_SHORTPTR(src);
     uint16_t *dst16 = CONVERT_TO_SHORTPTR(dst);
-    for (row = 0; row < src_bc->uv_height; ++row) {
-      memcpy(dst16, src16, src_bc->uv_width * sizeof(uint16_t));
+    for (row = 0; row < src_bc->uv_crop_height; ++row) {
+      memcpy(dst16, src16, src_bc->uv_crop_width * sizeof(uint16_t));
       src16 += src_bc->uv_stride;
       dst16 += dst_bc->uv_stride;
     }
     return;
   }
 #endif
-  for (row = 0; row < src_bc->uv_height; ++row) {
-    memcpy(dst, src, src_bc->uv_width);
+  for (row = 0; row < src_bc->uv_crop_height; ++row) {
+    memcpy(dst, src, src_bc->uv_crop_width);
     src += src_bc->uv_stride;
     dst += dst_bc->uv_stride;
   }
