@@ -18,6 +18,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "42515562_13f895ee",
+        "filename": "aom_scale/generic/yv12extend.c",
+        "patchSetId": 17
+      },
+      "lineNbr": 305,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2024-01-30T21:50:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b08dfe57_fb45d4da",
+      "revId": "472516fb5600887ed5612e7ce3e1f14139859ac2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "adbaa59f_71499f57",
@@ -31,6 +49,24 @@
       "writtenOn": "2024-01-30T21:20:37Z",
       "side": 1,
       "message": "Optional: Changing these to 1 causes test failures. See my experiment in https://aomedia-review.googlesource.com/c/aom/+/186902/1..2\n\nSo I suggest the following:\n1. Change the other `aom_yv12_copy` calls to pass `use_crop\u003d1`.\n2. Delete the comment at line 2686 in av1/encoder/encoder.c.\n3. Add a TODO comment here to investigate whether we must use `use_crop\u003d0` here.\n4. Update the TODO comment in aom_scale/generic/yv12extend.c to be more specific, i.e., change \"everywhere\" to \"in av1/encoder/picklpf.c\".\n\nWe can do this in a separate CL.",
+      "revId": "472516fb5600887ed5612e7ce3e1f14139859ac2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e1c64be9_04f0707c",
+        "filename": "av1/encoder/picklpf.c",
+        "patchSetId": 17
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2024-01-30T21:50:25Z",
+      "side": 1,
+      "message": "ok lets do it in separate CL",
+      "parentUuid": "adbaa59f_71499f57",
       "revId": "472516fb5600887ed5612e7ce3e1f14139859ac2",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
