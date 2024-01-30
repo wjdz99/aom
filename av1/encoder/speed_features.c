@@ -1632,6 +1632,12 @@ static void set_rt_speed_feature_framesize_dependent(const AV1_COMP *const cpi,
   if (is_psnr_calc_enabled(cpi) && (cpi->oxcf.frm_dim_cfg.width != cm->width ||
                                     cpi->oxcf.frm_dim_cfg.height != cm->height))
     sf->rt_sf.use_rtc_tf = 0;
+
+  if (cm->width * cm->height <= 90 * 160) {
+    sf->rt_sf.prefer_large_partition_blocks = 0;
+    sf->rt_sf.nonrd_aggressive_skip = 0;
+  }
+
 }
 
 // TODO(kyslov): now this is very similar to
