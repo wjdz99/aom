@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1bb56df4_41590843",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-02-01T23:00:40Z",
+      "side": 1,
+      "message": "Cherry-picking to the jellybee branch for the libaom 3.8.2 patch release.\n\nNote that Marco\u0027s partial revert will be cherry-picked at the same time.",
+      "revId": "0a23e12394843688df13f8ff5121c26424e5eb7a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
