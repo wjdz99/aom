@@ -158,6 +158,7 @@ int av1_set_active_map(AV1_COMP *cpi, unsigned char *new_map_16x16, int rows,
     assert(mi_rows % 2 == 0);
     assert(mi_cols % 2 == 0);
     if (new_map_16x16) {
+      /*
       for (int r = 0; r < (mi_rows >> row_scale); ++r) {
         for (int c = 0; c < (mi_cols >> col_scale); ++c) {
           const uint8_t val = new_map_16x16[r * cols + c]
@@ -169,7 +170,22 @@ int av1_set_active_map(AV1_COMP *cpi, unsigned char *new_map_16x16, int rows,
           active_map_4x4[(2 * r + 1) * mi_cols + (c + 1)] = val;
         }
       }
+      */
+       for (int r = 0; r < mi_rows; r+=4) {
+        for (int c = 0; c < mi_cols; c+=4) {
+          const uint8_t val = new_map_16x16[(r >> 2) * cols + (c >> 2)]
+                                  ? AM_SEGMENT_ID_ACTIVE
+                                  : AM_SEGMENT_ID_INACTIVE;
+          for (int x = 0; x < 4; ++x) {
+            for (int y = 0; y < 4; ++y) {
+              active_map_4x4[(r + x) * mi_cols + (c + y)] = val;
+
+            }
+          }
+        }
+      }
       cpi->active_map.enabled = 1;
+      cpi->active_map.update = 1;
     }
     return 0;
   }
