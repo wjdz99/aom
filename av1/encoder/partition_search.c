@@ -2306,15 +2306,12 @@ static void pick_sb_modes_nonrd(AV1_COMP *const cpi, TileDataEnc *tile_data,
     start_timing(cpi, nonrd_pick_inter_mode_sb_time);
 #endif
     if (segfeature_active(&cm->seg, mbmi->segment_id, SEG_LVL_SKIP)) {
-      RD_STATS invalid_rd;
-      av1_invalid_rd_stats(&invalid_rd);
-      // TODO(kyslov): add av1_nonrd_pick_inter_mode_sb_seg_skip
-      av1_rd_pick_inter_mode_sb_seg_skip(cpi, tile_data, x, mi_row, mi_col,
-                                         rd_cost, bsize, ctx,
-                                         invalid_rd.rdcost);
-    } else {
-      av1_nonrd_pick_inter_mode_sb(cpi, tile_data, x, rd_cost, bsize, ctx);
+      x->force_zeromv_skip_for_blk = 1;
+      // TODO(marpan): Consider adding a function for nonrd:
+      // av1_nonrd_pick_inter_mode_sb_seg_skip(), instead of setting
+      // x->force_zeromv_skip flag and entering av1_nonrd_pick_inter_mode_sb().
     }
+    av1_nonrd_pick_inter_mode_sb(cpi, tile_data, x, rd_cost, bsize, ctx);
 #if CONFIG_COLLECT_COMPONENT_TIMING
     end_timing(cpi, nonrd_pick_inter_mode_sb_time);
 #endif
