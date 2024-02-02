@@ -24,6 +24,9 @@
 
 #define RENAME_(x, y) AV1_K_MEANS_RENAME(x, y)
 #define RENAME(x) RENAME_(x, AV1_K_MEANS_DIM)
+#define AV1_K_MEANS_RENAME_C(x, y) x##_dim##y##_c
+#define RENAME_C_(x, y) AV1_K_MEANS_RENAME_C(x, y)
+#define RENAME_C(x) RENAME_C_(x, AV1_K_MEANS_DIM)
 
 // Though we want to compute the smallest L2 norm, in 1 dimension,
 // it is equivalent to find the smallest L1 norm and then square it.
@@ -41,8 +44,8 @@ static int RENAME(calc_dist)(const int16_t *p1, const int16_t *p2) {
 #endif
 }
 
-void RENAME(av1_calc_indices)(const int16_t *data, const int16_t *centroids,
-                              uint8_t *indices, int64_t *dist, int n, int k) {
+void RENAME_C(av1_calc_indices)(const int16_t *data, const int16_t *centroids,
+                                uint8_t *indices, int64_t *dist, int n, int k) {
   if (dist) {
     *dist = 0;
   }
