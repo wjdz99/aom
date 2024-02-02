@@ -1632,6 +1632,10 @@ static void set_rt_speed_feature_framesize_dependent(const AV1_COMP *const cpi,
   if (is_psnr_calc_enabled(cpi) && (cpi->oxcf.frm_dim_cfg.width != cm->width ||
                                     cpi->oxcf.frm_dim_cfg.height != cm->height))
     sf->rt_sf.use_rtc_tf = 0;
+
+  // TODO(marpan): Look into why ActiveMapTest fails unless we disable
+  // nonrd_check_partition_merge_mode.
+  if (cpi->active_map.enabled) sf->rt_sf.nonrd_check_partition_merge_mode = 0;
 }
 
 // TODO(kyslov): now this is very similar to
