@@ -425,7 +425,7 @@ void av1_cyclic_refresh_update_parameters(AV1_COMP *const cpi) {
   // we use it only for speed > 9 for now.
   // Also if loop-filter deltas is applied via segment, then
   // we need to set cr->skip_over4x4 = 1.
-  cr->skip_over4x4 = (cpi->oxcf.speed > 9) ? 1 : 0;
+  cr->skip_over4x4 = (cpi->oxcf.speed > 9 && !cpi->active_map.enabled) ? 1 : 0;
 
   // should we enable cyclic refresh on this frame.
   cr->apply_cyclic_refresh = 1;
