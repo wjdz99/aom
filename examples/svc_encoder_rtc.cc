@@ -1442,6 +1442,38 @@ static int qindex_to_quantizer(int qindex) {
   return 63;
 }
 
+static void set_active_map(const aom_codec_enc_cfg_t *cfg,
+                           aom_codec_ctx_t *codec, int frame_cnt) {
+  unsigned int i, j;
+  aom_active_map_t map = { 0, 0, 0 };
+
+  map.rows = (cfg->g_h + 15) / 16;
+  map.cols = (cfg->g_w + 15) / 16;
+
+  map.active_map = (uint8_t *)malloc(map.rows * map.cols);
+  if (!map.active_map) die("Failed to allocate active map");
+
+  // Example map for testing.
+  for (i = 0; i < map.rows; ++i) {
+    for (j = 0; j < map.cols; ++j) {
+      int index = map.cols * i + j;
+      map.active_map[index] = 1;
+      if (frame_cnt < 300) {
+        if (i < map.rows / 2 && j < map.cols / 2)
+          map.active_map[index] = 0;
+      } else if (frame_cnt >= 300) {
+        if (i < map.rows / 2 && j >= map.cols / 2)
+          map.active_map[index] = 0;
+      }
+    }
+  }
+
+  if (aom_codec_control(codec, AOME_SET_ACTIVEMAP, &map))
+    die_codec(codec, "Failed to set active map");
+
+  free(map.active_map);
+}
+
 int main(int argc, const char **argv) {
   AppInput app_input;
   AvxVideoWriter *outfile[AOM_MAX_LAYERS] = { NULL };
@@ -1873,6 +1905,8 @@ int main(int argc, const char **argv) {
           die_codec(&codec, "Failed to SET_QUANTIZER_ONE_PASS");
         }
       }
+
+      set_active_map(&cfg, &codec, frame_cnt);
 
       // Do the layer encode.
       aom_usec_timer_start(&timer);
