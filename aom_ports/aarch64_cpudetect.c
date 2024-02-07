@@ -109,7 +109,10 @@ static int arm_get_cpu_caps(void) {
 static int arm_get_cpu_caps(void) {
   int flags = 0;
   unsigned long hwcap = getauxval(AT_HWCAP);
+#if HAVE_NEON_I8MM
   unsigned long hwcap2 = getauxval(AT_HWCAP2);
+#endif
+
 #if HAVE_NEON
   flags |= HAS_NEON;  // Neon is mandatory in Armv8.0-A.
 #endif  // HAVE_NEON
