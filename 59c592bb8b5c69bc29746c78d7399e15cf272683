@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ae853f08_cc18d467",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 1756,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-02-07T22:05:42Z",
+      "side": 1,
+      "message": "Paul: When `CONFIG_FPMT_TEST` is 0, the if statement that starts at line 1737 has identical \"then\" and \"else\" branches (lines 1745-1746 and lines 1753-1754).\n\nIs this intended? Or should  line 1754 be changed to:\n\n```\n      active_worst_quality +\u003d cpi-\u003eppi-\u003etwopass.extend_maxq / 2;\n```\n\nNote: This issue was reported by the Coverity static analyzer (CID 345069: Identical code for different branches).",
+      "revId": "59c592bb8b5c69bc29746c78d7399e15cf272683",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
