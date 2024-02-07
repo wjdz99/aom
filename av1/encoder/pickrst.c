@@ -1175,7 +1175,8 @@ static int linsolve_wiener(int n, int64_t *A, int stride, int64_t *b,
 
 // Fix vector b, update vector a
 static AOM_INLINE void update_a_sep_sym(int wiener_win, int64_t **Mc,
-                                        int64_t **Hc, int32_t *a, int32_t *b) {
+                                        int64_t **Hc, int32_t *a,
+                                        const int32_t *b) {
   int i, j;
   int64_t S[WIENER_WIN];
   int64_t A[WIENER_HALFWIN1], B[WIENER_HALFWIN1 * WIENER_HALFWIN1];
@@ -1197,7 +1198,8 @@ static AOM_INLINE void update_a_sep_sym(int wiener_win, int64_t **Mc,
     const int32_t abs_b_l = abs(b[l]);
     if (abs_b_l > max_b_l) max_b_l = abs_b_l;
   }
-  const int scale_threshold = 128 * WIENER_TAP_SCALE_FACTOR;
+  assert(max_b_l <= (1 << (WIENER_FILT_BITS - 1)));
+  const int scale_threshold = 8192 * WIENER_TAP_SCALE_FACTOR;
   const int scaler = max_b_l < scale_threshold ? 1 : 4;
 
   for (i = 0; i < wiener_win; i++) {
@@ -1246,7 +1248,8 @@ static AOM_INLINE void update_a_sep_sym(int wiener_win, int64_t **Mc,
 
 // Fix vector a, update vector b
 static AOM_INLINE void update_b_sep_sym(int wiener_win, int64_t **Mc,
-                                        int64_t **Hc, int32_t *a, int32_t *b) {
+                                        int64_t **Hc, const int32_t *a,
+                                        int32_t *b) {
   int i, j;
   int64_t S[WIENER_WIN];
   int64_t A[WIENER_HALFWIN1], B[WIENER_HALFWIN1 * WIENER_HALFWIN1];
@@ -1276,16 +1279,17 @@ static AOM_INLINE void update_b_sep_sym(int wiener_win, int64_t **Mc,
   // of Hc. The largest scale_threshold is expected to depend on bit-depth
   // (av1_compute_stats_highbd_c() scales highbd to 8-bit) and maximum
   // restoration-unit size (256), leading up to 32-bit positive numbers in Hc.
-  // Noting that the caller, wiener_decompose_sep_sym(), initializes a[...]
-  // to a range smaller than 16 bits, the scale_threshold is set as below for
-  // convenience.
+  // Noting that the other function, update_a_sep_sym(), clips a[...] to a
+  // range smaller than WIENER_FILT_BITS (30) bits, the scale_threshold is set
+  // as below for convenience.
   int32_t max_a_l = 0;
   for (int l = 0; l < wiener_win; ++l) {
     const int32_t abs_a_l = abs(a[l]);
     if (abs_a_l > max_a_l) max_a_l = abs_a_l;
   }
-  const int scale_threshold = 128 * WIENER_TAP_SCALE_FACTOR;
-  const int scaler = max_a_l < scale_threshold ? 1 : 4;
+  assert(max_a_l <= (1 << (WIENER_FILT_BITS - 1)));
+  const int scale_threshold = 2048 * WIENER_TAP_SCALE_FACTOR;
+  const int scaler = max_a_l < scale_threshold ? 1 : 32;
 
   for (i = 0; i < wiener_win; i++) {
     const int ii = wrap_index(i, wiener_win);
