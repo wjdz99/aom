@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8bc32086_11977695",
+        "filename": "aom_ports/aarch64_cpudetect.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-02-08T00:24:42Z",
+      "side": 1,
+      "message": "This will warn similarly if HAVE_NEON_DOTPROD and the others are undefined.",
+      "revId": "235ce84d307bcb6e3009ed23f4229d17485cb29b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
