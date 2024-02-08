@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f93ff1f4_364b35b9",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-02-08T23:02:48Z",
+      "side": 1,
+      "message": "Should we file a CMake bug report?",
+      "revId": "438b4785df7d42f5f452fe3822a9f6bbbaf50da5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4a6b8fdc_78513dcf",
+        "filename": "build/cmake/cpu.cmake",
+        "patchSetId": 4
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-02-08T23:02:48Z",
+      "side": 1,
+      "message": "Nit/optional: It would be good to be specific -- replace \"some compilers\" with \"certain versions of GCC\".",
+      "revId": "438b4785df7d42f5f452fe3822a9f6bbbaf50da5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
