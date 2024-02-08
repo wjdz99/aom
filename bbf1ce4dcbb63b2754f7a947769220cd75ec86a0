@@ -16,6 +16,24 @@
       "message": "make this `static void foo(void) {}` to avoid any warnings. You could use `function` too to match the other uses of this macro.",
       "revId": "bbf1ce4dcbb63b2754f7a947769220cd75ec86a0",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7eb8cbca_f52e6244",
+        "filename": "build/cmake/cpu.cmake",
+        "patchSetId": 2
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 31817
+      },
+      "writtenOn": "2024-02-08T10:01:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "eda57999_51f97d71",
+      "revId": "bbf1ce4dcbb63b2754f7a947769220cd75ec86a0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
