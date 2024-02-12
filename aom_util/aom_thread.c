@@ -25,6 +25,7 @@
 
 #include "aom_mem/aom_mem.h"
 #include "aom_ports/sanitizer.h"
+#include "aom_util/aom_pthread.h"
 #include "aom_util/aom_thread.h"
 
 #if CONFIG_MULTITHREAD
