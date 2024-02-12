@@ -16,6 +16,24 @@
       "message": "if this gets too long we can always shift to `(void)hwcap;`",
       "revId": "911156f4d1d4d63da0a22c43d7108742f82228ea",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3fbba095_9c7e9f6e",
+        "filename": "aom_ports/aarch64_cpudetect.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 31817
+      },
+      "writtenOn": "2024-02-12T18:11:25Z",
+      "side": 1,
+      "message": "Agree. Mild preference to keep it as-is for now at least until the #if condition gets too complicated?",
+      "parentUuid": "b68db979_74e7f504",
+      "revId": "911156f4d1d4d63da0a22c43d7108742f82228ea",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
