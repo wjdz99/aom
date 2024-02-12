@@ -149,6 +149,27 @@ TEST(EncodeAPI, Buganizer314858909) {
   encoder.Encode(false);
 }
 
+// This test covers a possible use case where the change of frame sizes and
+// thread numbers happens before and after the first frame coding.
+TEST(EncodeAPI, Buganizer310455204) {
+  AV1Encoder encoder(7);
+
+  encoder.Configure(0, 1915, 503, AOM_VBR, AOM_USAGE_REALTIME);
+
+  encoder.Configure(4, 1, 1, AOM_VBR, AOM_USAGE_REALTIME);
+
+  encoder.Configure(6, 559, 503, AOM_CBR, AOM_USAGE_REALTIME);
+
+  // Encode a frame.
+  encoder.Encode(false);
+
+  // Increase the number of threads.
+  encoder.Configure(16, 1915, 503, AOM_CBR, AOM_USAGE_REALTIME);
+
+  // Encode a frame.
+  encoder.Encode(false);
+}
+
 #if !CONFIG_REALTIME_ONLY
 TEST(EncodeAPI, AllIntraMode) {
   aom_codec_iface_t *iface = aom_codec_av1_cx();
