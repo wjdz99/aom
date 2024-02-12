@@ -226,6 +226,25 @@ void AV1Encoder::Flush() {
   } while (got_data);
 }
 
+TEST(EncodeAPI, Buganizer314858909) {
+  AV1Encoder encoder(7);
+
+  encoder.Configure(6, 1582, 750, AOM_CBR, AOM_USAGE_REALTIME);
+
+  // Encode a frame.
+  encoder.Encode(false);
+
+  encoder.Configure(0, 1582, 23, AOM_CBR, AOM_USAGE_REALTIME);
+
+  // Encode a frame..
+  encoder.Encode(false);
+
+  encoder.Configure(16, 1542, 363, AOM_CBR, AOM_USAGE_REALTIME);
+
+  // Encode a frame..
+  encoder.Encode(false);
+}
+
 #if !CONFIG_REALTIME_ONLY
 TEST(EncodeAPI, AllIntraMode) {
   aom_codec_iface_t *iface = aom_codec_av1_cx();
