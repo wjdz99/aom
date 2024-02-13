@@ -34,6 +34,24 @@
       "parentUuid": "ae853f08_cc18d467",
       "revId": "59c592bb8b5c69bc29746c78d7399e15cf272683",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "388aeb93_2a04ba41",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 1756,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-02-13T17:59:51Z",
+      "side": 1,
+      "message": "Thank you for the confirmation. We will go ahead with James\u0027 restructure CL (https://aomedia-review.googlesource.com/c/aom/+/187161),",
+      "parentUuid": "62a004d5_4f0c0452",
+      "revId": "59c592bb8b5c69bc29746c78d7399e15cf272683",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
