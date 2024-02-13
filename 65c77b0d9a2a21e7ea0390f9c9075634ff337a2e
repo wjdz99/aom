@@ -33,6 +33,23 @@
       "message": "Nit: Let\u0027s also add `_WORKER` to the enum names, e.g., `AVX_WORKER_STATUS_NOT_OK`.\n\nIf the names are too long, we can consider omitting `_STATUS`, e.g., `AVX_WORKER_NOT_OK`.",
       "revId": "65c77b0d9a2a21e7ea0390f9c9075634ff337a2e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0a437666_e5551e55",
+        "filename": "aom_util/aom_thread.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 176,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-02-13T17:31:42Z",
+      "side": 1,
+      "message": "James: I think we should change \"AVx\" to \"AOM\" or \"Aom\" in this file. \"AVX\" is easily confused with the same-named SIMD instruction set extension for Intel CPUs.\n\nPeter: Don\u0027t rename these in this CL.",
+      "revId": "65c77b0d9a2a21e7ea0390f9c9075634ff337a2e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
