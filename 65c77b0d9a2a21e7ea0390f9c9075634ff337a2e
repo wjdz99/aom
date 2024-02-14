@@ -18,6 +18,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "5b9512a1_4a1cefc6",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 8440
+      },
+      "writtenOn": "2024-02-14T00:36:40Z",
+      "side": 1,
+      "message": "[see discussion on https://chromium-review.googlesource.com/c/webm/libvpx/+/5288835]",
+      "parentUuid": "60f25e10_1a67135b",
+      "revId": "65c77b0d9a2a21e7ea0390f9c9075634ff337a2e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "cd272b9d_1b78da03",
@@ -31,6 +49,24 @@
       "writtenOn": "2024-02-13T00:25:28Z",
       "side": 1,
       "message": "Nit: Let\u0027s also add `_WORKER` to the enum names, e.g., `AVX_WORKER_STATUS_NOT_OK`.\n\nIf the names are too long, we can consider omitting `_STATUS`, e.g., `AVX_WORKER_NOT_OK`.",
+      "revId": "65c77b0d9a2a21e7ea0390f9c9075634ff337a2e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0b3c0a5b_c6b4061c",
+        "filename": "aom_util/aom_thread.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 173,
+      "author": {
+        "id": 8440
+      },
+      "writtenOn": "2024-02-14T00:36:40Z",
+      "side": 1,
+      "message": "Done. I also renamed _WORK to _WORKING as on the other CL.",
+      "parentUuid": "cd272b9d_1b78da03",
       "revId": "65c77b0d9a2a21e7ea0390f9c9075634ff337a2e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -66,6 +102,24 @@
       "side": 1,
       "message": "\u003e James: I think we should change \"AVx\" to \"AOM\" or \"Aom\" in this file. \"AVX\" is easily confused with the same-named SIMD instruction set extension for Intel CPUs.\n\u003e \n\nI agree. Some of the use of \"Avx\" in the codebase is due to earlier search/replace when things were migrating from libvpx.\n\n\u003e Peter: Don\u0027t rename these in this CL.",
       "parentUuid": "0a437666_e5551e55",
+      "revId": "65c77b0d9a2a21e7ea0390f9c9075634ff337a2e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e2f1a15a_a2b91314",
+        "filename": "aom_util/aom_thread.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 176,
+      "author": {
+        "id": 8440
+      },
+      "writtenOn": "2024-02-14T00:36:40Z",
+      "side": 1,
+      "message": "Roger, did not rename anything from avx -\u003e aom.",
+      "parentUuid": "612e8c2d_b219dcce",
       "revId": "65c77b0d9a2a21e7ea0390f9c9075634ff337a2e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
