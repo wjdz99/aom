@@ -38,6 +38,7 @@
 #include "av1/encoder/block.h"
 #include "av1/encoder/context_tree.h"
 #include "av1/encoder/encodemb.h"
+#include "av1/encoder/ethread.h"
 #include "av1/encoder/external_partition.h"
 #include "av1/encoder/firstpass.h"
 #include "av1/encoder/global_motion.h"

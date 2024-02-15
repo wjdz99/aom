@@ -412,7 +412,7 @@ class AVxEncoderThreadTest
                                 const std::vector<std::string> ref_md5_enc,
                                 const std::vector<std::string> ref_md5_dec) {
     // This value should be kept the same as MAX_NUM_THREADS
-    // in aom_thread.h
+    // in av1/encoder/ethread.h.
     cfg_.g_threads = 64;
     ASSERT_NO_FATAL_FAILURE(RunLoop(video));
     std::vector<size_t> multi_thr_max_row_mt_size_enc;
