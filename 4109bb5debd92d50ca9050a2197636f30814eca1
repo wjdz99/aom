@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1c03a852_2d06e278",
+        "filename": "aom_ports/aarch64_cpudetect.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 196,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-02-15T20:14:02Z",
+      "side": 1,
+      "message": "assumes",
+      "range": {
+        "startLine": 196,
+        "startChar": 26,
+        "endLine": 196,
+        "endChar": 34
+      },
+      "revId": "4109bb5debd92d50ca9050a2197636f30814eca1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
