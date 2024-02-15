@@ -16,6 +16,8 @@
 extern "C" {
 #endif
 
+#define MAX_NUM_THREADS 64
+
 // This enumerator type needs to be kept aligned with the mode order in
 // const MODE_DEFINITION av1_mode_defs[MAX_MODES] used in the rd code.
 enum {
