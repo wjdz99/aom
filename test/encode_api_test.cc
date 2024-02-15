@@ -9,6 +9,7 @@
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
  */
 
+#include <cassert>
 #include <cstdlib>
 
 #include "third_party/googletest/src/googletest/include/gtest/gtest.h"
@@ -128,6 +129,101 @@ TEST(EncodeAPI, MonochromeInProfiles) {
   cfg.g_profile = 2;
   ASSERT_EQ(AOM_CODEC_OK, aom_codec_enc_init(&enc, iface, &cfg, 0));
   EXPECT_EQ(AOM_CODEC_OK, aom_codec_destroy(&enc));
+}
+
+class AV1Encoder {
+ public:
+  explicit AV1Encoder(int speed) : speed_(speed) {}
+  ~AV1Encoder();
+
+  void Configure(unsigned int threads, unsigned int width, unsigned int height,
+                 aom_rc_mode end_usage, unsigned int usage);
+  void Encode(bool key_frame);
+
+ private:
+  // Flushes the encoder. Should be called after all the Encode() calls.
+  void Flush();
+
+  const int speed_;
+  bool initialized_ = false;
+  aom_codec_enc_cfg_t cfg_;
+  aom_codec_ctx_t enc_;
+  int frame_index_ = 0;
+};
+
+AV1Encoder::~AV1Encoder() {
+  if (initialized_) {
+    Flush();
+    EXPECT_EQ(aom_codec_destroy(&enc_), AOM_CODEC_OK);
+  }
+}
+
+void AV1Encoder::Configure(unsigned int threads, unsigned int width,
+                           unsigned int height, aom_rc_mode end_usage,
+                           unsigned int usage) {
+  if (!initialized_) {
+    aom_codec_iface_t *const iface = aom_codec_av1_cx();
+    ASSERT_EQ(aom_codec_enc_config_default(iface, &cfg_, usage), AOM_CODEC_OK);
+    cfg_.g_threads = threads;
+    cfg_.g_w = width;
+    cfg_.g_h = height;
+    cfg_.g_forced_max_frame_width = cfg_.g_w;
+    cfg_.g_forced_max_frame_height = cfg_.g_h;
+    cfg_.g_timebase.num = 1;
+    cfg_.g_timebase.den = 1000 * 1000;  // microseconds
+    cfg_.g_pass = AOM_RC_ONE_PASS;
+    cfg_.g_lag_in_frames = 0;
+    cfg_.rc_end_usage = end_usage;
+    cfg_.rc_min_quantizer = 2;
+    cfg_.rc_max_quantizer = 58;
+    ASSERT_EQ(aom_codec_enc_init(&enc_, iface, &cfg_, 0), AOM_CODEC_OK);
+    ASSERT_EQ(aom_codec_control(&enc_, AOME_SET_CPUUSED, speed_), AOM_CODEC_OK);
+    initialized_ = true;
+    return;
+  }
+
+  ASSERT_EQ(usage, cfg_.g_usage);
+  cfg_.g_threads = threads;
+  cfg_.g_w = width;
+  cfg_.g_h = height;
+  cfg_.rc_end_usage = end_usage;
+  ASSERT_EQ(aom_codec_enc_config_set(&enc_, &cfg_), AOM_CODEC_OK)
+      << aom_codec_error_detail(&enc_);
+}
+
+void AV1Encoder::Encode(bool key_frame) {
+  assert(initialized_);
+  // TODO(wtc): Support high bit depths and other YUV formats.
+  aom_image_t *const image =
+      CreateGrayImage(AOM_IMG_FMT_I420, cfg_.g_w, cfg_.g_h);
+  ASSERT_NE(image, nullptr);
+  const aom_enc_frame_flags_t flags = key_frame ? AOM_EFLAG_FORCE_KF : 0;
+  ASSERT_EQ(aom_codec_encode(&enc_, image, frame_index_, 1, flags),
+            AOM_CODEC_OK);
+  frame_index_++;
+  const aom_codec_cx_pkt_t *pkt;
+  aom_codec_iter_t iter = nullptr;
+  while ((pkt = aom_codec_get_cx_data(&enc_, &iter)) != nullptr) {
+    ASSERT_EQ(pkt->kind, AOM_CODEC_CX_FRAME_PKT);
+    if (key_frame) {
+      ASSERT_EQ(pkt->data.frame.flags & AOM_FRAME_IS_KEY, AOM_FRAME_IS_KEY);
+    }
+  }
+  aom_img_free(image);
+}
+
+void AV1Encoder::Flush() {
+  bool got_data;
+  do {
+    ASSERT_EQ(aom_codec_encode(&enc_, nullptr, 0, 0, 0), AOM_CODEC_OK);
+    got_data = false;
+    const aom_codec_cx_pkt_t *pkt;
+    aom_codec_iter_t iter = nullptr;
+    while ((pkt = aom_codec_get_cx_data(&enc_, &iter)) != nullptr) {
+      ASSERT_EQ(pkt->kind, AOM_CODEC_CX_FRAME_PKT);
+      got_data = true;
+    }
+  } while (got_data);
 }
 
 #if !CONFIG_REALTIME_ONLY
