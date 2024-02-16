@@ -18,6 +18,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "696abd80_8dd10a51",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-02-16T22:23:01Z",
+      "side": 1,
+      "message": "Coverity CID 345069 Identical code for different branches\n\nThe condition is redundant\n\nIn adjust_active_best_and_worst_quality: The same code is executed regardless of the condition (CWE-398)",
+      "parentUuid": "f15e3eae_81566a81",
+      "revId": "410ed6d2f355f30f30ed68033e473f29d2573849",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "27e78393_d63e1e9b",
