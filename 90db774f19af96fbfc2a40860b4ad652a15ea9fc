@@ -33,6 +33,24 @@
       "message": "Paul, could you confirm that this change was intentional and that you didn\u0027t want to keep the condition?",
       "revId": "90db774f19af96fbfc2a40860b4ad652a15ea9fc",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0d47df20_4a837c66",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-02-16T21:39:35Z",
+      "side": 1,
+      "message": "\u003e Paul, could you confirm that this change was intentional and that you didn\u0027t want to keep the condition?\n\nIt looks like this was already confirmed:\n\nhttps://aomedia-review.googlesource.com/c/aom/+/184301/11/av1/encoder/ratectrl.c#1756",
+      "parentUuid": "dadcba4f_6fed550e",
+      "revId": "90db774f19af96fbfc2a40860b4ad652a15ea9fc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
