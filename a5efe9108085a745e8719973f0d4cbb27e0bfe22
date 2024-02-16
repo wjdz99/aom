@@ -37,6 +37,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "7065bb8d_28e0165f",
+        "filename": "test/encode_api_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-02-16T21:45:35Z",
+      "side": 1,
+      "message": "\u003e Add the `CreateGrayImage()` function before the `AV1Encoder` class:\n\u003e \n\u003e ```\n\u003e aom_image_t *CreateGrayImage(aom_img_fmt_t fmt, unsigned int w,\n\u003e                              unsigned int h) {\n\u003e   aom_image_t *const image \u003d aom_img_alloc(nullptr, fmt, w, h, 1);\n\u003e   if (!image) return image;\n\u003e \n\u003e   for (unsigned int i \u003d 0; i \u003c image-\u003ed_h; ++i) {\n\u003e     memset(image-\u003eplanes[0] + i * image-\u003estride[0], 128, image-\u003ed_w);\n\u003e   }\n\u003e   const unsigned int uv_h \u003d (image-\u003ed_h + 1) / 2;\n\u003e   const unsigned int uv_w \u003d (image-\u003ed_w + 1) / 2;\n\u003e   for (unsigned int i \u003d 0; i \u003c uv_h; ++i) {\n\u003e     memset(image-\u003eplanes[1] + i * image-\u003estride[1], 128, uv_w);\n\u003e     memset(image-\u003eplanes[2] + i * image-\u003estride[2], 128, uv_w);\n\u003e   }\n\u003e   return image;\n\u003e }\n\u003e ```\n\nThe manual trigger I ran didn\u0027t report back here, but the failure is related to this:\n\nhttps://build.aomedia.org/jenkins/job/libaom__commit_trigger/75854/",
+      "parentUuid": "1da1dd13_ee0099ed",
+      "revId": "a5efe9108085a745e8719973f0d4cbb27e0bfe22",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "a566567e_121928a2",
         "filename": "test/encode_api_test.cc",
         "patchSetId": 1
