@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "46b61df6_75d76d80",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-02-16T22:02:12Z",
+      "side": 1,
+      "message": "Roger: This CL needs more changes. Please see my comment in av1/av1_cx_iface.c.\n\nWith those changes applied, I reproduced the bug and verified the fix with this CL.",
+      "revId": "006c40a592e813dca19ea836f966ca73c6391384",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c65df9d6_889958c0",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 3088,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-02-16T22:02:12Z",
+      "side": 1,
+      "message": "This CL needs the `free_thread_data()` function, which was moved from encoder.c to encoder_alloc.h in https://aomedia-review.googlesource.com/c/aom/+/175041.\n\nApply the following patch:\n\n```\ndiff --git a/av1/av1_cx_iface.c b/av1/av1_cx_iface.c\nindex a9682da0a2..f1120c7249 100644\n--- a/av1/av1_cx_iface.c\n+++ b/av1/av1_cx_iface.c\n@@ -25,6 +25,7 @@\n #include \"av1/av1_iface_common.h\"\n #include \"av1/encoder/bitstream.h\"\n #include \"av1/encoder/encoder.h\"\n+#include \"av1/encoder/encoder_alloc.h\"\n #include \"av1/encoder/encoder_utils.h\"\n #include \"av1/encoder/ethread.h\"\n #include \"av1/encoder/external_partition.h\"\ndiff --git a/av1/encoder/encoder.c b/av1/encoder/encoder.c\nindex 216a33b975..028378a7b6 100644\n--- a/av1/encoder/encoder.c\n+++ b/av1/encoder/encoder.c\n@@ -1589,40 +1589,6 @@ AV1_COMP *av1_create_compressor(AV1_PRIMARY *ppi, const AV1EncoderConfig *oxcf,\n   snprintf((H) + strlen(H), sizeof(H) - strlen(H), (T), (V))\n #endif  // CONFIG_INTERNAL_STATS\n \n-// Deallocate allocated thread_data.\n-static AOM_INLINE void free_thread_data(AV1_PRIMARY *ppi) {\n-  PrimaryMultiThreadInfo *const p_mt_info \u003d \u0026ppi-\u003ep_mt_info;\n-  for (int t \u003d 1; t \u003c p_mt_info-\u003enum_workers; ++t) {\n-    EncWorkerData *const thread_data \u003d \u0026p_mt_info-\u003etile_thr_data[t];\n-    thread_data-\u003etd \u003d thread_data-\u003eoriginal_td;\n-    aom_free(thread_data-\u003etd-\u003etctx);\n-    aom_free(thread_data-\u003etd-\u003epalette_buffer);\n-    aom_free(thread_data-\u003etd-\u003etmp_conv_dst);\n-    release_compound_type_rd_buffers(\u0026thread_data-\u003etd-\u003ecomp_rd_buffer);\n-    for (int j \u003d 0; j \u003c 2; ++j) {\n-      aom_free(thread_data-\u003etd-\u003etmp_pred_bufs[j]);\n-    }\n-    aom_free(thread_data-\u003etd-\u003epixel_gradient_info);\n-    aom_free(thread_data-\u003etd-\u003esrc_var_info_of_4x4_sub_blocks);\n-    release_obmc_buffers(\u0026thread_data-\u003etd-\u003eobmc_buffer);\n-    aom_free(thread_data-\u003etd-\u003evt64x64);\n-\n-    for (int x \u003d 0; x \u003c 2; x++) {\n-      for (int y \u003d 0; y \u003c 2; y++) {\n-        aom_free(thread_data-\u003etd-\u003ehash_value_buffer[x][y]);\n-        thread_data-\u003etd-\u003ehash_value_buffer[x][y] \u003d NULL;\n-      }\n-    }\n-    aom_free(thread_data-\u003etd-\u003ecounts);\n-    av1_free_pmc(thread_data-\u003etd-\u003efirstpass_ctx,\n-                 ppi-\u003eseq_params.monochrome ? 1 : MAX_MB_PLANE);\n-    thread_data-\u003etd-\u003efirstpass_ctx \u003d NULL;\n-    av1_free_shared_coeff_buffer(\u0026thread_data-\u003etd-\u003eshared_coeff_buf);\n-    av1_free_sms_tree(thread_data-\u003etd);\n-    aom_free(thread_data-\u003etd);\n-  }\n-}\n-\n void av1_remove_primary_compressor(AV1_PRIMARY *ppi) {\n   if (!ppi) return;\n #if !CONFIG_REALTIME_ONLY\ndiff --git a/av1/encoder/encoder_alloc.h b/av1/encoder/encoder_alloc.h\nindex f0b3f201fb..0121242a34 100644\n--- a/av1/encoder/encoder_alloc.h\n+++ b/av1/encoder/encoder_alloc.h\n@@ -403,6 +403,40 @@ static AOM_INLINE YV12_BUFFER_CONFIG *realloc_and_scale_source(\n   return \u0026cpi-\u003escaled_source;\n }\n \n+// Deallocate allocated thread_data.\n+static AOM_INLINE void free_thread_data(AV1_PRIMARY *ppi) {\n+  PrimaryMultiThreadInfo *const p_mt_info \u003d \u0026ppi-\u003ep_mt_info;\n+  for (int t \u003d 1; t \u003c p_mt_info-\u003enum_workers; ++t) {\n+    EncWorkerData *const thread_data \u003d \u0026p_mt_info-\u003etile_thr_data[t];\n+    thread_data-\u003etd \u003d thread_data-\u003eoriginal_td;\n+    aom_free(thread_data-\u003etd-\u003etctx);\n+    aom_free(thread_data-\u003etd-\u003epalette_buffer);\n+    aom_free(thread_data-\u003etd-\u003etmp_conv_dst);\n+    release_compound_type_rd_buffers(\u0026thread_data-\u003etd-\u003ecomp_rd_buffer);\n+    for (int j \u003d 0; j \u003c 2; ++j) {\n+      aom_free(thread_data-\u003etd-\u003etmp_pred_bufs[j]);\n+    }\n+    aom_free(thread_data-\u003etd-\u003epixel_gradient_info);\n+    aom_free(thread_data-\u003etd-\u003esrc_var_info_of_4x4_sub_blocks);\n+    release_obmc_buffers(\u0026thread_data-\u003etd-\u003eobmc_buffer);\n+    aom_free(thread_data-\u003etd-\u003evt64x64);\n+\n+    for (int x \u003d 0; x \u003c 2; x++) {\n+      for (int y \u003d 0; y \u003c 2; y++) {\n+        aom_free(thread_data-\u003etd-\u003ehash_value_buffer[x][y]);\n+        thread_data-\u003etd-\u003ehash_value_buffer[x][y] \u003d NULL;\n+      }\n+    }\n+    aom_free(thread_data-\u003etd-\u003ecounts);\n+    av1_free_pmc(thread_data-\u003etd-\u003efirstpass_ctx,\n+                 ppi-\u003eseq_params.monochrome ? 1 : MAX_MB_PLANE);\n+    thread_data-\u003etd-\u003efirstpass_ctx \u003d NULL;\n+    av1_free_shared_coeff_buffer(\u0026thread_data-\u003etd-\u003eshared_coeff_buf);\n+    av1_free_sms_tree(thread_data-\u003etd);\n+    aom_free(thread_data-\u003etd);\n+  }\n+}\n+\n #ifdef __cplusplus\n }  // extern \"C\"\n #endif\n```",
+      "revId": "006c40a592e813dca19ea836f966ca73c6391384",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
