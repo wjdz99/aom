@@ -16,6 +16,40 @@
       "message": "I enabled builds for this branch. They can at least serve as a compile check, but if the tests fail we can remove it or set the verified bit around it.",
       "revId": "a5efe9108085a745e8719973f0d4cbb27e0bfe22",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1da1dd13_ee0099ed",
+        "filename": "test/encode_api_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-02-16T21:24:35Z",
+      "side": 1,
+      "message": "Add the `CreateGrayImage()` function before the `AV1Encoder` class:\n\n```\naom_image_t *CreateGrayImage(aom_img_fmt_t fmt, unsigned int w,\n                             unsigned int h) {\n  aom_image_t *const image \u003d aom_img_alloc(nullptr, fmt, w, h, 1);\n  if (!image) return image;\n\n  for (unsigned int i \u003d 0; i \u003c image-\u003ed_h; ++i) {\n    memset(image-\u003eplanes[0] + i * image-\u003estride[0], 128, image-\u003ed_w);\n  }\n  const unsigned int uv_h \u003d (image-\u003ed_h + 1) / 2;\n  const unsigned int uv_w \u003d (image-\u003ed_w + 1) / 2;\n  for (unsigned int i \u003d 0; i \u003c uv_h; ++i) {\n    memset(image-\u003eplanes[1] + i * image-\u003estride[1], 128, uv_w);\n    memset(image-\u003eplanes[2] + i * image-\u003estride[2], 128, uv_w);\n  }\n  return image;\n}\n```",
+      "revId": "a5efe9108085a745e8719973f0d4cbb27e0bfe22",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "dca9aeed_e38c7f5b",
+        "filename": "test/encode_api_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 198,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-02-16T21:24:35Z",
+      "side": 1,
+      "message": "Note that `CreateGrayImage()` is called here.",
+      "revId": "a5efe9108085a745e8719973f0d4cbb27e0bfe22",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
