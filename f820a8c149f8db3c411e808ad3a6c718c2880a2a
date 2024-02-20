@@ -1,0 +1,123 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "760b1f37_d97066e8",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-02-20T21:16:45Z",
+      "side": 1,
+      "message": "Delete this line",
+      "revId": "f820a8c149f8db3c411e808ad3a6c718c2880a2a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c2a2e954_b1b9548d",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-02-20T21:16:45Z",
+      "side": 1,
+      "message": "I am sorry I forgot whether we decided to remove `aom_codec_av1_inspect_algo` from this CL. Since `aom_codec_av1_inspect_algo` is an internal variable (only accessible by including the private header av1/av1_iface_common.h, it would be good if we could remove it from this CL.",
+      "revId": "f820a8c149f8db3c411e808ad3a6c718c2880a2a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d926fc95_5d0ad142",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-02-20T21:16:45Z",
+      "side": 1,
+      "message": "Nit: Change \"Uses\" to \"Use\" and reverse \"codec\" and \"boolean\", i.e.,\n\n```\n- Use three boolean codec controls:\n```",
+      "revId": "f820a8c149f8db3c411e808ad3a6c718c2880a2a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ab05ce5f_15eb8e09",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-02-20T21:16:45Z",
+      "side": 1,
+      "message": "Hi Philippe\n\nI am very sorry that this fell through the cracks. I suggest some simple changes.",
+      "revId": "f820a8c149f8db3c411e808ad3a6c718c2880a2a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "271d1ad6_c63e1292",
+        "filename": "examples/av1_dec_fuzzer.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-02-20T21:16:45Z",
+      "side": 1,
+      "message": "Nit: I suggest we collect all the code that tests various bits of that byte in one place, so that it is clear that different bits are used.\n\nNote that I used the `unsigned int` type for the three codec control arguments, as documented in aom/aomdx.h.\n\n\n```\n  bool test_inspect_interface \u003d data[IVF_FILE_HDR_SZ - 1] \u0026 1) !\u003d 0;\n  unsigned int tile_mode \u003d (data[IVF_FILE_HDR_SZ - 1] \u0026 2) !\u003d 0;\n  unsigned int ext_tile_debug \u003d (data[IVF_FILE_HDR_SZ - 1] \u0026 4) !\u003d 0;\n  unsigned int is_annexb \u003d (data[IVF_FILE_HDR_SZ - 1] \u0026 8) !\u003d 0;\n```\n\nWe may want to save `data[IVF_FILE_HDR_SZ - 1]` in a local variable to avoid the repetition.",
+      "revId": "f820a8c149f8db3c411e808ad3a6c718c2880a2a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1f0f9104_e46c1671",
+        "filename": "examples/av1_dec_fuzzer.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-02-20T21:16:45Z",
+      "side": 1,
+      "message": "Use `test_inspect_interface` here.",
+      "revId": "f820a8c149f8db3c411e808ad3a6c718c2880a2a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "22413776_baf5fded",
+        "filename": "examples/av1_dec_fuzzer.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-02-20T21:16:45Z",
+      "side": 1,
+      "message": "Use `tile_mode`, `ext_tile_debug`, and `is_annexb` in these three `AOM_CODEC_CONTROL_TYPECHECKED` calls.",
+      "revId": "f820a8c149f8db3c411e808ad3a6c718c2880a2a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
