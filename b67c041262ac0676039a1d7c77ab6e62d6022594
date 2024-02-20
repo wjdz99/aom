@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "40cc7065_4460a96f",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1420,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-02-20T18:35:26Z",
+      "side": 1,
+      "message": "I have seen this compiler warning too. I didn\u0027t fix it because I thought it is clear that `error` is always assigned a value whenever we set `had_error` to 1. But it is good to fix the compiler warning. Thank you for the fix.",
+      "revId": "b67c041262ac0676039a1d7c77ab6e62d6022594",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
