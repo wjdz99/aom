@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "40393d04_c2578b41",
+        "filename": "doc/dev_guide/av1_encoder.dox",
+        "patchSetId": 4
+      },
+      "lineNbr": 1337,
+      "author": {
+        "id": 31042
+      },
+      "writtenOn": "2024-02-21T16:29:43Z",
+      "side": 1,
+      "message": "We discovered lower case a few years ago so this ought to be:\n\nArm: Requires Neon (Armv7-A and above)\n\nNeon is the umbrella term for Arm SIMD technology from Armv7, prior to the addition of SVE as a separate extension to complement Neon. Neon is not versioned in the same way as SVE (which has versions SVE(1), SVE2, SVE2.1, etc.) Instead we talk about the architecture versions which introduce additional Neon instructions: e.g. Armv8.4 DotProd and Armv8.6 I8MM.",
+      "range": {
+        "startLine": 1337,
+        "startChar": 2,
+        "endLine": 1337,
+        "endChar": 29
+      },
+      "revId": "485cff506671c5602c3ef7ba8571b8fa1e1dd82a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2ba30737_40bad77c",
+        "filename": "doc/dev_guide/av1_encoder.dox",
+        "patchSetId": 4
+      },
+      "lineNbr": 1340,
+      "author": {
+        "id": 31042
+      },
+      "writtenOn": "2024-02-21T16:29:43Z",
+      "side": 1,
+      "message": "\"Additional SIMD extensions\" would be preferable here.",
+      "range": {
+        "startLine": 1340,
+        "startChar": 55,
+        "endLine": 1340,
+        "endChar": 73
+      },
+      "revId": "485cff506671c5602c3ef7ba8571b8fa1e1dd82a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
