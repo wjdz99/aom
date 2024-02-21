@@ -22,6 +22,30 @@
       },
       "revId": "32db540e95516e66a61dc98acf4829ffd5a745b5",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "aca59e22_29531434",
+        "filename": "test/segment_binarization_sync.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-02-21T02:02:20Z",
+      "side": 0,
+      "message": "\u003e clang-tiday may complain no direct header is included for this, which is defined in seg_common.h I think\n\nGood point. Done.",
+      "parentUuid": "8859e518_15a583e0",
+      "range": {
+        "startLine": 31,
+        "startChar": 19,
+        "endLine": 31,
+        "endChar": 31
+      },
+      "revId": "32db540e95516e66a61dc98acf4829ffd5a745b5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
