@@ -98,6 +98,24 @@
       "parentUuid": "ab6034d6_63b00e33",
       "revId": "d3cc82c6234aa5df2a69a61e4dc332ae3cd6e18c",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7cad9fdd_13a3d264",
+        "filename": "doc/dev_guide/av1_encoder.dox",
+        "patchSetId": 2
+      },
+      "lineNbr": 1333,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-02-21T22:03:52Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "5bc2db73_4902beca",
+      "revId": "d3cc82c6234aa5df2a69a61e4dc332ae3cd6e18c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
