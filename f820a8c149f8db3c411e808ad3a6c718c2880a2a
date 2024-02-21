@@ -71,6 +71,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "5c1b8cc2_2e680b81",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-02-21T22:54:57Z",
+      "side": 1,
+      "message": "You mean put `aom_codec_av1_inspect_algo` inside `#if CONFIG_THREE_PASS`?\n\n`aom_codec_av1_inspect_algo` is not reachable from the public interface (public headers). I am not familiar with how a fuzz introspection report is generated. I wonder if we can configure the report generator to know which headers are the public headers.",
+      "parentUuid": "91aa851c_f167bcac",
+      "revId": "f820a8c149f8db3c411e808ad3a6c718c2880a2a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d926fc95_5d0ad142",
@@ -154,6 +172,24 @@
       "side": 1,
       "message": "Ok, and adding two more codec controls AV1D_SET_OUTPUT_ALL_LAYERS and AV1D_SET_OPERATING_POINT as I found them in chromium ;-)",
       "parentUuid": "271d1ad6_c63e1292",
+      "revId": "f820a8c149f8db3c411e808ad3a6c718c2880a2a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "31884657_be11c5ce",
+        "filename": "examples/av1_dec_fuzzer.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-02-21T22:54:57Z",
+      "side": 1,
+      "message": "It would be good to add a comment to note that you are using the four unused bytes at the end of the IVF file header as a source of random bits. See https://wiki.multimedia.cx/index.php/Duck_IVF.",
+      "parentUuid": "09426bbb_e5be9ffc",
       "revId": "f820a8c149f8db3c411e808ad3a6c718c2880a2a",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
