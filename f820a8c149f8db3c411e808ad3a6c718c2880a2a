@@ -18,6 +18,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "71a7ea35_543f8516",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 33720
+      },
+      "writtenOn": "2024-02-21T21:32:50Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "760b1f37_d97066e8",
+      "revId": "f820a8c149f8db3c411e808ad3a6c718c2880a2a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c2a2e954_b1b9548d",
@@ -37,6 +55,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "91aa851c_f167bcac",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 33720
+      },
+      "writtenOn": "2024-02-21T21:32:50Z",
+      "side": 1,
+      "message": "Ok to remove it.\nWill you ifdef this `aom_codec_av1_inspect_algo` away ? So that it does not appear reachable from fuzz introspection report ?",
+      "parentUuid": "c2a2e954_b1b9548d",
+      "revId": "f820a8c149f8db3c411e808ad3a6c718c2880a2a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "d926fc95_5d0ad142",
         "filename": "/COMMIT_MSG",
         "patchSetId": 4
@@ -48,6 +84,24 @@
       "writtenOn": "2024-02-20T21:16:45Z",
       "side": 1,
       "message": "Nit: Change \"Uses\" to \"Use\" and reverse \"codec\" and \"boolean\", i.e.,\n\n```\n- Use three boolean codec controls:\n```",
+      "revId": "f820a8c149f8db3c411e808ad3a6c718c2880a2a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "46de1ae3_37f97b18",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 33720
+      },
+      "writtenOn": "2024-02-21T21:32:50Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "d926fc95_5d0ad142",
       "revId": "f820a8c149f8db3c411e808ad3a6c718c2880a2a",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -88,6 +142,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "09426bbb_e5be9ffc",
+        "filename": "examples/av1_dec_fuzzer.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 33720
+      },
+      "writtenOn": "2024-02-21T21:32:50Z",
+      "side": 1,
+      "message": "Ok, and adding two more codec controls AV1D_SET_OUTPUT_ALL_LAYERS and AV1D_SET_OPERATING_POINT as I found them in chromium ;-)",
+      "parentUuid": "271d1ad6_c63e1292",
+      "revId": "f820a8c149f8db3c411e808ad3a6c718c2880a2a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "1f0f9104_e46c1671",
         "filename": "examples/av1_dec_fuzzer.cc",
         "patchSetId": 4
@@ -99,6 +171,24 @@
       "writtenOn": "2024-02-20T21:16:45Z",
       "side": 1,
       "message": "Use `test_inspect_interface` here.",
+      "revId": "f820a8c149f8db3c411e808ad3a6c718c2880a2a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "30b2e6d1_0413caa2",
+        "filename": "examples/av1_dec_fuzzer.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 33720
+      },
+      "writtenOn": "2024-02-21T21:32:50Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "1f0f9104_e46c1671",
       "revId": "f820a8c149f8db3c411e808ad3a6c718c2880a2a",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -116,6 +206,24 @@
       "writtenOn": "2024-02-20T21:16:45Z",
       "side": 1,
       "message": "Use `tile_mode`, `ext_tile_debug`, and `is_annexb` in these three `AOM_CODEC_CONTROL_TYPECHECKED` calls.",
+      "revId": "f820a8c149f8db3c411e808ad3a6c718c2880a2a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e0c039bb_2e3ac82d",
+        "filename": "examples/av1_dec_fuzzer.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 33720
+      },
+      "writtenOn": "2024-02-21T21:32:50Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "22413776_baf5fded",
       "revId": "f820a8c149f8db3c411e808ad3a6c718c2880a2a",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
