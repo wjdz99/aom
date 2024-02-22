@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e1a57f46_66642586",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 6
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-02-22T21:23:04Z",
+      "side": 1,
+      "message": "Hi Philippe,\n\nThere is a test failure. Here are some messages from the output log:\n\n```\n01:27:12 check out the patch submission guidelines:\n01:27:12   https://aomedia.googlesource.com/aom/+/main/README.md#submitting-patches\n01:27:12 and make sure you\u0027ve signed a contributor\u0027s agreement:\n01:27:12   https://aomedia.org/license/individual-contributor-license-agreement/\n```\n\nHave you signed a contributor\u0027s agreement?",
+      "revId": "d6073ef7c11c4e56d43ee154b65d6faad6307f2c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
