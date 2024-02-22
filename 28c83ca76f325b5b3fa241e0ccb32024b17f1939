@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d8f326e9_5ffc8dfa",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-02-22T03:19:10Z",
+      "side": 1,
+      "message": "More generally should we cap the resolution when building for 32-bit targets? I expect other things to fail given the limited memory size, but `ptrdiff_t` won\u0027t be sufficient there.",
+      "revId": "28c83ca76f325b5b3fa241e0ccb32024b17f1939",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
