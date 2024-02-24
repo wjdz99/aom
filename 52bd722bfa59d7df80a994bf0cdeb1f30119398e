@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "35ad94ed_161f3fc6",
+        "filename": "aom_dsp/flow_estimation/x86/disflow_avx2.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-02-24T00:31:51Z",
+      "side": 1,
+      "message": "I never got a direct answer about the copyright change. We\u0027ve been sticking with the original copyright notice in this code base.",
+      "range": {
+        "startLine": 7,
+        "startChar": 20,
+        "endLine": 7,
+        "endChar": 67
+      },
+      "revId": "52bd722bfa59d7df80a994bf0cdeb1f30119398e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
