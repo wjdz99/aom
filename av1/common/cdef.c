@@ -93,7 +93,9 @@ void av1_cdef_copy_sb8_16_lowbd(uint16_t *const dst, int dstride,
                                 const uint8_t *src, int src_voffset,
                                 int src_hoffset, int sstride, int vsize,
                                 int hsize) {
-  const uint8_t *base = &src[src_voffset * sstride + src_hoffset];
+  assert(src_voffset >= 0);
+  assert(src_hoffset >= 0);
+  const uint8_t *base = &src[src_voffset * (unsigned int)sstride + src_hoffset];
   cdef_copy_rect8_8bit_to_16bit(dst, dstride, base, sstride, hsize, vsize);
 }
 
@@ -101,8 +103,10 @@ void av1_cdef_copy_sb8_16_highbd(uint16_t *const dst, int dstride,
                                  const uint8_t *src, int src_voffset,
                                  int src_hoffset, int sstride, int vsize,
                                  int hsize) {
-  const uint16_t *base =
-      &CONVERT_TO_SHORTPTR(src)[src_voffset * sstride + src_hoffset];
+  assert(src_voffset >= 0);
+  assert(src_hoffset >= 0);
+  const uint16_t *base = &CONVERT_TO_SHORTPTR(
+      src)[src_voffset * (unsigned int)sstride + src_hoffset];
   cdef_copy_rect8_16bit_to_16bit(dst, dstride, base, sstride, hsize, vsize);
 }
 
@@ -248,7 +252,10 @@ static void cdef_prepare_fb(const AV1_COMMON *const cm, CdefBlockInfo *fb_info,
 
 static INLINE void cdef_filter_fb(CdefBlockInfo *const fb_info, int plane,
                                   uint8_t use_highbitdepth) {
-  int offset = fb_info->dst_stride * fb_info->roffset + fb_info->coffset;
+  assert(fb_info->roffset >= 0);
+  assert(fb_info->coffset >= 0);
+  unsigned int offset =
+      (unsigned int)fb_info->dst_stride * fb_info->roffset + fb_info->coffset;
   if (use_highbitdepth) {
     av1_cdef_filter_fb(
         NULL, CONVERT_TO_SHORTPTR(fb_info->dst + offset), fb_info->dst_stride,

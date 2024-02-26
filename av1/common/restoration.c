@@ -121,7 +121,7 @@ static void extend_frame_lowbd(uint8_t *data, int width, int height, int stride,
   uint8_t *data_p;
   int i;
   for (i = 0; i < height; ++i) {
-    data_p = data + i * stride;
+    data_p = data + i * (unsigned int)stride;
     memset(data_p - border_horz, data_p[0], border_horz);
     memset(data_p + width, data_p[width - 1], border_horz);
   }
@@ -130,7 +130,8 @@ static void extend_frame_lowbd(uint8_t *data, int width, int height, int stride,
     memcpy(data_p + i * stride, data_p, width + 2 * border_horz);
   }
   for (i = height; i < height + border_vert; ++i) {
-    memcpy(data_p + i * stride, data_p + (height - 1) * stride,
+    memcpy(data_p + i * (unsigned int)stride,
+           data_p + (height - 1) * (unsigned int)stride,
            width + 2 * border_horz);
   }
 }
@@ -141,7 +142,7 @@ static void extend_frame_highbd(uint16_t *data, int width, int height,
   uint16_t *data_p;
   int i, j;
   for (i = 0; i < height; ++i) {
-    data_p = data + i * stride;
+    data_p = data + i * (unsigned int)stride;
     for (j = -border_horz; j < 0; ++j) data_p[j] = data_p[0];
     for (j = width; j < width + border_horz; ++j) data_p[j] = data_p[width - 1];
   }
@@ -151,7 +152,8 @@ static void extend_frame_highbd(uint16_t *data, int width, int height,
            (width + 2 * border_horz) * sizeof(uint16_t));
   }
   for (i = height; i < height + border_vert; ++i) {
-    memcpy(data_p + i * stride, data_p + (height - 1) * stride,
+    memcpy(data_p + i * (unsigned int)stride,
+           data_p + (height - 1) * (unsigned int)stride,
            (width + 2 * border_horz) * sizeof(uint16_t));
   }
 }
@@ -989,8 +991,12 @@ void av1_loop_restoration_filter_unit(
 
   int unit_h = limits->v_end - limits->v_start;
   int unit_w = limits->h_end - limits->h_start;
-  uint8_t *data8_tl = data8 + limits->v_start * stride + limits->h_start;
-  uint8_t *dst8_tl = dst8 + limits->v_start * dst_stride + limits->h_start;
+  assert(limits->v_start >= 0);
+  assert(limits->h_start >= 0);
+  uint8_t *data8_tl =
+      data8 + limits->v_start * (unsigned int)stride + limits->h_start;
+  uint8_t *dst8_tl =
+      dst8 + limits->v_start * (unsigned int)dst_stride + limits->h_start;
 
   if (unit_rtype == RESTORE_NONE) {
     copy_rest_unit(unit_w, unit_h, data8_tl, stride, dst8_tl, dst_stride,
@@ -1350,7 +1356,8 @@ static void save_deblock_boundary_lines(
     RestorationStripeBoundaries *boundaries) {
   const int is_uv = plane > 0;
   const uint8_t *src_buf = REAL_PTR(use_highbd, frame->buffers[plane]);
-  const int src_stride = frame->strides[is_uv] << use_highbd;
+  const unsigned int src_stride = frame->strides[is_uv] << use_highbd;
+  assert(row >= 0);
   const uint8_t *src_rows = src_buf + row * src_stride;
 
   uint8_t *bdry_buf = is_above ? boundaries->stripe_boundary_above
@@ -1405,7 +1412,8 @@ static void save_cdef_boundary_lines(const YV12_BUFFER_CONFIG *frame,
                                      RestorationStripeBoundaries *boundaries) {
   const int is_uv = plane > 0;
   const uint8_t *src_buf = REAL_PTR(use_highbd, frame->buffers[plane]);
-  const int src_stride = frame->strides[is_uv] << use_highbd;
+  const unsigned int src_stride = frame->strides[is_uv] << use_highbd;
+  assert(row >= 0);
   const uint8_t *src_rows = src_buf + row * src_stride;
 
   uint8_t *bdry_buf = is_above ? boundaries->stripe_boundary_above
