@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8efaed88_3937d81a",
+        "filename": "av1/common/quant_common.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 286,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-02-27T19:26:14Z",
+      "side": 1,
+      "message": "In my earlier comment I meant that you have `#if CONFIG_QUANT_MATRIX || CONFIG_AV1_DECODER` everywhere else so you could do the same here.",
+      "revId": "183839cb1bbe3a13191d1d58ec14ea627bf5e5b2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "96ee23b2_a9f012a8",
+        "filename": "build/cmake/aom_config_defaults.cmake",
+        "patchSetId": 6
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-02-27T19:26:14Z",
+      "side": 1,
+      "message": "remove \u0027be\u0027",
+      "range": {
+        "startLine": 89,
+        "startChar": 42,
+        "endLine": 89,
+        "endChar": 44
+      },
+      "revId": "183839cb1bbe3a13191d1d58ec14ea627bf5e5b2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
