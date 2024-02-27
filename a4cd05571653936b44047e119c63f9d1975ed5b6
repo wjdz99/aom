@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "719c3fe7_ee6ef97c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-02-27T17:25:42Z",
+      "side": 1,
+      "message": "James: This is an alternative to https://aomedia-review.googlesource.com/c/aom/+/187441. This CL casts the stride variables to `unsigned int` instead of `ptrdiff_t`, so this CL is better for 32-bit builds. However, we need to check that none of the operands is negative before casting to `unsigned int`.",
+      "revId": "a4cd05571653936b44047e119c63f9d1975ed5b6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "468f2b33_97307f4e",
+        "filename": "av1/common/restoration.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-02-27T17:25:42Z",
+      "side": 1,
+      "message": "Note that one of the operands, `i`, is negative, so we can\u0027t cast `stride` to `unsigned int`.\n\nSince `border_vert` is small, there is no risk of overflow, so we don\u0027t need to fix the code here.",
+      "revId": "a4cd05571653936b44047e119c63f9d1975ed5b6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4b19c1b8_f2a3a160",
+        "filename": "av1/common/restoration.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-02-27T17:25:42Z",
+      "side": 1,
+      "message": "Ditto here.",
+      "revId": "a4cd05571653936b44047e119c63f9d1975ed5b6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
