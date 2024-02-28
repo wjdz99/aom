@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "435becbf_e87a3616",
+        "filename": "av1/encoder/encoder_utils.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 438,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2024-02-28T20:28:47Z",
+      "side": 1,
+      "message": "this and the following condition can be merged into one if statement",
+      "range": {
+        "startLine": 438,
+        "startChar": 12,
+        "endLine": 438,
+        "endChar": 51
+      },
+      "revId": "105c5d546bd3e507648eb06357967fb056d4dd01",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7163b805_bc71b915",
+        "filename": "av1/encoder/encoder_utils.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 439,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2024-02-28T20:28:47Z",
+      "side": 1,
+      "message": "it\u0027s easier to understand when the comment is not the reverse of the code, i.e. consider changing the comment as\n\n\"Only unset segmentation map when cyclic refresh is not active\"",
+      "range": {
+        "startLine": 439,
+        "startChar": 0,
+        "endLine": 439,
+        "endChar": 68
+      },
+      "revId": "105c5d546bd3e507648eb06357967fb056d4dd01",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cb058997_ecf7e7b7",
+        "filename": "av1/encoder/partition_search.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 2310,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2024-02-28T20:28:47Z",
+      "side": 1,
+      "message": "adding",
+      "range": {
+        "startLine": 2310,
+        "startChar": 32,
+        "endLine": 2310,
+        "endChar": 39
+      },
+      "revId": "105c5d546bd3e507648eb06357967fb056d4dd01",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "65844528_7835728a",
+        "filename": "examples/svc_encoder_rtc.cc",
+        "patchSetId": 9
+      },
+      "lineNbr": 1447,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2024-02-28T20:28:47Z",
+      "side": 1,
+      "message": "these can be declared in for loop",
+      "range": {
+        "startLine": 1447,
+        "startChar": 0,
+        "endLine": 1447,
+        "endChar": 20
+      },
+      "revId": "105c5d546bd3e507648eb06357967fb056d4dd01",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
