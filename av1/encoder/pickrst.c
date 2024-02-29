@@ -1190,16 +1190,6 @@ static AOM_INLINE void update_a_sep_sym(int wiener_win, int64_t **Mc,
     }
   }
 
-  // b/274668506: This is the dual branch for the issue in b/272139363. The fix
-  // is similar. See comments in update_b_sep_sym() below.
-  int32_t max_b_l = 0;
-  for (int l = 0; l < wiener_win; ++l) {
-    const int32_t abs_b_l = abs(b[l]);
-    if (abs_b_l > max_b_l) max_b_l = abs_b_l;
-  }
-  const int scale_threshold = 128 * WIENER_TAP_SCALE_FACTOR;
-  const int scaler = max_b_l < scale_threshold ? 1 : 4;
-
   for (i = 0; i < wiener_win; i++) {
     for (j = 0; j < wiener_win; j++) {
       int k, l;
@@ -1207,10 +1197,28 @@ static AOM_INLINE void update_a_sep_sym(int wiener_win, int64_t **Mc,
         const int kk = wrap_index(k, wiener_win);
         for (l = 0; l < wiener_win; ++l) {
           const int ll = wrap_index(l, wiener_win);
+#if 0
           B[ll * wiener_halfwin1 + kk] +=
               Hc[j * wiener_win + i][k * wiener_win2 + l] * b[i] /
-              (scaler * WIENER_TAP_SCALE_FACTOR) * b[j] /
-              (WIENER_TAP_SCALE_FACTOR / scaler);
+              WIENER_TAP_SCALE_FACTOR * b[j] / WIENER_TAP_SCALE_FACTOR;
+#else
+          // Calculate
+          // B[ll * wiener_halfwin1 + kk] +=
+          //    Hc[j * wiener_win + i][k * wiener_win2 + l] * b[i] /
+          //    WIENER_TAP_SCALE_FACTOR * b[j] / WIENER_TAP_SCALE_FACTOR;
+          int64_t x = Hc[j * wiener_win + i][k * wiener_win2 + l] * b[i] /
+              WIENER_TAP_SCALE_FACTOR;
+          int64_t x1 = x / WIENER_TAP_SCALE_FACTOR;
+          int64_t x2 = x - x1 * WIENER_TAP_SCALE_FACTOR;
+          int32_t b1 = b[j] / WIENER_TAP_SCALE_FACTOR;
+          int32_t b2 = b[j] - b1 * WIENER_TAP_SCALE_FACTOR;
+          int64_t y = x * b1 + x1 * b2 + x2 * b2 / WIENER_TAP_SCALE_FACTOR;
+          __int128 z = (__int128)x * b[j] / WIENER_TAP_SCALE_FACTOR;
+          assert(z >= INT64_MIN);
+          assert(z <= INT64_MAX);
+          assert(y == (int64_t)z);
+          B[ll * wiener_halfwin1 + kk] += y;
+#endif
         }
       }
     }
@@ -1261,32 +1269,6 @@ static AOM_INLINE void update_b_sep_sym(int wiener_win, int64_t **Mc,
     }
   }
 
-  // b/272139363: The computation,
-  //   Hc[i * wiener_win + j][k * wiener_win2 + l] * a[k] /
-  //          WIENER_TAP_SCALE_FACTOR * a[l] / WIENER_TAP_SCALE_FACTOR;
-  // may generate a signed-integer-overflow. Conditionally scale the terms to
-  // avoid a potential overflow.
-  //
-  // Hc contains accumulated correlation statistics and it is desired to leave
-  // as much room as possible for Hc. It was experimentally observed that the
-  // primary issue manifests itself with the second, a[l], multiply. For
-  // max_a_l < WIENER_TAP_SCALE_FACTOR the first multiply with a[k] should not
-  // increase dynamic range and the second multiply should hence be safe.
-  // Thereafter a safe scale_threshold depends on the actual operational range
-  // of Hc. The largest scale_threshold is expected to depend on bit-depth
-  // (av1_compute_stats_highbd_c() scales highbd to 8-bit) and maximum
-  // restoration-unit size (256), leading up to 32-bit positive numbers in Hc.
-  // Noting that the caller, wiener_decompose_sep_sym(), initializes a[...]
-  // to a range smaller than 16 bits, the scale_threshold is set as below for
-  // convenience.
-  int32_t max_a_l = 0;
-  for (int l = 0; l < wiener_win; ++l) {
-    const int32_t abs_a_l = abs(a[l]);
-    if (abs_a_l > max_a_l) max_a_l = abs_a_l;
-  }
-  const int scale_threshold = 128 * WIENER_TAP_SCALE_FACTOR;
-  const int scaler = max_a_l < scale_threshold ? 1 : 4;
-
   for (i = 0; i < wiener_win; i++) {
     const int ii = wrap_index(i, wiener_win);
     for (j = 0; j < wiener_win; j++) {
@@ -1294,10 +1276,28 @@ static AOM_INLINE void update_b_sep_sym(int wiener_win, int64_t **Mc,
       int k, l;
       for (k = 0; k < wiener_win; ++k) {
         for (l = 0; l < wiener_win; ++l) {
+#if 0
           B[jj * wiener_halfwin1 + ii] +=
               Hc[i * wiener_win + j][k * wiener_win2 + l] * a[k] /
-              (scaler * WIENER_TAP_SCALE_FACTOR) * a[l] /
-              (WIENER_TAP_SCALE_FACTOR / scaler);
+              WIENER_TAP_SCALE_FACTOR * a[l] / WIENER_TAP_SCALE_FACTOR;
+#else
+          // Calculate
+          // B[jj * wiener_halfwin1 + ii] +=
+          //     Hc[i * wiener_win + j][k * wiener_win2 + l] * a[k] /
+          //     WIENER_TAP_SCALE_FACTOR * a[l] / WIENER_TAP_SCALE_FACTOR;
+          int64_t x = Hc[i * wiener_win + j][k * wiener_win2 + l] * a[k] /
+              WIENER_TAP_SCALE_FACTOR;
+          int64_t x1 = x / WIENER_TAP_SCALE_FACTOR;
+          int64_t x2 = x - x1 * WIENER_TAP_SCALE_FACTOR;
+          int32_t a1 = a[l] / WIENER_TAP_SCALE_FACTOR;
+          int32_t a2 = a[l] - a1 * WIENER_TAP_SCALE_FACTOR;
+          int64_t y = x * a1 + x1 * a2 + x2 * a2 / WIENER_TAP_SCALE_FACTOR;
+          __int128 z = (__int128)x * a[l] / WIENER_TAP_SCALE_FACTOR;
+          assert(z >= INT64_MIN);
+          assert(z <= INT64_MAX);
+          assert(y == (int64_t)z);
+          B[jj * wiener_halfwin1 + ii] += y;
+#endif
         }
       }
     }
