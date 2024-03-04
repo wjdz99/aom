@@ -52,6 +52,24 @@
       "parentUuid": "1e6b3a10_c0c31e4b",
       "revId": "77385069ce66126f6dd49108386f9480432c9746",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2dbc767f_4314579c",
+        "filename": "av1/common/tile_common.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 195,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-03-04T22:20:30Z",
+      "side": 1,
+      "message": "Added a reference to the spec in https://aomedia-review.googlesource.com/c/aom/+/187742.",
+      "parentUuid": "2d44982f_c9d9bd95",
+      "revId": "77385069ce66126f6dd49108386f9480432c9746",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ],
   "submitRequirementResults": [
