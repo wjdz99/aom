@@ -3,6 +3,23 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "07073c15_40debfe3",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-03-04T20:27:29Z",
+      "side": 1,
+      "message": "Just a reminder. We don\u0027t have any automated test coverage for SVE or SVE2 at the moment. I noticed qemu received SVE support, but I haven\u0027t tried it out yet.",
+      "revId": "d7d2345ae20f1df0018080b32d132dc9698fc821",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "d25c88d2_5868fdbc",
         "filename": "av1/common/arm/highbd_convolve_sve2.c",
         "patchSetId": 2
