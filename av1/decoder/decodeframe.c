@@ -71,9 +71,9 @@
 
 // This is needed by ext_tile related unit tests.
 #define EXT_TILE_DEBUG 1
-#define MC_TEMP_BUF_PELS                       \
-  (((MAX_SB_SIZE)*2 + (AOM_INTERP_EXTEND)*2) * \
-   ((MAX_SB_SIZE)*2 + (AOM_INTERP_EXTEND)*2))
+#define MC_TEMP_BUF_PELS                           \
+  (((MAX_SB_SIZE) * 2 + (AOM_INTERP_EXTEND) * 2) * \
+   ((MAX_SB_SIZE) * 2 + (AOM_INTERP_EXTEND) * 2))
 
 // Checks that the remaining bits start with a 1 and ends with 0s.
 // It consumes an additional byte, if already byte aligned before the check.
@@ -2294,7 +2294,11 @@ static const uint8_t *get_ls_tile_buffers(
     const int tile_col_size_bytes = pbi->tile_col_size_bytes;
     const int tile_size_bytes = pbi->tile_size_bytes;
     int tile_width, tile_height;
-    av1_get_uniform_tile_size(cm, &tile_width, &tile_height);
+    if (!av1_get_uniform_tile_size(cm, &tile_width, &tile_height)) {
+      aom_internal_error(
+          &pbi->error, AOM_CODEC_CORRUPT_FRAME,
+          "Not all the tiles in the tile list have the same size.");
+    }
     const int tile_copy_mode =
         ((AOMMAX(tile_width, tile_height) << MI_SIZE_LOG2) <= 256) ? 1 : 0;
     // Read tile column sizes for all columns (we need the last tile buffer)
