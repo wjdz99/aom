@@ -234,8 +234,8 @@ enum aom_dec_control_id {
    */
   AV1D_GET_IMG_FORMAT,
 
-  /*!\brief Codec control function to get the size of the tile, unsigned int*
-   * parameter
+  /*!\brief Codec control function to get the size of the tiles in a tile list,
+   * unsigned int* parameter
    */
   AV1D_GET_TILE_SIZE,
 

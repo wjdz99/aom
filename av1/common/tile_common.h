@@ -51,6 +51,7 @@ int av1_get_sb_cols_in_tile(const struct AV1Common *cm, const TileInfo *tile);
 #define MAX_TILE_AREA_LEVEL_7_AND_ABOVE (4096 * 4608)
 #endif
 
+// Gets the width and height of the tiles in a tile list.
 void av1_get_uniform_tile_size(const struct AV1Common *cm, int *w, int *h);
 void av1_get_tile_limits(struct AV1Common *const cm);
 void av1_calculate_tile_cols(const struct SequenceHeader *const seq_params,
