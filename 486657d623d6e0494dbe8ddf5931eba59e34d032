@@ -56,6 +56,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "13c2f85e_f1f353b2",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-03-05T19:40:33Z",
+      "side": 1,
+      "message": "Daniel: Thanks for the reply. I didnt\u0027 realize the use of Abseil comes from googletest.\n\nRe: defining a macro with an implementation-reserved name: I understand the issue and your point, but even the Clang documentation suggests doing that, e.g.,\n\nhttps://clang.llvm.org/docs/LanguageExtensions.html#feature-checking-macros\n\n```\n#ifndef __has_builtin         // Optional of course.\n  #define __has_builtin(x) 0  // Compatibility with non-clang compilers.\n#endif\n\n...\n#if __has_builtin(__builtin_trap)\n  __builtin_trap();\n#else\n  abort();\n#endif\n...\n```",
+      "parentUuid": "e72df23f_f3f31cd7",
+      "revId": "486657d623d6e0494dbe8ddf5931eba59e34d032",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "38e4035f_754ef984",
         "filename": "/PATCHSET_LEVEL",
         "patchSetId": 2
