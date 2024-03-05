@@ -38,6 +38,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "e72df23f_f3f31cd7",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-03-05T19:26:06Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "d92ad418_4ab01fc4",
+      "revId": "486657d623d6e0494dbe8ddf5931eba59e34d032",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "38e4035f_754ef984",
         "filename": "/PATCHSET_LEVEL",
         "patchSetId": 2
@@ -102,6 +120,24 @@
       "side": 1,
       "message": "Do I need to use my google.com email instead then?",
       "parentUuid": "4b061977_ce588d60",
+      "revId": "486657d623d6e0494dbe8ddf5931eba59e34d032",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f0f983e5_fc32ffd6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-03-05T19:26:06Z",
+      "side": 1,
+      "message": "\u003e Do I need to use my google.com email instead then?\n\nNo, we can handle landing this. The check is indirect since aomedia has its own CLA and doesn\u0027t use the CLA bot used in Chrome.",
+      "parentUuid": "67cd1cd0_5c4cd011",
       "revId": "486657d623d6e0494dbe8ddf5931eba59e34d032",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
