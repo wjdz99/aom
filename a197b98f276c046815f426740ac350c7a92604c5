@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c6425965_6be5033a",
+        "filename": "aom_ports/aarch64_cpudetect.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-03-05T17:39:02Z",
+      "side": 1,
+      "message": "Nit/optional: We often include \"config/aom_config.h\" first (after the system headers). See aom_dsp/variance.c, av1/av1_dx_iface.c, etc. for example.\n\nThe reason is that many headers test the configuration macros defined in \"config/aom_config.h\"",
+      "revId": "a197b98f276c046815f426740ac350c7a92604c5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c7ea2e3c_2bccbc68",
+        "filename": "aom_scale/generic/yv12config.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-03-05T17:39:02Z",
+      "side": 1,
+      "message": "Nit/optional: We often include \"config/aom_config.h\" first (after the system headers).",
+      "revId": "a197b98f276c046815f426740ac350c7a92604c5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f669a37c_6e412f19",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-03-05T17:39:02Z",
+      "side": 1,
+      "message": "Nit/optional: We often include \"config/aom_config.h\" first (after the system headers).",
+      "revId": "a197b98f276c046815f426740ac350c7a92604c5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1008ab00_a969b49f",
+        "filename": "av1/common/quant_common.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-03-05T17:39:02Z",
+      "side": 1,
+      "message": "Nit/optional: We often include \"config/aom_config.h\" first (after the system headers).",
+      "revId": "a197b98f276c046815f426740ac350c7a92604c5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
