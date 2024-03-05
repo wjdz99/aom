@@ -11,14 +11,16 @@
 
 #include <assert.h>
 
+#include "aom/aom_image.h"
 #include "aom/internal/aom_image_internal.h"
-#include "aom_dsp/pyramid.h"
 #include "aom_dsp/flow_estimation/corner_detect.h"
+#include "aom_dsp/pyramid.h"
 #include "aom_mem/aom_mem.h"
 #include "aom_ports/mem.h"
 #include "aom_scale/yv12config.h"
 #include "av1/common/enums.h"
 
+#include "config/aom_config.h"
 /****************************************************************************
  *  Exports
  ****************************************************************************/

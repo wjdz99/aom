@@ -11,6 +11,9 @@
 
 #include "arm_cpudetect.h"
 
+#include "aom_ports/arm.h"
+#include "config/aom_config.h"
+
 #if defined(__APPLE__)
 #include <sys/sysctl.h>
 #endif
