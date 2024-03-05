@@ -71,9 +71,9 @@
 
 // This is needed by ext_tile related unit tests.
 #define EXT_TILE_DEBUG 1
-#define MC_TEMP_BUF_PELS                       \
-  (((MAX_SB_SIZE)*2 + (AOM_INTERP_EXTEND)*2) * \
-   ((MAX_SB_SIZE)*2 + (AOM_INTERP_EXTEND)*2))
+#define MC_TEMP_BUF_PELS                           \
+  (((MAX_SB_SIZE) * 2 + (AOM_INTERP_EXTEND) * 2) * \
+   ((MAX_SB_SIZE) * 2 + (AOM_INTERP_EXTEND) * 2))
 
 // Checks that the remaining bits start with a 1 and ends with 0s.
 // It consumes an additional byte, if already byte aligned before the check.
@@ -2303,8 +2303,16 @@ static const uint8_t *get_ls_tile_buffers(
       size_t tile_col_size;
 
       if (!is_last) {
+        if (tile_col_size_bytes > data_end - data) {
+          aom_internal_error(&pbi->error, AOM_CODEC_CORRUPT_FRAME,
+                             "Not enough data to read tile_col_size");
+        }
         tile_col_size = mem_get_varsize(data, tile_col_size_bytes);
         data += tile_col_size_bytes;
+        if (tile_col_size > (size_t)(data_end - data)) {
+          aom_internal_error(&pbi->error, AOM_CODEC_CORRUPT_FRAME,
+                             "tile_col_data_end[%d] is out of bound", c);
+        }
         tile_col_data_end[c] = data + tile_col_size;
       } else {
         tile_col_size = data_end - data;
