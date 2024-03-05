@@ -50,6 +50,24 @@
       "message": "Is this the part of the spec that requires the tiles in a tile list have the same size?",
       "revId": "a9d6c074243c5179ac817d8d6a94e08ba5fcc082",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "301dff9d_d9b9eb00",
+        "filename": "av1/common/tile_common.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 188,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-03-05T19:17:21Z",
+      "side": 1,
+      "message": "\u003e Is this the part of the spec that requires the tiles in a tile list have the same size?\n\nThat section is specific to large scale tiles, but I think this is shared with the normal decoder.\n\nhttps://aomediacodec.github.io/av1-spec/#tile-info-semantics\n\nhas a list of conformance requirements.",
+      "parentUuid": "b0c72bb7_d92d3c8f",
+      "revId": "a9d6c074243c5179ac817d8d6a94e08ba5fcc082",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
