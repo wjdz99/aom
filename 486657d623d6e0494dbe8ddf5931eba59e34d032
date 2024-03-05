@@ -1,6 +1,23 @@
 {
   "comments": [
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "ec61acf2_9635f261",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-03-05T03:51:48Z",
+      "side": 1,
+      "message": "Does some file include both aom_ports/mem.h and an Abseil header?\n\naom_ports/mem.h is a private header of libaom. It should not be used outside libaom. libaom doesn\u0027t use Abseil. So it\u0027s not clear how this could conflict with Abseil.",
+      "revId": "486657d623d6e0494dbe8ddf5931eba59e34d032",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "38e4035f_754ef984",
@@ -32,6 +49,23 @@
       "side": 1,
       "message": "No, you don\u0027t have to. Google signed a corporate CLA.",
       "parentUuid": "38e4035f_754ef984",
+      "revId": "486657d623d6e0494dbe8ddf5931eba59e34d032",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b41f6fb5_a79b567f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-03-05T03:51:48Z",
+      "side": 1,
+      "message": "Thanks for the CL. I have a question.",
       "revId": "486657d623d6e0494dbe8ddf5931eba59e34d032",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
