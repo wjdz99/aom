@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c053b4d2_f3b365e8",
+        "filename": "av1/common/quant_common.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-03-05T18:58:11Z",
+      "side": 1,
+      "message": "Nit/optional: The two blank lines (15 and 17) can be deleted.",
+      "revId": "5ec556b321f35b3bac2c9580384c63d0f30c4c20",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "853b33bf_52024daf",
+        "filename": "av1/common/resize.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-03-05T18:58:11Z",
+      "side": 1,
+      "message": "In these three functions (line 28, line 32, and line 51), the `y`, `u`, and `v` parameters should have the same type. Either they all have `const`, or they don\u0027t have `const`. Consistency is good.\n\nMy preference is to remove the `const`, i.e., `const uint8_t *y`",
+      "revId": "5ec556b321f35b3bac2c9580384c63d0f30c4c20",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
