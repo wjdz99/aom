@@ -18,6 +18,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "d92ad418_4ab01fc4",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 9009
+      },
+      "writtenOn": "2024-03-05T18:44:45Z",
+      "side": 1,
+      "message": "Please see the bug. The problem is that macro definitions are global: this is why the C++ styleguide specifically mentions prefixing macros (https://google.github.io/styleguide/cppguide.html#Preprocessor_Macros:~:text\u003dExporting%20macros%20from,but%20upper%20case).). aom tests use googletest, and googletest can sometimes use Abseil. Here is an example failing build:\n\nhttps://ci.chromium.org/ui/p/chromium/builders/findit/gofindit-culprit-verification/43441/overview\n\n```\nIn file included from ../../third_party/libaom/source/libaom/test/av1_inv_txfm1d_test.cc:14:\nIn file included from ../../third_party/libaom/source/libaom\\test/av1_txfm_test.h:24:\nIn file included from ../..\\third_party/googletest/src/googletest/include/gtest/gtest.h:63:\nIn file included from ../../third_party/googletest/src/googletest/include\\gtest/gtest-assertion-result.h:46:\nIn file included from ../../third_party/googletest/src/googletest/include\\gtest/gtest-message.h:57:\nIn file included from ../../third_party/googletest/src/googletest/include\\gtest/internal/gtest-port.h:344:\nIn file included from ../../third_party/abseil-cpp\\absl/flags/reflection.h:29:\nIn file included from ../../third_party/abseil-cpp\\absl/container/flat_hash_map.h:42:\nIn file included from ../../third_party/abseil-cpp\\absl/container/internal/raw_hash_map.h:26:\nIn file included from ../../third_party/abseil-cpp\\absl/container/internal/raw_hash_set.h:202:\n../../third_party/abseil-cpp\\absl/base/prefetch.h(147,28): error: too many arguments provided to function-like macro invocation\n  147 |   __builtin_prefetch(addr, 0, 3);\n      |                            ^\n../../third_party/libaom/source/libaom\\aom_ports/mem.h(28,9): note: macro \u0027__builtin_prefetch\u0027 defined here\n   28 | #define __builtin_prefetch(x)\n      |         ^\n```\n\nSo this ends up causing build conflicts, because of the incorrect definition for __builtin_prefetch().\n\nAn even better change would be to avoid defining a macro with an implementation-reserved name and rename this macro to something like AOM_PREFETCH(), but I am trying to make the minimal size change to unblock other Chrome work.",
+      "parentUuid": "ec61acf2_9635f261",
+      "revId": "486657d623d6e0494dbe8ddf5931eba59e34d032",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "38e4035f_754ef984",
