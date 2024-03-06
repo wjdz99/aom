@@ -122,6 +122,24 @@
       "parentUuid": "74d52917_fe30777f",
       "revId": "a9d6c074243c5179ac817d8d6a94e08ba5fcc082",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7f3dfdc6_ae209a60",
+        "filename": "av1/common/tile_common.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 188,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-03-06T00:57:50Z",
+      "side": 1,
+      "message": "James: I did not rename `av1_get_uniform_tile_size()` in this CL. One thing at a time.",
+      "parentUuid": "9ec30a1f_bee50370",
+      "revId": "a9d6c074243c5179ac817d8d6a94e08ba5fcc082",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
