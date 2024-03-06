@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "456beb7c_505c3fd3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-03-06T17:44:34Z",
+      "side": 1,
+      "message": "LGTM. Thanks!",
+      "revId": "effec4c9b89d840754884665cb82baea6276181c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c17989a4_a1f609d1",
+        "filename": "av1/decoder/obu.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 500,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-03-06T17:44:34Z",
+      "side": 1,
+      "message": "I found this requirement in the AV1 spec, at the end of Section 7.3.1, on page 201:\n\n\u003e It is a requirement of bitstream conformance that the following conditions are met:\n\u003e ...\n\u003e * tile_count_minus_1 + 1 is less than or equal to (output_frame_width_in_tiles_minus_1 + 1) * (output_frame_height_in_tiles_minus_1 + 1).",
+      "revId": "effec4c9b89d840754884665cb82baea6276181c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
