@@ -16,6 +16,24 @@
       "message": "This could be a #error when not set. That would avoid including it in another build and potentially getting a warning that the module doesn\u0027t define any symbols (macOS at least).\n\nSince this is cmake controlled it probably is fine as is.",
       "revId": "399fd582570c2962176f9c409e9c05cf88ca079f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e34345f9_ffa93e70",
+        "filename": "av1/common/x86/cdef_block_ssse3.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 29052
+      },
+      "writtenOn": "2024-03-06T17:38:30Z",
+      "side": 1,
+      "message": "Good idea, done",
+      "parentUuid": "74476e4d_1e7dbadf",
+      "revId": "399fd582570c2962176f9c409e9c05cf88ca079f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
