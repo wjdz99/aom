@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7af6e05d_ee49c287",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-03-06T17:23:40Z",
+      "side": 1,
+      "message": "This fix will be imported into Chromium in https://chromium-review.googlesource.com/c/chromium/src/+/5349636.",
+      "revId": "86ba8b684ef53a8bf11e320c2271aaa63108be36",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
