@@ -35,6 +35,29 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "0455b189_d97f197c",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 3098,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2024-03-07T17:20:54Z",
+      "side": 1,
+      "message": "ULONG_MAX is 2^32 - 1.  Can\u0027t be larger than INT64_MAX.\nhttps://cplusplus.com/reference/climits/\nduration is also a unsigned long type.\nhttps://en.wikipedia.org/wiki/C_data_types\nIs this necessary?",
+      "range": {
+        "startLine": 3098,
+        "startChar": 4,
+        "endLine": 3098,
+        "endChar": 25
+      },
+      "revId": "0d890e3b8d3a7c8e4a9764a831c2523e263bff79",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "d95c4cae_6930f2e7",
@@ -82,6 +105,29 @@
       "writtenOn": "2024-03-07T00:12:49Z",
       "side": 1,
       "message": "This check ensures that `pts_end * cpi_data.timestamp_ratio-\u003enum` (performed inside the `timebase_units_to_ticks()` call) does not overflow.",
+      "revId": "0d890e3b8d3a7c8e4a9764a831c2523e263bff79",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a870a403_da0943a0",
+        "filename": "test/encode_api_test.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 584,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2024-03-07T17:20:54Z",
+      "side": 1,
+      "message": "Should this encode return invalid parameter too?\nBecause the first encode start at time_stamp \u003d 11, duration \u003d 1.\nSo the second encode could start at time_stamp \u003d 12, duration \u003d 1.\nThe third encode should start at 13?\n\nOr we don\u0027t require the encode timestamp to be monotonically increasing?",
+      "range": {
+        "startLine": 584,
+        "startChar": 42,
+        "endLine": 584,
+        "endChar": 44
+      },
       "revId": "0d890e3b8d3a7c8e4a9764a831c2523e263bff79",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
