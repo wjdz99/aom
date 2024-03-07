@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a75e473a_2b1132b5",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 3090,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-03-07T00:12:49Z",
+      "side": 1,
+      "message": "I added this check because the checks below assume `ptsvol` (after subtracting `ctx-\u003epts_offset` from it) is nonnegative.\n\nNote that the checks below only compare with `INT64_MAX` and do not compare with `INT64_MIN`.",
+      "revId": "0d890e3b8d3a7c8e4a9764a831c2523e263bff79",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f4eae59a_b6c7f67e",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 3095,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-03-07T00:12:49Z",
+      "side": 1,
+      "message": "This check ensures that `ptsvol * cpi_data.timestamp_ratio-\u003enum` (performed inside the `timebase_units_to_ticks()` call) does not overflow.",
+      "revId": "0d890e3b8d3a7c8e4a9764a831c2523e263bff79",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d95c4cae_6930f2e7",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 3102,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-03-07T00:12:49Z",
+      "side": 1,
+      "message": "This check ensures that it is safe to cast `duration` to `int64_t`.",
+      "revId": "0d890e3b8d3a7c8e4a9764a831c2523e263bff79",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "dac476c5_ebb2f5cd",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 3107,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-03-07T00:12:49Z",
+      "side": 1,
+      "message": "This check ensures that `ptsvol + duration` does not overflow.",
+      "revId": "0d890e3b8d3a7c8e4a9764a831c2523e263bff79",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d4baa085_bbf372b2",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 3112,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-03-07T00:12:49Z",
+      "side": 1,
+      "message": "This check ensures that `pts_end * cpi_data.timestamp_ratio-\u003enum` (performed inside the `timebase_units_to_ticks()` call) does not overflow.",
+      "revId": "0d890e3b8d3a7c8e4a9764a831c2523e263bff79",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
