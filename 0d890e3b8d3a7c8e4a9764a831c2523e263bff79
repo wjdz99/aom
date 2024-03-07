@@ -108,6 +108,30 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "095ad38a_bbff94fa",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 3098,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-03-07T18:38:50Z",
+      "side": 1,
+      "message": "The C preprocessor handles things like comments, macros (`#define`), include files (`#include`), and conditional compilation (`#if`,`#else`, `#endif`). It has its own language.\n\nIn the conditional expression after `#if`, we can only use integer constants (e.g., 0, 1, 1990L, etc.), macros that expand to integer constants, and the `defined` keyword. So C keywords such as `unsigned long` and `sizeof` cannot be used.",
+      "parentUuid": "a2ac80ff_5907b5e4",
+      "range": {
+        "startLine": 3098,
+        "startChar": 4,
+        "endLine": 3098,
+        "endChar": 25
+      },
+      "revId": "0d890e3b8d3a7c8e4a9764a831c2523e263bff79",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "d95c4cae_6930f2e7",
         "filename": "av1/av1_cx_iface.c",
         "patchSetId": 2
