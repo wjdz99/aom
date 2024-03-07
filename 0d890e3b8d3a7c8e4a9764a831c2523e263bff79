@@ -60,6 +60,30 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "2754726b_6f52200c",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 3098,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-03-07T17:37:13Z",
+      "side": 1,
+      "message": "`ULONG_MAX` is 2^31 - 1 or greater. In 64-bit operating systems (except 64-bit Windows), `unsigned long` is 64 bits and `ULONG_MAX` is 2^63 - 1.\n\nSo the `ULONG_MAX \u003e INT64_MAX` test is intended to check if `unsigned long` is 64 bits. We can\u0027t use `sizeof(unsigned long)` in the C preprocessor language, so I had to write the test this way.\n\nNote: If the `#if ULONG_MAX \u003e INT64_MAX` check is omitted, then the compiler in 32-bit operating systems warns that the check in the next line, `duration \u003e INT64_MAX` is always false.",
+      "parentUuid": "0455b189_d97f197c",
+      "range": {
+        "startLine": 3098,
+        "startChar": 4,
+        "endLine": 3098,
+        "endChar": 25
+      },
+      "revId": "0d890e3b8d3a7c8e4a9764a831c2523e263bff79",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "d95c4cae_6930f2e7",
         "filename": "av1/av1_cx_iface.c",
         "patchSetId": 2
@@ -122,6 +146,30 @@
       "writtenOn": "2024-03-07T17:20:54Z",
       "side": 1,
       "message": "Should this encode return invalid parameter too?\nBecause the first encode start at time_stamp \u003d 11, duration \u003d 1.\nSo the second encode could start at time_stamp \u003d 12, duration \u003d 1.\nThe third encode should start at 13?\n\nOr we don\u0027t require the encode timestamp to be monotonically increasing?",
+      "range": {
+        "startLine": 584,
+        "startChar": 42,
+        "endLine": 584,
+        "endChar": 44
+      },
+      "revId": "0d890e3b8d3a7c8e4a9764a831c2523e263bff79",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cc3e50f8_92d5106b",
+        "filename": "test/encode_api_test.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 584,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-03-07T17:37:13Z",
+      "side": 1,
+      "message": "Like you, I also expect the encode timestamps to be monotonically increasing. So I am surprised to find out that libaom doesn\u0027t seem to enforce that.\n\nI will remove this line from the unit test so that the test does not prevent libaom from requiring monotonically increasing encode timestamps.",
+      "parentUuid": "a870a403_da0943a0",
       "range": {
         "startLine": 584,
         "startChar": 42,
