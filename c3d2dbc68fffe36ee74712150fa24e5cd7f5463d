@@ -37,6 +37,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "91c44186_eb18d191",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 3087,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-03-07T22:04:53Z",
+      "side": 1,
+      "message": "Cheng and I discussed whether the encode `pts` parameter should be monotonically increasing. After seeing your comment, I looked into it. I found that this requirement is documented. It comes from libvpx:\n\n```\n/*!\\brief Encode a frame\n *\n * Encodes a video frame at the given \"presentation time.\" The presentation\n * time stamp (PTS) \\ref MUST be strictly increasing.\n *\n...\n * \\param[in]    pts       Presentation time stamp, in timebase units.\n...\n */\nvpx_codec_err_t vpx_codec_encode(vpx_codec_ctx_t *ctx, const vpx_image_t *img,\n                                 vpx_codec_pts_t pts, unsigned long duration,\n                                 vpx_enc_frame_flags_t flags,\n                                 vpx_enc_deadline_t deadline);\n```\n\nHowever, this requirement doesn\u0027t seem to be enforced by libaom.",
+      "parentUuid": "ef875a91_c61c3428",
+      "revId": "c3d2dbc68fffe36ee74712150fa24e5cd7f5463d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "4af0292a_3cae4198",
         "filename": "av1/av1_cx_iface.c",
         "patchSetId": 4
