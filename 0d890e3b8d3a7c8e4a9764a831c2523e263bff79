@@ -84,6 +84,30 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "a2ac80ff_5907b5e4",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 3098,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2024-03-07T18:22:25Z",
+      "side": 1,
+      "message": "Thanks for the explanation.\nJust curious, why can\u0027t we use sizeof() int the C preprocessor language?",
+      "parentUuid": "2754726b_6f52200c",
+      "range": {
+        "startLine": 3098,
+        "startChar": 4,
+        "endLine": 3098,
+        "endChar": 25
+      },
+      "revId": "0d890e3b8d3a7c8e4a9764a831c2523e263bff79",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "d95c4cae_6930f2e7",
         "filename": "av1/av1_cx_iface.c",
         "patchSetId": 2
