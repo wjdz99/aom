@@ -52,6 +52,24 @@
       "parentUuid": "513bdc8a_99dc7876",
       "revId": "28f4ae8a42c82dd13abbb4a4da6b33b3dc96ed94",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b00a60ab_1b346f66",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-03-09T03:07:47Z",
+      "side": 1,
+      "message": "\u003e \u003e \u003e Should I cherry-pick this to the jellybee branch for libaom v3.8.2?\n\u003e \u003e \n\u003e \u003e It\u0027s just a build warning for now, so it\u0027s harmless.\n\u003e \n\u003e I see libaom has more warnings than libvpx with doxygen 1.9.8.\n\u003e \n\nhttps://aomedia-review.googlesource.com/c/aom/+/188023\n\nI\u0027m taking a look at the \\ref issue. \\ref shouldn\u0027t be necessary for functions, but it\u0027s odd that only a couple are triggering the issue.\n\n\u003e ```\n\u003e warning: Tag \u0027HTML_TIMESTAMP\u0027 at line 1232 of file \u0027.build/doxyfile\u0027 has become obsolete.\n\u003e          To avoid this warning please remove this line from your configuration file or upgrade it using \"doxygen -u\"\n\u003e warning: Tag \u0027FORMULA_TRANSPARENT\u0027 at line 1524 of file \u0027.build/doxyfile\u0027 has become obsolete.\n\u003e          To avoid this warning please remove this line from your configuration file or upgrade it using \"doxygen -u\"\n\u003e warning: Tag \u0027LATEX_TIMESTAMP\u0027 at line 1832 of file \u0027.build/doxyfile\u0027 has become obsolete.\n\u003e          To avoid this warning please remove this line from your configuration file or upgrade it using \"doxygen -u\"\n\u003e warning: Tag \u0027DOT_FONTNAME\u0027 at line 2181 of file \u0027.build/doxyfile\u0027 has become obsolete.\n\u003e          To avoid this warning please remove this line from your configuration file or upgrade it using \"doxygen -u\"\n\u003e warning: Tag \u0027DOT_FONTSIZE\u0027 at line 2188 of file \u0027.build/doxyfile\u0027 has become obsolete.\n\u003e          To avoid this warning please remove this line from your configuration file or upgrade it using \"doxygen -u\"\n\u003e doc/dev_guide/av1_encoder.dox:590: warning: unable to resolve reference to \u0027av1_calc_iframe_target_size_one_pass_vbr()\u0027 for \\ref command\n\u003e doc/dev_guide/av1_encoder.dox:591: warning: unable to resolve reference to \u0027av1_calc_pframe_target_size_one_pass_vbr()\u0027 for \\ref command\n\u003e doc/dev_guide/av1_encoder.dox:704: warning: unable to resolve reference to \u0027av1_rc_regulate_q()\u0027 for \\ref command\n\u003e \n\u003e ```\n\u003e \n\u003e The earlier dot warnings are gone with this version, however. dot appears to have remained at 2.43.0 for some time, doxygen went from 1.9.4 -\u003e 1.9.8 so the fix may be in that range, unless I\u0027m misremembering the warning.",
+      "parentUuid": "1dda8f80_4e1e2a28",
+      "revId": "28f4ae8a42c82dd13abbb4a4da6b33b3dc96ed94",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ],
   "submitRequirementResults": [
