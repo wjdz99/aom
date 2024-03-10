@@ -524,9 +524,56 @@ static void fill_arr_to_col(uint8_t *img, int stride, int len, uint8_t *arr) {
   }
 }
 
-bool av1_resize_plane(const uint8_t *input, int height, int width,
-                      int in_stride, uint8_t *output, int height2, int width2,
-                      int out_stride) {
+static INLINE bool resize_vert_dir(uint8_t *intbuf, uint8_t *output,
+                                   int out_stride, int height, int height2,
+                                   int width2) {
+  bool mem_status = true;
+  uint8_t *arrbuf = (uint8_t *)aom_malloc(sizeof(*arrbuf) * height);
+  uint8_t *arrbuf2 = (uint8_t *)aom_malloc(sizeof(*arrbuf2) * height2);
+  if (arrbuf == NULL || arrbuf2 == NULL) {
+    mem_status = false;
+    goto Error;
+  }
+
+  for (int i = 0; i < width2; ++i) {
+    fill_col_to_arr(intbuf + i, width2, height, arrbuf);
+    down2_symeven(arrbuf, height, arrbuf2);
+    fill_arr_to_col(output + i, out_stride, height2, arrbuf2);
+  }
+
+Error:
+  aom_free(arrbuf);
+  aom_free(arrbuf2);
+  return mem_status;
+}
+
+static INLINE void resize_horz_dir(const uint8_t *const input, int in_stride,
+                                   uint8_t *intbuf, int height,
+                                   int filtered_length, int width2) {
+  for (int i = 0; i < height; ++i)
+    down2_symeven(input + in_stride * i, filtered_length, intbuf + width2 * i);
+}
+
+static bool resize_to_half(const uint8_t *const input, int height, int width,
+                           int in_stride, uint8_t *output, int height2,
+                           int width2, int out_stride) {
+  uint8_t *intbuf = (uint8_t *)aom_malloc(sizeof(*intbuf) * width2 * height);
+  if (intbuf == NULL) {
+    return false;
+  }
+
+  // Resize in the horizontal direction
+  resize_horz_dir(input, in_stride, intbuf, height, width, width2);
+  // Resize in the vertical direction
+  bool mem_status =
+      resize_vert_dir(intbuf, output, out_stride, height, height2, width2);
+  aom_free(intbuf);
+  return mem_status;
+}
+
+static bool resize_generic(const uint8_t *const input, int height, int width,
+                           int in_stride, uint8_t *output, int height2,
+                           int width2, int out_stride) {
   int i;
   bool mem_status = true;
   uint8_t *intbuf = (uint8_t *)aom_malloc(sizeof(uint8_t) * width2 * height);
@@ -538,10 +585,7 @@ bool av1_resize_plane(const uint8_t *input, int height, int width,
     mem_status = false;
     goto Error;
   }
-  assert(width > 0);
-  assert(height > 0);
-  assert(width2 > 0);
-  assert(height2 > 0);
+
   for (i = 0; i < height; ++i)
     resize_multistep(input + in_stride * i, width, intbuf + width2 * i, width2,
                      tmpbuf);
@@ -557,6 +601,38 @@ Error:
   aom_free(arrbuf);
   aom_free(arrbuf2);
   return mem_status;
+}
+
+// Check if both the output width and height are half of input width and
+// height respectively.
+static INLINE bool check_is_refactor_by_2(int height, int width, int height2,
+                                          int width2) {
+  const bool is_width_by_2 = get_down2_length(width, 1) == width2;
+  const bool is_height_by_2 = get_down2_length(height, 1) == height2;
+  return (is_width_by_2 && is_height_by_2);
+}
+
+bool av1_resize_plane(const uint8_t *input, int height, int width,
+                      int in_stride, uint8_t *output, int height2, int width2,
+                      int out_stride) {
+  assert(width > 0);
+  assert(height > 0);
+  assert(width2 > 0);
+  assert(height2 > 0);
+
+  // When called from the GM tool, av1_resize_plane() always performs resizing
+  // by a factor of 2, considering only even height and width of the parent
+  // layer. Therefore, resize_to_half() handles only even dimensions. For all
+  // other cases, invoke C function as a default.
+  if (check_is_refactor_by_2(height, width, height2, width2)) {
+    assert(height % 2 == 0 && width % 2 == 0 &&
+           "Input height or width cannot be odd");
+    return resize_to_half(input, height, width, in_stride, output, height2,
+                          width2, out_stride);
+  } else {
+    return resize_generic(input, height, width, in_stride, output, height2,
+                          width2, out_stride);
+  }
 }
 
 static bool upscale_normative_rect(const uint8_t *const input, int height,
