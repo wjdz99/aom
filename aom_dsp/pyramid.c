@@ -305,6 +305,7 @@ static INLINE int fill_pyramid(const YV12_BUFFER_CONFIG *frame, int bit_depth,
 
   // Fill in the remaining levels through progressive downsampling
   for (int level = already_filled_levels; level < n_levels; ++level) {
+    bool mem_status = false;
     PyramidLayer *prev_layer = &frame_pyr->layers[level - 1];
     uint8_t *prev_buffer = prev_layer->buffer;
     int prev_stride = prev_layer->stride;
@@ -314,6 +315,11 @@ static INLINE int fill_pyramid(const YV12_BUFFER_CONFIG *frame, int bit_depth,
     int this_width = this_layer->width;
     int this_height = this_layer->height;
     int this_stride = this_layer->stride;
+
+    // The width and height of the previous layer that needs to be considered to
+    // derive the current layer frame.
+    int input_layer_width = this_width << 1;
+    int input_layer_height = this_height << 1;
 
     // Compute the this pyramid level by downsampling the current level.
     //
@@ -329,13 +335,25 @@ static INLINE int fill_pyramid(const YV12_BUFFER_CONFIG *frame, int bit_depth,
     // 2) Up/downsampling by a factor of 2 can be implemented much more
     //    efficiently than up/downsampling by a generic ratio.
     //    TODO(rachelbarker): Use optimized downsample-by-2 function
-    if (!av1_resize_plane(prev_buffer, this_height << 1, this_width << 1,
-                          prev_stride, this_buffer, this_height, this_width,
-                          this_stride)) {
-      // If we can't allocate memory, we'll have to terminate early
-      frame_pyr->filled_levels = n_levels;
-      return -1;
+
+    // SIMD support is added only for the cases where the downsample factor is
+    // exactly 2, by considering only the even dimension of input layer.
+    if (is_resize_to_half(input_layer_height, input_layer_width, this_height,
+                          this_width) &&
+        input_layer_height % 2 == 0 && input_layer_width % 2 == 0) {
+      mem_status = av1_resize_plane_to_half(
+          prev_buffer, input_layer_height, input_layer_width, prev_stride,
+          this_buffer, this_height, this_width, this_stride);
+    } else {
+      mem_status = av1_resize_plane(prev_buffer, input_layer_height,
+                                    input_layer_width, prev_stride, this_buffer,
+                                    this_height, this_width, this_stride);
     }
+
+    // If we can't allocate memory, we'll have to terminate early
+    frame_pyr->filled_levels = n_levels;
+    if (!mem_status) return -1;
+
     fill_border(this_buffer, this_width, this_height, this_stride);
   }
 

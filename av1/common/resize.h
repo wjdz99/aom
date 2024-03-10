@@ -93,6 +93,18 @@ void av1_calculate_unscaled_superres_size(int *width, int *height, int denom);
 void av1_superres_upscale(AV1_COMMON *cm, BufferPool *const pool,
                           bool alloc_pyramid);
 
+bool resize_vert_dir(uint8_t *intbuf, uint8_t *output, int out_stride,
+                     int height, int height2, int width2);
+
+void resize_horz_dir(const uint8_t *const input, int in_stride, uint8_t *intbuf,
+                     int height, int filtered_length, int width2);
+
+bool av1_resize_plane_to_half(const uint8_t *const input, int height, int width,
+                              int in_stride, uint8_t *output, int height2,
+                              int width2, int out_stride);
+
+bool is_resize_to_half(int height, int width, int height2, int width2);
+
 // Returns 1 if a superres upscaled frame is scaled and 0 otherwise.
 static INLINE int av1_superres_scaled(const AV1_COMMON *cm) {
   // Note: for some corner cases (e.g. cm->width of 1), there may be no scaling
