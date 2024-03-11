@@ -40,6 +40,12 @@
 
 #define USE_UNRESTRICTED_Q_IN_CQ_MODE 0
 
+#define ACTIVE_MAP_OUT
+#ifdef ACTIVE_MAP_OUT
+FILE *map_file;
+FILE *map_txt_file;
+#endif
+
 // Max rate target for 1080P and below encodes under normal circumstances
 // (1920 * 1080 / (16 * 16)) * MAX_MB_RATE bits per MB
 #define MAX_MB_RATE 250
@@ -414,6 +420,11 @@ void av1_primary_rc_init(const AV1EncoderConfig *oxcf,
 
 void av1_rc_init(const AV1EncoderConfig *oxcf, RATE_CONTROL *rc) {
   const RateControlCfg *const rc_cfg = &oxcf->rc_cfg;
+
+#ifdef ACTIVE_MAP_OUT
+  map_file = fopen("map.yuv", "wb");
+  map_txt_file = fopen("map_txt", "wb");
+#endif
 
   rc->frames_since_key = 8;  // Sensible default for first frame.
   rc->frames_to_fwd_kf = oxcf->kf_cfg.fwd_kf_dist;
@@ -3009,6 +3020,64 @@ static int set_block_is_active(unsigned char *const active_map_4x4, int mi_cols,
   return 0;
 }
 
+#ifdef ACTIVE_MAP_OUT
+void tmp_aom_write_one_yuv_frame(AV1_COMMON *cm, YV12_BUFFER_CONFIG *s) {
+  uint8_t *src = s->y_buffer;
+  int h = cm->height;
+  if (map_file == NULL) return;
+  if (s->flags & YV12_FLAG_HIGHBITDEPTH) {
+    uint16_t *src16 = CONVERT_TO_SHORTPTR(s->y_buffer);
+
+    do {
+      fwrite(src16, s->y_width, 2, map_file);
+      src16 += s->y_stride;
+    } while (--h);
+
+    src16 = CONVERT_TO_SHORTPTR(s->u_buffer);
+    h = s->uv_height;
+
+    do {
+      fwrite(src16, s->uv_width, 2, map_file);
+      src16 += s->uv_stride;
+    } while (--h);
+
+    src16 = CONVERT_TO_SHORTPTR(s->v_buffer);
+    h = s->uv_height;
+
+    do {
+      fwrite(src16, s->uv_width, 2, map_file);
+      src16 += s->uv_stride;
+    } while (--h);
+
+    fflush(map_file);
+    return;
+  }
+
+  do {
+    fwrite(src, s->y_width, 1, map_file);
+    src += s->y_stride;
+  } while (--h);
+
+  src = s->u_buffer;
+  h = s->uv_height;
+
+  do {
+    fwrite(src, s->uv_width, 1, map_file);
+    src += s->uv_stride;
+  } while (--h);
+
+  src = s->v_buffer;
+  h = s->uv_height;
+
+  do {
+    fwrite(src, s->uv_width, 1, map_file);
+    src += s->uv_stride;
+  } while (--h);
+
+  fflush(map_file);
+}
+#endif
+
 /*!\brief Check for scene detection, for 1 pass real-time mode.
  *
  * Compute average source sad (temporal sad: between current source and
@@ -3078,6 +3147,124 @@ static void rc_scene_detection_onepass_rt(AV1_COMP *cpi,
                      ? 50000
                      : 100000;
   }
+
+#ifdef ACTIVE_MAP_OUT
+    YV12_BUFFER_CONFIG active_map;
+    uint8_t *map_y;
+    uint8_t *map_u;
+    uint8_t *map_v;
+    uint8_t *y;
+    int src_uv_width;
+    int src_uv_height;
+    uint8_t *src_u;
+    uint8_t *src_v;
+    int src_uvstride;
+    uint8_t *last_src_u;
+    uint8_t *last_src_v;
+    int last_src_uvstride;
+    int map_ystride;
+    int map_rows = (src_height + 15) / 16;
+    int map_cols = (src_width + 15) / 16;
+    map_y = (uint8_t *)malloc(map_rows * map_cols);
+    map_u = (uint8_t *)malloc(map_rows * map_cols);
+    map_v = (uint8_t *)malloc(map_rows * map_cols);
+    uint64_t src_sad = 0;
+    memset(&active_map, 0, sizeof(YV12_BUFFER_CONFIG));
+    const SequenceHeader *seq_params = cm->seq_params;
+    if (aom_alloc_frame_buffer(
+            &active_map, cpi->oxcf.frm_dim_cfg.width,
+            cpi->oxcf.frm_dim_cfg.height, seq_params->subsampling_x,
+            seq_params->subsampling_y, seq_params->use_highbitdepth,
+            cpi->oxcf.border_in_pixels, cm->features.byte_alignment, false,
+            0)) {
+      printf("ERROR IN ALLOC \n");
+    }
+    memset(active_map.buffer_alloc, 128, active_map.frame_size);
+    y = active_map.y_buffer;
+    map_ystride = active_map.y_stride;
+    // y channel
+    int nn_y = -1;
+    for (int i = 0; i < src_height; i += 16) {
+      for (int j = 0; j < src_width; j += 16) {
+        src_sad = cpi->ppi->fn_ptr[BLOCK_16X16].sdf(src_y, src_ystride, last_src_y, last_src_ystride);
+        int index = map_cols * (i / 16) + j / 16;
+        map_y[index] = 1;
+        if (src_sad == 0) map_y[index] = 0;
+        src_y += 16;
+        last_src_y += 16;
+        nn_y++;
+      }
+      src_y += (src_ystride << 4) - (map_cols << 4);
+      last_src_y += (last_src_ystride << 4) - (map_cols << 4);
+    }
+   // UV channel
+   src_uv_width = unscaled_src->uv_width;
+   src_uv_height = unscaled_src->uv_height;
+   src_u = unscaled_src->u_buffer;
+   src_v = unscaled_src->v_buffer;
+   src_uvstride = unscaled_src->uv_stride;
+   last_src_u = unscaled_last_src->u_buffer;
+   last_src_v = unscaled_last_src->v_buffer;
+   last_src_uvstride = unscaled_last_src->uv_stride;
+   // u channel
+    for (int i = 0; i < src_uv_height; i += 8) {
+      for (int j = 0; j < src_uv_width; j += 8) {
+        src_sad = cpi->ppi->fn_ptr[BLOCK_8X8].sdf(src_u, src_uvstride, last_src_u, last_src_uvstride);
+        int index = map_cols * (i / 8) + j / 8;
+        map_u[index] = 1;
+        if (src_sad == 0) map_u[index] = 0;
+        src_u += 8;
+        last_src_u += 8;
+      }
+      src_u += (src_uvstride << 3) - (map_cols << 3);
+      last_src_u += (last_src_uvstride << 3) - (map_cols << 3);
+    }
+    // v channel
+    for (int i = 0; i < src_uv_height; i += 8) {
+      for (int j = 0; j < src_uv_width; j += 8) {
+        src_sad = cpi->ppi->fn_ptr[BLOCK_8X8].sdf(src_v, src_uvstride, last_src_v, last_src_uvstride);
+        int index = map_cols * (i / 8) + j / 8;
+        map_v[index] = 1;
+        if (src_sad == 0) map_v[index] = 0;
+        src_v += 8;
+        last_src_v += 8;
+      }
+      src_v += (src_uvstride << 3) - (map_cols << 3);
+      last_src_v += (last_src_uvstride << 3) - (map_cols << 3);
+    }
+    // write out map in txt file.
+    for (int i = 0; i < src_height; i += 16) {
+      for (int j = 0; j < src_width; j += 16) {
+        int index = map_cols * (i / 16) + j / 16;
+        int map = 0;
+        if (map_y[index] || map_u[index] || map_v[index]) map = 1;
+        fprintf(map_txt_file, "%d %d %d %d \n", cm->current_frame.frame_number, i, j, map);
+      }
+    }
+    // write out map overlayed over input video.
+    src_y = unscaled_src->y_buffer;
+    for (int i = 0; i < src_height; i+=16) {
+      for (int j = 0; j < src_width; j+=16) {
+        for (int i2 = 0; i2 < 16; i2++) {
+          for (int j2 = 0; j2 < 16; j2++) {
+            int index = map_cols * (i / 16) + j / 16;
+            if (map_y[index] || map_u[index] || map_v[index])
+            //if (map_y[index])
+              y[(i + i2) * map_ystride + j + j2] = 255;
+            else
+              y[(i + i2) * map_ystride + j + j2] = src_y[(i + i2) * src_ystride + j + j2];
+          }
+        }
+      }
+    }
+    tmp_aom_write_one_yuv_frame(cm, &active_map);
+    free(map_y);
+    free(map_u);
+    free(map_v);
+    src_y = unscaled_src->y_buffer;
+    last_src_y = unscaled_last_src->y_buffer;  
+#endif
+
   const BLOCK_SIZE bsize = BLOCK_64X64;
   // Loop over sub-sample of frame, compute average sad over 64x64 blocks.
   uint64_t avg_sad = 0;
@@ -3155,6 +3342,7 @@ static void rc_scene_detection_onepass_rt(AV1_COMP *cpi,
     src_y += (src_ystride << 6) - (sb_cols << 6);
     last_src_y += (last_src_ystride << 6) - (sb_cols << 6);
   }
+  //printf("%d %d \n", num_zero_temp_sad, num_samples);
   if (check_light_change && num_samples > 0 &&
       num_low_var_high_sumdiff > (num_samples >> 1))
     light_change = 1;
