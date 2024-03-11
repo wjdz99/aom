@@ -3242,6 +3242,8 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
       get_conv_params(/*do_average=*/0, AOM_PLANE_Y, xd->bd);
 
   x->block_is_zero_sad = x->content_state_sb.source_sad_nonrd == kZeroSad;
+  if (segfeature_active(&cm->seg, segment_id, SEG_LVL_SKIP))
+    x->block_is_zero_sad = 1;
   if (cpi->oxcf.tune_cfg.content == AOM_CONTENT_SCREEN &&
       !x->force_zeromv_skip_for_blk &&
       x->content_state_sb.source_sad_nonrd != kZeroSad &&
