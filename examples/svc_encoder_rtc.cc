@@ -1443,7 +1443,8 @@ static int qindex_to_quantizer(int qindex) {
 }
 
 static void set_active_map(const aom_codec_enc_cfg_t *cfg,
-                           aom_codec_ctx_t *codec, int frame_cnt) {
+                           aom_codec_ctx_t *codec, int frame_cnt,
+                           FILE *map_file) {
   aom_active_map_t map = { 0, 0, 0 };
 
   map.rows = (cfg->g_h + 15) / 16;
@@ -1452,15 +1453,24 @@ static void set_active_map(const aom_codec_enc_cfg_t *cfg,
   map.active_map = (uint8_t *)malloc(map.rows * map.cols);
   if (!map.active_map) die("Failed to allocate active map");
 
+  int aa1, aa2, aa3, aa4;
+
   // Example map for testing.
   for (unsigned int i = 0; i < map.rows; ++i) {
     for (unsigned int j = 0; j < map.cols; ++j) {
       int index = map.cols * i + j;
+      //
       map.active_map[index] = 1;
       if (frame_cnt < 300) {
         if (i < map.rows / 2 && j < map.cols / 2) map.active_map[index] = 0;
       } else if (frame_cnt >= 300) {
         if (i < map.rows / 2 && j >= map.cols / 2) map.active_map[index] = 0;
+      }
+      //
+      map.active_map[index] = 0;
+      if (frame_cnt >= 1) {
+        fscanf(map_file, "%d %d %d %d \n", &aa1, &aa2, &aa3, &aa4);
+        map.active_map[index] = aa4;
       }
     }
   }
@@ -1753,6 +1763,8 @@ int main(int argc, const char **argv) {
     rc_api = aom::AV1RateControlRTC::Create(rc_cfg);
   }
 
+  FILE *map_file = fopen("map_txt", "r");
+
   frame_avail = 1;
   struct psnr_stats psnr_stream;
   memset(&psnr_stream, 0, sizeof(psnr_stream));
@@ -1906,7 +1918,7 @@ int main(int argc, const char **argv) {
         }
       }
 
-      if (test_active_maps) set_active_map(&cfg, &codec, frame_cnt);
+      if (test_active_maps || 1) set_active_map(&cfg, &codec, frame_cnt, map_file);
 
       // Do the layer encode.
       aom_usec_timer_start(&timer);
