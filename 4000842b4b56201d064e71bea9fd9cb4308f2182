@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6531e0c7_8c80455b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 3334063
+      },
+      "writtenOn": "2024-03-11T15:04:16Z",
+      "side": 1,
+      "message": "FYI I applied this change locally and no longer see visual artifacts in CRD and a quick set of measurements shows that speed 11 still out performs speed 10 by ~6% for the scenario I checked.",
+      "revId": "4000842b4b56201d064e71bea9fd9cb4308f2182",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
