@@ -16,6 +16,24 @@
       "message": "In the original code, the relative pts is 10 - 11 \u003d -1. When the relative pts and duration are added, the addition is done using the 64-bit `unsigned long` type, so we get an unsigned integer overflow. Unsigned integer overflow is defined behavior in C, but is not expected here. So I increased the initial pts to 12 to avoid the unsigned integer overflow.",
       "revId": "77317a77d321d093f2ac0ba0775c32d28bfeee80",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cd07313a_a1ebccfa",
+        "filename": "test/encode_api_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 585,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2024-03-13T23:55:48Z",
+      "side": 0,
+      "message": "Does it imply that if the caller call aom_codec_encode() function with specific pts and duration, this unsigned integer overflow problem could occur?",
+      "parentUuid": "27b8546d_d837b942",
+      "revId": "77317a77d321d093f2ac0ba0775c32d28bfeee80",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
