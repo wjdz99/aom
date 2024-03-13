@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9acde88e_48d65215",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 3109,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-03-13T23:48:53Z",
+      "side": 1,
+      "message": "While debugging, I found that the addition `ptsvol + duration` was done using an unsigned integer type. Apparently this is because `int64_t + unsigned long` is done using the `unsigned long` type when `unsigned long` is 64 bits.\n\nApparently the addition here is intended to use the `int64_t` type, so I cast `duration` to `int64_t` before the addition.",
+      "revId": "162550438f0a3494f920125db86e1db3834cb7bf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bb726ec6_cd76c8f5",
+        "filename": "test/encode_api_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 614,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-03-13T23:48:53Z",
+      "side": 1,
+      "message": "The new comment matches the error message \"conversion of relative pts to ticks would overflow\" better.",
+      "revId": "162550438f0a3494f920125db86e1db3834cb7bf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
