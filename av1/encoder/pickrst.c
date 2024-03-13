@@ -1124,6 +1124,7 @@ static INLINE int64_t multiply_and_scale(int64_t x, int32_t w1, int32_t w2) {
   // Let y = x * w / WIENER_TAP_SCALE_FACTOR
   //       = x * (w1 * WIENER_TAP_SCALE_FACTOR + w2) / WIENER_TAP_SCALE_FACTOR
   const int64_t y = x * w1 + x * w2 / WIENER_TAP_SCALE_FACTOR;
+<<<<<<< HEAD   (77317a Add cdef_block_ssse3.c to a separate variable)
   // Double-check the calculation using __int128.
   // TODO(wtc): Remove after 2024-04-30.
 #if !defined(NDEBUG) && defined(__GNUC__) && defined(__LP64__)
@@ -1133,6 +1134,8 @@ static INLINE int64_t multiply_and_scale(int64_t x, int32_t w1, int32_t w2) {
   assert(z <= INT64_MAX);
   assert(y == (int64_t)z);
 #endif
+=======
+>>>>>>> BRANCH (615b5f Add bug aomedia:3545 to CHANGELOG for v3.8.2)
   return y;
 }
 
