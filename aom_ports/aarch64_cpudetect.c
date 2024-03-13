@@ -116,7 +116,11 @@ static int arm_get_cpu_caps(void) {
 #if HAVE_ARM_CRC32 || HAVE_NEON_DOTPROD || HAVE_SVE
   unsigned long hwcap = getauxval(AT_HWCAP);
 #endif
+<<<<<<< HEAD   (77317a Add cdef_block_ssse3.c to a separate variable)
 #if HAVE_NEON_I8MM || HAVE_SVE2
+=======
+#if HAVE_NEON_I8MM
+>>>>>>> BRANCH (615b5f Add bug aomedia:3545 to CHANGELOG for v3.8.2)
   unsigned long hwcap2 = getauxval(AT_HWCAP2);
 #endif
 
