@@ -3,6 +3,29 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "f3e815c4_16b9121b",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2024-03-14T22:15:31Z",
+      "side": 1,
+      "message": "this should go after `encodemv.h`",
+      "range": {
+        "startLine": 32,
+        "startChar": 0,
+        "endLine": 32,
+        "endChar": 38
+      },
+      "revId": "fa7ecc24a497540c77aada49ee8a2023c11b136e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "2caac6b7_d4207633",
         "filename": "av1/encoder/ratectrl.c",
         "patchSetId": 3
@@ -44,6 +67,92 @@
         "endLine": 3105,
         "endChar": 25
       },
+      "revId": "fa7ecc24a497540c77aada49ee8a2023c11b136e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "305d73c7_919ae0d0",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 3106,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2024-03-14T22:15:31Z",
+      "side": 1,
+      "message": "maybe you can factor this out in a function so you don\u0027t need to do something in line 3119 and 3120 (could just return)",
+      "range": {
+        "startLine": 3106,
+        "startChar": 0,
+        "endLine": 3106,
+        "endChar": 71
+      },
+      "revId": "fa7ecc24a497540c77aada49ee8a2023c11b136e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c6d66bee_c06ed52f",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 3125,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2024-03-14T22:15:31Z",
+      "side": 1,
+      "message": "use braces here (and `else`) since the body doesn\u0027t fit in one line\n\nhttps://google.github.io/styleguide/cppguide.html#Formatting_Looping_Branching\n\nor use\n\n```\ntmp_sad \u003d block_is_active ? ... : 0;\n```",
+      "range": {
+        "startLine": 3125,
+        "startChar": 0,
+        "endLine": 3125,
+        "endChar": 26
+      },
+      "revId": "fa7ecc24a497540c77aada49ee8a2023c11b136e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "08aa5460_40f8f26d",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 3493,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2024-03-14T22:15:31Z",
+      "side": 1,
+      "message": "this comment should go to block `else if`",
+      "range": {
+        "startLine": 3493,
+        "startChar": 0,
+        "endLine": 3493,
+        "endChar": 72
+      },
+      "revId": "fa7ecc24a497540c77aada49ee8a2023c11b136e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c117827e_7242ee27",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 3643,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2024-03-14T22:15:31Z",
+      "side": 1,
+      "message": "remove one extra line",
       "revId": "fa7ecc24a497540c77aada49ee8a2023c11b136e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
