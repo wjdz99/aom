@@ -26,6 +26,30 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "b959ed5e_2ef973a1",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 2963,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-03-14T00:05:55Z",
+      "side": 1,
+      "message": "The `unsigned long duration` parameter comes from the public API function `aom_codec_encode()`, so we cannot change its type to `uint64_t` in the libaom 3.* releases.\n\nWe will be able to change its type in the libaom 4.0.0 release, in which we can make backward-incompatible changes to the public API. It is better to change the type of `duration` to `uint32_t`, because `uint64_t` is too big. The type of the `pts` parameter is `int64_t`, so the type of the `duration` parameter should not be bigger.",
+      "parentUuid": "8e8a5efe_925fcdb5",
+      "range": {
+        "startLine": 2963,
+        "startChar": 38,
+        "endLine": 2963,
+        "endChar": 51
+      },
+      "revId": "162550438f0a3494f920125db86e1db3834cb7bf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "9acde88e_48d65215",
         "filename": "av1/av1_cx_iface.c",
         "patchSetId": 1
