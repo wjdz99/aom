@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5a6bd8c8_ba62db71",
+        "filename": "av1/common/alloccommon.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 208,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-03-15T21:24:34Z",
+      "side": 1,
+      "message": "Note that I am not sure if this condition is correct. Since I am not familiar with this code, I did not try to fix the condition fully. I am content with a condition that is strictly better than the original condition and fixes the referenced bugs.\n\nHere is the history of this condition.\n\n1) The condition was originally added in https://aomedia-review.googlesource.com/c/aom/+/135142 as the condition for an early return in `av1_alloc_cdef_linebuf()`:\n\nav1/common/alloccommon.c:\n\n```\nvoid av1_alloc_cdef_linebuf(AV1_COMMON *const cm) {\n  ...\n\n  if (!cm-\u003eseq_params.enable_cdef \u0026\u0026 cm-\u003etiles.large_scale) return;\n\n  for (int plane \u003d 0; plane \u003c num_planes; plane++) {\n    if (cdef_info-\u003elinebuf[plane] \u003d\u003d NULL) {\n      const int stride \u003d\n          luma_stride \u003e\u003e\n          (plane \u003d\u003d AOM_PLANE_Y ? 0 : cm-\u003eseq_params.subsampling_x);\n      CHECK_MEM_ERROR(cm, cdef_info-\u003elinebuf[plane],\n                      aom_malloc(sizeof(*cdef_info-\u003elinebuf) * num_bufs *\n                                 (CDEF_VBORDER \u003c\u003c 1) * stride));\n    }\n  }\n}\n```\n\n2) In https://aomedia-review.googlesource.com/c/aom/+/136381, the condition is stored in the local variable `is_cdef_enabled`.\n\nav1/common/alloccommon.c:\n\n```\nvoid av1_alloc_cdef_buffers(AV1_COMMON *const cm,\n                            AV1CdefWorkerData **cdef_worker,\n                            AV1CdefSync *cdef_sync, int num_workers) {\n  ...\n  const int is_cdef_enabled \u003d\n      cm-\u003eseq_params-\u003eenable_cdef \u0026\u0026 !cm-\u003etiles.large_scale;\n\n  ...\n\n  if (is_cdef_enabled) {\n    ...\n  }\n\n  ...\n\n  if (!is_cdef_enabled) return;\n\n  ...\n}\n```\n\nNote that `is_cdef_enabled` is not the negation of the previous condition. I.e., here is the early return before and after this CL:\n\nBefore:\n\n```\n  if (!cm-\u003eseq_params.enable_cdef \u0026\u0026 cm-\u003etiles.large_scale) return;\n```\n\nAfter:\n\n```\n  const int is_cdef_enabled \u003d\n      cm-\u003eseq_params-\u003eenable_cdef \u0026\u0026 !cm-\u003etiles.large_scale;\n  ...\n  if (!is_cdef_enabled) return;\n```\n\nI assume this is the bug fix, because the negation of the previous condition seems wrong (`cm-\u003etiles.large_scale` is 0 by default):\n\n```\n  const int is_cdef_enabled \u003d\n      cm-\u003eseq_params.enable_cdef || !cm-\u003etiles.large_scale;\n```",
+      "revId": "158761dfb40e77f3a54c3b14a596112837baa24b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
