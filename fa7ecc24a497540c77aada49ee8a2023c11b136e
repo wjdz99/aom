@@ -24,6 +24,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "7eee8166_3ee1fff3",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2024-03-15T06:36:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f3e815c4_16b9121b",
+      "range": {
+        "startLine": 32,
+        "startChar": 0,
+        "endLine": 32,
+        "endChar": 38
+      },
+      "revId": "fa7ecc24a497540c77aada49ee8a2023c11b136e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "2caac6b7_d4207633",
@@ -94,6 +118,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "9b601b84_e1a87a93",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 3106,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2024-03-15T06:36:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "305d73c7_919ae0d0",
+      "range": {
+        "startLine": 3106,
+        "startChar": 0,
+        "endLine": 3106,
+        "endChar": 71
+      },
+      "revId": "fa7ecc24a497540c77aada49ee8a2023c11b136e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c6d66bee_c06ed52f",
@@ -107,6 +155,30 @@
       "writtenOn": "2024-03-14T22:15:31Z",
       "side": 1,
       "message": "use braces here (and `else`) since the body doesn\u0027t fit in one line\n\nhttps://google.github.io/styleguide/cppguide.html#Formatting_Looping_Branching\n\nor use\n\n```\ntmp_sad \u003d block_is_active ? ... : 0;\n```",
+      "range": {
+        "startLine": 3125,
+        "startChar": 0,
+        "endLine": 3125,
+        "endChar": 26
+      },
+      "revId": "fa7ecc24a497540c77aada49ee8a2023c11b136e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "68da423e_6c1e9e7a",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 3125,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2024-03-15T06:36:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c6d66bee_c06ed52f",
       "range": {
         "startLine": 3125,
         "startChar": 0,
@@ -140,6 +212,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "3a649685_0aab3bdc",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 3493,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2024-03-15T06:36:47Z",
+      "side": 1,
+      "message": "removed the comment, since its not really needed",
+      "parentUuid": "08aa5460_40f8f26d",
+      "range": {
+        "startLine": 3493,
+        "startChar": 0,
+        "endLine": 3493,
+        "endChar": 72
+      },
+      "revId": "fa7ecc24a497540c77aada49ee8a2023c11b136e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c117827e_7242ee27",
@@ -153,6 +249,24 @@
       "writtenOn": "2024-03-14T22:15:31Z",
       "side": 1,
       "message": "remove one extra line",
+      "revId": "fa7ecc24a497540c77aada49ee8a2023c11b136e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7e8df98a_dd6e10ec",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 3643,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2024-03-15T06:36:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c117827e_7242ee27",
       "revId": "fa7ecc24a497540c77aada49ee8a2023c11b136e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
