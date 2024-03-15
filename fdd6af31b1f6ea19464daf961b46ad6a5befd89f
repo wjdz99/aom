@@ -16,6 +16,24 @@
       "message": "Add an assertion here?\nassert(duration \u003c\u003d UINT32_MAX);",
       "revId": "fdd6af31b1f6ea19464daf961b46ad6a5befd89f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b80340bc_4df35821",
+        "filename": "aom/src/aom_encoder.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 194,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-03-15T01:03:16Z",
+      "side": 1,
+      "message": "Thanks for the suggestion. Assertions should only be used for conditions that are under our control. `duration` is an input parameter passed to the public API function `aom_codec_encode()`. It is not under our control.",
+      "parentUuid": "79bde4ce_6085a1f5",
+      "revId": "fdd6af31b1f6ea19464daf961b46ad6a5befd89f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
