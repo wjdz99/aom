@@ -434,14 +434,7 @@ void av1_apply_active_map(AV1_COMP *cpi) {
     if (cpi->active_map.enabled) {
       const int num_mis =
           cpi->common.mi_params.mi_rows * cpi->common.mi_params.mi_cols;
-      for (i = 0; i < num_mis; ++i) {
-        // In active region: only unset segmentation map if cyclic refresh is
-        // not set.
-        if (active_map[i] == AM_SEGMENT_ID_INACTIVE ||
-            (seg_map[i] != CR_SEGMENT_ID_BOOST1 &&
-             seg_map[i] != CR_SEGMENT_ID_BOOST2))
-          seg_map[i] = active_map[i];
-      }
+      memcpy(seg_map, active_map, sizeof(active_map[0]) * num_mis);
       av1_enable_segmentation(seg);
       av1_enable_segfeature(seg, AM_SEGMENT_ID_INACTIVE, SEG_LVL_SKIP);
       av1_enable_segfeature(seg, AM_SEGMENT_ID_INACTIVE, SEG_LVL_ALT_LF_Y_H);
