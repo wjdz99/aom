@@ -15,6 +15,7 @@
 #include "av1/common/pred_common.h"
 #include "av1/common/seg_common.h"
 #include "av1/encoder/aq_cyclicrefresh.h"
+#include "av1/encoder/encoder_utils.h"
 #include "av1/encoder/ratectrl.h"
 #include "av1/encoder/segmentation.h"
 #include "av1/encoder/tokenize.h"
@@ -295,6 +296,7 @@ static void cyclic_refresh_update_map(AV1_COMP *const cpi) {
   const CommonModeInfoParams *const mi_params = &cm->mi_params;
   CYCLIC_REFRESH *const cr = cpi->cyclic_refresh;
   unsigned char *const seg_map = cpi->enc_seg.map;
+  unsigned char *const active_map_4x4 = cpi->active_map.map;
   int i, block_count, bl_index, sb_rows, sb_cols, sbs_in_frame;
   int xmis, ymis, x, y;
   uint64_t sb_sad = 0;
@@ -357,7 +359,9 @@ static void cyclic_refresh_update_map(AV1_COMP *const cpi) {
         // for possible boost/refresh (segment 1). The segment id may get
         // reset to 0 later if block gets coded anything other than low motion.
         // If the block_sad (sb_sad) is very low label it for refresh anyway.
-        if (cr->map[bl_index2] == 0 || sb_sad < thresh_sad_low) {
+        if ((cr->map[bl_index2] == 0 || sb_sad < thresh_sad_low) &&
+            (!cpi->active_map.enabled ||
+             active_map_4x4[bl_index2] == AM_SEGMENT_ID_ACTIVE)) {
           sum_map += 4;
         } else if (cr->map[bl_index2] < 0) {
           cr->map[bl_index2]++;
@@ -423,7 +427,7 @@ void av1_cyclic_refresh_update_parameters(AV1_COMP *const cpi) {
   // function av1_cyclic_reset_segment_skip(). Skipping over
   // 4x4 will therefore have small bdrate loss (~0.2%), so
   // we use it only for speed > 9 for now.
-  cr->skip_over4x4 = (cpi->oxcf.speed > 9 && !cpi->active_map.enabled) ? 1 : 0;
+  cr->skip_over4x4 = (cpi->oxcf.speed > 9) ? 1 : 0;
 
   // should we enable cyclic refresh on this frame.
   cr->apply_cyclic_refresh = 1;
@@ -447,6 +451,12 @@ void av1_cyclic_refresh_update_parameters(AV1_COMP *const cpi) {
     cr->percent_refresh = 15;
   else
     cr->percent_refresh = 10 + cr->percent_refresh_adjustment;
+
+  if (cpi->active_map.enabled) {
+    cr->percent_refresh =
+        cr->percent_refresh * (100 - cpi->rc.percent_blocks_inactive) / 100;
+    if (cr->percent_refresh == 0) cr->apply_cyclic_refresh = 0;
+  }
 
   cr->max_qdelta_perc = 60;
   cr->time_for_refresh = 0;
