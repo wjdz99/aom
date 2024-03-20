@@ -20,6 +20,10 @@
 extern "C" {
 #endif
 
+// Filters for factor of 2 downsampling.
+static const int16_t av1_down2_symeven_half_filter[] = { 56, 12, -3, -1 };
+static const int16_t av1_down2_symodd_half_filter[] = { 64, 35, 0, -3 };
+
 bool av1_resize_plane(const uint8_t *input, int height, int width,
                       int in_stride, uint8_t *output, int height2, int width2,
                       int out_stride);
@@ -92,9 +96,6 @@ void av1_calculate_unscaled_superres_size(int *width, int *height, int denom);
 
 void av1_superres_upscale(AV1_COMMON *cm, BufferPool *const pool,
                           bool alloc_pyramid);
-
-bool resize_vert_dir(uint8_t *intbuf, uint8_t *output, int out_stride,
-                     int height, int height2, int width2);
 
 void resize_horz_dir(const uint8_t *const input, int in_stride, uint8_t *intbuf,
                      int height, int filtered_length, int width2);
