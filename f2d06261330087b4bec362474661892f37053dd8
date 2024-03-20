@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a43adfea_431e1833",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 3334063
+      },
+      "writtenOn": "2024-03-20T15:21:40Z",
+      "side": 1,
+      "message": "From my testing this change reduces per-frame encoding in CRD by ~3-5%.",
+      "revId": "f2d06261330087b4bec362474661892f37053dd8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
