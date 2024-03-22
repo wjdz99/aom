@@ -3308,6 +3308,10 @@ INSTANTIATE_TEST_SUITE_P(
                       Mse16xHParams(2, 3, &aom_mse_16xh_16bit_avx2, 8),
                       Mse16xHParams(2, 2, &aom_mse_16xh_16bit_avx2, 8)));
 
+INSTANTIATE_TEST_SUITE_P(
+    AVX2, AvxHBDMseTest,
+    ::testing::Values(MseParams(4, 4, &aom_highbd_10_mse16x16_avx2, 10)));
+
 INSTANTIATE_TEST_SUITE_P(AVX2, AvxMseTest,
                          ::testing::Values(MseParams(4, 4,
                                                      &aom_mse16x16_avx2)));
