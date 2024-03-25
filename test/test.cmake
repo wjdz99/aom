@@ -222,10 +222,6 @@ if(ENABLE_TESTS)
                   "make sure it's in your PATH.")
   endif()
 
-  if(MSVC) # Force static run time to avoid collisions with googletest.
-    include("${AOM_ROOT}/build/cmake/msvc_runtime.cmake")
-  endif()
-
   if(BUILD_SHARED_LIBS AND APPLE) # Silence an RPATH warning.
     set(CMAKE_MACOSX_RPATH 1)
   endif()
@@ -233,15 +229,10 @@ if(ENABLE_TESTS)
   include_directories(
     "${AOM_ROOT}/third_party/googletest/src/googletest/include")
 
-  if(AOM_DISABLE_GTEST_CMAKE)
-    include_directories("${AOM_ROOT}/third_party/googletest/src/googletest")
-    add_library(
-      gtest STATIC
-      "${AOM_ROOT}/third_party/googletest/src/googletest/src/gtest-all.cc")
-  else()
-    add_subdirectory("${AOM_ROOT}/third_party/googletest/src/googletest"
-                     EXCLUDE_FROM_ALL)
-  endif()
+  include_directories("${AOM_ROOT}/third_party/googletest/src/googletest")
+  add_library(
+    libaom_gtest STATIC
+    "${AOM_ROOT}/third_party/googletest/src/googletest/src/gtest-all.cc")
 endif()
 
 # Setup testdata download targets, test build targets, and test run targets. The
@@ -293,12 +284,12 @@ function(setup_aom_test_targets)
                      ${AOM_TEST_INTRA_PRED_SPEED_SOURCES}
                      $<TARGET_OBJECTS:aom_common_app_util>)
       target_link_libraries(test_intra_pred_speed ${AOM_LIB_LINK_TYPE} aom
-                            gtest)
+                            libaom_gtest)
       list(APPEND AOM_APP_TARGETS test_intra_pred_speed)
     endif()
   endif()
 
-  target_link_libraries(test_libaom ${AOM_LIB_LINK_TYPE} aom gtest)
+  target_link_libraries(test_libaom ${AOM_LIB_LINK_TYPE} aom libaom_gtest)
 
   if(CONFIG_LIBYUV)
     target_sources(test_libaom PRIVATE $<TARGET_OBJECTS:yuv>)
