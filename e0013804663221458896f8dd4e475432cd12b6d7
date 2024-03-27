@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d5b62303_a7d7f2d5",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-03-27T01:09:14Z",
+      "side": 1,
+      "message": "There is a new reason for this change now -- to get rid of the following warnings from cmake 3.28.1:\n\n```\nCMake Warning (dev) at test/test.cmake:16 (include):\n  Policy CMP0148 is not set: The FindPythonInterp and FindPythonLibs modules\n  are removed.  Run \"cmake --help-policy CMP0148\" for policy details.  Use\n  the cmake_policy command to set the policy and suppress this warning.\n\nCall Stack (most recent call first):\n  CMakeLists.txt:94 (include)\nThis warning is for project developers.  Use -Wno-dev to suppress it.\n\n-- Found PythonInterp: /usr/bin/python (found version \"3.11.7\") \nCMake Warning (dev) at test/test.cmake:217 (find_package):\n  Policy CMP0148 is not set: The FindPythonInterp and FindPythonLibs modules\n  are removed.  Run \"cmake --help-policy CMP0148\" for policy details.  Use\n  the cmake_policy command to set the policy and suppress this warning.\n\nCall Stack (most recent call first):\n  CMakeLists.txt:94 (include)\nThis warning is for project developers.  Use -Wno-dev to suppress it.\n```",
+      "revId": "e0013804663221458896f8dd4e475432cd12b6d7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
