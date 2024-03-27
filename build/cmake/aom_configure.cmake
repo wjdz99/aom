@@ -285,6 +285,11 @@ else()
   # Add -Wundef only for C files to avoid massive gtest warning spam.
   add_c_flag_if_supported("-Wundef")
 
+  # Disable the following Clang warning in googletest headers: definition of
+  # implicit copy constructor for 'foo' is deprecated because it has a user-
+  # provided copy assignment operator
+  add_cxx_flag_if_supported(-Wno-deprecated-copy-with-user-provided-copy)
+
   if(ENABLE_WERROR)
     add_compiler_flag_if_supported("-Werror")
   endif()
