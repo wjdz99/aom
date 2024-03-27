@@ -34,6 +34,24 @@
       "parentUuid": "19d74574_e05c38d5",
       "revId": "3a9101e89d05efbfdeafe133962efbafae271200",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a423398a_d6aebb11",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-03-27T19:31:57Z",
+      "side": 1,
+      "message": "\u003e Should I update lint-hunks.py in av1-normative?\n\u003e \n\u003e I think we just need to cherry-pick two CLs:\n\u003e https://aomedia-review.googlesource.com/158021\n\u003e https://aomedia-review.googlesource.com/158302\n\nIt\u0027s up to you. It\u0027s not strictly necessary.",
+      "parentUuid": "26547c4d_e36a6477",
+      "revId": "3a9101e89d05efbfdeafe133962efbafae271200",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ],
   "submitRequirementResults": [
