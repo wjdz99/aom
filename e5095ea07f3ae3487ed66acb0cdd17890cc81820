@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "31b0cfcf_20a34883",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-03-27T21:36:36Z",
+      "side": 1,
+      "message": "James: Please review the new patchset. While reviewing the similar code, I realized that I can disable this warning only for googletest and files that depend on googletest.",
+      "revId": "e5095ea07f3ae3487ed66acb0cdd17890cc81820",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
