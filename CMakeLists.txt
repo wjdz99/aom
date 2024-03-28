@@ -8,6 +8,7 @@
 # License 1.0 was not distributed with this source code in the PATENTS file, you
 # can obtain it at www.aomedia.org/license/patent.
 #
+set(BUILD_SHARED_LIBS ON)
 if(CONFIG_TFLITE)
   cmake_minimum_required(VERSION 3.11)
 else()
@@ -323,7 +324,7 @@ if(NOT WIN32 AND NOT APPLE)
   endif()
 endif()
 
-if(CONFIG_AV1_ENCODER AND NOT BUILD_SHARED_LIBS)
+if(CONFIG_AV1_ENCODER)
   list(APPEND AOM_AV1_RC_SOURCES "${AOM_ROOT}/av1/ratectrl_rtc.h"
               "${AOM_ROOT}/av1/ratectrl_rtc.cc")
   add_library(aom_av1_rc ${AOM_AV1_RC_SOURCES})
@@ -336,7 +337,7 @@ endif()
 
 # List of object and static library targets.
 set(AOM_LIB_TARGETS ${AOM_LIB_TARGETS} aom_rtcd aom_mem aom_scale aom)
-if(CONFIG_AV1_ENCODER AND NOT BUILD_SHARED_LIBS)
+if(CONFIG_AV1_ENCODER)
   set(AOM_LIB_TARGETS ${AOM_LIB_TARGETS} aom_av1_rc)
 endif()
 if(BUILD_SHARED_LIBS)
