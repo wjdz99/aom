@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "95a40c02_e6acd69e",
+        "filename": "av1/common/quant_common.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 262,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-03-28T21:53:49Z",
+      "side": 0,
+      "message": "This CL fixes the following UBSan runtime error:\n\nquant_common.c:262\napplying zero offset to null pointer\n\nhttps://build.aomedia.org/jenkins/job/libaom__per_commit-unit_test-sanitizers/28191/Clang-IOC/folder.155513581/",
+      "revId": "51d4d0c1fef16cf1a952efc36c4dc99b8a7c81dc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
