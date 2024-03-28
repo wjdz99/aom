@@ -334,6 +334,17 @@ if(CONFIG_AV1_ENCODER AND NOT BUILD_SHARED_LIBS)
   set_target_properties(aom_av1_rc PROPERTIES LINKER_LANGUAGE CXX)
 endif()
 
+if(CONFIG_AV1_ENCODER AND BUILD_SHARED_LIBS)
+  list(APPEND AOM_AV1_RC_SOURCES "${AOM_ROOT}/av1/ratectrl_rtc.h"
+              "${AOM_ROOT}/av1/ratectrl_rtc.cc")
+  add_library(aom_av1_rc SHARED ${AOM_AV1_RC_SOURCES})
+  target_link_libraries(aom_av1_rc ${AOM_LIB_LINK_TYPE} aom)
+  if(NOT WIN32 AND NOT APPLE)
+    target_link_libraries(aom_av1_rc ${AOM_LIB_LINK_TYPE} m)
+  endif()
+  set_target_properties(aom_av1_rc PROPERTIES LINKER_LANGUAGE CXX)
+endif()
+
 # List of object and static library targets.
 set(AOM_LIB_TARGETS ${AOM_LIB_TARGETS} aom_rtcd aom_mem aom_scale aom)
 if(CONFIG_AV1_ENCODER AND NOT BUILD_SHARED_LIBS)
