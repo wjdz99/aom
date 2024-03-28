@@ -323,7 +323,7 @@ if(NOT WIN32 AND NOT APPLE)
   endif()
 endif()
 
-if(CONFIG_AV1_ENCODER AND NOT BUILD_SHARED_LIBS)
+if(CONFIG_AV1_ENCODER)
   list(APPEND AOM_AV1_RC_SOURCES "${AOM_ROOT}/av1/ratectrl_rtc.h"
               "${AOM_ROOT}/av1/ratectrl_rtc.cc")
   add_library(aom_av1_rc ${AOM_AV1_RC_SOURCES})
@@ -336,7 +336,7 @@ endif()
 
 # List of object and static library targets.
 set(AOM_LIB_TARGETS ${AOM_LIB_TARGETS} aom_rtcd aom_mem aom_scale aom)
-if(CONFIG_AV1_ENCODER AND NOT BUILD_SHARED_LIBS)
+if(CONFIG_AV1_ENCODER)
   set(AOM_LIB_TARGETS ${AOM_LIB_TARGETS} aom_av1_rc)
 endif()
 if(BUILD_SHARED_LIBS)
@@ -493,13 +493,11 @@ if(CONFIG_AV1_ENCODER)
                 photon_noise_table set_maps simple_encoder scalable_encoder
                 twopass_encoder)
 
-    if(NOT BUILD_SHARED_LIBS)
-      add_executable(svc_encoder_rtc "${AOM_ROOT}/examples/svc_encoder_rtc.cc"
+    add_executable(svc_encoder_rtc "${AOM_ROOT}/examples/svc_encoder_rtc.cc"
                                      $<TARGET_OBJECTS:aom_common_app_util>
                                      $<TARGET_OBJECTS:aom_encoder_app_util>)
-      target_link_libraries(svc_encoder_rtc ${AOM_LIB_LINK_TYPE} aom_av1_rc)
-      list(APPEND AOM_ENCODER_EXAMPLE_TARGETS svc_encoder_rtc)
-    endif()
+    target_link_libraries(svc_encoder_rtc ${AOM_LIB_LINK_TYPE} aom_av1_rc)
+    list(APPEND AOM_ENCODER_EXAMPLE_TARGETS svc_encoder_rtc)
   endif()
 
   if(ENABLE_TOOLS)
@@ -576,6 +574,7 @@ if(CONFIG_AV1_ENCODER)
     set_target_properties(aom PROPERTIES LINKER_LANGUAGE CXX)
     if(BUILD_SHARED_LIBS)
       set_target_properties(aom_static PROPERTIES LINKER_LANGUAGE CXX)
+      set_target_properties(aom_static PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
     endif()
 
     list(APPEND AOM_LIB_TARGETS yuv)
@@ -897,6 +896,10 @@ if(CONFIG_AV1_DECODER AND ENABLE_EXAMPLES)
 endif()
 if(CONFIG_AV1_ENCODER AND ENABLE_EXAMPLES)
   list(APPEND AOM_DIST_APPS $<TARGET_FILE:aomenc>)
+endif()
+
+if(CONFIG_AV1_ENCODER)
+  target_link_libraries(aom_av1_rc PRIVATE aom_static)
 endif()
 
 if(ENABLE_EXAMPLES)
