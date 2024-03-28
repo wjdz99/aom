@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "92dd3d77_23e524be",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-03-28T20:00:27Z",
+      "side": 1,
+      "message": "GCC 13.2.0 warns:\n\n```\n[24/47] Building C object CMakeFiles/aom_av1_encoder.dir/av1/encoder/rdopt.c.o\n/home/wtc/aom.normative.1/aom/av1/encoder/rdopt.c: In function ‘handle_inter_mode’:\n/home/wtc/aom.normative.1/aom/av1/encoder/rdopt.c:8332:9: warning: ‘av1_build_inter_predictors_for_planes_single_buf’ accessing 24 bytes in a region of size 8 [-Wstringop-overflow\u003d]\n 8332 |         av1_build_inter_predictors_for_planes_single_buf(\n      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n 8333 |             xd, bsize, 0, 0, mi_row, mi_col, 0, preds0, strides,\n      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n 8334 |             can_use_previous);\n      |             ~~~~~~~~~~~~~~~~~\n/home/wtc/aom.normative.1/aom/av1/encoder/rdopt.c:8332:9: note: referencing argument 8 of type ‘uint8_t *[3]’ {aka ‘unsigned char *[3]’}\n/home/wtc/aom.normative.1/aom/av1/encoder/rdopt.c:8332:9: warning: ‘av1_build_inter_predictors_for_planes_single_buf’ accessing 12 bytes in a region of size 4 [-Wstringop-overflow\u003d]\n/home/wtc/aom.normative.1/aom/av1/encoder/rdopt.c:8332:9: note: referencing argument 9 of type ‘int[3]’\nIn file included from /home/wtc/aom.normative.1/aom/av1/encoder/rdopt.c:35:\n/home/wtc/aom.normative.1/aom/av1/common/reconinter.h:437:6: note: in a call to function ‘av1_build_inter_predictors_for_planes_single_buf’\n  437 | void av1_build_inter_predictors_for_planes_single_buf(\n      |      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n/home/wtc/aom.normative.1/aom/av1/encoder/rdopt.c:8335:9: warning: ‘av1_build_inter_predictors_for_planes_single_buf’ accessing 24 bytes in a region of size 8 [-Wstringop-overflow\u003d]\n 8335 |         av1_build_inter_predictors_for_planes_single_buf(\n      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n 8336 |             xd, bsize, 0, 0, mi_row, mi_col, 1, preds1, strides,\n      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n 8337 |             can_use_previous);\n      |             ~~~~~~~~~~~~~~~~~\n/home/wtc/aom.normative.1/aom/av1/encoder/rdopt.c:8335:9: note: referencing argument 8 of type ‘uint8_t *[3]’ {aka ‘unsigned char *[3]’}\n/home/wtc/aom.normative.1/aom/av1/encoder/rdopt.c:8335:9: warning: ‘av1_build_inter_predictors_for_planes_single_buf’ accessing 12 bytes in a region of size 4 [-Wstringop-overflow\u003d]\n/home/wtc/aom.normative.1/aom/av1/encoder/rdopt.c:8335:9: note: referencing argument 9 of type ‘int[3]’\n/home/wtc/aom.normative.1/aom/av1/common/reconinter.h:437:6: note: in a call to function ‘av1_build_inter_predictors_for_planes_single_buf’\n  437 | void av1_build_inter_predictors_for_planes_single_buf(\n      |      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n```",
+      "revId": "566b8454f2c24e028fb5732bd3a5b47e11ab75a8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
