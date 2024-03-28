@@ -284,9 +284,9 @@ else()
 endif()
 add_library(aom ${target_objs_aom} $<TARGET_OBJECTS:aom_rtcd>)
 
+add_library(aom_static STATIC ${target_objs_aom} $<TARGET_OBJECTS:aom_rtcd>)
+set_target_properties(aom_static PROPERTIES OUTPUT_NAME aom)
 if(BUILD_SHARED_LIBS)
-  add_library(aom_static STATIC ${target_objs_aom} $<TARGET_OBJECTS:aom_rtcd>)
-  set_target_properties(aom_static PROPERTIES OUTPUT_NAME aom)
   if(MSVC OR (WIN32 AND NOT MINGW))
     # Fix race condition between the import library and the static library.
     # Affects MSVC in all three flavors (stock, clang-cl, LLVM -- the latter
@@ -318,16 +318,15 @@ endif()
 
 if(NOT WIN32 AND NOT APPLE)
   target_link_libraries(aom ${AOM_LIB_LINK_TYPE} m)
-  if(BUILD_SHARED_LIBS)
-    target_link_libraries(aom_static ${AOM_LIB_LINK_TYPE} m)
-  endif()
+  target_link_libraries(aom_static ${AOM_LIB_LINK_TYPE} m)
 endif()
 
-if(CONFIG_AV1_ENCODER AND NOT BUILD_SHARED_LIBS)
+if(CONFIG_AV1_ENCODER)
   list(APPEND AOM_AV1_RC_SOURCES "${AOM_ROOT}/av1/ratectrl_rtc.h"
               "${AOM_ROOT}/av1/ratectrl_rtc.cc")
   add_library(aom_av1_rc ${AOM_AV1_RC_SOURCES})
   target_link_libraries(aom_av1_rc ${AOM_LIB_LINK_TYPE} aom)
+  target_link_libraries(aom_av1_rc PRIVATE aom_static)
   if(NOT WIN32 AND NOT APPLE)
     target_link_libraries(aom_av1_rc ${AOM_LIB_LINK_TYPE} m)
   endif()
@@ -336,12 +335,11 @@ endif()
 
 # List of object and static library targets.
 set(AOM_LIB_TARGETS ${AOM_LIB_TARGETS} aom_rtcd aom_mem aom_scale aom)
-if(CONFIG_AV1_ENCODER AND NOT BUILD_SHARED_LIBS)
+if(CONFIG_AV1_ENCODER)
   set(AOM_LIB_TARGETS ${AOM_LIB_TARGETS} aom_av1_rc)
 endif()
-if(BUILD_SHARED_LIBS)
-  set(AOM_LIB_TARGETS ${AOM_LIB_TARGETS} aom_static)
-endif()
+
+set(AOM_LIB_TARGETS ${AOM_LIB_TARGETS} aom_static)
 
 # Setup dependencies.
 if(CONFIG_THREE_PASS)
@@ -493,13 +491,11 @@ if(CONFIG_AV1_ENCODER)
                 photon_noise_table set_maps simple_encoder scalable_encoder
                 twopass_encoder)
 
-    if(NOT BUILD_SHARED_LIBS)
-      add_executable(svc_encoder_rtc "${AOM_ROOT}/examples/svc_encoder_rtc.cc"
-                                     $<TARGET_OBJECTS:aom_common_app_util>
-                                     $<TARGET_OBJECTS:aom_encoder_app_util>)
-      target_link_libraries(svc_encoder_rtc ${AOM_LIB_LINK_TYPE} aom_av1_rc)
-      list(APPEND AOM_ENCODER_EXAMPLE_TARGETS svc_encoder_rtc)
-    endif()
+    add_executable(svc_encoder_rtc "${AOM_ROOT}/examples/svc_encoder_rtc.cc"
+                                   $<TARGET_OBJECTS:aom_common_app_util>
+                                   $<TARGET_OBJECTS:aom_encoder_app_util>)
+    target_link_libraries(svc_encoder_rtc ${AOM_LIB_LINK_TYPE} aom_av1_rc)
+    list(APPEND AOM_ENCODER_EXAMPLE_TARGETS svc_encoder_rtc)
   endif()
 
   if(ENABLE_TOOLS)
@@ -574,15 +570,12 @@ if(CONFIG_AV1_ENCODER)
     endif()
 
     set_target_properties(aom PROPERTIES LINKER_LANGUAGE CXX)
-    if(BUILD_SHARED_LIBS)
-      set_target_properties(aom_static PROPERTIES LINKER_LANGUAGE CXX)
-    endif()
+    set_target_properties(aom_static PROPERTIES LINKER_LANGUAGE CXX)
+    set_target_properties(aom_static PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
 
     list(APPEND AOM_LIB_TARGETS yuv)
     target_sources(aom PRIVATE $<TARGET_OBJECTS:yuv>)
-    if(BUILD_SHARED_LIBS)
-      target_sources(aom_static PRIVATE $<TARGET_OBJECTS:yuv>)
-    endif()
+    target_sources(aom_static PRIVATE $<TARGET_OBJECTS:yuv>)
   endif()
 
   if(CONFIG_TFLITE)
@@ -630,10 +623,8 @@ if(CONFIG_AV1_ENCODER)
     find_package(PkgConfig)
     if(PKG_CONFIG_FOUND)
       pkg_check_modules(VMAF REQUIRED libvmaf)
-      if(BUILD_SHARED_LIBS)
-        target_link_libraries(aom_static
-                              PRIVATE ${VMAF_LDFLAGS} ${VMAF_LIBRARIES})
-      endif()
+      target_link_libraries(aom_static
+                            PRIVATE ${VMAF_LDFLAGS} ${VMAF_LIBRARIES})
       target_link_libraries(aom PRIVATE ${VMAF_LDFLAGS} ${VMAF_LIBRARIES})
       target_include_directories(aom_dsp_encoder PRIVATE ${VMAF_INCLUDE_DIRS})
       if(VMAF_CFLAGS)
@@ -645,9 +636,7 @@ if(CONFIG_AV1_ENCODER)
       message(FATAL_ERROR "CONFIG_TUNE_VMAF error: pkg-config not found.")
     endif()
     set_target_properties(aom PROPERTIES LINKER_LANGUAGE CXX)
-    if(BUILD_SHARED_LIBS)
-      set_target_properties(aom_static PROPERTIES LINKER_LANGUAGE CXX)
-    endif()
+    set_target_properties(aom_static PROPERTIES LINKER_LANGUAGE CXX)
   endif()
 endif()
 
@@ -771,9 +760,7 @@ endif()
 if(HAVE_PTHREAD_H AND CONFIG_MULTITHREAD)
   find_package(Threads)
   target_link_libraries(aom ${AOM_LIB_LINK_TYPE} Threads::Threads)
-  if(BUILD_SHARED_LIBS)
-    target_link_libraries(aom_static ${AOM_LIB_LINK_TYPE} Threads::Threads)
-  endif()
+  target_link_libraries(aom_static ${AOM_LIB_LINK_TYPE} Threads::Threads)
 endif()
 
 if(XCODE)
