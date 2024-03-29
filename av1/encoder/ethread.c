@@ -2229,8 +2229,8 @@ void av1_tpl_dealloc(AV1TplRowMultiThreadSync *tpl_sync) {
 }
 
 // Allocate memory for tpl row synchronization.
-void av1_tpl_alloc(AV1TplRowMultiThreadSync *tpl_sync, AV1_COMMON *cm,
-                   int mb_rows) {
+static void av1_tpl_alloc(AV1TplRowMultiThreadSync *tpl_sync, AV1_COMMON *cm,
+                          int mb_rows) {
   tpl_sync->rows = mb_rows;
 #if CONFIG_MULTITHREAD
   {
@@ -2286,8 +2286,8 @@ static AOM_INLINE void prepare_tpl_workers(AV1_COMP *cpi, AVxWorkerHook hook,
       // OBMC buffers are used only to init MS params and remain unused when
       // called from tpl, hence set the buffers to defaults.
       av1_init_obmc_buffer(&thread_data->td->mb.obmc_buffer);
-      if (!tpl_alloc_temp_buffers(&thread_data->td->tpl_tmp_buffers,
-                                  cpi->ppi->tpl_data.tpl_bsize_1d)) {
+      if (!av1_tpl_alloc_temp_buffers(&thread_data->td->tpl_tmp_buffers,
+                                      cpi->ppi->tpl_data.tpl_bsize_1d)) {
         aom_internal_error(cpi->common.error, AOM_CODEC_MEM_ERROR,
                            "Error allocating tpl data");
       }
