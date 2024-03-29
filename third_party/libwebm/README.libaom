@@ -7,6 +7,7 @@ Description:
 libwebm is used to handle WebM container I/O.
 
 Local Changes:
+f4121f6 mkvmuxerutil: remove unneeded const qualifier in cast
 Add av1 codec as an eligible codec for webm:
  https://aomedia-review.googlesource.com/c/aom/+/15103
 Only keep:
