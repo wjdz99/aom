@@ -40,6 +40,10 @@
 
 // Working precision for Wiener filter coefficients
 #define WIENER_TAP_SCALE_FACTOR ((int64_t)1 << 16)
+// The product of PART1 and PART2 should be equal to WIENER_TAP_SCALE_FACTOR.
+// Make PART1 as large as possible.
+#define WIENER_TAP_SCALE_FACTOR_PART1 ((int64_t)1 << 15)
+#define WIENER_TAP_SCALE_FACTOR_PART2 ((int64_t)1 << 1)
 
 #define SGRPROJ_EP_GRP1_START_IDX 0
 #define SGRPROJ_EP_GRP1_END_IDX 9
@@ -1197,10 +1201,28 @@ static int linsolve_wiener(int n, int64_t *A, int stride, int64_t *b,
     if (A[i * stride + i] == 0) return 0;
     int64_t c = 0;
     for (int j = i + 1; j <= n - 1; j++) {
-      c += A[i * stride + j] * x[j] / WIENER_TAP_SCALE_FACTOR;
+      // Calculate
+      //   c += A[i * stride + j] * x[j] / WIENER_TAP_SCALE_FACTOR;
+      const int64_t A_ij = A[i * stride + j];
+      const int64_t x1 = x[j] / WIENER_TAP_SCALE_FACTOR;
+      const int64_t x2 = x[j] - x1 * WIENER_TAP_SCALE_FACTOR;
+      assert(x[j] == x1 * WIENER_TAP_SCALE_FACTOR + x2);
+      const int64_t y = A_ij * x1 + A_ij * x2 / WIENER_TAP_SCALE_FACTOR;
+      // Double-check the calculation using __int128.
+      // TODO(wtc): Remove after 2024-05-31.
+#if !defined(NDEBUG) && defined(__GNUC__) && defined(__LP64__)
+      const __int128 z = (__int128)A_ij * x[j] / WIENER_TAP_SCALE_FACTOR;
+      assert(z >= INT64_MIN);
+      assert(z <= INT64_MAX);
+      assert(y == (int64_t)z);
+#endif
+      c += y;
     }
     // Store filter taps x in scaled form.
-    x[i] = WIENER_TAP_SCALE_FACTOR * (b[i] - c) / A[i * stride + i];
+    // Calculate
+    //   x[i] = WIENER_TAP_SCALE_FACTOR * (b[i] - c) / A[i * stride + i];
+    x[i] = WIENER_TAP_SCALE_FACTOR_PART1 * (b[i] - c) / A[i * stride + i] *
+           WIENER_TAP_SCALE_FACTOR_PART2;
   }
 
   return 1;
