@@ -667,7 +667,7 @@ static INLINE void prepare_coeffs_6t(
   const int16_t *filter = av1_get_interp_filter_subpel_kernel(
       filter_params, subpel_q4 & SUBPEL_MASK);
 
-  const __m128i coeff_8 = _mm_loadu_si128((__m128i *)(filter + 1));
+  const __m128i coeff_8 = _mm_loadu_si128((__m128i *)(filter));
   const __m256i coeff = _mm256_broadcastsi128_si256(coeff_8);
 
   // coeffs 1 2 1 2 1 2 1 2
