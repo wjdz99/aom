@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "03f67d2f_1d9dd554",
+        "filename": "test/test.cmake",
+        "patchSetId": 1
+      },
+      "lineNbr": 240,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-03-30T02:34:31Z",
+      "side": 0,
+      "message": "When I extended this approach to GCC, I got a warning when usage_exit.c was compiled, because GCC\u0027s -Dno-deprecated-copy flag is C++ only.\n\nIt doesn\u0027t seem possible to restrict target_compile_options() to C++ files. So I went back to the add_cxx_flag_if_supported() approach. The downside is that all C++ files, not just those that include googletest headers, will disable these compiler warnings.\n\nNote: A possible solution is to generate usage_exit.cc. I remember one of the Arm engineers tried that (in the Chromium source tree).",
+      "revId": "0120ce150d579a012aa724843225366f7ac76b06",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
