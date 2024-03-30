@@ -34,6 +34,24 @@
       "parentUuid": "03f67d2f_1d9dd554",
       "revId": "0120ce150d579a012aa724843225366f7ac76b06",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6827399a_3d186151",
+        "filename": "test/test.cmake",
+        "patchSetId": 1
+      },
+      "lineNbr": 240,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-03-30T17:26:42Z",
+      "side": 0,
+      "message": "Done. Thanks a lot for looking up that CL. I also found that the av1-normative branch has usage_exit.cc. (I missed it earlier.) So it\u0027s easy to make the `target_compile_options()` solution work.",
+      "parentUuid": "03777fbd_756af911",
+      "revId": "0120ce150d579a012aa724843225366f7ac76b06",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
