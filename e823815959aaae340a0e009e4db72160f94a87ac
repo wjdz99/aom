@@ -16,6 +16,24 @@
       "message": "Any change in the assembly? I\u0027d be fine with adding version checking macros and using the new intrinsic function if available, if it makes a difference.",
       "revId": "e823815959aaae340a0e009e4db72160f94a87ac",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bb821dc1_50473643",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 29052
+      },
+      "writtenOn": "2024-04-02T19:03:59Z",
+      "side": 1,
+      "message": "A quick local test shows the same assembly before and after this patch, at least for gcc 13 on x86-64 Linux.",
+      "parentUuid": "95ece8ff_6c9720d8",
+      "revId": "e823815959aaae340a0e009e4db72160f94a87ac",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
