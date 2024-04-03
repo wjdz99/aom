@@ -36,8 +36,7 @@ static aom_image_t *img_alloc_helper(
   /* NOTE: In this function, bit_depth is either 8 or 16 (if
    * AOM_IMG_FMT_HIGHBITDEPTH is set), never 10 or 12.
    */
-  unsigned int h, w, s, xcs, ycs, bps, bit_depth;
-  unsigned int stride_in_bytes;
+  unsigned int h, w, xcs, ycs, bps, bit_depth;
 
   if (img != NULL) memset(img, 0, sizeof(aom_image_t));
 
@@ -108,9 +107,11 @@ static aom_image_t *img_alloc_helper(
   w = align_image_dimension(d_w, xcs, size_align);
   h = align_image_dimension(d_h, ycs, size_align);
 
-  s = (fmt & AOM_IMG_FMT_PLANAR) ? w : bps * w / bit_depth;
+  uint64_t s = (fmt & AOM_IMG_FMT_PLANAR) ? w : (uint64_t)bps * w / bit_depth;
   s = (s + 2 * border + stride_align - 1) & ~(stride_align - 1);
-  stride_in_bytes = s * bit_depth / 8;
+  s = s * bit_depth / 8;
+  if (s > UINT_MAX) goto fail;
+  const unsigned int stride_in_bytes = (unsigned int)s;
 
   /* Allocate the new image */
   if (!img) {

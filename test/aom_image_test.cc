@@ -70,3 +70,22 @@ TEST(AomImageTest, AomImgAllocNv12) {
   EXPECT_EQ(img.planes[AOM_PLANE_V], nullptr);
   aom_img_free(&img);
 }
+
+TEST(AomImageTest, AomImgAllocHugeWidth) {
+  // The stride (0x80000000 * 2)
+  aom_image_t *image =
+      aom_img_alloc(nullptr, AOM_IMG_FMT_I42016, 0x80000000, 1, 1);
+  ASSERT_EQ(image, nullptr);
+
+  image =
+      aom_img_alloc(nullptr, AOM_IMG_FMT_I42016, 0x7fffffff, 2, 1);
+  if (image) {
+    aom_img_free(image);
+  }
+
+  image =
+      aom_img_alloc(nullptr, AOM_IMG_FMT_I42016, 285245883, 2, 1);
+  if (image) {
+    aom_img_free(image);
+  }
+}
