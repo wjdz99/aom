@@ -1378,7 +1378,7 @@ static int fast_detect_non_zero_motion(AV1_COMP *cpi, const uint8_t *src_y,
 // Grade the temporal variation of the source by comparing the current sb and
 // its collocated block in the last frame.
 void av1_source_content_sb(AV1_COMP *cpi, MACROBLOCK *x, TileDataEnc *tile_data,
-                           int mi_row, int mi_col) {
+                           int mi_row, int mi_col, int segment_id) {
   if (cpi->last_source->y_width != cpi->source->y_width ||
       cpi->last_source->y_height != cpi->source->y_height)
     return;
@@ -1388,6 +1388,9 @@ void av1_source_content_sb(AV1_COMP *cpi, MACROBLOCK *x, TileDataEnc *tile_data,
 
   unsigned int tmp_sse;
   unsigned int tmp_variance;
+  const int seg_boosted =
+      cyclic_refresh_segment_id(segment_id) == CR_SEGMENT_ID_BOOST1 ||
+      cyclic_refresh_segment_id(segment_id) == CR_SEGMENT_ID_BOOST2;
   const BLOCK_SIZE bsize = cpi->common.seq_params->sb_size;
   uint8_t *src_y = cpi->source->y_buffer;
   const int src_ystride = cpi->source->y_stride;
@@ -1433,8 +1436,10 @@ void av1_source_content_sb(AV1_COMP *cpi, MACROBLOCK *x, TileDataEnc *tile_data,
   if ((tmp_sse - tmp_variance) < (sum_sq_thresh >> 1))
     x->content_state_sb.low_sumdiff = 1;
 
-  if (tmp_sse > ((avg_source_sse_threshold_high * 7) >> 3) &&
-      !x->content_state_sb.lighting_change && !x->content_state_sb.low_sumdiff)
+  if ((seg_boosted && tmp_sse > (avg_source_sse_threshold_high >> 6)) ||
+      (tmp_sse > ((avg_source_sse_threshold_high * 7) >> 3) &&
+       !x->content_state_sb.lighting_change &&
+       !x->content_state_sb.low_sumdiff))
     x->sb_force_fixed_part = 0;
 
   if (!cpi->sf.rt_sf.use_rtc_tf || cpi->rc.high_source_sad ||

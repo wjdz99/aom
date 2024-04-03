@@ -537,7 +537,9 @@ static AOM_INLINE void encode_nonrd_sb(AV1_COMP *cpi, ThreadData *td,
   // Set the partition
   if (sf->part_sf.partition_search_type == FIXED_PARTITION || seg_skip ||
       (sf->rt_sf.use_fast_fixed_part && x->sb_force_fixed_part == 1 &&
-       !frame_is_intra_only(cm))) {
+       !frame_is_intra_only(cm)) &&
+          (!cpi->ppi->use_svc ||
+           !cpi->svc.layer_context[cpi->svc.temporal_layer_id].is_key_frame)) {
     // set a fixed-size partition
     av1_set_offsets(cpi, tile_info, x, mi_row, mi_col, sb_size);
     BLOCK_SIZE bsize_select = sf->part_sf.fixed_partition_size;
@@ -1083,7 +1085,8 @@ static AOM_INLINE bool is_calc_src_content_needed(AV1_COMP *cpi,
 static AOM_INLINE void grade_source_content_sb(AV1_COMP *cpi,
                                                MACROBLOCK *const x,
                                                TileDataEnc *tile_data,
-                                               int mi_row, int mi_col) {
+                                               int mi_row, int mi_col,
+                                               int segment_id) {
   AV1_COMMON *const cm = &cpi->common;
   if (cm->current_frame.frame_type == KEY_FRAME ||
       (cpi->ppi->use_svc &&
@@ -1108,7 +1111,7 @@ static AOM_INLINE void grade_source_content_sb(AV1_COMP *cpi,
       x->content_state_sb.source_sad_rd = kZeroSad;
   }
   if (calc_src_content)
-    av1_source_content_sb(cpi, x, tile_data, mi_row, mi_col);
+    av1_source_content_sb(cpi, x, tile_data, mi_row, mi_col, segment_id);
 }
 
 /*!\brief Encode a superblock row by breaking it into superblocks
@@ -1136,6 +1139,7 @@ static AOM_INLINE void encode_sb_row(AV1_COMP *cpi, ThreadData *td,
   const int mib_size_log2 = cm->seq_params->mib_size_log2;
   const int sb_row = (mi_row - tile_info->mi_row_start) >> mib_size_log2;
   const int use_nonrd_mode = cpi->sf.rt_sf.use_nonrd_pick_mode;
+  uint8_t segment_id = 0;
 
 #if CONFIG_COLLECT_COMPONENT_TIMING
   start_timing(cpi, encode_sb_row_time);
@@ -1224,7 +1228,7 @@ static AOM_INLINE void encode_sb_row(AV1_COMP *cpi, ThreadData *td,
     if (seg->enabled) {
       const uint8_t *const map =
           seg->update_map ? cpi->enc_seg.map : cm->last_frame_seg_map;
-      const uint8_t segment_id =
+      segment_id =
           map ? get_segment_id(&cm->mi_params, map, sb_size, mi_row, mi_col)
               : 0;
       seg_skip = segfeature_active(seg, segment_id, SEG_LVL_SKIP);
@@ -1237,7 +1241,8 @@ static AOM_INLINE void encode_sb_row(AV1_COMP *cpi, ThreadData *td,
 
     // Grade the temporal variation of the sb, the grade will be used to decide
     // fast mode search strategy for coding blocks
-    if (!seg_skip) grade_source_content_sb(cpi, x, tile_data, mi_row, mi_col);
+    if (!seg_skip)
+      grade_source_content_sb(cpi, x, tile_data, mi_row, mi_col, segment_id);
 
     // encode the superblock
     if (use_nonrd_mode) {
