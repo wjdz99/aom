@@ -84,6 +84,24 @@
       "message": "This test already includes a private header (`av1/encoder/firstpass.h`), so it might be allowable to include this one.",
       "revId": "976e16cc8b032e2672ba82c8c866353f463ad014",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3ead798b_64d48a08",
+        "filename": "test/ethread_test.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 415,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-04-04T21:00:22Z",
+      "side": 1,
+      "message": "Done. This test includes av1/encoder/firstpass.h to get the size of `FIRSTPASS_STATS` at line 28. This test is not compiled if we are building a shared library (BUILD_SHARED_LIBS\u003d1), so it indeed can include private headers.",
+      "parentUuid": "35c89826_da71449a",
+      "revId": "976e16cc8b032e2672ba82c8c866353f463ad014",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
