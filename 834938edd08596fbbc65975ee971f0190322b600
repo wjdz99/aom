@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1de995fd_85d94fb1",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-04-04T17:55:06Z",
+      "side": 1,
+      "message": "I\u0027ll correct the hash before submitting if the libvpx change needs a rebase on submit.",
+      "revId": "834938edd08596fbbc65975ee971f0190322b600",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
