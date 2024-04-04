@@ -16,6 +16,23 @@
       "message": "I\u0027ll correct the hash before submitting if the libvpx change needs a rebase on submit.",
       "revId": "834938edd08596fbbc65975ee971f0190322b600",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5c941458_2f3b0e82",
+        "filename": "aom_util/aom_pthread.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-04-04T18:02:35Z",
+      "side": 1,
+      "message": "The inclusion of \u003cerrno.h\u003e was dropped when aom_pthread.h was added in https://aomedia-review.googlesource.com/c/aom/+/187224. I wonder if I suggested we omit \u003cerrno.h\u003e because I didn\u0027t notice the use of `EBUSY`.",
+      "revId": "834938edd08596fbbc65975ee971f0190322b600",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
