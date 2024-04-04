@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d6488be0_013c5bd8",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-04-04T20:23:15Z",
+      "side": 1,
+      "message": "`MAX_NUM_THREADS` is used at line 689.",
+      "revId": "976e16cc8b032e2672ba82c8c866353f463ad014",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "59588953_0566fa8a",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-04-04T20:23:15Z",
+      "side": 1,
+      "message": "`MAX_NUM_THREADS` is used at line 1521.",
+      "revId": "976e16cc8b032e2672ba82c8c866353f463ad014",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "06533926_b28496e1",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-04-04T20:23:15Z",
+      "side": 1,
+      "message": "`MAX_NUM_THREADS` is used at line 1948 and line 2029.",
+      "revId": "976e16cc8b032e2672ba82c8c866353f463ad014",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "58e0cb41_687e087a",
+        "filename": "av1/encoder/global_motion.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-04-04T20:23:15Z",
+      "side": 1,
+      "message": "`MAX_NUM_THREADS` is used at line 49.",
+      "revId": "976e16cc8b032e2672ba82c8c866353f463ad014",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
