@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d20f7a35_96af3396",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-04-04T19:05:35Z",
+      "side": 1,
+      "message": "Add a \"Bug: b:324147074\" line here.",
+      "revId": "2d6998b63d9fe34e21c7386d3f842f6dc08a2d39",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f9d2f4ad_1705f51c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-04-04T19:05:35Z",
+      "side": 1,
+      "message": "LGTM. Thanks!",
+      "revId": "2d6998b63d9fe34e21c7386d3f842f6dc08a2d39",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
