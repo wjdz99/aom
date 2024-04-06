@@ -33,6 +33,24 @@
       "message": "James: I can cause a `uint64_t` overflow when we multiply by `bps` with this test case:\n\n```\n  aom_image_t *image \u003d\n      aom_img_alloc_with_border(nullptr, AOM_IMG_FMT_I422, 1, INT_MAX,\n                                1, 0x40000000, 0);\n```\n\nI am afraid that the strategy of checking for overflows requires too much work. I suggest we switch to the strategy of imposing reasonable maximum on every input parameter so that all the arithmetic has no risk of overflowing.\n\nHow about the following maximum values?\n\n* d_w, d_h: 0x08000000 (\u003d 2^27)\n* buf_align, stride_align, size_align, border: 65536\n\nSince `bps \u003c\u003d 48 \u003c 64`, then `(h + 2 * border) * stride_in_bytes * bps \u003c 2^28 * 2^29 * 64 \u003d 2^63`.",
       "revId": "e867a8a33f1114d58e6c70382ba4c09721bd6142",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5eb29fba_92f3d138",
+        "filename": "aom/src/aom_image.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-04-06T01:55:22Z",
+      "side": 1,
+      "message": "\u003e James: I can cause a `uint64_t` overflow when we multiply by `bps` with this test case:\n\u003e \n\u003e ```\n\u003e   aom_image_t *image \u003d\n\u003e       aom_img_alloc_with_border(nullptr, AOM_IMG_FMT_I422, 1, INT_MAX,\n\u003e                                 1, 0x40000000, 0);\n\u003e ```\n\u003e \n\u003e I am afraid that the strategy of checking for overflows requires too much work. I suggest we switch to the strategy of imposing reasonable maximum on every input parameter so that all the arithmetic has no risk of overflowing.\n\u003e \n\u003e How about the following maximum values?\n\u003e \n\u003e * d_w, d_h: 0x08000000 (\u003d 2^27)\n\u003e * buf_align, stride_align, size_align, border: 65536\n\u003e \n\u003e Since `bps \u003c\u003d 48 \u003c 64`, then `(h + 2 * border) * stride_in_bytes * bps \u003c 2^28 * 2^29 * 64 \u003d 2^63`.\n\nI know there were certain embedded / Android cases that might benefit from alignment between 1-4K, I don\u0027t know that I\u0027ve seen higher, so this might be reasonable.",
+      "parentUuid": "b13c0c2d_f97a0b1a",
+      "revId": "e867a8a33f1114d58e6c70382ba4c09721bd6142",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
