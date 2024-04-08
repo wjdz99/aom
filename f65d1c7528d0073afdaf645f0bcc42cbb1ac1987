@@ -16,6 +16,24 @@
       "message": "This block of new code differs from lines 326-335 in only two places:\n\n1. The conditional in the if statement\n2. Whether or not \"SHARED\" is specified in the add_library(aom_av1_rc ...) call\n\nIt should be possible to share code. For example, we should at least merge the two block of code into something like this:\n\n```\nif(CONFIG_AV1_ENCODER)\n  list(APPEND AOM_AV1_RC_SOURCES \"${AOM_ROOT}/av1/ratectrl_rtc.h\"\n              \"${AOM_ROOT}/av1/ratectrl_rtc.cc\")\n  if(BUILD_SHARED_LIBS)\n    add_library(aom_av1_rc SHARED ${AOM_AV1_RC_SOURCES})\n  else()\n    add_library(aom_av1_rc ${AOM_AV1_RC_SOURCES})\n  endif()\n  target_link_libraries(aom_av1_rc ${AOM_LIB_LINK_TYPE} aom)\n  if(NOT WIN32 AND NOT APPLE)\n    target_link_libraries(aom_av1_rc ${AOM_LIB_LINK_TYPE} m)\n  endif()\n  set_target_properties(aom_av1_rc PROPERTIES LINKER_LANGUAGE CXX)\nendif()\n```\n\nAlso, according to cmake documentstion, `SHARED` is the default when `BUILD_SHARED_LIBS` is set:\nhttps://cmake.org/cmake/help/latest/variable/BUILD_SHARED_LIBS.html\n\nSo I think all we need to do is to remove \"AND NOT BUILD_SHARED_LIBS\" from line 326; it should not be necessary to add any new code.",
       "revId": "f65d1c7528d0073afdaf645f0bcc42cbb1ac1987",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7990518c_cad94777",
+        "filename": "CMakeLists.txt",
+        "patchSetId": 1
+      },
+      "lineNbr": 346,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-04-08T19:04:30Z",
+      "side": 1,
+      "message": "Hi Pradeep,\n\nCould you please try the following patch instead?\n\nThe first change in the patch is equivalent to this CL (patchset 1).\n\nThe second change in the patch is needed because the conditionals in those two if statement should be the same.\n\n```\ndiff --git a/CMakeLists.txt b/CMakeLists.txt\nindex 00a7e2bca9..cd7d8c91b8 100644\n--- a/CMakeLists.txt\n+++ b/CMakeLists.txt\n@@ -323,7 +323,7 @@ if(NOT WIN32 AND NOT APPLE)\n   endif()\n endif()\n \n-if(CONFIG_AV1_ENCODER AND NOT BUILD_SHARED_LIBS)\n+if(CONFIG_AV1_ENCODER)\n   list(APPEND AOM_AV1_RC_SOURCES \"${AOM_ROOT}/av1/ratectrl_rtc.h\"\n               \"${AOM_ROOT}/av1/ratectrl_rtc.cc\")\n   add_library(aom_av1_rc ${AOM_AV1_RC_SOURCES})\n@@ -336,7 +336,7 @@ endif()\n \n # List of object and static library targets.\n set(AOM_LIB_TARGETS ${AOM_LIB_TARGETS} aom_rtcd aom_mem aom_scale aom)\n-if(CONFIG_AV1_ENCODER AND NOT BUILD_SHARED_LIBS)\n+if(CONFIG_AV1_ENCODER)\n   set(AOM_LIB_TARGETS ${AOM_LIB_TARGETS} aom_av1_rc)\n endif()\n if(BUILD_SHARED_LIBS)\n```",
+      "parentUuid": "2004a5f7_c69bdc18",
+      "revId": "f65d1c7528d0073afdaf645f0bcc42cbb1ac1987",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
