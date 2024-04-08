@@ -118,6 +118,10 @@ int av1_get_cb_rdmult(const AV1_COMP *const cpi, MACROBLOCK *const x,
   if (cpi->oxcf.q_cfg.aq_mode != NO_AQ) return deltaq_rdmult;
   if (x->rb == 0) return deltaq_rdmult;
 
+  const GF_GROUP *const gf_group = &cpi->ppi->gf_group;
+  if (!is_frame_tpl_eligible(gf_group, cpi->gf_frame_index))
+    return deltaq_rdmult;
+
   TplParams *const tpl_data = &cpi->ppi->tpl_data;
   TplDepFrame *tpl_frame = &tpl_data->tpl_frame[tpl_idx];
   TplDepStats *tpl_stats = tpl_frame->tpl_stats_ptr;
@@ -990,6 +994,9 @@ int av1_get_q_for_deltaq_objective(AV1_COMP *const cpi, ThreadData *td,
   TplDepStats *tpl_stats = tpl_frame->tpl_stats_ptr;
   int tpl_stride = tpl_frame->stride;
   if (!tpl_frame->is_valid) return base_qindex;
+
+  const GF_GROUP *const gf_group = &cpi->ppi->gf_group;
+  if (!is_frame_tpl_eligible(gf_group, cpi->gf_frame_index)) return base_qindex;
 
 #ifndef NDEBUG
   int mi_count = 0;

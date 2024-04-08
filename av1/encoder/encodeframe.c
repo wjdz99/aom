@@ -1923,7 +1923,7 @@ static AOM_INLINE void encode_frame_internal(AV1_COMP *cpi) {
     const GF_GROUP *gf_group = &cpi->ppi->gf_group;
     if (cm->delta_q_info.delta_q_present_flag) {
       if (deltaq_mode == DELTA_Q_OBJECTIVE &&
-          gf_group->update_type[cpi->gf_frame_index] == LF_UPDATE)
+          !is_frame_tpl_eligible(gf_group, cpi->gf_frame_index))
         cm->delta_q_info.delta_q_present_flag = 0;
 
       if (deltaq_mode == DELTA_Q_OBJECTIVE &&
