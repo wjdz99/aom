@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "25e4ef81_7561bb5f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-04-09T22:11:52Z",
+      "side": 1,
+      "message": "James: PTAL. You just need to review the diffs between patchsets 2 and 4. Thanks!",
+      "revId": "bdb75ce27dd805d95f8f089630ecc21cbad33003",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
