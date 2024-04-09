@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a20587ee_1f9e0e29",
+        "filename": "aom/src/aom_image.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-04-09T02:13:42Z",
+      "side": 1,
+      "message": "Note that `bit_depth` is either 16 or 8, so `bit_depth / 8` (at line 112) is either 2 or 1.",
+      "revId": "ec023acce137a629437b96147dbd873064861d08",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8a17dd00_b17f51fc",
+        "filename": "aom/src/aom_image.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-04-09T02:13:42Z",
+      "side": 1,
+      "message": "line 111: pixel count\nline 112: byte count\nline 113: align the byte count",
+      "revId": "ec023acce137a629437b96147dbd873064861d08",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
