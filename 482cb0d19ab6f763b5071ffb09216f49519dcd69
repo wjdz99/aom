@@ -35,6 +35,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "86b3e265_e3325c78",
+        "filename": "CHANGELOG",
+        "patchSetId": 2
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2024-04-09T19:27:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b934ce88_0ee2b23a",
+      "revId": "482cb0d19ab6f763b5071ffb09216f49519dcd69",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "be787475_2bde8ffc",
@@ -48,6 +66,24 @@
       "writtenOn": "2024-04-09T18:39:23Z",
       "side": 1,
       "message": "I received the following from Rachel Barker:\n\n* Further improvements to global motion estimation\n* Document minimum required SIMD support: SSE4.1 on x86, Neon on Arm. These were already de facto requirements, but are now documented.\n* Remove unneeded SIMD functions, saving \u003e100 KiB from binary size\n\nCould you please add them to the appropriate sections? Thanks.",
+      "revId": "482cb0d19ab6f763b5071ffb09216f49519dcd69",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3d6a2696_f405f9b1",
+        "filename": "CHANGELOG",
+        "patchSetId": 2
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2024-04-09T19:27:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "be787475_2bde8ffc",
       "revId": "482cb0d19ab6f763b5071ffb09216f49519dcd69",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -69,6 +105,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "40aca9a7_71c32498",
+        "filename": "CHANGELOG",
+        "patchSetId": 2
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2024-04-09T19:27:10Z",
+      "side": 1,
+      "message": "I think it\u0027s enough to mention speed 11 in RTC speed up section, so I\u0027ll remove it from \"New Features\"",
+      "parentUuid": "fe316e75_664adede",
+      "revId": "482cb0d19ab6f763b5071ffb09216f49519dcd69",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "afff2e6f_d0e1f405",
@@ -82,6 +136,24 @@
       "writtenOn": "2024-04-09T18:39:23Z",
       "side": 1,
       "message": "Nit: replace \"aom decoder\" with \"CONFIG_AV1_DECODER\"",
+      "revId": "482cb0d19ab6f763b5071ffb09216f49519dcd69",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "aad0a764_f495acb2",
+        "filename": "CHANGELOG",
+        "patchSetId": 2
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2024-04-09T19:27:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "afff2e6f_d0e1f405",
       "revId": "482cb0d19ab6f763b5071ffb09216f49519dcd69",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -103,6 +175,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "18e133df_6107a131",
+        "filename": "CHANGELOG",
+        "patchSetId": 2
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2024-04-09T19:27:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e2f0afb3_28ebb16b",
+      "revId": "482cb0d19ab6f763b5071ffb09216f49519dcd69",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "13cbda95_6b24530a",
@@ -116,6 +206,24 @@
       "writtenOn": "2024-04-09T18:39:23Z",
       "side": 1,
       "message": "I suggest adding the issue tracker name and bug number to the bug fixes that have a bug report. Even the Google-internal `b/nnn` numbers are useful to the people who have access to Buganizer.",
+      "revId": "482cb0d19ab6f763b5071ffb09216f49519dcd69",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f4bf87ac_6c4e2dc6",
+        "filename": "CHANGELOG",
+        "patchSetId": 2
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2024-04-09T19:27:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "13cbda95_6b24530a",
       "revId": "482cb0d19ab6f763b5071ffb09216f49519dcd69",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
