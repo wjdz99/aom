@@ -50,6 +50,24 @@
       "message": "Note that `bit_depth` is either 16 (high bit depths) or 8, so this line converts pixel count to byte count.\n\nI think this line and the previous line (112) should be swapped, because `stride_align` is documented to be an alignment in bytes, not in pixels.\n\nShould I also take care of that in this CL?",
       "revId": "43fb071faf7954124e8396b7e1aaa8cbc2934e42",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "452fdbc9_3150ed03",
+        "filename": "aom/src/aom_image.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-04-09T02:14:57Z",
+      "side": 1,
+      "message": "Done in https://aomedia-review.googlesource.com/c/aom/+/188962.",
+      "parentUuid": "6ff6c5c3_75beafce",
+      "revId": "43fb071faf7954124e8396b7e1aaa8cbc2934e42",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
