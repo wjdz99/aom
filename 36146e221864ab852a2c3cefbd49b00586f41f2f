@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "35e85138_8373dd1a",
+        "filename": "aom/aom_image.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 247,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-04-09T18:47:50Z",
+      "side": 1,
+      "message": "adding `(2^27)` might help clarify the value.",
+      "revId": "36146e221864ab852a2c3cefbd49b00586f41f2f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
