@@ -2085,10 +2085,16 @@ void av1_pick_filter_restoration(const YV12_BUFFER_CONFIG *src, AV1_COMP *cpi) {
   // and height aligned to multiple of 16 is considered for intrinsic purpose.
   rsc.dgd_avg = NULL;
   rsc.src_avg = NULL;
-#if HAVE_AVX2
+#if HAVE_AVX2 || HAVE_SVE
   // The buffers allocated below are used during Wiener filter processing.
-  // Hence, allocate the same when Wiener filter is enabled.
+  // Hence, allocate the same when Wiener filter is enabled. Make sure to
+  // allocate these buffers only for the SIMD extensions that make use of them
+  // (i.e. AVX2 for low bitdepth and SVE for low and high bitdepth).
+#if HAVE_AVX2
   if (!cpi->sf.lpf_sf.disable_wiener_filter && !highbd) {
+#elif HAVE_SVE
+  if (!cpi->sf.lpf_sf.disable_wiener_filter) {
+#endif
     const int buf_size = sizeof(*cpi->pick_lr_ctxt.dgd_avg) * 6 *
                          RESTORATION_UNITSIZE_MAX * RESTORATION_UNITSIZE_MAX;
     CHECK_MEM_ERROR(cm, cpi->pick_lr_ctxt.dgd_avg,
@@ -2224,8 +2230,12 @@ void av1_pick_filter_restoration(const YV12_BUFFER_CONFIG *src, AV1_COMP *cpi) {
                               best_luma_unit_size);
   }
 
+#if HAVE_AVX2 || HAVE_SVE
 #if HAVE_AVX2
   if (!cpi->sf.lpf_sf.disable_wiener_filter && !highbd) {
+#elif HAVE_SVE
+  if (!cpi->sf.lpf_sf.disable_wiener_filter) {
+#endif
     aom_free(cpi->pick_lr_ctxt.dgd_avg);
     cpi->pick_lr_ctxt.dgd_avg = NULL;
   }
