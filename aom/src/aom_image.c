@@ -108,8 +108,9 @@ static aom_image_t *img_alloc_helper(
   h = align_image_dimension(d_h, ycs, size_align);
 
   uint64_t s = (fmt & AOM_IMG_FMT_PLANAR) ? w : (uint64_t)bps * w / bit_depth;
-  s = (s + 2 * border + stride_align - 1) & ~(stride_align - 1);
+  s = s + 2 * border;
   s = s * bit_depth / 8;
+  s = (s + stride_align - 1) & ~((uint64_t)stride_align - 1);
   if (s > INT_MAX) goto fail;
   const int stride_in_bytes = (int)s;
 
