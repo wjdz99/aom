@@ -1,3 +1,91 @@
+2024-04-09 v3.9.0
+  This release includes new codec interfaces, compression efficiency and
+  perceptual improvements, speedup for RTC for both video and screen content
+  and many bug fixes. This release is ABI compatible with the previous release.
+
+  - New Features
+    * New codec control
+      * AV1E_SET_SVC_FRAME_DROP_MODE is added to configure the SVC encoder to
+        only drop spatial layers or the whole superframe.
+    * New speed setting 11 is added for RTC.
+    * Active Map is fixed and tested for RTC.
+    * CONFIG_QUANT_MATRIX is added to disable quantization matrices when aom
+      decoder is disabled. Reduces ~10% binary size when both are disabled.
+    * libwebm is updated to libwebm-1.0.0.31-1-gaffd7f4.
+
+  - Compression Efficiency Improvements
+    * RTC encoding improvements
+      * 1-2% BD-rate gain for screen content with temporal layers; 5% BD-rate
+        gain on scrolling content.
+
+  - Perceptual Quality Improvements
+    * For RTC screen content
+      * Reduced color artifacts for RTC screen content
+      * Visual quality improved for scene changes for SVC with quality layers.
+      * Removed visual artifacts for speed 11
+
+  - RTC speedups:
+    * Speed 11: aggressive speedup setting added for video mode,
+      resolutions <= VGA: ~30% faster than speed 10.
+    * Arm specific SIMD improvements
+
+  - Other improvements
+    * Documented minimum SSE level for libaom on x86.
+    * Cleaned up and improved pattern_search.
+    * Added end-to-end c vs SIMD bit- exactness test.
+    * Added config flag to calc psnr using libvmaf peak: use a slightly
+      different peak value for PSNR (1020 and 2040 for 10- and 12-bit)
+
+  - Bug Fixes
+    * Fuzzing bug fixes
+      * Null-dereference WRITE in av1_cdef_frame_mt
+      * Null-dereference WRITE in av1_cdef_copy_sb8_16
+      * Ill in av1_cdef_frame_mt
+      * Null-dereference WRITE in av1_cdef_init_fb_row
+      * Null-dereference WRITE in cdef_copy_rect8_16bit_to_16bit_avx2
+      * Integer-overflow in search_wiener
+      * Null-dereference WRITE in prepare_enc_workers
+      * Heap-buffer-overflow in aom_variance64x64_avx2
+      * av1_dec_fuzzer: ASSERT: (pbi->tile_count_minus_1 + 1) <=
+        (pbi->output_frame_width_in_tiles_minus_1 + 1)
+      * av1_dec_fuzzer: ASSERT: i == 0 || tile_w == *w
+      * av1_dec_fuzzer: ASSERT: i == 0 || tile_h == *h
+      * av1_dec_fuzzer: Crash in mem_get_varsize
+      * av1_dec_fuzzer: Use-of-uninitialized-value in od_ec_decode_bool_q15
+      * av1_dec_fuzzer: Heap-buffer-overflow in od_ec_dec_init
+      * av1_dec_fuzzer: Heap-buffer-overflow in od_ec_dec_normalize
+    * libaom library
+      * Large value of duration could cause encoder overflow
+      * Fix build conflicts between Abseil and libaom/libvpx in Win ARM64 builds
+      * Invalid feature modifier when compiling
+        aom_dsp/arm/aom_convolve8_neon_i8mm.c on Debian 10 with arm64
+        architecture
+      * Over reads in aom_convolve_copy_neon()
+      * AV1/SharpnessTestLarge.SharpnessPSNRTest failures after 59c592bb8
+      * SIGFPE in av1_twopass_postencode_update() pass2_strategy.c:4261
+      * Exception encountered with PSNR calculation
+      * Can not compile correctly by CYGWIN
+      * heap-buffer-overflow write in vpx_img_read() (tools_common.c) with
+        VPX_IMG_FMT_NV12
+      * get_cubic_kernel_dbl: Assertion `0 <= x && x < 1' failed.
+        Aborted (core dumped)
+      * Libaom encoder crashed by AOM_USAGE_ALL_INTRA and AOM_EFLAG_NO_REF_LAST
+      * Assertion failures on Arm in CNNTest.* in
+        av1_cnn_convolve_no_maxpool_padding_valid_2x2_neon and
+        av1_cnn_convolve_no_maxpool_padding_valid_5x5_neon
+      * C vs NEON mismatch in AV1 encoder
+      * Over write in highbd_dr_prediction_z3_upsample1_neon()
+      * alloc_compressor_data() is called when setting the color range
+      * Heap overflow when increasing resolution
+      * Significant progress on ensuring all allocations are checked
+      * heap-buffer-overflow encoding frames of size 256x256, 512x512 in good
+        quality usage mode using 4 threads (included in smaller release)
+      * PSNR number discrepancy
+      * Cmake generates garbage symbols for libaom_srcs.gni
+      * GCC 12.2.0 emits a -Wstringop-overflow warning on
+        aom/av1/encoder/motion_search_facade.c
+      * C vs NEON mismatch in AV1 encoder for high-bitdepth case
+
 2024-03-08 v3.8.2
   This release includes several bug fixes. This release is ABI
   compatible with the last release. See
