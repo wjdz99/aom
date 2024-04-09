@@ -1,0 +1,123 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "117174b0_ffe6410b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-04-09T18:39:23Z",
+      "side": 1,
+      "message": "Thank you for writing the changelog. I suggest some changes.\n\nAlso, it would be good to have the AV1 team or at least the lead engineers review it.",
+      "revId": "482cb0d19ab6f763b5071ffb09216f49519dcd69",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b934ce88_0ee2b23a",
+        "filename": "CHANGELOG",
+        "patchSetId": 2
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-04-09T18:39:23Z",
+      "side": 1,
+      "message": "Nit: add a comma (,) at the end of this line.",
+      "revId": "482cb0d19ab6f763b5071ffb09216f49519dcd69",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "be787475_2bde8ffc",
+        "filename": "CHANGELOG",
+        "patchSetId": 2
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-04-09T18:39:23Z",
+      "side": 1,
+      "message": "I received the following from Rachel Barker:\n\n* Further improvements to global motion estimation\n* Document minimum required SIMD support: SSE4.1 on x86, Neon on Arm. These were already de facto requirements, but are now documented.\n* Remove unneeded SIMD functions, saving \u003e100 KiB from binary size\n\nCould you please add them to the appropriate sections? Thanks.",
+      "revId": "482cb0d19ab6f763b5071ffb09216f49519dcd69",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fe316e75_664adede",
+        "filename": "CHANGELOG",
+        "patchSetId": 2
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-04-09T18:39:23Z",
+      "side": 1,
+      "message": "This item should be clarified, because libaom v3.8.2 already has speed 11.\n\nI looked in the changelog of earlier releases. Speed 11 was first mentioned in the New Features section of v3.7.0:\n\n```\n    * New speed (--cpu-used) 11, intended for RTC screen sharing, added for\n      faster encoding with ~3% bdrate loss with 16% IC (instruction count)\n      speedup compared to speed 10.\n```\n\nI guess what is new in this release is that speed 11 can also be used for video mode (as opposed to screen content mode). See line 28.",
+      "revId": "482cb0d19ab6f763b5071ffb09216f49519dcd69",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "afff2e6f_d0e1f405",
+        "filename": "CHANGELOG",
+        "patchSetId": 2
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-04-09T18:39:23Z",
+      "side": 1,
+      "message": "Nit: replace \"aom decoder\" with \"CONFIG_AV1_DECODER\"",
+      "revId": "482cb0d19ab6f763b5071ffb09216f49519dcd69",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e2f0afb3_28ebb16b",
+        "filename": "CHANGELOG",
+        "patchSetId": 2
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-04-09T18:39:23Z",
+      "side": 1,
+      "message": "Nit: Remove the extra space after the dash `-`.",
+      "revId": "482cb0d19ab6f763b5071ffb09216f49519dcd69",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "13cbda95_6b24530a",
+        "filename": "CHANGELOG",
+        "patchSetId": 2
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-04-09T18:39:23Z",
+      "side": 1,
+      "message": "I suggest adding the issue tracker name and bug number to the bug fixes that have a bug report. Even the Google-internal `b/nnn` numbers are useful to the people who have access to Buganizer.",
+      "revId": "482cb0d19ab6f763b5071ffb09216f49519dcd69",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
