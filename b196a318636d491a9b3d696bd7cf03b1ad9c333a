@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0cf21396_08dfad7e",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-04-10T22:10:52Z",
+      "side": 1,
+      "message": "Without a blank line after the subject, subsequent lines will be joined. See  https://www.git-scm.com/book/en/v2/Distributed-Git-Contributing-to-a-Project#_commit_guidelines.",
+      "revId": "b196a318636d491a9b3d696bd7cf03b1ad9c333a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9def9be5_2f007756",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-04-10T22:10:52Z",
+      "side": 1,
+      "message": "remove this new Change-Id and then abandon this change. The original Change-Id will update the earlier change.",
+      "revId": "b196a318636d491a9b3d696bd7cf03b1ad9c333a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
