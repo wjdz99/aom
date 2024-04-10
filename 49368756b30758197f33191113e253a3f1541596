@@ -46,6 +46,30 @@
       },
       "revId": "49368756b30758197f33191113e253a3f1541596",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c6c5d17a_ecd55039",
+        "filename": "CHANGELOG",
+        "patchSetId": 1
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2024-04-10T15:19:28Z",
+      "side": 1,
+      "message": "That\u0027s great! Thank you.\n\nI\u0027ll submit this and tag rc1 for now. We\u0027ll add the result to changelog once you have it.",
+      "parentUuid": "9fe52840_7e9b7781",
+      "range": {
+        "startLine": 30,
+        "startChar": 0,
+        "endLine": 30,
+        "endChar": 36
+      },
+      "revId": "49368756b30758197f33191113e253a3f1541596",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
