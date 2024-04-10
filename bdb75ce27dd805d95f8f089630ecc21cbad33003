@@ -16,6 +16,23 @@
       "message": "James: PTAL. You just need to review the diffs between patchsets 2 and 4. Thanks!",
       "revId": "bdb75ce27dd805d95f8f089630ecc21cbad33003",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3bdf93b5_92ce448b",
+        "filename": "aom/src/aom_image.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-04-10T00:49:45Z",
+      "side": 1,
+      "message": "An alternative fix is to change the type of `s` back to `unsigned int`. But that requires making sure the expression for non-planar formats `bps * w / bit_depth` in line 121 won\u0027t overflow. I didn\u0027t have time to perform that analysis.",
+      "revId": "bdb75ce27dd805d95f8f089630ecc21cbad33003",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
