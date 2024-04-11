@@ -22,6 +22,30 @@
       },
       "revId": "ff4b6844d345ecf0fe4b8864d10210da6c88a41b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "be29ce7e_9c17d973",
+        "filename": "av1/encoder/pickrst.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2091,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-04-11T18:19:08Z",
+      "side": 1,
+      "message": "\u003e This part of the comment should be updated.\n\nif there\u0027s no plan to update the AVX2 path, then this could be split to avoid the allocation and an assert added in that path expecting the buffers to be NULL.",
+      "parentUuid": "1b495964_35356ffe",
+      "range": {
+        "startLine": 2091,
+        "startChar": 5,
+        "endLine": 2091,
+        "endChar": 23
+      },
+      "revId": "ff4b6844d345ecf0fe4b8864d10210da6c88a41b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
