@@ -70,6 +70,30 @@
       },
       "revId": "49368756b30758197f33191113e253a3f1541596",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d4baa056_8ee7010d",
+        "filename": "CHANGELOG",
+        "patchSetId": 1
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 31042
+      },
+      "writtenOn": "2024-04-12T18:35:45Z",
+      "side": 1,
+      "message": "For the 3.9.0-rc1 vs 3.8.0 release we have:\n\nSBD --good:\n\n--cpu-used\u003d1: +10% \n--cpu-used\u003d2:  +8%\n--cpu-used\u003d3:  +8%\n--cpu-used\u003d4: +10%\n--cpu-used\u003d5:  +3%\n--cpu-used\u003d6:  +3%\n\nHBD --good:\n\n--cpu-used\u003d1:  +8% \n--cpu-used\u003d2:  +6%\n--cpu-used\u003d3:  +9%\n--cpu-used\u003d4:  +7%\n--cpu-used\u003d5:  +8%\n--cpu-used\u003d6:  +5%\n\nSBD --rt:\n\n--cpu-used\u003d5:  no change \n--cpu-used\u003d6:  +2%\n--cpu-used\u003d7:  +2%\n--cpu-used\u003d8:  +3%\n--cpu-used\u003d9:  +2%\n--cpu-used\u003d10: +3%\n\nI\u0027m reticent to claim us being responsible for the SBD gains as we haven\u0027t really changed any paths related to that since the 3.8.0 release. HBD VoD gains seem somewhat consistent with SVE(2) path additions. I\u0027ll run a set of Neon-only vs all extensions benchmarks to see if that\u0027s true - I\u0027ll report back if it isn\u0027t.",
+      "parentUuid": "c6c5d17a_ecd55039",
+      "range": {
+        "startLine": 30,
+        "startChar": 0,
+        "endLine": 30,
+        "endChar": 36
+      },
+      "revId": "49368756b30758197f33191113e253a3f1541596",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
