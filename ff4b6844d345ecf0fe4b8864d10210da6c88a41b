@@ -70,6 +70,30 @@
       },
       "revId": "ff4b6844d345ecf0fe4b8864d10210da6c88a41b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bec80c0e_80cf9d46",
+        "filename": "av1/encoder/pickrst.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2091,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-04-12T18:01:40Z",
+      "side": 1,
+      "message": "\u003e There\u0027s a TODO here https://aomedia.googlesource.com/aom/+/refs/heads/main/av1/encoder/pickrst.c#1659 that would imply that the AVX2 path would be updated at some point, but I don\u0027t know if it\u0027s still in the plans?\n\n@yunqingwang@google.com any thoughts on the TODO? I\u0027m guessing that came from Ittiam (I don\u0027t really like TODO(any)) and that they\u0027ve moved on to other things.\n\nI think I\u0027d rather see a split and assert along with the TODO. There\u0027s no reason to add the overhead to x86 if it isn\u0027t used currently.",
+      "parentUuid": "f68b6512_94e90f13",
+      "range": {
+        "startLine": 2091,
+        "startChar": 5,
+        "endLine": 2091,
+        "endChar": 23
+      },
+      "revId": "ff4b6844d345ecf0fe4b8864d10210da6c88a41b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
