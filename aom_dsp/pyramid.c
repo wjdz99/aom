@@ -304,7 +304,7 @@ static INLINE int fill_pyramid(const YV12_BUFFER_CONFIG *frame, int bit_depth,
   }
 
   // Fill in the remaining levels through progressive downsampling
-  for (int level = already_filled_levels; level < n_levels; ++level) {
+  for (int level = already_filled_levels; level < 2; ++level) {
     bool mem_status = false;
     PyramidLayer *prev_layer = &frame_pyr->layers[level - 1];
     uint8_t *prev_buffer = prev_layer->buffer;
