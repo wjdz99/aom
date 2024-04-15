@@ -11,29 +11,36 @@
 
 #ifndef AOM_AV1_RATECTRL_RTC_H_
 #define AOM_AV1_RATECTRL_RTC_H_
-
+#if defined(__cplusplus)
 #include <cstdint>
 #include <memory>
+#else
+#include <stddef.h>
+#include <stdint.h>
+#if __STDC__VERSION__ >= 199901L
+#include <stdbool.h>
+#endif
+#endif
+
+#define kAV1MaxLayers 32
+#define kAV1MaxTemporalLayers 8
+#define kAV1MaxSpatialLayers 4
 
 struct AV1_COMP;
-
-namespace aom {
-
-// These constants come from AV1 spec.
-static constexpr size_t kAV1MaxLayers = 32;
-static constexpr size_t kAV1MaxTemporalLayers = 8;
-static constexpr size_t kAV1MaxSpatialLayers = 4;
-
-enum FrameType { kKeyFrame, kInterFrame };
-
 struct AV1RateControlRtcConfig {
+#if defined(__cplusplus)
  public:
   AV1RateControlRtcConfig();
+#endif
 
   int width;
   int height;
-  // Flag indicating if the content is screen or not.
-  bool is_screen = false;
+// Flag indicating if the content is screen or not.
+#if defined(__cplusplus)
+  bool is_screen;
+#else
+  int is_screen;
+#endif  // #if defined(__cplusplus)
   // 0-63
   int max_quantizer;
   int min_quantizer;
@@ -61,8 +68,12 @@ struct AV1RateControlRtcConfig {
   int scaling_factor_den[kAV1MaxSpatialLayers];
 };
 
+void AV1RateControlRtcConfigInitDefault(struct AV1RateControlRtcConfig *config);
+
+enum FrameType { kKeyFrame = 0, kInterFrame = 1 };
+
 struct AV1FrameParamsRTC {
-  FrameType frame_type;
+  enum FrameType frame_type;
   int spatial_layer_id;
   int temporal_layer_id;
 };
@@ -86,11 +97,12 @@ struct AV1SegmentationData {
   size_t delta_q_size;
 };
 
-enum class FrameDropDecision {
-  kOk,    // Frame is encoded.
-  kDrop,  // Frame is dropped.
+enum FrameDropDecision {
+  Frame_drop_decision_kOk,    // Frame is encoded.
+  Frame_drop_decision_kDrop,  // Frame is dropped.
 };
-
+#if defined(__cplusplus)
+namespace aom {
 class AV1RateControlRTC {
  public:
   static std::unique_ptr<AV1RateControlRTC> Create(
@@ -121,7 +133,55 @@ class AV1RateControlRTC {
   int initial_width_;
   int initial_height_;
 };
-
 }  // namespace aom
 
+extern "C" {
+
+void *av1_ratecontrol_rtc_create(const AV1RateControlRtcConfig &rc_cfg);
+bool av1_ratecontrol_rtc_update(void *controller,
+                                const AV1RateControlRtcConfig &rc_cfg);
+int av1_ratecontrol_rtc_get_qp(void *controller);
+
+AV1LoopfilterLevel av1_ratecontrol_rtc_get_loop_filter_level(void *controller);
+FrameDropDecision av1_ratecontrol_rtc_compute_qp(
+    void *controller, const AV1FrameParamsRTC &frame_params);
+
+void av1_ratecontrol_rtc_post_encode_update(void *controller,
+                                            uint64_t encoded_frame_size);
+
+bool av1_ratecontrol_rtc_get_segmentation(
+    void *controller, AV1SegmentationData *segmentation_data);
+
+AV1CdefInfo av1_ratecontrol_rtc_get_cdef_info(void *controller);
+
+AV1RateControlRtcConfig *av1_ratecontrol_rtc_create_ratecontrol_config();
+
+void av1_ratecontrol_rtc_destroy(void *controller);
+}  // extern "C"
+
+#else  // #if defined(__cplusplus)
+
+void *av1_ratecontrol_rtc_create(const struct AV1RateControlRtcConfig *rc_cfg);
+int av1_ratecontrol_rtc_update(void *controller,
+                               const struct AV1RateControlRtcConfig *rc_cfg);
+int av1_ratecontrol_rtc_get_qp(void *controller);
+
+struct AV1LoopfilterLevel av1_ratecontrol_rtc_get_loop_filter_level(
+    void *controller);
+enum FrameDropDecision av1_ratecontrol_rtc_compute_qp(
+    void *controller, const struct AV1FrameParamsRTC *frame_params);
+
+void av1_ratecontrol_rtc_post_encode_update(void *controller,
+                                            uint64_t encoded_frame_size);
+
+int av1_ratecontrol_rtc_get_segmentation(
+    void *controller, struct AV1SegmentationData *segmentation_data);
+
+struct AV1CdefInfo av1_ratecontrol_rtc_get_cdef_info(void *controller);
+
+struct AV1RateControlRtcConfig *av1_ratecontrol_rtc_create_ratecontrol_config();
+
+void av1_ratecontrol_rtc_destroy(void *controller);
+
+#endif  // __cplusplus
 #endif  // AOM_AV1_RATECTRL_RTC_H_
