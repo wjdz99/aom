@@ -121,7 +121,41 @@ class AV1RateControlRTC {
   int initial_width_;
   int initial_height_;
 };
-
 }  // namespace aom
 
+typedef aom::AV1RateControlRtcConfig AV1RateControlRtcConfigAlias;
+typedef aom::AV1LoopfilterLevel  AV1LoopfilterLevelAlias;
+typedef aom::FrameDropDecision FrameDropDecisionAlias;
+typedef aom::AV1FrameParamsRTC AV1FrameParamsRTCAlias;
+typedef aom::AV1SegmentationData AV1SegmentationDataAlias;
+typedef aom::AV1CdefInfo AV1CdefInfoAlias;
+typedef aom::AV1RateControlRtcConfig AV1RateControlRtcConfigAlias;
+
+#if defined(__cplusplus)
+extern "C" {
+#endif
+void *create_av1_ratecontrol_rtc(const AV1RateControlRtcConfigAlias &rc_cfg);
+bool update_ratecontrol_av1(void *controller,
+                            const AV1RateControlRtcConfigAlias &rc_cfg);
+int get_qp_ratecontrol_av1(void *controller);
+
+AV1LoopfilterLevelAlias get_loop_filter_level_ratecontrol_av1(void *controller);
+FrameDropDecisionAlias compute_qp_ratecontrol_av1(
+    void *controller, const AV1FrameParamsRTCAlias &frame_params);
+
+void post_encode_update_ratecontrol_av1(void *controller,
+                                        uint64_t encoded_frame_size);
+
+bool get_segmentation_data_av1(void *controller,
+                               AV1SegmentationDataAlias *segmentation_data);
+
+AV1CdefInfoAlias get_cdef_info_av1(void *controller);
+
+AV1RateControlRtcConfigAlias *create_av1_ratecontrol_config();
+
+void destroy_av1_ratecontrol_rtc(void *controller);
+
+#if defined(__cplusplus)
+}  // extern "C"
+#endif  // __cplusplus
 #endif  // AOM_AV1_RATECTRL_RTC_H_
