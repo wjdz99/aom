@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8d86b6c4_64abcd87",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 32923
+      },
+      "writtenOn": "2024-04-15T12:33:22Z",
+      "side": 1,
+      "message": "This CL adds the AVX2 intrinsic optimization for the `resize_vert_dir()` function, which vertically downsamples the given frame by 2 and also includes the relevant unit test `AV1ResizeYTest`. \n\nThe module level scaling(x) numbers (averaged across the layers for a given dimension) of AVX2 w.r.t. C from the unit-test are given as below:\n```\nResolution       Average Scaling w.r.t C\n 3840x2160               9.28x\n 2560x1440              10.35x\n 1920x1080               9.28x\n 1280x720                9.02x\n 640x480                 9.16x\n 640x360                 8.91x\n 256x256                10.82x\n```\nThis change is a bit-exact change and the below shows the borg results of the current CL. For speed 5 and 6 GM is disabled by default (Enabled the same locally for testing purpose).\n```\n        Instruction Count\ncpu     Reduction(%)   \n2       0.043\n3       0.118\n4       0.175\n5       0.381\n6       0.484\n```\nThe speed up seems to be lesser due to the content and bit-rates used in the Borg test suite. We also generated and analyzed the profile data corresponding to Netflix_PierSeaside_2048x1080_60fps_8bit_420 content with QP \u003d 63, the GM tool contributes for ~10% (with 4.1% coming from resize_vert_dir()) encode time and this optimization yielded 3.7% time reduction. For which the module level scaling of resize_vert_dir() function is 9.8x.",
+      "revId": "f0770ce259850901629ac4e370736a69387c1bde",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
