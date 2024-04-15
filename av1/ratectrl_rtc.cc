@@ -380,5 +380,57 @@ void AV1RateControlRTC::PostEncodeUpdate(uint64_t encoded_frame_size) {
       cpi_->svc.number_temporal_layers > 1)
     av1_save_layer_context(cpi_);
 }
-
 }  // namespace aom
+extern "C" {
+void *av1_ratecontrol_rtc_create(const aom::AV1RateControlRtcConfig &rc_cfg) {
+  std::unique_ptr<aom::AV1RateControlRTC> controller;
+  controller = aom::AV1RateControlRTC::Create(rc_cfg);
+  return controller.release();
+}
+
+bool av1_ratecontrol_rtc_update(void *controller,
+                                const aom::AV1RateControlRtcConfig &rc_cfg) {
+  return reinterpret_cast<aom::AV1RateControlRTC *>(controller)
+      ->UpdateRateControl(rc_cfg);
+}
+
+int av1_ratecontrol_rtc_get_qp(void *controller) {
+  return reinterpret_cast<aom::AV1RateControlRTC *>(controller)->GetQP();
+}
+
+AV1LoopfilterLevel av1_ratecontrol_rtc_get_loop_filter_level(void *controller) {
+  return reinterpret_cast<aom::AV1RateControlRTC *>(controller)
+      ->GetLoopfilterLevel();
+}
+
+aom::FrameDropDecision av1_ratecontrol_rtc_compute_qp(
+    void *controller, const aom::AV1FrameParamsRTC &frame_params) {
+  return reinterpret_cast<aom::AV1RateControlRTC *>(controller)
+      ->ComputeQP(frame_params);
+}
+
+void av1_ratecontrol_rtc_post_encode_update(void *controller,
+                                            uint64_t encoded_frame_size) {
+  reinterpret_cast<aom::AV1RateControlRTC *>(controller)
+      ->PostEncodeUpdate(encoded_frame_size);
+}
+
+bool av1_ratecontrol_rtc_get_segmentation(
+    void *controller, aom::AV1SegmentationData *segmentation_data) {
+  return reinterpret_cast<aom::AV1RateControlRTC *>(controller)
+      ->GetSegmentationData(segmentation_data);
+}
+
+AV1CdefInfo av1_ratecontrol_rtc_get_cdef_info(void *controller) {
+  return reinterpret_cast<aom::AV1RateControlRTC *>(controller)->GetCdefInfo();
+}
+
+aom::AV1RateControlRtcConfig *av1_ratecontrol_rtc_create_ratecontrol_config() {
+  return new aom::AV1RateControlRtcConfig();
+}
+
+void av1_ratecontrol_rtc_destroy(void *controller) {
+  delete reinterpret_cast<aom::AV1RateControlRTC *>(controller);
+}
+
+}  // extern "C"
