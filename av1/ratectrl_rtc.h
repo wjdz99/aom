@@ -121,7 +121,32 @@ class AV1RateControlRTC {
   int initial_width_;
   int initial_height_;
 };
+#if defined(__cplusplus)
+extern "C" {
+#endif
+void *create_av1_ratecontrol_rtc(const AV1RateControlRtcConfig &rc_cfg);
+bool update_ratecontrol_av1(void *controller,
+                            const AV1RateControlRtcConfig &rc_cfg);
+int get_qp_ratecontrol_av1(void *controller);
 
+AV1LoopfilterLevel get_loop_filter_level_ratecontrol_av1(void *controller);
+FrameDropDecision compute_qp_ratecontrol_av1(
+    void *controller, const AV1FrameParamsRTC &frame_params);
+
+void post_encode_update_ratecontrol_av1(void *controller,
+                                        uint64_t encoded_frame_size);
+
+bool get_segmentation_data_av1(void *controller,
+                               AV1SegmentationData *segmentation_data);
+
+AV1CdefInfo get_cdef_info_av1(void *controller);
+
+AV1RateControlRtcConfig *create_av1_ratecontrol_config();
+
+void destroy_av1_ratecontrol_rtc(void *controller);
+
+#if defined(__cplusplus)
+}  // extern "C"
+#endif  // __cplusplus
 }  // namespace aom
-
 #endif  // AOM_AV1_RATECTRL_RTC_H_
