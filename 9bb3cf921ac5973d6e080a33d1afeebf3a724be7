@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b74f2a51_a2195e49",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 33496
+      },
+      "writtenOn": "2024-04-15T11:17:07Z",
+      "side": 1,
+      "message": "https://aomedia-review.googlesource.com/c/aom/+/189201\nit mentioned the previous one is outdated, create a new one.\nhave applied clang format to my file.",
+      "revId": "9bb3cf921ac5973d6e080a33d1afeebf3a724be7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
