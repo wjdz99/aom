@@ -34,6 +34,24 @@
       "parentUuid": "2004a5f7_c69bdc18",
       "revId": "f65d1c7528d0073afdaf645f0bcc42cbb1ac1987",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "96153cab_2e844e06",
+        "filename": "CMakeLists.txt",
+        "patchSetId": 1
+      },
+      "lineNbr": 346,
+      "author": {
+        "id": 33496
+      },
+      "writtenOn": "2024-04-15T07:14:17Z",
+      "side": 1,
+      "message": "Hi Wan-Teh Chang,\n Thanks for the link on cmake. \n\nNew code would be just\n \nif(CONFIG_AV1_ENCODER)\n  list(APPEND AOM_AV1_RC_SOURCES \"${AOM_ROOT}/av1/ratectrl_rtc.h\"\n              \"${AOM_ROOT}/av1/ratectrl_rtc.cc\")\n  add_library(aom_av1_rc SHARED ${AOM_AV1_RC_SOURCES})\n  target_link_libraries(aom_av1_rc ${AOM_LIB_LINK_TYPE} aom)\n  if(NOT WIN32 AND NOT APPLE)\n    target_link_libraries(aom_av1_rc ${AOM_LIB_LINK_TYPE} m)\n  endif()\n  set_target_properties(aom_av1_rc PROPERTIES LINKER_LANGUAGE CXX)\nendif()\n\n# List of object and static library targets.\nset(AOM_LIB_TARGETS ${AOM_LIB_TARGETS} aom_rtcd aom_mem aom_scale aom)\nif(CONFIG_AV1_ENCODER)\n  set(AOM_LIB_TARGETS ${AOM_LIB_TARGETS} aom_av1_rc)\nendif()\n\n\nwhen printed the value of BUILD_SHARED_LIBS it is not set , hence adding SHARED make sense to the patch. Hence updated code is as above.",
+      "parentUuid": "7990518c_cad94777",
+      "revId": "f65d1c7528d0073afdaf645f0bcc42cbb1ac1987",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
