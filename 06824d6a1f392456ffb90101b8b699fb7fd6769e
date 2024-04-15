@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b7df0087_a9054204",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-04-15T20:53:14Z",
+      "side": 1,
+      "message": "With gerrit, unlike github, you amend (`git commit --amend`) a commit to post a new version of the patchset.\n\nhttps://gerrit-review.googlesource.com/Documentation/intro-gerrit-walkthrough.html#_reworking_the_change",
+      "revId": "06824d6a1f392456ffb90101b8b699fb7fd6769e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
