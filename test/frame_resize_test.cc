@@ -33,7 +33,9 @@ typedef tuple<int, int> FrameDimension;
 const FrameDimension kFrameDim[] = {
   make_tuple(3840, 2160), make_tuple(2560, 1440), make_tuple(1920, 1080),
   make_tuple(1280, 720),  make_tuple(640, 480),   make_tuple(640, 360),
-  make_tuple(256, 256),
+  make_tuple(256, 256),   make_tuple(112, 112),   make_tuple(272, 272),
+  make_tuple(120, 120),   make_tuple(280, 280),   make_tuple(16, 16),
+  make_tuple(24, 24),     make_tuple(42, 42),     make_tuple(50, 50),
 };
 
 // Check that two 8-bit output buffers are identical.
@@ -158,6 +160,102 @@ INSTANTIATE_TEST_SUITE_P(
 INSTANTIATE_TEST_SUITE_P(
     SSE2, AV1ResizeYTest,
     ::testing::Combine(::testing::Values(resize_vert_dir_sse2),
+                       ::testing::ValuesIn(kFrameDim)));
+#endif
+
+typedef void (*LowBDResize_x_Func)(const uint8_t *const input, int in_stride,
+                                   uint8_t *intbuf, int height,
+                                   int filteredlength, int width2);
+
+typedef tuple<LowBDResize_x_Func, FrameDimension> Resize_x_TestParams;
+
+class AV1ResizeXTest : public ::testing::TestWithParam<Resize_x_TestParams> {
+ public:
+  void SetUp() {
+    test_fun_ = GET_PARAM(0);
+    frame_dim_ = GET_PARAM(1);
+    width_ = std::get<0>(frame_dim_);
+    height_ = std::get<1>(frame_dim_);
+    const int msb = get_msb(AOMMIN(width_, height_));
+    n_levels_ = AOMMAX(msb - MIN_PYRAMID_SIZE_LOG2, 1);
+    src_ = (uint8_t *)aom_malloc(width_ * height_ * sizeof(*src_));
+    ref_dest_ =
+        (uint8_t *)aom_calloc((width_ * height_) / 2, sizeof(*ref_dest_));
+    test_dest_ =
+        (uint8_t *)aom_calloc((width_ * height_) / 2, sizeof(*test_dest_));
+  }
+
+  void RunTest() {
+    int width2 = width_, height2 = height_;
+
+    for (int i = 0; i < width_ * height_; i++) src_[i] = rng_.Rand8();
+
+    for (int level = 1; level < n_levels_; level++) {
+      width2 = (width_ >> level);
+      resize_horz_dir_c(src_, width_, ref_dest_, height2, width2 << 1, width2);
+      test_fun_(src_, width_, test_dest_, height2, width2 << 1, width2);
+      AssertOutputBufferEq(ref_dest_, test_dest_, width2, height2);
+    }
+  }
+
+  void SpeedTest() {
+    int width2 = width_, height2 = height_;
+
+    for (int i = 0; i < width_ * height_; i++) src_[i] = rng_.Rand8();
+
+    for (int level = 1; level < n_levels_; level++) {
+      width2 = (width_ >> level);
+      aom_usec_timer ref_timer;
+      aom_usec_timer_start(&ref_timer);
+      for (int j = 0; j < kIters; j++) {
+        resize_horz_dir_c(src_, width_, ref_dest_, height2, width2 << 1,
+                          width2);
+      }
+      aom_usec_timer_mark(&ref_timer);
+      const int64_t ref_time = aom_usec_timer_elapsed(&ref_timer);
+
+      aom_usec_timer tst_timer;
+      aom_usec_timer_start(&tst_timer);
+      for (int j = 0; j < kIters; j++) {
+        test_fun_(src_, width_, test_dest_, height2, width2 << 1, width2);
+      }
+      aom_usec_timer_mark(&tst_timer);
+      const int64_t tst_time = aom_usec_timer_elapsed(&tst_timer);
+
+      std::cout << "level: " << level << " [" << width2 << " x " << height2
+                << "] C time = " << ref_time << " , SIMD time = " << tst_time
+                << " scaling=" << float(1.00) * ref_time / tst_time << "x \n";
+    }
+  }
+
+  void TearDown() {
+    aom_free(src_);
+    aom_free(ref_dest_);
+    aom_free(test_dest_);
+  }
+
+ private:
+  LowBDResize_x_Func test_fun_;
+  FrameDimension frame_dim_;
+  int width_;
+  int height_;
+  int n_levels_;
+  uint8_t *src_;
+  uint8_t *ref_dest_;
+  uint8_t *test_dest_;
+  libaom_test::ACMRandom rng_;
+};
+
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(AV1ResizeXTest);
+
+TEST_P(AV1ResizeXTest, RunTest) { RunTest(); }
+
+TEST_P(AV1ResizeXTest, SpeedTest) { SpeedTest(); }
+
+#if HAVE_AVX2
+INSTANTIATE_TEST_SUITE_P(
+    AVX2, AV1ResizeXTest,
+    ::testing::Combine(::testing::Values(resize_horz_dir_avx2),
                        ::testing::ValuesIn(kFrameDim)));
 #endif
 
