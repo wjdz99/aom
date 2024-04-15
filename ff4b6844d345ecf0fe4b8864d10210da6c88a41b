@@ -94,6 +94,30 @@
       },
       "revId": "ff4b6844d345ecf0fe4b8864d10210da6c88a41b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a86737ed_0cfec5a2",
+        "filename": "av1/encoder/pickrst.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2091,
+      "author": {
+        "id": 31957
+      },
+      "writtenOn": "2024-04-15T16:49:47Z",
+      "side": 1,
+      "message": "Ok, in the end nothing needs to change in this patch (took the opportunity to remove the allocation for Neon though, since the latest implementation doesn\u0027t use the buffers), but I ended up splitting the if() condition in the next patch: https://aomedia-review.googlesource.com/c/aom/+/189082/4/av1/encoder/pickrst.c\n\nNot sure what you meant by \"split and assert\" but hopefully that should do it?",
+      "parentUuid": "bec80c0e_80cf9d46",
+      "range": {
+        "startLine": 2091,
+        "startChar": 5,
+        "endLine": 2091,
+        "endChar": 23
+      },
+      "revId": "ff4b6844d345ecf0fe4b8864d10210da6c88a41b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
