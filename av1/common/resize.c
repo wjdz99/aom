@@ -337,8 +337,8 @@ static int32_t get_upscale_convolve_x0(int in_length, int out_length,
   return (int32_t)((uint32_t)x0 & RS_SCALE_SUBPEL_MASK);
 }
 
-static void down2_symeven(const uint8_t *const input, int length,
-                          uint8_t *output) {
+void down2_symeven(const uint8_t *const input, int length, uint8_t *output,
+                   int start_offset) {
   // Actual filter len = 2 * filter_len_half.
   const int16_t *filter = av1_down2_symeven_half_filter;
   const int filter_len_half = sizeof(av1_down2_symeven_half_filter) / 2;
@@ -362,7 +362,7 @@ static void down2_symeven(const uint8_t *const input, int length,
     }
   } else {
     // Initial part.
-    for (i = 0; i < l1; i += 2) {
+    for (i = start_offset; i < l1; i += 2) {
       int sum = (1 << (FILTER_BITS - 1));
       for (j = 0; j < filter_len_half; ++j) {
         sum += (input[AOMMAX(i - j, 0)] + input[i + 1 + j]) * filter[j];
@@ -492,7 +492,7 @@ static void resize_multistep(const uint8_t *const input, int length,
       if (filteredlength & 1)
         down2_symodd(in, filteredlength, out);
       else
-        down2_symeven(in, filteredlength, out);
+        down2_symeven(in, filteredlength, out, 0);
       filteredlength = proj_filteredlength;
     }
     if (filteredlength != olength) {
@@ -533,7 +533,7 @@ bool resize_vert_dir_c(uint8_t *intbuf, uint8_t *output, int out_stride,
 
   for (int i = start_col; i < width2; ++i) {
     fill_col_to_arr(intbuf + i, width2, height, arrbuf);
-    down2_symeven(arrbuf, height, arrbuf2);
+    down2_symeven(arrbuf, height, arrbuf2, 0);
     fill_arr_to_col(output + i, out_stride, height2, arrbuf2);
   }
 
@@ -543,11 +543,12 @@ Error:
   return mem_status;
 }
 
-static INLINE void resize_horz_dir(const uint8_t *const input, int in_stride,
-                                   uint8_t *intbuf, int height,
-                                   int filtered_length, int width2) {
+void resize_horz_dir_c(const uint8_t *const input, int in_stride,
+                       uint8_t *intbuf, int height, int filtered_length,
+                       int width2) {
   for (int i = 0; i < height; ++i)
-    down2_symeven(input + in_stride * i, filtered_length, intbuf + width2 * i);
+    down2_symeven(input + in_stride * i, filtered_length, intbuf + width2 * i,
+                  0);
 }
 
 bool av1_resize_plane_to_half(const uint8_t *const input, int height, int width,
