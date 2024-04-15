@@ -543,8 +543,9 @@ Error:
   return mem_status;
 }
 
-void resize_horz_dir(const uint8_t *const input, int in_stride, uint8_t *intbuf,
-                     int height, int filtered_length, int width2) {
+void resize_horz_dir_c(const uint8_t *const input, int in_stride,
+                       uint8_t *intbuf, int height, int filtered_length,
+                       int width2) {
   for (int i = 0; i < height; ++i)
     down2_symeven(input + in_stride * i, filtered_length, intbuf + width2 * i);
 }
