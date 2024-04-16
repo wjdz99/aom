@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d6e422c9_b37fba7b",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-04-16T18:55:55Z",
+      "side": 1,
+      "message": "Can you add a reference to the hash used in the port for documentation purposes, please?",
+      "revId": "75d1241b886d9eda48adc4ed19184abc90e8724f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
