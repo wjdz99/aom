@@ -16,6 +16,24 @@
       "message": "Same here, a hash would be helpful.",
       "revId": "65f8ca6a473623c7dbd50106f8c3fa7fc5e0b304",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "19672273_a33d813b",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 31957
+      },
+      "writtenOn": "2024-04-17T15:38:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7c2f48c6_25d1c563",
+      "revId": "65f8ca6a473623c7dbd50106f8c3fa7fc5e0b304",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
