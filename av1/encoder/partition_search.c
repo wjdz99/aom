@@ -569,7 +569,8 @@ static void encode_superblock(const AV1_COMP *const cpi, TileDataEnc *tile_data,
   }
   if (!dry_run) {
     if (cpi->oxcf.pass == AOM_RC_ONE_PASS && cpi->svc.temporal_layer_id == 0 &&
-        cpi->sf.rt_sf.use_temporal_noise_estimate &&
+        (cpi->sf.rt_sf.use_temporal_noise_estimate ||
+         cpi->sf.rt_sf.use_skinmap_detection) &&
         (!cpi->ppi->use_svc ||
          (cpi->ppi->use_svc &&
           !cpi->svc.layer_context[cpi->svc.temporal_layer_id].is_key_frame &&
