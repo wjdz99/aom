@@ -16,6 +16,23 @@
       "message": "Earlier discussion:\n\nhttps://code.videolan.org/videolan/vlc/-/merge_requests/4263#note_410006",
       "revId": "113ff4025b758ded9ebe2adda558d71b38eb786f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "77798789_9805d394",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-04-23T22:22:58Z",
+      "side": 1,
+      "message": "This looks like some leftovers from libvpx:\n\nhttps://chromium.googlesource.com/webm/libvpx/+/v1.14.0/build/make/configure.sh#1055\n\nThe fix should be fine. We can look at removing this block in another commit.",
+      "revId": "113ff4025b758ded9ebe2adda558d71b38eb786f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
