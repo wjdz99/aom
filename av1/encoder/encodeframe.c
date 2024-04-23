@@ -68,6 +68,7 @@
 #include "av1/encoder/rdopt.h"
 #include "av1/encoder/reconinter_enc.h"
 #include "av1/encoder/segmentation.h"
+#include "av1/encoder/skin_detection.h"
 #include "av1/encoder/tokenize.h"
 #include "av1/encoder/tpl_model.h"
 #include "av1/encoder/var_based_part.h"
@@ -502,6 +503,37 @@ static void get_estimated_pred(AV1_COMP *cpi, const TileInfo *const tile,
 }
 #endif  // CONFIG_RT_ML_PARTITIONING
 
+// Check if most of the superblock is skin content, and if so, force split to
+// 32x32, and set x->sb_is_skin for use in mode selection.
+static int skin_sb_split(AV1_COMP *cpi, int mi_row, int mi_col) {
+  const CommonModeInfoParams *const mi_params = &cpi->common.mi_params;
+  // Avoid checking superblocks on/near boundary and avoid low resolutions.
+  // Note superblock may still pick 64X64 if y_sad is very small
+  // (i.e., y_sad < cpi->vbp_threshold_sad) below. For now leave this as is.
+  if ((mi_col >= 4 && mi_col + 4 < mi_params->mi_cols && mi_row >= 4 &&
+       mi_row + 4 < mi_params->mi_rows)) {
+    int num_8x8_skin = 0;
+    const int block_index = mi_row * mi_params->mi_cols + mi_col;
+    const int bw = 16;
+    const int bh = 16;
+    const int xmis = AOMMIN(mi_params->mi_cols - mi_col, bw);
+    const int ymis = AOMMIN(mi_params->mi_rows - mi_row, bh);
+    // Loop through the 8x8 sub-blocks.
+    int i, j;
+    for (i = 0; i < ymis; i += 2) {
+      for (j = 0; j < xmis; j += 2) {
+        int bl_index = block_index + i * mi_params->mi_cols + j;
+        int is_skin = cpi->skin_map[bl_index];
+        num_8x8_skin += is_skin;
+      }
+    }
+    if (num_8x8_skin > (xmis * ymis >> 4)) {
+      return 1;
+    }
+  }
+  return 0;
+}
+
 #define AVG_CDF_WEIGHT_LEFT 3
 #define AVG_CDF_WEIGHT_TOP_RIGHT 1
 
@@ -525,6 +557,15 @@ static AOM_INLINE void encode_nonrd_sb(AV1_COMP *cpi, ThreadData *td,
   const BLOCK_SIZE sb_size = cm->seq_params->sb_size;
   PC_TREE *const pc_root = td->pc_root;
 
+  x->sb_is_skin = 0;
+  if (cpi->sf.rt_sf.use_skinmap_detection && !seg_skip &&
+      !frame_is_intra_only(cm) && cm->seq_params->sb_size == BLOCK_64X64 &&
+      x->content_state_sb.source_sad_nonrd > kVeryLowSad) {
+    av1_compute_skin_sb(cpi, BLOCK_8X8, mi_row, mi_col,
+                        x->content_state_sb.source_sad_nonrd <= kLowSad);
+    x->sb_is_skin = skin_sb_split(cpi, mi_row, mi_col);
+  }
+
 #if CONFIG_RT_ML_PARTITIONING
   if (sf->part_sf.partition_search_type == ML_BASED_PARTITION) {
     RD_STATS dummy_rdc;
@@ -536,6 +577,7 @@ static AOM_INLINE void encode_nonrd_sb(AV1_COMP *cpi, ThreadData *td,
 #endif
   // Set the partition
   if (sf->part_sf.partition_search_type == FIXED_PARTITION || seg_skip ||
+      x->sb_is_skin ||
       (sf->rt_sf.use_fast_fixed_part && x->sb_force_fixed_part == 1 &&
        (!frame_is_intra_only(cm) &&
         (!cpi->ppi->use_svc ||
@@ -547,6 +589,7 @@ static AOM_INLINE void encode_nonrd_sb(AV1_COMP *cpi, ThreadData *td,
         x->content_state_sb.source_sad_nonrd < kLowSad) {
       bsize_select = BLOCK_64X64;
     }
+    if (x->sb_is_skin) bsize_select = BLOCK_16X16;
     const BLOCK_SIZE bsize = seg_skip ? sb_size : bsize_select;
     av1_set_fixed_partitioning(cpi, tile_info, mi, mi_row, mi_col, bsize);
   } else if (sf->part_sf.partition_search_type == VAR_BASED_PARTITION) {
