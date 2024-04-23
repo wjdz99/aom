@@ -3453,6 +3453,11 @@ typedef struct AV1_COMP {
   uint8_t *consec_zero_mv;
 
   /*!
+   * Skin detection flag for 8x8 blocks.
+   */
+  uint8_t *skin_map;
+
+  /*!
    * Allocated memory size for |consec_zero_mv|.
    */
   int consec_zero_mv_alloc_size;
