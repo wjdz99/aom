@@ -180,6 +180,8 @@ if(CONFIG_AV1_ENCODER)
               "${AOM_ROOT}/aom_dsp/sad.c"
               "${AOM_ROOT}/aom_dsp/sad_av1.c"
               "${AOM_ROOT}/aom_dsp/sse.c"
+              "${AOM_ROOT}/aom_dsp/skin_detection.c"
+              "${AOM_ROOT}/aom_dsp/skin_detection.h"
               "${AOM_ROOT}/aom_dsp/ssim.c"
               "${AOM_ROOT}/aom_dsp/ssim.h"
               "${AOM_ROOT}/aom_dsp/sum_squares.c"

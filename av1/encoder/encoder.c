@@ -82,6 +82,7 @@
 #include "av1/encoder/saliency_map.h"
 #endif
 #include "av1/encoder/segmentation.h"
+#include "av1/encoder/skin_detection.h"
 #include "av1/encoder/speed_features.h"
 #include "av1/encoder/superres_scale.h"
 #include "av1/encoder/thirdpass.h"
@@ -90,6 +91,11 @@
 #include "av1/encoder/var_based_part.h"
 
 #define DEFAULT_EXPLICIT_ORDER_HINT_BITS 7
+
+//#define OUTPUT_YUV_SKINMAP
+#ifdef OUTPUT_YUV_SKINMAP
+static FILE *yuv_skinmap_file = NULL;
+#endif
 
 // #define OUTPUT_YUV_REC
 #ifdef OUTPUT_YUV_REC
@@ -1437,6 +1443,9 @@ AV1_COMP *av1_create_compressor(AV1_PRIMARY *ppi, const AV1EncoderConfig *oxcf,
 #ifdef OUTPUT_YUV_REC
   yuv_rec_file = fopen("rec.yuv", "wb");
 #endif
+#ifdef OUTPUT_YUV_SKINMAP
+  yuv_skinmap_file = fopen("skinmap.yuv", "wb");
+#endif
 #ifdef OUTPUT_YUV_DENOISED
   yuv_denoised_file = fopen("denoised.yuv", "wb");
 #endif
@@ -1500,6 +1509,10 @@ AV1_COMP *av1_create_compressor(AV1_PRIMARY *ppi, const AV1EncoderConfig *oxcf,
       cm, cpi->consec_zero_mv,
       aom_calloc(consec_zero_mv_alloc_size, sizeof(*cpi->consec_zero_mv)));
   cpi->consec_zero_mv_alloc_size = consec_zero_mv_alloc_size;
+
+  const int skin_map_alloc_size = max_mi_rows * max_mi_cols;
+  CHECK_MEM_ERROR(cm, cpi->skin_map,
+                  aom_calloc(skin_map_alloc_size, sizeof(*cpi->skin_map)));
 
   cpi->mb_weber_stats = NULL;
   cpi->mb_delta_q = NULL;
@@ -1753,7 +1766,9 @@ void av1_remove_compressor(AV1_COMP *cpi) {
 #ifdef OUTPUT_YUV_REC
   fclose(yuv_rec_file);
 #endif
-
+#ifdef OUTPUT_YUV_SKINMAP
+  fclose(yuv_skinmap_file);
+#endif
 #ifdef OUTPUT_YUV_DENOISED
   fclose(yuv_denoised_file);
 #endif
@@ -2561,6 +2576,8 @@ static int encode_without_recode(AV1_COMP *cpi) {
   if (frame_is_intra_only(cm) || resize_pending != 0) {
     const int current_size =
         (cm->mi_params.mi_rows * cm->mi_params.mi_cols) >> 2;
+    const int current_size_skinmap =
+        cm->mi_params.mi_rows * cm->mi_params.mi_cols;
     if (cpi->consec_zero_mv &&
         (cpi->consec_zero_mv_alloc_size < current_size)) {
       aom_free(cpi->consec_zero_mv);
@@ -2568,9 +2585,15 @@ static int encode_without_recode(AV1_COMP *cpi) {
       CHECK_MEM_ERROR(cm, cpi->consec_zero_mv,
                       aom_malloc(current_size * sizeof(*cpi->consec_zero_mv)));
       cpi->consec_zero_mv_alloc_size = current_size;
+      aom_free(cpi->skin_map);
+      CHECK_MEM_ERROR(
+          cm, cpi->skin_map,
+          aom_malloc(current_size_skinmap * sizeof(*cpi->skin_map)));
     }
     assert(cpi->consec_zero_mv != NULL);
     memset(cpi->consec_zero_mv, 0, current_size * sizeof(*cpi->consec_zero_mv));
+    assert(cpi->skin_map != NULL);
+    memset(cpi->skin_map, 0, current_size_skinmap * sizeof(*cpi->skin_map));
   }
 
   if (cpi->scaled_last_source_available) {
@@ -3214,6 +3237,10 @@ static int encode_with_recode_loop_and_filter(AV1_COMP *cpi, size_t *size,
     aom_write_yuv_frame(yuv_denoised_file,
                         &cpi->denoiser.running_avg_y[INTRA_FRAME]);
   }
+#endif
+
+#ifdef OUTPUT_YUV_SKINMAP
+  av1_output_skin_map(cpi, yuv_skinmap_file);
 #endif
 
   AV1_COMMON *const cm = &cpi->common;
