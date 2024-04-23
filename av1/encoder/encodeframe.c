@@ -68,6 +68,7 @@
 #include "av1/encoder/rdopt.h"
 #include "av1/encoder/reconinter_enc.h"
 #include "av1/encoder/segmentation.h"
+#include "av1/encoder/skin_detection.h"
 #include "av1/encoder/tokenize.h"
 #include "av1/encoder/tpl_model.h"
 #include "av1/encoder/var_based_part.h"
@@ -524,6 +525,12 @@ static AOM_INLINE void encode_nonrd_sb(AV1_COMP *cpi, ThreadData *td,
                       get_mi_grid_idx(&cm->mi_params, mi_row, mi_col);
   const BLOCK_SIZE sb_size = cm->seq_params->sb_size;
   PC_TREE *const pc_root = td->pc_root;
+
+  if (cpi->sf.rt_sf.use_skinmap_detection && !seg_skip &&
+      cm->seq_params->sb_size == BLOCK_64X64 &&
+      x->content_state_sb.source_sad_nonrd != kZeroSad)
+    av1_compute_skin_sb(cpi, BLOCK_8X8, mi_row, mi_col,
+                        x->content_state_sb.source_sad_nonrd <= kLowSad);
 
 #if CONFIG_RT_ML_PARTITIONING
   if (sf->part_sf.partition_search_type == ML_BASED_PARTITION) {
