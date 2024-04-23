@@ -44,7 +44,7 @@ extern "C" {
 #define MAX_TX_TYPE_PROB 1024
 
 //! Compute color sensitivity index for given plane
-#define COLOR_SENS_IDX(plane) ((plane)-1)
+#define COLOR_SENS_IDX(plane) ((plane) - 1)
 
 //! Enable timer statistics of mode search in non-rd
 #define COLLECT_NONRD_PICK_MODE_STAT 0
@@ -1351,6 +1351,8 @@ typedef struct macroblock {
   //! Flag to indicate if a fixed partition should be used, only if the
   // speed feature rt_sf->use_fast_fixed_part is enabled.
   int sb_force_fixed_part;
+  // Flag to indicate superblock is skin.
+  int sb_is_skin;
   //! SSE of the current predictor.
   unsigned int pred_sse[REF_FRAMES];
   //! Prediction for ML based partition.
