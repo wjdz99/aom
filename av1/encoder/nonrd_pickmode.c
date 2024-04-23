@@ -2364,6 +2364,7 @@ static AOM_FORCE_INLINE bool skip_inter_mode_nonrd(
       (*this_mode != GLOBALMV || *ref_frame != LAST_FRAME))
     return true;
 
+<<<<<<< HEAD   (4058a1 add av1/common/debugmodes.h)
   // Skip the mode if use reference frame mask flag is not set.
   if (!search_state->use_ref_frame_mask[*ref_frame]) return true;
 
@@ -2376,6 +2377,8 @@ static AOM_FORCE_INLINE bool skip_inter_mode_nonrd(
        *ref_frame != LAST_FRAME))
     return true;
 
+=======
+>>>>>>> BRANCH (6cab58 Simplify conditions in aom_img_plane_width/height)
   if (x->sb_me_block && *ref_frame == LAST_FRAME) {
     // We want to make sure to test the superblock MV:
     // so don't skip (return false) for NEAREST_LAST or NEAR_LAST if they

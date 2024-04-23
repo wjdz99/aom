@@ -2323,9 +2323,14 @@ static void pick_sb_modes_nonrd(AV1_COMP *const cpi, TileDataEnc *tile_data,
   }
   if (cpi->sf.rt_sf.skip_cdef_sb) {
     // cdef_strength is initialized to 1 which means skip_cdef, and is updated
+<<<<<<< HEAD   (4058a1 add av1/common/debugmodes.h)
     // here. Check to see is skipping cdef is allowed. Never skip on slide/scene
     // change, near a key frame, or when color sensitivity is set. Always allow
     // cdef_skip for seg_skip = 1.
+=======
+    // here. Check to see is skipping cdef is allowed.
+    // Always allow cdef_skip for seg_skip = 1.
+>>>>>>> BRANCH (6cab58 Simplify conditions in aom_img_plane_width/height)
     const int allow_cdef_skipping =
         seg_skip ||
         (cpi->rc.frames_since_key > 10 && !cpi->rc.high_source_sad &&
