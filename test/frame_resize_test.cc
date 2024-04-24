@@ -145,12 +145,19 @@ GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(AV1ResizeYTest);
 
 TEST_P(AV1ResizeYTest, RunTest) { RunTest(); }
 
-TEST_P(AV1ResizeYTest, DISABLED_SpeedTest) { SpeedTest(); }
+TEST_P(AV1ResizeYTest, SpeedTest) { SpeedTest(); }
 
 #if HAVE_AVX2
 INSTANTIATE_TEST_SUITE_P(
     AVX2, AV1ResizeYTest,
     ::testing::Combine(::testing::Values(resize_vert_dir_avx2),
+                       ::testing::ValuesIn(kFrameDim)));
+#endif
+
+#if HAVE_SSE2
+INSTANTIATE_TEST_SUITE_P(
+    SSE2, AV1ResizeYTest,
+    ::testing::Combine(::testing::Values(resize_vert_dir_sse2),
                        ::testing::ValuesIn(kFrameDim)));
 #endif
 
