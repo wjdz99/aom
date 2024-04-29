@@ -147,6 +147,11 @@ TEST_P(AV1ResizeYTest, RunTest) { RunTest(); }
 
 TEST_P(AV1ResizeYTest, DISABLED_SpeedTest) { SpeedTest(); }
 
+INSTANTIATE_TEST_SUITE_P(
+    C, AV1ResizeYTest,
+    ::testing::Combine(::testing::Values(resize_vert_dir_c),
+                       ::testing::ValuesIn(kFrameDim)));
+
 #if HAVE_AVX2
 INSTANTIATE_TEST_SUITE_P(
     AVX2, AV1ResizeYTest,
