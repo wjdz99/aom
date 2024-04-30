@@ -2449,7 +2449,7 @@ static AOM_FORCE_INLINE bool skip_inter_mode_nonrd(
     return true;
 
   // For screen content: skip mode testing based on source_sad.
-  if (cpi->oxcf.tune_cfg.content == AOM_CONTENT_SCREEN) {
+  if (rt_sf->skip_mode_testing_screen) {
     // If source_sad is computed: skip non-zero motion
     // check for stationary (super)blocks. Otherwise if superblock
     // has motion skip the modes with zero motion on last reference

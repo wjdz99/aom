@@ -1902,6 +1902,10 @@ typedef struct REAL_TIME_SPEED_FEATURES {
   // This generally leads to better coding efficiency but with some speed loss.
   // Only used for screen content and for nonrd_pickmode.
   bool increase_color_thresh_palette;
+
+  // When enabled (set to 1) allows for skipping some mode testing in
+  // nonrd_pickmode, mainly for screen content.
+  int skip_mode_testing_screen;
 } REAL_TIME_SPEED_FEATURES;
 
 /*!\endcond */
