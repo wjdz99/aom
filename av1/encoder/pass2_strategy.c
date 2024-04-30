@@ -165,7 +165,7 @@ static void twopass_update_bpm_factor(AV1_COMP *cpi, int rate_err_tol) {
 
   // Based on recent history adjust expectations of bits per macroblock.
   double rate_err_factor = 1.0;
-  const double adj_limit = AOMMAX(0.2, (double)(100 - rate_err_tol) / 200.0);
+  const double adj_limit = AOMMAX(0.25, (double)(100 - rate_err_tol) / 200.0);
   const double min_fac = 1.0 - adj_limit;
   const double max_fac = 1.0 + adj_limit;
 
