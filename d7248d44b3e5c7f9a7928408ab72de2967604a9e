@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e4e28175_c0baad31",
+        "filename": "av1/ratectrl_rtc_c_methods.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-04-30T18:17:11Z",
+      "side": 1,
+      "message": "This fix belongs in the parent commit, so that all changes that land are stable. See:\n\nhttps://gerrit-review.googlesource.com/Documentation/intro-gerrit-walkthrough.html",
+      "revId": "d7248d44b3e5c7f9a7928408ab72de2967604a9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
