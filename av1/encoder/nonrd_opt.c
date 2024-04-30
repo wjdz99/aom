@@ -708,7 +708,7 @@ void av1_estimate_intra_mode(AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bsize,
                              PRED_BUFFER *tmp_buffers,
                              PRED_BUFFER **this_mode_pred, RD_STATS *best_rdc,
                              BEST_PICKMODE *best_pickmode,
-                             PICK_MODE_CONTEXT *ctx) {
+                             PICK_MODE_CONTEXT *ctx, int is_screen_content) {
   AV1_COMMON *const cm = &cpi->common;
   MACROBLOCKD *const xd = &x->e_mbd;
   MB_MODE_INFO *const mi = xd->mi[0];
@@ -716,8 +716,6 @@ void av1_estimate_intra_mode(AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bsize,
   const unsigned char segment_id = mi->segment_id;
   const int *const rd_threshes = cpi->rd.threshes[segment_id][bsize];
   const int *const rd_thresh_freq_fact = x->thresh_freq_fact[bsize];
-  const bool is_screen_content =
-      cpi->oxcf.tune_cfg.content == AOM_CONTENT_SCREEN;
   struct macroblockd_plane *const pd = &xd->plane[AOM_PLANE_Y];
   const REAL_TIME_SPEED_FEATURES *const rt_sf = &cpi->sf.rt_sf;
 
