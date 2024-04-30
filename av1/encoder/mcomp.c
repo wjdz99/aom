@@ -2076,12 +2076,10 @@ static int vector_match(int16_t *ref, int16_t *src, int bwl, int search_size,
 // A special fast version of motion search used in rt mode.
 // The search window along columns and row is given by:
 //  +/- me_search_size_col/row.
-unsigned int av1_int_pro_motion_estimation(const AV1_COMP *cpi, MACROBLOCK *x,
-                                           BLOCK_SIZE bsize, int mi_row,
-                                           int mi_col, const MV *ref_mv,
-                                           unsigned int *y_sad_zero,
-                                           int me_search_size_col,
-                                           int me_search_size_row) {
+unsigned int av1_int_pro_motion_estimation(
+    const AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bsize, int mi_row,
+    int mi_col, const MV *ref_mv, unsigned int *y_sad_zero,
+    int me_search_size_col, int me_search_size_row, int is_screen) {
   const AV1_COMMON *const cm = &cpi->common;
   MACROBLOCKD *xd = &x->e_mbd;
   MB_MODE_INFO *mi = xd->mi[0];
@@ -2089,7 +2087,6 @@ unsigned int av1_int_pro_motion_estimation(const AV1_COMP *cpi, MACROBLOCK *x,
   int idx;
   const int bw = block_size_wide[bsize];
   const int bh = block_size_high[bsize];
-  const int is_screen = cpi->oxcf.tune_cfg.content == AOM_CONTENT_SCREEN;
   const int full_search = is_screen;
   const bool screen_scroll_superblock =
       is_screen && bsize == cm->seq_params->sb_size;

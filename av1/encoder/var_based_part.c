@@ -563,7 +563,7 @@ static void set_vbp_thresholds_key_frame(AV1_COMP *cpi, int64_t thresholds[],
 
 static AOM_INLINE void tune_thresh_based_on_resolution(
     AV1_COMP *cpi, int64_t thresholds[], int64_t threshold_base,
-    int current_qindex, int source_sad_rd, int num_pixels) {
+    int current_qindex, int source_sad_rd, int num_pixels, int is_screen) {
   if (num_pixels >= RESOLUTION_720P) thresholds[3] = thresholds[3] << 1;
   if (num_pixels <= RESOLUTION_288P) {
     const int qindex_thr[5][2] = {
@@ -610,7 +610,7 @@ static AOM_INLINE void tune_thresh_based_on_resolution(
     thresholds[2] = threshold_base << 1;
   } else {
     // num_pixels >= RESOLUTION_1080P
-    if (cpi->oxcf.tune_cfg.content == AOM_CONTENT_SCREEN) {
+    if (is_screen) {
       if (num_pixels < RESOLUTION_1440P) {
         thresholds[2] = (5 * threshold_base) >> 1;
       } else {
@@ -669,7 +669,7 @@ static AOM_INLINE int64_t tune_thresh_noisy_content(AV1_COMP *cpi,
 static AOM_INLINE void set_vbp_thresholds(
     AV1_COMP *cpi, int64_t thresholds[], uint64_t blk_sad, int qindex,
     int content_lowsumdiff, int source_sad_nonrd, int source_sad_rd,
-    bool is_segment_id_boosted, int lighting_change) {
+    bool is_segment_id_boosted, int lighting_change, int is_screen) {
   AV1_COMMON *const cm = &cpi->common;
   const int is_key_frame = frame_is_intra_only(cm);
   const int threshold_multiplier = is_key_frame ? 120 : 1;
@@ -692,7 +692,7 @@ static AOM_INLINE void set_vbp_thresholds(
   thresholds[3] = threshold_base << threshold_left_shift;
 
   tune_thresh_based_on_resolution(cpi, thresholds, threshold_base,
-                                  current_qindex, source_sad_rd, num_pixels);
+                                  current_qindex, source_sad_rd, num_pixels, is_screen);
 
   tune_thresh_based_on_qindex(cpi, thresholds, blk_sad, current_qindex,
                               num_pixels, is_segment_id_boosted,
@@ -990,7 +990,7 @@ void av1_set_variance_partition_thresholds(AV1_COMP *cpi, int qindex,
     return;
   } else {
     set_vbp_thresholds(cpi, cpi->vbp_info.thresholds, 0, qindex,
-                       content_lowsumdiff, 0, 0, 0, 0);
+                       content_lowsumdiff, 0, 0, 0, 0, 0);
     // The threshold below is not changed locally.
     cpi->vbp_info.threshold_minmax = 15 + (qindex >> 3);
   }
@@ -1000,7 +1000,7 @@ static AOM_INLINE void chroma_check(AV1_COMP *cpi, MACROBLOCK *x,
                                     BLOCK_SIZE bsize, unsigned int y_sad,
                                     unsigned int y_sad_g,
                                     unsigned int y_sad_alt, bool is_key_frame,
-                                    bool zero_motion, unsigned int *uv_sad) {
+                                    bool zero_motion, unsigned int *uv_sad, int is_screen) {
   MACROBLOCKD *xd = &x->e_mbd;
   const int source_sad_nonrd = x->content_state_sb.source_sad_nonrd;
   int shift_upper_limit = 1;
@@ -1013,13 +1013,13 @@ static AOM_INLINE void chroma_check(AV1_COMP *cpi, MACROBLOCK *x,
   // Since this may be used to skip compound mode in nonrd pickmode, which
   // is generally more effective for higher resolutions, better to be more
   // conservative.
-  if (cpi->oxcf.tune_cfg.content != AOM_CONTENT_SCREEN) {
+  if (!is_screen) {
     if (cpi->common.width * cpi->common.height >= RESOLUTION_1080P)
       fac_uv = 3;
     else
       fac_uv = 5;
   }
-  if (cpi->oxcf.tune_cfg.content == AOM_CONTENT_SCREEN &&
+  if (is_screen &&
       cpi->rc.high_source_sad) {
     shift_lower_limit = 7;
   } else if (source_sad_nonrd >= kMedSad && x->source_variance > 500 &&
@@ -1340,7 +1340,7 @@ static void setup_planes(AV1_COMP *cpi, MACROBLOCK *x, unsigned int *y_sad,
                          unsigned int *y_sad_last,
                          MV_REFERENCE_FRAME *ref_frame_partition,
                          struct scale_factors *sf_no_scale, int mi_row,
-                         int mi_col, bool is_small_sb, bool scaled_ref_last) {
+                         int mi_col, bool is_small_sb, bool scaled_ref_last, int is_screen) {
   AV1_COMMON *const cm = &cpi->common;
   MACROBLOCKD *xd = &x->e_mbd;
   const int num_planes = av1_num_planes(cm);
@@ -1433,7 +1433,6 @@ static void setup_planes(AV1_COMP *cpi, MACROBLOCK *x, unsigned int *y_sad,
         // For screen only do int_pro_motion for spatial variance above
         // threshold and motion level above LowSad.
         if (x->source_variance > 100 && source_sad_nonrd > kLowSad) {
-          int is_screen = cpi->oxcf.tune_cfg.content == AOM_CONTENT_SCREEN;
           int me_search_size_col =
               is_screen ? 96 : block_size_wide[cm->seq_params->sb_size] >> 1;
           // For screen use larger search size row motion to capture
@@ -1443,7 +1442,7 @@ static void setup_planes(AV1_COMP *cpi, MACROBLOCK *x, unsigned int *y_sad,
           unsigned int y_sad_zero;
           *y_sad = av1_int_pro_motion_estimation(
               cpi, x, cm->seq_params->sb_size, mi_row, mi_col, &kZeroMv,
-              &y_sad_zero, me_search_size_col, me_search_size_row);
+              &y_sad_zero, me_search_size_col, me_search_size_row, is_screen);
           // The logic below selects whether the motion estimated in the
           // int_pro_motion() will be used in nonrd_pickmode. Only do this
           // for screen for now.
@@ -1598,6 +1597,7 @@ int av1_choose_var_based_partitioning(AV1_COMP *cpi, const TileInfo *const tile,
   int dst_stride;
   unsigned int uv_sad[MAX_MB_PLANE - 1];
   NOISE_LEVEL noise_level = kLow;
+  int is_screen = cpi->oxcf.tune_cfg.content == AOM_CONTENT_SCREEN;
   bool is_zero_motion = true;
   bool scaled_ref_last = false;
   struct scale_factors sf_no_scale;
@@ -1651,7 +1651,7 @@ int av1_choose_var_based_partitioning(AV1_COMP *cpi, const TileInfo *const tile,
   set_vbp_thresholds(
       cpi, thresholds, blk_sad, qindex, x->content_state_sb.low_sumdiff,
       x->content_state_sb.source_sad_nonrd, x->content_state_sb.source_sad_rd,
-      is_segment_id_boosted, x->content_state_sb.lighting_change);
+      is_segment_id_boosted, x->content_state_sb.lighting_change, is_screen);
 
   src_buf = x->plane[AOM_PLANE_Y].src.buf;
   int src_stride = x->plane[AOM_PLANE_Y].src.stride;
@@ -1693,7 +1693,7 @@ int av1_choose_var_based_partitioning(AV1_COMP *cpi, const TileInfo *const tile,
   if (!is_key_frame) {
     setup_planes(cpi, x, &y_sad, &y_sad_g, &y_sad_alt, &y_sad_last,
                  &ref_frame_partition, &sf_no_scale, mi_row, mi_col,
-                 is_small_sb, scaled_ref_last);
+                 is_small_sb, scaled_ref_last, is_screen);
 
     MB_MODE_INFO *mi = xd->mi[0];
     // Use reference SB directly for zero mv.
@@ -1713,7 +1713,7 @@ int av1_choose_var_based_partitioning(AV1_COMP *cpi, const TileInfo *const tile,
   // check and set the color sensitivity of sb.
   av1_zero(uv_sad);
   chroma_check(cpi, x, bsize, y_sad_last, y_sad_g, y_sad_alt, is_key_frame,
-               is_zero_motion, uv_sad);
+               is_zero_motion, uv_sad, is_screen);
 
   x->force_zeromv_skip_for_sb = 0;
 
