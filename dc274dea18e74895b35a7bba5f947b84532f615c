@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a185a71b_648d5a96",
+        "filename": "av1/encoder/speed_features.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 1908,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2024-05-01T14:32:47Z",
+      "side": 1,
+      "message": "With this one added, there\u0027ll be 5 speed features in `REAL_TIME_SPEED_FEATURES` dedicated to screen content.\n\nMaybe we should add a new struct for screen content speed features. But it can be done in a separate CL.",
+      "range": {
+        "startLine": 1908,
+        "startChar": 6,
+        "endLine": 1908,
+        "endChar": 30
+      },
+      "revId": "dc274dea18e74895b35a7bba5f947b84532f615c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
