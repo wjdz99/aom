@@ -16,6 +16,24 @@
       "message": "This can be done on the command line and doesn\u0027t need to be defaulted here.",
       "revId": "ac747380bca7c746e642e866356aef0546f52103",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a812fc78_936d43a5",
+        "filename": "CMakeLists.txt",
+        "patchSetId": 5
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 33496
+      },
+      "writtenOn": "2024-05-02T06:01:54Z",
+      "side": 1,
+      "message": "Actually , removing this flag is resulting in compilation failure for other modules. raised the ticket  below is the response. Let me know if we can go back to old code itself, will keep the flag \n\nYour change exposed an issue because you removed the protection of BUILD_SHARED_LIBS from some targets. If you want those targets to build as shared libraries you will need to investigate the dependencies. It\u0027s also possible that the targets are incompatible because they rely on internal functions that are not exposed in the shared object.\n\n\nHi James,",
+      "parentUuid": "24a9c9af_7f7a531e",
+      "revId": "ac747380bca7c746e642e866356aef0546f52103",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
