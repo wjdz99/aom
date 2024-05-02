@@ -1585,6 +1585,7 @@ static void set_rt_speed_feature_framesize_dependent(const AV1_COMP *const cpi,
       sf->rt_sf.part_early_exit_zeromv = 2;
       sf->rt_sf.prune_palette_nonrd = 1;
       sf->rt_sf.increase_color_thresh_palette = 0;
+      sf->rt_sf.hybrid_intra_pickmode = 0;
     }
     sf->rt_sf.skip_newmv_flat_blocks_screen = 1;
     sf->rt_sf.use_idtx_nonrd = 1;
