@@ -447,7 +447,7 @@ static INLINE void idct8_low1_neon(int16x8_t *in, int16x8_t *out,
   out[7] = step1;
 }
 
-void av1_round_shift_array_16_neon(int16x8_t *arr, int size, int bit) {
+static void round_shift_array_16_neon(int16x8_t *arr, int size, int bit) {
   assert(!(size % 4));
   if (!bit) return;
   const int16x8_t dup_bits_n_16x8 = vdupq_n_s16((int16_t)(-bit));
