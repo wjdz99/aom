@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "04aa0cba_2422ca81",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 32923
+      },
+      "writtenOn": "2024-05-06T10:49:58Z",
+      "side": 1,
+      "message": "This CL adds the AVX2 intrinsic optimization for the `av1_resize_horz_dir()` function, which horizontally down-samples the given frame by 2. Also, added the relevant unit-test `AV1ResizeXTest`.\n \n The module level scaling(x) numbers (averaged across the layers for a given dimension) of AVX2 w.r.t. C from the unit-test are given as below:\n ```\n Resolution       Average Scaling w.r.t C\n 3840x2160              3.16x\n 2560x1440              3.25x\n 1920x1080              3.24x\n 1280x720               3.42x\n 640x480                3.80x\n 640x360                3.85x\n 256x256                5.53x\n ``` \nFor `av1_resize_horz_dir_avx2()` (i.e., current CL), an average scaling of ~3.75x is observed across resolutions, whereas for `av1_resize_vert_dir_avx2()` (submitted earlier \u003cResizeVertical\u003e) scaling was ~9.35x. The lower scaling numbers seen in horizontal resizing are due to the absence of loaded source data reuse (as load is limited to required width) as compared to vertical resizing (where loaded rows can be reused when processing subsequent rows).\n\nThis change is a bit-exact change and the below shows the borg results of the current CL. For speed 5 and 6 GM is disabled by default (Enabled the same locally for testing purpose).\n ```\n        Instruction Count\ncpu     Reduction(%)   \n 2          0.028\n 3          0.077\n 4          0.115\n 5          0.251\n 6          0.319\n ```\nThe speed up seems to be lesser due to the content and bit-rates used in the Borg test suite. For speed 5, we also generated and analyzed the profile data corresponding to Netflix_PierSeaside_2048x1080_60fps_8bit_420 content with QP \u003d 63, where GM tool contributes for ~7.1% (with 1.3% coming from `av1_resize_horz_dir()`) encode time and this optimization yielded ~1.0% time reduction. For which the module level scaling of `av1_resize_horz_dir()` function is 3.2x.",
+      "revId": "e38ec7c15504963a7b5c5e342e61752a3f044df7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
