@@ -16,6 +16,24 @@
       "message": "Sorry about this, I was pretty sure I had tested this before.... The original patch did have the semicolons escaped properly though, but I apparently did miss the fact that this test does try linking - I had expected it to be a pure compilation test.\n\nThis looks like a reasonable way to fix this issue, thanks!",
       "revId": "3017e100f8ea92eac5969fcaac64330ccc686086",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7bf6529e_d0370db8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-05-07T18:20:11Z",
+      "side": 1,
+      "message": "\u003e Sorry about this, I was pretty sure I had tested this before.... The original patch did have the semicolons escaped properly though, but I apparently did miss the fact that this test does try linking - I had expected it to be a pure compilation test.\n\u003e \n\nI apologize for that. In testing, I didn\u0027t think they were necessary and removed them when I uploaded a revision.\n\n\u003e This looks like a reasonable way to fix this issue, thanks!",
+      "parentUuid": "61c7d782_0d58989d",
+      "revId": "3017e100f8ea92eac5969fcaac64330ccc686086",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
