@@ -533,7 +533,7 @@ void av1_resize_horz_dir_avx2(const uint8_t *const input, int in_stride,
   // Currently, Invoking C function for width less than 32. Optimize the below,
   // by invoking SSE2 once the implementation for the same is available.
   if (filtered_length < 32) {
-    av1_resize_horz_dir_c(input, in_stride, intbuf, height, filtered_length,
+    av1_resize_horz_dir_sse2(input, in_stride, intbuf, height, filtered_length,
                           width2);
     return;
   }
