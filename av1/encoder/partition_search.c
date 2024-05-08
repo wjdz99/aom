@@ -742,6 +742,7 @@ static AOM_INLINE void hybrid_intra_mode_search(AV1_COMP *cpi,
                                                 PICK_MODE_CONTEXT *ctx) {
   int use_rdopt = 0;
   const int hybrid_intra_pickmode = cpi->sf.rt_sf.hybrid_intra_pickmode;
+  printf("hybrid_intra_pickmode %d\n", hybrid_intra_pickmode);
   // Use rd pick for intra mode search based on block size and variance.
   if (hybrid_intra_pickmode && bsize < BLOCK_16X16) {
     unsigned int var_thresh[3] = { 0, 101, 201 };
