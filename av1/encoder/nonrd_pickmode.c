@@ -23,6 +23,7 @@
 #include "av1/encoder/model_rd.h"
 #include "av1/encoder/motion_search_facade.h"
 #include "av1/encoder/nonrd_opt.h"
+#include "av1/encoder/palette.h"
 #include "av1/encoder/reconinter_enc.h"
 #include "av1/encoder/var_based_part.h"
 
@@ -1649,6 +1650,26 @@ void av1_nonrd_pick_intra_mode(AV1_COMP *cpi, MACROBLOCK *x, RD_STATS *rd_cost,
   }
 
   mi->mode = best_mode;
+
+  const int try_palette =
+      cpi->oxcf.tool_cfg.enable_palette &&
+      av1_allow_palette(cpi->common.features.allow_screen_content_tools,
+                        mi->bsize);
+  if (try_palette) {
+    MB_MODE_INFO best_mbmi = *mi;
+    uint8_t *best_palette_color_map =
+        try_palette ? x->palette_buffer->best_palette_color_map : NULL;
+    int64_t best_rd = best_rdc.rdcost;
+    int rate;
+    int rate_tokenonly;
+    int64_t distortion;
+    uint8_t skippable;
+    int beat_best_rd = 0;
+    av1_rd_pick_palette_intra_sby(
+        cpi, x, bsize, bmode_costs[DC_PRED], &best_mbmi, best_palette_color_map,
+        &best_rd, &rate, &rate_tokenonly, &distortion, &skippable, &beat_best_rd,
+        ctx, ctx->blk_skip, ctx->tx_type_map);
+  }
   // Keep DC for UV since mode test is based on Y channel only.
   mi->uv_mode = UV_DC_PRED;
   *rd_cost = best_rdc;
