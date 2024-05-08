@@ -1590,10 +1590,22 @@ void av1_nonrd_pick_intra_mode(AV1_COMP *cpi, MACROBLOCK *x, RD_STATS *rd_cost,
   init_mbmi_nonrd(mi, DC_PRED, INTRA_FRAME, NONE_FRAME, cm);
   mi->mv[0].as_int = mi->mv[1].as_int = INVALID_MV;
 
+  // Try palette mode if it's enabled.
+  bool try_palette =
+      cpi->oxcf.tool_cfg.enable_palette && bsize <= BLOCK_16X16 &&
+      x->source_variance > 200 &&
+      av1_allow_palette(cpi->common.features.allow_screen_content_tools,
+                        mi->bsize);
   // Change the limit of this loop to add other intra prediction
   // mode tests.
   for (int mode_index = 0; mode_index < RTC_INTRA_MODES; ++mode_index) {
     PREDICTION_MODE this_mode = intra_mode_list[mode_index];
+
+    // If palette mode will be tested, then for small block and high spatial
+    // variance, only test DC.
+    if (try_palette && x->source_variance > 2000 && bsize <= BLOCK_8X8 &&
+        mode_index > 0)
+      continue;
 
     // As per the statistics generated for intra mode evaluation in the nonrd
     // path, it is found that the probability of H_PRED mode being the winner is
@@ -1648,16 +1660,13 @@ void av1_nonrd_pick_intra_mode(AV1_COMP *cpi, MACROBLOCK *x, RD_STATS *rd_cost,
     }
   }
 
-  const int64_t thresh_dist = cpi->sf.rt_sf.prune_palette_nonrd ? 80000 : 20000;
+  const int64_t thresh_dist = cpi->sf.rt_sf.prune_palette_nonrd ? 40000 : 20000;
   const int64_t best_dist_norm = best_rdc.dist >> (b_width_log2_lookup[bsize] +
                                                    b_height_log2_lookup[bsize]);
 
   // Try palette if it's enabled.
-  bool try_palette =
-      best_dist_norm > thresh_dist && cpi->oxcf.tool_cfg.enable_palette &&
-      bsize <= BLOCK_16X16 && x->source_variance > 200 &&
-      av1_allow_palette(cpi->common.features.allow_screen_content_tools,
-                        mi->bsize);
+  try_palette = try_palette && best_dist_norm > thresh_dist;
+
   if (try_palette) {
     const TxfmSearchInfo *txfm_info = &x->txfm_search_info;
     const unsigned int intra_ref_frame_cost = 0;
