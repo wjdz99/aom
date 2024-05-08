@@ -128,6 +128,24 @@
       "parentUuid": "be034911_ed952634",
       "revId": "2a34a3fc8b10accaf14a1430f9206a4f46cbd5b3",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "41930e1b_9b50f666",
+        "filename": "test/wiener_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 1793,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-05-08T20:18:31Z",
+      "side": 1,
+      "message": "\u003e This test uses the default `cfg.g_lag_in_frames` value of 35 in `AOM_USAGE_GOOD_QUALITY` mode, so the encoder doesn not output the encoded packets until we flush the encoder.\n\u003e \n\u003e This test checks for the current behavior of libaom, so the test does \"over-check\" and ideally should be rewritten to allow for other behaviors that also meet the API specification of `aom_codec_encode()`:\n\u003e \n\u003e ```\n\u003e  * When the last frame has been passed to the encoder, this function should\n\u003e  * continue to be called in a loop, with the img parameter set to NULL. This\n\u003e  * will signal the end-of-stream condition to the encoder and allow it to\n\u003e  * encode any held buffers. Encoding is complete when aom_codec_encode() is\n\u003e  * called with img set to NULL and aom_codec_get_cx_data() returns no data.\n\u003e ```\n\u003e \n\u003e The code in libavif flushes the encoder in a loop as suggested by this comment. This test unrolls that loop. As this test shows, that loop has three iterations. The first and second iterations each output a single encoded packet. The third iteration outputs nothing, which terminates the loop.\n\nYou\u0027re right, I forgot about this implementation detail.",
+      "parentUuid": "e47e32b4_2d38eeb2",
+      "revId": "2a34a3fc8b10accaf14a1430f9206a4f46cbd5b3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
