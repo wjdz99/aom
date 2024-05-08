@@ -24,6 +24,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "5410d732_6834c5bb",
+        "filename": "test/wiener_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 1727,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-05-08T17:41:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4771bd73_33eb90d6",
+      "range": {
+        "startLine": 1727,
+        "startChar": 2,
+        "endLine": 1727,
+        "endChar": 14
+      },
+      "revId": "2a34a3fc8b10accaf14a1430f9206a4f46cbd5b3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ce8c4695_fa498cf4",
@@ -37,6 +61,30 @@
       "writtenOn": "2024-05-08T17:25:25Z",
       "side": 1,
       "message": "Not sure why the cast is needed. buffer already looks to be uint8_t, maybe make buffer unsigned char?",
+      "range": {
+        "startLine": 1731,
+        "startChar": 38,
+        "endLine": 1731,
+        "endChar": 50
+      },
+      "revId": "2a34a3fc8b10accaf14a1430f9206a4f46cbd5b3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5abfc77f_819100ba",
+        "filename": "test/wiener_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 1731,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-05-08T17:41:45Z",
+      "side": 1,
+      "message": "The important part of this cast is to cast away the `const`. The data type is actually the same (it assumed `uint8_t` is a typedef of `unsigned char`). I made the buffer `unsigned char` as you suggested.\n\nThe reason we need to cast away the `const` is that the `aom_image_t` struct is used for both reading and writing, so its buffer points have the non-const `unsigned char *` type.",
+      "parentUuid": "ce8c4695_fa498cf4",
       "range": {
         "startLine": 1731,
         "startChar": 38,
