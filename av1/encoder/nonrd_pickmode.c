@@ -1648,16 +1648,18 @@ void av1_nonrd_pick_intra_mode(AV1_COMP *cpi, MACROBLOCK *x, RD_STATS *rd_cost,
     }
   }
 
-  const int64_t thresh_dist = cpi->sf.rt_sf.prune_palette_nonrd ? 80000 : 20000;
+  const int64_t thresh_dist = cpi->sf.rt_sf.prune_palette_nonrd ? 60000 : 20000;
   const int64_t best_dist_norm = best_rdc.dist >> (b_width_log2_lookup[bsize] +
                                                    b_height_log2_lookup[bsize]);
 
   // Try palette if it's enabled.
   bool try_palette =
-      best_dist_norm > thresh_dist && cpi->oxcf.tool_cfg.enable_palette &&
-      bsize <= BLOCK_16X16 && x->source_variance > 200 &&
+      best_dist_norm > thresh_dist && best_rdc.rate > 0 &&
+      cpi->oxcf.tool_cfg.enable_palette && bsize <= BLOCK_16X16 &&
+      x->source_variance > 200 &&
       av1_allow_palette(cpi->common.features.allow_screen_content_tools,
                         mi->bsize);
+
   if (try_palette) {
     const TxfmSearchInfo *txfm_info = &x->txfm_search_info;
     const unsigned int intra_ref_frame_cost = 0;
