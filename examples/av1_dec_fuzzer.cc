@@ -67,6 +67,11 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
     data += IVF_FRAME_HDR_SZ;
     frame_size = std::min(size, frame_size);
 
+    aom_codec_stream_info_t stream_info;
+    const aom_codec_err_t peek_err =
+        aom_codec_peek_stream_info(codec_interface, data, size, &stream_info);
+    static_cast<void>(peek_err);
+
     const aom_codec_err_t err =
         aom_codec_decode(&codec, data, frame_size, nullptr);
     static_cast<void>(err);
