@@ -110,6 +110,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "c4d644e0_711adcaf",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-05-09T17:56:20Z",
+      "side": 1,
+      "message": "\u003e \u003e Hi James, could you review this CL so we can check it in to stop the nightly failure?\n\u003e \n\u003e It will. The function is defined as:\n\u003e \n\u003e ```\n\u003e   const int val \u003d _mm_cvtsi128_si32(v);\n\u003e   memcpy(a, \u0026val, sizeof(val));\n\u003e ```\n\u003e \n\u003e inlined this should become a mov. See https://aomedia-review.googlesource.com/c/aom/+/72305.\n\nNo change in assembly in an optimized build.",
+      "parentUuid": "1e65dde7_1d037080",
+      "revId": "085fe9c36385f78a53362d2f4f8e12dd4670360e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "6daea5c7_b9daf16b",
         "filename": "av1/common/x86/resize_avx2.c",
         "patchSetId": 1
