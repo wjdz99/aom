@@ -67,6 +67,18 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
     data += IVF_FRAME_HDR_SZ;
     frame_size = std::min(size, frame_size);
 
+    aom_codec_stream_info_t stream_info;
+    if (aom_codec_peek_stream_info(codec_interface, data, size, &stream_info) ==
+        AOM_CODEC_OK) {
+#ifdef AV1_DEC_FUZZER_MAX_FRAME_AREA
+      const int64_t area = static_cast<int64_t>(stream_info.w) * stream_info.h;
+      if (area > AV1_DEC_FUZZER_MAX_FRAME_AREA) {
+        aom_codec_destroy(&codec);
+        return 0;
+      }
+#endif
+    }
+
     const aom_codec_err_t err =
         aom_codec_decode(&codec, data, frame_size, nullptr);
     static_cast<void>(err);
