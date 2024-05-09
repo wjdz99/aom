@@ -20,6 +20,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "b00a95fb_98041acc",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-05-09T20:47:14Z",
+      "side": 1,
+      "message": "\u003e We dealt with OOMs in the libaom decoder before in two ways.\n\u003e \n\u003e 1. By actually reducing the memory consumption. I did this by setting a conditional breakpoint in aom_memalign for size greater than a threshold and inspecting the big allocations.\n\u003e \n\u003e 2. By setting`AOM_MAX_ALLOCABLE_MEMORY`, `DECODE_WIDTH_LIMIT`, and `DECODE_HEIGHT_LIMIT` in the build script. See https://github.com/google/oss-fuzz/blob/master/projects/libaom/build.sh\n\u003e \n\u003e Should we try these two methods, especially the second one, for the two new OOM bugs?\n\n2 is already done. I forgot to consider AOM_MAX_ALLOCABLE_MEMORY that will probably achieve the same thing here.",
+      "parentUuid": "adca3f8d_35225f26",
+      "revId": "14b12991a928c9b986db995db5d2ed8fdf9fcb8c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "7dd612ee_063119d5",
         "filename": "examples/av1_dec_fuzzer.cc",
         "patchSetId": 1
@@ -31,6 +49,24 @@
       "writtenOn": "2024-05-09T19:24:19Z",
       "side": 1,
       "message": "Are `DECODE_WIDTH_LIMIT` and `DECODE_HEIGHT_LIMIT` not working well to stop the two new OOM bugs?",
+      "revId": "14b12991a928c9b986db995db5d2ed8fdf9fcb8c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b31210dd_29181fb3",
+        "filename": "examples/av1_dec_fuzzer.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-05-09T20:47:14Z",
+      "side": 1,
+      "message": "\u003e Are `DECODE_WIDTH_LIMIT` and `DECODE_HEIGHT_LIMIT` not working well to stop the two new OOM bugs?\n\nThey\u0027re set higher than what might be feasible, especially for high bitdepth where we might have 8 reference buffers.",
+      "parentUuid": "7dd612ee_063119d5",
       "revId": "14b12991a928c9b986db995db5d2ed8fdf9fcb8c",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
