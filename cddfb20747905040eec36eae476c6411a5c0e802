@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e768fead_bd563c92",
+        "filename": "examples/av1_dec_fuzzer.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-05-09T22:32:09Z",
+      "side": 1,
+      "message": "Nit: We should ignore the return value of `aom_codec_peek_stream_info()` and `aom_codec_decode()` using the same method. I don\u0027t really care which method we use; I guess saving the return value in the local variable `err` might be more convenient if we run this program in the debugger.",
+      "revId": "cddfb20747905040eec36eae476c6411a5c0e802",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
