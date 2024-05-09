@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e21da9e2_9503ad50",
+        "filename": "test/wiener_test.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 2031,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-05-09T16:39:13Z",
+      "side": 1,
+      "message": "The reproducer testcase for bug b:330639949 contains a monochrome image with an alpha channel (as an auxiliary image). This test is converted from the alpha channel in the reproducer testcase. Since this test doesn\u0027t cause signed integer overflows, I am going to remove it.",
+      "revId": "c425f5c9ee02f3463a9186a9695b935aea3ca534",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
