@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "aa7a3c72_0648fbef",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 32923
+      },
+      "writtenOn": "2024-05-09T15:02:21Z",
+      "side": 1,
+      "message": "This CL fixes the nightly unit test failure reported in aomedia:3570 due to unaligned store in\n`av1_resize_horz_dir_avx2()` by making use of the existing function `xx_storel_32` to perform the 32-bit store operation to the output buffer.\n\nValidated that the fix resolves the reported unit test failures and has no impact on the scaling numbers.",
+      "revId": "085fe9c36385f78a53362d2f4f8e12dd4670360e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
