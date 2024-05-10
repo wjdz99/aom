@@ -564,7 +564,11 @@ void av1_rd_pick_palette_intra_sby(
   }
 
   uint8_t *const color_map = xd->plane[0].color_index_map;
-  int color_thresh_palette = 64;
+  int color_thresh_palette = (frame_is_intra_only(&cpi->common) &&
+                              cpi->sf.rt_sf.hybrid_intra_pickmode == 0 &&
+                              cpi->sf.rt_sf.use_nonrd_pick_mode)
+                                 ? 32
+                                 : 64;
   // Allow for larger color_threshold for palette search, based on color,
   // scene_change, and block source variance.
   // Since palette is Y based, only allow larger threshold if block
