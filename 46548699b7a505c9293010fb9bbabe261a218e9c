@@ -22,6 +22,30 @@
       },
       "revId": "46548699b7a505c9293010fb9bbabe261a218e9c",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5ccde5ec_15c68f07",
+        "filename": "aom_dsp/x86/avg_intrin_sse2.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 175,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-05-10T16:48:31Z",
+      "side": 1,
+      "message": "\u003e Good to fix this. Do you have a test to find this unaligned loads/stores? Why wasn\u0027t this issue revealed by the sanitizer test before?\n\nTwo reasons. Historically these were marked as \u0027low\u0027 priority in jenkins as unaligned loads like this are technically valid on intel. In other cases there was an existing baseline warning count that was set to avoid breaking new commits.\n\nIf you look at the warnings trend graph [1] you\u0027ll see the baseline. An example of the warnings being captured is available for each job invocation [2].\n\nThe nightly job recently transitioned to blocking on warnings of all priorities. In that case there was only the ones from resize_avx2.c because that configuration runs with `--gtest_filter\u003d*Large*`.\n\n[1]: https://build.aomedia.org/jenkins/job/libaom__per_commit-unit_test-sanitizers/\n[2]: https://build.aomedia.org/jenkins/job/libaom__per_commit-unit_test-sanitizers/28443/Clang-IOC/",
+      "parentUuid": "7bc7d1bb_cd37e520",
+      "range": {
+        "startLine": 175,
+        "startChar": 39,
+        "endLine": 175,
+        "endChar": 40
+      },
+      "revId": "46548699b7a505c9293010fb9bbabe261a218e9c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
