@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "470b4a7c_62ba0193",
+        "filename": "av1/common/x86/convolve_sse2.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 205,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-05-10T20:50:33Z",
+      "side": 1,
+      "message": "storing these didn\u0027t change much, some register swaps is all. The code could probably due with a deeper look, it spills to the stack quite a bit.",
+      "range": {
+        "startLine": 205,
+        "startChar": 31,
+        "endLine": 205,
+        "endChar": 68
+      },
+      "revId": "feaac45b548cd33c1db73717d9ed76a80ae79fae",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
