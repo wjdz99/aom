@@ -18,6 +18,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "21575e76_b99e506d",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1694,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2024-05-13T19:07:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "58b1c3e3_4a62097a",
+      "revId": "53e2743c45112968a09e2f58f1f277db9d4afe6b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "439c91e9_594877e6",
@@ -31,6 +49,24 @@
       "writtenOn": "2024-05-13T17:52:24Z",
       "side": 1,
       "message": "remove this new speed feature (prune_screen_palette_search) here, since hybrid_intra_pickmode is the speed feature that control this usage.",
+      "revId": "53e2743c45112968a09e2f58f1f277db9d4afe6b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4c233d0d_24c6d514",
+        "filename": "av1/encoder/partition_search.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 747,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2024-05-13T19:07:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "439c91e9_594877e6",
       "revId": "53e2743c45112968a09e2f58f1f277db9d4afe6b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
