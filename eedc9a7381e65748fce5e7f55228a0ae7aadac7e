@@ -41,6 +41,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "8411d9d2_ec0bf827",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 33496
+      },
+      "writtenOn": "2024-05-14T10:49:22Z",
+      "side": 1,
+      "message": "done",
+      "parentUuid": "607cae54_3cdadc1b",
+      "revId": "eedc9a7381e65748fce5e7f55228a0ae7aadac7e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "7080acb0_ad9f3e70",
@@ -54,6 +72,24 @@
       "writtenOn": "2024-05-13T17:13:11Z",
       "side": 1,
       "message": "This file needs a copyright header. Since this is small, it could also go into ratectrl_rtc.cc directly. Jerome, do you have a preference?",
+      "revId": "eedc9a7381e65748fce5e7f55228a0ae7aadac7e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1589a243_ea5cc707",
+        "filename": "av1/ratectrl_rtc_c_methods.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 33496
+      },
+      "writtenOn": "2024-05-14T10:49:22Z",
+      "side": 1,
+      "message": "moved to ratectrl_rtc.cc",
+      "parentUuid": "7080acb0_ad9f3e70",
       "revId": "eedc9a7381e65748fce5e7f55228a0ae7aadac7e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -75,6 +111,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "b752ff1e_d0cb9f61",
+        "filename": "av1/ratectrl_rtc_c_methods.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 33496
+      },
+      "writtenOn": "2024-05-14T10:49:22Z",
+      "side": 1,
+      "message": "This is not required as moved to  ratectrl_rtc.cc",
+      "parentUuid": "abae203e_f1dfc39d",
+      "revId": "eedc9a7381e65748fce5e7f55228a0ae7aadac7e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "80769be1_26e32658",
@@ -88,6 +142,24 @@
       "writtenOn": "2024-05-13T17:13:11Z",
       "side": 1,
       "message": "This should be `CreateAV1Controller` in C++ context:\n\nhttps://google.github.io/styleguide/cppguide.html#Function_Names\n\nSince this is a C interface, this library uses lower case separated by underscores. A better name might be create_av1ratecontrolrtc to closer match the return type.",
+      "revId": "eedc9a7381e65748fce5e7f55228a0ae7aadac7e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9a1cb48d_226c2fdf",
+        "filename": "av1/ratectrl_rtc_c_methods.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 33496
+      },
+      "writtenOn": "2024-05-14T10:49:22Z",
+      "side": 1,
+      "message": "done",
+      "parentUuid": "80769be1_26e32658",
       "revId": "eedc9a7381e65748fce5e7f55228a0ae7aadac7e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -109,6 +181,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "8e267801_c5c1483d",
+        "filename": "av1/ratectrl_rtc_c_methods.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 33496
+      },
+      "writtenOn": "2024-05-14T10:49:22Z",
+      "side": 1,
+      "message": "added new function \nvoid destory_av1_ratecontrol_rtc(void *controller) {\n  delete reinterpret_cast \u003cAV1RateControlRTC *\u003e(controller);\n}",
+      "parentUuid": "8d7fad05_ea9eca68",
+      "revId": "eedc9a7381e65748fce5e7f55228a0ae7aadac7e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "34ea83e2_41cad797",
@@ -126,6 +216,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "05d390fb_4bdf48c8",
+        "filename": "av1/ratectrl_rtc_c_methods.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 33496
+      },
+      "writtenOn": "2024-05-14T10:49:22Z",
+      "side": 1,
+      "message": "done",
+      "parentUuid": "34ea83e2_41cad797",
+      "revId": "eedc9a7381e65748fce5e7f55228a0ae7aadac7e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c35223a7_1b603df3",
@@ -139,6 +247,24 @@
       "writtenOn": "2024-05-13T17:13:11Z",
       "side": 1,
       "message": "`// extern \"C\"`",
+      "revId": "eedc9a7381e65748fce5e7f55228a0ae7aadac7e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0aeff887_63998e94",
+        "filename": "av1/ratectrl_rtc_c_methods.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 33496
+      },
+      "writtenOn": "2024-05-14T10:49:22Z",
+      "side": 1,
+      "message": "done.",
+      "parentUuid": "c35223a7_1b603df3",
       "revId": "eedc9a7381e65748fce5e7f55228a0ae7aadac7e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
