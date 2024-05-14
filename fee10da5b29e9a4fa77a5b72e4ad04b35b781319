@@ -16,6 +16,24 @@
       "message": "Can this be changed to an `assert()` to document the expectation?",
       "revId": "fee10da5b29e9a4fa77a5b72e4ad04b35b781319",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "534d0471_56ba58d9",
+        "filename": "av1/common/arm/convolve_neon_dotprod.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 31957
+      },
+      "writtenOn": "2024-05-14T12:45:01Z",
+      "side": 0,
+      "message": "Done, except in convolve_y_sr_8tap_neon_i8mm as the special case there was not necessary and should not have been added in the first place. (was only needed for 12-tap functions)",
+      "parentUuid": "44cb3984_5b18ede0",
+      "revId": "fee10da5b29e9a4fa77a5b72e4ad04b35b781319",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
