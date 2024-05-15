@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8e739fc1_78c1d5ac",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 3486,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-05-15T01:39:53Z",
+      "side": 1,
+      "message": "It may be safer to copy ctx-\u003eextra_cfg to a local variable and pass the address of the local copy to `update_extra_cfg()`.\n\nAlternatively, modify `update_extra_cfg()` to detect self copy.",
+      "revId": "d8a0295db336fe3863156fb42c3f125c2e6aa77e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
