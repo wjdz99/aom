@@ -16,6 +16,24 @@
       "message": "Code Search shows that we may reset `cm-\u003ecurrent_frame.frame_number` to 0 in `av1_encode()` under some condition:\n\n```\n  if (current_frame-\u003eframe_type \u003d\u003d KEY_FRAME \u0026\u0026\n      cpi-\u003eppi-\u003egf_group.refbuf_state[cpi-\u003egf_frame_index] \u003d\u003d REFBUF_RESET) {\n    current_frame-\u003eframe_number \u003d 0;\n  }\n```\n\nSo the new code does not call `av1_init_layer_context()` when `cm-\u003ecurrent_frame.frame_number` is reset to 0, but the original code does under that condition. Is this OK?",
       "revId": "407b9866d40a58da32ed8de4f9102fe93eef6ee2",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "dc0ed7f4_5acb746f",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 3697,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-05-15T22:02:50Z",
+      "side": 0,
+      "message": "\u003e Code Search shows that we may reset `cm-\u003ecurrent_frame.frame_number` to 0 in `av1_encode()` under some condition:\n\u003e \n\u003e ```\n\u003e   if (current_frame-\u003eframe_type \u003d\u003d KEY_FRAME \u0026\u0026\n\u003e       cpi-\u003eppi-\u003egf_group.refbuf_state[cpi-\u003egf_frame_index] \u003d\u003d REFBUF_RESET) {\n\u003e     current_frame-\u003eframe_number \u003d 0;\n\u003e   }\n\u003e ```\n\u003e \n\u003e So the new code does not call `av1_init_layer_context()` when `cm-\u003ecurrent_frame.frame_number` is reset to 0, but the original code does under that condition. Is this OK?\n\nMarco, can you comment on this? To be safe I can restore this behavior.",
+      "parentUuid": "a1f5eae7_89bd3594",
+      "revId": "407b9866d40a58da32ed8de4f9102fe93eef6ee2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
