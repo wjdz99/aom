@@ -674,6 +674,7 @@ static aom_codec_err_t validate_config(aom_codec_alg_priv_t *ctx,
   RANGE_CHECK(cfg, g_timebase.num, 1, cfg->g_timebase.den);
   RANGE_CHECK_HI(cfg, g_profile, MAX_PROFILES - 1);
 
+  RANGE_CHECK_HI(cfg, rc_target_bitrate, 2147485);
   RANGE_CHECK_HI(cfg, rc_max_quantizer, 63);
   RANGE_CHECK_HI(cfg, rc_min_quantizer, cfg->rc_max_quantizer);
   RANGE_CHECK_BOOL(extra_cfg, lossless);
@@ -1156,7 +1157,7 @@ static void set_encoder_config(AV1EncoderConfig *oxcf,
   rc_cfg->starting_buffer_level_ms = is_vbr ? 60000 : cfg->rc_buf_initial_sz;
   rc_cfg->optimal_buffer_level_ms = is_vbr ? 60000 : cfg->rc_buf_optimal_sz;
   // Convert target bandwidth from Kbit/s to Bit/s
-  rc_cfg->target_bandwidth = 1000 * cfg->rc_target_bitrate;
+  rc_cfg->target_bandwidth = 1000 * (int64_t)cfg->rc_target_bitrate;
   rc_cfg->drop_frames_water_mark = cfg->rc_dropframe_thresh;
   rc_cfg->vbr_corpus_complexity_lap = extra_cfg->vbr_corpus_complexity_lap;
   rc_cfg->vbrbias = cfg->rc_2pass_vbr_bias_pct;
@@ -3343,7 +3344,7 @@ static aom_codec_err_t encoder_encode(aom_codec_alg_priv_t *ctx,
       if (ppi->cpi->oxcf.pass != 1) {
         ppi->total_time_compress_data += cpi->time_compress_data;
         ppi->total_recode_hits += cpi->frame_recode_hits;
-        ppi->total_bytes += cpi->bytes;
+        ppi->total_bytes += (uint64_t)cpi->bytes;
         for (int i = 0; i < MAX_MODES; i++) {
           ppi->total_mode_chosen_counts[i] += cpi->mode_chosen_counts[i];
         }
