@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a1f5eae7_89bd3594",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 3697,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-05-15T20:57:17Z",
+      "side": 0,
+      "message": "Code Search shows that we may reset `cm-\u003ecurrent_frame.frame_number` to 0 in `av1_encode()` under some condition:\n\n```\n  if (current_frame-\u003eframe_type \u003d\u003d KEY_FRAME \u0026\u0026\n      cpi-\u003eppi-\u003egf_group.refbuf_state[cpi-\u003egf_frame_index] \u003d\u003d REFBUF_RESET) {\n    current_frame-\u003eframe_number \u003d 0;\n  }\n```\n\nSo the new code does not call `av1_init_layer_context()` when `cm-\u003ecurrent_frame.frame_number` is reset to 0, but the original code does under that condition. Is this OK?",
+      "revId": "407b9866d40a58da32ed8de4f9102fe93eef6ee2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}

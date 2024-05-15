@@ -18,6 +18,74 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "511a9723_752dc02b",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 3620,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-05-15T20:57:17Z",
+      "side": 1,
+      "message": "Please add a comment to explain why this function does different things depending on whether `seq_params_locked` is true or not. The reason is not obvious.",
+      "revId": "96e88afb3657cebc5c27ec3a27a0f389e5a14efb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "aaae51e4_61d0b7cb",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 3627,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-05-15T20:57:17Z",
+      "side": 1,
+      "message": "IMPORTANT: To match the original code, should we call `av1_check_fpmt_config(ctx-\u003eppi, oxcf)` if `ctx-\u003eppi-\u003eseq_params_locked` is true?",
+      "revId": "96e88afb3657cebc5c27ec3a27a0f389e5a14efb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d0e00190_3b1f86dd",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 3650,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-05-15T20:57:17Z",
+      "side": 1,
+      "message": "Please add a comment to explain why this function calls `update_encoder_cfg()` only when `ctx-\u003eppi-\u003eseq_params_locked` is false. (E.g., `update_encoder_cfg(ctx)` is a no-op if seq_params_locked is true.)",
+      "revId": "96e88afb3657cebc5c27ec3a27a0f389e5a14efb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2b031f5f_95ac2ebe",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 3727,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-05-15T20:57:17Z",
+      "side": 1,
+      "message": "Move this assertion to the beginning of this block?",
+      "revId": "96e88afb3657cebc5c27ec3a27a0f389e5a14efb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "8f045cea_4feef764",
@@ -31,6 +99,30 @@
       "writtenOn": "2024-05-15T20:19:47Z",
       "side": 1,
       "message": "there\u0027s lots of mixed access to `ctx-\u003eppi` and `ppi` (and probably others here). I went with what was locally common and can make a clean up pass afterward.",
+      "range": {
+        "startLine": 3731,
+        "startChar": 14,
+        "endLine": 3731,
+        "endChar": 22
+      },
+      "revId": "96e88afb3657cebc5c27ec3a27a0f389e5a14efb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cace6244_f496d73c",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 3731,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-05-15T20:57:17Z",
+      "side": 1,
+      "message": "I suggest using `ppi` in the new code you added.\n\n`ctx-\u003eppi` is only used at line 3678.",
+      "parentUuid": "8f045cea_4feef764",
       "range": {
         "startLine": 3731,
         "startChar": 14,
