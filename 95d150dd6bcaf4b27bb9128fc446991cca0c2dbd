@@ -90,6 +90,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "b55910a8_b65fc4ab",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 13
+      },
+      "lineNbr": 3726,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-05-16T02:08:46Z",
+      "side": 1,
+      "message": "\u003e \u003e Move the `av1_check_fpmt_config(ctx-\u003eppi, \u0026ctx-\u003eppi-\u003ecpi-\u003eoxcf)` call at line 3751 after this line. The `av1_check_fpmt_config(ctx-\u003eppi, \u0026ctx-\u003eppi-\u003ecpi-\u003eoxcf)` call is only needed in this code path. In the other code paths, the update_encoder_cfg(ctx) call will call `av1_check_fpmt_config()`.\n\u003e \u003e \n\u003e \n\u003e Except in the earlier version of the code, in addition to being called in this case, `av1_check_fpmt_config()` was called when `ppi-\u003enumber_spatial_layers \u003e 1 || ppi-\u003enumber_temporal_layers \u003e 1` was false. I think it\u0027s in the right place to maintain that behavior.\n\u003e \n\nIf you\u0027d prefer I can put a copy here and have this branch return too.\n\n\u003e \u003e Note: It is not necessary to also call `av1_check_fpmt_config(ctx-\u003eppi, \u0026ctx-\u003eoxcf)` because ``av1_check_fpmt_config()` doesn\u0027t modify its second parameter. See https://aomedia-review.googlesource.com/c/aom/+/190183.",
+      "parentUuid": "8f8cdf2b_58b9530f",
+      "revId": "95d150dd6bcaf4b27bb9128fc446991cca0c2dbd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "963c76bd_b9107b24",
         "filename": "av1/av1_cx_iface.c",
         "patchSetId": 13
