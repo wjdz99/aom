@@ -174,11 +174,9 @@ class AV1ResizeXTest : public ::testing::TestWithParam<Resize_x_TestParams> {
     height_ = std::get<1>(frame_dim_);
     const int msb = get_msb(AOMMIN(width_, height_));
     n_levels_ = AOMMAX(msb - MIN_PYRAMID_SIZE_LOG2, 1);
-    src_ = (uint8_t *)aom_malloc(width_ * height_ * sizeof(*src_));
-    ref_dest_ =
-        (uint8_t *)aom_calloc((width_ * height_) / 2, sizeof(*ref_dest_));
-    test_dest_ =
-        (uint8_t *)aom_calloc((width_ * height_) / 2, sizeof(*test_dest_));
+    src_ = (uint8_t *)malloc(width_ * height_ * sizeof(*src_));
+    ref_dest_ = (uint8_t *)calloc((width_ * height_) / 2, sizeof(*ref_dest_));
+    test_dest_ = (uint8_t *)calloc((width_ * height_) / 2, sizeof(*test_dest_));
   }
 
   void RunTest() {
@@ -222,9 +220,9 @@ class AV1ResizeXTest : public ::testing::TestWithParam<Resize_x_TestParams> {
   }
 
   void TearDown() {
-    aom_free(src_);
-    aom_free(ref_dest_);
-    aom_free(test_dest_);
+    free(src_);
+    free(ref_dest_);
+    free(test_dest_);
   }
 
  private:
