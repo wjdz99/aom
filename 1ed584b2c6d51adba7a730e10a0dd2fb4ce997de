@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5182f700_24db87d4",
+        "filename": "av1/common/x86/resize_sse2.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 196,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-05-16T22:50:48Z",
+      "side": 1,
+      "message": "We need to add a `return` statement after this line:\nhttps://aomedia-review.googlesource.com/c/aom/+/190282",
+      "revId": "1ed584b2c6d51adba7a730e10a0dd2fb4ce997de",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
