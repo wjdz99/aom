@@ -3444,6 +3444,7 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
       x->content_state_sb.source_sad_nonrd != kZeroSad &&
       bsize <= BLOCK_16X16) {
     unsigned int thresh_sse = cpi->rc.high_source_sad ? 15000 : 200000;
+    if (rt_sf->prune_palette_nonrd) thresh_sse = thresh_sse << 4;
     unsigned int thresh_source_var = cpi->rc.high_source_sad ? 50 : 200;
     unsigned int best_sse_inter_motion =
         (unsigned int)(search_state.best_rdc.sse >>
@@ -3454,14 +3455,6 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
       force_palette_test = 1;
   }
 
-  // Evaluate Intra modes in inter frame
-  if (!x->force_zeromv_skip_for_blk)
-    av1_estimate_intra_mode(cpi, x, bsize, best_early_term,
-                            search_state.ref_costs_single[INTRA_FRAME],
-                            reuse_inter_pred, &orig_dst, tmp_buffer,
-                            &this_mode_pred, &search_state.best_rdc,
-                            best_pickmode, ctx);
-
   int skip_idtx_palette = (x->color_sensitivity[COLOR_SENS_IDX(AOM_PLANE_U)] ||
                            x->color_sensitivity[COLOR_SENS_IDX(AOM_PLANE_V)]) &&
                           x->content_state_sb.source_sad_nonrd != kZeroSad &&
@@ -3471,13 +3464,30 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
       !skip_idtx_palette && cpi->oxcf.tool_cfg.enable_palette &&
       av1_allow_palette(cpi->common.features.allow_screen_content_tools,
                         mi->bsize);
-  try_palette =
-      try_palette &&
-      (is_mode_intra(best_pickmode->best_mode) || force_palette_test) &&
-      x->source_variance > 0 && !x->force_zeromv_skip_for_blk &&
-      (cpi->rc.high_source_sad || x->source_variance > 300);
+  try_palette = try_palette && x->source_variance > 0 &&
+                !x->force_zeromv_skip_for_blk &&
+                (cpi->rc.high_source_sad || x->source_variance > 300);
 
   if (rt_sf->prune_palette_nonrd && bsize > BLOCK_16X16) try_palette = 0;
+
+  unsigned int best_sad_intra = UINT_MAX;
+  // Evaluate Intra modes in inter frame
+  if (!x->force_zeromv_skip_for_blk)
+    av1_estimate_intra_mode(
+        cpi, x, bsize, best_early_term,
+        search_state.ref_costs_single[INTRA_FRAME], reuse_inter_pred, &orig_dst,
+        tmp_buffer, &this_mode_pred, &search_state.best_rdc, best_pickmode, ctx,
+        &best_sad_intra, (try_palette && rt_sf->prune_palette_nonrd));
+
+  try_palette = try_palette &&
+                (is_mode_intra(best_pickmode->best_mode) || force_palette_test);
+
+  if (try_palette) {
+    best_sad_intra = best_sad_intra >>
+                     (b_width_log2_lookup[bsize] + b_height_log2_lookup[bsize]);
+    if (is_mode_intra(best_pickmode->best_mode) && best_sad_intra < 50)
+      try_palette = 0;
+  }
 
   // Perform screen content mode evaluation for non-rd
   handle_screen_content_mode_nonrd(

@@ -268,7 +268,8 @@ static AOM_INLINE void palette_rd_y(
     // to lower palette_size is more than *best_rd << header_rd_shift. This
     // logic is implemented with a right shift in the LHS to prevent a possible
     // overflow with the left shift in RHS.
-    if ((header_rd >> header_rd_shift) > *best_rd) {
+    int shift = cpi->sf.rt_sf.prune_palette_nonrd ? 1 : 0;
+    if ((header_rd >> header_rd_shift) > *best_rd >> shift) {
       *do_header_rd_based_breakout = true;
       return;
     }

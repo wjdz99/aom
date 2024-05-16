@@ -708,7 +708,8 @@ void av1_estimate_intra_mode(AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bsize,
                              PRED_BUFFER *tmp_buffers,
                              PRED_BUFFER **this_mode_pred, RD_STATS *best_rdc,
                              BEST_PICKMODE *best_pickmode,
-                             PICK_MODE_CONTEXT *ctx) {
+                             PICK_MODE_CONTEXT *ctx,
+                             unsigned int *best_sad_intra, int compute_sad) {
   AV1_COMMON *const cm = &cpi->common;
   MACROBLOCKD *const xd = &x->e_mbd;
   MB_MODE_INFO *const mi = xd->mi[0];
@@ -719,6 +720,8 @@ void av1_estimate_intra_mode(AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bsize,
   const bool is_screen_content =
       cpi->oxcf.tune_cfg.content == AOM_CONTENT_SCREEN;
   struct macroblockd_plane *const pd = &xd->plane[AOM_PLANE_Y];
+  struct macroblock_plane *const p = &x->plane[AOM_PLANE_Y];
+  unsigned int this_sad = UINT_MAX;
   const REAL_TIME_SPEED_FEATURES *const rt_sf = &cpi->sf.rt_sf;
 
   const CommonQuantParams *quant_params = &cm->quant_params;
@@ -811,7 +814,8 @@ void av1_estimate_intra_mode(AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bsize,
              tx_mode_to_biggest_tx_size[txfm_params->tx_mode_search_type]),
       TX_16X16);
   if (is_screen_content && cpi->rc.high_source_sad &&
-      x->source_variance > spatial_var_thresh && bsize <= BLOCK_16X16)
+      !rt_sf->prune_palette_nonrd && x->source_variance > spatial_var_thresh &&
+      bsize <= BLOCK_16X16)
     intra_tx_size = TX_4X4;
 
   PRED_BUFFER *const best_pred = best_pickmode->best_pred;
@@ -868,6 +872,10 @@ void av1_estimate_intra_mode(AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bsize,
     args.rdc = &this_rdc;
     mi->tx_size = intra_tx_size;
     compute_intra_yprediction(cm, this_mode, bsize, x, xd);
+    if (compute_sad) {
+      this_sad = cpi->ppi->fn_ptr[bsize].sdf(p->src.buf, p->src.stride,
+                                             pd->dst.buf, pd->dst.stride);
+    }
     // Look into selecting tx_size here, based on prediction residual.
     av1_block_yrd(x, &this_rdc, &args.skippable, bsize, mi->tx_size);
     // TODO(kyslov@) Need to account for skippable
@@ -918,6 +926,7 @@ void av1_estimate_intra_mode(AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bsize,
       best_pickmode->best_ref_frame = INTRA_FRAME;
       best_pickmode->best_second_ref_frame = NONE;
       best_pickmode->best_mode_skip_txfm = this_rdc.skip_txfm;
+      *best_sad_intra = this_sad;
       mi->uv_mode = this_mode;
       mi->mv[0].as_int = INVALID_MV;
       mi->mv[1].as_int = INVALID_MV;
