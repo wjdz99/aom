@@ -51,6 +51,47 @@
       "parentUuid": "db1ffb3f_2a66d1e0",
       "revId": "853b8fab6f72d3de57b34f037b8ca0c951475f06",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "22ac345c_1ba2cacd",
+        "filename": "av1/ratectrl_rtc.cc",
+        "patchSetId": 8
+      },
+      "lineNbr": 406,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2024-05-16T14:44:56Z",
+      "side": 1,
+      "message": "this `return` is not needed?",
+      "range": {
+        "startLine": 406,
+        "startChar": 2,
+        "endLine": 406,
+        "endChar": 8
+      },
+      "fixSuggestions": [
+        {
+          "fixId": "8dceced2_9d918185",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "av1/ratectrl_rtc.cc",
+              "range": {
+                "startLine": 406,
+                "startChar": 0,
+                "endLine": 407,
+                "endChar": 0
+              },
+              "replacement": "  reinterpret_cast\u003cAV1RateControlRTC *\u003e(controller)\n"
+            }
+          ]
+        }
+      ],
+      "revId": "853b8fab6f72d3de57b34f037b8ca0c951475f06",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
