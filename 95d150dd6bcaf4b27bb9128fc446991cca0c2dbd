@@ -35,6 +35,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "4c3269fa_a9227e9b",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 13
+      },
+      "lineNbr": 3626,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-05-16T01:59:28Z",
+      "side": 1,
+      "message": "Done. I might have said \u0027the function...\u0027, but you could argue that\u0027s ambiguous as well.",
+      "parentUuid": "a421758e_a2c6c1b0",
+      "revId": "95d150dd6bcaf4b27bb9128fc446991cca0c2dbd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "bff15000_565796b2",
@@ -48,6 +66,24 @@
       "writtenOn": "2024-05-16T00:40:43Z",
       "side": 1,
       "message": "Move the `av1_check_fpmt_config(ctx-\u003eppi, \u0026ctx-\u003eppi-\u003ecpi-\u003eoxcf)` call at line 3751 after this line. The `av1_check_fpmt_config(ctx-\u003eppi, \u0026ctx-\u003eppi-\u003ecpi-\u003eoxcf)` call is only needed in this code path. In the other code paths, the update_encoder_cfg(ctx) call will call `av1_check_fpmt_config()`.\n\nNote: It is not necessary to also call `av1_check_fpmt_config(ctx-\u003eppi, \u0026ctx-\u003eoxcf)` because ``av1_check_fpmt_config()` doesn\u0027t modify its second parameter. See https://aomedia-review.googlesource.com/c/aom/+/190183.",
+      "revId": "95d150dd6bcaf4b27bb9128fc446991cca0c2dbd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8f8cdf2b_58b9530f",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 13
+      },
+      "lineNbr": 3726,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-05-16T01:59:28Z",
+      "side": 1,
+      "message": "\u003e Move the `av1_check_fpmt_config(ctx-\u003eppi, \u0026ctx-\u003eppi-\u003ecpi-\u003eoxcf)` call at line 3751 after this line. The `av1_check_fpmt_config(ctx-\u003eppi, \u0026ctx-\u003eppi-\u003ecpi-\u003eoxcf)` call is only needed in this code path. In the other code paths, the update_encoder_cfg(ctx) call will call `av1_check_fpmt_config()`.\n\u003e \n\nExcept in the earlier version of the code, in addition to being called in this case, `av1_check_fpmt_config()` was called when `ppi-\u003enumber_spatial_layers \u003e 1 || ppi-\u003enumber_temporal_layers \u003e 1` was false. I think it\u0027s in the right place to maintain that behavior.\n\n\u003e Note: It is not necessary to also call `av1_check_fpmt_config(ctx-\u003eppi, \u0026ctx-\u003eoxcf)` because ``av1_check_fpmt_config()` doesn\u0027t modify its second parameter. See https://aomedia-review.googlesource.com/c/aom/+/190183.",
+      "parentUuid": "bff15000_565796b2",
       "revId": "95d150dd6bcaf4b27bb9128fc446991cca0c2dbd",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -69,6 +105,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "d995a0a4_cec6c971",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 13
+      },
+      "lineNbr": 3728,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-05-16T01:59:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "963c76bd_b9107b24",
+      "revId": "95d150dd6bcaf4b27bb9128fc446991cca0c2dbd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "f7179953_cf01495f",
@@ -82,6 +136,24 @@
       "writtenOn": "2024-05-16T00:40:43Z",
       "side": 1,
       "message": "Move this after line 3726. See comment at line 3726.",
+      "revId": "95d150dd6bcaf4b27bb9128fc446991cca0c2dbd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9bf3eda8_c9242a45",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 13
+      },
+      "lineNbr": 3751,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-05-16T01:59:28Z",
+      "side": 1,
+      "message": "\u003e Move this after line 3726. See comment at line 3726.\n\nSee earlier comment.",
+      "parentUuid": "f7179953_cf01495f",
       "revId": "95d150dd6bcaf4b27bb9128fc446991cca0c2dbd",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
