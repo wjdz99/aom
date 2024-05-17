@@ -215,15 +215,18 @@ void av1_resize_horz_dir_sse2(const uint8_t *const input, int in_stride,
 
   for (int i = 0; i < height; ++i) {
     int filter_offset = 0;
+    int row01_offset = 5;
     for (int j = 0; j <= filtered_length - 16; j += 16) {
+      const int is_last_cols16 = (j == filtered_length - 16);
+      if (is_last_cols16) row01_offset = 0;
       const int in_idx = i * in_stride + j - filter_offset;
       const int out_idx = i * dst_stride + j / 2;
 
       // a0 a1 a2 a3 .... a15
       __m128i row00 = _mm_loadu_si128((__m128i *)&input[in_idx]);
       // a8 a9 a10 a11 .... a23
-      __m128i row01 =
-          _mm_loadu_si128((__m128i *)&input[in_idx + 5 + filter_offset]);
+      __m128i row01 = _mm_loadu_si128(
+          (__m128i *)&input[in_idx + row01_offset + filter_offset]);
       filter_offset = 3;
 
       // Pad start pixels to the left, while processing the first pixels in the
@@ -237,11 +240,10 @@ void av1_resize_horz_dir_sse2(const uint8_t *const input, int in_stride,
 
       // Pad end pixels to the right, while processing the last pixels in the
       // row.
-      const int is_last_cols16 = (j == filtered_length - 16);
       if (is_last_cols16) {
         const __m128i end_pixel_row0 =
             _mm_set1_epi8((char)input[i * in_stride + filtered_length - 1]);
-        row01 = blend(row01, end_pixel_row0, end_pad_mask);
+        row01 = blend(_mm_srli_si128(row01, 5), end_pixel_row0, end_pad_mask);
       }
 
       // a2 a3 a4 a5 a6 a7 a8 a9 .... a17

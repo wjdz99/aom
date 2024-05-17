@@ -131,21 +131,22 @@
     r0 = row0;                                                                 \
     r1 = row1;                                                                 \
   }                                                                            \
-                                                                               \
+  const int is_last_cols32 = (j + 32 == filtered_length);                      \
+  if (is_last_cols32) row_offset = 5;                                          \
   /* a29 a30 a31 a32 a33 a34 a35 a36 0 0 ....*/                                \
   __m128i row0_0 = _mm_loadl_epi64(                                            \
-      (__m128i *)&input[i * in_stride + 32 + j - filter_offset]);              \
+      (__m128i *)&input[i * in_stride + 32 + j - filter_offset - row_offset]); \
   /* b29 b30 b31 b32 b33 b34 b35 b36 0 0 .... */                               \
-  __m128i row1_0 = _mm_loadl_epi64(                                            \
-      (__m128i *)&input[(i + 1) * in_stride + 32 + j - filter_offset]);        \
+  __m128i row1_0 =                                                             \
+      _mm_loadl_epi64((__m128i *)&input[(i + 1) * in_stride + 32 + j -         \
+                                        filter_offset - row_offset]);          \
   __m256i r2 = _mm256_permute2x128_si256(                                      \
       _mm256_castsi128_si256(row0_0), _mm256_castsi128_si256(row1_0), 0x20);   \
                                                                                \
   /* Pad end pixels to the right, while processing the last pixels in the      \
-  row. */                                                                      \
-  const int is_last_cols32 = (j + 32 == filtered_length);                      \
+   row. */                                                                     \
   if (is_last_cols32) {                                                        \
-    r2 = _mm256_shuffle_epi8(r2, wd32_end_pad_mask);                           \
+    r2 = _mm256_shuffle_epi8(_mm256_srli_si256(r2, 5), wd32_end_pad_mask);     \
   }                                                                            \
                                                                                \
   /* Process even pixels of the first row  */                                  \
@@ -531,11 +532,9 @@ void av1_resize_horz_dir_avx2(const uint8_t *const input, int in_stride,
                               int width2) {
   assert(height % 2 == 0);
   // Invoke C for width less than 32.
-  // TODO(https://crbug.com/aomedia/3575): Use sse2 after SSE2/AV1ResizeXTest
-  // passes under 32-bit valgrind.
   if (filtered_length < 32) {
-    av1_resize_horz_dir_c(input, in_stride, intbuf, height, filtered_length,
-                          width2);
+    av1_resize_horz_dir_sse2(input, in_stride, intbuf, height, filtered_length,
+                             width2);
     return;
   }
 
@@ -569,6 +568,7 @@ void av1_resize_horz_dir_avx2(const uint8_t *const input, int in_stride,
   if (filtered_length % 32 == 0) {
     for (int i = 0; i < height; i += 2) {
       int filter_offset = 0;
+      int row_offset = 0;
       for (int j = 0; j < filtered_length; j += 32) {
         PROCESS_RESIZE_X_WD32
       }
@@ -577,6 +577,7 @@ void av1_resize_horz_dir_avx2(const uint8_t *const input, int in_stride,
     for (int i = 0; i < height; i += 2) {
       int filter_offset = 0;
       int remain_col = filtered_length % 32;
+      int row_offset = 0;
       for (int j = 0; j + 32 <= filtered_length; j += 32) {
         PROCESS_RESIZE_X_WD32
       }
