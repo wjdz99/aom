@@ -34,6 +34,24 @@
       "parentUuid": "9011897c_146e80b6",
       "revId": "b7db089addf8bf890f4323740a8fba63a7529f74",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "06a35416_9dc63976",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-05-17T20:45:17Z",
+      "side": 1,
+      "message": "\u003e Alternatively, we can revert the earlier fix on the main branch. The important thing is that the karat branch and the main branch should be in sync.\n\nhttps://aomedia-review.googlesource.com/c/aom/+/190267",
+      "parentUuid": "705e2b7c_a894bc58",
+      "revId": "b7db089addf8bf890f4323740a8fba63a7529f74",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
