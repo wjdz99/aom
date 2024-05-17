@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9011897c_146e80b6",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-05-17T20:36:55Z",
+      "side": 1,
+      "message": "Nit/optional: I suggest first cherry-picking the earlier fix for this static analysis warning (reported by Coverity):\nhttps://aomedia-review.googlesource.com/c/aom/+/188321\n\nThis way the karat branch will have the same fixes for this warning as the main branch.",
+      "revId": "b7db089addf8bf890f4323740a8fba63a7529f74",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
