@@ -258,6 +258,7 @@ static AOM_INLINE void palette_rd_y(
 
   if (do_header_rd_based_gating) {
     assert(do_header_rd_based_breakout != NULL);
+    const AV1_COMMON *const cm = &cpi->common;
     const int palette_mode_rate = intra_mode_info_cost_y(
         cpi, x, mbmi, bsize, dc_mode_cost, discount_color_cost);
     const int64_t header_rd = RDCOST(x->rdmult, palette_mode_rate, 0);
@@ -268,7 +269,9 @@ static AOM_INLINE void palette_rd_y(
     // to lower palette_size is more than *best_rd << header_rd_shift. This
     // logic is implemented with a right shift in the LHS to prevent a possible
     // overflow with the left shift in RHS.
-    if ((header_rd >> header_rd_shift) > *best_rd) {
+    int best_rd_shift =
+        (cpi->sf.rt_sf.prune_palette_nonrd && frame_is_intra_only(cm)) ? 1 : 0;
+    if ((header_rd >> header_rd_shift) > (*best_rd >> best_rd_shift)) {
       *do_header_rd_based_breakout = true;
       return;
     }
