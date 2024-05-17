@@ -20,6 +20,8 @@
 extern "C" {
 #endif
 
+#define ROW_OFFSET 5
+
 // Filters for factor of 2 downsampling.
 static const int16_t av1_down2_symeven_half_filter[] = { 56, 12, -3, -1 };
 static const int16_t av1_down2_symodd_half_filter[] = { 64, 35, 0, -3 };
