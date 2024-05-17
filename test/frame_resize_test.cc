@@ -141,7 +141,8 @@ TEST_P(AV1ResizeYTest, DISABLED_SpeedTest) { SpeedTest(); }
 const FrameDimension kFrameDim[] = {
   make_tuple(3840, 2160), make_tuple(2560, 1440), make_tuple(1920, 1080),
   make_tuple(1280, 720),  make_tuple(640, 480),   make_tuple(640, 360),
-  make_tuple(256, 256),
+  make_tuple(256, 256),   make_tuple(24, 24),     make_tuple(89, 54),
+  make_tuple(100, 110),   make_tuple(100, 24),
 };
 #endif
 
@@ -245,9 +246,7 @@ TEST_P(AV1ResizeXTest, RunTest) { RunTest(); }
 
 TEST_P(AV1ResizeXTest, DISABLED_SpeedTest) { SpeedTest(); }
 
-// TODO(https://crbug.com/aomedia/3575): Reenable this after test passes under
-// 32-bit valgrind.
-#if 0  // HAVE_SSE2
+#if HAVE_SSE2
 INSTANTIATE_TEST_SUITE_P(
     SSE2, AV1ResizeXTest,
     ::testing::Combine(::testing::Values(av1_resize_horz_dir_sse2),
