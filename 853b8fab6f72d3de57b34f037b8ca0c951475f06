@@ -108,6 +108,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "59e70d25_7241646c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 33496
+      },
+      "writtenOn": "2024-05-20T04:27:39Z",
+      "side": 1,
+      "message": "Or just like this test is OK, \n\n  void TestPostEncodeUpdateRateControlAV1() {\n    void *controller \u003d aom::create_av1_ratecontrol_rtc(rc_cfg_);\n    ASSERT_NE(controller, nullptr);\n    int frame_consumed_bytes \u003d 380;\n    aom::post_encode_update_ratecontrol_av1(controller, \n                                      frame_consumed_bytes);\n    aom::destory_av1_ratecontrol_rtc(controller);\n  }\nTEST_F(RcInterfaceTest, PostEncodeUpdateRateControllerAV1Test) {\n  TestPostEncodeUpdateRateControlAV1();\n}\nHave completed the code for other interfaces. Let me know whether to\ngo ahead with this or use like below , which have used in the my client\ncode (where I use these API with dlopen())\nhandle \u003d dlopen(\"../libaom_av1_rc.so\", RTLD_LAZY);\n    if(!handle)\n    {\n      throw std::runtime_error(\"Cannot open the \n                                   library ibaom_av1_rc.so\");\n    }\nptrCreateAV1Controller \u003d (createAV1Controller_t) dlsym(handle, \n                                   \"create_av1_ratecontrol_rtc\");\n    if(!ptrCreateAV1Controller)\n    {\n      throw std::runtime_error(\"Cannot load symbol  \n                         \u0027create_av1_ratecontrol_rtc\u0027 from AOM LIB\");\n    }\n-thanks you.\n.---\nMeaning, dont use dlopen(), dlsym().",
+      "parentUuid": "6ca80a2a_517d72a8",
+      "revId": "853b8fab6f72d3de57b34f037b8ca0c951475f06",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "22ac345c_1ba2cacd",
         "filename": "av1/ratectrl_rtc.cc",
         "patchSetId": 8
