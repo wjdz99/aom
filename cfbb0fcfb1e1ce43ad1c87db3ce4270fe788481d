@@ -16,6 +16,97 @@
       "message": "This CL fixes the `SSE2/AV1ResizeXTest` unit-test failures under 32-bit valgrind reported in the bug aomedia:3575. This issue was due to out of boundary access of the input buffer. Similar issue was present in `AVX2/AV1ResizeXTest` and the same has been fixed in this CL.\n\nThe CL has below modifications\n - While processing the last 16 pixels of the row, only valid pixels are loaded \n - Changes added in CL to disable av1_resize_horz_dir_sse2() are reverted",
       "revId": "cfbb0fcfb1e1ce43ad1c87db3ce4270fe788481d",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "15660e5f_447670c2",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-05-20T20:40:09Z",
+      "side": 1,
+      "message": "Hi Mudassir,\n\nThank you for the fix. I suggest some changes.\n\nNote: I verified your fix in 32-bit and 64-bit builds under ASan.",
+      "revId": "cfbb0fcfb1e1ce43ad1c87db3ce4270fe788481d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "48f5d0c3_a5f320ab",
+        "filename": "av1/common/x86/resize_avx2.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-05-20T20:40:09Z",
+      "side": 1,
+      "message": "Nit: Add `*` to line 148, so that the comment looks like this:\n\n```\n  /* Pad end pixels to the right, while processing the last pixels in the      \\\n   * row. */                                                                   \\\n```",
+      "revId": "cfbb0fcfb1e1ce43ad1c87db3ce4270fe788481d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b2b24b2e_73ddc6e5",
+        "filename": "av1/common/x86/resize_avx2.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 535,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-05-20T20:40:09Z",
+      "side": 1,
+      "message": "Change \"C\" to \"SSE2\".",
+      "range": {
+        "startLine": 535,
+        "startChar": 12,
+        "endLine": 535,
+        "endChar": 13
+      },
+      "revId": "cfbb0fcfb1e1ce43ad1c87db3ce4270fe788481d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "529943a4_53afc4e8",
+        "filename": "av1/common/x86/resize_sse2.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 221,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-05-20T20:40:09Z",
+      "side": 1,
+      "message": "Nit: esure \u003d\u003e ensure",
+      "revId": "cfbb0fcfb1e1ce43ad1c87db3ce4270fe788481d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2d36056b_b572c99b",
+        "filename": "test/frame_resize_test.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-05-20T20:40:09Z",
+      "side": 1,
+      "message": "Please incorporate https://aomedia-review.googlesource.com/c/aom/+/190263 into this CL.",
+      "revId": "cfbb0fcfb1e1ce43ad1c87db3ce4270fe788481d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
