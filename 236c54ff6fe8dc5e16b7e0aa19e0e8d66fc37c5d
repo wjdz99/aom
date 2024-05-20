@@ -87,6 +87,24 @@
       "parentUuid": "7518299a_308a05fc",
       "revId": "236c54ff6fe8dc5e16b7e0aa19e0e8d66fc37c5d",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "08b325b4_e689e6cb",
+        "filename": "CMakeLists.txt",
+        "patchSetId": 8
+      },
+      "lineNbr": 326,
+      "author": {
+        "id": 33496
+      },
+      "writtenOn": "2024-05-20T04:25:12Z",
+      "side": 1,
+      "message": "May I know when this code will be merged. - we have some dependency on this. If there is some more work pending on my side, please let me know.",
+      "parentUuid": "59de3f88_da8abfe9",
+      "revId": "236c54ff6fe8dc5e16b7e0aa19e0e8d66fc37c5d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
