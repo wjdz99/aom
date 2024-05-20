@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3620fe52_5b3f4be9",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2024-05-20T16:56:50Z",
+      "side": 1,
+      "message": "This CL fixes the `SSE2/AV1ResizeXTest` unit-test failures under 32-bit valgrind reported in the bug aomedia:3575. This issue was due to out of boundary access of the input buffer. Similar issue was present in `AVX2/AV1ResizeXTest` and the same has been fixed in this CL.\n\nThe CL has below modifications\n - While processing the last 16 pixels of the row, only valid pixels are loaded \n - Changes added in CL to disable av1_resize_horz_dir_sse2() are reverted",
+      "revId": "cfbb0fcfb1e1ce43ad1c87db3ce4270fe788481d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
