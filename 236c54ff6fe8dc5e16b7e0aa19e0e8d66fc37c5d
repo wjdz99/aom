@@ -122,6 +122,24 @@
       "message": "If I remove this line and the corresponding line 502, I get \"undefined reference\" linker errors when linking the svc_encoder_rtc executable:\n\n```\n/usr/bin/ld: libaom_av1_rc.so: undefined reference to `av1_cyclic_refresh_setup\u0027\n/usr/bin/ld: libaom_av1_rc.so: undefined reference to `av1_cyclic_refresh_alloc\u0027\n/usr/bin/ld: libaom_av1_rc.so: undefined reference to `av1_primary_rc_init\u0027\n...\n```\n\nThe reason is that we link the executable svc_encoder_rtc with the libraries libaom_av1_rc.so  libaom.so.3.9.0  -lm, but the shared library libaom.so.3.9.0 does not export the av1_xxx symbols that libaom_av1_rc.so needs.\n\nHow did you resolve this issue in your build? Do you link with the shared library libaom_av1_rc.so and the static library libaom.a?",
       "revId": "236c54ff6fe8dc5e16b7e0aa19e0e8d66fc37c5d",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "96d6d3c6_8f210c2b",
+        "filename": "CMakeLists.txt",
+        "patchSetId": 8
+      },
+      "lineNbr": 496,
+      "author": {
+        "id": 33496
+      },
+      "writtenOn": "2024-05-21T10:02:51Z",
+      "side": 1,
+      "message": "Sorry missed it. Thanks for input. Updated the code.",
+      "parentUuid": "bf44187a_5101af83",
+      "revId": "236c54ff6fe8dc5e16b7e0aa19e0e8d66fc37c5d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
