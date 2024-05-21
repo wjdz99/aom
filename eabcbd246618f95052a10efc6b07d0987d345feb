@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3de75ad6_953016c9",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-05-21T20:24:47Z",
+      "side": 1,
+      "message": "Paul: Thank you very much for the CL. I suggest two small changes in av1/encoder/ratectrl.c.",
+      "revId": "eabcbd246618f95052a10efc6b07d0987d345feb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4cf2b339_85b3f7d5",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 677,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-05-21T20:24:47Z",
+      "side": 1,
+      "message": "Optional: Should we document this max value in the following comment in aom/aom_encoder.h?\n\n```\n  /*!\\brief Target data rate\n   *\n   * Target bitrate to use for this stream, in kilobits per second.\n   */\n  unsigned int rc_target_bitrate;\n```",
+      "revId": "eabcbd246618f95052a10efc6b07d0987d345feb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f205f9c6_bbc562df",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1160,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-05-21T20:24:47Z",
+      "side": 1,
+      "message": "Note: This cast is not necessary now that `cfg-\u003erc_target_bitrate` is \u003c\u003d 2000000, because 2000000000 can be represented in `unsigned int`. But adding this cast is fine.",
+      "revId": "eabcbd246618f95052a10efc6b07d0987d345feb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b81942b5_a8996242",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2550,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-05-21T20:24:47Z",
+      "side": 1,
+      "message": "Nit: Change `0x7FFFFFFF` to `INT_MAX`, because this is used to ensure that it is safe to cast `vbr_max_bits` to `int` in line 2579.\n\nActually it would be clearer to just use `INT_MAX` directly in lines 2574-2576.",
+      "revId": "eabcbd246618f95052a10efc6b07d0987d345feb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d398f766_223b2e55",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2576,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-05-21T20:24:47Z",
+      "side": 1,
+      "message": "Nit: The right-hand side is equivalent to `AOMMIN(vbr_max_bits, MAX_ALLOWED_VBR_FRAME_BITS)`, or\n`AOMMIN(vbr_max_bits, INT_MAX)`.\n\nThe latter form suggests its relation to the `int` cast in line 2579.",
+      "revId": "eabcbd246618f95052a10efc6b07d0987d345feb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
