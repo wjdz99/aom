@@ -16,6 +16,57 @@
       "message": "I have done style check by looking into diff, could not find the mistake. please let me know if there are offline toosl which I can use before pushing.",
       "revId": "c633224a6086a15b4717284936e9550bd4f63fbb",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "40889c04_0b52d843",
+        "filename": "CMakeLists.txt",
+        "patchSetId": 12
+      },
+      "lineNbr": 288,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-05-21T18:04:16Z",
+      "side": 1,
+      "message": "IMPORTANT: Note that the library `aom_static` is only built when `BUILD_SHARED_LIBBS` is set. So I think line 903 will not work when `BUILD_SHARED_LIBBS` is not set.",
+      "revId": "c633224a6086a15b4717284936e9550bd4f63fbb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1e13a0e9_0d595711",
+        "filename": "CMakeLists.txt",
+        "patchSetId": 12
+      },
+      "lineNbr": 330,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-05-21T18:04:16Z",
+      "side": 1,
+      "message": "Line 903 should be moved here.\n\nAlso, I think we should not have both line 330 and line 903 (when it\u0027s moved here). We should have only one of them.",
+      "revId": "c633224a6086a15b4717284936e9550bd4f63fbb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b194e532_b4976766",
+        "filename": "CMakeLists.txt",
+        "patchSetId": 12
+      },
+      "lineNbr": 498,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-05-21T18:04:16Z",
+      "side": 1,
+      "message": "Pradeep: To fix the Style Check warning, delete two spaces from the beginning of lines 497-498.\n\nAlso make sure that your text editor does not insert TAB characters when you edit this file.",
+      "revId": "c633224a6086a15b4717284936e9550bd4f63fbb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
