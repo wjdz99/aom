@@ -776,6 +776,39 @@ TEST(EncodeAPI, Buganizer339877165) {
   aom_codec_destroy(&enc);
 }
 
+TEST(EncodeAPI, AomediaIssue3509) {
+  // Initialize libaom encoder.
+  aom_codec_iface_t *const iface = aom_codec_av1_cx();
+  aom_codec_ctx_t enc;
+  aom_codec_enc_cfg_t cfg;
+
+  ASSERT_EQ(aom_codec_enc_config_default(iface, &cfg, AOM_USAGE_REALTIME),
+            AOM_CODEC_OK);
+
+  cfg.g_w = 1920;
+  cfg.g_h = 1080;
+  cfg.rc_target_bitrate = 1000000;
+  ASSERT_EQ(cfg.rc_2pass_vbr_minsection_pct, 0u);
+  cfg.rc_2pass_vbr_minsection_pct = 2;
+
+  ASSERT_EQ(aom_codec_enc_init(&enc, iface, &cfg, 0), AOM_CODEC_OK);
+
+  // Create input image.
+  aom_image_t *const image =
+      CreateGrayImage(AOM_IMG_FMT_I420, cfg.g_w, cfg.g_h);
+  ASSERT_NE(image, nullptr);
+
+  // Encode frame.
+  // `duration` can go as high as 300, but the UBSan error is gone if
+  // `duration` is 301 or higher.
+  ASSERT_EQ(aom_codec_encode(&enc, image, 0, /*duration=*/300, 0),
+            AOM_CODEC_OK);
+
+  // Free resources.
+  aom_img_free(image);
+  ASSERT_EQ(aom_codec_destroy(&enc), AOM_CODEC_OK);
+}
+
 class EncodeAPIParameterized
     : public testing::TestWithParam<std::tuple<
           /*usage=*/unsigned int, /*speed=*/int, /*aq_mode=*/unsigned int>> {};

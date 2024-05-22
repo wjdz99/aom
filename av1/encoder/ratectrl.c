@@ -2553,13 +2553,14 @@ void av1_rc_update_framerate(AV1_COMP *cpi, int width, int height) {
   int vbr_max_bits;
   const int MBs = av1_get_MBs(width, height);
 
+  const double avg_frame_bandwidth =
+      round(oxcf->rc_cfg.target_bandwidth / cpi->framerate);
   rc->avg_frame_bandwidth =
-      (int)round(oxcf->rc_cfg.target_bandwidth / cpi->framerate);
-  rc->min_frame_bandwidth =
-      (int)(rc->avg_frame_bandwidth * oxcf->rc_cfg.vbrmin_section / 100);
-
-  rc->min_frame_bandwidth =
-      AOMMAX(rc->min_frame_bandwidth, FRAME_OVERHEAD_BITS);
+      (avg_frame_bandwidth <= INT_MAX) ? (int)avg_frame_bandwidth : INT_MAX;
+  int64_t vbr_min_bits =
+      (int64_t)rc->avg_frame_bandwidth * oxcf->rc_cfg.vbrmin_section / 100;
+  vbr_min_bits = (vbr_min_bits <= INT_MAX) ? vbr_min_bits : INT_MAX;
+  rc->min_frame_bandwidth = AOMMAX((int)vbr_min_bits, FRAME_OVERHEAD_BITS);
 
   // A maximum bitrate for a frame is defined.
   // The baseline for this aligns with HW implementations that
