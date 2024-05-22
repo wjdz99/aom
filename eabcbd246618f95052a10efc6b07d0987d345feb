@@ -35,6 +35,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "7e16c062_cd041ae2",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5610
+      },
+      "writtenOn": "2024-05-22T16:44:32Z",
+      "side": 1,
+      "message": "OK",
+      "parentUuid": "f4cb97e3_f4c1642b",
+      "revId": "eabcbd246618f95052a10efc6b07d0987d345feb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "3de75ad6_953016c9",
@@ -71,6 +89,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "8c9313a0_bd66fb0f",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 677,
+      "author": {
+        "id": 5610
+      },
+      "writtenOn": "2024-05-22T16:44:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4cf2b339_85b3f7d5",
+      "revId": "eabcbd246618f95052a10efc6b07d0987d345feb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "f205f9c6_bbc562df",
         "filename": "av1/av1_cx_iface.c",
         "patchSetId": 2
@@ -82,6 +118,24 @@
       "writtenOn": "2024-05-21T20:24:47Z",
       "side": 1,
       "message": "Note: This cast is not necessary now that `cfg-\u003erc_target_bitrate` is \u003c\u003d 2000000, because 2000000000 can be represented in `unsigned int`. But adding this cast is fine.",
+      "revId": "eabcbd246618f95052a10efc6b07d0987d345feb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3bfb75dc_f669f8e3",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1160,
+      "author": {
+        "id": 5610
+      },
+      "writtenOn": "2024-05-22T16:44:32Z",
+      "side": 1,
+      "message": "When I originally put this in I had not limited the input range. But you are right",
+      "parentUuid": "f205f9c6_bbc562df",
       "revId": "eabcbd246618f95052a10efc6b07d0987d345feb",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -103,6 +157,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "76e5873d_53ba735a",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2550,
+      "author": {
+        "id": 5610
+      },
+      "writtenOn": "2024-05-22T16:44:32Z",
+      "side": 1,
+      "message": "True",
+      "parentUuid": "b81942b5_a8996242",
+      "revId": "eabcbd246618f95052a10efc6b07d0987d345feb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d398f766_223b2e55",
@@ -116,6 +188,24 @@
       "writtenOn": "2024-05-21T20:24:47Z",
       "side": 1,
       "message": "Nit: The right-hand side is equivalent to `AOMMIN(vbr_max_bits, MAX_ALLOWED_VBR_FRAME_BITS)`, or\n`AOMMIN(vbr_max_bits, INT_MAX)`.\n\nThe latter form suggests its relation to the `int` cast in line 2579.",
+      "revId": "eabcbd246618f95052a10efc6b07d0987d345feb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "42e252bb_30d07561",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2576,
+      "author": {
+        "id": 5610
+      },
+      "writtenOn": "2024-05-22T16:44:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d398f766_223b2e55",
       "revId": "eabcbd246618f95052a10efc6b07d0987d345feb",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
