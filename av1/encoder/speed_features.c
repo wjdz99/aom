@@ -1616,6 +1616,12 @@ static void set_rt_speed_feature_framesize_dependent(const AV1_COMP *const cpi,
       sf->mv_sf.search_method = NSTEP;
       sf->rt_sf.fullpel_search_step_param = 2;
     }
+    if (cpi->rc.high_source_sad && cpi->ppi->rtc_ref.non_reference_frame) {
+      sf->rt_sf.use_idtx_nonrd = 0;
+      sf->rt_sf.prefer_large_partition_blocks = 1;
+      sf->mv_sf.subpel_search_method = SUBPEL_TREE_PRUNED_MORE;
+      sf->rt_sf.fullpel_search_step_param = 10;
+    }
     sf->rt_sf.partition_direct_merging = 0;
     sf->hl_sf.accurate_bit_estimate = 0;
     // This feature is for nonrd_pickmode.
