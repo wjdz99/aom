@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "697e40b9_674d7d93",
+        "filename": "test/av1_convolve_scale_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 244,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-05-23T18:12:41Z",
+      "side": 1,
+      "message": "use `static_cast` for these; here and line 250",
+      "range": {
+        "startLine": 244,
+        "startChar": 40,
+        "endLine": 244,
+        "endChar": 54
+      },
+      "revId": "f86e3b2f678e3bc21efeea4a928e0ad8351a5149",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "18279ece_8cb1d0a3",
+        "filename": "test/av1_convolve_scale_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 254,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-05-23T18:12:41Z",
+      "side": 1,
+      "message": "make this `const auto c`",
+      "revId": "f86e3b2f678e3bc21efeea4a928e0ad8351a5149",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
