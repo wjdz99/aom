@@ -4267,8 +4267,9 @@ void av1_twopass_postencode_update(AV1_COMP *cpi) {
       if (rc->projected_frame_size < fast_extra_thresh) {
         p_rc->vbr_bits_off_target_fast +=
             fast_extra_thresh - rc->projected_frame_size;
-        p_rc->vbr_bits_off_target_fast = AOMMIN(p_rc->vbr_bits_off_target_fast,
-                                                (4 * rc->avg_frame_bandwidth));
+        p_rc->vbr_bits_off_target_fast =
+            AOMMIN(p_rc->vbr_bits_off_target_fast,
+                   (4 * (int64_t)rc->avg_frame_bandwidth));
       }
     }
 
