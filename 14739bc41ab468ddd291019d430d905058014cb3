@@ -70,6 +70,30 @@
       },
       "revId": "14739bc41ab468ddd291019d430d905058014cb3",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b0002fe2_c91c9a0b",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 2575,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-05-23T21:04:42Z",
+      "side": 1,
+      "message": "Done. I found that this is the form that Jerome used in libvpx:\nhttps://chromium-review.googlesource.com/c/webm/libvpx/+/4944271\n\n```\nvoid vp9_rc_update_framerate(VP9_COMP *cpi) {\n  ...\n\n  rc-\u003eavg_frame_bandwidth \u003d\n      (int)VPXMIN(oxcf-\u003etarget_bandwidth / cpi-\u003eframerate, INT_MAX);\n```\n\nNote: The VP9 code has the downside that the expression `oxcf-\u003etarget_bandwidth / cpi-\u003eframerate` occurs twice in the expansion of the `VPXMIN` macro. We could save the result of the expression in a local variable like in this CL.",
+      "parentUuid": "b0c73fc1_97027e34",
+      "range": {
+        "startLine": 2575,
+        "startChar": 17,
+        "endLine": 2575,
+        "endChar": 68
+      },
+      "revId": "14739bc41ab468ddd291019d430d905058014cb3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
