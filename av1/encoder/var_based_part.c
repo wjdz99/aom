@@ -1736,6 +1736,15 @@ int av1_choose_var_based_partitioning(AV1_COMP *cpi, const TileInfo *const tile,
       return 0;
   }
 
+  // Force skip encoding for all superblocks on slide change for
+  // non_reference_frames.
+  if (cpi->rc.high_source_sad && cpi->ppi->rtc_ref.non_reference_frame) {
+    set_block_size(cpi, mi_row, mi_col, bsize);
+    x->force_zeromv_skip_for_sb = 1;
+    aom_free(vt);
+    return 0;
+  }
+
   if (cpi->noise_estimate.enabled)
     noise_level = av1_noise_estimate_extract_level(&cpi->noise_estimate);
 
