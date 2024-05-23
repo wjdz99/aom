@@ -27,6 +27,7 @@
 #include "av1/common/blockd.h"
 
 #include "av1/encoder/encodeframe.h"
+#include "av1/encoder/encodeframe_utils.h"
 #include "av1/encoder/var_based_part.h"
 #include "av1/encoder/reconinter_enc.h"
 #include "av1/encoder/rdopt_utils.h"
@@ -1545,8 +1546,6 @@ static AOM_INLINE bool set_force_zeromv_skip_for_sb(
           x->content_state_sb.source_sad_nonrd))
     return false;
   int shift = cpi->sf.rt_sf.increase_source_sad_thresh ? 1 : 0;
-  const int block_width = mi_size_wide[cm->seq_params->sb_size];
-  const int block_height = mi_size_high[cm->seq_params->sb_size];
   const unsigned int thresh_exit_part_y =
       cpi->zeromv_skip_thresh_exit_part[bsize] << shift;
   unsigned int thresh_exit_part_uv =
@@ -1558,10 +1557,11 @@ static AOM_INLINE bool set_force_zeromv_skip_for_sb(
   if (x->content_state_sb.source_sad_nonrd >= kVeryLowSad &&
       cpi->sf.rt_sf.part_early_exit_zeromv == 1)
     thresh_exit_part_uv = thresh_exit_part_uv >> 3;
-  if (mi_col + block_width <= tile->mi_col_end &&
-      mi_row + block_height <= tile->mi_row_end && y_sad < thresh_exit_part_y &&
-      uv_sad[0] < thresh_exit_part_uv && uv_sad[1] < thresh_exit_part_uv) {
-    set_block_size(cpi, mi_row, mi_col, bsize);
+  if (y_sad < thresh_exit_part_y && uv_sad[0] < thresh_exit_part_uv &&
+      uv_sad[1] < thresh_exit_part_uv) {
+    MB_MODE_INFO **mi = cm->mi_params.mi_grid_base +
+                        get_mi_grid_idx(&cm->mi_params, mi_row, mi_col);
+    av1_set_fixed_partitioning(cpi, tile, mi, mi_row, mi_col, bsize);
     x->force_zeromv_skip_for_sb = 1;
     aom_free(vt);
     // Partition shape is set here at SB level.
