@@ -34,6 +34,24 @@
       "parentUuid": "72288783_18ac22df",
       "revId": "6f8189bb64bbba13c0c7dd69231a3f44b6ac581b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "dfa2b3c4_b0d1b46d",
+        "filename": "aom_dsp/x86/synonyms.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-05-25T16:37:00Z",
+      "side": 1,
+      "message": "\u003e \u003e `_mm_loadu_si64` is documented to be declared in \u003cimmintrin.h\u003e:\n\u003e \u003e \n\u003e \u003e https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#text\u003d_mm_loadu_si64\u0026ig_expand\u003d4111\n\u003e \n\u003e Yes, I noticed Visual Studio builds broke. This is unneeded, I\u0027ll send a change.\n\nhttps://aomedia-review.googlesource.com/c/aom/+/190561",
+      "parentUuid": "a69dedc2_c0bd3c39",
+      "revId": "6f8189bb64bbba13c0c7dd69231a3f44b6ac581b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
