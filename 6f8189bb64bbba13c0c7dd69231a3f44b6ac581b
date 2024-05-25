@@ -16,6 +16,24 @@
       "message": "`_mm_loadu_si64` is documented to be declared in \u003cimmintrin.h\u003e:\n\nhttps://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#text\u003d_mm_loadu_si64\u0026ig_expand\u003d4111",
       "revId": "6f8189bb64bbba13c0c7dd69231a3f44b6ac581b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a69dedc2_c0bd3c39",
+        "filename": "aom_dsp/x86/synonyms.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-05-25T16:31:41Z",
+      "side": 1,
+      "message": "\u003e `_mm_loadu_si64` is documented to be declared in \u003cimmintrin.h\u003e:\n\u003e \n\u003e https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#text\u003d_mm_loadu_si64\u0026ig_expand\u003d4111\n\nYes, I noticed Visual Studio builds broke. This is unneeded, I\u0027ll send a change.",
+      "parentUuid": "72288783_18ac22df",
+      "revId": "6f8189bb64bbba13c0c7dd69231a3f44b6ac581b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
