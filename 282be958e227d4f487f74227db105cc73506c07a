@@ -34,6 +34,24 @@
       "parentUuid": "b8a54b2c_087ae99a",
       "revId": "282be958e227d4f487f74227db105cc73506c07a",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "538cdbda_bb42ae8e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 13
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 33496
+      },
+      "writtenOn": "2024-05-27T15:55:03Z",
+      "side": 1,
+      "message": "Hi, need to build aom_av1_rc lib in a shared fashion. libaom_av1_rc.so. Please let me know what changes are required. or what kind of tests needs to be done. At my system it builds. I used ubuntu.\nWill also build in Windows. And update here.",
+      "parentUuid": "66dd3724_93395384",
+      "revId": "282be958e227d4f487f74227db105cc73506c07a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
