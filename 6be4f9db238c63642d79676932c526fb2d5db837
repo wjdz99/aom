@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0eee0ba6_b9b93dd4",
+        "filename": "av1/encoder/x86/rdopt_sse4.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-05-28T16:58:38Z",
+      "side": 1,
+      "message": "both functions take (hi, lo) parameters:\n\n* https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#text\u003d_mm_set_epi64x\n* https://aomedia.googlesource.com/aom/+/6be4f9db238c63642d79676932c526fb2d5db837/aom_dsp/x86/synonyms.h#52",
+      "revId": "6be4f9db238c63642d79676932c526fb2d5db837",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
