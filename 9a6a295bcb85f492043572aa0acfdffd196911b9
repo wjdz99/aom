@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bfccb63c_00860199",
+        "filename": "av1/common/arm/highbd_warp_plane_neon.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-05-28T20:06:14Z",
+      "side": 1,
+      "message": "#undef these after their use.",
+      "revId": "9a6a295bcb85f492043572aa0acfdffd196911b9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ba71c50b_8152ac90",
+        "filename": "av1/common/arm/highbd_warp_plane_neon.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 195,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-05-28T20:06:14Z",
+      "side": 1,
+      "message": "We don\u0027t have many instances of defining macros mid function, though for locality, it\u0027s not a bad choice here",
+      "revId": "9a6a295bcb85f492043572aa0acfdffd196911b9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
