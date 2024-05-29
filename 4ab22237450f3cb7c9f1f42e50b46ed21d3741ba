@@ -16,6 +16,24 @@
       "message": "I tried to build the code in Visual Studio, using cmake to generate and config.Cmake works fine. \nits failing like this, am I incorrect track\n\n5\u003eCMake Error at C:/Users/pradeep4/OneDrive - Intel Corporation/Documents/Project_related/OKR/year_2024/aom/test/test_data_util.cmake:662 (file):\n5\u003e  file DOWNLOAD cannot compute hash on failed download\n5\u003e\n5\u003e    status: [28;\"Timeout was reached\"]\n5\u003eCall Stack (most recent call first):",
       "revId": "4ab22237450f3cb7c9f1f42e50b46ed21d3741ba",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9619cebe_b2345261",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 16
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-05-29T18:05:51Z",
+      "side": 1,
+      "message": "Hi Pradeep,\n\nI usually use Ninja with Visual Studio. To do that, open a Visual Studio x64 Command Prompt, and run the following commands:\n\n```\ncmake ..\\aom -G Ninja\nninja\nninja testdata\n```\n\nThe \"testdata\" target downloads the test data files needed by test_libaom and test_av1_rc.\n\nThe cmake command to generate a Visual Studio solution file can be found at https://aomedia.googlesource.com/aom/+/master/README.md#microsoft-visual-studio-builds",
+      "parentUuid": "8fb45053_3e5d9f9d",
+      "revId": "4ab22237450f3cb7c9f1f42e50b46ed21d3741ba",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
