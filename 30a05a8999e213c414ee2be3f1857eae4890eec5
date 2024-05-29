@@ -1,0 +1,123 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cffc33b8_300d53fe",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-05-29T18:48:40Z",
+      "side": 1,
+      "message": "Paul: Thanks for the CL. I suggest some changes.\n\nCan you add tests that reproduce the integer overflows? Or did you make these changes by code inspection?",
+      "revId": "30a05a8999e213c414ee2be3f1857eae4890eec5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9ad442f7_988a1d4a",
+        "filename": "av1/encoder/pass2_strategy.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 3410,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-05-29T18:48:40Z",
+      "side": 1,
+      "message": "I found similar code in vp9/encoder/vp9_firstpass.c in libvpx:\n\n```\n    const int section_target_bandwidth \u003d\n        (int)(twopass-\u003ebits_left / frames_left);\n```\n\nPlease see if that needs the same change.",
+      "revId": "30a05a8999e213c414ee2be3f1857eae4890eec5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "61e3189a_94bc351c",
+        "filename": "av1/encoder/pass2_strategy.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 4276,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-05-29T18:48:40Z",
+      "side": 1,
+      "message": "This code is also in vp9/encoder/vp9_firstpass.c in libvpx. You can find it by searching for \"4 * rc-\u003eavg_frame_bandwidth\".\n\nPlease see if it needs the same change.",
+      "revId": "30a05a8999e213c414ee2be3f1857eae4890eec5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a3eab33b_fb6b9aa3",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 2584,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-05-29T18:48:40Z",
+      "side": 1,
+      "message": "Please make the same changes to the `vbr_rate_correction()` function in libvpx.",
+      "revId": "30a05a8999e213c414ee2be3f1857eae4890eec5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4db91251_048d5506",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 2615,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-05-29T18:48:40Z",
+      "side": 1,
+      "message": "Delete this? This seems redundant with the clamping in line 2661 at the end of the function.\n\nIf we delete this, also delete the new comment \"Clamp to maximum allowed\" at line 2613.",
+      "revId": "30a05a8999e213c414ee2be3f1857eae4890eec5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5060f659_021fbea6",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 2644,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-05-29T18:48:40Z",
+      "side": 1,
+      "message": "Move this after the `#endif` at line 2645 so that it applies to both the `#if` and `#else` blocks.",
+      "revId": "30a05a8999e213c414ee2be3f1857eae4890eec5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "98792f5e_64318935",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 2650,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-05-29T18:48:40Z",
+      "side": 1,
+      "message": "Delete this? This seems redundant with the clamping in line 2661 at the end of the function.\n\nIf we delete this, also delete the new comment \"and clamp to max allowed\" in line 2648.",
+      "revId": "30a05a8999e213c414ee2be3f1857eae4890eec5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
