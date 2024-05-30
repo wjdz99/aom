@@ -35,6 +35,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "0e2f9ae7_7555f62c",
+        "filename": "av1/encoder/pass2_strategy.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 3410,
+      "author": {
+        "id": 5610
+      },
+      "writtenOn": "2024-05-30T09:25:56Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "9ad442f7_988a1d4a",
+      "revId": "30a05a8999e213c414ee2be3f1857eae4890eec5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "61e3189a_94bc351c",
@@ -48,6 +66,24 @@
       "writtenOn": "2024-05-29T18:48:40Z",
       "side": 1,
       "message": "This code is also in vp9/encoder/vp9_firstpass.c in libvpx. You can find it by searching for \"4 * rc-\u003eavg_frame_bandwidth\".\n\nPlease see if it needs the same change.",
+      "revId": "30a05a8999e213c414ee2be3f1857eae4890eec5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2ef9ede7_c1898e16",
+        "filename": "av1/encoder/pass2_strategy.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 4276,
+      "author": {
+        "id": 5610
+      },
+      "writtenOn": "2024-05-30T09:25:56Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "61e3189a_94bc351c",
       "revId": "30a05a8999e213c414ee2be3f1857eae4890eec5",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -69,6 +105,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "8c94ae6d_402a4dc1",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 2584,
+      "author": {
+        "id": 5610
+      },
+      "writtenOn": "2024-05-30T09:25:56Z",
+      "side": 1,
+      "message": "Agreed.",
+      "parentUuid": "a3eab33b_fb6b9aa3",
+      "revId": "30a05a8999e213c414ee2be3f1857eae4890eec5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "4db91251_048d5506",
@@ -82,6 +136,24 @@
       "writtenOn": "2024-05-29T18:48:40Z",
       "side": 1,
       "message": "Delete this? This seems redundant with the clamping in line 2661 at the end of the function.\n\nIf we delete this, also delete the new comment \"Clamp to maximum allowed\" at line 2613.",
+      "revId": "30a05a8999e213c414ee2be3f1857eae4890eec5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e78417a2_ea4ad93c",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 2615,
+      "author": {
+        "id": 5610
+      },
+      "writtenOn": "2024-05-30T09:25:56Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "4db91251_048d5506",
       "revId": "30a05a8999e213c414ee2be3f1857eae4890eec5",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -103,6 +175,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "0c51e8f9_cd458509",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 2644,
+      "author": {
+        "id": 5610
+      },
+      "writtenOn": "2024-05-30T09:25:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5060f659_021fbea6",
+      "revId": "30a05a8999e213c414ee2be3f1857eae4890eec5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "98792f5e_64318935",
@@ -116,6 +206,24 @@
       "writtenOn": "2024-05-29T18:48:40Z",
       "side": 1,
       "message": "Delete this? This seems redundant with the clamping in line 2661 at the end of the function.\n\nIf we delete this, also delete the new comment \"and clamp to max allowed\" in line 2648.",
+      "revId": "30a05a8999e213c414ee2be3f1857eae4890eec5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "743a464d_56a554f0",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 2650,
+      "author": {
+        "id": 5610
+      },
+      "writtenOn": "2024-05-30T09:25:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "98792f5e_64318935",
       "revId": "30a05a8999e213c414ee2be3f1857eae4890eec5",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
