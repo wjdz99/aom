@@ -11,12 +11,17 @@
 
 #include <arm_neon.h>
 #include <assert.h>
+#include <stdint.h>
 
 #include "config/aom_config.h"
 #include "config/av1_rtcd.h"
 
+#include "aom_dsp/aom_dsp_common.h"
+#include "aom_dsp/aom_filter.h"
 #include "aom_dsp/arm/mem_neon.h"
 #include "aom_dsp/arm/transpose_neon.h"
+#include "av1/common/convolve.h"
+#include "av1/common/filter.h"
 
 static INLINE int16x4_t compound_convolve8_4_v(
     const int16x4_t s0, const int16x4_t s1, const int16x4_t s2,
