@@ -81,6 +81,30 @@
       },
       "revId": "c0bc112b7fc8554461370242fe881a8c72f106ed",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "38b65f90_9a1ab8c8",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 2645,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-05-31T17:21:25Z",
+      "side": 1,
+      "message": "\u003e Nit: I think we should change \"this_frame_target\" to \"frame_target\" in this comment. What do you think?\n\nEither interpretation might be OK since this ends up updating this_frame_target in the end, but the new version seems a little more correct given its location.",
+      "parentUuid": "d1563319_f56c4b10",
+      "range": {
+        "startLine": 2645,
+        "startChar": 16,
+        "endLine": 2645,
+        "endChar": 33
+      },
+      "revId": "c0bc112b7fc8554461370242fe881a8c72f106ed",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
