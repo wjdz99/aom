@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8930e182_c938d2f8",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-05-31T02:06:39Z",
+      "side": 1,
+      "message": "Code that uses `uint16_t` was removed in https://aomedia-review.googlesource.com/c/aom/+/190701. So I changed \"uint16_t\" to \"int16_t\" in this warning message. (`int16_t` is still used in this file.)",
+      "revId": "cd4d6d1d2aebb495891e47b4efa7f178e337a2d8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
