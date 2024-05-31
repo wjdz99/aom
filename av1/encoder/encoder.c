@@ -4210,7 +4210,7 @@ static void adjust_image_stat(double y, double u, double v, double all,
   s->worst = AOMMIN(s->worst, all);
 }
 
-static void compute_internal_stats(AV1_COMP *cpi, int frame_bytes) {
+static void compute_internal_stats(AV1_COMP *cpi, size_t frame_bytes) {
   AV1_PRIMARY *const ppi = cpi->ppi;
   AV1_COMMON *const cm = &cpi->common;
   double samples = 0.0;
@@ -4680,7 +4680,7 @@ void av1_post_encode_updates(AV1_COMP *const cpi,
 
 #if CONFIG_INTERNAL_STATS
   if (!is_stat_generation_stage(cpi)) {
-    compute_internal_stats(cpi, (int)cpi_data->frame_size);
+    compute_internal_stats(cpi, cpi_data->frame_size);
   }
 #endif  // CONFIG_INTERNAL_STATS
 

@@ -3128,7 +3128,7 @@ typedef struct AV1_COMP {
   uint64_t time_compress_data;
 
   unsigned int mode_chosen_counts[MAX_MODES];
-  int bytes;
+  uint64_t bytes;
   unsigned int frame_recode_hits;
   /*!\endcond */
 #endif
