@@ -142,6 +142,24 @@
       "parentUuid": "5a1411c4_c215de2d",
       "revId": "282be958e227d4f487f74227db105cc73506c07a",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "31901dac_ec5934d9",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 13
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-06-03T17:05:38Z",
+      "side": 1,
+      "message": "Hi Pradeep,\n\nThat change is not necessary. The aom_static library is only built when BUILD_SHARED_LIBS is enabled, and in that case POSITION_INDEPENDENT_CODE is enabled by the following code in build/cmake/aom_configure.cmake:\n\n```\nif(BUILD_SHARED_LIBS)\n  set(CONFIG_PIC 1)\n  set(CONFIG_SHARED 1)\nelseif(NOT CONFIG_PIC)\n  ...\nendif()\n    \nif(NOT MSVC)\n  if(CONFIG_PIC)\n      \n    # TODO(tomfinegan): clang needs -pie in CMAKE_EXE_LINKER_FLAGS for this to\n    # work.\n    set(CMAKE_POSITION_INDEPENDENT_CODE ON)\n    ...\n  endif()\nendif()\n```\n\nPlease verify this as follows:\n\n```\ncmake ../aom -G Ninja -DBUILD_SHARED_LIBS\u003dON\nninja -v\n```\n\nIn the output log, search for the \"ar qc libaom.a\" command, and check the compiler command lines for some of the input .o files (e.g., aom_config.c.o and av1_cx_iface.c.o). Verify that they are all compiled with the -fPIC compiler flag.",
+      "parentUuid": "eed6f8e2_0732c4f1",
+      "revId": "282be958e227d4f487f74227db105cc73506c07a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
