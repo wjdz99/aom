@@ -3125,6 +3125,7 @@ static void rc_scene_detection_onepass_rt(AV1_COMP *cpi,
   int sh = (cm->seq_params->sb_size == BLOCK_128X128) ? 5 : 4;
   int num_4x4 = (cm->seq_params->sb_size == BLOCK_128X128) ? 32 : 16;
   unsigned char *const active_map_4x4 = cpi->active_map.map;
+  const int thresh_high_motion = 9 * 64 * 64;
   // Avoid bottom and right border.
   for (int sbi_row = 0; sbi_row < sb_rows - border; ++sbi_row) {
     for (int sbi_col = 0; sbi_col < sb_cols; ++sbi_col) {
@@ -3184,6 +3185,13 @@ static void rc_scene_detection_onepass_rt(AV1_COMP *cpi,
   if (num_samples > 0)
     rc->percent_blocks_with_motion =
         ((num_samples - num_zero_temp_sad) * 100) / num_samples;
+  if (cpi->oxcf.tune_cfg.content == AOM_CONTENT_SCREEN &&
+      cpi->rc.prev_avg_source_sad > thresh_high_motion &&
+      cpi->rc.avg_source_sad > thresh_high_motion &&
+      cpi->rc.avg_frame_low_motion < 60)
+    cpi->rc.high_motion_content_screen = 1;
+  else
+    cpi->rc.high_motion_content_screen = 0;
   // Scene detection is only on base SLO, and using full/orignal resolution.
   // Pass the state to the upper spatial layers.
   if (cpi->svc.number_spatial_layers > 1) {
