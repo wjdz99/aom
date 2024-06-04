@@ -33,6 +33,7 @@
 #include "av1/encoder/encoder_utils.h"
 #include "av1/encoder/encode_strategy.h"
 #include "av1/encoder/gop_structure.h"
+#include "av1/encoder/mcomp.h"
 #include "av1/encoder/random.h"
 #include "av1/encoder/ratectrl.h"
 
@@ -3017,6 +3018,75 @@ static int set_block_is_active(unsigned char *const active_map_4x4, int mi_cols,
   return 0;
 }
 
+unsigned int estimate_scroll_motion(const AV1_COMP *cpi, uint8_t *src_buf,
+                                    uint8_t *last_src_buf, int src_stride,
+                                    int ref_stride, BLOCK_SIZE bsize,
+                                    int pos_col, int pos_row,
+                                    int *best_intmv_col, int *best_intmv_row) {
+  const AV1_COMMON *const cm = &cpi->common;
+  const int bw = block_size_wide[bsize];
+  const int bh = block_size_high[bsize];
+  const int full_search = 1;
+  // Keep border a multiple of 16.
+  const int border = (cpi->oxcf.border_in_pixels >> 4) << 4;
+  int search_size_width = 96;
+  int search_size_height = 192;
+  // Adjust based on boundary.
+  if ((pos_col - search_size_width < -border) ||
+      (pos_col + search_size_width > cm->width + border))
+    search_size_width = border;
+  if ((pos_row - search_size_height < -border) ||
+      (pos_row + search_size_height > cm->height + border))
+    search_size_height = border;
+  uint8_t const *ref_buf;
+  unsigned int best_sad;
+  int best_sad_col, best_sad_row;
+  const int row_norm_factor = mi_size_high_log2[bsize] + 1;
+  const int col_norm_factor = 3 + (bw >> 5);
+  const int width_ref_buf = (search_size_width << 1) + bw;
+  const int height_ref_buf = (search_size_height << 1) + bh;
+  int16_t *hbuf = (int16_t *)aom_malloc(width_ref_buf * sizeof(*hbuf));
+  int16_t *vbuf = (int16_t *)aom_malloc(height_ref_buf * sizeof(*vbuf));
+  int16_t *src_hbuf = (int16_t *)aom_malloc(bw * sizeof(*src_hbuf));
+  int16_t *src_vbuf = (int16_t *)aom_malloc(bh * sizeof(*src_vbuf));
+  if (!hbuf || !vbuf || !src_hbuf || !src_vbuf) {
+    aom_free(hbuf);
+    aom_free(vbuf);
+    aom_free(src_hbuf);
+    aom_free(src_vbuf);
+  }
+  // Set up prediction 1-D reference set for rows.
+  ref_buf = last_src_buf - search_size_width;
+  aom_int_pro_row(hbuf, ref_buf, ref_stride, width_ref_buf, bh,
+                  row_norm_factor);
+  // Set up prediction 1-D reference set for cols
+  ref_buf = last_src_buf - search_size_height * ref_stride;
+  aom_int_pro_col(vbuf, ref_buf, ref_stride, bw, height_ref_buf,
+                  col_norm_factor);
+  // Set up src 1-D reference set
+  aom_int_pro_row(src_hbuf, src_buf, src_stride, bw, bh, row_norm_factor);
+  aom_int_pro_col(src_vbuf, src_buf, src_stride, bw, bh, col_norm_factor);
+  // Find the best match per 1-D search
+  *best_intmv_col =
+      av1_vector_match(hbuf, src_hbuf, mi_size_wide_log2[bsize],
+                       search_size_width, full_search, &best_sad_col);
+  *best_intmv_row =
+      av1_vector_match(vbuf, src_vbuf, mi_size_high_log2[bsize],
+                       search_size_height, full_search, &best_sad_row);
+  if (best_sad_col < best_sad_row) {
+    *best_intmv_row = 0;
+    best_sad = best_sad_col;
+  } else {
+    *best_intmv_col = 0;
+    best_sad = best_sad_row;
+  }
+  aom_free(hbuf);
+  aom_free(vbuf);
+  aom_free(src_hbuf);
+  aom_free(src_vbuf);
+  return best_sad;
+}
+
 /*!\brief Check for scene detection, for 1 pass real-time mode.
  *
  * Compute average source sad (temporal sad: between current source and
@@ -3125,6 +3195,7 @@ static void rc_scene_detection_onepass_rt(AV1_COMP *cpi,
   int sh = (cm->seq_params->sb_size == BLOCK_128X128) ? 5 : 4;
   int num_4x4 = (cm->seq_params->sb_size == BLOCK_128X128) ? 32 : 16;
   unsigned char *const active_map_4x4 = cpi->active_map.map;
+  const uint64_t thresh_high_motion = 9 * 64 * 64;
   // Avoid bottom and right border.
   for (int sbi_row = 0; sbi_row < sb_rows - border; ++sbi_row) {
     for (int sbi_col = 0; sbi_col < sb_cols; ++sbi_col) {
@@ -3184,6 +3255,44 @@ static void rc_scene_detection_onepass_rt(AV1_COMP *cpi,
   if (num_samples > 0)
     rc->percent_blocks_with_motion =
         ((num_samples - num_zero_temp_sad) * 100) / num_samples;
+  // Update the high_motion_content_screen flag on TL0.
+  if (cpi->svc.temporal_layer_id == 0) {
+    cpi->rc.high_motion_content_screen = 0;
+    if (cpi->oxcf.tune_cfg.content == AOM_CONTENT_SCREEN &&
+        rc->percent_blocks_with_motion > 40 &&
+        rc->prev_avg_source_sad > thresh_high_motion &&
+        rc->avg_source_sad > thresh_high_motion &&
+        rc->avg_frame_low_motion < 60 &&
+        unscaled_src->y_width * unscaled_src->y_height >= 1280 * 720) {
+      // Compute fast coarse/global motion for 128x128 superblock centered
+      // at middle of frames, to determine if motion is scroll.
+      int pos_col = (unscaled_src->y_width >> 1) - 64;
+      int pos_row = (unscaled_src->y_height >> 1) - 64;
+      src_y = unscaled_src->y_buffer + pos_row * src_ystride + pos_col;
+      last_src_y =
+          unscaled_last_src->y_buffer + pos_row * last_src_ystride + pos_col;
+      int best_intmv_col = 0;
+      int best_intmv_row = 0;
+      unsigned int y_sad = estimate_scroll_motion(
+          cpi, src_y, last_src_y, src_ystride, last_src_ystride, BLOCK_128X128,
+          pos_col, pos_row, &best_intmv_col, &best_intmv_row);
+      if (y_sad > 1000) cpi->rc.high_motion_content_screen = 1;
+    }
+    // Pass the flag value to all layer frames.
+    if (cpi->svc.number_spatial_layers > 1 ||
+        cpi->svc.number_temporal_layers > 1) {
+      SVC *svc = &cpi->svc;
+      for (int sl = 0; sl < svc->number_spatial_layers; ++sl) {
+        for (int tl = 1; tl < svc->number_temporal_layers; ++tl) {
+          const int layer =
+              LAYER_IDS_TO_IDX(sl, tl, svc->number_temporal_layers);
+          LAYER_CONTEXT *lc = &svc->layer_context[layer];
+          RATE_CONTROL *lrc = &lc->rc;
+          lrc->high_motion_content_screen = rc->high_motion_content_screen;
+        }
+      }
+    }
+  }
   // Scene detection is only on base SLO, and using full/orignal resolution.
   // Pass the state to the upper spatial layers.
   if (cpi->svc.number_spatial_layers > 1) {
