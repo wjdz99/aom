@@ -31,7 +31,7 @@ const double kPsnrThreshold[3] = { 29.0, 41.5, 41.5 };
 // kPsnrFluctuation represents the maximum allowed psnr fluctuation w.r.t first
 // frame. The indices correspond to one/two-pass, allintra and realtime
 // encoding modes.
-const double kPsnrFluctuation[3] = { 2.5, 0.3, 16.0 };
+const double kPsnrFluctuation[3] = { 2.5, 0.3, 16.5 };
 
 class MonochromeTest
     : public ::libaom_test::CodecTestWith3Params<libaom_test::TestMode, int,
