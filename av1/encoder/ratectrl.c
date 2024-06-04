@@ -3184,6 +3184,12 @@ static void rc_scene_detection_onepass_rt(AV1_COMP *cpi,
   if (num_samples > 0)
     rc->percent_blocks_with_motion =
         ((num_samples - num_zero_temp_sad) * 100) / num_samples;
+  if (cpi->oxcf.tune_cfg.content == AOM_CONTENT_SCREEN &&
+      cpi->rc.prev_avg_source_sad > 35000 && cpi->rc.avg_source_sad > 35000 &&
+      cpi->rc.avg_frame_low_motion < 56)
+    cpi->rc.high_motion_content_screen = 1;
+  else
+    cpi->rc.high_motion_content_screen = 0;
   // Scene detection is only on base SLO, and using full/orignal resolution.
   // Pass the state to the upper spatial layers.
   if (cpi->svc.number_spatial_layers > 1) {
