@@ -1610,10 +1610,14 @@ static void set_rt_speed_feature_framesize_dependent(const AV1_COMP *const cpi,
           sf->rt_sf.intra_y_mode_bsize_mask_nrd[i] = INTRA_DC_H_V;
       }
     }
-    if (cpi->rc.max_block_source_sad > 20000 &&
-        cpi->rc.frame_source_sad > 100 && speed >= 6 &&
-        (cpi->rc.percent_blocks_with_motion > 1 ||
-         cpi->svc.last_layer_dropped[0])) {
+    if (speed >= 10 && cpi->rc.high_motion_content_screen) {
+      sf->rt_sf.higher_thresh_scene_detection = 1;
+      sf->rt_sf.force_only_last_ref = 1;
+      sf->rt_sf.use_nonrd_filter_search = 0;
+    } else if (cpi->rc.max_block_source_sad > 20000 &&
+               cpi->rc.frame_source_sad > 100 && speed >= 6 &&
+               (cpi->rc.percent_blocks_with_motion > 1 ||
+                cpi->svc.last_layer_dropped[0])) {
       sf->mv_sf.search_method = NSTEP;
       sf->rt_sf.fullpel_search_step_param = 2;
     }
