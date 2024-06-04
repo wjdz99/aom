@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2a07b97a_cbcd7b44",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-06-04T20:13:07Z",
+      "side": 1,
+      "message": "Thanks for the fix!",
+      "revId": "ecbc87ba159bb0893d4a21a63eff92422fa4ffb9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b7e99b77_2e2acd20",
+        "filename": "av1/common/av1_rtcd_defs.pl",
+        "patchSetId": 1
+      },
+      "lineNbr": 560,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-06-04T20:13:07Z",
+      "side": 1,
+      "message": "The `filteredlength` parameter name was introduced in https://aomedia-review.googlesource.com/c/aom/+/189841.\n\nIt is also used in test/frame_resize_test.cc:\n\n```\ntypedef void (*LowBDResize_x_Func)(const uint8_t *const input, int in_stride,\n                                   uint8_t *intbuf, int height,\n                                   int filteredlength, int width2);\n```\n\nWe probably should rename that, too.",
+      "revId": "ecbc87ba159bb0893d4a21a63eff92422fa4ffb9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
