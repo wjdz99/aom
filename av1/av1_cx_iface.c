@@ -4656,10 +4656,10 @@ static const aom_codec_enc_cfg_t encoder_usage_cfg[] = {
       0,                       // monochrome
       0,                       // full_still_picture_hdr
       0,                       // save_as_annexb
-      0,                       // tile_width_count
-      0,                       // tile_height_count
-      { 0 },                   // tile_widths
-      { 0 },                   // tile_heights
+      1,                       // tile_width_count
+      1,                       // tile_height_count
+      { -1 },                   // tile_widths
+      { -1 },                   // tile_heights
       0,                       // use_fixed_qp_offsets
       { -1, -1, -1, -1, -1 },  // fixed_qp_offsets
       { 0, 128, 128, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
