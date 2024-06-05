@@ -53,6 +53,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "3c8679f3_8edc64ad",
+        "filename": "av1/encoder/pass2_strategy.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 3410,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-06-05T20:58:54Z",
+      "side": 1,
+      "message": "I found similar code in the `vp8_second_pass()` function vp8/encoder/firstpass.c in libvpx by searching for \"bits_left / frames_left\".",
+      "parentUuid": "0e2f9ae7_7555f62c",
+      "revId": "30a05a8999e213c414ee2be3f1857eae4890eec5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "61e3189a_94bc351c",
