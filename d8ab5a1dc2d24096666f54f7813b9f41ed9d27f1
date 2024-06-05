@@ -16,6 +16,23 @@
       "message": "James: PTAL. I added a new bug fix to the changelog. Thanks.",
       "revId": "d8ab5a1dc2d24096666f54f7813b9f41ed9d27f1",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3307bc97_7d2807fa",
+        "filename": "CHANGELOG",
+        "patchSetId": 3
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-06-05T18:23:51Z",
+      "side": 1,
+      "message": "This might fit on one line.",
+      "revId": "d8ab5a1dc2d24096666f54f7813b9f41ed9d27f1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
