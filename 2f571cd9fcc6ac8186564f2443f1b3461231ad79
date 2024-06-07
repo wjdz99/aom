@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "13e63003_435b0c95",
+        "filename": "CHANGELOG",
+        "patchSetId": 2
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-06-07T22:02:34Z",
+      "side": 1,
+      "message": "In libaom v3.9.1, we also cherry-picked https://aomedia-review.googlesource.com/c/aom/+/189402, so I used \"SVE build fixes\" to cover the SVE changes. In v3.8.3, we can probably refer to these as \"SVE feature test fixes\".",
+      "revId": "2f571cd9fcc6ac8186564f2443f1b3461231ad79",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
