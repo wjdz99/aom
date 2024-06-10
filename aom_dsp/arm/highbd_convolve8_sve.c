@@ -404,10 +404,29 @@ static INLINE uint16x8_t highbd_convolve8_8_v(int16x8_t samples_lo[4],
   return vminq_u16(res, max);
 }
 
+<<<<<<< HEAD   (17aff8 Remove the double-check in multiply_and_scale())
 static INLINE void highbd_convolve8_vert_8tap_sve(
     const uint16_t *src, ptrdiff_t src_stride, uint16_t *dst,
     ptrdiff_t dst_stride, const int16_t *filter_y, int width, int height,
     int bd) {
+=======
+void aom_highbd_convolve8_vert_sve(const uint8_t *src8, ptrdiff_t src_stride,
+                                   uint8_t *dst8, ptrdiff_t dst_stride,
+                                   const int16_t *filter_x, int x_step_q4,
+                                   const int16_t *filter_y, int y_step_q4,
+                                   int width, int height, int bd) {
+  assert(y_step_q4 == 16);
+  assert(width >= 4 && height >= 4);
+  (void)filter_x;
+  (void)y_step_q4;
+  (void)x_step_q4;
+
+  uint16_t *src = CONVERT_TO_SHORTPTR(src8);
+  uint16_t *dst = CONVERT_TO_SHORTPTR(dst8);
+
+  src -= (SUBPEL_TAPS / 2 - 1) * src_stride;
+
+>>>>>>> BRANCH (8ad484 Add Vignesh Venkatasubramanian to .mailmap)
   const int16x8_t y_filter = vld1q_s16(filter_y);
 
   uint8x16_t merge_block_tbl[3];
