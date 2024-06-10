@@ -51,6 +51,24 @@
       "message": "It looks like most paths return `AOM_CODEC_ERROR`, but this is better either way.",
       "revId": "5e3c5febea2225be437d74bc5413eec1893f3ff8",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b947a83b_6ebc6af9",
+        "filename": "av1/av1_dx_iface.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 313,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-06-10T23:08:48Z",
+      "side": 1,
+      "message": "Did you mean `AOM_CODEC_OK`?\n\nMy code inspection shows that most paths return `AOM_CODEC_OK` and only two paths (in `parse_timing_info()`) return `AOM_CODEC_UNSUP_BITSTREAM`.\n\nNote that the bit reader `rb` declared at line 303 does not have an error handler. So the bit reader does not report errors.",
+      "parentUuid": "8c778d80_80dea1b3",
+      "revId": "5e3c5febea2225be437d74bc5413eec1893f3ff8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
