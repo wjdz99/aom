@@ -16,6 +16,41 @@
       "message": "I didn\u0027t change the return value here. `aom_get_num_layers_from_operating_point_idc()` can only fail if either of the output parameter is a null pointer. So if it fails, it is a codec error (i.e., a programming bug), so returning `AOM_CODEC_ERROR` here seems appropriate.\n\nDo think think we should still propagate the error here?",
       "revId": "5e3c5febea2225be437d74bc5413eec1893f3ff8",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "27a735ca_f5bb0509",
+        "filename": "av1/av1_dx_iface.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 253,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-06-10T22:58:39Z",
+      "side": 1,
+      "message": "\u003e I didn\u0027t change the return value here. `aom_get_num_layers_from_operating_point_idc()` can only fail if either of the output parameter is a null pointer. So if it fails, it is a codec error (i.e., a programming bug), so returning `AOM_CODEC_ERROR` here seems appropriate.\n\u003e \n\u003e Do think think we should still propagate the error here?\n\nIt sounds like it\u0027s fine as it is.",
+      "parentUuid": "36e9d154_713757b4",
+      "revId": "5e3c5febea2225be437d74bc5413eec1893f3ff8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8c778d80_80dea1b3",
+        "filename": "av1/av1_dx_iface.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 313,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-06-10T22:58:39Z",
+      "side": 1,
+      "message": "It looks like most paths return `AOM_CODEC_ERROR`, but this is better either way.",
+      "revId": "5e3c5febea2225be437d74bc5413eec1893f3ff8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
