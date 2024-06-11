@@ -1600,6 +1600,7 @@ static aom_codec_err_t update_encoder_cfg(aom_codec_alg_priv_t *ctx) {
   bool is_sb_size_changed = false;
   av1_change_config_seq(ctx->ppi, &ctx->oxcf, &is_sb_size_changed);
   for (int i = 0; i < ctx->ppi->num_fp_contexts; i++) {
+<<<<<<< HEAD   (d3d536 rtc: Fix multi-threading settings for SVC datarate tests)
     AV1_COMP *const cpi = ctx->ppi->parallel_cpi[i];
     struct aom_internal_error_info *const error = cpi->common.error;
     if (setjmp(error->jmp)) {
@@ -1620,6 +1621,13 @@ static aom_codec_err_t update_encoder_cfg(aom_codec_alg_priv_t *ctx) {
     error->setjmp = 1;
     av1_change_config(cpi_lap, &ctx->oxcf, is_sb_size_changed);
     error->setjmp = 0;
+=======
+    av1_change_config(ctx->ppi->parallel_cpi[i], &ctx->oxcf,
+                      is_sb_size_changed);
+  }
+  if (ctx->ppi->cpi_lap != NULL) {
+    av1_change_config(ctx->ppi->cpi_lap, &ctx->oxcf, is_sb_size_changed);
+>>>>>>> BRANCH (2f571c Update CHANGELOG again for libaom v3.8.3)
   }
   return AOM_CODEC_OK;
 }
