@@ -43,6 +43,7 @@ class DatarateTest : public ::libaom_test::EncoderTest {
     denoiser_offon_test_ = 0;
     denoiser_offon_period_ = -1;
     tile_column_ = 0;
+    tile_row_ = 0;
     screen_mode_ = false;
     max_perc_spike_ = 1.0;
     max_perc_spike_high_ = 1.0;
@@ -63,6 +64,7 @@ class DatarateTest : public ::libaom_test::EncoderTest {
       encoder->Control(AOME_SET_CPUUSED, set_cpu_used_);
       encoder->Control(AV1E_SET_AQ_MODE, aq_mode_);
       encoder->Control(AV1E_SET_TILE_COLUMNS, tile_column_);
+      encoder->Control(AV1E_SET_TILE_ROWS, tile_row_);
       encoder->Control(AV1E_SET_ROW_MT, 1);
       if (cfg_.g_usage == AOM_USAGE_REALTIME) {
         encoder->Control(AV1E_SET_ENABLE_GLOBAL_MOTION, 0);
@@ -204,6 +206,7 @@ class DatarateTest : public ::libaom_test::EncoderTest {
   unsigned int aq_mode_;
   bool speed_change_test_;
   int tile_column_;
+  int tile_row_;
   bool screen_mode_;
   double max_perc_spike_;
   double max_perc_spike_high_;
