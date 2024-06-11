@@ -58,9 +58,15 @@ endif()
 # passed to libtool.
 #
 # We set SO_FILE_VERSION = [c-a].a.r
+<<<<<<< HEAD   (d3d536 rtc: Fix multi-threading settings for SVC datarate tests)
 set(LT_CURRENT 12)
 set(LT_REVISION 1)
 set(LT_AGE 9)
+=======
+set(LT_CURRENT 11)
+set(LT_REVISION 3)
+set(LT_AGE 8)
+>>>>>>> BRANCH (2f571c Update CHANGELOG again for libaom v3.8.3)
 math(EXPR SO_VERSION "${LT_CURRENT} - ${LT_AGE}")
 set(SO_FILE_VERSION "${SO_VERSION}.${LT_AGE}.${LT_REVISION}")
 unset(LT_CURRENT)
