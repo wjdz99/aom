@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "af0c718c_a7f24f7b",
+        "filename": "test/datarate_test.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 209,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-06-11T19:02:38Z",
+      "side": 1,
+      "message": "Nit/optional: Names these two members in plural: \"tile_columns_\" and \"tile_rows_\", otherwise their names look like column index and row index.",
+      "revId": "70a89c27dce818d2aeaaff68b95ef958234ac4ef",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
