@@ -20,6 +20,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "007ab0eb_8b7e2575",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-06-12T22:50:35Z",
+      "side": 1,
+      "message": "\u003e Are you also going to check the scripts and cmake files?\n\nYes, there are some differences. I\u0027ll update those separately.",
+      "parentUuid": "7403f664_ba4da4c4",
+      "revId": "9cd4f198f2329e5109b054a5917f7f8833d46f58",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "489e8a39_cd47c962",
         "filename": "/PATCHSET_LEVEL",
         "patchSetId": 1
@@ -37,6 +55,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "c67add66_48bea99a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-06-12T22:50:35Z",
+      "side": 1,
+      "message": "\u003e LGTM. Thanks!\n\u003e \n\u003e I assume you generated this CL using a script or some commands. Please document the commands you used in the bug report.\n\nI will. I wasn\u0027t anything too fancy, just some lazy sed\u0027s and then a grep to find the libvpx version.",
+      "parentUuid": "489e8a39_cd47c962",
+      "revId": "9cd4f198f2329e5109b054a5917f7f8833d46f58",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "41e18dac_3984a07d",
         "filename": "aom_dsp/aom_convolve.c",
         "patchSetId": 1
@@ -48,6 +84,24 @@
       "writtenOn": "2024-06-12T21:12:29Z",
       "side": 1,
       "message": "I wonder if we can add a copy of this copyright and license header to the source tree.",
+      "revId": "9cd4f198f2329e5109b054a5917f7f8833d46f58",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "225484eb_b82452b9",
+        "filename": "aom_dsp/aom_convolve.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-06-12T22:50:35Z",
+      "side": 1,
+      "message": "\u003e I wonder if we can add a copy of this copyright and license header to the source tree.\n\nMaybe in the README under a section for new files?",
+      "parentUuid": "41e18dac_3984a07d",
       "revId": "9cd4f198f2329e5109b054a5917f7f8833d46f58",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
