@@ -16,6 +16,24 @@
       "message": "Do we have any tests inspecting the OBU headers?",
       "revId": "3cf64ebecdc19f4acff1c4a50ea25bb915cf89b7",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "086cd85d_b488d4a2",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-06-12T23:09:40Z",
+      "side": 1,
+      "message": "I don\u0027t think so. We can\u0027t write such tests using the public libaom API, because the `aom_image` struct only exposes the `temporal_id` and `spatial_id` values, but not the `obu_extension_flag` value. So if we see `temporal_id` and `spatial_id` are both 0, we can\u0027t tell whether they come from the OBU extension header or they are assigned the default value of 0.",
+      "parentUuid": "1acd0082_4400ba24",
+      "revId": "3cf64ebecdc19f4acff1c4a50ea25bb915cf89b7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
