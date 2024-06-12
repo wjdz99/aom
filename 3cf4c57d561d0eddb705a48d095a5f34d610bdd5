@@ -22,6 +22,30 @@
       },
       "revId": "3cf4c57d561d0eddb705a48d095a5f34d610bdd5",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9cec9b49_a484048f",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-06-12T17:46:07Z",
+      "side": 1,
+      "message": "Sorry, I found `src_sad_blk_64x64` at line 1017. Please ignore this comment.",
+      "parentUuid": "24f66dc4_cdab096b",
+      "range": {
+        "startLine": 9,
+        "startChar": 16,
+        "endLine": 9,
+        "endChar": 33
+      },
+      "revId": "3cf4c57d561d0eddb705a48d095a5f34d610bdd5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
