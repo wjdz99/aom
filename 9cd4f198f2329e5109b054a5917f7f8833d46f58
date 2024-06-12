@@ -1,6 +1,23 @@
 {
   "comments": [
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "7403f664_ba4da4c4",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-06-12T21:12:29Z",
+      "side": 1,
+      "message": "Are you also going to check the scripts and cmake files?",
+      "revId": "9cd4f198f2329e5109b054a5917f7f8833d46f58",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "489e8a39_cd47c962",
@@ -14,6 +31,23 @@
       "writtenOn": "2024-06-12T21:07:02Z",
       "side": 1,
       "message": "LGTM. Thanks!\n\nI assume you generated this CL using a script or some commands. Please document the commands you used in the bug report.",
+      "revId": "9cd4f198f2329e5109b054a5917f7f8833d46f58",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "41e18dac_3984a07d",
+        "filename": "aom_dsp/aom_convolve.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-06-12T21:12:29Z",
+      "side": 1,
+      "message": "I wonder if we can add a copy of this copyright and license header to the source tree.",
       "revId": "9cd4f198f2329e5109b054a5917f7f8833d46f58",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
