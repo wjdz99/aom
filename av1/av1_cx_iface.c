@@ -2637,6 +2637,47 @@ static aom_codec_err_t ctrl_set_svc_frame_drop_mode(aom_codec_alg_priv_t *ctx,
     return AOM_CODEC_OK;
 }
 
+static aom_codec_err_t ctrl_set_auto_tiles(aom_codec_alg_priv_t *ctx,
+                                           va_list args) {
+  struct av1_extracfg extra_cfg = ctx->extra_cfg;
+  unsigned int auto_tiles = CAST(AV1E_SET_AUTO_TILES, args);
+  extra_cfg.tile_columns = 0;
+  extra_cfg.tile_rows = 0;
+  if (auto_tiles == 1 && ctx->cfg.g_threads >= 2) {
+    int tileColsLog2 = 0;
+    int tileRowsLog2 = 0;
+    // Avoid small tiles because they are particularly bad for image coding.
+    // Use no more tiles than the number of threads. Aim for one tile per thread. Using more
+    // than one thread inside one tile could be less efficient. Using more tiles than the
+    // number of threads would result in a compression penalty without much benefit.
+    const uint32_t kMinTileArea = 128 * 128;
+    const uint32_t kMaxTiles = 32;
+    uint32_t imageArea = ctx->cfg.g_w * ctx->cfg.g_h;
+    uint32_t tiles = (imageArea + kMinTileArea - 1) / kMinTileArea;
+    printf("%d \n", tiles);
+    if (tiles > kMaxTiles) {
+      tiles = kMaxTiles;
+    }
+    if (tiles > (uint32_t)ctx->cfg.g_threads) {
+     tiles = ctx->cfg.g_threads;
+    }
+    int tilesLog2 = (int)log2(tiles);
+    // If the image's width is equal or greater than the height, use more tile columns than
+    // tile rows.
+    if (ctx->cfg.g_w >= ctx->cfg.g_h) {
+     tileColsLog2 = (tilesLog2 + 1) / 2;
+     tileRowsLog2 = tilesLog2 - tileColsLog2;
+    } else {
+     tileRowsLog2 = (tilesLog2 + 1) / 2;
+     tileColsLog2 = tilesLog2 - tileRowsLog2;
+    }
+    extra_cfg.tile_columns = tileColsLog2;
+    extra_cfg.tile_rows = tileRowsLog2;
+    return update_extra_cfg(ctx, &extra_cfg);
+  }
+  return AOM_CODEC_OK;
+}
+
 #if !CONFIG_REALTIME_ONLY
 static aom_codec_err_t create_stats_buffer(FIRSTPASS_STATS **frame_stats_buffer,
                                            STATS_BUFFER_CTX *stats_buf_context,
@@ -4505,6 +4546,7 @@ static aom_codec_ctrl_fn_map_t encoder_ctrl_maps[] = {
   { AV1E_SET_BITRATE_ONE_PASS_CBR, ctrl_set_bitrate_one_pass_cbr },
   { AV1E_SET_MAX_CONSEC_FRAME_DROP_CBR, ctrl_set_max_consec_frame_drop_cbr },
   { AV1E_SET_SVC_FRAME_DROP_MODE, ctrl_set_svc_frame_drop_mode },
+  { AV1E_SET_AUTO_TILES, ctrl_set_auto_tiles },
 
   // Getters
   { AOME_GET_LAST_QUANTIZER, ctrl_get_quantizer },
