@@ -9,6 +9,7 @@
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
  */
 #include <limits.h>
+#include <math.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -446,59 +447,59 @@ static const struct av1_extracfg default_extra_cfg = {
   NULL,                         // film_grain_table_filename
   0,                            // motion_vector_unit_test
 #if CONFIG_FPMT_TEST
-  0,                            // fpmt_unit_test
+  0,  // fpmt_unit_test
 #endif
-  1,                            // CDF update mode
-  1,                            // enable rectangular partitions
-  1,                            // enable ab shape partitions
-  1,                            // enable 1:4 and 4:1 partitions
-  4,                            // min_partition_size
-  128,                          // max_partition_size
-  1,                            // enable intra edge filter
-  1,                            // frame order hint
-  1,                            // enable 64-pt transform usage
-  1,                            // enable flip and identity transform
-  1,                            // enable rectangular transform usage
-  1,                            // dist-wtd compound
-  7,                            // max_reference_frames
-  0,                            // enable_reduced_reference_set
-  1,                            // enable_ref_frame_mvs sequence level
-  1,                            // allow ref_frame_mvs frame level
-  1,                            // enable masked compound at sequence level
-  1,                            // enable one sided compound at sequence level
-  1,                            // enable interintra compound at sequence level
-  1,                            // enable smooth interintra mode
-  1,                            // enable difference-weighted compound
-  1,                            // enable interinter wedge compound
-  1,                            // enable interintra wedge compound
-  1,                            // enable_global_motion usage
-  1,                            // enable_warped_motion at sequence level
-  1,                            // allow_warped_motion at frame level
-  1,                            // enable filter intra at sequence level
-  1,                            // enable smooth intra modes usage for sequence
-  1,                            // enable Paeth intra mode usage for sequence
-  1,                            // enable CFL uv intra mode usage for sequence
-  1,   // enable directional intra mode usage for sequence
-  1,   // enable D45 to D203 intra mode usage for sequence
-  1,   // superres
-  1,   // enable overlay
-  1,   // enable palette
-  1,   // enable intrabc
-  1,   // enable angle delta
+  1,    // CDF update mode
+  1,    // enable rectangular partitions
+  1,    // enable ab shape partitions
+  1,    // enable 1:4 and 4:1 partitions
+  4,    // min_partition_size
+  128,  // max_partition_size
+  1,    // enable intra edge filter
+  1,    // frame order hint
+  1,    // enable 64-pt transform usage
+  1,    // enable flip and identity transform
+  1,    // enable rectangular transform usage
+  1,    // dist-wtd compound
+  7,    // max_reference_frames
+  0,    // enable_reduced_reference_set
+  1,    // enable_ref_frame_mvs sequence level
+  1,    // allow ref_frame_mvs frame level
+  1,    // enable masked compound at sequence level
+  1,    // enable one sided compound at sequence level
+  1,    // enable interintra compound at sequence level
+  1,    // enable smooth interintra mode
+  1,    // enable difference-weighted compound
+  1,    // enable interinter wedge compound
+  1,    // enable interintra wedge compound
+  1,    // enable_global_motion usage
+  1,    // enable_warped_motion at sequence level
+  1,    // allow_warped_motion at frame level
+  1,    // enable filter intra at sequence level
+  1,    // enable smooth intra modes usage for sequence
+  1,    // enable Paeth intra mode usage for sequence
+  1,    // enable CFL uv intra mode usage for sequence
+  1,    // enable directional intra mode usage for sequence
+  1,    // enable D45 to D203 intra mode usage for sequence
+  1,    // superres
+  1,    // enable overlay
+  1,    // enable palette
+  1,    // enable intrabc
+  1,    // enable angle delta
 #if CONFIG_DENOISE
   0,   // noise_level
   32,  // noise_block_size
   1,   // enable_dnl_denoising
 #endif
-  0,   // chroma_subsampling_x
-  0,   // chroma_subsampling_y
-  0,   // reduced_tx_type_set
-  0,   // use_intra_dct_only
-  0,   // use_inter_dct_only
-  0,   // use_intra_default_tx_only
-  1,   // enable_tx_size_search
-  0,   // quant_b_adapt
-  0,   // vbr_corpus_complexity_lap
+  0,  // chroma_subsampling_x
+  0,  // chroma_subsampling_y
+  0,  // reduced_tx_type_set
+  0,  // use_intra_dct_only
+  0,  // use_inter_dct_only
+  0,  // use_intra_default_tx_only
+  1,  // enable_tx_size_search
+  0,  // quant_b_adapt
+  0,  // vbr_corpus_complexity_lap
   {
       SEQ_LEVEL_MAX, SEQ_LEVEL_MAX, SEQ_LEVEL_MAX, SEQ_LEVEL_MAX, SEQ_LEVEL_MAX,
       SEQ_LEVEL_MAX, SEQ_LEVEL_MAX, SEQ_LEVEL_MAX, SEQ_LEVEL_MAX, SEQ_LEVEL_MAX,
@@ -1688,6 +1689,11 @@ static aom_codec_err_t ctrl_set_row_mt(aom_codec_alg_priv_t *ctx,
 
 static aom_codec_err_t ctrl_set_tile_columns(aom_codec_alg_priv_t *ctx,
                                              va_list args) {
+  AV1_PRIMARY *const ppi = ctx->ppi;
+  AV1_COMP *const cpi = ppi->cpi;
+  // If the control AUTO_TILES is used then don't override the
+  // tile_columns set via the AUTO_TILES control.
+  if (cpi->auto_tiles_enabled) return AOM_CODEC_OK;
   unsigned int tile_columns = CAST(AV1E_SET_TILE_COLUMNS, args);
   if (tile_columns == ctx->extra_cfg.tile_columns) return AOM_CODEC_OK;
   struct av1_extracfg extra_cfg = ctx->extra_cfg;
@@ -1697,6 +1703,11 @@ static aom_codec_err_t ctrl_set_tile_columns(aom_codec_alg_priv_t *ctx,
 
 static aom_codec_err_t ctrl_set_tile_rows(aom_codec_alg_priv_t *ctx,
                                           va_list args) {
+  AV1_PRIMARY *const ppi = ctx->ppi;
+  AV1_COMP *const cpi = ppi->cpi;
+  // If the control AUTO_TILES is used then don't override the
+  // tile_rows set via the AUTO_TILES control.
+  if (cpi->auto_tiles_enabled) return AOM_CODEC_OK;
   unsigned int tile_rows = CAST(AV1E_SET_TILE_ROWS, args);
   if (tile_rows == ctx->extra_cfg.tile_rows) return AOM_CODEC_OK;
   struct av1_extracfg extra_cfg = ctx->extra_cfg;
@@ -2635,6 +2646,20 @@ static aom_codec_err_t ctrl_set_svc_frame_drop_mode(aom_codec_alg_priv_t *ctx,
     return AOM_CODEC_INVALID_PARAM;
   else
     return AOM_CODEC_OK;
+}
+
+static aom_codec_err_t ctrl_set_auto_tiles(aom_codec_alg_priv_t *ctx,
+                                           va_list args) {
+  AV1_PRIMARY *const ppi = ctx->ppi;
+  AV1_COMP *const cpi = ppi->cpi;
+  cpi->auto_tiles_enabled = CAST(AV1E_SET_AUTO_TILES, args);
+  if (cpi->auto_tiles_enabled > 1) return AOM_CODEC_INVALID_PARAM;
+  // Only change the number of tiles if cpi->auto_tiles_enabled == 1.
+  if (cpi->auto_tiles_enabled && ctx->cfg.g_threads >= 2) {
+    av1_set_auto_tiles(&cpi->oxcf.tile_cfg, ctx->cfg.g_w, ctx->cfg.g_h,
+                       ctx->cfg.g_threads);
+  }
+  return AOM_CODEC_OK;
 }
 
 #if !CONFIG_REALTIME_ONLY
@@ -4504,6 +4529,7 @@ static aom_codec_ctrl_fn_map_t encoder_ctrl_maps[] = {
   { AV1E_SET_BITRATE_ONE_PASS_CBR, ctrl_set_bitrate_one_pass_cbr },
   { AV1E_SET_MAX_CONSEC_FRAME_DROP_CBR, ctrl_set_max_consec_frame_drop_cbr },
   { AV1E_SET_SVC_FRAME_DROP_MODE, ctrl_set_svc_frame_drop_mode },
+  { AV1E_SET_AUTO_TILES, ctrl_set_auto_tiles },
 
   // Getters
   { AOME_GET_LAST_QUANTIZER, ctrl_get_quantizer },
