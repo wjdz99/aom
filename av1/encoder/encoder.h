@@ -3660,6 +3660,11 @@ typedef struct AV1_COMP {
    * so scaling is not needed for last_source.
    */
   int scaled_last_source_available;
+
+  /*!
+   * Flag to indicate auto tiling is enabled.
+   */
+  int auto_tiles_enabled;
 } AV1_COMP;
 
 /*!
@@ -3790,6 +3795,10 @@ AV1_COMP *av1_get_parallel_frame_enc_data(AV1_PRIMARY *const ppi,
 int av1_init_parallel_frame_context(const AV1_COMP_DATA *const first_cpi_data,
                                     AV1_PRIMARY *const ppi,
                                     int *ref_buffers_used_map);
+
+void av1_set_auto_tiles(TileConfig *const tile_cfg, int width, int height,
+                        int threads);
+
 /*!\endcond */
 
 /*!\brief Obtain the raw frame data
