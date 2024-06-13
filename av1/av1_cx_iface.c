@@ -9,6 +9,7 @@
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
  */
 #include <limits.h>
+#include <math.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -1688,6 +1689,11 @@ static aom_codec_err_t ctrl_set_row_mt(aom_codec_alg_priv_t *ctx,
 
 static aom_codec_err_t ctrl_set_tile_columns(aom_codec_alg_priv_t *ctx,
                                              va_list args) {
+  AV1_PRIMARY *const ppi = ctx->ppi;
+  AV1_COMP *const cpi = ppi->cpi;
+  // If the control AUTO_TILES is used (set to 1) then don't override
+  // the tile_columns set via the AUTO_TILES control.
+  if (cpi->auto_tiles_enabled) return AOM_CODEC_OK;
   unsigned int tile_columns = CAST(AV1E_SET_TILE_COLUMNS, args);
   if (tile_columns == ctx->extra_cfg.tile_columns) return AOM_CODEC_OK;
   struct av1_extracfg extra_cfg = ctx->extra_cfg;
@@ -1697,6 +1703,11 @@ static aom_codec_err_t ctrl_set_tile_columns(aom_codec_alg_priv_t *ctx,
 
 static aom_codec_err_t ctrl_set_tile_rows(aom_codec_alg_priv_t *ctx,
                                           va_list args) {
+  AV1_PRIMARY *const ppi = ctx->ppi;
+  AV1_COMP *const cpi = ppi->cpi;
+  // If the control AUTO_TILES is used (set to 1) then don't override
+  // the tile_rows set via the AUTO_TILES control.
+  if (cpi->auto_tiles_enabled) return AOM_CODEC_OK;
   unsigned int tile_rows = CAST(AV1E_SET_TILE_ROWS, args);
   if (tile_rows == ctx->extra_cfg.tile_rows) return AOM_CODEC_OK;
   struct av1_extracfg extra_cfg = ctx->extra_cfg;
@@ -2635,6 +2646,20 @@ static aom_codec_err_t ctrl_set_svc_frame_drop_mode(aom_codec_alg_priv_t *ctx,
     return AOM_CODEC_INVALID_PARAM;
   else
     return AOM_CODEC_OK;
+}
+
+static aom_codec_err_t ctrl_set_auto_tiles(aom_codec_alg_priv_t *ctx,
+                                           va_list args) {
+  AV1_PRIMARY *const ppi = ctx->ppi;
+  AV1_COMP *const cpi = ppi->cpi;
+  cpi->auto_tiles_enabled = CAST(AV1E_SET_AUTO_TILES, args);
+  if (cpi->auto_tiles_enabled > 1) return AOM_CODEC_INVALID_PARAM;
+  // Only set the tile configuraiton if cpi->auto_tiles_enabled == 1.
+  if (cpi->auto_tiles_enabled && ctx->cfg.g_threads > 1) {
+    av1_set_auto_tiles(&cpi->oxcf.tile_cfg, ctx->cfg.g_w, ctx->cfg.g_h,
+                       ctx->cfg.g_threads);
+  }
+  return AOM_CODEC_OK;
 }
 
 #if !CONFIG_REALTIME_ONLY
@@ -4504,6 +4529,7 @@ static aom_codec_ctrl_fn_map_t encoder_ctrl_maps[] = {
   { AV1E_SET_BITRATE_ONE_PASS_CBR, ctrl_set_bitrate_one_pass_cbr },
   { AV1E_SET_MAX_CONSEC_FRAME_DROP_CBR, ctrl_set_max_consec_frame_drop_cbr },
   { AV1E_SET_SVC_FRAME_DROP_MODE, ctrl_set_svc_frame_drop_mode },
+  { AV1E_SET_AUTO_TILES, ctrl_set_auto_tiles },
 
   // Getters
   { AOME_GET_LAST_QUANTIZER, ctrl_get_quantizer },
