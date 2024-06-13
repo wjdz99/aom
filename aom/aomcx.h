@@ -1539,6 +1539,12 @@ enum aome_enc_control_id {
    */
   AV1E_SET_SVC_FRAME_DROP_MODE = 165,
 
+  /*!\brief Codec control to set auto tiling, int parameter.
+   * Value of 1 means encoder will set number of tile_columns and tile_rows,
+   * based on number of threads and resolution.
+   */
+  AV1E_SET_AUTO_TILES = 166,
+
   // Any new encoder control IDs should be added above.
   // Maximum allowed encoder control ID is 229.
   // No encoder control ID should be added below.
@@ -1795,6 +1801,9 @@ AOM_CTRL_USE_TYPE(AV1E_SET_TILE_COLUMNS, unsigned int)
 
 AOM_CTRL_USE_TYPE(AV1E_SET_TILE_ROWS, unsigned int)
 #define AOM_CTRL_AV1E_SET_TILE_ROWS
+
+AOM_CTRL_USE_TYPE(AV1E_SET_AUTO_TILES, unsigned int)
+#define AOM_CTRL_AV1E_SET_AUTO_TILES
 
 AOM_CTRL_USE_TYPE(AV1E_SET_ENABLE_TPL_MODEL, unsigned int)
 #define AOM_CTRL_AV1E_SET_ENABLE_TPL_MODEL
