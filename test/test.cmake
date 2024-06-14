@@ -429,6 +429,12 @@ if(ENABLE_TESTS)
     PUBLIC "${AOM_ROOT}/third_party/googletest/src/googlemock/include"
     PRIVATE "${AOM_ROOT}/third_party/googletest/src/googlemock")
   target_link_libraries(aom_gmock ${AOM_LIB_LINK_TYPE} aom_gtest)
+  if(NOT MSVC)
+    is_flag_present(AOM_CXX_FLAGS "-Wmissing-prototypes" flag_present)
+    if(flag_present)
+      target_compile_options(aom_gmock PRIVATE -Wno-missing-prototypes)
+    endif()
+  endif()
 endif()
 
 # Setup testdata download targets, test build targets, and test run targets. The
