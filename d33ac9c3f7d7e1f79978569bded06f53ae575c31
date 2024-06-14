@@ -24,6 +24,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a2869ea0_6242a029",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 24
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2024-06-14T03:26:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "07b69740_d5827ac6",
+      "range": {
+        "startLine": 11,
+        "startChar": 0,
+        "endLine": 11,
+        "endChar": 9
+      },
+      "revId": "d33ac9c3f7d7e1f79978569bded06f53ae575c31",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "5927cf51_2bb910bd",
@@ -37,6 +61,24 @@
       "writtenOn": "2024-06-13T21:57:52Z",
       "side": 1,
       "message": "Optional: If this change is unrelated to the rest of the CL, might be worth mentioning it in the commit message.",
+      "revId": "d33ac9c3f7d7e1f79978569bded06f53ae575c31",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1c8ad6fd_034e3af7",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 24
+      },
+      "lineNbr": 548,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2024-06-14T03:26:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5927cf51_2bb910bd",
       "revId": "d33ac9c3f7d7e1f79978569bded06f53ae575c31",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -58,6 +100,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "69729721_a47ddfb8",
+        "filename": "av1/encoder/mcomp.h",
+        "patchSetId": 24
+      },
+      "lineNbr": 265,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2024-06-14T03:26:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ff06886b_218d2280",
+      "revId": "d33ac9c3f7d7e1f79978569bded06f53ae575c31",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a694d55d_a9f26ede",
@@ -71,6 +131,24 @@
       "writtenOn": "2024-06-13T21:57:52Z",
       "side": 1,
       "message": "1. Mark this function as static.\n\n2. Document this function, at least its return value.",
+      "revId": "d33ac9c3f7d7e1f79978569bded06f53ae575c31",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8f16757f_70ad4e31",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 24
+      },
+      "lineNbr": 3020,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2024-06-14T03:26:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a694d55d_a9f26ede",
       "revId": "d33ac9c3f7d7e1f79978569bded06f53ae575c31",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -92,6 +170,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e2328c45_ea28f34a",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 24
+      },
+      "lineNbr": 3033,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2024-06-14T03:26:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "50ea2fb0_e819b2e1",
+      "revId": "d33ac9c3f7d7e1f79978569bded06f53ae575c31",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "98745b25_dfe9196d",
@@ -105,6 +201,24 @@
       "writtenOn": "2024-06-13T21:57:52Z",
       "side": 1,
       "message": "Nit: `const uint8_t` is more common in our code.",
+      "revId": "d33ac9c3f7d7e1f79978569bded06f53ae575c31",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "913f31b2_f93f9baf",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 24
+      },
+      "lineNbr": 3041,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2024-06-14T03:26:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "98745b25_dfe9196d",
       "revId": "d33ac9c3f7d7e1f79978569bded06f53ae575c31",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -126,6 +240,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "20e288f7_2eb99e07",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 24
+      },
+      "lineNbr": 3043,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2024-06-14T03:26:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "882ee9a9_613c45fc",
+      "revId": "d33ac9c3f7d7e1f79978569bded06f53ae575c31",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a6068a6b_8ad5d84f",
@@ -139,6 +271,24 @@
       "writtenOn": "2024-06-13T21:57:52Z",
       "side": 1,
       "message": "Nit: `ref_buf_width` and `ref_buf_height` sound better.",
+      "revId": "d33ac9c3f7d7e1f79978569bded06f53ae575c31",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "724b3ab2_1d3a1957",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 24
+      },
+      "lineNbr": 3047,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2024-06-14T03:26:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a6068a6b_8ad5d84f",
       "revId": "d33ac9c3f7d7e1f79978569bded06f53ae575c31",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -160,6 +310,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "2febfb1f_fa07d63d",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 24
+      },
+      "lineNbr": 3056,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2024-06-14T03:26:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5dfc160e_d1cd26da",
+      "revId": "d33ac9c3f7d7e1f79978569bded06f53ae575c31",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b52790a4_f75baabc",
@@ -173,6 +341,24 @@
       "writtenOn": "2024-06-13T21:57:52Z",
       "side": 1,
       "message": "Nit: Declare this variable closer to where it\u0027s first used.",
+      "revId": "d33ac9c3f7d7e1f79978569bded06f53ae575c31",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f1f44519_bac32809",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 24
+      },
+      "lineNbr": 3198,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2024-06-14T03:26:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b52790a4_f75baabc",
       "revId": "d33ac9c3f7d7e1f79978569bded06f53ae575c31",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -194,6 +380,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "1a424ffc_35e7fef2",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 24
+      },
+      "lineNbr": 3272,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2024-06-14T03:26:40Z",
+      "side": 1,
+      "message": "Modified the condition in line 3267 to make sure.",
+      "parentUuid": "d5ea8e30_c82fc8ce",
+      "revId": "d33ac9c3f7d7e1f79978569bded06f53ae575c31",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "3b8a44c9_360a87dc",
@@ -207,6 +411,30 @@
       "writtenOn": "2024-06-13T21:57:52Z",
       "side": 1,
       "message": "Nit/optional: I think \"high_motion_screen_content\" sounds better.",
+      "range": {
+        "startLine": 193,
+        "startChar": 18,
+        "endLine": 193,
+        "endChar": 32
+      },
+      "revId": "d33ac9c3f7d7e1f79978569bded06f53ae575c31",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e6274b0b_661d1382",
+        "filename": "av1/encoder/ratectrl.h",
+        "patchSetId": 24
+      },
+      "lineNbr": 193,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2024-06-14T03:26:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3b8a44c9_360a87dc",
       "range": {
         "startLine": 193,
         "startChar": 18,
