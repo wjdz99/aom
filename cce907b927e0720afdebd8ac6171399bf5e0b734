@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c3a9045b_325148a8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2024-06-14T05:06:46Z",
+      "side": 1,
+      "message": "Hi Sergey, I uploaded this CL to bring back sb_size selection for MT, recently removed.It seems to give ~10% speedup on some screen clips for 4 or 8 threads. Let me know if you have a chance test it, and if you find any speedup or regression. Thanks.",
+      "revId": "cce907b927e0720afdebd8ac6171399bf5e0b734",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
