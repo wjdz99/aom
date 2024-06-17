@@ -20,6 +20,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "17a23e9e_1e4a554b",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2024-06-17T20:58:00Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "c5308da6_ef1cf736",
+      "revId": "44c09dd79458a6709584f2470b211c71d8563de8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "4a35f62a_2786f645",
         "filename": "/PATCHSET_LEVEL",
         "patchSetId": 5
@@ -52,6 +70,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "7205b6c3_d3132465",
+        "filename": "aom/aomcx.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 1542,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2024-06-17T20:58:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "39f2e430_b2e0b928",
+      "revId": "44c09dd79458a6709584f2470b211c71d8563de8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "8d0c4338_6fff14e8",
@@ -65,6 +101,24 @@
       "writtenOn": "2024-06-13T20:51:33Z",
       "side": 1,
       "message": "IMPORTANT: We should consider and document the interaction with aom_codec_config_set() and other codec controls, and what happens when the value changes from 1 to 0.\n\n1. If auto tiles is set to 1, we should set tile_colums and tile_rows immediately, and whenever threads, width, or height is changed by an `aom_codec_config_set()` call.\n\n2. Document what happens if `AV1E_SET_TILE_COLUMNS` or `AV1E_SET_TILE_ROWS` is called when auto tiles is enabled. It is reasonable to make them return an error with no side effects, but we can also allow them to override the tile_columns and tile_rows values previously set by auto tiles.\n\n3. If auto tiles is set to 0, we should document whether tile_columns and tile_rows should be reset to 0. It seems better to leave tile_columns and tile_rows unchanged when auto tiles is disabled.",
+      "revId": "44c09dd79458a6709584f2470b211c71d8563de8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bce5a8fd_324411e2",
+        "filename": "aom/aomcx.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 1544,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2024-06-17T20:58:00Z",
+      "side": 1,
+      "message": "Added comment and updated the CL to handled the 3 cases. \n1) Added a flag (cpi-\u003eauto_tiles_enabled), and now change_config() will call the same function (as in the new control) to set the auto tiling, if auto_tiles_enabled is set.\n2) Under the same flag, we do not override the auto_tiles setting if TILE_COLUMNS/ROWS is called. Added comment.\n3) when auto_tiles is 0 we do not set tile_colums/rows to 0. Added comment.",
+      "parentUuid": "8d0c4338_6fff14e8",
       "revId": "44c09dd79458a6709584f2470b211c71d8563de8",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -86,6 +140,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "34e2db73_fbf47e1e",
+        "filename": "aom/aomcx.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 1546,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2024-06-17T20:58:00Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "7f3dfb0a_025857c7",
+      "revId": "44c09dd79458a6709584f2470b211c71d8563de8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "cb973205_b012d444",
@@ -99,6 +171,24 @@
       "writtenOn": "2024-06-13T19:48:56Z",
       "side": 1,
       "message": "Include \u003cmath.h\u003e for the `log2()` function.",
+      "revId": "44c09dd79458a6709584f2470b211c71d8563de8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c5e54840_68459990",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2024-06-17T20:58:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cb973205_b012d444",
       "revId": "44c09dd79458a6709584f2470b211c71d8563de8",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -120,6 +210,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "0c560b07_908e78f7",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 2643,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2024-06-17T20:58:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "990dcfbb_0352a47e",
+      "revId": "44c09dd79458a6709584f2470b211c71d8563de8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d6deca65_baa9ed9e",
@@ -133,6 +241,24 @@
       "writtenOn": "2024-06-13T19:48:56Z",
       "side": 1,
       "message": "Nit: test `auto_tiles` as a boolean:\n\n```\n  if (auto_tiles \u0026\u0026 ctx-\u003ecfg.g_threads \u003e\u003d 2) {\n```",
+      "revId": "44c09dd79458a6709584f2470b211c71d8563de8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "78cd0470_326a56f3",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 2646,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2024-06-17T20:58:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d6deca65_baa9ed9e",
       "revId": "44c09dd79458a6709584f2470b211c71d8563de8",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -154,6 +280,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e8fa0f58_af8d420a",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 2647,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2024-06-17T20:58:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cae35871_51144716",
+      "revId": "44c09dd79458a6709584f2470b211c71d8563de8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "6ba1eeb4_4d2343d2",
@@ -167,6 +311,24 @@
       "writtenOn": "2024-06-13T19:48:56Z",
       "side": 1,
       "message": "Nit: avoid mentioning of \"image\"",
+      "revId": "44c09dd79458a6709584f2470b211c71d8563de8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "93a7215b_0f8a5817",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 2649,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2024-06-17T20:58:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6ba1eeb4_4d2343d2",
       "revId": "44c09dd79458a6709584f2470b211c71d8563de8",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -188,6 +350,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "48c255ed_adcd3398",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 2656,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2024-06-17T20:58:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c481462d_0a56b987",
+      "revId": "44c09dd79458a6709584f2470b211c71d8563de8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e839ae99_292c0a04",
@@ -205,6 +385,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "4206b22d_28060885",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 2665,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2024-06-17T20:58:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e839ae99_292c0a04",
+      "revId": "44c09dd79458a6709584f2470b211c71d8563de8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "fe8e8b2c_324117d1",
@@ -218,6 +416,24 @@
       "writtenOn": "2024-06-13T19:48:56Z",
       "side": 1,
       "message": "Nit/optional: We may not need to include \u003cmath.h\u003e now that the `log2()` call is removed. Not sure if there is a tool that can check this.",
+      "revId": "44c09dd79458a6709584f2470b211c71d8563de8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7dad3ed9_d000c21a",
+        "filename": "examples/svc_encoder_rtc.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2024-06-17T20:58:00Z",
+      "side": 1,
+      "message": "still need it.",
+      "parentUuid": "fe8e8b2c_324117d1",
       "revId": "44c09dd79458a6709584f2470b211c71d8563de8",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
