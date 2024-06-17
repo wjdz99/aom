@@ -1,0 +1,157 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c84b09d3_903cc3c4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 12
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-06-17T23:51:15Z",
+      "side": 1,
+      "message": "Hi Marco, I am sorry this is a somewhat incomplete review, because I haven\u0027t figured out how to best implement auto tiles when `aom_codec_config_set()` is called. But I think it is better to send you the comments I have first.",
+      "revId": "b4551a2eec2451c5751a88138a51ba4d3502f466",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4d590a69_3d211d7a",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 1696,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-06-17T23:51:15Z",
+      "side": 1,
+      "message": "It is better to return an error in this case. I think we can use `AOM_CODEC_INCAPABLE` even though the error isn\u0027t really a lack of capabilities (defined by the `AOM_CODEC_CAP_*` flags). We can always use the default error `AOM_CODEC_ERROR`.",
+      "revId": "b4551a2eec2451c5751a88138a51ba4d3502f466",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6c62df89_49d5dfc3",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 1701,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-06-17T23:51:15Z",
+      "side": 1,
+      "message": "Note that we set `extra_cfg.tile_columns` and then call `update_extra_cfg(ctx, \u0026extra_cfg)`. The auto tiles codec control should use the same pattern.",
+      "revId": "b4551a2eec2451c5751a88138a51ba4d3502f466",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "264e0fd7_6879239a",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 1710,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-06-17T23:51:15Z",
+      "side": 1,
+      "message": "It is better to return an error in this case. (See line 1696.)",
+      "revId": "b4551a2eec2451c5751a88138a51ba4d3502f466",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ba9697b5_a974d90d",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 2658,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-06-17T23:51:15Z",
+      "side": 1,
+      "message": "IMPORTANT: Remove `\u0026\u0026 ctx-\u003ecfg.g_threads \u003e 1` from this conditional expression. Otherwise we won\u0027t fully implement this documented behavior:\n\u003e This will override any settings set via SET_TILE_COLUMNS/ROWS.",
+      "revId": "b4551a2eec2451c5751a88138a51ba4d3502f466",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ecfc36c2_65743213",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 2660,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-06-17T23:51:15Z",
+      "side": 1,
+      "message": "Please see my comment at line 1701 above. I think `av1_set_auto_tiles()` should modify `extra_cfg.tile_columns` and `extra_cfg.tile_rows` and then call `update_extra_cfg(ctx, \u0026extra_cfg)`. Otherwise `extra_cfg` and `tile_cfg` will go out of sync.",
+      "revId": "b4551a2eec2451c5751a88138a51ba4d3502f466",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9bb1587b_278e16c0",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 390,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-06-17T23:51:15Z",
+      "side": 1,
+      "message": "IMPORTANT: My code analysis shows that this is called in every `encoder_encode()` call. It should be possible to check this by setting a breakpoint in the debugger.\n\nIt would be better to do this in `encoder_set_config()` or some function it calls, but I haven\u0027t figured out where is a good place to do this.",
+      "revId": "b4551a2eec2451c5751a88138a51ba4d3502f466",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "74225b5a_4c06ae7a",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 401,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-06-17T23:51:15Z",
+      "side": 1,
+      "message": "IMPORTANT: Remove `\u0026\u0026 cpi-\u003eoxcf.max_threads \u003e 1` from this conditional expression.",
+      "revId": "b4551a2eec2451c5751a88138a51ba4d3502f466",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9f318d3b_fd76f84f",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 3666,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-06-17T23:51:15Z",
+      "side": 1,
+      "message": "SET_AUTO_TILING \u003d\u003e AV1E_SET_AUTO_TILES",
+      "revId": "b4551a2eec2451c5751a88138a51ba4d3502f466",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
