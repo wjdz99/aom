@@ -673,6 +673,10 @@ static aom_codec_err_t validate_config(aom_codec_alg_priv_t *ctx,
   }
   RANGE_CHECK(cfg, g_timebase.den, 1, 1000000000);
   RANGE_CHECK(cfg, g_timebase.num, 1, 1000000000);
+  // Minimum frame rate is 0.1. See av1_new_framerate().
+  if (cfg->g_timebase.num / 10 > cfg->g_timebase.den) {
+    ERROR("g_timebase > 10");
+  }
   RANGE_CHECK_HI(cfg, g_profile, MAX_PROFILES - 1);
 
   RANGE_CHECK_HI(cfg, rc_target_bitrate, 2000000);
