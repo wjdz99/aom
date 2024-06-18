@@ -470,6 +470,30 @@ static bool check_buffer_below_thresh(AV1_COMP *cpi, int64_t buffer_level,
   }
 }
 
+// Function to update rc->decimation_factor for the frame dropper, which will
+// set decimation_factor to 1, 2, 4, .., for framerate reduction 1/2, 1/3, 1/5,
+// ... Current setting is based on the buffer_level (how far it is from optimal
+// or drop_mark).
+static int update_decimation_factor(int64_t buffer_level,
+                                    int64_t optimal_buffer_level, int drop_mark,
+                                    int decimation_factor) {
+  int drop_mark_1_2 = drop_mark >> 1;
+  int drop_mark_1_4 = drop_mark >> 2;
+  int new_decimation_factor = decimation_factor;
+  if (buffer_level < -2 * optimal_buffer_level) {
+    new_decimation_factor = 12;
+  } else if (buffer_level < 0) {
+    new_decimation_factor = 8;
+  } else if (buffer_level < drop_mark_1_4) {
+    new_decimation_factor = 4;
+  } else if (buffer_level < drop_mark_1_2) {
+    new_decimation_factor = 2;
+  } else if (buffer_level < drop_mark) {
+    new_decimation_factor = 1;
+  }
+  return new_decimation_factor;
+}
+
 int av1_rc_drop_frame(AV1_COMP *cpi) {
   const AV1EncoderConfig *oxcf = &cpi->oxcf;
   RATE_CONTROL *const rc = &cpi->rc;
@@ -483,6 +507,7 @@ int av1_rc_drop_frame(AV1_COMP *cpi) {
 #else
   int64_t buffer_level = p_rc->buffer_level;
 #endif
+  int enable_decimation_factors = 1;
   // Never drop on key frame, or for frame whose base layer is key.
   // If drop_count_consec hits or exceeds max_consec_drop then don't drop.
   if (cpi->common.current_frame.frame_type == KEY_FRAME ||
@@ -502,7 +527,8 @@ int av1_rc_drop_frame(AV1_COMP *cpi) {
       return 1;
     // -1 is passed here for drop_mark since we are checking if
     // buffer goes below 0 (<= -1).
-    if (check_buffer_below_thresh(cpi, buffer_level, -1)) {
+    if (!enable_decimation_factors &&
+        check_buffer_below_thresh(cpi, buffer_level, -1)) {
       // Always drop if buffer is below 0.
       rc->drop_count_consec++;
       return 1;
@@ -514,9 +540,17 @@ int av1_rc_drop_frame(AV1_COMP *cpi) {
       const bool buffer_below_thresh =
           check_buffer_below_thresh(cpi, buffer_level, drop_mark);
       if (!buffer_below_thresh && rc->decimation_factor > 0) {
-        --rc->decimation_factor;
-      } else if (buffer_below_thresh && rc->decimation_factor == 0) {
-        rc->decimation_factor = 1;
+        rc->decimation_factor = rc->decimation_factor > 1 ? 1 : 0;
+      } else if (buffer_below_thresh) {
+        int prev_decimation_factor = rc->decimation_factor;
+        if (enable_decimation_factors)
+          rc->decimation_factor =
+              update_decimation_factor(buffer_level, p_rc->optimal_buffer_level,
+                                       drop_mark, rc->decimation_factor);
+        else
+          rc->decimation_factor = 1;
+        if (enable_decimation_factors && prev_decimation_factor == 0)
+          rc->decimation_count = rc->decimation_factor;
       }
       if (rc->decimation_factor > 0) {
         if (rc->decimation_count > 0) {
