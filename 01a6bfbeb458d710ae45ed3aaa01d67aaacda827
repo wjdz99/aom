@@ -16,6 +16,41 @@
       "message": "The Neon and SSE3 implementations seem to be copied and pasted from libvpx - where the maximum block size is 64x64. Should these paths work with the larger blocks present in AV1? (It would appear that in practice the only block size actually processed by aom_scaled_2d_* is 16x16.)",
       "revId": "01a6bfbeb458d710ae45ed3aaa01d67aaacda827",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e2c6f7d8_e17ecc65",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-06-18T02:24:03Z",
+      "side": 1,
+      "message": "\u003e The Neon and SSE3 implementations seem to be copied and pasted from libvpx - where the maximum block size is 64x64. Should these paths work with the larger blocks present in AV1?\n\nIf it\u0027s not tested then I wouldn\u0027t count on it.\n\n\u003e (It would appear that in practice the only block size actually processed by aom_scaled_2d_* is 16x16.)\n\nYes, that\u0027s true:\n\nhttps://aomedia.googlesource.com/aom/+/0078f3e0bf01e55ef5942192ce827cc941dbf78c/av1/common/resize.c#1166",
+      "parentUuid": "ecbd5703_9343ff66",
+      "revId": "01a6bfbeb458d710ae45ed3aaa01d67aaacda827",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "217549eb_f804fe1c",
+        "filename": "test/convolve_test.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 973,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-06-18T02:24:03Z",
+      "side": 1,
+      "message": "add `ASSERT_NE(input_, nullptr)` and similar for `output_` and `output_ref_`.",
+      "revId": "01a6bfbeb458d710ae45ed3aaa01d67aaacda827",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
