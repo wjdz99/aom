@@ -18,6 +18,23 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "d2938a4d_c6621760",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 12
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-06-18T16:14:14Z",
+      "side": 1,
+      "message": "Marco: I can take a closer look at the aom_codec_config_set() update issue after my meetings this morning.",
+      "revId": "b4551a2eec2451c5751a88138a51ba4d3502f466",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "4d590a69_3d211d7a",
