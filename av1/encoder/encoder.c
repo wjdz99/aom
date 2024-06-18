@@ -292,6 +292,39 @@ static void auto_tile_size_balancing(AV1_COMMON *const cm, int num_sbs,
   }
 }
 
+void av1_set_auto_tiles(TileConfig *const tile_cfg, int width, int height,
+                        int threads) {
+  int tile_cols_log2 = 0;
+  int tile_rows_log2 = 0;
+  // Avoid small tiles because they are particularly bad for coding.
+  // Use no more tiles than the number of threads. Aim for one tile per
+  // thread. Using more than one thread inside one tile could be less
+  // efficient. Using more tiles than the number of threads would result
+  // in a compression penalty without much benefit.
+  const uint32_t kMinTileArea = 128 * 128;
+  const uint32_t kMaxTiles = 32;
+  uint32_t frame_area = width * height;
+  uint32_t tiles = (frame_area + kMinTileArea - 1) / kMinTileArea;
+  if (tiles > kMaxTiles) {
+    tiles = kMaxTiles;
+  }
+  if (tiles > (uint32_t)threads) {
+    tiles = threads;
+  }
+  int tilesLog2 = (int)log2(tiles);
+  // If the frame width is equal or greater than the height, use more tile
+  // columns than tile rows.
+  if (width >= height) {
+    tile_cols_log2 = (tilesLog2 + 1) / 2;
+    tile_rows_log2 = tilesLog2 - tile_cols_log2;
+  } else {
+    tile_rows_log2 = (tilesLog2 + 1) / 2;
+    tile_cols_log2 = tilesLog2 - tile_rows_log2;
+  }
+  tile_cfg->tile_columns = tile_cols_log2;
+  tile_cfg->tile_rows = tile_rows_log2;
+}
+
 static void set_tile_info(AV1_COMMON *const cm,
                           const TileConfig *const tile_cfg) {
   const CommonModeInfoParams *const mi_params = &cm->mi_params;
