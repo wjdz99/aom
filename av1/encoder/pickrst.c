@@ -639,6 +639,7 @@ void av1_calc_proj_params_c(const uint8_t *src8, int width, int height,
   }
 }
 
+#if CONFIG_AV1_HIGHBITDEPTH
 void av1_calc_proj_params_high_bd_c(const uint8_t *src8, int width, int height,
                                     int src_stride, const uint8_t *dat8,
                                     int dat_stride, int32_t *flt0,
@@ -658,6 +659,7 @@ void av1_calc_proj_params_high_bd_c(const uint8_t *src8, int width, int height,
                                   dat_stride, flt1, flt1_stride, H, C);
   }
 }
+#endif  // CONFIG_AV1_HIGHBITDEPTH
 
 static AOM_INLINE void get_proj_subspace(const uint8_t *src8, int width,
                                          int height, int src_stride,
