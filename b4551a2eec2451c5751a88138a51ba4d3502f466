@@ -52,6 +52,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "23569569_05d8b649",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 1696,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2024-06-20T23:32:20Z",
+      "side": 1,
+      "message": "`AOM_CODEC_INVALID_PARAM` might be better, and then print out a message saying auto tiles is enabled so users can\u0027t set tile columns / rows.",
+      "parentUuid": "4d590a69_3d211d7a",
+      "revId": "b4551a2eec2451c5751a88138a51ba4d3502f466",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "6c62df89_49d5dfc3",
