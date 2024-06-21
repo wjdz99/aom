@@ -1,0 +1,157 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7e524c64_20b74813",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 16
+      },
+      "lineNbr": 1335,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-06-21T21:27:41Z",
+      "side": 1,
+      "message": "I am tempted to suggest that we add the following after this `av1_set_auto_tiles()` call:\n\n```\n    extra_cfg-\u003etile_columns \u003d tile_cfg-\u003etile_columns;\n    extra_cfg-\u003etile_rows \u003d tile_cfg-\u003etile_rows;\n```\n\nThis will keep these fields in sync even when auto tiles is enabled.\n\nAlternatively, we can document the current behavior: auto tiles leaves `extra_cfg-\u003etile_columns` and `extra_cfg-\u003etile_rows` unchanged but overrides them. This is also reasonable behavior.\n\nThese two behaviors are essentially the same while auto tiles is enabled, but they are different when auto tiles is disabled (from enabled).",
+      "revId": "343002b5a2a2c1d6cf12ab9fdf19599d81183e25",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "48d532a7_b1d7d786",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 16
+      },
+      "lineNbr": 1700,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-06-21T21:27:41Z",
+      "side": 1,
+      "message": "Nit: This statement copies the `ctx-\u003eextra_cfg` struct. Ideally we should do this after error checking. This means error checking needs to use `ctx-\u003eextra_cfg` as in the original code.\n\nMake the same change to `ctrl_set_tile_rows()`.\n\nNote: `ctrl_set_auto_tiles()` does this correctly.",
+      "revId": "343002b5a2a2c1d6cf12ab9fdf19599d81183e25",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "30cc5c13_742bca5b",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 16
+      },
+      "lineNbr": 1703,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-06-21T21:27:41Z",
+      "side": 1,
+      "message": "As Jerome suggested, we can use the `ERROR` macro (defined at lines 631-635) to set an error message and return `AOM_CODEC_INVALID_PARAM`. There is an example at lines 1728.",
+      "revId": "343002b5a2a2c1d6cf12ab9fdf19599d81183e25",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8895f747_de3c741e",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 16
+      },
+      "lineNbr": 3942,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-06-21T21:27:41Z",
+      "side": 1,
+      "message": "We should fail if `extra_cfg.auto_tiles` is true. See line 4275 for an example.",
+      "revId": "343002b5a2a2c1d6cf12ab9fdf19599d81183e25",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "36ed023d_b3776e76",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 16
+      },
+      "lineNbr": 3945,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-06-21T21:27:41Z",
+      "side": 1,
+      "message": "We should fail if `extra_cfg.auto_tiles` is true. See line 4275 for an example.",
+      "revId": "343002b5a2a2c1d6cf12ab9fdf19599d81183e25",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ce6d2d8a_76820bc4",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 16
+      },
+      "lineNbr": 299,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-06-21T21:27:41Z",
+      "side": 1,
+      "message": "Nit: Declare `width`, `height`, and `threads` as `unsigned int`, because that is the type of `g_w`, `g_h`, and `g_threads`.",
+      "revId": "343002b5a2a2c1d6cf12ab9fdf19599d81183e25",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9b11614d_52ad49e1",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 16
+      },
+      "lineNbr": 314,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-06-21T21:27:41Z",
+      "side": 1,
+      "message": "Remove the `(uint32_t)` cast. It is no longer necessary after `threads` is declared as `unsigned int`.",
+      "revId": "343002b5a2a2c1d6cf12ab9fdf19599d81183e25",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "466e626e_fb25ec3b",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 16
+      },
+      "lineNbr": 317,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-06-21T21:27:41Z",
+      "side": 1,
+      "message": "Nit: tilesLog2 \u003d\u003e tiles_log2",
+      "revId": "343002b5a2a2c1d6cf12ab9fdf19599d81183e25",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a104a003_50793b4e",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 16
+      },
+      "lineNbr": 3795,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-06-21T21:27:41Z",
+      "side": 1,
+      "message": "Nit: Move this function to av1/av1_cx_iface.c as a static function.",
+      "revId": "343002b5a2a2c1d6cf12ab9fdf19599d81183e25",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
