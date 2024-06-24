@@ -1,0 +1,157 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cbf29f18_94661583",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 18
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-06-24T23:35:50Z",
+      "side": 1,
+      "message": "Please use \"Bug: 349189136\" instead. Sorry about the incorrect suggestion of linking to b/328995727.",
+      "revId": "833e7f91fca8713c8f8854a219acaf39baebddad",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4205429a_a5c7003e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 18
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-06-24T23:35:50Z",
+      "side": 1,
+      "message": "Bohan: Please see my question for you in apps/aomenc.c.",
+      "revId": "833e7f91fca8713c8f8854a219acaf39baebddad",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4fe50f6c_8491db64",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 18
+      },
+      "lineNbr": 464,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-06-24T23:35:50Z",
+      "side": 1,
+      "message": "Bohan, could you please check if my suggestion below is right?\n\nInstead of the two changes above, I think it is better to just add `\u0026g_av1_codec_arg_defs.auto_tiles` to this array. The downside is that --auto-tiles won\u0027t be listed next to the related --tile-columns and --tile-rows options. We can fix that by also moving those two to this array.",
+      "revId": "833e7f91fca8713c8f8854a219acaf39baebddad",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e1804cc9_0ce9c3df",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 18
+      },
+      "lineNbr": 994,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-06-24T23:35:50Z",
+      "side": 1,
+      "message": "Nit: Remove the av1_ prefix. Our naming convention seems to omit the \"namespace\" prefix for static functions.",
+      "revId": "833e7f91fca8713c8f8854a219acaf39baebddad",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ff5aa1ad_42bbc9b4",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 18
+      },
+      "lineNbr": 1740,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-06-24T23:35:50Z",
+      "side": 1,
+      "message": "Delete this line. This is part of the `ERROR` macro.",
+      "revId": "833e7f91fca8713c8f8854a219acaf39baebddad",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a0162f55_2fd7b995",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 18
+      },
+      "lineNbr": 1755,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-06-24T23:35:50Z",
+      "side": 1,
+      "message": "Delete this line. This is part of the `ERROR` macro.",
+      "revId": "833e7f91fca8713c8f8854a219acaf39baebddad",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "80c97c05_5c77fbcc",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 18
+      },
+      "lineNbr": 3984,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-06-24T23:35:50Z",
+      "side": 1,
+      "message": "Optional: Do this if there is no error. See the if-else statement at line 4325 for an example. But one may argue that your version is simpler. So this suggestion is optional.\n\n(This comment also applies to line 3991.)",
+      "revId": "833e7f91fca8713c8f8854a219acaf39baebddad",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e950886d_5af32306",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 18
+      },
+      "lineNbr": 3986,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-06-24T23:35:50Z",
+      "side": 1,
+      "message": "Nit: The error message should mention tile-cols, and \"AUTO_TILES\" should be changed to \"auto-tiles\". For example, \"Cannot set tile-cols because auto-tiles is already set\".",
+      "revId": "833e7f91fca8713c8f8854a219acaf39baebddad",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fc68ada2_1a98083a",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 18
+      },
+      "lineNbr": 3993,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-06-24T23:35:50Z",
+      "side": 1,
+      "message": "Nit: Similarly, the error message should say something like \"\"Cannot set tile-rows because auto-tiles is already set\".",
+      "revId": "833e7f91fca8713c8f8854a219acaf39baebddad",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
