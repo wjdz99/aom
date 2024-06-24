@@ -72,6 +72,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "626b2489_0aaf6efa",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 1696,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2024-06-24T21:24:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "23569569_05d8b649",
+      "revId": "b4551a2eec2451c5751a88138a51ba4d3502f466",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "6c62df89_49d5dfc3",
         "filename": "av1/av1_cx_iface.c",
         "patchSetId": 12
@@ -104,6 +122,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "49b0cce0_29c4d7ee",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 1710,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2024-06-24T21:24:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "264e0fd7_6879239a",
+      "revId": "b4551a2eec2451c5751a88138a51ba4d3502f466",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ba9697b5_a974d90d",
@@ -117,6 +153,24 @@
       "writtenOn": "2024-06-17T23:51:15Z",
       "side": 1,
       "message": "IMPORTANT: Remove `\u0026\u0026 ctx-\u003ecfg.g_threads \u003e 1` from this conditional expression. Otherwise we won\u0027t fully implement this documented behavior:\n\u003e This will override any settings set via SET_TILE_COLUMNS/ROWS.",
+      "revId": "b4551a2eec2451c5751a88138a51ba4d3502f466",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8593db8c_3c9c6ad3",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 2658,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2024-06-24T21:24:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba9697b5_a974d90d",
       "revId": "b4551a2eec2451c5751a88138a51ba4d3502f466",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -138,6 +192,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "7289ba3f_80a6251d",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 2660,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2024-06-24T21:24:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ecfc36c2_65743213",
+      "revId": "b4551a2eec2451c5751a88138a51ba4d3502f466",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "9bb1587b_278e16c0",
@@ -151,6 +223,24 @@
       "writtenOn": "2024-06-17T23:51:15Z",
       "side": 1,
       "message": "IMPORTANT: My code analysis shows that this is called in every `encoder_encode()` call. It should be possible to check this by setting a breakpoint in the debugger.\n\nIt would be better to do this in `encoder_set_config()` or some function it calls, but I haven\u0027t figured out where is a good place to do this.",
+      "revId": "b4551a2eec2451c5751a88138a51ba4d3502f466",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4a25b718_0c788de9",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 390,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2024-06-24T21:24:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9bb1587b_278e16c0",
       "revId": "b4551a2eec2451c5751a88138a51ba4d3502f466",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -172,6 +262,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "9fa837e1_600506ab",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 401,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2024-06-24T21:24:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "74225b5a_4c06ae7a",
+      "revId": "b4551a2eec2451c5751a88138a51ba4d3502f466",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "9f318d3b_fd76f84f",
@@ -185,6 +293,24 @@
       "writtenOn": "2024-06-17T23:51:15Z",
       "side": 1,
       "message": "SET_AUTO_TILING \u003d\u003e AV1E_SET_AUTO_TILES",
+      "revId": "b4551a2eec2451c5751a88138a51ba4d3502f466",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2f3232be_dcbac921",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 3666,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2024-06-24T21:24:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9f318d3b_fd76f84f",
       "revId": "b4551a2eec2451c5751a88138a51ba4d3502f466",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
