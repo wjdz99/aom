@@ -412,14 +412,15 @@ INSTANTIATE_TEST_SUITE_P(
         ::testing::ValuesIn(kWidths), ::testing::ValuesIn(kHeights)));
 #endif  // HAVE_AVX2
 
-#if HAVE_NEON
+// TODO(aomedia:349450845): enable for armv7 after SIGBUS is fixed.
+#if HAVE_NEON && AOM_ARCH_AARCH64
 INSTANTIATE_TEST_SUITE_P(
     NEON, EstimateNoiseTest,
     ::testing::Combine(
         ::testing::Values(av1_estimate_noise_from_single_plane_c),
         ::testing::Values(av1_estimate_noise_from_single_plane_neon),
         ::testing::ValuesIn(kWidths), ::testing::ValuesIn(kHeights)));
-#endif  // HAVE_NEON
+#endif  // HAVE_NEON && AOM_ARCH_AARCH64
 
 #if CONFIG_AV1_HIGHBITDEPTH
 
