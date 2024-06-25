@@ -58,7 +58,7 @@ open CONFIG_FILE, $opts{config} or
 
 my %config = ();
 while (<CONFIG_FILE>) {
-  next if !/^#define\s+(?:CONFIG_|HAVE_)/;
+  next if !/^#define\s+(?:AOM_ARCH|CONFIG_|HAVE_)/;
   chomp;
   my @line_components = split /\s/;
   scalar @line_components > 2 or

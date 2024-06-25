@@ -1471,6 +1471,8 @@ void av1_highbd_dr_prediction_z1_neon(uint16_t *dst, ptrdiff_t stride, int bw,
 // -----------------------------------------------------------------------------
 // Z2
 
+// TODO(aomedia:349428506): enable this for armv7 after SIGBUS is fixed.
+#if AOM_ARCH_AARCH64
 #if AOM_ARCH_AARCH64
 // Incrementally shift more elements from `above` into the result, merging with
 // existing `left` elements.
@@ -2473,6 +2475,7 @@ void av1_highbd_dr_prediction_z2_neon(uint16_t *dst, ptrdiff_t stride, int bw,
   assert(f != NULL);
   f(dst, stride, above, left, upsample_above, upsample_left, dx, dy, bd);
 }
+#endif  // AOM_ARCH_AARCH64
 
 // -----------------------------------------------------------------------------
 // Z3
