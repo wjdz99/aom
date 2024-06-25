@@ -58,7 +58,9 @@ open CONFIG_FILE, $opts{config} or
 
 my %config = ();
 while (<CONFIG_FILE>) {
-  next if !/^#define\s+(?:CONFIG_|HAVE_)/;
+  # TOOD(aomedia:349428506,349436249,349450845,349455146): remove AOM_ARCH
+  # after armv7 SIGBUS issues are fixed.
+  next if !/^#define\s+(?:AOM_ARCH|CONFIG_|HAVE_)/;
   chomp;
   my @line_components = split /\s/;
   scalar @line_components > 2 or
