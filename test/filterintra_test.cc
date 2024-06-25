@@ -170,7 +170,9 @@ INSTANTIATE_TEST_SUITE_P(
                        ::testing::ValuesIn(kTxSize)));
 #endif  // HAVE_SSE4_1
 
+// TODO(aomedia:349436249): enable for armv7 after SIGBUS is fixed.
 #if HAVE_NEON
+#if AOM_ARCH_AARCH64
 const PredFuncMode kPredFuncMdArrayNEON[] = {
   make_tuple(&av1_filter_intra_predictor_c, &av1_filter_intra_predictor_neon,
              FILTER_DC_PRED),
@@ -192,6 +194,9 @@ INSTANTIATE_TEST_SUITE_P(
     NEON, AV1FilterIntraPredTest,
     ::testing::Combine(::testing::ValuesIn(kPredFuncMdArrayNEON),
                        ::testing::ValuesIn(kTxSizeNEON)));
+#else   // !AOM_ARCH_AARCH64
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(AV1FilterIntraPredTest);
+#endif  // AOM_ARCH_AARCH64
 #endif  // HAVE_NEON
 
 }  // namespace
