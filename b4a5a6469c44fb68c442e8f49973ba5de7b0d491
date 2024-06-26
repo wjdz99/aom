@@ -104,6 +104,24 @@
       "parentUuid": "f0697bbd_fc48e887",
       "revId": "b4a5a6469c44fb68c442e8f49973ba5de7b0d491",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "26a54026_279c34d6",
+        "filename": "build/cmake/rtcd.pl",
+        "patchSetId": 1
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-06-26T12:45:36Z",
+      "side": 1,
+      "message": "When I wrote my previous comment, I didn\u0027t understand this change. I think I understand it now. I agree this change could be permanent. So you can delete the TODO comment.",
+      "parentUuid": "576d28de_31a112fd",
+      "revId": "b4a5a6469c44fb68c442e8f49973ba5de7b0d491",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
