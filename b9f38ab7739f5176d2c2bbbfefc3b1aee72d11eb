@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6a1e05f4_69d56916",
+        "filename": "aom_dsp/x86/synonyms_avx2.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-06-27T02:06:55Z",
+      "side": 1,
+      "message": "I missed the `(const __m128i *)` cast here.",
+      "revId": "b9f38ab7739f5176d2c2bbbfefc3b1aee72d11eb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
