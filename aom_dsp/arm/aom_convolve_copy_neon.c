@@ -57,7 +57,20 @@ void aom_convolve_copy_neon(const uint8_t *src, ptrdiff_t src_stride,
 void aom_highbd_convolve_copy_neon(const uint16_t *src, ptrdiff_t src_stride,
                                    uint16_t *dst, ptrdiff_t dst_stride, int w,
                                    int h) {
-  if (w < 8) {  // copy4
+  if (w < 4) {  // copy2
+    do {
+      dst[0] = src[0];
+      dst[1] = src[1];
+      src += src_stride;
+      dst += dst_stride;
+
+      dst[0] = src[0];
+      dst[1] = src[1];
+      src += src_stride;
+      dst += dst_stride;
+      h -= 2;
+    } while (h != 0);
+  } else if (w == 4) {  // copy4
     uint16x4_t s0, s1;
     do {
       s0 = vld1_u16(src);
