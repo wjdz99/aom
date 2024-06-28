@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8cf37460_7d7a5ead",
+        "filename": "aom_dsp/x86/aom_convolve_copy_avx2.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-06-28T23:41:37Z",
+      "side": 1,
+      "message": "Please read my comments in aom_dsp/x86/aom_convolve_copy_sse2.c first.\n\nIn this file, `_mm_store_si128()` is used in fewer values of `w`, so the conditions are different. For stores, this file uses `_mm256_storeu_si256()` in most cases, which does not have an alignment requirement.",
+      "revId": "0eecf0952c360c77c43a915f9a5fd317eaff98c3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b0528d4b_3100db5d",
+        "filename": "aom_dsp/x86/aom_convolve_copy_sse2.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-06-28T23:41:37Z",
+      "side": 1,
+      "message": "These are the original assertions for bit depth 8. Apparently they were copied to `aom_highbd_convolve_copy_sse2()` for high bit depths.\n\nThese assertions check for 16-byte alignment, which comes from `_mm_store_si128()`. I verified that `_mm_store_si128()` is used if `w \u003e\u003d 16`.",
+      "revId": "0eecf0952c360c77c43a915f9a5fd317eaff98c3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f644b6dd_d2660643",
+        "filename": "aom_dsp/x86/aom_convolve_copy_sse2.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 206,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-06-28T23:41:37Z",
+      "side": 1,
+      "message": "The assertions need to be updated for high bit depths.\n\nFirst, the condition shoudl be updated because `_mm_store_si128()` is used for `w \u003e\u003d 8`.\n\nSecond, `dst_stride` is in units of `uint16_t`. So for 16-byte alignment, `dst_stride` just needs to be a multiple of 8.",
+      "revId": "0eecf0952c360c77c43a915f9a5fd317eaff98c3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
