@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f1c42968_d03df79b",
+        "filename": "test/av1_convolve_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 1195,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-06-28T19:12:44Z",
+      "side": 1,
+      "message": "As I feared, the unaligned output buffers I allocated in the new test fail to meet the 16-byte alignment requirement of the `_mm_store_si128()` calls in `aom_highbd_convolve_copy_sse2()`:\n\n```\n  } else if (w \u003d\u003d 8) {\n    do {\n      __m128i s[2];\n      s[0] \u003d _mm_loadu_si128((__m128i *)src);\n      src +\u003d src_stride;\n      s[1] \u003d _mm_loadu_si128((__m128i *)src);\n      src +\u003d src_stride;\n      _mm_store_si128((__m128i *)dst, s[0]);\n      dst +\u003d dst_stride;\n      _mm_store_si128((__m128i *)dst, s[1]);\n      dst +\u003d dst_stride;\n      h -\u003d 2;\n    } while (h);\n  } else if (w \u003d\u003d 16) {\n```\n\nNote that the loads are unaligned but the stores are aligned. This asymmetry comes from the original code in https://aomedia-review.googlesource.com/c/aom/+/50081. I don\u0027t know why.\n\nI can remove these new tests. Alternatively we can change the loads in `aom_highbd_convolve_copy_sse2()` to unaligned.\n\nNote: The aligned loads crashed with segmentation faults in This causes segmentation faults in https://build.aomedia.org/jenkins/view/libaom-nightly-tests/job/libaom__unit_tests-valgrind/2553/",
+      "revId": "34d29d40dd03eaaec297eacf5d2da2a8c864f35e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
