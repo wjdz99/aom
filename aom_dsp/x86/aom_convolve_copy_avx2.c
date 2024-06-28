@@ -27,7 +27,7 @@ static INLINE void copy_128(const uint8_t *src, uint8_t *dst) {
 
 void aom_convolve_copy_avx2(const uint8_t *src, ptrdiff_t src_stride,
                             uint8_t *dst, ptrdiff_t dst_stride, int w, int h) {
-  if (w >= 16) {
+  if (w == 16) {
     assert(!((intptr_t)dst % 16));
     assert(!(dst_stride % 16));
   }
@@ -159,9 +159,9 @@ static INLINE void highbd_copy_128(const uint16_t *src, uint16_t *dst) {
 void aom_highbd_convolve_copy_avx2(const uint16_t *src, ptrdiff_t src_stride,
                                    uint16_t *dst, ptrdiff_t dst_stride, int w,
                                    int h) {
-  if (w >= 16) {
+  if (w == 8) {
     assert(!((intptr_t)dst % 16));
-    assert(!(dst_stride % 16));
+    assert(!(dst_stride % 8));
   }
 
   if (w == 2) {
