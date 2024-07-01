@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "62f877bc_30192bec",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 2604,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-07-01T21:13:27Z",
+      "side": 1,
+      "message": "`cpi-\u003eppi-\u003etwopass.stats_buf_ctx-\u003etotal_stats-\u003ecount` is a `double`.",
+      "revId": "fd4b24a1a854f845f409dd165749e2bb285f2c75",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "de20a113_7b96ea65",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 2606,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-07-01T21:13:27Z",
+      "side": 1,
+      "message": "`cpi-\u003ecommon.current_frame.frame_number` is an `unsigned int`.",
+      "revId": "fd4b24a1a854f845f409dd165749e2bb285f2c75",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
