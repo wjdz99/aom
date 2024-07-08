@@ -1554,6 +1554,12 @@ enum aome_enc_control_id {
    */
   AV1E_GET_HIGH_MOTION_CONTENT_SCREEN_RTC = 167,
 
+  /*!\brief Codec control to enable postencode drop for RTC encoding,
+   * unsigned int parameter. Value of 1 means encoder will enable postencode
+   * drop, Default is 0 (not enabled).
+   */
+  AV1E_SET_POSTENCODE_DROP_RTC = 168,
+
   // Any new encoder control IDs should be added above.
   // Maximum allowed encoder control ID is 229.
   // No encoder control ID should be added below.
@@ -2216,6 +2222,9 @@ AOM_CTRL_USE_TYPE(AV1E_SET_AUTO_TILES, unsigned int)
 
 AOM_CTRL_USE_TYPE(AV1E_GET_HIGH_MOTION_CONTENT_SCREEN_RTC, int *)
 #define AOM_CTRL_AV1E_GET_HIGH_MOTION_CONTENT_SCREEN_RTC
+
+AOM_CTRL_USE_TYPE(AV1E_SET_POSTENCODE_DROP_RTC, unsigned int)
+#define AOM_CTRL_AV1E_SET_POSTENCODE_DROP_RTC
 
 /*!\endcond */
 /*! @} - end defgroup aom_encoder */
