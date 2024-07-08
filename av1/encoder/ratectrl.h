@@ -208,6 +208,8 @@ typedef struct {
   int prev_frame_is_dropped;
   int drop_count_consec;
   int max_consec_drop;
+  int force_max_q;
+  int post_encode_drop;
 
   /*!
    * Frame number for encoded frames (non-dropped).
@@ -822,6 +824,8 @@ void av1_get_one_pass_rt_params(struct AV1_COMP *cpi,
  * \return q is returned, and updates are done to \c cpi->rc.
  */
 int av1_encodedframe_overshoot_cbr(struct AV1_COMP *cpi, int *q);
+
+int av1_post_encode_drop_cbr(struct AV1_COMP *cpi, size_t *size);
 
 /*!\brief Compute the q_indices for a single frame.
  *
