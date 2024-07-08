@@ -2502,6 +2502,12 @@ static int encode_without_recode(AV1_COMP *cpi) {
                          ? svc->downsample_filter_phase[svc->spatial_layer_id]
                          : 0;
 
+  if (cpi->rc.post_encode_drop && has_no_stats_stage(cpi) &&
+      cpi->oxcf.rc_cfg.mode == AOM_CBR &&
+      cpi->oxcf.rc_cfg.drop_frames_water_mark > 0 && !frame_is_intra_only(cm) &&
+      cpi->svc.spatial_layer_id == 0)
+    av1_save_all_coding_context(cpi);
+
   set_size_independent_vars(cpi);
   av1_setup_frame_size(cpi);
   cm->prev_frame = get_primary_ref_frame_buf(cm);
@@ -3284,6 +3290,14 @@ static int encode_with_recode_loop_and_filter(AV1_COMP *cpi, size_t *size,
 #if CONFIG_COLLECT_COMPONENT_TIMING
   end_timing(cpi, av1_pack_bitstream_final_time);
 #endif
+
+  if (cpi->rc.post_encode_drop && has_no_stats_stage(cpi) &&
+      cpi->oxcf.rc_cfg.mode == AOM_CBR &&
+      cpi->oxcf.rc_cfg.drop_frames_water_mark > 0 && !frame_is_intra_only(cm) &&
+      cpi->svc.spatial_layer_id == 0 && av1_post_encode_drop_cbr(cpi, size)) {
+    restore_all_coding_context(cpi);
+    return AOM_CODEC_OK;
+  }
 
   // Compute sse and rate.
   if (sse != NULL) {
