@@ -129,6 +129,7 @@ class DatarateTestSVC
       if (screen_mode_) {
         encoder->Control(AV1E_SET_TUNE_CONTENT, AOM_CONTENT_SCREEN);
       }
+      encoder->Control(AV1E_SET_POSTENCODE_DROP_RTC, 1);
     }
     if (number_spatial_layers_ == 2) {
       spatial_layer_id = (layer_frame_cnt_ % 2 == 0) ? 0 : 1;
