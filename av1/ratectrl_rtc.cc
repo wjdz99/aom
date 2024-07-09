@@ -283,12 +283,12 @@ FrameDropDecision AV1RateControlRTC::ComputeQP(
       cpi_->svc.layer_context[layer].is_key_frame = 0;
     }
   }
-  if (cpi_->svc.spatial_layer_id == cpi_->svc.number_spatial_layers - 1)
-    cpi_->rc.frames_since_key++;
   if (cpi_->svc.number_spatial_layers > 1 ||
       cpi_->svc.number_temporal_layers > 1) {
     av1_update_temporal_layer_framerate(cpi_);
     av1_restore_layer_context(cpi_);
+  } else {
+    cpi_->rc.frames_since_key++;
   }
   int target = 0;
   if (cpi_->oxcf.rc_cfg.mode == AOM_CBR) {
@@ -364,8 +364,12 @@ bool AV1RateControlRTC::GetSegmentationData(
 
 void AV1RateControlRTC::PostEncodeUpdate(uint64_t encoded_frame_size) {
   cpi_->common.current_frame.frame_number++;
-  if (cpi_->svc.spatial_layer_id == cpi_->svc.number_spatial_layers - 1)
+  if (cpi_->svc.spatial_layer_id == cpi_->svc.number_spatial_layers - 1) {
     cpi_->svc.prev_number_spatial_layers = cpi_->svc.number_spatial_layers;
+    if (cpi_->svc.number_spatial_layers > 1 ||
+        cpi_->svc.number_temporal_layers > 1)
+      cpi_->rc.frames_since_key++;
+  }
   av1_rc_postencode_update(cpi_, encoded_frame_size);
   if (cpi_->svc.number_spatial_layers > 1 ||
       cpi_->svc.number_temporal_layers > 1)
