@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e65e3e82_fb9b1921",
+        "filename": "aom/aomcx.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 1551,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-07-10T20:56:46Z",
+      "side": 1,
+      "message": "The new comment makes it clear how you parse \"HIGH_MOTION_CONTENT_SCREEN_RTC\". Thanks!\n\nShould we document that this is only used for speed \u003e\u003d 11? Or is that an implementation detail?",
+      "revId": "796e7c37505152d66e2bf5f45f0540af90db374f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "abc21467_10b2d614",
+        "filename": "aom/aomcx.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 1553,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-07-10T20:56:46Z",
+      "side": 1,
+      "message": "Could you document how this codec control is intended to be used? The example in https://aomedia-review.googlesource.com/c/aom/+/191503 only calls the codec control but discards the output.\n\nIt is not clear how a client of libaom could use this information. Are you planning to use this in diagnostic messages?",
+      "revId": "796e7c37505152d66e2bf5f45f0540af90db374f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
