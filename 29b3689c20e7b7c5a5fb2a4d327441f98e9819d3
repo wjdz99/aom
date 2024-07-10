@@ -1,0 +1,140 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d599290a_f213a31f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 14
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-07-10T22:43:29Z",
+      "side": 1,
+      "message": "Marco: Most of my comments are just nits, but please see the long comment at line 2707 in av1_cx_iface.c.",
+      "revId": "29b3689c20e7b7c5a5fb2a4d327441f98e9819d3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ad5f2371_bb879313",
+        "filename": "aom/aomcx.h",
+        "patchSetId": 14
+      },
+      "lineNbr": 1558,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-07-10T22:43:29Z",
+      "side": 1,
+      "message": "Nit: change \"unsigned int\" to \"int\" to match the type of `cpi-\u003erc.post_encode_drop`.",
+      "revId": "29b3689c20e7b7c5a5fb2a4d327441f98e9819d3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4e41f373_99806e74",
+        "filename": "aom/aomcx.h",
+        "patchSetId": 14
+      },
+      "lineNbr": 2227,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-07-10T22:43:29Z",
+      "side": 1,
+      "message": "Nit: Change \"unsigned int\" to \"int\"",
+      "revId": "29b3689c20e7b7c5a5fb2a4d327441f98e9819d3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9646660d_9e0c4fe2",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 14
+      },
+      "lineNbr": 1648,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-07-10T22:43:29Z",
+      "side": 1,
+      "message": "This function shows all the `cpi` objects. First, there may be multiple `cpi` objects (presumably for frame-parallel multithreading). Second, there may be `cpi_lap`.",
+      "revId": "29b3689c20e7b7c5a5fb2a4d327441f98e9819d3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3a657137_8c217e12",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 14
+      },
+      "lineNbr": 2707,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-07-10T22:43:29Z",
+      "side": 1,
+      "message": "I\u0027m sorry this comment is very long.\n\n1) (This issue already exists in the `ctrl_set_bitrate_one_pass_cbr`, `ctrl_set_max_consec_frame_drop_cbr`, and `ctrl_set_svc_frame_drop_mode` functions above.) There may be multiple `cpi` objects now. (I believe this was introduced in frame-parallel multithreading.) So the `cpi` object here is only the main/default one. See my comment at line 1648.\n\nIt would be good for these codec controls to check that there is only one `cpi` object, i.e., `ctx-\u003eppi-\u003enum_fp_contexts \u003d\u003d 1 \u0026\u0026 ctx-\u003eppi-\u003ecpi_lap \u003d\u003d NULL`.\n\n2) Another issue is that this codec control does not go through `extra_cfg`. (See lines 2699-2701 for an example of going through `extra_cfg`.)\n\nSo it seems that this codec control (and the three codec control I mentioned above) is taking a shortcut. I am not sure what the implications are if a codec control does not go through `extra_cfg` and modifies a field of `cpi` directly. It may be okay.",
+      "revId": "29b3689c20e7b7c5a5fb2a4d327441f98e9819d3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c75a1fb7_287e8c03",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 14
+      },
+      "lineNbr": 2708,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-07-10T22:43:29Z",
+      "side": 1,
+      "message": "Change `va_arg(args, int)` to `CAST(AV1E_SET_POSTENCODE_DROP_RTC, args)`.",
+      "revId": "29b3689c20e7b7c5a5fb2a4d327441f98e9819d3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2d848d01_711ed43a",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 14
+      },
+      "lineNbr": 2710,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-07-10T22:43:29Z",
+      "side": 1,
+      "message": "Save the argument in a local variable and validate the value. Assign the value to `cpi-\u003erc.post_encode_drop` only when the value is valid.",
+      "revId": "29b3689c20e7b7c5a5fb2a4d327441f98e9819d3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3e2016b3_e8247060",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 14
+      },
+      "lineNbr": 3292,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-07-10T22:43:29Z",
+      "side": 1,
+      "message": "Nit: It would be good to spell \"post encode\" as one word or two words consistently. Here you can see both spellings are used.\n\nIf you choose two words, also change `AV1E_SET_POSTENCODE_DROP_RTC` to `AV1E_SET_POST_ENCODE_DROP_RTC`.",
+      "revId": "29b3689c20e7b7c5a5fb2a4d327441f98e9819d3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
