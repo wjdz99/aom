@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ab4996f9_02922c30",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 3825,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2024-07-10T00:54:21Z",
+      "side": 1,
+      "message": "you may want to add an empty new line at the end of the file. I think every file has a new line at the end.",
+      "revId": "9babcfdfef3262c6f547accaffabcb210b2ac084",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
