@@ -2631,6 +2631,8 @@ static aom_codec_err_t ctrl_set_skip_postproc_filtering(
 
 static aom_codec_err_t ctrl_set_rtc_external_rc(aom_codec_alg_priv_t *ctx,
                                                 va_list args) {
+  if (ctx->ppi->num_fp_contexts > 1 || ctx->ppi->cpi_lap != NULL)
+    return AOM_CODEC_ERROR;
   ctx->ppi->cpi->rc.rtc_external_ratectrl =
       CAST(AV1E_SET_RTC_EXTERNAL_RC, args);
   return AOM_CODEC_OK;
@@ -2653,6 +2655,8 @@ static aom_codec_err_t ctrl_set_quantizer_one_pass(aom_codec_alg_priv_t *ctx,
 
 static aom_codec_err_t ctrl_set_bitrate_one_pass_cbr(aom_codec_alg_priv_t *ctx,
                                                      va_list args) {
+  if (ctx->ppi->num_fp_contexts > 1 || ctx->ppi->cpi_lap != NULL)
+    return AOM_CODEC_ERROR;
   AV1_PRIMARY *const ppi = ctx->ppi;
   AV1_COMP *const cpi = ppi->cpi;
   AV1EncoderConfig *oxcf = &cpi->oxcf;
@@ -2671,6 +2675,8 @@ static aom_codec_err_t ctrl_set_bitrate_one_pass_cbr(aom_codec_alg_priv_t *ctx,
 
 static aom_codec_err_t ctrl_set_max_consec_frame_drop_cbr(
     aom_codec_alg_priv_t *ctx, va_list args) {
+  if (ctx->ppi->num_fp_contexts > 1 || ctx->ppi->cpi_lap != NULL)
+    return AOM_CODEC_ERROR;
   AV1_PRIMARY *const ppi = ctx->ppi;
   AV1_COMP *const cpi = ppi->cpi;
   const int max_consec_drop = CAST(AV1E_SET_MAX_CONSEC_FRAME_DROP_CBR, args);
@@ -2682,6 +2688,8 @@ static aom_codec_err_t ctrl_set_max_consec_frame_drop_cbr(
 
 static aom_codec_err_t ctrl_set_svc_frame_drop_mode(aom_codec_alg_priv_t *ctx,
                                                     va_list args) {
+  if (ctx->ppi->num_fp_contexts > 1 || ctx->ppi->cpi_lap != NULL)
+    return AOM_CODEC_ERROR;
   AV1_PRIMARY *const ppi = ctx->ppi;
   AV1_COMP *const cpi = ppi->cpi;
   cpi->svc.framedrop_mode = CAST(AV1E_SET_SVC_FRAME_DROP_MODE, args);
@@ -3690,6 +3698,8 @@ static aom_codec_err_t ctrl_set_scale_mode(aom_codec_alg_priv_t *ctx,
 
 static aom_codec_err_t ctrl_set_spatial_layer_id(aom_codec_alg_priv_t *ctx,
                                                  va_list args) {
+  if (ctx->ppi->num_fp_contexts > 1 || ctx->ppi->cpi_lap != NULL)
+    return AOM_CODEC_ERROR;
   const int spatial_layer_id = va_arg(args, int);
   if (spatial_layer_id >= MAX_NUM_SPATIAL_LAYERS)
     return AOM_CODEC_INVALID_PARAM;
@@ -3715,6 +3725,8 @@ static aom_codec_err_t ctrl_set_number_spatial_layers(aom_codec_alg_priv_t *ctx,
 
 static aom_codec_err_t ctrl_set_layer_id(aom_codec_alg_priv_t *ctx,
                                          va_list args) {
+  if (ctx->ppi->num_fp_contexts > 1 || ctx->ppi->cpi_lap != NULL)
+    return AOM_CODEC_ERROR;
   aom_svc_layer_id_t *const data = va_arg(args, aom_svc_layer_id_t *);
   ctx->ppi->cpi->common.spatial_layer_id = data->spatial_layer_id;
   ctx->ppi->cpi->common.temporal_layer_id = data->temporal_layer_id;
@@ -3725,6 +3737,8 @@ static aom_codec_err_t ctrl_set_layer_id(aom_codec_alg_priv_t *ctx,
 
 static aom_codec_err_t ctrl_set_svc_params(aom_codec_alg_priv_t *ctx,
                                            va_list args) {
+  if (ctx->ppi->num_fp_contexts > 1 || ctx->ppi->cpi_lap != NULL)
+    return AOM_CODEC_ERROR;
   AV1_PRIMARY *const ppi = ctx->ppi;
   AV1_COMP *const cpi = ppi->cpi;
   aom_svc_params_t *const params = va_arg(args, aom_svc_params_t *);
@@ -3805,6 +3819,8 @@ static aom_codec_err_t ctrl_set_svc_params(aom_codec_alg_priv_t *ctx,
 
 static aom_codec_err_t ctrl_set_svc_ref_frame_config(aom_codec_alg_priv_t *ctx,
                                                      va_list args) {
+  if (ctx->ppi->num_fp_contexts > 1 || ctx->ppi->cpi_lap != NULL)
+    return AOM_CODEC_ERROR;
   AV1_COMP *const cpi = ctx->ppi->cpi;
   aom_svc_ref_frame_config_t *const data =
       va_arg(args, aom_svc_ref_frame_config_t *);
@@ -3822,6 +3838,8 @@ static aom_codec_err_t ctrl_set_svc_ref_frame_config(aom_codec_alg_priv_t *ctx,
 
 static aom_codec_err_t ctrl_set_svc_ref_frame_comp_pred(
     aom_codec_alg_priv_t *ctx, va_list args) {
+  if (ctx->ppi->num_fp_contexts > 1 || ctx->ppi->cpi_lap != NULL)
+    return AOM_CODEC_ERROR;
   AV1_COMP *const cpi = ctx->ppi->cpi;
   aom_svc_ref_frame_comp_pred_t *const data =
       va_arg(args, aom_svc_ref_frame_comp_pred_t *);
