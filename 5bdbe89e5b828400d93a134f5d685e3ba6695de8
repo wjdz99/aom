@@ -1,0 +1,106 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "91d38f6d_614830ec",
+        "filename": "aom/aomcx.h",
+        "patchSetId": 15
+      },
+      "lineNbr": 1557,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-07-11T19:06:10Z",
+      "side": 1,
+      "message": "Nit: add \"frame\" before \"drop\"",
+      "revId": "5bdbe89e5b828400d93a134f5d685e3ba6695de8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "472ce31f_72f400ba",
+        "filename": "aom/aomcx.h",
+        "patchSetId": 15
+      },
+      "lineNbr": 1560,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-07-11T19:06:10Z",
+      "side": 1,
+      "message": "`rc_dropframe_thresh` may be a typo. Please see my comment in encoder.h:4116.",
+      "revId": "5bdbe89e5b828400d93a134f5d685e3ba6695de8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5ac68123_a6b39ef3",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 15
+      },
+      "lineNbr": 4116,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-07-11T19:06:10Z",
+      "side": 1,
+      "message": "The comment in aomcx.h says:\n\n```\n                                  ... Postencode drop is only allowed\n   * when frame dropping is enabled (rc_dropframe_thresh \u003e 0).\n```\n\nBut `rc_dropframe_thresh` is not check here. Did you mean `drop_frames_water_mark`?",
+      "revId": "5bdbe89e5b828400d93a134f5d685e3ba6695de8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5d6ddc57_3d84c00f",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 15
+      },
+      "lineNbr": 3834,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-07-11T19:06:10Z",
+      "side": 1,
+      "message": "It seems that this should not be necessary. (I don\u0027t really understand this code, so I could be wrong.)\n\nIf this is necessary, shouldn\u0027t we also set all `lrc-\u003eforce_max_q` to 0? See line 3823 above.",
+      "revId": "5bdbe89e5b828400d93a134f5d685e3ba6695de8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "39966b44_bfe5c3fa",
+        "filename": "av1/encoder/ratectrl.h",
+        "patchSetId": 15
+      },
+      "lineNbr": 832,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-07-11T19:06:10Z",
+      "side": 1,
+      "message": "`size` is an in/out parameter. Below we should document that `*size` is cleared to 0 when this function returns 1 (the frame is dropped).",
+      "revId": "5bdbe89e5b828400d93a134f5d685e3ba6695de8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b102336b_727d978a",
+        "filename": "test/svc_datarate_test.cc",
+        "patchSetId": 15
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-07-11T19:06:10Z",
+      "side": 1,
+      "message": "I am surprised that the tests don\u0027t need to be updated when we enable postencode frame drop. Is there a way to detect that it is working?",
+      "revId": "5bdbe89e5b828400d93a134f5d685e3ba6695de8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
