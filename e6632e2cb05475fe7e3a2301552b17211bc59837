@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a53b8734_2f17d3f6",
+        "filename": "aom_dsp/x86/txfm_common_avx2.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-07-11T21:10:54Z",
+      "side": 1,
+      "message": "James: I hope this change doesn\u0027t degrade performance. Please double check. Thanks!\n\nThe original code is correct.",
+      "revId": "e6632e2cb05475fe7e3a2301552b17211bc59837",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
