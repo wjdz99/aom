@@ -966,7 +966,7 @@ static aom_codec_err_t validate_img(aom_codec_alg_priv_t *ctx,
   return AOM_CODEC_OK;
 }
 
-static int get_image_bps(const aom_image_t *img) {
+static unsigned int get_image_bps(const aom_image_t *img) {
   switch (img->fmt) {
     case AOM_IMG_FMT_YV12:
     case AOM_IMG_FMT_NV12:
@@ -3040,7 +3040,7 @@ static aom_codec_err_t encoder_encode(aom_codec_alg_priv_t *ctx,
     res = validate_img(ctx, img);
     if (res == AOM_CODEC_OK) {
       const size_t uncompressed_frame_sz =
-          ALIGN_POWER_OF_TWO_UNSIGNED(ctx->cfg.g_w, 5) *
+          (size_t)ALIGN_POWER_OF_TWO_UNSIGNED(ctx->cfg.g_w, 5) *
           ALIGN_POWER_OF_TWO_UNSIGNED(ctx->cfg.g_h, 5) * get_image_bps(img) / 8;
 
       // Due to the presence of no-show frames, the ctx->cx_data buffer holds
