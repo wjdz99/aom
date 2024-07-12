@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a90ebe0c_766345a5",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 969,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-07-12T00:42:18Z",
+      "side": 1,
+      "message": "This change isn\u0027t really necessary. It is more of a cosmetic change (so that all operands in the expresssion at lines 3043-3044 are unsigned).\n\nPlease let me know if you prefer the original `int` type.",
+      "revId": "aa9a9f0d844e500051a9bbe54981d10460719db6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c8f49954_49c6e838",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 3044,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-07-12T00:42:18Z",
+      "side": 1,
+      "message": "This fix the `-fsanitize\u003dinteger` error:\n\n\u003e unsigned integer overflow: 1108994048 * 24 cannot be represented in type \u0027unsigned int\u0027\n\nAll the operands are of the `uint32_t` or `int` type, so the `int` operands are promoted to `uint32_t`.",
+      "revId": "aa9a9f0d844e500051a9bbe54981d10460719db6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "54802e80_8df36925",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2110,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-07-12T00:42:18Z",
+      "side": 1,
+      "message": "Note that `sum` is the sum of all the `cpi-\u003etd.rd_counts.tx_type_used[i][j]` values.",
+      "revId": "aa9a9f0d844e500051a9bbe54981d10460719db6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9abd4c6b_b3bac549",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2117,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-07-12T00:42:18Z",
+      "side": 1,
+      "message": "This fixes the UBSan error:\n\n\u003e signed integer overflow: 4172333 * 1024 cannot be represented in type \u0027int\u0027\n\nHere, the fraction `cpi-\u003etd.rd_counts.tx_type_used[i][j] / sum` is \u003c\u003d 1 (see my note at line 2110), so the whole expression is \u003c\u003d `MAX_TX_TYPE_PROB` (\u003d 1024). Therefore it is safe to cast the result of the whole expression to `int`.",
+      "revId": "aa9a9f0d844e500051a9bbe54981d10460719db6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c5454582_feb49f10",
+        "filename": "av1/encoder/encodetxb.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-07-12T00:42:18Z",
+      "side": 1,
+      "message": "This multiplication will overflow `int`. (I forgot to save the UBSan error message.) We cast the operands to `size_t`. Since `size_t` may be 32 bits, we still check for potential overflow here and below.",
+      "revId": "aa9a9f0d844e500051a9bbe54981d10460719db6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
