@@ -286,6 +286,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "a765aea6_fb0be543",
+        "filename": "av1/encoder/encodetxb.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-07-12T20:39:53Z",
+      "side": 1,
+      "message": "\u003e This GCC bug report also has useful info: https://gcc.gnu.org/bugzilla/show_bug.cgi?id\u003d95130\n\nI saw that one. I thought that might have to do with a second attribute being ignored on the function.",
+      "parentUuid": "73ea3a8e_e6ed8e94",
+      "revId": "aa9a9f0d844e500051a9bbe54981d10460719db6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "c5454582_feb49f10",
         "filename": "av1/encoder/encodetxb.c",
         "patchSetId": 2
