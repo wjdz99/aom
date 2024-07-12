@@ -122,6 +122,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "4166bc46_a7fd6d60",
+        "filename": "av1/encoder/encodetxb.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-07-12T17:44:26Z",
+      "side": 1,
+      "message": "\u003e \u003e \u003e James: I was using the `%zu` format to print `size_t` values here, but the GCC (GNU 10.0.0) in the mingw configurations does not support the `z` format specifier (a C99 feature):\n\u003e \u003e \u003e https://build.aomedia.org/jenkins/job/libaom__commit_trigger/76976/\n\u003e \u003e \u003e \n\u003e \u003e \u003e Is that expected? The console output shows that compiler supports C99:\n\u003e \u003e \u003e \n\u003e \u003e \u003e ```\n\u003e \u003e \u003e 16:20:14 Checking C compiler flag support for: -std\u003dc99\n\u003e \u003e \u003e 16:20:14 -- Performing Test HAVE_C_FLAG\n\u003e \u003e \u003e 16:20:14 -- Performing Test HAVE_C_FLAG - Success\n\u003e \u003e \u003e ```\n\u003e \u003e \n\u003e \u003e A simple test with `printf` using the same flags seems to work. I\u0027ll look a little closer.\n\u003e \n\u003e Changing [`__printf__` to `__gnu_printf__`](https://aomedia.googlesource.com/aom/+/refs/tags/v3.9.1/aom/internal/aom_codec_internal.h#393) works. The same issue persists with {i686,x86_64}-w64-mingw32-gcc-13. I don\u0027t know what other effects that might have.\n\nhttps://gcc.gnu.org/onlinedocs/gcc/Common-Function-Attributes.html#index-format-function-attribute\n\nThough it doesn\u0027t seem to be referenced in much older 4.x docs. If we wanted to use this we\u0027d need to check for the availability.",
+      "parentUuid": "cc158bdb_778360bf",
+      "revId": "aa9a9f0d844e500051a9bbe54981d10460719db6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "c5454582_feb49f10",
