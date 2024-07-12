@@ -91,6 +91,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "1358c24a_79ae4cfb",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 3044,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-07-12T18:24:46Z",
+      "side": 1,
+      "message": "\u003e Done. Good point. I now cast the operands to `uint64_t` and cast the final result to `size_t`.\n\u003e \n\u003e I assume the input `img` is valid. Since th caller has successfully allocated buffers for the uncompressed image, the uncompressed image size can be represented in `size_t`. So it is safe to cast the final `uint64_t` result to `size_t` without checking.\n\nThat\u0027s one way to look at it, we don\u0027t validate the data in `validate_img()`. I was worried because larger sizes will overflow. There\u0027s also a multiplier of 8 or 2 that will be applied at line 3060.",
+      "parentUuid": "0c9a04e2_b34af386",
+      "revId": "aa9a9f0d844e500051a9bbe54981d10460719db6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "54802e80_8df36925",
         "filename": "av1/encoder/encodeframe.c",
         "patchSetId": 2
@@ -208,6 +226,24 @@
       "side": 1,
       "message": "Thanks a lot for investigating this! With your findings, I found a relevant Stack Overflow article:\nhttps://stackoverflow.com/questions/68900199/how-to-get-mingw-gcc-to-recognize-the-zu-format-specifier-for-size-t\n\nI think I understand the situation now.\n\n1) The `printf()` in the old msvcrt.dll does NOT support the `z` format specifier for `size_t`.\n\n2) The `printf()` in the new UCRT supports the `z` format specifier. (So you must have tested `printf()` with UCRT.)\n\n3) GCC\u0027s printf format checker in mingw assumes the worst case (msvcrt.dll), hence the warning.\n\nIf my understanding is correct, I propose the following.\n\n1) We only supoort the new UCRT mingw environments.\n\n2) We define `LIBAOM_FORMAT_PRINTF(string_index, first_to_check)\n` as empty in mingw.",
       "parentUuid": "4166bc46_a7fd6d60",
+      "revId": "aa9a9f0d844e500051a9bbe54981d10460719db6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5b9fb865_0714ad57",
+        "filename": "av1/encoder/encodetxb.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-07-12T18:24:46Z",
+      "side": 1,
+      "message": "\u003e Thanks a lot for investigating this! With your findings, I found a relevant Stack Overflow article:\n\u003e https://stackoverflow.com/questions/68900199/how-to-get-mingw-gcc-to-recognize-the-zu-format-specifier-for-size-t\n\u003e \n\u003e I think I understand the situation now.\n\u003e \n\u003e 1) The `printf()` in the old msvcrt.dll does NOT support the `z` format specifier for `size_t`.\n\u003e \n\u003e 2) The `printf()` in the new UCRT supports the `z` format specifier. (So you must have tested `printf()` with UCRT.)\n\u003e \n\nI don\u0027t think that\u0027s true. I was building using the older gcc-10 version as well as gcc-13 with their defaults on linux. I looked at stdio.h for those and noticed the use of `__gnu_printf__`. The linux version doesn\u0027t have them at all in the headers, there might be some builtin attributes for them.\n\n\u003e 3) GCC\u0027s printf format checker in mingw assumes the worst case (msvcrt.dll), hence the warning.\n\u003e \n\u003e If my understanding is correct, I propose the following.\n\u003e \n\u003e 1) We only supoort the new UCRT mingw environments.\n\u003e \n\u003e 2) We define `LIBAOM_FORMAT_PRINTF(string_index, first_to_check)\n\u003e ` as empty in mingw.",
+      "parentUuid": "a3982d21_59eec5b9",
       "revId": "aa9a9f0d844e500051a9bbe54981d10460719db6",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
