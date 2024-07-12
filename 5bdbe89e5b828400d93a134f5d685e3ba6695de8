@@ -71,6 +71,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "12c1e3b2_4ec69130",
+        "filename": "aom/aomcx.h",
+        "patchSetId": 15
+      },
+      "lineNbr": 1560,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-07-12T00:24:57Z",
+      "side": 1,
+      "message": "Thanks.",
+      "parentUuid": "e441db53_2a4d053d",
+      "revId": "5bdbe89e5b828400d93a134f5d685e3ba6695de8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "5ac68123_a6b39ef3",
@@ -106,6 +124,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "fc117507_2c02e22c",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 15
+      },
+      "lineNbr": 4116,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-07-12T00:24:57Z",
+      "side": 1,
+      "message": "Thanks.",
+      "parentUuid": "587e6dc2_4e6ab737",
+      "revId": "5bdbe89e5b828400d93a134f5d685e3ba6695de8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "5d6ddc57_3d84c00f",
@@ -137,6 +173,24 @@
       "side": 1,
       "message": "shouldn\u0027t be needed here since it gets unset once it\u0027s used (in av1_set_size_dependent_vars), so removed it.",
       "parentUuid": "5d6ddc57_3d84c00f",
+      "revId": "5bdbe89e5b828400d93a134f5d685e3ba6695de8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "25929c90_8397624d",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 15
+      },
+      "lineNbr": 3834,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-07-12T00:24:57Z",
+      "side": 1,
+      "message": "I now have a new question. Please see my comment at line 3823.",
+      "parentUuid": "0261c701_15ca2cce",
       "revId": "5bdbe89e5b828400d93a134f5d685e3ba6695de8",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
