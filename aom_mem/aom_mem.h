@@ -25,7 +25,7 @@ extern "C" {
 
 #ifndef AOM_MAX_ALLOCABLE_MEMORY
 #if SIZE_MAX > (1ULL << 32)
-#define AOM_MAX_ALLOCABLE_MEMORY 8589934592  // 8 GB
+#define AOM_MAX_ALLOCABLE_MEMORY (8589934592 * 2)  // 16 GB
 #else
 // For 32-bit targets keep this below INT_MAX to avoid valgrind warnings.
 #define AOM_MAX_ALLOCABLE_MEMORY ((1ULL << 31) - (1 << 16))

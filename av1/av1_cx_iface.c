@@ -672,8 +672,8 @@ static aom_codec_err_t validate_config(aom_codec_alg_priv_t *ctx,
                                             ? cfg->g_forced_max_frame_height
                                             : cfg->g_h;
   const int64_t max_frame_area = (int64_t)max_frame_width * max_frame_height;
-  if (max_frame_area > (1 << 30)) {
-    ERROR("max_frame_area out of range [..2^30]");
+  if (max_frame_area > INT_MAX) {
+    ERROR("max_frame_area out of range [..2^31-1]");
   }
   RANGE_CHECK(cfg, g_timebase.den, 1, 1000000000);
   RANGE_CHECK(cfg, g_timebase.num, 1, 1000000000);
