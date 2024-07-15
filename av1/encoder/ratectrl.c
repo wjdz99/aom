@@ -444,6 +444,7 @@ void av1_rc_init(const AV1EncoderConfig *oxcf, RATE_CONTROL *rc) {
   rc->percent_blocks_inactive = 0;
   rc->force_max_q = 0;
   rc->postencode_drop = 0;
+  rc->frames_since_scene_change = 0;
 }
 
 static bool check_buffer_below_thresh(AV1_COMP *cpi, int64_t buffer_level,
@@ -680,6 +681,12 @@ static int adjust_q_cbr(const AV1_COMP *cpi, int q, int active_worst_quality,
   if (cpi->ppi->rtc_ref.bias_recovery_frame) {
     const int min_dist = av1_svc_get_min_ref_dist(cpi);
     q = q - AOMMIN(min_dist, 20);
+  }
+  // Adjustment for keyframes based on spatial content and last encoded
+  // keyframe.
+  if (frame_is_intra_only(cm) && cpi->sf.rt_sf.rc_adjust_keyframe &&
+      svc->spatial_layer_id == 0) {
+    // TODO(marpan): Add logic here.
   }
   return AOMMAX(AOMMIN(q, cpi->rc.worst_quality), cpi->rc.best_quality);
 }
@@ -2324,6 +2331,10 @@ void av1_rc_postencode_update(AV1_COMP *cpi, uint64_t bytes_used) {
     p_rc->last_q[KEY_FRAME] = qindex;
     p_rc->avg_frame_qindex[KEY_FRAME] =
         ROUND_POWER_OF_TWO(3 * p_rc->avg_frame_qindex[KEY_FRAME] + qindex, 2);
+    if (cpi->svc.spatial_layer_id == 0) {
+      rc->encoded_size_keyframe = rc->projected_frame_size;
+      rc->target_size_keyframe = rc->this_frame_target;
+    }
   } else {
     if ((cpi->ppi->use_svc && cpi->oxcf.rc_cfg.mode == AOM_CBR) ||
         cpi->rc.rtc_external_ratectrl ||
@@ -2434,7 +2445,12 @@ void av1_rc_postencode_update_drop_frame(AV1_COMP *cpi) {
   if (cpi->svc.spatial_layer_id == cpi->svc.number_spatial_layers - 1) {
     cpi->rc.frames_since_key++;
     cpi->rc.frames_to_key--;
+    if (cpi->rc.high_source_sad == 1)
+      cpi->rc.frames_since_scene_change = 0;
+    else
+      cpi->rc.frames_since_scene_change++;
   }
+
   cpi->rc.rc_2_frame = 0;
   cpi->rc.rc_1_frame = 0;
   cpi->rc.prev_avg_frame_bandwidth = cpi->rc.avg_frame_bandwidth;
@@ -3333,6 +3349,67 @@ static void rc_scene_detection_onepass_rt(AV1_COMP *cpi,
   }
 }
 
+// This is used as a reference when computing the source variance.
+static const uint8_t AV1_VAR_OFFS[MAX_SB_SIZE] = {
+  128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128,
+  128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128,
+  128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128,
+  128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128,
+  128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128,
+  128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128,
+  128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128,
+  128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128,
+  128, 128, 128, 128, 128, 128, 128, 128
+};
+
+/*!\brief Compute spatial activity for keyframe,  1 pass real-time mode.
+ *
+ * Compute average spatial activity/variance for source frame over a
+ * subset of superblocks.
+ *
+ * \ingroup rate_control
+ * \param[in]       cpi          Top level encoder structure
+ * \param[in]       frame_input  Current input source frames
+ *
+ * \remark Nothing is returned. Instead the average spatial variance
+ * computed is stored in flag \c cpi->rc.spatial_variance_keyframe.
+ */
+static void rc_spatial_act_keyframe_onepass_rt(
+    AV1_COMP *cpi, const EncodeFrameInput *frame_input) {
+  AV1_COMMON *const cm = &cpi->common;
+  YV12_BUFFER_CONFIG const *const unscaled_src = frame_input->source;
+  uint8_t *src_y;
+  int src_ystride;
+  if (unscaled_src == NULL) return;
+  src_y = unscaled_src->y_buffer;
+  src_ystride = unscaled_src->y_stride;
+  int num_mi_cols = cm->mi_params.mi_cols;
+  int num_mi_rows = cm->mi_params.mi_rows;
+  const BLOCK_SIZE bsize = BLOCK_64X64;
+  // Loop over sub-sample of frame, compute average over 64x64 blocks.
+  uint64_t avg_variance = 0;
+  int num_samples = 0;
+  const int sb_size_by_mb = (cm->seq_params->sb_size == BLOCK_128X128)
+                                ? (cm->seq_params->mib_size >> 1)
+                                : cm->seq_params->mib_size;
+  const int sb_cols = (num_mi_cols + sb_size_by_mb - 1) / sb_size_by_mb;
+  const int sb_rows = (num_mi_rows + sb_size_by_mb - 1) / sb_size_by_mb;
+  cpi->rc.spatial_variance_keyframe = 0;
+  for (int sbi_row = 0; sbi_row < sb_rows; ++sbi_row) {
+    for (int sbi_col = 0; sbi_col < sb_cols; ++sbi_col) {
+      unsigned int sse;
+      const unsigned int var =
+          cpi->ppi->fn_ptr[bsize].vf(src_y, src_ystride, AV1_VAR_OFFS, 0, &sse);
+      avg_variance += var;
+      num_samples++;
+      src_y += 64;
+    }
+    src_y += (src_ystride << 6) - (sb_cols << 6);
+  }
+  if (num_samples > 0) avg_variance = avg_variance / num_samples;
+  cpi->rc.spatial_variance_keyframe = avg_variance >> 12;
+}
+
 /*!\brief Set the GF baseline interval for 1 pass real-time mode.
  *
  *
@@ -3643,6 +3720,9 @@ void av1_get_one_pass_rt_params(AV1_COMP *cpi, FRAME_TYPE *const frame_type,
       cpi->src_sad_blk_64x64 = NULL;
     }
   }
+  if (*frame_type == KEY_FRAME && cpi->sf.rt_sf.rc_adjust_keyframe &&
+      svc->spatial_layer_id == 0 && cm->seq_params->bit_depth == 8)
+    rc_spatial_act_keyframe_onepass_rt(cpi, frame_input);
   // Check for dynamic resize, for single spatial layer for now.
   // For temporal layers only check on base temporal layer.
   if (cpi->oxcf.resize_cfg.resize_mode == RESIZE_DYNAMIC) {

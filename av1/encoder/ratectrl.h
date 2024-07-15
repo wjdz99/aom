@@ -194,6 +194,10 @@ typedef struct {
   uint64_t avg_source_sad;
   uint64_t prev_avg_source_sad;
   uint64_t frame_source_sad;
+  uint64_t spatial_variance_keyframe;
+  int encoded_size_keyframe;
+  int target_size_keyframe;
+  int frames_since_scene_change;
 
   int avg_frame_bandwidth;  // Average frame size target for clip
   int min_frame_bandwidth;  // Minimum allocation used for any frame

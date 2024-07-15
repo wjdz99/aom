@@ -4464,6 +4464,10 @@ static AOM_INLINE void update_keyframe_counters(AV1_COMP *cpi) {
       cpi->rc.frames_since_key++;
       cpi->rc.frames_to_key--;
       cpi->rc.frames_to_fwd_kf--;
+      if (cpi->rc.high_source_sad == 1)
+        cpi->rc.frames_since_scene_change = 0;
+      else
+        cpi->rc.frames_since_scene_change++;
     }
   }
 }
