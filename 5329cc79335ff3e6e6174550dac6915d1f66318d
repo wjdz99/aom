@@ -50,6 +50,24 @@
       "message": "Remove the `int` cast.\n\nUnlike the VP9 code, where `target` is of the `int` type, the `int` cast is not necessary here because the `av1_rc_clamp_iframe_target_size()` call at line 2791 takes `int64_t target` as input and is responsible for casting its return value to `int`.",
       "revId": "5329cc79335ff3e6e6174550dac6915d1f66318d",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0ebdae03_f85ad513",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 2789,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2024-07-15T21:21:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "96fa3039_fabb00cf",
+      "revId": "5329cc79335ff3e6e6174550dac6915d1f66318d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
