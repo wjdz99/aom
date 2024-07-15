@@ -78,23 +78,6 @@ static int realloc_frame_buffer_aligned(
     assert(!alloc_pyramid);
 #endif  // CONFIG_REALTIME_ONLY || !CONFIG_AV1_ENCODER
 
-#if defined AOM_MAX_ALLOCABLE_MEMORY
-    // The size of ybf->buffer_alloc.
-    uint64_t alloc_size = frame_size;
-#if CONFIG_AV1_ENCODER && !CONFIG_REALTIME_ONLY
-    // The size of ybf->y_pyramid
-    if (alloc_pyramid) {
-      alloc_size += aom_get_pyramid_alloc_size(width, height, use_highbitdepth);
-      alloc_size += av1_get_corner_list_size();
-    }
-#endif  // CONFIG_AV1_ENCODER && !CONFIG_REALTIME_ONLY
-    // The decoder may allocate REF_FRAMES frame buffers in the frame buffer
-    // pool. Bound the total amount of allocated memory as if these REF_FRAMES
-    // frame buffers were allocated in a single allocation.
-    if (alloc_size > AOM_MAX_ALLOCABLE_MEMORY / REF_FRAMES)
-      return AOM_CODEC_MEM_ERROR;
-#endif
-
     if (cb != NULL) {
       const int align_addr_extra_size = 31;
       const uint64_t external_frame_size = frame_size + align_addr_extra_size;
