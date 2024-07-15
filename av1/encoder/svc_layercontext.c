@@ -225,6 +225,9 @@ void av1_restore_layer_context(AV1_COMP *const cpi) {
   LAYER_CONTEXT *const lc = get_layer_context(cpi);
   const int old_frame_since_key = cpi->rc.frames_since_key;
   const int old_frame_to_key = cpi->rc.frames_to_key;
+  const int frames_since_scene_change = cpi->rc.frames_since_scene_change;
+  const int last_encoded_size_keyframe = cpi->rc.last_encoded_size_keyframe;
+  const int last_target_size_keyframe = cpi->rc.last_target_size_keyframe;
   const int max_consec_drop = cpi->rc.max_consec_drop;
   const int postencode_drop = cpi->rc.postencode_drop;
   // Restore layer rate control.
@@ -239,6 +242,9 @@ void av1_restore_layer_context(AV1_COMP *const cpi) {
   // before the layer restore. Keep these defined for the stream (not layer).
   cpi->rc.frames_since_key = old_frame_since_key;
   cpi->rc.frames_to_key = old_frame_to_key;
+  cpi->rc.frames_since_scene_change = frames_since_scene_change;
+  cpi->rc.last_encoded_size_keyframe = last_encoded_size_keyframe;
+  cpi->rc.last_target_size_keyframe = last_target_size_keyframe;
   // Reset to value before the layer restore.
   cpi->rc.max_consec_drop = max_consec_drop;
   cpi->rc.postencode_drop = postencode_drop;
