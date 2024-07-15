@@ -1648,6 +1648,9 @@ typedef struct REAL_TIME_SPEED_FEATURES {
   // Check for scene/content change detection on every frame before encoding.
   int check_scene_detection;
 
+  // For keyframes in rtc: adjust the RC based on content.
+  int rc_adjust_keyframe;
+
   // For nonrd mode: Prefer larger partition blks in variance based partitioning
   // 0: disabled, 1-3: increasing aggressiveness
   int prefer_large_partition_blocks;
