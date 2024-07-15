@@ -52,6 +52,24 @@
       "parentUuid": "40807b43_b62b6bc9",
       "revId": "e31d28784e6c09d62905a62e77359fae6624f3a0",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1b82d6b2_cff2a5c5",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 3046,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-07-15T19:32:14Z",
+      "side": 1,
+      "message": "\u003e Sorry, there is a typo in my earlier comment. Also it is not clear which check I was referring to.\n\u003e \n\u003e I was referring to the check in the C statement:\n\u003e \n\u003e ```\n\u003e       if (uncompressed_frame_sz64 \u003e SIZE_MAX) return AOM_CODEC_MEM_ERROR;\n\u003e ```\n\u003e \n\u003e If `size_t` is 64 bits, I am worried that some compiler may warn that expression `uncompressed_frame_sz64 \u003e SIZE_MAX` is always false.\n\nRight. I was agreeing that wrapping the check in a preprocessor check would make sense.",
+      "parentUuid": "69b303ba_031c377a",
+      "revId": "e31d28784e6c09d62905a62e77359fae6624f3a0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
