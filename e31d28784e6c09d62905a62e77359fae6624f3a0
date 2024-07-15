@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1d98a8ef_7749b8fa",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 3046,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-07-15T18:28:44Z",
+      "side": 1,
+      "message": "Should I put this line inside `#if UINT64_MAX \u003e SIZE_MAX`? I wonder if some compiler may warn that this check is always true.",
+      "revId": "e31d28784e6c09d62905a62e77359fae6624f3a0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
