@@ -124,6 +124,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "a48e07bc_cc278bc7",
+        "filename": "av1/ratectrl_rtc.h",
+        "patchSetId": 19
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-07-17T18:16:13Z",
+      "side": 1,
+      "message": "\u003e Could you please mention which header file to have all this. \n\u003e because I felt the source file : ratectrl_rtc.cc and its corresponding header file : ratectrl_rtc.h, its c level api export are added here, if its ok to have new header file let me know.\n\nYou can have it in this header file but you need to block out the C++ code with `#ifdef __cplusplus`. The functions don\u0027t belong in a namespace and the tests should call the functions without it. For example:\n\nhttps://source.chromium.org/chromium/chromium/src/+/main:third_party/libgav1/src/src/gav1/decoder.h;l\u003d39;drc\u003d933ff6b0cea80eaf6b48dd461b47831c46ca768f\n\nHow do you plan to use the header? Do you have some code that is already using this patch? If it\u0027s C++ code, then I don\u0027t see the need for adding C functions.",
+      "parentUuid": "ffdcd1c1_fb87b449",
+      "revId": "6ac00e425f0e3f680f34f16a55aaa417ac67c741",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "ae076e8b_fdb34d0f",
         "filename": "av1/ratectrl_rtc.h",
         "patchSetId": 19
