@@ -1,0 +1,106 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a3557e97_c21fb1ed",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-07-17T18:57:40Z",
+      "side": 1,
+      "message": "Recently I found that we fixed an integer overflow in the same area in VP8, VP9, and AV1 three times, and the three fixes are slightly different. I\u0027d like to make the three versions of the code as similar as possible. So I am planning to use the AV1 code as the standard and backport it to VP8 and VP9.\n\nWhile backporting the AV1 code to VP9, I noticed that the code actually has four combinations: {iframe,pframe} x {vbr,cbr}. In this CL I make sure that all four combinations are fixed.",
+      "revId": "b90f90119aa059b1edfbd1270dd82e5ef3955c75",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8d7ad530_9bd81fd2",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 243,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-07-17T18:57:40Z",
+      "side": 1,
+      "message": "This multiplication may overflow. Also, according to the following comment in aom/aomcx.h, `max_inter_bitrate_pct` may be greater than 100:\n\n```\n  /*!\\brief Codec control function to set max data rate for inter frames,\n   * unsigned int parameter\n   *\n   ...\n   *\n   * For example, to allow no more than 4.5 frames worth of bitrate\n   * to an inter frame, set this to 450.\n   */\n  AV1E_SET_MAX_INTER_BITRATE_PCT \u003d AOME_SET_MAX_INTRA_BITRATE_PCT + 2,  // 28\n```\n\nSo the result of this whole expression may be greater than `rc-\u003eavg_frame_bandwidth` (an `int`), so it is not safe to cast the result to `int`.",
+      "revId": "b90f90119aa059b1edfbd1270dd82e5ef3955c75",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d9567e37_c739aa10",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 247,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-07-17T18:57:40Z",
+      "side": 1,
+      "message": "It is safe to cast `target` to `int` because line 240 implies `target` is at most `rc-\u003emax_frame_bandwidth`, which is an `int`.",
+      "revId": "b90f90119aa059b1edfbd1270dd82e5ef3955c75",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7164c918_4f95a511",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 258,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-07-17T18:57:40Z",
+      "side": 1,
+      "message": "Note that the order of the two if statements here (lines 253-258) differs from the order of the corresponding two if statement for pframe above (lines 240-245). Should I take the opportunity to use the same order?",
+      "revId": "b90f90119aa059b1edfbd1270dd82e5ef3955c75",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7beb724f_22e2ad60",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 2704,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-07-17T18:57:40Z",
+      "side": 1,
+      "message": "Since we don\u0027t need to cast `target` to `int`, we don\u0027t need to clamp it to `INT_MAX` either.",
+      "revId": "b90f90119aa059b1edfbd1270dd82e5ef3955c75",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b0483af7_eb8a6ec1",
+        "filename": "av1/encoder/ratectrl.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 697,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-07-17T18:57:40Z",
+      "side": 1,
+      "message": "An alternative is to still have the input as `int target` and have the callers of these two functions clamp the `target` parameter to `INT_MAX`.\n\nWould you prefer that?",
+      "revId": "b90f90119aa059b1edfbd1270dd82e5ef3955c75",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
