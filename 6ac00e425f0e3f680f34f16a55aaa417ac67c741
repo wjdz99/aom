@@ -106,6 +106,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "ffdcd1c1_fb87b449",
+        "filename": "av1/ratectrl_rtc.h",
+        "patchSetId": 19
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 33496
+      },
+      "writtenOn": "2024-07-17T11:47:59Z",
+      "side": 1,
+      "message": "Could you please mention which header file to have all this. \nbecause I felt the source file : ratectrl_rtc.cc and its corresponding header file : ratectrl_rtc.h, its c level api export are added here, if its ok to have new header file let me know.",
+      "parentUuid": "014ad182_2d571aac",
+      "revId": "6ac00e425f0e3f680f34f16a55aaa417ac67c741",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "ae076e8b_fdb34d0f",
         "filename": "av1/ratectrl_rtc.h",
         "patchSetId": 19
@@ -147,6 +165,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "b28469ae_fc693e59",
+        "filename": "av1/ratectrl_rtc.h",
+        "patchSetId": 19
+      },
+      "lineNbr": 146,
+      "author": {
+        "id": 33496
+      },
+      "writtenOn": "2024-07-17T11:47:59Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ae076e8b_fdb34d0f",
+      "range": {
+        "startLine": 146,
+        "startChar": 5,
+        "endLine": 146,
+        "endChar": 12
+      },
+      "revId": "6ac00e425f0e3f680f34f16a55aaa417ac67c741",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "68d93b8e_c80f1fda",
         "filename": "test/ratectrl_rtc_test.cc",
         "patchSetId": 19
@@ -158,6 +200,24 @@
       "writtenOn": "2024-07-16T18:42:12Z",
       "side": 1,
       "message": "Copying the full implementation of the existing class isn\u0027t the best. Could it be extended to have a flag to test the C interface instead?",
+      "revId": "6ac00e425f0e3f680f34f16a55aaa417ac67c741",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "53ec473c_385d7dcf",
+        "filename": "test/ratectrl_rtc_test.cc",
+        "patchSetId": 19
+      },
+      "lineNbr": 487,
+      "author": {
+        "id": 33496
+      },
+      "writtenOn": "2024-07-17T11:47:59Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "68d93b8e_c80f1fda",
       "revId": "6ac00e425f0e3f680f34f16a55aaa417ac67c741",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
