@@ -3790,7 +3790,8 @@ int av1_postencode_drop_cbr(AV1_COMP *cpi, size_t *size) {
   // If the frame is already labelled as scene change (high_source_sad = 1)
   // or the QP is close to max, then no need to drop.
   const int qp_thresh = 3 * (cpi->rc.worst_quality >> 2);
-  if (!cpi->rc.high_source_sad && new_buffer_level < 0 &&
+  if (!cpi->rc.high_source_sad &&
+      new_buffer_level < (p_rc->optimal_buffer_level >> 1) &&
       frame_size > 8 * (unsigned int)cpi->rc.avg_frame_bandwidth &&
       cpi->common.quant_params.base_qindex < qp_thresh) {
     *size = 0;
