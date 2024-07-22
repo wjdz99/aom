@@ -177,6 +177,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "23de3706_2ea39df6",
+        "filename": "av1/ratectrl_rtc.h",
+        "patchSetId": 19
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-07-22T17:57:19Z",
+      "side": 1,
+      "message": "\u003e please check the comment on the file.\n\nThe point is `namespace aom` is not under the flag. If you include this header in C source file and use a C compiler to compile it, it will fail. See the link I posted previously for reference.",
+      "parentUuid": "a6693dea_2a29a482",
+      "revId": "6ac00e425f0e3f680f34f16a55aaa417ac67c741",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "ae076e8b_fdb34d0f",
         "filename": "av1/ratectrl_rtc.h",
         "patchSetId": 19
