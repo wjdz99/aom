@@ -333,6 +333,24 @@
       "parentUuid": "53ec473c_385d7dcf",
       "revId": "6ac00e425f0e3f680f34f16a55aaa417ac67c741",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5fbb662b_2145f9c6",
+        "filename": "test/ratectrl_rtc_test.cc",
+        "patchSetId": 19
+      },
+      "lineNbr": 487,
+      "author": {
+        "id": 33496
+      },
+      "writtenOn": "2024-07-23T14:38:51Z",
+      "side": 1,
+      "message": "Earlier the methods in the class RcExternMethodsInterfaceTest were a part of \nRcInterfaceTest\n\nThere was no extra class. Upon some review comments this new class is added, Kindly let me know does need to move back.",
+      "parentUuid": "9b1dd086_f53a4292",
+      "revId": "6ac00e425f0e3f680f34f16a55aaa417ac67c741",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
