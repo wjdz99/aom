@@ -267,6 +267,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "db9d6e6a_e97c6c7b",
+        "filename": "av1/ratectrl_rtc.h",
+        "patchSetId": 19
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-07-24T21:05:20Z",
+      "side": 1,
+      "message": "\u003e I could separate the extern \"C\"  from namespace aom,  But for the code to compile it should be done alias for the struct used.\n\u003e Uploaded the patch, if OK will proceed for next comment.\n\nHere is a simplified example of the problem I\u0027ve described:\n\n**ratectrl_rtc.h**\n\n```c++\nnamespace aom {\nstruct AV1RateControlRtcConfig {\n public:\n  AV1RateControlRtcConfig();\n  int width;\n  int height;\n  // ...\n};\n}  // namespace aom\ntypedef aom::AV1RateControlRtcConfig AV1RateControlRtcConfigAlias;\n#if defined(__cplusplus)\nextern \"C\" {\n#endif\nvoid *create_av1_ratecontrol_rtc(const AV1RateControlRtcConfigAlias \u0026rc_cfg);\n#if defined(__cplusplus)\n}  // extern \"C\"\n#endif  // __cplusplus\n```\n\n**test.c**\n\n```c\n#include \"ratectrl_rtc.h\"\n\nint main(void) {}\n```\n\n```\n$ g++ test.c\n# compiles fine as C++\n\n$ gcc test.c\nIn file included from test.c:1:\nratectrl_rtc.h:1:1: error: unknown type name ‘namespace’\n    1 | namespace aom {\n      | ^~~~~~~~~\nratectrl_rtc.h:1:15: error: expected ‘\u003d’, ‘,’, ‘;’, ‘asm’ or ‘__attribute__’ before ‘{’ token\n    1 | namespace aom {\n      |               ^\nratectrl_rtc.h:10:12: error: expected ‘\u003d’, ‘,’, ‘;’, ‘asm’ or ‘__attribute__’ before ‘::’ token\n   10 | typedef aom::AV1RateControlRtcConfig AV1RateControlRtcConfigAlias;\n      |            ^~\nratectrl_rtc.h:14:40: warning: type defaults to ‘int’ in declaration of ‘AV1RateControlRtcConfigAlias’ [-Wimplicit-int]\n   14 | void *create_av1_ratecontrol_rtc(const AV1RateControlRtcConfigAlias \u0026rc_cfg);\n      |                                        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~\nratectrl_rtc.h:14:69: error: expected ‘;’, ‘,’ or ‘)’ before ‘\u0026’ token\n   14 | void *create_av1_ratecontrol_rtc(const AV1RateControlRtcConfigAlias \u0026rc_cfg);\n      |   \n```",
+      "parentUuid": "fbd41ae5_3c594eba",
+      "revId": "6ac00e425f0e3f680f34f16a55aaa417ac67c741",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "ae076e8b_fdb34d0f",
         "filename": "av1/ratectrl_rtc.h",
         "patchSetId": 19
