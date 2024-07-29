@@ -16,6 +16,41 @@
       "message": "I think we should consider other downstream users. This will be a big change in the next release. If these are more reasonable defaults then that is all right, but I don\u0027t think we\u0027re under any obligation to default to webrtc settings.",
       "revId": "3950fe7850adaa0d88557d227490d36833b0e8e8",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3154a9b5_6d79a6cd",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-07-29T18:05:44Z",
+      "side": 1,
+      "message": "Some of these changes break backward compatibility. I found one (`auto_tiles`). So we need to review these changes carefully.\n\nAlso, the default values of these settings may be documented in aom_encoder.h, aomcx.h, and av1/arg_defs.c. The documentation may need to be updated.\n\nNote: If a default value is not documented (e.g., the default value of `AOME_SET_CPUUSED`), we may want to leave it undocumented so that we can change the default value. But this needs to be reviewed case by case. For example, it is important to document the default value of `auto_tiles` because that setting interacts with the `tile_columns` and `tile_rows` settings.",
+      "parentUuid": "e7a94426_801f2487",
+      "revId": "3950fe7850adaa0d88557d227490d36833b0e8e8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1b906213_dca8b5db",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 242,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-07-29T18:05:44Z",
+      "side": 1,
+      "message": "Changing the default of `auto_tiles` to 1 will break backward compatibility for applications that set `tile_columns` or `tils_rows` to nonzero values. See the documentation for `auto_tiles` in aomcx.h:\n\n```\n   * Value of 1 means encoder will set number of tile_columns and tile_rows,\n   * based on the number of threads and resolution. This will override any\n   * settings set via SET_TILE_COLUMNS/ROWS.\n```",
+      "revId": "3950fe7850adaa0d88557d227490d36833b0e8e8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
