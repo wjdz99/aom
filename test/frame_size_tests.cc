@@ -116,7 +116,6 @@ TEST_P(AV1ResolutionChange, InvalidRefSize) {
   cfg.g_pass = AOM_RC_ONE_PASS;
   cfg.g_lag_in_frames = 0;
   cfg.rc_end_usage = rc_mode_;
-
   aom_codec_ctx_t ctx;
   EXPECT_EQ(aom_codec_enc_init(&ctx, iface, &cfg, 0), AOM_CODEC_OK);
   std::unique_ptr<aom_codec_ctx_t, decltype(&aom_codec_destroy)> enc(
@@ -255,7 +254,6 @@ TEST_P(AV1ResolutionChange, InvalidInputSize) {
   cfg.g_pass = AOM_RC_ONE_PASS;
   cfg.g_lag_in_frames = 0;
   cfg.rc_end_usage = rc_mode_;
-
   aom_codec_ctx_t ctx;
   EXPECT_EQ(aom_codec_enc_init(&ctx, iface, &cfg, 0), AOM_CODEC_OK);
   std::unique_ptr<aom_codec_ctx_t, decltype(&aom_codec_destroy)> enc(

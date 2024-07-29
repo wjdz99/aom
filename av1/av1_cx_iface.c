@@ -216,7 +216,7 @@ struct av1_extracfg {
 
 #if CONFIG_REALTIME_ONLY
 // Settings changed for realtime only build:
-// cpu_used: 7
+// cpu_used: 10
 // enable_tpl_model: 0
 // enable_restoration: 0
 // enable_obmc: 0
@@ -229,7 +229,7 @@ struct av1_extracfg {
 // mv_cost_upd_freq: COST_UPD_OFF
 // dv_cost_upd_freq: COST_UPD_OFF
 static const struct av1_extracfg default_extra_cfg = {
-  7,              // cpu_used
+  10,             // cpu_used
   1,              // enable_auto_alt_ref
   0,              // enable_auto_bwd_ref
   0,              // noise_sensitivity
@@ -241,7 +241,7 @@ static const struct av1_extracfg default_extra_cfg = {
   0,              // tile_rows
   0,              // auto_tiles
   0,              // enable_tpl_model
-  1,              // enable_keyframe_filtering
+  0,              // enable_keyframe_filtering
   7,              // arnr_max_frames
   5,              // arnr_strength
   0,              // min_gf_interval; 0 -> default decision
@@ -255,7 +255,7 @@ static const struct av1_extracfg default_extra_cfg = {
   "./rate_map.txt",                           // rate distribution input
   AOM_DIST_METRIC_PSNR,                       // dist_metric
   10,                                         // cq_level
-  0,                                          // rc_max_intra_bitrate_pct
+  300,                                        // rc_max_intra_bitrate_pct
   0,                                          // rc_max_inter_bitrate_pct
   0,                                          // gf_cbr_boost_pct
   0,                                          // lossless
@@ -263,7 +263,7 @@ static const struct av1_extracfg default_extra_cfg = {
   0,                                          // enable_restoration
   0,                                          // force_video_mode
   0,                                          // enable_obmc
-  3,                                          // disable_trellis_quant
+  1,                                          // disable_trellis_quant
   0,                                          // enable_qm
   DEFAULT_QM_Y,                               // qm_y
   DEFAULT_QM_U,                               // qm_u
@@ -274,9 +274,9 @@ static const struct av1_extracfg default_extra_cfg = {
   0,                                          // mtu_size
   AOM_TIMING_UNSPECIFIED,       // No picture timing signaling in bitstream
   0,                            // frame_parallel_decoding_mode
-  1,                            // enable dual filter
+  0,                            // enable dual filter
   0,                            // enable delta quant in chroma planes
-  NO_AQ,                        // aq_mode
+  3,                            // aq_mode
   NO_DELTA_Q,                   // deltaq_mode
   100,                          // deltaq_strength
   0,                            // delta lf mode
@@ -301,42 +301,42 @@ static const struct av1_extracfg default_extra_cfg = {
   0,  // fpmt_unit_test
 #endif
   1,    // CDF update mode
-  1,    // enable rectangular partitions
-  1,    // enable ab shape partitions
-  1,    // enable 1:4 and 4:1 partitions
+  0,    // enable rectangular partitions
+  0,    // enable ab shape partitions
+  0,    // enable 1:4 and 4:1 partitions
   4,    // min_partition_size
   128,  // max_partition_size
-  1,    // enable intra edge filter
-  1,    // frame order hint
-  1,    // enable 64-pt transform usage
+  0,    // enable intra edge filter
+  0,    // frame order hint
+  0,    // enable 64-pt transform usage
   1,    // enable flip and identity transform
   1,    // enable rectangular transform usage
-  1,    // dist-wtd compound
-  7,    // max_reference_frames
+  0,    // dist-wtd compound
+  3,    // max_reference_frames
   0,    // enable_reduced_reference_set
-  1,    // enable_ref_frame_mvs sequence level
-  1,    // allow ref_frame_mvs frame level
-  1,    // enable masked compound at sequence level
-  1,    // enable one sided compound at sequence level
-  1,    // enable interintra compound at sequence level
-  1,    // enable smooth interintra mode
-  1,    // enable difference-weighted compound
-  1,    // enable interinter wedge compound
-  1,    // enable interintra wedge compound
+  0,    // enable_ref_frame_mvs sequence level
+  0,    // allow ref_frame_mvs frame level
+  0,    // enable masked compound at sequence level
+  0,    // enable one sided compound at sequence level
+  0,    // enable interintra compound at sequence level
+  0,    // enable smooth interintra mode
+  0,    // enable difference-weighted compound
+  0,    // enable interinter wedge compound
+  0,    // enable interintra wedge compound
   0,    // enable_global_motion usage
   0,    // enable_warped_motion at sequence level
   0,    // allow_warped_motion at frame level
-  1,    // enable filter intra at sequence level
-  1,    // enable smooth intra modes usage for sequence
-  1,    // enable Paeth intra mode usage for sequence
-  1,    // enable CFL uv intra mode usage for sequence
+  0,    // enable filter intra at sequence level
+  0,    // enable smooth intra modes usage for sequence
+  0,    // enable Paeth intra mode usage for sequence
+  0,    // enable CFL uv intra mode usage for sequence
   1,    // enable directional intra mode usage for sequence
   1,    // enable D45 to D203 intra mode usage for sequence
-  1,    // superres
-  1,    // enable overlay
-  1,    // enable palette
-  1,    // enable intrabc
-  1,    // enable angle delta
+  0,    // superres
+  0,    // enable overlay
+  0,    // enable palette
+  0,    // enable intrabc
+  0,    // enable angle delta
 #if CONFIG_DENOISE
   0,   // noise_level
   32,  // noise_block_size
@@ -347,7 +347,7 @@ static const struct av1_extracfg default_extra_cfg = {
   0,  // reduced_tx_type_set
   0,  // use_intra_dct_only
   0,  // use_inter_dct_only
-  0,  // use_intra_default_tx_only
+  1,  // use_intra_default_tx_only
   1,  // enable_tx_size_search
   0,  // quant_b_adapt
   0,  // vbr_corpus_complexity_lap
@@ -4744,12 +4744,12 @@ static const aom_codec_enc_cfg_t encoder_usage_cfg[] = {
       256,          // rc_target_bitrate
       0,            // rc_min_quantizer
       63,           // rc_max_quantizer
-      25,           // rc_undershoot_pct
-      25,           // rc_overshoot_pct
+      50,           // rc_undershoot_pct
+      50,           // rc_overshoot_pct
 
-      6000,  // rc_max_buffer_size
-      4000,  // rc_buffer_initial_size
-      5000,  // rc_buffer_optimal_size
+      1000,  // rc_max_buffer_size
+      600,   // rc_buffer_initial_size
+      600,   // rc_buffer_optimal_size
 
       50,    // rc_two_pass_vbrbias
       0,     // rc_two_pass_vbrmin_section
@@ -4761,7 +4761,7 @@ static const aom_codec_enc_cfg_t encoder_usage_cfg[] = {
       0,                       // kf_min_dist
       9999,                    // kf_max_dist
       0,                       // sframe_dist
-      1,                       // sframe_mode
+      0,                       // sframe_mode
       0,                       // large_scale_tile
       0,                       // monochrome
       0,                       // full_still_picture_hdr
