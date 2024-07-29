@@ -375,6 +375,7 @@ class RcInterfaceTest : public ::libaom_test::EncoderTest,
     cfg_.rc_end_usage = AOM_CBR;
     cfg_.g_lag_in_frames = 0;
     cfg_.g_error_resilient = 0;
+    cfg_.rc_dropframe_thresh = 0;
     svc_params_.number_spatial_layers = number_spatial_layers;
     svc_params_.number_temporal_layers = number_temporal_layers;
 

@@ -116,7 +116,7 @@ TEST_P(AV1ResolutionChange, InvalidRefSize) {
   cfg.g_pass = AOM_RC_ONE_PASS;
   cfg.g_lag_in_frames = 0;
   cfg.rc_end_usage = rc_mode_;
-
+  cfg.rc_dropframe_thresh = 0;
   aom_codec_ctx_t ctx;
   EXPECT_EQ(aom_codec_enc_init(&ctx, iface, &cfg, 0), AOM_CODEC_OK);
   std::unique_ptr<aom_codec_ctx_t, decltype(&aom_codec_destroy)> enc(
@@ -180,6 +180,7 @@ TEST_P(AV1ResolutionChange, RandomInput) {
   cfg.g_pass = AOM_RC_ONE_PASS;
   cfg.g_lag_in_frames = 0;
   cfg.rc_end_usage = rc_mode_;
+  cfg.rc_dropframe_thresh = 0;
   // For random input source, if max frame sizes are not set, the first encoded
   // frame size will be locked as the max frame size, and the encoder will
   // identify it as unsupported bitstream.
@@ -255,7 +256,7 @@ TEST_P(AV1ResolutionChange, InvalidInputSize) {
   cfg.g_pass = AOM_RC_ONE_PASS;
   cfg.g_lag_in_frames = 0;
   cfg.rc_end_usage = rc_mode_;
-
+  cfg.rc_dropframe_thresh = 0;
   aom_codec_ctx_t ctx;
   EXPECT_EQ(aom_codec_enc_init(&ctx, iface, &cfg, 0), AOM_CODEC_OK);
   std::unique_ptr<aom_codec_ctx_t, decltype(&aom_codec_destroy)> enc(
