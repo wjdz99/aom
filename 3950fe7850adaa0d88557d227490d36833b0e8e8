@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e7a94426_801f2487",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-07-29T17:43:17Z",
+      "side": 1,
+      "message": "I think we should consider other downstream users. This will be a big change in the next release. If these are more reasonable defaults then that is all right, but I don\u0027t think we\u0027re under any obligation to default to webrtc settings.",
+      "revId": "3950fe7850adaa0d88557d227490d36833b0e8e8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
