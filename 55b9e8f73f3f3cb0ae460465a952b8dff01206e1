@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8b95f615_88e9a052",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2827,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-07-30T23:14:54Z",
+      "side": 1,
+      "message": "The VP9 code is:\n\n```\n    double framerate \u003d cpi-\u003eframerate;\n    if (svc-\u003enumber_temporal_layers \u003e 1 \u0026\u0026 oxcf-\u003erc_mode \u003d\u003d VPX_CBR) {\n      ...\n      framerate \u003d lc-\u003eframerate;\n    }\n    kf_boost \u003d VPXMAX(kf_boost, (int)round(2 * framerate - 16));\n```\n\nThe VP8 code is:\n\n```\n    int initial_boost \u003d 32; /* |3.0 * per_frame_bandwidth| */\n    /* Boost depends somewhat on frame rate: only used for 1 layer case. */\n    if (cpi-\u003eoxcf.number_of_layers \u003d\u003d 1) {\n      kf_boost \u003d\n          VPXMAX(initial_boost, (int)round(2 * cpi-\u003eoutput_framerate - 16));\n      ...\n```",
+      "revId": "55b9e8f73f3f3cb0ae460465a952b8dff01206e1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
