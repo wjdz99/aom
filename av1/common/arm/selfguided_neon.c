@@ -1185,9 +1185,9 @@ static INLINE void restoration_fast_internal(uint16_t *dgd16, int width,
   const int height_ext = height + 2 * SGRPROJ_BORDER_VERT;
 
   const int buf_stride = ((width_ext + 3) & ~3) + 16;
-  int32_t A_[RESTORATION_PROC_UNIT_PELS];
-  uint16_t A16_[RESTORATION_PROC_UNIT_PELS];
-  int32_t B_[RESTORATION_PROC_UNIT_PELS];
+  static int32_t A_[RESTORATION_PROC_UNIT_PELS] = { 0 };
+  static uint16_t A16_[RESTORATION_PROC_UNIT_PELS] = { 0 };
+  static int32_t B_[RESTORATION_PROC_UNIT_PELS] = { 0 };
   int32_t *square_sum_buf = A_;
   int32_t *sum_buf = B_;
   uint16_t *tmp16_buf = A16_;
@@ -1248,10 +1248,10 @@ static INLINE void restoration_internal(uint16_t *dgd16, int width, int height,
   const int height_ext = height + 2 * SGRPROJ_BORDER_VERT;
 
   int buf_stride = ((width_ext + 3) & ~3) + 16;
-  int32_t A_[RESTORATION_PROC_UNIT_PELS];
-  uint16_t A16_[RESTORATION_PROC_UNIT_PELS];
-  uint16_t B16_[RESTORATION_PROC_UNIT_PELS];
-  int32_t B_[RESTORATION_PROC_UNIT_PELS];
+  static int32_t A_[RESTORATION_PROC_UNIT_PELS] = { 0 };
+  static uint16_t A16_[RESTORATION_PROC_UNIT_PELS] = { 0 };
+  static uint16_t B16_[RESTORATION_PROC_UNIT_PELS] = { 0 };
+  static int32_t B_[RESTORATION_PROC_UNIT_PELS] = { 0 };
   int32_t *square_sum_buf = A_;
   uint16_t *sum_buf = B16_;
   uint16_t *A16 = A16_;
