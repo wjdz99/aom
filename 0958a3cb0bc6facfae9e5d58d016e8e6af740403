@@ -24,6 +24,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "8dc4a903_ace0844c",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 3542043
+      },
+      "writtenOn": "2024-07-31T18:11:23Z",
+      "side": 1,
+      "message": "Done. In our case it was 128KB.",
+      "parentUuid": "cd9fad92_91d78908",
+      "range": {
+        "startLine": 11,
+        "startChar": 23,
+        "endLine": 11,
+        "endChar": 34
+      },
+      "revId": "0958a3cb0bc6facfae9e5d58d016e8e6af740403",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "234f8f98_a68957e1",
@@ -49,6 +73,30 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "64b98fef_2c1a1e5e",
+        "filename": "av1/common/arm/selfguided_neon.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1188,
+      "author": {
+        "id": 3542043
+      },
+      "writtenOn": "2024-07-31T18:11:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "234f8f98_a68957e1",
+      "range": {
+        "startLine": 1188,
+        "startChar": 8,
+        "endLine": 1188,
+        "endChar": 11
+      },
+      "revId": "0958a3cb0bc6facfae9e5d58d016e8e6af740403",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "1ae77256_8f305bef",
         "filename": "av1/common/arm/selfguided_neon.c",
         "patchSetId": 3
@@ -60,6 +108,24 @@
       "writtenOn": "2024-07-31T17:35:52Z",
       "side": 1,
       "message": "Note there\u0027s another 16200 bytes here. The AVX2 code gets away without this, though reworking the code would be outside the scope of this change.",
+      "revId": "0958a3cb0bc6facfae9e5d58d016e8e6af740403",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0061a6e6_114f3521",
+        "filename": "av1/common/arm/selfguided_neon.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1424,
+      "author": {
+        "id": 3542043
+      },
+      "writtenOn": "2024-07-31T18:11:23Z",
+      "side": 1,
+      "message": "Acked. I can give it a try and heap-allocate the buffer earlier for all selfguided restoration implementations in the following CL. Will check what we can do we the \"c\" implementation, I think they also use large buffer but maybe less than 95k.",
+      "parentUuid": "1ae77256_8f305bef",
       "revId": "0958a3cb0bc6facfae9e5d58d016e8e6af740403",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
