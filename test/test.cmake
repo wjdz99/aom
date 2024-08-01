@@ -308,20 +308,20 @@ if(NOT BUILD_SHARED_LIBS)
 
   if(HAVE_SSSE3)
     list(APPEND AOM_UNIT_TEST_COMMON_SOURCES
+                "${AOM_ROOT}/test/av1_scale_test.cc"
                 "${AOM_ROOT}/test/simd_ssse3_test.cc")
   endif()
 
   if(HAVE_SSE4_1)
     list(APPEND AOM_UNIT_TEST_COMMON_SOURCES
+                "${AOM_ROOT}/test/filterintra_test.cc"
                 "${AOM_ROOT}/test/simd_sse4_test.cc")
   endif()
 
-  if(HAVE_SSE4_1 OR HAVE_NEON)
+  if(HAVE_NEON)
     list(APPEND AOM_UNIT_TEST_COMMON_SOURCES
+                "${AOM_ROOT}/test/av1_scale_test.cc"
                 "${AOM_ROOT}/test/filterintra_test.cc")
-
-    list(APPEND AOM_UNIT_TEST_ENCODER_SOURCES
-                "${AOM_ROOT}/test/av1_highbd_iht_test.cc")
   endif()
 
   if(HAVE_AVX2)
@@ -347,6 +347,7 @@ if(NOT BUILD_SHARED_LIBS)
   if(HAVE_SSE4_1)
     list(APPEND AOM_UNIT_TEST_ENCODER_SOURCES
                 "${AOM_ROOT}/test/av1_convolve_scale_test.cc"
+                "${AOM_ROOT}/test/av1_highbd_iht_test.cc"
                 "${AOM_ROOT}/test/av1_horz_only_frame_superres_test.cc"
                 "${AOM_ROOT}/test/intra_edge_test.cc")
   endif()
@@ -354,6 +355,7 @@ if(NOT BUILD_SHARED_LIBS)
   if(HAVE_NEON)
     list(APPEND AOM_UNIT_TEST_ENCODER_SOURCES
                 "${AOM_ROOT}/test/av1_convolve_scale_test.cc"
+                "${AOM_ROOT}/test/av1_highbd_iht_test.cc"
                 "${AOM_ROOT}/test/av1_horz_only_frame_superres_test.cc"
                 "${AOM_ROOT}/test/intra_edge_test.cc")
   endif()
