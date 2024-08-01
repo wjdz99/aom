@@ -15,7 +15,7 @@
 #include <set>
 #include <string>
 #include <tuple>
-#include "third_party/googletest/src/googletest/include/gtest/gtest.h"
+#include "gtest/gtest.h"
 #include "common/tools_common.h"
 #include "config/aom_config.h"
 #include "test/codec_factory.h"

@@ -12,7 +12,7 @@
 
 #include "common/av1_config.h"
 #include "test/util.h"
-#include "third_party/googletest/src/googletest/include/gtest/gtest.h"
+#include "gtest/gtest.h"
 
 namespace {
 

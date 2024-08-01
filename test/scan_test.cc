@@ -9,7 +9,7 @@
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
  */
 
-#include "third_party/googletest/src/googletest/include/gtest/gtest.h"
+#include "gtest/gtest.h"
 #include "av1/common/scan.h"
 #include "av1/common/txb_common.h"
 #include "test/av1_txfm_test.h"

@@ -27,7 +27,7 @@
 #include "test/acm_random.h"
 #include "test/register_state_check.h"
 #include "test/util.h"
-#include "third_party/googletest/src/googletest/include/gtest/gtest.h"
+#include "gtest/gtest.h"
 
 namespace {
 typedef void (*comp_mask_pred_func)(uint8_t *comp_pred, const uint8_t *pred,

@@ -17,7 +17,7 @@
 #include "test/md5_helper.h"
 #include "test/util.h"
 #include "test/y4m_video_source.h"
-#include "third_party/googletest/src/googletest/include/gtest/gtest.h"
+#include "gtest/gtest.h"
 
 namespace {
 

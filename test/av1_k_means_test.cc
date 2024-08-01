@@ -25,7 +25,7 @@
 #include "av1/encoder/palette.h"
 #include "test/register_state_check.h"
 #include "test/util.h"
-#include "third_party/googletest/src/googletest/include/gtest/gtest.h"
+#include "gtest/gtest.h"
 
 namespace AV1Kmeans {
 typedef void (*av1_calc_indices_dim1_func)(const int16_t *data,
