@@ -20,6 +20,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "2a7548f9_49ab16b7",
+        "filename": "third_party/libyuv/README.libaom",
+        "patchSetId": 2
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-08-02T21:14:04Z",
+      "side": 1,
+      "message": "We can plan to sync to the libyuv snapshot used in the next Chrome release branch.",
+      "parentUuid": "aa4da60e_804552f3",
+      "revId": "41a954d9872c13b8d499429480f78c1aadd11294",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "b517393f_0214d481",
         "filename": "third_party/libyuv/source/row_common.cc",
         "patchSetId": 2
