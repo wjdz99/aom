@@ -20,6 +20,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "8ad1ff02_9a66c4f9",
+        "filename": "test/wiener_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 728,
+      "author": {
+        "id": 31957
+      },
+      "writtenOn": "2024-08-02T22:39:31Z",
+      "side": 1,
+      "message": "The SVT-AV1 unit tests did not trigger the overflow for an 8-bit input, and I did not manage to find an input that would do it. I\u0027m not sure if it\u0027s actually possible given the algorithm, but right now adding the same test case to standard bitdepth would not be useful.",
+      "parentUuid": "e70960e3_01f94971",
+      "revId": "05d3d51715b179f955d57ead31c4e91df6680609",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "c8db2478_9ca9c7e6",
         "filename": "test/wiener_test.cc",
         "patchSetId": 1
@@ -48,6 +66,24 @@
       "writtenOn": "2024-08-02T21:00:25Z",
       "side": 1,
       "message": "then this can become `ASSERT_FALSE(failed);` You could also just move the check into the loop with:\n\n```\nASSERT_EQ(M_ref[i], M_test[i]) \u003c\u003c \"win \" \u003c\u003c ...\n```",
+      "revId": "05d3d51715b179f955d57ead31c4e91df6680609",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "84b26fbd_48aea4a7",
+        "filename": "test/wiener_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 786,
+      "author": {
+        "id": 31957
+      },
+      "writtenOn": "2024-08-02T22:39:31Z",
+      "side": 1,
+      "message": "This whole function is pretty much a copy of the ExtremeValue() test function, but with different inputs. Do you want me to change it there as well?",
+      "parentUuid": "fd78f6cb_da7e0c29",
       "revId": "05d3d51715b179f955d57ead31c4e91df6680609",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
