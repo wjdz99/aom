@@ -620,6 +620,12 @@ typedef struct {
    * of the target bitrate.
    */
   int vbrmax_section;
+
+  /*!
+   * Indicates the maximum consecutive frame drops, in units of time (milliseconds).
+   * This is converted to frame units internally.
+   */
+  int max_consec_drop_time;
 } RateControlCfg;
 
 /*!\cond */

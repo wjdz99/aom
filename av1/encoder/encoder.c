@@ -956,6 +956,11 @@ void av1_change_config(struct AV1_COMP *cpi, const AV1EncoderConfig *oxcf,
 
   check_reset_rc_flag(cpi);
 
+  if (rc_cfg->max_consec_drop_time > 0) {
+    rc->max_consec_drop =
+        (int)round(rc_cfg->max_consec_drop_time * cpi->framerate / 1000);
+  }
+
   // restore the value of lag_in_frame for LAP stage.
   if (lap_lag_in_frames != -1) {
     cpi->oxcf.gf_cfg.lag_in_frames = lap_lag_in_frames;
