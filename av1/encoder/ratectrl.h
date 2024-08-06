@@ -213,6 +213,7 @@ typedef struct {
   int prev_frame_is_dropped;
   int drop_count_consec;
   int max_consec_drop;
+  int max_consec_drop_time;
   int force_max_q;
   int postencode_drop;
 
