@@ -802,6 +802,8 @@ typedef struct aom_codec_enc_cfg {
    *     S-Frame.
    *
    * Otherwise: the considered frame will be made into an S-Frame.
+   *
+   * \note Not implemented.
    */
   unsigned int sframe_mode;
 
