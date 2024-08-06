@@ -1527,9 +1527,9 @@ enum aome_enc_control_id {
    */
   AV1E_SET_BITRATE_ONE_PASS_CBR = 163,
 
-  /*!\brief Codec control to set the maximum number of consecutive frame drops
-   * allowed for the frame dropper in 1 pass CBR mode, int parameter. Value of
-   * zero has no effect.
+  /*!\brief Codec control to set the maximum number of consecutive frame drops,
+   * in units of time (milliseconds), allowed for the frame dropper in 1 pass
+   * CBR mode, int parameter. Value of zero has no effect.
    */
   AV1E_SET_MAX_CONSEC_FRAME_DROP_CBR = 164,
 
