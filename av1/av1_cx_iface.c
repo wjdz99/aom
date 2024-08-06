@@ -2673,9 +2673,11 @@ static aom_codec_err_t ctrl_set_max_consec_frame_drop_cbr(
     aom_codec_alg_priv_t *ctx, va_list args) {
   AV1_PRIMARY *const ppi = ctx->ppi;
   AV1_COMP *const cpi = ppi->cpi;
-  const int max_consec_drop = CAST(AV1E_SET_MAX_CONSEC_FRAME_DROP_CBR, args);
-  if (max_consec_drop < 0) return AOM_CODEC_INVALID_PARAM;
-  cpi->rc.max_consec_drop = max_consec_drop;
+  AV1EncoderConfig *oxcf = &cpi->oxcf;
+  const int max_consec_drop_time =
+      CAST(AV1E_SET_MAX_CONSEC_FRAME_DROP_CBR, args);
+  if (max_consec_drop_time < 0) return AOM_CODEC_INVALID_PARAM;
+  oxcf->rc_cfg.max_consec_drop_time = max_consec_drop_time;
   cpi->rc.drop_count_consec = 0;
   return AOM_CODEC_OK;
 }
