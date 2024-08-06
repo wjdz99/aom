@@ -35,6 +35,41 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "754d7267_be90276a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-08-06T20:03:15Z",
+      "side": 1,
+      "message": "Please ignore this comment. I misunderstood some of the changes in this CL.",
+      "parentUuid": "9e01cc8c_c604974a",
+      "revId": "016350ffc42ea0356809feb35138a312fd0bc828",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "21689afc_3b81d37a",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 218,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-08-06T20:03:15Z",
+      "side": 1,
+      "message": "This comment block summarizes the setting changes in realtime only build. If we still want to document these, we will need to update these. For example, we need to add\n\n```\n// enable_keyframe_filtering: 0\n```\n\nfor the change at line 244.",
+      "revId": "016350ffc42ea0356809feb35138a312fd0bc828",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b9e0d0f8_4dceba8a",
@@ -48,6 +83,24 @@
       "writtenOn": "2024-08-06T19:39:51Z",
       "side": 1,
       "message": "This is an example of a default value change that requires updating the documentation.\n\naom/aomcx.h says:\n\n```\n  /*!\\brief Codec control function to enable temporal filtering on key frame,\n   * unsigned int parameter\n   *\n   * - 0 \u003d disable\n   * - 1 \u003d enable without overlay (default)\n   * - 2 \u003d enable with overlay\n   */\n  AV1E_SET_ENABLE_KEYFRAME_FILTERING \u003d 36,\n```\n\nav1/arg_defs.c says:\n\n```\n  .enable_keyframe_filtering \u003d ARG_DEF(\n      NULL, \"enable-keyframe-filtering\", 1,\n      \"Apply temporal filtering on key frame \"\n      \"(0: no filter, 1: filter without overlay (default), \"\n      \"2: filter with overlay - experimental, may break random access in \"\n      \"players)\"),\n```",
+      "revId": "016350ffc42ea0356809feb35138a312fd0bc828",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f384f76d_3352a332",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 244,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-08-06T20:03:15Z",
+      "side": 1,
+      "message": "I misunderstood this change. Sorry about my confusion. I didn\u0027t realize that the realtime only build has different default values for some of the codec controls. This is a pre-existing condition, not introduced in this CL.",
+      "parentUuid": "b9e0d0f8_4dceba8a",
       "revId": "016350ffc42ea0356809feb35138a312fd0bc828",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
