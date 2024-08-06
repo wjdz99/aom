@@ -24,6 +24,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "dc944fbc_2ef068cd",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 3684,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2024-08-06T23:28:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ce812774_832b1b04",
+      "range": {
+        "startLine": 3684,
+        "startChar": 31,
+        "endLine": 3684,
+        "endChar": 36
+      },
+      "revId": "c8b2a4517ad51063e916c2bb4c041d931606848f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "8be1481a_c98f7913",
@@ -37,6 +61,30 @@
       "writtenOn": "2024-08-06T23:18:04Z",
       "side": 1,
       "message": "why doesn\u0027t this one require `+0.5`",
+      "range": {
+        "startLine": 198,
+        "startChar": 13,
+        "endLine": 198,
+        "endChar": 18
+      },
+      "revId": "c8b2a4517ad51063e916c2bb4c041d931606848f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d1d4410d_3de3e6f5",
+        "filename": "av1/ratectrl_rtc.cc",
+        "patchSetId": 8
+      },
+      "lineNbr": 198,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2024-08-06T23:28:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8be1481a_c98f7913",
       "range": {
         "startLine": 198,
         "startChar": 13,
