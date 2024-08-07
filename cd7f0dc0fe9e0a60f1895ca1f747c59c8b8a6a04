@@ -34,6 +34,57 @@
       "parentUuid": "f39196f3_0a34b5c5",
       "revId": "cd7f0dc0fe9e0a60f1895ca1f747c59c8b8a6a04",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f3e99749_866cb0f8",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 3685,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-08-07T21:31:03Z",
+      "side": 1,
+      "message": "We should clamp the return value of ceil() to INT_MAX before casting it to `int`.\n\nAlternatively, the codec control setter function `ctrl_set_max_consec_frame_drop_cbr()` can impose a suitable maximum so that we will never exceed `INT_MAX` here.",
+      "revId": "cd7f0dc0fe9e0a60f1895ca1f747c59c8b8a6a04",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5e4ee9a7_d780c6fc",
+        "filename": "av1/ratectrl_rtc.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-08-07T21:31:03Z",
+      "side": 1,
+      "message": "Nit: Document the time unit, or encode it in the field\u0027s name (e.g., `max_consec_drop_time_ms`).",
+      "revId": "cd7f0dc0fe9e0a60f1895ca1f747c59c8b8a6a04",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9195779a_a27f97b2",
+        "filename": "test/ratectrl_rtc_test.cc",
+        "patchSetId": 10
+      },
+      "lineNbr": 484,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-08-07T21:31:03Z",
+      "side": 1,
+      "message": "Nit: Document the time unit, or encode it in the field\u0027s name (e.g., `max_consec_drop_time_ms_`).",
+      "revId": "cd7f0dc0fe9e0a60f1895ca1f747c59c8b8a6a04",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
