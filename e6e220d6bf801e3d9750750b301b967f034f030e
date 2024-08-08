@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1dc2b1d0_bf7e04e9",
+        "filename": "av1/ratectrl_rtc.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-08-08T21:19:22Z",
+      "side": 1,
+      "message": "`saturate_cast_double_to_int()` is also declared in this header, so we are good. And we no longer need to include \u003cclimits\u003e for `INT_MAX`.",
+      "revId": "e6e220d6bf801e3d9750750b301b967f034f030e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
