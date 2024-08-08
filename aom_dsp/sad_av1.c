@@ -18,7 +18,7 @@
 #include "aom_ports/mem.h"
 #include "aom_dsp/blend.h"
 
-static INLINE unsigned int masked_sad(const uint8_t *src, int src_stride,
+static inline unsigned int masked_sad(const uint8_t *src, int src_stride,
                                       const uint8_t *a, int a_stride,
                                       const uint8_t *b, int b_stride,
                                       const uint8_t *m, int m_stride, int width,
@@ -94,7 +94,7 @@ MASKSADMxN(64, 16)
 /* clang-format on */
 
 #if CONFIG_AV1_HIGHBITDEPTH
-                            static INLINE
+                            static inline
     unsigned int highbd_masked_sad(const uint8_t *src8, int src_stride,
                                    const uint8_t *a8, int a_stride,
                                    const uint8_t *b8, int b_stride,
@@ -164,7 +164,7 @@ HIGHBD_MASKSADMXN(64, 16)
 // pre: predictor being evaluated
 // wsrc: target weighted prediction (has been *4096 to keep precision)
 // mask: 2d weights (scaled by 4096)
-static INLINE unsigned int obmc_sad(const uint8_t *pre, int pre_stride,
+static inline unsigned int obmc_sad(const uint8_t *pre, int pre_stride,
                                     const int32_t *wsrc, const int32_t *mask,
                                     int width, int height) {
   int y, x;
@@ -215,7 +215,7 @@ OBMCSADMxN(64, 16)
 /* clang-format on */
 
 #if CONFIG_AV1_HIGHBITDEPTH
-                            static INLINE
+                            static inline
     unsigned int highbd_obmc_sad(const uint8_t *pre8, int pre_stride,
                                  const int32_t *wsrc, const int32_t *mask,
                                  int width, int height) {

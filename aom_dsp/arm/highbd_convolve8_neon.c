@@ -25,7 +25,7 @@
 #include "aom_dsp/arm/transpose_neon.h"
 #include "aom_ports/mem.h"
 
-static INLINE uint16x4_t
+static inline uint16x4_t
 highbd_convolve8_4(const int16x4_t s0, const int16x4_t s1, const int16x4_t s2,
                    const int16x4_t s3, const int16x4_t s4, const int16x4_t s5,
                    const int16x4_t s6, const int16x4_t s7,
@@ -47,7 +47,7 @@ highbd_convolve8_4(const int16x4_t s0, const int16x4_t s1, const int16x4_t s2,
   return vmin_u16(res, max);
 }
 
-static INLINE uint16x8_t
+static inline uint16x8_t
 highbd_convolve8_8(const int16x8_t s0, const int16x8_t s1, const int16x8_t s2,
                    const int16x8_t s3, const int16x8_t s4, const int16x8_t s5,
                    const int16x8_t s6, const int16x8_t s7,
