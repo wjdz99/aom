@@ -18,6 +18,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a924cfac_766f4b27",
+        "filename": "aom/aomcx.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 1568,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2024-08-08T18:31:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "28b72c35_f159e9e9",
+      "revId": "317ab4249c74af7cbd460c8346e244440b3919d8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ceb7d10b_4925304e",
@@ -31,6 +49,24 @@
       "writtenOn": "2024-08-08T17:51:40Z",
       "side": 1,
       "message": "Optional: I wonder if it is worthwhile to mention that we can\u0027t convert this to `cpi-\u003erc.max_consec_drop` here because `cpi-\u003eframerate` may not be final.",
+      "revId": "317ab4249c74af7cbd460c8346e244440b3919d8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d0c74a68_2e1df985",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 2690,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2024-08-08T18:31:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ceb7d10b_4925304e",
       "revId": "317ab4249c74af7cbd460c8346e244440b3919d8",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -69,6 +105,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "5c102f00_e525105c",
+        "filename": "av1/ratectrl_rtc.cc",
+        "patchSetId": 12
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2024-08-08T18:31:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1bd5adfd_8201c114",
+      "revId": "317ab4249c74af7cbd460c8346e244440b3919d8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "06b232dd_6d6decef",
@@ -82,6 +136,24 @@
       "writtenOn": "2024-08-08T17:51:40Z",
       "side": 1,
       "message": "Clamp to `INT_MAX` before casting to `int`.",
+      "revId": "317ab4249c74af7cbd460c8346e244440b3919d8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bf931b60_89c4de69",
+        "filename": "av1/ratectrl_rtc.cc",
+        "patchSetId": 12
+      },
+      "lineNbr": 199,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2024-08-08T18:31:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "06b232dd_6d6decef",
       "revId": "317ab4249c74af7cbd460c8346e244440b3919d8",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
