@@ -14,14 +14,14 @@
 
 #include <arm_neon.h>
 
-#include "aom/aom_integer.h"  // For AOM_INLINE.
+#include "aom/aom_integer.h"  // For inline.
 
-#define SHIFT_LOOP_HELPER(name, type, intrinsic, arg)                \
-  static AOM_INLINE void name(const type *in, type *out, int size) { \
-    int i = 0;                                                       \
-    do {                                                             \
-      out[i] = intrinsic(in[i], arg);                                \
-    } while (++i < size);                                            \
+#define SHIFT_LOOP_HELPER(name, type, intrinsic, arg)            \
+  static inline void name(const type *in, type *out, int size) { \
+    int i = 0;                                                   \
+    do {                                                         \
+      out[i] = intrinsic(in[i], arg);                            \
+    } while (++i < size);                                        \
   }
 
 SHIFT_LOOP_HELPER(shift_left_2_s16_x4, int16x4_t, vshl_n_s16, 2)
