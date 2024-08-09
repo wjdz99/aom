@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3d6576b1_9458a77b",
+        "filename": "build/cmake/aom_configure.cmake",
+        "patchSetId": 6
+      },
+      "lineNbr": 349,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-08-09T00:43:20Z",
+      "side": 1,
+      "message": "gcc only allows this in C/ObjC, it prefers `-Wmissing-declarations` for C++; I will add that later. As for this extra check, it isn\u0027t strictly necessary I could simplify this and just apply it to the C flags if you\u0027d prefer.",
+      "revId": "3d14dc60b28bded22f4be60c2f05814df9dbd84e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
