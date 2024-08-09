@@ -55,6 +55,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "48970229_db906bdb",
+        "filename": "CMakeLists.txt",
+        "patchSetId": 6
+      },
+      "lineNbr": 477,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-08-09T01:26:37Z",
+      "side": 1,
+      "message": "\u003e \u003e Nit: Please add a comment to explain why this is disabled. Does this have to do with the libyuv namespace in the .cc files?\n\u003e \n\u003e clang generates quite a few warnings. For example:\n\u003e \n\u003e ```\n\u003e libyuv/source/cpu_id.cc:118:5: warning: no previous prototype for function \u0027GetXCR0\u0027 [-Wmissing-prototypes]\n\u003e int GetXCR0() {\n\u003e     ^\n\u003e libyuv/source/cpu_id.cc:118:1: note: declare \u0027static\u0027 if the function is not intended to be used outside of this translation unit\n\u003e int GetXCR0() {\n\u003e ^\n\u003e static \n\u003e 1 warning generated.\n\u003e [32/598] Building CXX object CMakeFiles/yuv.dir/third_party/libyuv/source/scale_uv.cc.o\n\u003e libyuv/source/scale_uv.cc:870:5: warning: no previous prototype for function \u0027UVScale\u0027 [-Wmissing-prototypes]\n\u003e int UVScale(const uint8_t* src_uv,\n\u003e     ^\n\u003e libyuv/source/scale_uv.cc:870:1: note: declare \u0027static\u0027 if the function is not intended to be used outside of this translation unit\n\u003e int UVScale(const uint8_t* src_uv,\n\u003e ^\n\u003e static \n\u003e 1 warning generated.\n\u003e ...\n\u003e ```\n\u003e \n\u003e `UVScale` looks to be due to a missing include. I added a note.\n\nJust in case I hid this reply when I pushed the update as a WIP.",
+      "parentUuid": "4ce48e47_aaf4651d",
+      "revId": "3d14dc60b28bded22f4be60c2f05814df9dbd84e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "3d6576b1_9458a77b",
         "filename": "build/cmake/aom_configure.cmake",
         "patchSetId": 6
