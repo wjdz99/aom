@@ -21,7 +21,7 @@
 #include "av1/common/blockd.h"
 #include "config/av1_rtcd.h"
 
-static AOM_INLINE void diffwtd_mask_d16_neon(
+static inline void diffwtd_mask_d16_neon(
     uint8_t *mask, const bool inverse, const CONV_BUF_TYPE *src0,
     int src0_stride, const CONV_BUF_TYPE *src1, int src1_stride, int h, int w,
     ConvolveParams *conv_params, int bd) {
@@ -125,7 +125,7 @@ void av1_build_compound_diffwtd_mask_d16_neon(
   }
 }
 
-static AOM_INLINE void diffwtd_mask_neon(uint8_t *mask, const bool inverse,
+static inline void diffwtd_mask_neon(uint8_t *mask, const bool inverse,
                                          const uint8_t *src0, int src0_stride,
                                          const uint8_t *src1, int src1_stride,
                                          int h, int w) {

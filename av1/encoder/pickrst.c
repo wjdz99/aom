@@ -156,7 +156,7 @@ typedef struct {
   int16_t *src_avg;
 } RestSearchCtxt;
 
-static AOM_INLINE void rsc_on_tile(void *priv) {
+static inline void rsc_on_tile(void *priv) {
   RestSearchCtxt *rsc = (RestSearchCtxt *)priv;
   set_default_wiener(&rsc->ref_wiener);
   set_default_sgrproj(&rsc->ref_sgrproj);
@@ -164,12 +164,12 @@ static AOM_INLINE void rsc_on_tile(void *priv) {
   set_default_sgrproj(&rsc->switchable_ref_sgrproj);
 }
 
-static AOM_INLINE void reset_rsc(RestSearchCtxt *rsc) {
+static inline void reset_rsc(RestSearchCtxt *rsc) {
   memset(rsc->total_sse, 0, sizeof(rsc->total_sse));
   memset(rsc->total_bits, 0, sizeof(rsc->total_bits));
 }
 
-static AOM_INLINE void init_rsc(const YV12_BUFFER_CONFIG *src,
+static inline void init_rsc(const YV12_BUFFER_CONFIG *src,
                                 const AV1_COMMON *cm, const MACROBLOCK *x,
                                 const LOOP_FILTER_SPEED_FEATURES *lpf_sf,
                                 int plane, RestUnitSearchInfo *rusi,
@@ -469,7 +469,7 @@ static int64_t signed_rounded_divide(int64_t dividend, int64_t divisor) {
     return (dividend + divisor / 2) / divisor;
 }
 
-static AOM_INLINE void calc_proj_params_r0_r1_c(
+static inline void calc_proj_params_r0_r1_c(
     const uint8_t *src8, int width, int height, int src_stride,
     const uint8_t *dat8, int dat_stride, int32_t *flt0, int flt0_stride,
     int32_t *flt1, int flt1_stride, int64_t H[2][2], int64_t C[2]) {
@@ -499,7 +499,7 @@ static AOM_INLINE void calc_proj_params_r0_r1_c(
 }
 
 #if CONFIG_AV1_HIGHBITDEPTH
-static AOM_INLINE void calc_proj_params_r0_r1_high_bd_c(
+static inline void calc_proj_params_r0_r1_high_bd_c(
     const uint8_t *src8, int width, int height, int src_stride,
     const uint8_t *dat8, int dat_stride, int32_t *flt0, int flt0_stride,
     int32_t *flt1, int flt1_stride, int64_t H[2][2], int64_t C[2]) {
@@ -529,7 +529,7 @@ static AOM_INLINE void calc_proj_params_r0_r1_high_bd_c(
 }
 #endif  // CONFIG_AV1_HIGHBITDEPTH
 
-static AOM_INLINE void calc_proj_params_r0_c(const uint8_t *src8, int width,
+static inline void calc_proj_params_r0_c(const uint8_t *src8, int width,
                                              int height, int src_stride,
                                              const uint8_t *dat8,
                                              int dat_stride, int32_t *flt0,
@@ -553,7 +553,7 @@ static AOM_INLINE void calc_proj_params_r0_c(const uint8_t *src8, int width,
 }
 
 #if CONFIG_AV1_HIGHBITDEPTH
-static AOM_INLINE void calc_proj_params_r0_high_bd_c(
+static inline void calc_proj_params_r0_high_bd_c(
     const uint8_t *src8, int width, int height, int src_stride,
     const uint8_t *dat8, int dat_stride, int32_t *flt0, int flt0_stride,
     int64_t H[2][2], int64_t C[2]) {
@@ -575,7 +575,7 @@ static AOM_INLINE void calc_proj_params_r0_high_bd_c(
 }
 #endif  // CONFIG_AV1_HIGHBITDEPTH
 
-static AOM_INLINE void calc_proj_params_r1_c(const uint8_t *src8, int width,
+static inline void calc_proj_params_r1_c(const uint8_t *src8, int width,
                                              int height, int src_stride,
                                              const uint8_t *dat8,
                                              int dat_stride, int32_t *flt1,
@@ -599,7 +599,7 @@ static AOM_INLINE void calc_proj_params_r1_c(const uint8_t *src8, int width,
 }
 
 #if CONFIG_AV1_HIGHBITDEPTH
-static AOM_INLINE void calc_proj_params_r1_high_bd_c(
+static inline void calc_proj_params_r1_high_bd_c(
     const uint8_t *src8, int width, int height, int src_stride,
     const uint8_t *dat8, int dat_stride, int32_t *flt1, int flt1_stride,
     int64_t H[2][2], int64_t C[2]) {
@@ -667,7 +667,7 @@ void av1_calc_proj_params_high_bd_c(const uint8_t *src8, int width, int height,
 }
 #endif  // CONFIG_AV1_HIGHBITDEPTH
 
-static AOM_INLINE void get_proj_subspace(const uint8_t *src8, int width,
+static inline void get_proj_subspace(const uint8_t *src8, int width,
                                          int height, int src_stride,
                                          const uint8_t *dat8, int dat_stride,
                                          int use_highbitdepth, int32_t *flt0,
@@ -740,7 +740,7 @@ static AOM_INLINE void get_proj_subspace(const uint8_t *src8, int width,
   }
 }
 
-static AOM_INLINE void encode_xq(int *xq, int *xqd,
+static inline void encode_xq(int *xq, int *xqd,
                                  const sgr_params_type *params) {
   if (params->r[0] == 0) {
     xqd[0] = 0;
@@ -758,7 +758,7 @@ static AOM_INLINE void encode_xq(int *xq, int *xqd,
 }
 
 // Apply the self-guided filter across an entire restoration unit.
-static AOM_INLINE void apply_sgr(int sgr_params_idx, const uint8_t *dat8,
+static inline void apply_sgr(int sgr_params_idx, const uint8_t *dat8,
                                  int width, int height, int dat_stride,
                                  int use_highbd, int bit_depth, int pu_width,
                                  int pu_height, int32_t *flt0, int32_t *flt1,
@@ -784,7 +784,7 @@ static AOM_INLINE void apply_sgr(int sgr_params_idx, const uint8_t *dat8,
   }
 }
 
-static AOM_INLINE void compute_sgrproj_err(
+static inline void compute_sgrproj_err(
     const uint8_t *dat8, const int width, const int height,
     const int dat_stride, const uint8_t *src8, const int src_stride,
     const int use_highbitdepth, const int bit_depth, const int pu_width,
@@ -804,7 +804,7 @@ static AOM_INLINE void compute_sgrproj_err(
       flt_stride, flt1, flt_stride, 2, exqd, params);
 }
 
-static AOM_INLINE void get_best_error(int64_t *besterr, const int64_t err,
+static inline void get_best_error(int64_t *besterr, const int64_t err,
                                       const int *exqd, int *bestxqd,
                                       int *bestep, const int ep) {
   if (*besterr == -1 || err < *besterr) {
@@ -894,7 +894,7 @@ static int count_sgrproj_bits(SgrprojInfo *sgrproj_info,
   return bits;
 }
 
-static AOM_INLINE void search_sgrproj(
+static inline void search_sgrproj(
     const RestorationTileLimits *limits, int rest_unit_idx, void *priv,
     int32_t *tmpbuf, RestorationLineBuffers *rlbs,
     struct aom_internal_error_info *error_info) {
@@ -1209,7 +1209,7 @@ static int linsolve_wiener(int n, int64_t *A, int stride, int64_t *b,
 }
 
 // Fix vector b, update vector a
-static AOM_INLINE void update_a_sep_sym(int wiener_win, int64_t **Mc,
+static inline void update_a_sep_sym(int wiener_win, int64_t **Mc,
                                         int64_t **Hc, int32_t *a,
                                         const int32_t *b) {
   int i, j;
@@ -1280,7 +1280,7 @@ static AOM_INLINE void update_a_sep_sym(int wiener_win, int64_t **Mc,
 }
 
 // Fix vector a, update vector b
-static AOM_INLINE void update_b_sep_sym(int wiener_win, int64_t **Mc,
+static inline void update_b_sep_sym(int wiener_win, int64_t **Mc,
                                         int64_t **Hc, const int32_t *a,
                                         int32_t *b) {
   int i, j;
@@ -1424,7 +1424,7 @@ static int64_t compute_score(int wiener_win, int64_t *M, int64_t *H,
   return Score - iScore;
 }
 
-static AOM_INLINE void finalize_sym_filter(int wiener_win, int32_t *f,
+static inline void finalize_sym_filter(int wiener_win, int32_t *f,
                                            InterpKernel fi) {
   int i;
   const int wiener_halfwin = (wiener_win >> 1);
@@ -1602,7 +1602,7 @@ static int64_t finer_search_wiener(const RestSearchCtxt *rsc,
   return err;
 }
 
-static AOM_INLINE void search_wiener(
+static inline void search_wiener(
     const RestorationTileLimits *limits, int rest_unit_idx, void *priv,
     int32_t *tmpbuf, RestorationLineBuffers *rlbs,
     struct aom_internal_error_info *error_info) {
@@ -1748,7 +1748,7 @@ static AOM_INLINE void search_wiener(
   if (cost_wiener < cost_none) rsc->ref_wiener = rusi->wiener;
 }
 
-static AOM_INLINE void search_norestore(
+static inline void search_norestore(
     const RestorationTileLimits *limits, int rest_unit_idx, void *priv,
     int32_t *tmpbuf, RestorationLineBuffers *rlbs,
     struct aom_internal_error_info *error_info) {
@@ -1766,7 +1766,7 @@ static AOM_INLINE void search_norestore(
   rsc->total_sse[RESTORE_NONE] += rsc->sse[RESTORE_NONE];
 }
 
-static AOM_INLINE void search_switchable(
+static inline void search_switchable(
     const RestorationTileLimits *limits, int rest_unit_idx, void *priv,
     int32_t *tmpbuf, RestorationLineBuffers *rlbs,
     struct aom_internal_error_info *error_info) {
@@ -1846,7 +1846,7 @@ static AOM_INLINE void search_switchable(
     rsc->switchable_ref_sgrproj = rusi->sgrproj;
 }
 
-static AOM_INLINE void copy_unit_info(RestorationType frame_rtype,
+static inline void copy_unit_info(RestorationType frame_rtype,
                                       const RestUnitSearchInfo *rusi,
                                       RestorationUnitInfo *rui) {
   assert(frame_rtype > 0);

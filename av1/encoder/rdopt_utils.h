@@ -239,7 +239,7 @@ static const int winner_mode_count_allowed[MULTI_WINNER_MODE_LEVELS] = {
   3   // MULTI_WINNER_MODE_DEFAULT
 };
 
-static AOM_INLINE void restore_dst_buf(MACROBLOCKD *xd, const BUFFER_SET dst,
+static inline void restore_dst_buf(MACROBLOCKD *xd, const BUFFER_SET dst,
                                        const int num_planes) {
   for (int i = 0; i < num_planes; i++) {
     xd->plane[i].dst.buf = dst.plane[i];
@@ -247,7 +247,7 @@ static AOM_INLINE void restore_dst_buf(MACROBLOCKD *xd, const BUFFER_SET dst,
   }
 }
 
-static AOM_INLINE void swap_dst_buf(MACROBLOCKD *xd,
+static inline void swap_dst_buf(MACROBLOCKD *xd,
                                     const BUFFER_SET *dst_bufs[2],
                                     int num_planes) {
   const BUFFER_SET *buf0 = dst_bufs[0];
@@ -258,7 +258,7 @@ static AOM_INLINE void swap_dst_buf(MACROBLOCKD *xd,
 
 /* clang-format on */
 // Calculate rd threshold based on ref best rd and relevant scaling factors
-static AOM_INLINE int64_t get_rd_thresh_from_best_rd(int64_t ref_best_rd,
+static inline int64_t get_rd_thresh_from_best_rd(int64_t ref_best_rd,
                                                      int mul_factor,
                                                      int div_factor) {
   int64_t rd_thresh = ref_best_rd;
@@ -270,7 +270,7 @@ static AOM_INLINE int64_t get_rd_thresh_from_best_rd(int64_t ref_best_rd,
   return rd_thresh;
 }
 
-static AOM_INLINE THR_MODES
+static inline THR_MODES
 get_prediction_mode_idx(PREDICTION_MODE this_mode, MV_REFERENCE_FRAME ref_frame,
                         MV_REFERENCE_FRAME second_ref_frame) {
   if (this_mode < INTRA_MODE_END) {
@@ -296,7 +296,7 @@ get_prediction_mode_idx(PREDICTION_MODE this_mode, MV_REFERENCE_FRAME ref_frame,
   return THR_INVALID;
 }
 
-static AOM_INLINE int inter_mode_data_block_idx(BLOCK_SIZE bsize) {
+static inline int inter_mode_data_block_idx(BLOCK_SIZE bsize) {
   if (bsize == BLOCK_4X4 || bsize == BLOCK_4X8 || bsize == BLOCK_8X4 ||
       bsize == BLOCK_4X16 || bsize == BLOCK_16X4) {
     return -1;
@@ -305,7 +305,7 @@ static AOM_INLINE int inter_mode_data_block_idx(BLOCK_SIZE bsize) {
 }
 
 // Get transform block visible dimensions cropped to the MI units.
-static AOM_INLINE void get_txb_dimensions(const MACROBLOCKD *xd, int plane,
+static inline void get_txb_dimensions(const MACROBLOCKD *xd, int plane,
                                           BLOCK_SIZE plane_bsize, int blk_row,
                                           int blk_col, BLOCK_SIZE tx_bsize,
                                           int *width, int *height,
@@ -341,7 +341,7 @@ static AOM_INLINE void get_txb_dimensions(const MACROBLOCKD *xd, int plane,
   if (width) *width = txb_width;
 }
 
-static AOM_INLINE int bsize_to_num_blk(BLOCK_SIZE bsize) {
+static inline int bsize_to_num_blk(BLOCK_SIZE bsize) {
   int num_blk = 1 << (num_pels_log2_lookup[bsize] - 2 * MI_SIZE_LOG2);
   return num_blk;
 }
@@ -668,7 +668,7 @@ static inline CFL_ALLOWED_TYPE store_cfl_required_rdo(const AV1_COMMON *cm,
   return is_cfl_allowed(xd);
 }
 
-static AOM_INLINE void init_sbuv_mode(MB_MODE_INFO *const mbmi) {
+static inline void init_sbuv_mode(MB_MODE_INFO *const mbmi) {
   mbmi->uv_mode = UV_DC_PRED;
   mbmi->palette_mode_info.palette_size[1] = 0;
 }

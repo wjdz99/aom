@@ -18,7 +18,7 @@
 #include "av1/encoder/mv_prec.h"
 
 #if !CONFIG_REALTIME_ONLY
-static AOM_INLINE int_mv get_ref_mv_for_mv_stats(
+static inline int_mv get_ref_mv_for_mv_stats(
     const MB_MODE_INFO *mbmi, const MB_MODE_INFO_EXT_FRAME *mbmi_ext_frame,
     int ref_idx) {
   int ref_mv_idx = mbmi->ref_mv_idx;
@@ -43,7 +43,7 @@ static AOM_INLINE int_mv get_ref_mv_for_mv_stats(
              : mbmi_ext_frame->global_mvs[ref_frame_type];
 }
 
-static AOM_INLINE int get_symbol_cost(const aom_cdf_prob *cdf, int symbol) {
+static inline int get_symbol_cost(const aom_cdf_prob *cdf, int symbol) {
   const aom_cdf_prob cur_cdf = AOM_ICDF(cdf[symbol]);
   const aom_cdf_prob prev_cdf = symbol ? AOM_ICDF(cdf[symbol - 1]) : 0;
   const aom_cdf_prob p15 = AOMMAX(cur_cdf - prev_cdf, EC_MIN_PROB);
@@ -51,7 +51,7 @@ static AOM_INLINE int get_symbol_cost(const aom_cdf_prob *cdf, int symbol) {
   return av1_cost_symbol(p15);
 }
 
-static AOM_INLINE int keep_one_comp_stat(MV_STATS *mv_stats, int comp_val,
+static inline int keep_one_comp_stat(MV_STATS *mv_stats, int comp_val,
                                          int comp_idx, const AV1_COMP *cpi,
                                          int *rates) {
   assert(comp_val != 0 && "mv component should not have zero value!");
@@ -119,7 +119,7 @@ static AOM_INLINE int keep_one_comp_stat(MV_STATS *mv_stats, int comp_val,
   return total_rate;
 }
 
-static AOM_INLINE void keep_one_mv_stat(MV_STATS *mv_stats, const MV *ref_mv,
+static inline void keep_one_mv_stat(MV_STATS *mv_stats, const MV *ref_mv,
                                         const MV *cur_mv, const AV1_COMP *cpi) {
   const MACROBLOCK *const x = &cpi->td.mb;
   const MACROBLOCKD *const xd = &x->e_mbd;
@@ -170,7 +170,7 @@ static AOM_INLINE void keep_one_mv_stat(MV_STATS *mv_stats, const MV *ref_mv,
   }
 }
 
-static AOM_INLINE void collect_mv_stats_b(MV_STATS *mv_stats,
+static inline void collect_mv_stats_b(MV_STATS *mv_stats,
                                           const AV1_COMP *cpi, int mi_row,
                                           int mi_col) {
   const AV1_COMMON *cm = &cpi->common;
@@ -260,7 +260,7 @@ static AOM_INLINE void collect_mv_stats_b(MV_STATS *mv_stats,
 }
 
 // Split block
-static AOM_INLINE void collect_mv_stats_sb(MV_STATS *mv_stats,
+static inline void collect_mv_stats_sb(MV_STATS *mv_stats,
                                            const AV1_COMP *cpi, int mi_row,
                                            int mi_col, BLOCK_SIZE bsize) {
   assert(bsize < BLOCK_SIZES_ALL);
@@ -328,7 +328,7 @@ static AOM_INLINE void collect_mv_stats_sb(MV_STATS *mv_stats,
   }
 }
 
-static AOM_INLINE void collect_mv_stats_tile(MV_STATS *mv_stats,
+static inline void collect_mv_stats_tile(MV_STATS *mv_stats,
                                              const AV1_COMP *cpi,
                                              const TileInfo *tile_info) {
   const AV1_COMMON *cm = &cpi->common;
@@ -368,7 +368,7 @@ void av1_collect_mv_stats(AV1_COMP *cpi, int current_q) {
   mv_stats->valid = 1;
 }
 
-static AOM_INLINE int get_smart_mv_prec(AV1_COMP *cpi, const MV_STATS *mv_stats,
+static inline int get_smart_mv_prec(AV1_COMP *cpi, const MV_STATS *mv_stats,
                                         int current_q) {
   const AV1_COMMON *cm = &cpi->common;
   const int order_hint = cpi->common.current_frame.order_hint;

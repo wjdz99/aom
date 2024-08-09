@@ -903,7 +903,7 @@ static AOM_FORCE_INLINE void set_lpf_parameters_for_line_chroma(
   }
 }
 
-static AOM_INLINE void filter_vert(uint8_t *dst, int dst_stride,
+static inline void filter_vert(uint8_t *dst, int dst_stride,
                                    const AV1_DEBLOCKING_PARAMETERS *params,
                                    const SequenceHeader *seq_params,
                                    USE_FILTER_TYPE use_filter_type) {
@@ -1109,7 +1109,7 @@ static AOM_INLINE void filter_vert(uint8_t *dst, int dst_stride,
 #endif  // !CONFIG_AV1_HIGHBITDEPTH
 }
 
-static AOM_INLINE void filter_vert_chroma(
+static inline void filter_vert_chroma(
     uint8_t *u_dst, uint8_t *v_dst, int dst_stride,
     const AV1_DEBLOCKING_PARAMETERS *params, const SequenceHeader *seq_params,
     USE_FILTER_TYPE use_filter_type) {
@@ -1504,7 +1504,7 @@ void av1_filter_block_plane_vert_opt_chroma(
   }
 }
 
-static AOM_INLINE void filter_horz(uint8_t *dst, int dst_stride,
+static inline void filter_horz(uint8_t *dst, int dst_stride,
                                    const AV1_DEBLOCKING_PARAMETERS *params,
                                    const SequenceHeader *seq_params,
                                    USE_FILTER_TYPE use_filter_type) {
@@ -1710,7 +1710,7 @@ static AOM_INLINE void filter_horz(uint8_t *dst, int dst_stride,
 #endif  // !CONFIG_AV1_HIGHBITDEPTH
 }
 
-static AOM_INLINE void filter_horz_chroma(
+static inline void filter_horz_chroma(
     uint8_t *u_dst, uint8_t *v_dst, int dst_stride,
     const AV1_DEBLOCKING_PARAMETERS *params, const SequenceHeader *seq_params,
     USE_FILTER_TYPE use_filter_type) {

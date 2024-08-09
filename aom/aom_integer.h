@@ -19,7 +19,8 @@
 #else
 #define AOM_FORCE_INLINE __inline__ __attribute__((always_inline))
 #endif
-#define AOM_INLINE inline
+/* AOM_INLINE is deprecated. Use the inline keyword instead. */
+//#define AOM_INLINE inline
 
 /* Assume platforms have the C99 standard integer types. */
 

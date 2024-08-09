@@ -14,10 +14,10 @@
 
 #include <arm_neon.h>
 
-#include "aom/aom_integer.h"  // For AOM_INLINE.
+#include "aom/aom_integer.h"  // For inline.
 
 #define SHIFT_LOOP_HELPER(name, type, intrinsic, arg)                \
-  static AOM_INLINE void name(const type *in, type *out, int size) { \
+  static inline void name(const type *in, type *out, int size) { \
     int i = 0;                                                       \
     do {                                                             \
       out[i] = intrinsic(in[i], arg);                                \

@@ -361,7 +361,7 @@ int av1_get_q(const struct AV1_COMP *cpi);
 //   is_high_bitdepth: Whether the frame is high-bitdepth or not.
 // Returns:
 //   True if allocation is successful and false otherwise.
-static AOM_INLINE bool tf_alloc_and_reset_data(TemporalFilterData *tf_data,
+static inline bool tf_alloc_and_reset_data(TemporalFilterData *tf_data,
                                                int num_pels,
                                                int is_high_bitdepth) {
   tf_data->tmp_mbmi = (MB_MODE_INFO *)aom_calloc(1, sizeof(*tf_data->tmp_mbmi));
@@ -390,7 +390,7 @@ static AOM_INLINE bool tf_alloc_and_reset_data(TemporalFilterData *tf_data,
 //   scale: Scaling factor.
 // Returns:
 //   Nothing will be returned. Contents of mbd will be modified.
-static AOM_INLINE void tf_setup_macroblockd(MACROBLOCKD *mbd,
+static inline void tf_setup_macroblockd(MACROBLOCKD *mbd,
                                             TemporalFilterData *tf_data,
                                             const struct scale_factors *scale) {
   mbd->block_ref_scale_factors[0] = scale;
@@ -405,7 +405,7 @@ static AOM_INLINE void tf_setup_macroblockd(MACROBLOCKD *mbd,
 //   is_high_bitdepth: Whether the frame is high-bitdepth or not.
 // Returns:
 //   Nothing will be returned.
-static AOM_INLINE void tf_dealloc_data(TemporalFilterData *tf_data,
+static inline void tf_dealloc_data(TemporalFilterData *tf_data,
                                        int is_high_bitdepth) {
   if (is_high_bitdepth)
     tf_data->pred = (uint8_t *)CONVERT_TO_SHORTPTR(tf_data->pred);

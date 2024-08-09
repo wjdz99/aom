@@ -67,7 +67,7 @@ static int64_t calculate_sse(MACROBLOCKD *const xd,
   return sse;
 }
 
-static AOM_INLINE int64_t compute_sse_plane(MACROBLOCK *x, MACROBLOCKD *xd,
+static inline int64_t compute_sse_plane(MACROBLOCK *x, MACROBLOCKD *xd,
                                             int plane, const BLOCK_SIZE bsize) {
   struct macroblockd_plane *const pd = &xd->plane[plane];
   const BLOCK_SIZE plane_bsize =
@@ -82,7 +82,7 @@ static AOM_INLINE int64_t compute_sse_plane(MACROBLOCK *x, MACROBLOCKD *xd,
   return sse;
 }
 
-static AOM_INLINE void model_rd_from_sse(const AV1_COMP *const cpi,
+static inline void model_rd_from_sse(const AV1_COMP *const cpi,
                                          const MACROBLOCK *const x,
                                          BLOCK_SIZE plane_bsize, int plane,
                                          int64_t sse, int num_samples,
@@ -114,7 +114,7 @@ static AOM_INLINE void model_rd_from_sse(const AV1_COMP *const cpi,
 
 // Fits a curve for rate and distortion using as feature:
 // log2(sse_norm/qstep^2)
-static AOM_INLINE void model_rd_with_curvfit(const AV1_COMP *const cpi,
+static inline void model_rd_with_curvfit(const AV1_COMP *const cpi,
                                              const MACROBLOCK *const x,
                                              BLOCK_SIZE plane_bsize, int plane,
                                              int64_t sse, int num_samples,
@@ -155,7 +155,7 @@ static AOM_INLINE void model_rd_with_curvfit(const AV1_COMP *const cpi,
   if (dist) *dist = dist_i;
 }
 
-static AOM_INLINE void model_rd_for_sb(
+static inline void model_rd_for_sb(
     const AV1_COMP *const cpi, BLOCK_SIZE bsize, MACROBLOCK *x, MACROBLOCKD *xd,
     int plane_from, int plane_to, int *out_rate_sum, int64_t *out_dist_sum,
     uint8_t *skip_txfm_sb, int64_t *skip_sse_sb, int *plane_rate,
@@ -207,7 +207,7 @@ static AOM_INLINE void model_rd_for_sb(
   *out_dist_sum = dist_sum;
 }
 
-static AOM_INLINE void model_rd_for_sb_with_curvfit(
+static inline void model_rd_for_sb_with_curvfit(
     const AV1_COMP *const cpi, BLOCK_SIZE bsize, MACROBLOCK *x, MACROBLOCKD *xd,
     int plane_from, int plane_to, int *out_rate_sum, int64_t *out_dist_sum,
     uint8_t *skip_txfm_sb, int64_t *skip_sse_sb, int *plane_rate,

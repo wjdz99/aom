@@ -189,7 +189,7 @@ static double residual_frame_average_variance(AV1_COMP *cpi,
 }
 
 // TODO(sdeng): Add the SIMD implementation.
-static AOM_INLINE void highbd_unsharp_rect(const uint16_t *source,
+static inline void highbd_unsharp_rect(const uint16_t *source,
                                            int source_stride,
                                            const uint16_t *blurred,
                                            int blurred_stride, uint16_t *dst,
@@ -208,7 +208,7 @@ static AOM_INLINE void highbd_unsharp_rect(const uint16_t *source,
   }
 }
 
-static AOM_INLINE void unsharp_rect(const uint8_t *source, int source_stride,
+static inline void unsharp_rect(const uint8_t *source, int source_stride,
                                     const uint8_t *blurred, int blurred_stride,
                                     uint8_t *dst, int dst_stride, int w, int h,
                                     double amount) {
@@ -224,7 +224,7 @@ static AOM_INLINE void unsharp_rect(const uint8_t *source, int source_stride,
   }
 }
 
-static AOM_INLINE void unsharp(const AV1_COMP *const cpi,
+static inline void unsharp(const AV1_COMP *const cpi,
                                const YV12_BUFFER_CONFIG *source,
                                const YV12_BUFFER_CONFIG *blurred,
                                const YV12_BUFFER_CONFIG *dst, double amount) {
@@ -251,7 +251,7 @@ static AOM_INLINE void unsharp(const AV1_COMP *const cpi,
 // _mm_loadu_si128() in prepare_coeffs_6t().
 DECLARE_ALIGNED(16, static const int16_t, gauss_filter[9]) = { 0,  8, 30, 52,
                                                                30, 8, 0,  0 };
-static AOM_INLINE void gaussian_blur(const int bit_depth,
+static inline void gaussian_blur(const int bit_depth,
                                      const YV12_BUFFER_CONFIG *source,
                                      const YV12_BUFFER_CONFIG *dst) {
   const int block_size = BLOCK_128X128;
@@ -290,7 +290,7 @@ static AOM_INLINE void gaussian_blur(const int bit_depth,
   }
 }
 
-static AOM_INLINE double cal_approx_vmaf(
+static inline double cal_approx_vmaf(
     const AV1_COMP *const cpi, double source_variance,
     const YV12_BUFFER_CONFIG *const source,
     const YV12_BUFFER_CONFIG *const sharpened) {
@@ -775,7 +775,7 @@ void av1_set_vmaf_rdmult(const AV1_COMP *const cpi, MACROBLOCK *const x,
 }
 
 // TODO(sdeng): replace them with the SIMD versions.
-static AOM_INLINE double highbd_image_sad_c(const uint16_t *src, int src_stride,
+static inline double highbd_image_sad_c(const uint16_t *src, int src_stride,
                                             const uint16_t *ref, int ref_stride,
                                             int w, int h) {
   double accum = 0.0;
@@ -793,7 +793,7 @@ static AOM_INLINE double highbd_image_sad_c(const uint16_t *src, int src_stride,
   return accum / (double)(h * w);
 }
 
-static AOM_INLINE double image_sad_c(const uint8_t *src, int src_stride,
+static inline double image_sad_c(const uint8_t *src, int src_stride,
                                      const uint8_t *ref, int ref_stride, int w,
                                      int h) {
   double accum = 0.0;
@@ -880,7 +880,7 @@ static double calc_vmaf_motion_score(const AV1_COMP *const cpi,
   return AOMMIN(motion1, motion2);
 }
 
-static AOM_INLINE void get_neighbor_frames(const AV1_COMP *const cpi,
+static inline void get_neighbor_frames(const AV1_COMP *const cpi,
                                            const YV12_BUFFER_CONFIG **last,
                                            const YV12_BUFFER_CONFIG **next) {
   const AV1_COMMON *const cm = &cpi->common;
@@ -952,7 +952,7 @@ int av1_get_vmaf_base_qindex(const AV1_COMP *const cpi, int current_qindex) {
   return qindex;
 }
 
-static AOM_INLINE double cal_approx_score(
+static inline double cal_approx_score(
     AV1_COMP *const cpi, double src_variance, double new_variance,
     double src_score, const YV12_BUFFER_CONFIG *const src,
     const YV12_BUFFER_CONFIG *const recon_sharpened) {

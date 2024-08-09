@@ -96,7 +96,7 @@ static inline int get_segdata(const struct segmentation *seg, int segment_id,
   return seg->feature_data[segment_id][feature_id];
 }
 
-static AOM_INLINE void set_segment_id(uint8_t *segment_ids, int mi_offset,
+static inline void set_segment_id(uint8_t *segment_ids, int mi_offset,
                                       int x_mis, int y_mis, int mi_stride,
                                       uint8_t segment_id) {
   segment_ids += mi_offset;

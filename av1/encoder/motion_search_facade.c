@@ -842,7 +842,7 @@ int av1_compound_single_motion_search(const AV1_COMP *cpi, MACROBLOCK *x,
   return bestsme;
 }
 
-static AOM_INLINE void build_second_inter_pred(const AV1_COMP *cpi,
+static inline void build_second_inter_pred(const AV1_COMP *cpi,
                                                MACROBLOCK *x, BLOCK_SIZE bsize,
                                                const MV *other_mv, int ref_idx,
                                                uint8_t *second_pred) {
@@ -904,7 +904,7 @@ int av1_compound_single_motion_search_interinter(
                                            mask, mask_stride, rate_mv, ref_idx);
 }
 
-static AOM_INLINE void do_masked_motion_search_indexed(
+static inline void do_masked_motion_search_indexed(
     const AV1_COMP *const cpi, MACROBLOCK *x, const int_mv *const cur_mv,
     const INTERINTER_COMPOUND_DATA *const comp_data, BLOCK_SIZE bsize,
     int_mv *tmp_mv, int *rate_mv, int which) {

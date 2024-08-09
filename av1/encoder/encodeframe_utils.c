@@ -217,7 +217,7 @@ int av1_get_hier_tpl_rdmult(const AV1_COMP *const cpi, MACROBLOCK *const x,
 }
 #endif  // !CONFIG_REALTIME_ONLY
 
-static AOM_INLINE void update_filter_type_count(FRAME_COUNTS *counts,
+static inline void update_filter_type_count(FRAME_COUNTS *counts,
                                                 const MACROBLOCKD *xd,
                                                 const MB_MODE_INFO *mbmi) {
   int dir;

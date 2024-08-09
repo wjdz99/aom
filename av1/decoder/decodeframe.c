@@ -99,7 +99,7 @@ int av1_check_trailing_bits(AV1Decoder *pbi, struct aom_read_bit_buffer *rb) {
 }
 
 // Use only_chroma = 1 to only set the chroma planes
-static AOM_INLINE void set_planes_to_neutral_grey(
+static inline void set_planes_to_neutral_grey(
     const SequenceHeader *const seq_params, const YV12_BUFFER_CONFIG *const buf,
     int only_chroma) {
   if (seq_params->use_highbitdepth) {
@@ -128,7 +128,7 @@ static AOM_INLINE void set_planes_to_neutral_grey(
   }
 }
 
-static AOM_INLINE void loop_restoration_read_sb_coeffs(
+static inline void loop_restoration_read_sb_coeffs(
     const AV1_COMMON *const cm, MACROBLOCKD *xd, aom_reader *const r, int plane,
     int runit_idx);
 
@@ -151,7 +151,7 @@ static REFERENCE_MODE read_frame_reference_mode(
   }
 }
 
-static AOM_INLINE void inverse_transform_block(DecoderCodingBlock *dcb,
+static inline void inverse_transform_block(DecoderCodingBlock *dcb,
                                                int plane, const TX_TYPE tx_type,
                                                const TX_SIZE tx_size,
                                                uint8_t *dst, int stride,
@@ -165,7 +165,7 @@ static AOM_INLINE void inverse_transform_block(DecoderCodingBlock *dcb,
   memset(dqcoeff, 0, (scan_line + 1) * sizeof(dqcoeff[0]));
 }
 
-static AOM_INLINE void read_coeffs_tx_intra_block(
+static inline void read_coeffs_tx_intra_block(
     const AV1_COMMON *const cm, DecoderCodingBlock *dcb, aom_reader *const r,
     const int plane, const int row, const int col, const TX_SIZE tx_size) {
   MB_MODE_INFO *mbmi = dcb->xd.mi[0];
@@ -184,7 +184,7 @@ static AOM_INLINE void read_coeffs_tx_intra_block(
   }
 }
 
-static AOM_INLINE void decode_block_void(const AV1_COMMON *const cm,
+static inline void decode_block_void(const AV1_COMMON *const cm,
                                          DecoderCodingBlock *dcb,
                                          aom_reader *const r, const int plane,
                                          const int row, const int col,
@@ -198,7 +198,7 @@ static AOM_INLINE void decode_block_void(const AV1_COMMON *const cm,
   (void)tx_size;
 }
 
-static AOM_INLINE void predict_inter_block_void(AV1_COMMON *const cm,
+static inline void predict_inter_block_void(AV1_COMMON *const cm,
                                                 DecoderCodingBlock *dcb,
                                                 BLOCK_SIZE bsize) {
   (void)cm;
@@ -206,13 +206,13 @@ static AOM_INLINE void predict_inter_block_void(AV1_COMMON *const cm,
   (void)bsize;
 }
 
-static AOM_INLINE void cfl_store_inter_block_void(AV1_COMMON *const cm,
+static inline void cfl_store_inter_block_void(AV1_COMMON *const cm,
                                                   MACROBLOCKD *const xd) {
   (void)cm;
   (void)xd;
 }
 
-static AOM_INLINE void predict_and_reconstruct_intra_block(
+static inline void predict_and_reconstruct_intra_block(
     const AV1_COMMON *const cm, DecoderCodingBlock *dcb, aom_reader *const r,
     const int plane, const int row, const int col, const TX_SIZE tx_size) {
   (void)r;
@@ -240,7 +240,7 @@ static AOM_INLINE void predict_and_reconstruct_intra_block(
   }
 }
 
-static AOM_INLINE void inverse_transform_inter_block(
+static inline void inverse_transform_inter_block(
     const AV1_COMMON *const cm, DecoderCodingBlock *dcb, aom_reader *const r,
     const int plane, const int blk_row, const int blk_col,
     const TX_SIZE tx_size) {
@@ -272,14 +272,14 @@ static AOM_INLINE void inverse_transform_inter_block(
 #endif
 }
 
-static AOM_INLINE void set_cb_buffer_offsets(DecoderCodingBlock *dcb,
+static inline void set_cb_buffer_offsets(DecoderCodingBlock *dcb,
                                              TX_SIZE tx_size, int plane) {
   dcb->cb_offset[plane] += tx_size_wide[tx_size] * tx_size_high[tx_size];
   dcb->txb_offset[plane] =
       dcb->cb_offset[plane] / (TX_SIZE_W_MIN * TX_SIZE_H_MIN);
 }
 
-static AOM_INLINE void decode_reconstruct_tx(
+static inline void decode_reconstruct_tx(
     AV1_COMMON *cm, ThreadData *const td, aom_reader *r,
     MB_MODE_INFO *const mbmi, int plane, BLOCK_SIZE plane_bsize, int blk_row,
     int blk_col, int block, TX_SIZE tx_size, int *eob_total) {
@@ -333,7 +333,7 @@ static AOM_INLINE void decode_reconstruct_tx(
   }
 }
 
-static AOM_INLINE void set_offsets(AV1_COMMON *const cm, MACROBLOCKD *const xd,
+static inline void set_offsets(AV1_COMMON *const cm, MACROBLOCKD *const xd,
                                    BLOCK_SIZE bsize, int mi_row, int mi_col,
                                    int bw, int bh, int x_mis, int y_mis) {
   const int num_planes = av1_num_planes(cm);
@@ -367,7 +367,7 @@ static AOM_INLINE void set_offsets(AV1_COMMON *const cm, MACROBLOCKD *const xd,
                        num_planes);
 }
 
-static AOM_INLINE void decode_mbmi_block(AV1Decoder *const pbi,
+static inline void decode_mbmi_block(AV1Decoder *const pbi,
                                          DecoderCodingBlock *dcb, int mi_row,
                                          int mi_col, aom_reader *r,
                                          PARTITION_TYPE partition,
@@ -405,7 +405,7 @@ typedef struct PadBlock {
 } PadBlock;
 
 #if CONFIG_AV1_HIGHBITDEPTH
-static AOM_INLINE void highbd_build_mc_border(const uint8_t *src8,
+static inline void highbd_build_mc_border(const uint8_t *src8,
                                               int src_stride, uint8_t *dst8,
                                               int dst_stride, int x, int y,
                                               int b_w, int b_h, int w, int h) {
@@ -445,7 +445,7 @@ static AOM_INLINE void highbd_build_mc_border(const uint8_t *src8,
 }
 #endif  // CONFIG_AV1_HIGHBITDEPTH
 
-static AOM_INLINE void build_mc_border(const uint8_t *src, int src_stride,
+static inline void build_mc_border(const uint8_t *src, int src_stride,
                                        uint8_t *dst, int dst_stride, int x,
                                        int y, int b_w, int b_h, int w, int h) {
   // Get a pointer to the start of the real data for this row.
@@ -555,7 +555,7 @@ static inline void extend_mc_border(const struct scale_factors *const sf,
   }
 }
 
-static AOM_INLINE void dec_calc_subpel_params(
+static inline void dec_calc_subpel_params(
     const MV *const src_mv, InterPredParams *const inter_pred_params,
     const MACROBLOCKD *const xd, int mi_x, int mi_y, uint8_t **pre,
     SubpelParams *subpel_params, int *src_stride, PadBlock *block,
@@ -641,7 +641,7 @@ static AOM_INLINE void dec_calc_subpel_params(
   *src_stride = pre_buf->stride;
 }
 
-static AOM_INLINE void dec_calc_subpel_params_and_extend(
+static inline void dec_calc_subpel_params_and_extend(
     const MV *const src_mv, InterPredParams *const inter_pred_params,
     MACROBLOCKD *const xd, int mi_x, int mi_y, int ref, uint8_t **mc_buf,
     uint8_t **pre, SubpelParams *subpel_params, int *src_stride) {
@@ -671,7 +671,7 @@ static void dec_build_inter_predictors(const AV1_COMMON *cm,
                          mi_y, dcb->mc_buf);
 }
 
-static AOM_INLINE void dec_build_inter_predictor(const AV1_COMMON *cm,
+static inline void dec_build_inter_predictor(const AV1_COMMON *cm,
                                                  DecoderCodingBlock *dcb,
                                                  int mi_row, int mi_col,
                                                  BLOCK_SIZE bsize) {
@@ -726,7 +726,7 @@ static inline void dec_build_prediction_by_above_pred(
   }
 }
 
-static AOM_INLINE void dec_build_prediction_by_above_preds(
+static inline void dec_build_prediction_by_above_preds(
     const AV1_COMMON *cm, DecoderCodingBlock *dcb,
     uint8_t *tmp_buf[MAX_MB_PLANE], int tmp_width[MAX_MB_PLANE],
     int tmp_height[MAX_MB_PLANE], int tmp_stride[MAX_MB_PLANE]) {
@@ -781,7 +781,7 @@ static inline void dec_build_prediction_by_left_pred(
   }
 }
 
-static AOM_INLINE void dec_build_prediction_by_left_preds(
+static inline void dec_build_prediction_by_left_preds(
     const AV1_COMMON *cm, DecoderCodingBlock *dcb,
     uint8_t *tmp_buf[MAX_MB_PLANE], int tmp_width[MAX_MB_PLANE],
     int tmp_height[MAX_MB_PLANE], int tmp_stride[MAX_MB_PLANE]) {
@@ -808,7 +808,7 @@ static AOM_INLINE void dec_build_prediction_by_left_preds(
   xd->mb_to_bottom_edge = ctxt.mb_to_far_edge;
 }
 
-static AOM_INLINE void dec_build_obmc_inter_predictors_sb(
+static inline void dec_build_obmc_inter_predictors_sb(
     const AV1_COMMON *cm, DecoderCodingBlock *dcb) {
   const int num_planes = av1_num_planes(cm);
   uint8_t *dst_buf1[MAX_MB_PLANE], *dst_buf2[MAX_MB_PLANE];
@@ -834,7 +834,7 @@ static AOM_INLINE void dec_build_obmc_inter_predictors_sb(
                                   dst_stride2);
 }
 
-static AOM_INLINE void cfl_store_inter_block(AV1_COMMON *const cm,
+static inline void cfl_store_inter_block(AV1_COMMON *const cm,
                                              MACROBLOCKD *const xd) {
   MB_MODE_INFO *mbmi = xd->mi[0];
   if (store_cfl_required(cm, xd)) {
@@ -842,7 +842,7 @@ static AOM_INLINE void cfl_store_inter_block(AV1_COMMON *const cm,
   }
 }
 
-static AOM_INLINE void predict_inter_block(AV1_COMMON *const cm,
+static inline void predict_inter_block(AV1_COMMON *const cm,
                                            DecoderCodingBlock *dcb,
                                            BLOCK_SIZE bsize) {
   MACROBLOCKD *const xd = &dcb->xd;
@@ -888,7 +888,7 @@ static AOM_INLINE void predict_inter_block(AV1_COMMON *const cm,
 #endif
 }
 
-static AOM_INLINE void set_color_index_map_offset(MACROBLOCKD *const xd,
+static inline void set_color_index_map_offset(MACROBLOCKD *const xd,
                                                   int plane, aom_reader *r) {
   (void)r;
   Av1ColorMapParam params;
@@ -898,7 +898,7 @@ static AOM_INLINE void set_color_index_map_offset(MACROBLOCKD *const xd,
   xd->color_index_map_offset[plane] += params.plane_width * params.plane_height;
 }
 
-static AOM_INLINE void decode_token_recon_block(AV1Decoder *const pbi,
+static inline void decode_token_recon_block(AV1Decoder *const pbi,
                                                 ThreadData *const td,
                                                 aom_reader *r,
                                                 BLOCK_SIZE bsize) {
@@ -1010,7 +1010,7 @@ static AOM_INLINE void decode_token_recon_block(AV1Decoder *const pbi,
   av1_visit_palette(pbi, xd, r, set_color_index_map_offset);
 }
 
-static AOM_INLINE void set_inter_tx_size(MB_MODE_INFO *mbmi, int stride_log2,
+static inline void set_inter_tx_size(MB_MODE_INFO *mbmi, int stride_log2,
                                          int tx_w_log2, int tx_h_log2,
                                          int min_txs, int split_size, int txs,
                                          int blk_row, int blk_col) {
@@ -1025,7 +1025,7 @@ static AOM_INLINE void set_inter_tx_size(MB_MODE_INFO *mbmi, int stride_log2,
   }
 }
 
-static AOM_INLINE void read_tx_size_vartx(MACROBLOCKD *xd, MB_MODE_INFO *mbmi,
+static inline void read_tx_size_vartx(MACROBLOCKD *xd, MB_MODE_INFO *mbmi,
                                           TX_SIZE tx_size, int depth,
                                           int blk_row, int blk_col,
                                           aom_reader *r) {
@@ -1124,7 +1124,7 @@ static TX_SIZE read_tx_size(const MACROBLOCKD *const xd, TX_MODE tx_mode,
   }
 }
 
-static AOM_INLINE void parse_decode_block(AV1Decoder *const pbi,
+static inline void parse_decode_block(AV1Decoder *const pbi,
                                           ThreadData *const td, int mi_row,
                                           int mi_col, aom_reader *r,
                                           PARTITION_TYPE partition,
@@ -1183,7 +1183,7 @@ static AOM_INLINE void parse_decode_block(AV1Decoder *const pbi,
   decode_token_recon_block(pbi, td, r, bsize);
 }
 
-static AOM_INLINE void set_offsets_for_pred_and_recon(AV1Decoder *const pbi,
+static inline void set_offsets_for_pred_and_recon(AV1Decoder *const pbi,
                                                       ThreadData *const td,
                                                       int mi_row, int mi_col,
                                                       BLOCK_SIZE bsize) {
@@ -1214,7 +1214,7 @@ static AOM_INLINE void set_offsets_for_pred_and_recon(AV1Decoder *const pbi,
                        num_planes);
 }
 
-static AOM_INLINE void decode_block(AV1Decoder *const pbi, ThreadData *const td,
+static inline void decode_block(AV1Decoder *const pbi, ThreadData *const td,
                                     int mi_row, int mi_col, aom_reader *r,
                                     PARTITION_TYPE partition,
                                     BLOCK_SIZE bsize) {
@@ -1253,7 +1253,7 @@ static PARTITION_TYPE read_partition(MACROBLOCKD *xd, int mi_row, int mi_col,
 }
 
 // TODO(slavarnway): eliminate bsize and subsize in future commits
-static AOM_INLINE void decode_partition(AV1Decoder *const pbi,
+static inline void decode_partition(AV1Decoder *const pbi,
                                         ThreadData *const td, int mi_row,
                                         int mi_col, aom_reader *reader,
                                         BLOCK_SIZE bsize,
@@ -1403,7 +1403,7 @@ static AOM_INLINE void decode_partition(AV1Decoder *const pbi,
     update_ext_partition_context(xd, mi_row, mi_col, subsize, bsize, partition);
 }
 
-static AOM_INLINE void setup_bool_decoder(
+static inline void setup_bool_decoder(
     MACROBLOCKD *const xd, const uint8_t *data, const uint8_t *data_end,
     const size_t read_size, struct aom_internal_error_info *error_info,
     aom_reader *r, uint8_t allow_update_cdf) {
@@ -1432,7 +1432,7 @@ static AOM_INLINE void setup_bool_decoder(
   r->allow_update_cdf = allow_update_cdf;
 }
 
-static AOM_INLINE void setup_segmentation(AV1_COMMON *const cm,
+static inline void setup_segmentation(AV1_COMMON *const cm,
                                           struct aom_read_bit_buffer *rb) {
   struct segmentation *const seg = &cm->seg;
 
@@ -1507,7 +1507,7 @@ static AOM_INLINE void setup_segmentation(AV1_COMMON *const cm,
   segfeatures_copy(&cm->cur_frame->seg, seg);
 }
 
-static AOM_INLINE void decode_restoration_mode(AV1_COMMON *cm,
+static inline void decode_restoration_mode(AV1_COMMON *cm,
                                                struct aom_read_bit_buffer *rb) {
   assert(!cm->features.all_lossless);
   const int num_planes = av1_num_planes(cm);
@@ -1564,7 +1564,7 @@ static AOM_INLINE void decode_restoration_mode(AV1_COMMON *cm,
   }
 }
 
-static AOM_INLINE void read_wiener_filter(int wiener_win,
+static inline void read_wiener_filter(int wiener_win,
                                           WienerInfo *wiener_info,
                                           WienerInfo *ref_wiener_info,
                                           aom_reader *rb) {
@@ -1625,7 +1625,7 @@ static AOM_INLINE void read_wiener_filter(int wiener_win,
   memcpy(ref_wiener_info, wiener_info, sizeof(*wiener_info));
 }
 
-static AOM_INLINE void read_sgrproj_filter(SgrprojInfo *sgrproj_info,
+static inline void read_sgrproj_filter(SgrprojInfo *sgrproj_info,
                                            SgrprojInfo *ref_sgrproj_info,
                                            aom_reader *rb) {
   sgrproj_info->ep = aom_read_literal(rb, SGRPROJ_PARAMS_BITS, ACCT_STR);
@@ -1662,7 +1662,7 @@ static AOM_INLINE void read_sgrproj_filter(SgrprojInfo *sgrproj_info,
   memcpy(ref_sgrproj_info, sgrproj_info, sizeof(*sgrproj_info));
 }
 
-static AOM_INLINE void loop_restoration_read_sb_coeffs(
+static inline void loop_restoration_read_sb_coeffs(
     const AV1_COMMON *const cm, MACROBLOCKD *xd, aom_reader *const r, int plane,
     int runit_idx) {
   const RestorationInfo *rsi = &cm->rst_info[plane];
@@ -1705,7 +1705,7 @@ static AOM_INLINE void loop_restoration_read_sb_coeffs(
   }
 }
 
-static AOM_INLINE void setup_loopfilter(AV1_COMMON *cm,
+static inline void setup_loopfilter(AV1_COMMON *cm,
                                         struct aom_read_bit_buffer *rb) {
   const int num_planes = av1_num_planes(cm);
   struct loopfilter *lf = &cm->lf;
@@ -1758,7 +1758,7 @@ static AOM_INLINE void setup_loopfilter(AV1_COMMON *cm,
   memcpy(cm->cur_frame->mode_deltas, lf->mode_deltas, MAX_MODE_LF_DELTAS);
 }
 
-static AOM_INLINE void setup_cdef(AV1_COMMON *cm,
+static inline void setup_cdef(AV1_COMMON *cm,
                                   struct aom_read_bit_buffer *rb) {
   const int num_planes = av1_num_planes(cm);
   CdefInfo *const cdef_info = &cm->cdef_info;
@@ -1778,7 +1778,7 @@ static inline int read_delta_q(struct aom_read_bit_buffer *rb) {
   return aom_rb_read_bit(rb) ? aom_rb_read_inv_signed_literal(rb, 6) : 0;
 }
 
-static AOM_INLINE void setup_quantization(CommonQuantParams *quant_params,
+static inline void setup_quantization(CommonQuantParams *quant_params,
                                           int num_planes,
                                           bool separate_uv_delta_q,
                                           struct aom_read_bit_buffer *rb) {
@@ -1818,7 +1818,7 @@ static AOM_INLINE void setup_quantization(CommonQuantParams *quant_params,
 }
 
 // Build y/uv dequant values based on segmentation.
-static AOM_INLINE void setup_segmentation_dequant(AV1_COMMON *const cm,
+static inline void setup_segmentation_dequant(AV1_COMMON *const cm,
                                                   MACROBLOCKD *const xd) {
   const int bit_depth = cm->seq_params->bit_depth;
   // When segmentation is disabled, only the first value is used.  The
@@ -1867,7 +1867,7 @@ static InterpFilter read_frame_interp_filter(struct aom_read_bit_buffer *rb) {
                              : aom_rb_read_literal(rb, LOG_SWITCHABLE_FILTERS);
 }
 
-static AOM_INLINE void setup_render_size(AV1_COMMON *cm,
+static inline void setup_render_size(AV1_COMMON *cm,
                                          struct aom_read_bit_buffer *rb) {
   cm->render_width = cm->superres_upscaled_width;
   cm->render_height = cm->superres_upscaled_height;
@@ -1876,7 +1876,7 @@ static AOM_INLINE void setup_render_size(AV1_COMMON *cm,
 }
 
 // TODO(afergs): make "struct aom_read_bit_buffer *const rb"?
-static AOM_INLINE void setup_superres(AV1_COMMON *const cm,
+static inline void setup_superres(AV1_COMMON *const cm,
                                       struct aom_read_bit_buffer *rb,
                                       int *width, int *height) {
   cm->superres_upscaled_width = *width;
@@ -1899,7 +1899,7 @@ static AOM_INLINE void setup_superres(AV1_COMMON *const cm,
   }
 }
 
-static AOM_INLINE void resize_context_buffers(AV1_COMMON *cm, int width,
+static inline void resize_context_buffers(AV1_COMMON *cm, int width,
                                               int height) {
 #if CONFIG_SIZE_LIMIT
   if (width > DECODE_WIDTH_LIMIT || height > DECODE_HEIGHT_LIMIT)
@@ -1937,7 +1937,7 @@ static AOM_INLINE void resize_context_buffers(AV1_COMMON *cm, int width,
   cm->cur_frame->height = cm->height;
 }
 
-static AOM_INLINE void setup_buffer_pool(AV1_COMMON *cm) {
+static inline void setup_buffer_pool(AV1_COMMON *cm) {
   BufferPool *const pool = cm->buffer_pool;
   const SequenceHeader *const seq_params = cm->seq_params;
 
@@ -1967,7 +1967,7 @@ static AOM_INLINE void setup_buffer_pool(AV1_COMMON *cm) {
   cm->cur_frame->buf.render_height = cm->render_height;
 }
 
-static AOM_INLINE void setup_frame_size(AV1_COMMON *cm,
+static inline void setup_frame_size(AV1_COMMON *cm,
                                         int frame_size_override_flag,
                                         struct aom_read_bit_buffer *rb) {
   const SequenceHeader *const seq_params = cm->seq_params;
@@ -1993,7 +1993,7 @@ static AOM_INLINE void setup_frame_size(AV1_COMMON *cm,
   setup_buffer_pool(cm);
 }
 
-static AOM_INLINE void setup_sb_size(SequenceHeader *seq_params,
+static inline void setup_sb_size(SequenceHeader *seq_params,
                                      struct aom_read_bit_buffer *rb) {
   set_sb_size(seq_params, aom_rb_read_bit(rb) ? BLOCK_128X128 : BLOCK_64X64);
 }
@@ -2006,7 +2006,7 @@ static inline int valid_ref_frame_img_fmt(aom_bit_depth_t ref_bit_depth,
          ref_yss == this_yss;
 }
 
-static AOM_INLINE void setup_frame_size_with_refs(
+static inline void setup_frame_size_with_refs(
     AV1_COMMON *cm, struct aom_read_bit_buffer *rb) {
   int width, height;
   int found = 0;
@@ -2086,7 +2086,7 @@ static int rb_read_uniform(struct aom_read_bit_buffer *const rb, int n) {
     return (v << 1) - m + aom_rb_read_bit(rb);
 }
 
-static AOM_INLINE void read_tile_info_max_tile(
+static inline void read_tile_info_max_tile(
     AV1_COMMON *const cm, struct aom_read_bit_buffer *const rb) {
   const SequenceHeader *const seq_params = cm->seq_params;
   CommonTileParams *const tiles = &cm->tiles;
@@ -2170,7 +2170,7 @@ void av1_set_single_tile_decoding_mode(AV1_COMMON *const cm) {
   }
 }
 
-static AOM_INLINE void read_tile_info(AV1Decoder *const pbi,
+static inline void read_tile_info(AV1Decoder *const pbi,
                                       struct aom_read_bit_buffer *const rb) {
   AV1_COMMON *const cm = &pbi->common;
 
@@ -2191,7 +2191,7 @@ static AOM_INLINE void read_tile_info(AV1Decoder *const pbi,
 }
 
 #if EXT_TILE_DEBUG
-static AOM_INLINE void read_ext_tile_info(
+static inline void read_ext_tile_info(
     AV1Decoder *const pbi, struct aom_read_bit_buffer *const rb) {
   AV1_COMMON *const cm = &pbi->common;
 
@@ -2222,7 +2222,7 @@ static size_t mem_get_varsize(const uint8_t *src, int sz) {
 // Reads the next tile returning its size and adjusting '*data' accordingly
 // based on 'is_last'. On return, '*data' is updated to point to the end of the
 // raw tile buffer in the bit stream.
-static AOM_INLINE void get_ls_tile_buffer(
+static inline void get_ls_tile_buffer(
     const uint8_t *const data_end, struct aom_internal_error_info *error_info,
     const uint8_t **data, TileBufferDec (*const tile_buffers)[MAX_TILE_COLS],
     int tile_size_bytes, int col, int row, int tile_copy_mode) {
@@ -2387,7 +2387,7 @@ static const uint8_t *get_ls_single_tile_buffer(
 
 // Reads the next tile returning its size and adjusting '*data' accordingly
 // based on 'is_last'.
-static AOM_INLINE void get_tile_buffer(
+static inline void get_tile_buffer(
     const uint8_t *const data_end, const int tile_size_bytes, int is_last,
     struct aom_internal_error_info *error_info, const uint8_t **data,
     TileBufferDec *const buf) {
@@ -2414,7 +2414,7 @@ static AOM_INLINE void get_tile_buffer(
   *data += size;
 }
 
-static AOM_INLINE void get_tile_buffers(
+static inline void get_tile_buffers(
     AV1Decoder *pbi, const uint8_t *data, const uint8_t *data_end,
     TileBufferDec (*const tile_buffers)[MAX_TILE_COLS], int start_tile,
     int end_tile) {
@@ -2442,7 +2442,7 @@ static AOM_INLINE void get_tile_buffers(
   }
 }
 
-static AOM_INLINE void set_cb_buffer(AV1Decoder *pbi, DecoderCodingBlock *dcb,
+static inline void set_cb_buffer(AV1Decoder *pbi, DecoderCodingBlock *dcb,
                                      CB_BUFFER *cb_buffer_base,
                                      const int num_planes, int mi_row,
                                      int mi_col) {
@@ -2465,7 +2465,7 @@ static AOM_INLINE void set_cb_buffer(AV1Decoder *pbi, DecoderCodingBlock *dcb,
   xd->color_index_map_offset[1] = 0;
 }
 
-static AOM_INLINE void decoder_alloc_tile_data(AV1Decoder *pbi,
+static inline void decoder_alloc_tile_data(AV1Decoder *pbi,
                                                const int n_tiles) {
   AV1_COMMON *const cm = &pbi->common;
   aom_free(pbi->tile_data);
@@ -2499,7 +2499,7 @@ static inline int get_sync_range(int width) {
 }
 
 // Allocate memory for decoder row synchronization
-static AOM_INLINE void dec_row_mt_alloc(AV1DecRowMTSync *dec_row_mt_sync,
+static inline void dec_row_mt_alloc(AV1DecRowMTSync *dec_row_mt_sync,
                                         AV1_COMMON *cm, int rows) {
   dec_row_mt_sync->allocated_sb_rows = rows;
 #if CONFIG_MULTITHREAD
@@ -2624,7 +2624,7 @@ static inline void signal_decoding_done_for_erroneous_row(
              sb_cols_in_tile);
 }
 
-static AOM_INLINE void decode_tile_sb_row(AV1Decoder *pbi, ThreadData *const td,
+static inline void decode_tile_sb_row(AV1Decoder *pbi, ThreadData *const td,
                                           const TileInfo *tile_info,
                                           const int mi_row) {
   AV1_COMMON *const cm = &pbi->common;
@@ -2687,7 +2687,7 @@ static int check_trailing_bits_after_symbol_coder(aom_reader *r) {
   return 0;
 }
 
-static AOM_INLINE void set_decode_func_pointers(ThreadData *td,
+static inline void set_decode_func_pointers(ThreadData *td,
                                                 int parse_decode_flag) {
   td->read_coeffs_tx_intra_block_visit = decode_block_void;
   td->predict_and_recon_intra_block_visit = decode_block_void;
@@ -2709,7 +2709,7 @@ static AOM_INLINE void set_decode_func_pointers(ThreadData *td,
   }
 }
 
-static AOM_INLINE void decode_tile(AV1Decoder *pbi, ThreadData *const td,
+static inline void decode_tile(AV1Decoder *pbi, ThreadData *const td,
                                    int tile_row, int tile_col) {
   TileInfo tile_info;
 
@@ -2915,7 +2915,7 @@ static TileJobsDec *get_dec_job_info(AV1DecTileMT *tile_mt_info) {
   return cur_job_info;
 }
 
-static AOM_INLINE void tile_worker_hook_init(
+static inline void tile_worker_hook_init(
     AV1Decoder *const pbi, DecWorkerData *const thread_data,
     const TileBufferDec *const tile_buffer, TileDataDec *const tile_data,
     uint8_t allow_update_cdf) {
@@ -3152,7 +3152,7 @@ static inline void signal_parse_sb_row_done(AV1Decoder *const pbi,
 
 // This function is very similar to decode_tile(). It would be good to figure
 // out how to share code.
-static AOM_INLINE void parse_tile_row_mt(AV1Decoder *pbi, ThreadData *const td,
+static inline void parse_tile_row_mt(AV1Decoder *pbi, ThreadData *const td,
                                          TileDataDec *const tile_data) {
   AV1_COMMON *const cm = &pbi->common;
   const int sb_mi_size = mi_size_wide[cm->seq_params->sb_size];
@@ -3326,7 +3326,7 @@ static int compare_tile_buffers(const void *a, const void *b) {
   return (((int)buf2->tile_buffer->size) - ((int)buf1->tile_buffer->size));
 }
 
-static AOM_INLINE void enqueue_tile_jobs(AV1Decoder *pbi, AV1_COMMON *cm,
+static inline void enqueue_tile_jobs(AV1Decoder *pbi, AV1_COMMON *cm,
                                          int tile_rows_start, int tile_rows_end,
                                          int tile_cols_start, int tile_cols_end,
                                          int start_tile, int end_tile) {
@@ -3348,7 +3348,7 @@ static AOM_INLINE void enqueue_tile_jobs(AV1Decoder *pbi, AV1_COMMON *cm,
   }
 }
 
-static AOM_INLINE void alloc_dec_jobs(AV1DecTileMT *tile_mt_info,
+static inline void alloc_dec_jobs(AV1DecTileMT *tile_mt_info,
                                       AV1_COMMON *cm, int tile_rows,
                                       int tile_cols) {
   tile_mt_info->alloc_tile_rows = tile_rows;
@@ -3390,7 +3390,7 @@ void av1_free_mc_tmp_buf(ThreadData *thread_data) {
   }
 }
 
-static AOM_INLINE void allocate_mc_tmp_buf(AV1_COMMON *const cm,
+static inline void allocate_mc_tmp_buf(AV1_COMMON *const cm,
                                            ThreadData *thread_data,
                                            int buf_size, int use_highbd) {
   for (int ref = 0; ref < 2; ref++) {
@@ -3428,7 +3428,7 @@ static AOM_INLINE void allocate_mc_tmp_buf(AV1_COMMON *const cm,
   }
 }
 
-static AOM_INLINE void reset_dec_workers(AV1Decoder *pbi,
+static inline void reset_dec_workers(AV1Decoder *pbi,
                                          AVxWorkerHook worker_hook,
                                          int num_workers) {
   const AVxWorkerInterface *const winterface = aom_get_worker_interface();
@@ -3461,7 +3461,7 @@ static AOM_INLINE void reset_dec_workers(AV1Decoder *pbi,
 #endif
 }
 
-static AOM_INLINE void launch_dec_workers(AV1Decoder *pbi,
+static inline void launch_dec_workers(AV1Decoder *pbi,
                                           const uint8_t *data_end,
                                           int num_workers) {
   const AVxWorkerInterface *const winterface = aom_get_worker_interface();
@@ -3481,7 +3481,7 @@ static AOM_INLINE void launch_dec_workers(AV1Decoder *pbi,
   }
 }
 
-static AOM_INLINE void sync_dec_workers(AV1Decoder *pbi, int num_workers) {
+static inline void sync_dec_workers(AV1Decoder *pbi, int num_workers) {
   const AVxWorkerInterface *const winterface = aom_get_worker_interface();
   int corrupted = 0;
 
@@ -3493,7 +3493,7 @@ static AOM_INLINE void sync_dec_workers(AV1Decoder *pbi, int num_workers) {
   pbi->dcb.corrupted = corrupted;
 }
 
-static AOM_INLINE void decode_mt_init(AV1Decoder *pbi) {
+static inline void decode_mt_init(AV1Decoder *pbi) {
   AV1_COMMON *const cm = &pbi->common;
   const AVxWorkerInterface *const winterface = aom_get_worker_interface();
   int worker_idx;
@@ -3542,7 +3542,7 @@ static AOM_INLINE void decode_mt_init(AV1Decoder *pbi) {
   }
 }
 
-static AOM_INLINE void tile_mt_queue(AV1Decoder *pbi, int tile_cols,
+static inline void tile_mt_queue(AV1Decoder *pbi, int tile_cols,
                                      int tile_rows, int tile_rows_start,
                                      int tile_rows_end, int tile_cols_start,
                                      int tile_cols_end, int start_tile,
@@ -3659,7 +3659,7 @@ static const uint8_t *decode_tiles_mt(AV1Decoder *pbi, const uint8_t *data,
   return aom_reader_find_end(&tile_data->bit_reader);
 }
 
-static AOM_INLINE void dec_alloc_cb_buf(AV1Decoder *pbi) {
+static inline void dec_alloc_cb_buf(AV1Decoder *pbi) {
   AV1_COMMON *const cm = &pbi->common;
   int size = ((cm->mi_params.mi_rows >> cm->seq_params->mib_size_log2) + 1) *
              ((cm->mi_params.mi_cols >> cm->seq_params->mib_size_log2) + 1);
@@ -3673,7 +3673,7 @@ static AOM_INLINE void dec_alloc_cb_buf(AV1Decoder *pbi) {
   }
 }
 
-static AOM_INLINE void row_mt_frame_init(AV1Decoder *pbi, int tile_rows_start,
+static inline void row_mt_frame_init(AV1Decoder *pbi, int tile_rows_start,
                                          int tile_rows_end, int tile_cols_start,
                                          int tile_cols_end, int start_tile,
                                          int end_tile, int max_sb_rows) {
@@ -3870,7 +3870,7 @@ static const uint8_t *decode_tiles_row_mt(AV1Decoder *pbi, const uint8_t *data,
   return aom_reader_find_end(&tile_data->bit_reader);
 }
 
-static AOM_INLINE void error_handler(void *data) {
+static inline void error_handler(void *data) {
   AV1_COMMON *const cm = (AV1_COMMON *)data;
   aom_internal_error(cm->error, AOM_CODEC_CORRUPT_FRAME, "Truncated packet");
 }
@@ -3879,7 +3879,7 @@ static AOM_INLINE void error_handler(void *data) {
 // seq_params->bit_depth based on the values of those fields and
 // seq_params->profile. Reports errors by calling rb->error_handler() or
 // aom_internal_error().
-static AOM_INLINE void read_bitdepth(
+static inline void read_bitdepth(
     struct aom_read_bit_buffer *rb, SequenceHeader *seq_params,
     struct aom_internal_error_info *error_info) {
   const int high_bitdepth = aom_rb_read_bit(rb);
@@ -4065,7 +4065,7 @@ static void read_film_grain_params(AV1_COMMON *cm,
   pars->clip_to_restricted_range = aom_rb_read_bit(rb);
 }
 
-static AOM_INLINE void read_film_grain(AV1_COMMON *cm,
+static inline void read_film_grain(AV1_COMMON *cm,
                                        struct aom_read_bit_buffer *rb) {
   if (cm->seq_params->film_grain_params_present &&
       (cm->show_frame || cm->showable_frame)) {
@@ -4204,7 +4204,7 @@ void av1_read_op_parameters_info(aom_dec_model_op_parameters_t *op_params,
   op_params->low_delay_mode_flag = aom_rb_read_bit(rb);
 }
 
-static AOM_INLINE void read_temporal_point_info(
+static inline void read_temporal_point_info(
     AV1_COMMON *const cm, struct aom_read_bit_buffer *rb) {
   cm->frame_presentation_time = aom_rb_read_unsigned_literal(
       rb, cm->seq_params->decoder_model_info.frame_presentation_time_length);
@@ -4364,7 +4364,7 @@ static int read_global_motion_params(WarpedMotionParams *params,
   return 1;
 }
 
-static AOM_INLINE void read_global_motion(AV1_COMMON *cm,
+static inline void read_global_motion(AV1_COMMON *cm,
                                           struct aom_read_bit_buffer *rb) {
   for (int frame = LAST_FRAME; frame <= ALTREF_FRAME; ++frame) {
     const WarpedMotionParams *ref_params =
@@ -4409,7 +4409,7 @@ static AOM_INLINE void read_global_motion(AV1_COMMON *cm,
 
 // Release the references to the frame buffers in cm->ref_frame_map and reset
 // all elements of cm->ref_frame_map to NULL.
-static AOM_INLINE void reset_ref_frame_map(AV1_COMMON *const cm) {
+static inline void reset_ref_frame_map(AV1_COMMON *const cm) {
   BufferPool *const pool = cm->buffer_pool;
 
   for (int i = 0; i < REF_FRAMES; i++) {
@@ -4420,7 +4420,7 @@ static AOM_INLINE void reset_ref_frame_map(AV1_COMMON *const cm) {
 
 // If the refresh_frame_flags bitmask is set, update reference frame id values
 // and mark frames as valid for reference.
-static AOM_INLINE void update_ref_frame_id(AV1Decoder *const pbi) {
+static inline void update_ref_frame_id(AV1Decoder *const pbi) {
   AV1_COMMON *const cm = &pbi->common;
   int refresh_frame_flags = cm->current_frame.refresh_frame_flags;
   for (int i = 0; i < REF_FRAMES; i++) {
@@ -4431,7 +4431,7 @@ static AOM_INLINE void update_ref_frame_id(AV1Decoder *const pbi) {
   }
 }
 
-static AOM_INLINE void show_existing_frame_reset(AV1Decoder *const pbi,
+static inline void show_existing_frame_reset(AV1Decoder *const pbi,
                                                  int existing_frame_idx) {
   AV1_COMMON *const cm = &pbi->common;
 
@@ -5152,7 +5152,7 @@ BITSTREAM_PROFILE av1_read_profile(struct aom_read_bit_buffer *rb) {
   return (BITSTREAM_PROFILE)profile;
 }
 
-static AOM_INLINE void superres_post_decode(AV1Decoder *pbi) {
+static inline void superres_post_decode(AV1Decoder *pbi) {
   AV1_COMMON *const cm = &pbi->common;
   BufferPool *const pool = cm->buffer_pool;
 
@@ -5243,7 +5243,7 @@ uint32_t av1_decode_frame_headers_and_setup(AV1Decoder *pbi,
 }
 
 // Once-per-frame initialization
-static AOM_INLINE void setup_frame_info(AV1Decoder *pbi) {
+static inline void setup_frame_info(AV1Decoder *pbi) {
   AV1_COMMON *const cm = &pbi->common;
 
   if (cm->rst_info[0].frame_restoration_type != RESTORE_NONE ||
