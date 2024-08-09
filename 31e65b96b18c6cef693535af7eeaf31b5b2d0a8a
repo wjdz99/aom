@@ -3,6 +3,23 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "b5ccb13d_33379c6f",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-08-09T00:39:54Z",
+      "side": 1,
+      "message": "`\u0027s/\\\u003cINLINE\\\u003e/inline/g\u0027` or `\u0027s/\\\u003cINLINE\\\u003e/\\L\u0026/g\u0027` might work.",
+      "revId": "31e65b96b18c6cef693535af7eeaf31b5b2d0a8a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "e7c44981_67649c79",
         "filename": "/PATCHSET_LEVEL",
         "patchSetId": 2
@@ -20,6 +37,46 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "3276a82e_8de7c0f0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-08-09T00:39:54Z",
+      "side": 1,
+      "message": "There\u0027s one more use of `INLINE`:\n\nhttps://aomedia.googlesource.com/aom/+/94c721b0024ee8d2bc580af891f5eef714b5f32c/tools/auto_refactor/av1_preprocess.py#69",
+      "revId": "31e65b96b18c6cef693535af7eeaf31b5b2d0a8a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "01d887b7_6b8baed1",
+        "filename": "av1/encoder/arm/rdopt_neon.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-08-09T00:39:54Z",
+      "side": 1,
+      "message": "This and a few others could be normalized later.",
+      "range": {
+        "startLine": 24,
+        "startChar": 0,
+        "endLine": 24,
+        "endChar": 14
+      },
+      "revId": "31e65b96b18c6cef693535af7eeaf31b5b2d0a8a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "c73ce5de_b9993280",
         "filename": "build/cmake/generate_aom_config_templates.cmake",
         "patchSetId": 2
@@ -31,6 +88,24 @@
       "writtenOn": "2024-08-08T23:40:53Z",
       "side": 1,
       "message": "Please let me know if you prefer to move these two files to a separate CL, so that this CL is purely the INLINE-to-inline change.",
+      "revId": "31e65b96b18c6cef693535af7eeaf31b5b2d0a8a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9fbf06d4_e83bc6f9",
+        "filename": "build/cmake/generate_aom_config_templates.cmake",
+        "patchSetId": 2
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-08-09T00:39:54Z",
+      "side": 1,
+      "message": "\u003e Please let me know if you prefer to move these two files to a separate CL, so that this CL is purely the INLINE-to-inline change.\n\nLogically they\u0027re related, so I think this is fine.",
+      "parentUuid": "c73ce5de_b9993280",
       "revId": "31e65b96b18c6cef693535af7eeaf31b5b2d0a8a",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
