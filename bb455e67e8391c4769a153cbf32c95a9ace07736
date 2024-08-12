@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "01499885_037c0a1e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 31392
+      },
+      "writtenOn": "2024-08-12T12:26:03Z",
+      "side": 1,
+      "message": "Started optimising av1_resize_and_extend_frame_neon, given that it didn’t have unit tests added for them, similar to the libvpx unit tests. I have seen that it fails for Neon implementation when scaling factor is 4 to 3, which has specific implementation. The Jenkins job shows failing SSSE3 tests, if I run these SSSE3 tests locally it fails for scaling factors other than 4 to 3. (was expecting to fail for only that one, given that implementation is very similar to the Neon implementation for this scaling factor). Is this a known issue?",
+      "revId": "bb455e67e8391c4769a153cbf32c95a9ace07736",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
