@@ -2839,6 +2839,15 @@ static aom_codec_err_t encoder_init(aom_codec_ctx_t *ctx) {
     ctx->config.enc = &priv->cfg;
 
     priv->extra_cfg = default_extra_cfg;
+#if CONFIG_REALTIME_ONLY
+    set_realtime_extra_cfg_defaults(&priv->extra_cfg);
+#else
+    if (ctx->init_flags & AOM_CODEC_USE_PRESET) {
+      if (priv->cfg.g_usage == AOM_USAGE_REALTIME) {
+        set_realtime_extra_cfg_defaults(&priv->extra_cfg);
+      }
+    }
+#endif
     // Special handling:
     // By default, if omitted, --enable-cdef = 1.
     // Here we set its default value to 0 when --allintra is turned on.
