@@ -46,6 +46,30 @@
       },
       "revId": "9998ff677d1d296cebdfef77db2caadda89bbe76",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "89820551_800c9684",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 3334,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2024-08-12T17:18:32Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "d8fa9f2c_9ae80633",
+      "range": {
+        "startLine": 3333,
+        "startChar": 8,
+        "endLine": 3334,
+        "endChar": 19
+      },
+      "revId": "9998ff677d1d296cebdfef77db2caadda89bbe76",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ],
   "submitRequirementResults": [
