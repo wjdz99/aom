@@ -16,6 +16,24 @@
       "message": "`clang-format-14` seems old. I have been using `clang-format-16`.\n\nShould we use `clang-format-14` for both libvpx and libaom now?",
       "revId": "5b5eb94ea90733f1921ffb0affa6c04f5d38981a",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "55eabf1c_d8769a8c",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-08-12T19:19:58Z",
+      "side": 1,
+      "message": "\u003e `clang-format-14` seems old. I have been using `clang-format-16`.\n\u003e \n\u003e Should we use `clang-format-14` for both libvpx and libaom now?\n\nThere may be some differences between the two versions. `clang-format-14` is what is installed on the test nodes, so we\u0027ll need to favor that version for now.",
+      "parentUuid": "1921ab33_5695d448",
+      "revId": "5b5eb94ea90733f1921ffb0affa6c04f5d38981a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
