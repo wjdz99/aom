@@ -75,6 +75,7 @@ set_aom_config_var(CONFIG_GCC 0 "Building with GCC (detect).")
 set_aom_config_var(CONFIG_GCOV 0 "Enable gcov support.")
 set_aom_config_var(CONFIG_GPROF 0 "Enable gprof support.")
 set_aom_config_var(CONFIG_LIBYUV 1 "Enables libyuv scaling/conversion support.")
+set_aom_config_var(CONFIG_SVT_AV1 1 "Enables SVT-AV1 convolution support.")
 
 set_aom_config_var(CONFIG_AV1_HIGHBITDEPTH 1
                    "Build with high bitdepth support.")
