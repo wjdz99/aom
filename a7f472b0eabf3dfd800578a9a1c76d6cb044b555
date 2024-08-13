@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e3e9df64_8882ecf7",
+        "filename": "av1/common/x86/convolve_2d_avx2.c",
+        "patchSetId": 17
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-08-13T22:37:05Z",
+      "side": 0,
+      "message": "Chi Yo: Is it correct to drop the `\u0026 SUBPEL_MASK` in line 102 and this line?",
+      "revId": "a7f472b0eabf3dfd800578a9a1c76d6cb044b555",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3d238281_3be8cd3d",
+        "filename": "av1/common/x86/convolve_avx2.c",
+        "patchSetId": 17
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-08-13T22:37:05Z",
+      "side": 0,
+      "message": "Chi Yo: Do you remember why you renamed this parameter `subpel_y_q4`?\n\nSee line 515 in the new code.",
+      "range": {
+        "startLine": 24,
+        "startChar": 38,
+        "endLine": 24,
+        "endChar": 49
+      },
+      "revId": "a7f472b0eabf3dfd800578a9a1c76d6cb044b555",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
