@@ -95,8 +95,8 @@ static void convolve_2d_sr_general_avx2(
     prepare_coeffs_lowbd(filter_params_x, subpel_x_qn, coeffs_h);
     prepare_coeffs(filter_params_y, subpel_y_qn, coeffs_v);
 
-    int horiz_tap = get_filter_tap(filter_params_x, subpel_x_qn);
-    int vert_tap = get_filter_tap(filter_params_y, subpel_y_qn);
+    int horiz_tap = get_filter_tap(filter_params_x, subpel_x_qn & SUBPEL_MASK);
+    int vert_tap = get_filter_tap(filter_params_y, subpel_y_qn & SUBPEL_MASK);
 
     if (horiz_tap == 6)
       prepare_coeffs_6t_lowbd(filter_params_x, subpel_x_qn, coeffs_h);
