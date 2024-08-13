@@ -95,8 +95,8 @@ static void convolve_2d_sr_general_avx2(
     prepare_coeffs_lowbd(filter_params_x, subpel_x_qn, coeffs_h);
     prepare_coeffs(filter_params_y, subpel_y_qn, coeffs_v);
 
-    int horiz_tap = get_filter_tap(filter_params_x, subpel_x_qn);
-    int vert_tap = get_filter_tap(filter_params_y, subpel_y_qn);
+    int horiz_tap = get_filter_tap(filter_params_x, subpel_x_qn & SUBPEL_MASK);
+    int vert_tap = get_filter_tap(filter_params_y, subpel_y_qn & SUBPEL_MASK);
 
     if (horiz_tap == 6)
       prepare_coeffs_6t_lowbd(filter_params_x, subpel_x_qn, coeffs_h);
@@ -113,10 +113,10 @@ static void convolve_2d_sr_general_avx2(
     const int fo_horiz = horiz_tap / 2 - 1;
     const uint8_t *const src_ptr = src - fo_vert * src_stride - fo_horiz;
 
-    filt[0] = _mm256_load_si256((__m256i const *)filt1_global_avx2);
-    filt[1] = _mm256_load_si256((__m256i const *)filt2_global_avx2);
-    filt[2] = _mm256_load_si256((__m256i const *)filt3_global_avx2);
-    filt[3] = _mm256_load_si256((__m256i const *)filt4_global_avx2);
+    filt[0] = _mm256_load_si256((__m256i const *)(filt1_global_avx2));
+    filt[1] = _mm256_load_si256((__m256i const *)(filt2_global_avx2 + 32));
+    filt[2] = _mm256_load_si256((__m256i const *)(filt3_global_avx2 + 32 * 2));
+    filt[3] = _mm256_load_si256((__m256i const *)(filt4_global_avx2 + 32 * 3));
 
     for (int j = 0; j < w; j += 8) {
       if (horiz_tap == 4) {
