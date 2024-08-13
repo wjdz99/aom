@@ -13,7 +13,9 @@
 
 #include "config/av1_rtcd.h"
 
+#if CONFIG_SVT_AV1
 #include "third_party/SVT-AV1/convolve_2d_avx2.h"
+#endif
 
 #include "aom_dsp/x86/convolve_avx2.h"
 #include "aom_dsp/aom_filter.h"
@@ -95,8 +97,8 @@ static void convolve_2d_sr_general_avx2(
     prepare_coeffs_lowbd(filter_params_x, subpel_x_qn, coeffs_h);
     prepare_coeffs(filter_params_y, subpel_y_qn, coeffs_v);
 
-    int horiz_tap = get_filter_tap(filter_params_x, subpel_x_qn);
-    int vert_tap = get_filter_tap(filter_params_y, subpel_y_qn);
+    int horiz_tap = get_filter_tap(filter_params_x, subpel_x_qn & SUBPEL_MASK);
+    int vert_tap = get_filter_tap(filter_params_y, subpel_y_qn & SUBPEL_MASK);
 
     if (horiz_tap == 6)
       prepare_coeffs_6t_lowbd(filter_params_x, subpel_x_qn, coeffs_h);
@@ -113,10 +115,10 @@ static void convolve_2d_sr_general_avx2(
     const int fo_horiz = horiz_tap / 2 - 1;
     const uint8_t *const src_ptr = src - fo_vert * src_stride - fo_horiz;
 
-    filt[0] = _mm256_load_si256((__m256i const *)filt1_global_avx2);
-    filt[1] = _mm256_load_si256((__m256i const *)filt2_global_avx2);
-    filt[2] = _mm256_load_si256((__m256i const *)filt3_global_avx2);
-    filt[3] = _mm256_load_si256((__m256i const *)filt4_global_avx2);
+    filt[0] = _mm256_load_si256((__m256i const *)(filt_global_avx2));
+    filt[1] = _mm256_load_si256((__m256i const *)(filt_global_avx2 + 32));
+    filt[2] = _mm256_load_si256((__m256i const *)(filt_global_avx2 + 32 * 2));
+    filt[3] = _mm256_load_si256((__m256i const *)(filt_global_avx2 + 32 * 3));
 
     for (int j = 0; j < w; j += 8) {
       if (horiz_tap == 4) {
@@ -141,19 +143,25 @@ static void convolve_2d_sr_general_avx2(
 void av1_convolve_2d_sr_avx2(
     const uint8_t *src, int32_t src_stride, uint8_t *dst, int32_t dst_stride,
     int32_t w, int32_t h, const InterpFilterParams *filter_params_x,
-    const InterpFilterParams *filter_params_y, const int32_t subpel_x_q4,
-    const int32_t subpel_y_q4, ConvolveParams *conv_params) {
-  const int32_t tap_x = get_filter_tap(filter_params_x, subpel_x_q4);
-  const int32_t tap_y = get_filter_tap(filter_params_y, subpel_y_q4);
+    const InterpFilterParams *filter_params_y, const int32_t subpel_x_qn,
+    const int32_t subpel_y_qn, ConvolveParams *conv_params) {
+#if CONFIG_SVT_AV1
+  const int32_t tap_x = get_filter_tap(filter_params_x, subpel_x_qn);
+  const int32_t tap_y = get_filter_tap(filter_params_y, subpel_y_qn);
 
   const bool use_general = (tap_x == 12 || tap_y == 12);
   if (use_general) {
     convolve_2d_sr_general_avx2(src, src_stride, dst, dst_stride, w, h,
-                                filter_params_x, filter_params_y, subpel_x_q4,
-                                subpel_y_q4, conv_params);
+                                filter_params_x, filter_params_y, subpel_x_qn,
+                                subpel_y_qn, conv_params);
   } else {
     av1_convolve_2d_sr_specialized_avx2(src, src_stride, dst, dst_stride, w, h,
                                         filter_params_x, filter_params_y,
-                                        subpel_x_q4, subpel_y_q4, conv_params);
+                                        subpel_x_qn, subpel_y_qn, conv_params);
   }
+#else
+  convolve_2d_sr_general_avx2(src, src_stride, dst, dst_stride, w, h,
+                              filter_params_x, filter_params_y, subpel_x_qn,
+                              subpel_y_qn, conv_params);
+#endif
 }
