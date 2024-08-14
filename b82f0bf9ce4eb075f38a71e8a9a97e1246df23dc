@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "69a5e471_b5c478c3",
+        "filename": "CMakeLists.txt",
+        "patchSetId": 3
+      },
+      "lineNbr": 473,
+      "author": {
+        "id": 31817
+      },
+      "writtenOn": "2024-08-14T14:17:31Z",
+      "side": 1,
+      "message": "Hi! Apologies for the drive-by review, is it possible to enable at least SVE here? Or if not perhaps we can extend the libyuv CMake config to handle this more correctly?",
+      "range": {
+        "startLine": 473,
+        "startChar": 42,
+        "endLine": 473,
+        "endChar": 60
+      },
+      "revId": "b82f0bf9ce4eb075f38a71e8a9a97e1246df23dc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
