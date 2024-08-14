@@ -130,7 +130,6 @@ list(APPEND AOM_LIBYUV_SOURCES
             "${AOM_ROOT}/third_party/libyuv/source/row_any.cc"
             "${AOM_ROOT}/third_party/libyuv/source/row_common.cc"
             "${AOM_ROOT}/third_party/libyuv/source/row_gcc.cc"
-            "${AOM_ROOT}/third_party/libyuv/source/row_mips.cc"
             "${AOM_ROOT}/third_party/libyuv/source/row_neon.cc"
             "${AOM_ROOT}/third_party/libyuv/source/row_neon64.cc"
             "${AOM_ROOT}/third_party/libyuv/source/row_win.cc"
@@ -138,7 +137,6 @@ list(APPEND AOM_LIBYUV_SOURCES
             "${AOM_ROOT}/third_party/libyuv/source/scale_any.cc"
             "${AOM_ROOT}/third_party/libyuv/source/scale_common.cc"
             "${AOM_ROOT}/third_party/libyuv/source/scale_gcc.cc"
-            "${AOM_ROOT}/third_party/libyuv/source/scale_mips.cc"
             "${AOM_ROOT}/third_party/libyuv/source/scale_neon.cc"
             "${AOM_ROOT}/third_party/libyuv/source/scale_neon64.cc"
             "${AOM_ROOT}/third_party/libyuv/source/scale_win.cc"
@@ -470,20 +468,6 @@ endif()
 
 if(CONFIG_LIBYUV OR CONFIG_TUNE_BUTTERAUGLI)
   add_library(yuv OBJECT ${AOM_LIBYUV_SOURCES})
-  if(NOT MSVC)
-    target_compile_options(yuv PRIVATE -Wno-shadow)
-    # Many functions in libyuv trigger this warning when enabled with gcc and
-    # clang.
-    is_flag_present(AOM_CXX_FLAGS "-Wmissing-declarations" flag_present)
-    if(flag_present)
-      target_compile_options(yuv PRIVATE -Wno-missing-declarations)
-    endif()
-    # Many functions in libyuv trigger this warning when enabled with clang.
-    is_flag_present(AOM_CXX_FLAGS "-Wmissing-prototypes" flag_present)
-    if(flag_present)
-      target_compile_options(yuv PRIVATE -Wno-missing-prototypes)
-    endif()
-  endif()
   include_directories("${AOM_ROOT}/third_party/libyuv/include")
 endif()
 
