@@ -22,6 +22,30 @@
       },
       "revId": "b82f0bf9ce4eb075f38a71e8a9a97e1246df23dc",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c26e51f9_15f88694",
+        "filename": "CMakeLists.txt",
+        "patchSetId": 3
+      },
+      "lineNbr": 473,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-08-14T14:53:58Z",
+      "side": 1,
+      "message": "Hi George,\n\nThank you very much for your comment! I really appreciate it.\n\nI was just getting a little tired of dealing with libyuv build issues in the past few days, so I did not try very hard in this CL. You can see that I did not update the source file list at line 116. And the SVE files need a different compiler option, so I need to put them in a new cmake object library. Also note that I am compiling all the libyuv sources files with `-march\u003darmv8-a+dotprod+i8mm`, not just the _neon.cc and _neon64.cc files.\n\nI will look into it.",
+      "parentUuid": "69a5e471_b5c478c3",
+      "range": {
+        "startLine": 473,
+        "startChar": 42,
+        "endLine": 473,
+        "endChar": 60
+      },
+      "revId": "b82f0bf9ce4eb075f38a71e8a9a97e1246df23dc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
