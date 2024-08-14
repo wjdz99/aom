@@ -130,7 +130,6 @@ list(APPEND AOM_LIBYUV_SOURCES
             "${AOM_ROOT}/third_party/libyuv/source/row_any.cc"
             "${AOM_ROOT}/third_party/libyuv/source/row_common.cc"
             "${AOM_ROOT}/third_party/libyuv/source/row_gcc.cc"
-            "${AOM_ROOT}/third_party/libyuv/source/row_mips.cc"
             "${AOM_ROOT}/third_party/libyuv/source/row_neon.cc"
             "${AOM_ROOT}/third_party/libyuv/source/row_neon64.cc"
             "${AOM_ROOT}/third_party/libyuv/source/row_win.cc"
@@ -138,11 +137,13 @@ list(APPEND AOM_LIBYUV_SOURCES
             "${AOM_ROOT}/third_party/libyuv/source/scale_any.cc"
             "${AOM_ROOT}/third_party/libyuv/source/scale_common.cc"
             "${AOM_ROOT}/third_party/libyuv/source/scale_gcc.cc"
-            "${AOM_ROOT}/third_party/libyuv/source/scale_mips.cc"
             "${AOM_ROOT}/third_party/libyuv/source/scale_neon.cc"
             "${AOM_ROOT}/third_party/libyuv/source/scale_neon64.cc"
             "${AOM_ROOT}/third_party/libyuv/source/scale_win.cc"
             "${AOM_ROOT}/third_party/libyuv/source/scale_uv.cc")
+
+list(APPEND AOM_LIBYUV_SVE_SOURCES
+            "${AOM_ROOT}/third_party/libyuv/source/row_sve.cc")
 
 list(APPEND AOM_SOURCES
             "${AOM_CONFIG_DIR}/config/aom_config.c"
@@ -470,19 +471,11 @@ endif()
 
 if(CONFIG_LIBYUV OR CONFIG_TUNE_BUTTERAUGLI)
   add_library(yuv OBJECT ${AOM_LIBYUV_SOURCES})
-  if(NOT MSVC)
-    target_compile_options(yuv PRIVATE -Wno-shadow)
-    # Many functions in libyuv trigger this warning when enabled with gcc and
-    # clang.
-    is_flag_present(AOM_CXX_FLAGS "-Wmissing-declarations" flag_present)
-    if(flag_present)
-      target_compile_options(yuv PRIVATE -Wno-missing-declarations)
-    endif()
-    # Many functions in libyuv trigger this warning when enabled with clang.
-    is_flag_present(AOM_CXX_FLAGS "-Wmissing-prototypes" flag_present)
-    if(flag_present)
-      target_compile_options(yuv PRIVATE -Wno-missing-prototypes)
-    endif()
+  if("${AOM_TARGET_CPU}" STREQUAL "arm64")
+    target_compile_options(yuv PRIVATE -march=armv8-a+dotprod+i8mm)
+    target_compile_definitions(yuv PUBLIC LIBYUV_DISABLE_SME)
+    add_library(yuv_sve OBJECT ${AOM_LIBYUV_SVE_SOURCES})
+    target_compile_options(yuv_sve PRIVATE -march=armv9-a+sve2)
   endif()
   include_directories("${AOM_ROOT}/third_party/libyuv/include")
 endif()
@@ -606,6 +599,13 @@ if(CONFIG_AV1_ENCODER)
     target_sources(aom PRIVATE $<TARGET_OBJECTS:yuv>)
     if(BUILD_SHARED_LIBS)
       target_sources(aom_static PRIVATE $<TARGET_OBJECTS:yuv>)
+    endif()
+    if("${AOM_TARGET_CPU}" STREQUAL "arm64")
+      list(APPEND AOM_LIB_TARGETS yuv_sve)
+      target_sources(aom PRIVATE $<TARGET_OBJECTS:yuv_sve>)
+      if(BUILD_SHARED_LIBS)
+        target_sources(aom_static PRIVATE $<TARGET_OBJECTS:yuv_sve>)
+      endif()
     endif()
   endif()
 
@@ -755,6 +755,9 @@ if(ENABLE_EXAMPLES OR ENABLE_TESTS OR ENABLE_TOOLS)
     # Add to existing targets.
     foreach(aom_app ${AOM_APP_TARGETS})
       target_sources(${aom_app} PRIVATE $<TARGET_OBJECTS:yuv>)
+      if("${AOM_TARGET_CPU}" STREQUAL "arm64")
+        target_sources(${aom_app} PRIVATE $<TARGET_OBJECTS:yuv_sve>)
+      endif()
       set_property(TARGET ${aom_app} PROPERTY LINKER_LANGUAGE CXX)
     endforeach()
   endif()
