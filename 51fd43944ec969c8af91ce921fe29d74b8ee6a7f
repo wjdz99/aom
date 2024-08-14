@@ -1,6 +1,23 @@
 {
   "comments": [
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "ed78480d_d57ce007",
+        "filename": "test/cpu_used_firstpass_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-08-14T23:12:11Z",
+      "side": 1,
+      "message": "Nit: I suggest adding \"cpu used\" after \"test\", to make it clearer that this is \"reference cpu used\" vs. \"test cpu used\".",
+      "revId": "51fd43944ec969c8af91ce921fe29d74b8ee6a7f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "0fa3653b_d20b0964",
