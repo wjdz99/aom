@@ -1330,4 +1330,16 @@ static inline void transpose_arrays_s16_8x4(const int16x8_t *const in,
   out[7] = vget_high_s16(vreinterpretq_s16_u32(c1.val[1]));
 }
 
+static inline void transpose_arrays_s64_4x4(const int64x2_t *in,
+                                            int64x2_t *out) {
+  out[0] = aom_vtrn1q_s64(in[0], in[2]);
+  out[1] = aom_vtrn1q_s64(in[4], in[6]);
+  out[2] = aom_vtrn2q_s64(in[0], in[2]);
+  out[3] = aom_vtrn2q_s64(in[4], in[6]);
+  out[4] = aom_vtrn1q_s64(in[1], in[3]);
+  out[5] = aom_vtrn1q_s64(in[5], in[7]);
+  out[6] = aom_vtrn2q_s64(in[1], in[3]);
+  out[7] = aom_vtrn2q_s64(in[5], in[7]);
+}
+
 #endif  // AOM_AOM_DSP_ARM_TRANSPOSE_NEON_H_
