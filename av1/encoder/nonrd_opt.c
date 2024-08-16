@@ -725,6 +725,9 @@ void av1_estimate_intra_mode(AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bsize,
 
   RD_STATS this_rdc;
 
+  unsigned int best_sse_inter =
+      (unsigned int)(best_rdc->sse >> (b_width_log2_lookup[bsize] +
+                                       b_height_log2_lookup[bsize]));
   int intra_cost_penalty = av1_get_intra_cost_penalty(
       quant_params->base_qindex, quant_params->y_dc_delta_q,
       cm->seq_params->bit_depth);
@@ -896,19 +899,22 @@ void av1_estimate_intra_mode(AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bsize,
     this_rdc.rdcost = RDCOST(x->rdmult, this_rdc.rate, this_rdc.dist);
 
     if (is_screen_content && rt_sf->source_metrics_sb_nonrd) {
-      // For blocks with low spatial variance and color sad,
-      // favor the intra-modes, only on scene/slide change.
-      if (cpi->rc.high_source_sad && x->source_variance < 800 &&
-          (x->color_sensitivity[COLOR_SENS_IDX(AOM_PLANE_U)] ||
-           x->color_sensitivity[COLOR_SENS_IDX(AOM_PLANE_V)]))
-        this_rdc.rdcost = CALC_BIASED_RDCOST(this_rdc.rdcost);
-      // Otherwise bias against intra for blocks with zero
-      // motion and no color, on non-scene/slide changes.
-      else if (!cpi->rc.high_source_sad && x->source_variance > 0 &&
-               x->content_state_sb.source_sad_nonrd == kZeroSad &&
-               x->color_sensitivity[COLOR_SENS_IDX(AOM_PLANE_U)] == 0 &&
-               x->color_sensitivity[COLOR_SENS_IDX(AOM_PLANE_V)] == 0)
+      // For blocks with color sad: favor the intra-modes in some cases.
+      // Otherwise bias against intra for blocks with zero motion and
+      // no color, on non-scene/slide changes.
+      if (x->color_sensitivity[COLOR_SENS_IDX(AOM_PLANE_U)] ||
+          x->color_sensitivity[COLOR_SENS_IDX(AOM_PLANE_V)]) {
+        if (cpi->rc.high_source_sad && x->source_variance < 800)
+          this_rdc.rdcost = CALC_BIASED_RDCOST(this_rdc.rdcost);
+        else if (x->content_state_sb.source_sad_nonrd >= kHighSad &&
+                 x->source_variance > 0 && best_sse_inter > 100000)
+          this_rdc.rdcost = this_rdc.rdcost >> 1;
+      } else if (!cpi->rc.high_source_sad && x->source_variance > 0 &&
+                 x->content_state_sb.source_sad_nonrd == kZeroSad &&
+                 x->color_sensitivity[COLOR_SENS_IDX(AOM_PLANE_U)] == 0 &&
+                 x->color_sensitivity[COLOR_SENS_IDX(AOM_PLANE_V)] == 0) {
         this_rdc.rdcost = (3 * this_rdc.rdcost) >> 1;
+      }
     }
 
     if (this_rdc.rdcost < best_rdc->rdcost) {
