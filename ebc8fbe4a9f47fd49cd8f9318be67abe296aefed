@@ -35,6 +35,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "577e287e_e8826342",
+        "filename": "av1/ratectrl_rtc.h",
+        "patchSetId": 25
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 33496
+      },
+      "writtenOn": "2024-08-19T07:37:14Z",
+      "side": 1,
+      "message": "In c99, structure member initialization inside the structure is not allowed. Hence will AV1RateControlRtcConfigInitDefault() will use this.",
+      "parentUuid": "06f8bf91_3be0612b",
+      "revId": "ebc8fbe4a9f47fd49cd8f9318be67abe296aefed",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "34a2d458_1c735151",
@@ -48,6 +66,24 @@
       "writtenOn": "2024-08-05T20:44:21Z",
       "side": 1,
       "message": "Jerome, it\u0027s a little odd to only initialize one data member. If this is going to be duplicated to the C code, I suggest adding an `AV1RateControlRtcConfigInitDefault()` function in that path.",
+      "revId": "ebc8fbe4a9f47fd49cd8f9318be67abe296aefed",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b4caa56a_5f0e10f9",
+        "filename": "av1/ratectrl_rtc.h",
+        "patchSetId": 25
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 33496
+      },
+      "writtenOn": "2024-08-19T07:37:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "34a2d458_1c735151",
       "revId": "ebc8fbe4a9f47fd49cd8f9318be67abe296aefed",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -178,6 +214,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "3965eaf4_d571e073",
+        "filename": "av1/ratectrl_rtc.h",
+        "patchSetId": 25
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 33496
+      },
+      "writtenOn": "2024-08-19T07:37:14Z",
+      "side": 1,
+      "message": "I tried this , make didn\u0027t not compile. \n\n#if 0\nextern \"C\" {\nvoid *av1_ratecontrol_rtc_create(const AV1RateControlRtcConfigAlias \u0026rc_cfg);\nbool av1_ratecontrol_rtc_update(void *controller,\n                            const AV1RateControlRtcConfigAlias \u0026rc_cfg);\nint av1_ratecontrol_rtc_get_qp(void *controller);\nAV1LoopfilterLevelAlias av1_ratecontrol_rtc_get_loop_filter_level(void *controller);\nFrameDropDecisionAlias av1_ratecontrol_rtc_compute_qp(\n    void *controller, const AV1FrameParamsRTCAlias \u0026frame_params);\nvoid av1_ratecontrol_rtc_post_encode_update(void *controller,\n                                        uint64_t encoded_frame_size);\nbool av1_ratecontrol_rtc_get_segmentation(void *controller,\n                               AV1SegmentationDataAlias *segmentation_data);\nAV1CdefInfoAlias av1_ratecontrol_rtc_get_cdef_info  (void *controller);\nAV1RateControlRtcConfigAlias *av1_ratecontrol_rtc_create_ratecontrol_config();\nvoid av1_ratecontrol_rtc_destroy(void *controller);\n}  // extern \"C\"\n#endif\n\nsudo make -j8  output ,.\n\n/home/pradeep4/Documents/pradeep/repos_and_other/aom_no_changes/aom/test/ratectrl_rtc_test.cc: In member function ‘void {anonymous}::RcExternMethodsInterfaceTest::TestDestoryAV1RateControlRTCAV1()’:\n/home/pradeep4/Documents/pradeep/repos_and_other/aom_no_changes/aom/test/ratectrl_rtc_test.cc:657:22: error: ‘av1_ratecontrol_rtc_create’ was not declared in this scope\n  657 |   void *controller \u003d av1_ratecontrol_rtc_create(rc_cfg_);\n      |                      ^~~~~~~~~~~~~~~~~~~~~~~~~~\n/home/pradeep4/Documents/pradeep/repos_and_other/aom_no_changes/aom/test/ratectrl_rtc_test.cc:660:3: error: ‘av1_ratecontrol_rtc_destroy’ was not declared in this scope\n  660 |   av1_ratecontrol_rtc_destroy(controller);\n      |   ^~~~~~~~~~~~~~~~~~~~~~~~~~~\nmake[2]: *** [CMakeFiles/test_aom_rc.dir/build.make:104: CMakeFiles/test_aom_rc.dir/test/ratectrl_rtc_test.cc.o] Error 1\nmake[1]: *** [CMakeFiles/Makefile2:18379: CMakeFiles/test_aom_rc.dir/all] Error 2\nmake: *** [Makefile:136: all] Error 2\n\n\n\n\nBecause \n__cplusplus defined and these functions are not. \n\nLet me know if you any ideas.",
+      "parentUuid": "3f3a8bae_cde1545f",
+      "revId": "ebc8fbe4a9f47fd49cd8f9318be67abe296aefed",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "657f7093_b0c0b9f2",
         "filename": "av1/ratectrl_rtc.h",
         "patchSetId": 25
@@ -189,6 +243,24 @@
       "writtenOn": "2024-08-05T20:44:21Z",
       "side": 1,
       "message": "use `\u003cstdbool.h\u003e`, unless you need C90, in which case the member can be an `int`.",
+      "revId": "ebc8fbe4a9f47fd49cd8f9318be67abe296aefed",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "90653a4b_afcc6074",
+        "filename": "av1/ratectrl_rtc.h",
+        "patchSetId": 25
+      },
+      "lineNbr": 175,
+      "author": {
+        "id": 33496
+      },
+      "writtenOn": "2024-08-19T07:37:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "657f7093_b0c0b9f2",
       "revId": "ebc8fbe4a9f47fd49cd8f9318be67abe296aefed",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -206,6 +278,30 @@
       "writtenOn": "2024-08-05T20:44:21Z",
       "side": 1,
       "message": "Instead of a suffix, these should all have `av1_ratecontrol_rtc_` as a prefix:\n\n* `create_av1_ratecontrol_rtc` -\u003e `av1_ratecontrol_rtc_create`\n* `update_ratecontrol_av1` -\u003e `av1_ratecontrol_rtc_update`\n...",
+      "range": {
+        "startLine": 242,
+        "startChar": 4,
+        "endLine": 242,
+        "endChar": 26
+      },
+      "revId": "ebc8fbe4a9f47fd49cd8f9318be67abe296aefed",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "68bf71af_b284bde1",
+        "filename": "av1/ratectrl_rtc.h",
+        "patchSetId": 25
+      },
+      "lineNbr": 242,
+      "author": {
+        "id": 33496
+      },
+      "writtenOn": "2024-08-19T07:37:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d9567ad3_9eda30ee",
       "range": {
         "startLine": 242,
         "startChar": 4,
