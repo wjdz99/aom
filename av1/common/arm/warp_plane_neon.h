@@ -329,6 +329,7 @@ static AOM_FORCE_INLINE void warp_affine_vertical(
   }
 }
 
+#if !CONFIG_REALTIME_ONLY || CONFIG_AV1_DECODER
 static AOM_FORCE_INLINE void av1_warp_affine_common(
     const int32_t *mat, const uint8_t *ref, int width, int height, int stride,
     uint8_t *pred, int p_col, int p_row, int p_width, int p_height,
@@ -367,5 +368,6 @@ static AOM_FORCE_INLINE void av1_warp_affine_common(
     }
   }
 }
+#endif
 
 #endif  // AOM_AV1_COMMON_ARM_WARP_PLANE_NEON_H_

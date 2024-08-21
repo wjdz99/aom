@@ -570,7 +570,7 @@ static void boxsum2(int32_t *src, int width, int height, int src_stride,
     dst[i * dst_stride + (j + 2)] = c + d + e;
   }
 }
-
+#if !CONFIG_REALTIME_ONLY || CONFIG_AV1_DECODER
 static void boxsum(int32_t *src, int width, int height, int src_stride, int r,
                    int sqr, int32_t *dst, int dst_stride) {
   if (r == 1)
@@ -580,6 +580,7 @@ static void boxsum(int32_t *src, int width, int height, int src_stride, int r,
   else
     assert(0 && "Invalid value of r in self-guided filter");
 }
+#endif
 
 void av1_decode_xq(const int *xqd, int *xq, const sgr_params_type *params) {
   if (params->r[0] == 0) {
@@ -622,6 +623,7 @@ const int32_t av1_one_by_x[MAX_NELEM] = {
   293,  273,  256,  241,  228, 216, 205, 195, 186, 178, 171, 164,
 };
 
+#if !CONFIG_REALTIME_ONLY || CONFIG_AV1_DECODER
 static void calculate_intermediate_result(int32_t *dgd, int width, int height,
                                           int dgd_stride, int bit_depth,
                                           int sgr_params_idx, int radius_idx,
@@ -922,6 +924,7 @@ static void sgrproj_filter_stripe(const RestorationUnitInfo *rui,
     }
   }
 }
+#endif
 
 #if CONFIG_AV1_HIGHBITDEPTH
 static void wiener_filter_stripe_highbd(
