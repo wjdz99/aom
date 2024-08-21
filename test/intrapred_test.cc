@@ -292,6 +292,7 @@ TEST_P(LowbdIntraPredTest, DISABLED_Speed) {
       &aom_highbd_##type##_predictor_##width##x##height##_c, width, height, \
       bd)
 
+#if !CONFIG_REALTIME_ONLY || CONFIG_AV1_DECODER
 #define highbd_intrapred(type, opt, bd)                                        \
   highbd_entry(type, 4, 4, opt, bd), highbd_entry(type, 4, 8, opt, bd),        \
       highbd_entry(type, 4, 16, opt, bd), highbd_entry(type, 8, 4, opt, bd),   \
@@ -305,6 +306,16 @@ TEST_P(LowbdIntraPredTest, DISABLED_Speed) {
       highbd_entry(type, 32, 64, opt, bd),                                     \
       highbd_entry(type, 64, 16, opt, bd),                                     \
       highbd_entry(type, 64, 32, opt, bd), highbd_entry(type, 64, 64, opt, bd)
+#else
+#define highbd_intrapred(type, opt, bd)                                        \
+      highbd_entry(type, 4, 4, opt, bd), highbd_entry(type, 4, 8, opt, bd),    \
+      highbd_entry(type, 8, 4, opt, bd), highbd_entry(type, 8, 8, opt, bd),    \
+      highbd_entry(type, 8, 16, opt, bd), highbd_entry(type, 16, 8, opt, bd),  \
+      highbd_entry(type, 16, 16, opt, bd), highbd_entry(type, 16, 32, opt, bd),\
+      highbd_entry(type, 32, 16, opt, bd), highbd_entry(type, 32, 32, opt, bd),\
+      highbd_entry(type, 32, 64, opt, bd), highbd_entry(type, 64, 32, opt, bd),\
+      highbd_entry(type, 64, 64, opt, bd)
+#endif
 #endif  // CONFIG_AV1_HIGHBITDEPTH
 
 // ---------------------------------------------------------------------------
@@ -315,6 +326,7 @@ TEST_P(LowbdIntraPredTest, DISABLED_Speed) {
                            &aom_##type##_predictor_##width##x##height##_c,     \
                            width, height, 8)
 
+#if !CONFIG_REALTIME_ONLY || CONFIG_AV1_DECODER
 #define lowbd_intrapred(type, opt)                                    \
   lowbd_entry(type, 4, 4, opt), lowbd_entry(type, 4, 8, opt),         \
       lowbd_entry(type, 4, 16, opt), lowbd_entry(type, 8, 4, opt),    \
@@ -326,6 +338,16 @@ TEST_P(LowbdIntraPredTest, DISABLED_Speed) {
       lowbd_entry(type, 32, 32, opt), lowbd_entry(type, 32, 64, opt), \
       lowbd_entry(type, 64, 16, opt), lowbd_entry(type, 64, 32, opt), \
       lowbd_entry(type, 64, 64, opt)
+#else
+#define lowbd_intrapred(type, opt)                                    \
+  lowbd_entry(type, 4, 4, opt), lowbd_entry(type, 4, 8, opt),         \
+      lowbd_entry(type, 8, 4, opt), lowbd_entry(type, 8, 8, opt),     \
+      lowbd_entry(type, 8, 16, opt), lowbd_entry(type, 16, 8, opt),   \
+      lowbd_entry(type, 16, 16, opt), lowbd_entry(type, 16, 32, opt), \
+      lowbd_entry(type, 32, 16, opt), lowbd_entry(type, 32, 32, opt), \
+      lowbd_entry(type, 32, 64, opt), lowbd_entry(type, 64, 32, opt), \
+      lowbd_entry(type, 64, 64, opt)
+#endif
 
 #if HAVE_SSE2
 const IntraPredFunc<IntraPred> LowbdIntraPredTestVector[] = {
