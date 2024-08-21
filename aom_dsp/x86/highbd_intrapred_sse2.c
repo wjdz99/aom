@@ -194,26 +194,28 @@ static inline void h_store_32_unpackhi(uint16_t **dst, const ptrdiff_t stride,
   *dst += stride;
 }
 
-static inline void h_predictor_32x8(uint16_t *dst, ptrdiff_t stride,
-                                    const uint16_t *left) {
-  const __m128i left_u16 = _mm_load_si128((const __m128i *)left);
-  const __m128i row0 = _mm_shufflelo_epi16(left_u16, 0x0);
-  const __m128i row1 = _mm_shufflelo_epi16(left_u16, 0x55);
-  const __m128i row2 = _mm_shufflelo_epi16(left_u16, 0xaa);
-  const __m128i row3 = _mm_shufflelo_epi16(left_u16, 0xff);
-  const __m128i row4 = _mm_shufflehi_epi16(left_u16, 0x0);
-  const __m128i row5 = _mm_shufflehi_epi16(left_u16, 0x55);
-  const __m128i row6 = _mm_shufflehi_epi16(left_u16, 0xaa);
-  const __m128i row7 = _mm_shufflehi_epi16(left_u16, 0xff);
-  h_store_32_unpacklo(&dst, stride, &row0);
-  h_store_32_unpacklo(&dst, stride, &row1);
-  h_store_32_unpacklo(&dst, stride, &row2);
-  h_store_32_unpacklo(&dst, stride, &row3);
-  h_store_32_unpackhi(&dst, stride, &row4);
-  h_store_32_unpackhi(&dst, stride, &row5);
-  h_store_32_unpackhi(&dst, stride, &row6);
-  h_store_32_unpackhi(&dst, stride, &row7);
-}
+if !CONFIG_REALTIME_ONLY
+  || CONFIG_AV1_DECODER static inline void h_predictor_32x8(
+         uint16_t *dst, ptrdiff_t stride, const uint16_t *left) {
+    const __m128i left_u16 = _mm_load_si128((const __m128i *)left);
+    const __m128i row0 = _mm_shufflelo_epi16(left_u16, 0x0);
+    const __m128i row1 = _mm_shufflelo_epi16(left_u16, 0x55);
+    const __m128i row2 = _mm_shufflelo_epi16(left_u16, 0xaa);
+    const __m128i row3 = _mm_shufflelo_epi16(left_u16, 0xff);
+    const __m128i row4 = _mm_shufflehi_epi16(left_u16, 0x0);
+    const __m128i row5 = _mm_shufflehi_epi16(left_u16, 0x55);
+    const __m128i row6 = _mm_shufflehi_epi16(left_u16, 0xaa);
+    const __m128i row7 = _mm_shufflehi_epi16(left_u16, 0xff);
+    h_store_32_unpacklo(&dst, stride, &row0);
+    h_store_32_unpacklo(&dst, stride, &row1);
+    h_store_32_unpacklo(&dst, stride, &row2);
+    h_store_32_unpacklo(&dst, stride, &row3);
+    h_store_32_unpackhi(&dst, stride, &row4);
+    h_store_32_unpackhi(&dst, stride, &row5);
+    h_store_32_unpackhi(&dst, stride, &row6);
+    h_store_32_unpackhi(&dst, stride, &row7);
+  }
+#endif
 
 void aom_highbd_h_predictor_32x16_sse2(uint16_t *dst, ptrdiff_t stride,
                                        const uint16_t *above,
