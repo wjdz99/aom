@@ -514,6 +514,7 @@ void highbd_warp_plane(WarpedMotionParams *wm, const uint16_t *const ref,
     leads to a maximum value of about 282 * 2^k after applying the offset.
     So in that case we still need to clamp.
 */
+
 void av1_warp_affine_c(const int32_t *mat, const uint8_t *ref, int width,
                        int height, int stride, uint8_t *pred, int p_col,
                        int p_row, int p_width, int p_height, int p_stride,
