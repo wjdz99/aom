@@ -1337,6 +1337,7 @@ static inline int highbd_vert_scalar_product(const uint16_t *a,
   return sum;
 }
 
+#if !CONFIG_REALTIME_ONLY || CONFIG_AV1_DECODER
 static const InterpKernel *get_filter_base(const int16_t *filter) {
   // NOTE: This assumes that the filter table is 256-byte aligned.
   // TODO(agrange) Modify to make independent of table alignment.
@@ -1427,6 +1428,7 @@ void av1_wiener_convolve_add_src_c(const uint8_t *src, ptrdiff_t src_stride,
                             MAX_SB_SIZE, dst, dst_stride, filters_y, y0_q4,
                             y_step_q4, w, h, conv_params->round_1);
 }
+#endif
 
 #if CONFIG_AV1_HIGHBITDEPTH
 static void highbd_convolve_add_src_horiz_hip(
