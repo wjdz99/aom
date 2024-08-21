@@ -1414,6 +1414,7 @@ static inline void src_convert_hbd_copy(const uint16_t *src, int src_stride,
 }
 #endif  // CONFIG_AV1_HIGHBITDEPTH
 
+#if !CONFIG_REALTIME_ONLY || CONFIG_AV1_DECODER
 int av1_selfguided_restoration_neon(const uint8_t *dat8, int width, int height,
                                     int stride, int32_t *flt0, int32_t *flt1,
                                     int flt_stride, int sgr_params_idx,
@@ -1614,3 +1615,4 @@ int av1_apply_selfguided_restoration_neon(const uint8_t *dat8, int width,
   }
   return 0;
 }
+#endif

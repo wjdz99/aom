@@ -282,6 +282,7 @@ static AOM_FORCE_INLINE void vertical_filter_8x1_f8(const int16x8_t *src,
   *res_high = horizontal_add_4d_s32x4(m4567_pairs);
 }
 
+#if !CONFIG_REALTIME_ONLY || CONFIG_AV1_DECODER
 void av1_warp_affine_neon_i8mm(const int32_t *mat, const uint8_t *ref,
                                int width, int height, int stride, uint8_t *pred,
                                int p_col, int p_row, int p_width, int p_height,
@@ -293,3 +294,4 @@ void av1_warp_affine_neon_i8mm(const int32_t *mat, const uint8_t *ref,
                          p_width, p_height, p_stride, subsampling_x,
                          subsampling_y, conv_params, alpha, beta, gamma, delta);
 }
+#endif
