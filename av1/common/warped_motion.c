@@ -514,6 +514,7 @@ void highbd_warp_plane(WarpedMotionParams *wm, const uint16_t *const ref,
     leads to a maximum value of about 282 * 2^k after applying the offset.
     So in that case we still need to clamp.
 */
+#if !CONFIG_REALTIME_ONLY || CONFIG_AV1_DECODER
 void av1_warp_affine_c(const int32_t *mat, const uint8_t *ref, int width,
                        int height, int stride, uint8_t *pred, int p_col,
                        int p_row, int p_width, int p_height, int p_stride,
@@ -679,6 +680,7 @@ void av1_warp_plane(WarpedMotionParams *wm, int use_hbd, int bd,
              p_height, p_stride, subsampling_x, subsampling_y, conv_params);
 #endif
 }
+#endif
 
 #define LS_MV_MAX 256  // max mv in 1/8-pel
 // Use LS_STEP = 8 so that 2 less bits needed for A, Bx, By.
