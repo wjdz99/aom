@@ -182,6 +182,7 @@ void av1_extend_frame(uint8_t *data, int width, int height, int stride,
   extend_frame_lowbd(data, width, height, stride, border_horz, border_vert);
 }
 
+#if !CONFIG_REALTIME_ONLY || CONFIG_AV1_DECODER
 static void copy_rest_unit_lowbd(int width, int height, const uint8_t *src,
                                  int src_stride, uint8_t *dst, int dst_stride) {
   for (int i = 0; i < height; ++i)
@@ -580,6 +581,7 @@ static void boxsum(int32_t *src, int width, int height, int src_stride, int r,
   else
     assert(0 && "Invalid value of r in self-guided filter");
 }
+#endif
 
 void av1_decode_xq(const int *xqd, int *xq, const sgr_params_type *params) {
   if (params->r[0] == 0) {
@@ -622,6 +624,7 @@ const int32_t av1_one_by_x[MAX_NELEM] = {
   293,  273,  256,  241,  228, 216, 205, 195, 186, 178, 171, 164,
 };
 
+#if !CONFIG_REALTIME_ONLY || CONFIG_AV1_DECODER
 static void calculate_intermediate_result(int32_t *dgd, int width, int height,
                                           int dgd_stride, int bit_depth,
                                           int sgr_params_idx, int radius_idx,
@@ -1257,6 +1260,7 @@ void av1_foreach_rest_unit_in_row(
     ++j;
   }
 }
+#endif
 
 void av1_lr_sync_read_dummy(void *const lr_sync, int r, int c, int plane) {
   (void)lr_sync;
@@ -1274,6 +1278,7 @@ void av1_lr_sync_write_dummy(void *const lr_sync, int r, int c,
   (void)plane;
 }
 
+#if !CONFIG_REALTIME_ONLY || CONFIG_AV1_DECODER
 int av1_loop_restoration_corners_in_sb(const struct AV1Common *cm, int plane,
                                        int mi_row, int mi_col, BLOCK_SIZE bsize,
                                        int *rcol0, int *rcol1, int *rrow0,
@@ -1502,3 +1507,4 @@ void av1_loop_restoration_save_boundary_lines(const YV12_BUFFER_CONFIG *frame,
     save_boundary_lines(frame, use_highbd, p, cm, after_cdef);
   }
 }
+#endif

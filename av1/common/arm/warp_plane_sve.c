@@ -14,6 +14,7 @@
 #include "aom_dsp/arm/aom_neon_sve_bridge.h"
 #include "warp_plane_neon.h"
 
+#if !CONFIG_REALTIME_ONLY || CONFIG_AV1_DECODER
 DECLARE_ALIGNED(16, static const uint8_t, usdot_permute_idx[48]) = {
   0, 1, 2,  3,  1, 2,  3,  4,  2,  3,  4,  5,  3,  4,  5,  6,
   4, 5, 6,  7,  5, 6,  7,  8,  6,  7,  8,  9,  7,  8,  9,  10,
@@ -286,3 +287,4 @@ void av1_warp_affine_sve(const int32_t *mat, const uint8_t *ref, int width,
                          p_width, p_height, p_stride, subsampling_x,
                          subsampling_y, conv_params, alpha, beta, gamma, delta);
 }
+#endif
