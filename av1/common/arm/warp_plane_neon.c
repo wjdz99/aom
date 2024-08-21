@@ -11,6 +11,7 @@
 
 #include "warp_plane_neon.h"
 
+#if !CONFIG_REALTIME_ONLY || CONFIG_AV1_DECODER
 static AOM_FORCE_INLINE int16x8_t horizontal_filter_4x1_f4(const uint8x16_t in,
                                                            int sx, int alpha) {
   const int32x4_t add_const = vdupq_n_s32(1 << (8 + FILTER_BITS - 1));
@@ -278,3 +279,4 @@ void av1_warp_affine_neon(const int32_t *mat, const uint8_t *ref, int width,
                          p_width, p_height, p_stride, subsampling_x,
                          subsampling_y, conv_params, alpha, beta, gamma, delta);
 }
+#endif

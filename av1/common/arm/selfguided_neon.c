@@ -26,6 +26,7 @@
 #include "av1/common/resize.h"
 #include "av1/common/restoration.h"
 
+#if !CONFIG_REALTIME_ONLY || CONFIG_AV1_DECODER
 // Constants used for right shift in final_filter calculation.
 #define NB_EVEN 5
 #define NB_ODD 4
@@ -1614,3 +1615,4 @@ int av1_apply_selfguided_restoration_neon(const uint8_t *dat8, int width,
   }
   return 0;
 }
+#endif

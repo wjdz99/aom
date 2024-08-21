@@ -24,6 +24,7 @@
 #include "av1/common/warped_motion.h"
 #include "av1/common/scale.h"
 
+#if !CONFIG_REALTIME_ONLY || CONFIG_AV1_DECODER
 static AOM_FORCE_INLINE int16x8_t horizontal_filter_4x1_f4(const uint8x16_t in,
                                                            int sx, int alpha);
 
@@ -367,5 +368,6 @@ static AOM_FORCE_INLINE void av1_warp_affine_common(
     }
   }
 }
+#endif
 
 #endif  // AOM_AV1_COMMON_ARM_WARP_PLANE_NEON_H_
