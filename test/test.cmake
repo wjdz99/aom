@@ -118,24 +118,31 @@ endif()
 list(APPEND AOM_DECODE_PERF_TEST_SOURCES "${AOM_ROOT}/test/decode_perf_test.cc")
 
 if(CONFIG_REALTIME_ONLY)
-  list(REMOVE_ITEM AOM_UNIT_TEST_ENCODER_SOURCES
-                   "${AOM_ROOT}/test/allintra_end_to_end_test.cc"
-                   "${AOM_ROOT}/test/av1_external_partition_test.cc"
-                   "${AOM_ROOT}/test/avif_progressive_test.cc"
-                   "${AOM_ROOT}/test/borders_test.cc"
-                   "${AOM_ROOT}/test/cpu_speed_test.cc"
-                   "${AOM_ROOT}/test/cpu_used_firstpass_test.cc"
-                   "${AOM_ROOT}/test/deltaq_mode_test.cc"
-                   "${AOM_ROOT}/test/dropframe_encode_test.cc"
-                   "${AOM_ROOT}/test/end_to_end_psnr_test.cc"
-                   "${AOM_ROOT}/test/force_key_frame_test.cc"
-                   "${AOM_ROOT}/test/gf_pyr_height_test.cc"
-                   "${AOM_ROOT}/test/horz_superres_test.cc"
-                   "${AOM_ROOT}/test/level_test.cc"
-                   "${AOM_ROOT}/test/metadata_test.cc"
-                   "${AOM_ROOT}/test/monochrome_test.cc"
-                   "${AOM_ROOT}/test/postproc_filters_test.cc"
-                   "${AOM_ROOT}/test/sharpness_test.cc")
+  if(NOT CONFIG_AV1_DECODER)
+    list(REMOVE_ITEM AOM_UNIT_TEST_DECODER_SOURCES
+                     "${AOM_ROOT}/test/invalid_file_test.cc"
+                     "${AOM_ROOT}/test/test_vector_test.cc")
+
+    list(REMOVE_ITEM AOM_UNIT_TEST_ENCODER_SOURCES
+                     "${AOM_ROOT}/test/allintra_end_to_end_test.cc"
+                     "${AOM_ROOT}/test/av1_external_partition_test.cc"
+                     "${AOM_ROOT}/test/avif_progressive_test.cc"
+                     "${AOM_ROOT}/test/borders_test.cc"
+                     "${AOM_ROOT}/test/cpu_speed_test.cc"
+                     "${AOM_ROOT}/test/cpu_used_firstpass_test.cc"
+                     "${AOM_ROOT}/test/deltaq_mode_test.cc"
+                     "${AOM_ROOT}/test/dropframe_encode_test.cc"
+                     "${AOM_ROOT}/test/end_to_end_psnr_test.cc"
+                     "${AOM_ROOT}/test/force_key_frame_test.cc"
+                     "${AOM_ROOT}/test/gf_pyr_height_test.cc"
+                     "${AOM_ROOT}/test/horz_superres_test.cc"
+                     "${AOM_ROOT}/test/intrapred_test.cc"
+                     "${AOM_ROOT}/test/level_test.cc"
+                     "${AOM_ROOT}/test/metadata_test.cc"
+                     "${AOM_ROOT}/test/monochrome_test.cc"
+                     "${AOM_ROOT}/test/postproc_filters_test.cc"
+                     "${AOM_ROOT}/test/sharpness_test.cc")
+  endif()
 endif()
 
 if(NOT BUILD_SHARED_LIBS)
@@ -149,7 +156,6 @@ if(NOT BUILD_SHARED_LIBS)
               "${AOM_ROOT}/test/hiprec_convolve_test_util.cc"
               "${AOM_ROOT}/test/hiprec_convolve_test_util.h"
               "${AOM_ROOT}/test/intrabc_test.cc"
-              "${AOM_ROOT}/test/intrapred_test.cc"
               "${AOM_ROOT}/test/lpf_test.cc"
               "${AOM_ROOT}/test/scan_test.cc"
               "${AOM_ROOT}/test/selfguided_filter_test.cc"
@@ -286,6 +292,7 @@ if(NOT BUILD_SHARED_LIBS)
                      "${AOM_ROOT}/test/cnn_test.cc"
                      "${AOM_ROOT}/test/decode_multithreaded_test.cc"
                      "${AOM_ROOT}/test/error_resilience_test.cc"
+                     "${AOM_ROOT}/test/hiprec_convolve_test.cc"
                      "${AOM_ROOT}/test/kf_test.cc"
                      "${AOM_ROOT}/test/lossless_test.cc"
                      "${AOM_ROOT}/test/sb_multipass_test.cc"
@@ -478,14 +485,17 @@ function(setup_aom_test_targets)
     endif()
 
     if(NOT BUILD_SHARED_LIBS)
-      add_executable(test_intra_pred_speed ${AOM_TEST_INTRA_PRED_SPEED_SOURCES}
-                                           $<TARGET_OBJECTS:aom_common_app_util>
-                                           $<TARGET_OBJECTS:aom_usage_exit>)
-      set_property(TARGET test_intra_pred_speed
-                   PROPERTY FOLDER ${AOM_IDE_TEST_FOLDER})
-      target_link_libraries(test_intra_pred_speed ${AOM_LIB_LINK_TYPE} aom
-                            aom_gtest)
-      list(APPEND AOM_APP_TARGETS test_intra_pred_speed)
+      if(NOT CONFIG_REALTIME_ONLY)
+        add_executable(test_intra_pred_speed
+                       ${AOM_TEST_INTRA_PRED_SPEED_SOURCES}
+                       $<TARGET_OBJECTS:aom_common_app_util>
+                       $<TARGET_OBJECTS:aom_usage_exit>)
+        set_property(TARGET test_intra_pred_speed
+                     PROPERTY FOLDER ${AOM_IDE_TEST_FOLDER})
+        target_link_libraries(test_intra_pred_speed ${AOM_LIB_LINK_TYPE} aom
+                              aom_gtest)
+        list(APPEND AOM_APP_TARGETS test_intra_pred_speed)
+      endif()
     endif()
   endif()
 
