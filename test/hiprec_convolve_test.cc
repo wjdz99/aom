@@ -40,7 +40,7 @@ INSTANTIATE_TEST_SUITE_P(AVX2, AV1HiprecConvolveTest,
                          libaom_test::AV1HiprecConvolve::BuildParams(
                              av1_wiener_convolve_add_src_avx2));
 #endif
-#if HAVE_NEON
+#if HAVE_NEON && (!CONFIG_REALTIME_ONLY || CONFIG_AV1_DECODER)
 INSTANTIATE_TEST_SUITE_P(NEON, AV1HiprecConvolveTest,
                          libaom_test::AV1HiprecConvolve::BuildParams(
                              av1_wiener_convolve_add_src_neon));
