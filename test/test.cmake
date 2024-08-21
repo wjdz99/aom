@@ -118,6 +118,10 @@ endif()
 list(APPEND AOM_DECODE_PERF_TEST_SOURCES "${AOM_ROOT}/test/decode_perf_test.cc")
 
 if(CONFIG_REALTIME_ONLY)
+  if(NOT CONFIG_AV1_DECODER)
+    list(REMOVE_ITEM AOM_UNIT_TEST_ENCODER_SOURCES
+                     "${AOM_ROOT}/test/intrapred_test.cc")
+  endif()
   list(REMOVE_ITEM AOM_UNIT_TEST_ENCODER_SOURCES
                    "${AOM_ROOT}/test/allintra_end_to_end_test.cc"
                    "${AOM_ROOT}/test/av1_external_partition_test.cc"
@@ -149,7 +153,6 @@ if(NOT BUILD_SHARED_LIBS)
               "${AOM_ROOT}/test/hiprec_convolve_test_util.cc"
               "${AOM_ROOT}/test/hiprec_convolve_test_util.h"
               "${AOM_ROOT}/test/intrabc_test.cc"
-              "${AOM_ROOT}/test/intrapred_test.cc"
               "${AOM_ROOT}/test/lpf_test.cc"
               "${AOM_ROOT}/test/scan_test.cc"
               "${AOM_ROOT}/test/selfguided_filter_test.cc"
@@ -286,6 +289,7 @@ if(NOT BUILD_SHARED_LIBS)
                      "${AOM_ROOT}/test/cnn_test.cc"
                      "${AOM_ROOT}/test/decode_multithreaded_test.cc"
                      "${AOM_ROOT}/test/error_resilience_test.cc"
+                     "${AOM_ROOT}/test/hiprec_convolve_test.cc"
                      "${AOM_ROOT}/test/kf_test.cc"
                      "${AOM_ROOT}/test/lossless_test.cc"
                      "${AOM_ROOT}/test/sb_multipass_test.cc"
@@ -478,14 +482,17 @@ function(setup_aom_test_targets)
     endif()
 
     if(NOT BUILD_SHARED_LIBS)
-      add_executable(test_intra_pred_speed ${AOM_TEST_INTRA_PRED_SPEED_SOURCES}
-                                           $<TARGET_OBJECTS:aom_common_app_util>
-                                           $<TARGET_OBJECTS:aom_usage_exit>)
-      set_property(TARGET test_intra_pred_speed
-                   PROPERTY FOLDER ${AOM_IDE_TEST_FOLDER})
-      target_link_libraries(test_intra_pred_speed ${AOM_LIB_LINK_TYPE} aom
-                            aom_gtest)
-      list(APPEND AOM_APP_TARGETS test_intra_pred_speed)
+      if(NOT CONFIG_REALTIME_ONLY)
+        add_executable(test_intra_pred_speed
+                       ${AOM_TEST_INTRA_PRED_SPEED_SOURCES}
+                       $<TARGET_OBJECTS:aom_common_app_util>
+                       $<TARGET_OBJECTS:aom_usage_exit>)
+        set_property(TARGET test_intra_pred_speed
+                     PROPERTY FOLDER ${AOM_IDE_TEST_FOLDER})
+        target_link_libraries(test_intra_pred_speed ${AOM_LIB_LINK_TYPE} aom
+                              aom_gtest)
+        list(APPEND AOM_APP_TARGETS test_intra_pred_speed)
+      endif()
     endif()
   endif()
 
