@@ -270,7 +270,7 @@ sub common_bottom() {
 }  // extern "C"
 #endif
 
-#endif
+#endif  // ${include_guard}
 EOF
 }
 
