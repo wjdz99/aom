@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7cf3350a_9dd85002",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-08-22T18:45:14Z",
+      "side": 1,
+      "message": "LGTM. Please wait for another review from Jingning or James. This CL changes important parts of libaom\u0027s public API, so we need to proceed carefully.\n\nJingning: This CL is part of our plan to allow codec controls to have alternative default values in realtime mode. The alternative default values for realtime mode will be used in the realtime-only build (the current behavior), but will require the application to opt-in in a normal build.",
+      "revId": "7e1785a94969232ef83a6393fb136b95b0c7af4c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d807d8b0_5e877034",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 4759,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-08-22T18:45:14Z",
+      "side": 1,
+      "message": "I don\u0027t know how the initial size and optimal size are used. I noticed that in the original code, the initial size is smaller than the optimal size. In the new code they are the same. I just wanted to confirm that this is what you intended.",
+      "revId": "7e1785a94969232ef83a6393fb136b95b0c7af4c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
