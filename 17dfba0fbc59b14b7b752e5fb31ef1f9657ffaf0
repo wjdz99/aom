@@ -16,6 +16,24 @@
       "message": "Should this be `AOM_AOM_VERSION_H_` to include the project?",
       "revId": "17dfba0fbc59b14b7b752e5fb31ef1f9657ffaf0",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8d3e274d_6e6560ad",
+        "filename": "build/cmake/version.pl",
+        "patchSetId": 1
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-08-22T20:38:36Z",
+      "side": 1,
+      "message": "I don\u0027t know. I copied this from the `AOM_CONFIG_H_` header guard macro used in config/aom_config.h.",
+      "parentUuid": "7daad20a_438641e0",
+      "revId": "17dfba0fbc59b14b7b752e5fb31ef1f9657ffaf0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
