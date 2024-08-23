@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "47cebbe1_85a03a48",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 4779,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-08-23T22:44:48Z",
+      "side": 1,
+      "message": "The plumbing starts here. Note that `cpi_data-\u003ecx_data_sz` is the size of the `cpi_data-\u003ecx_data` buffer.",
+      "revId": "3391f52a8a738760380b0cbb7db415d4be63b6bd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
