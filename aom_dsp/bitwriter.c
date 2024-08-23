@@ -12,8 +12,9 @@
 #include <string.h>
 #include "aom_dsp/bitwriter.h"
 
-void aom_start_encode(aom_writer *w, uint8_t *source) {
-  w->buffer = source;
+void aom_start_encode(aom_writer *w, uint8_t *buffer, size_t size) {
+  w->bufferx = buffer;
+  w->size = size;
   w->pos = 0;
   od_ec_enc_init(&w->ec, 62025);
 }
@@ -28,7 +29,7 @@ int aom_stop_encode(aom_writer *w) {
     return -1;
   }
   nb_bits = od_ec_enc_tell(&w->ec);
-  memcpy(w->buffer, data, bytes);
+  memcpy(w->bufferx, data, bytes);
   w->pos = bytes;
   od_ec_enc_clear(&w->ec);
   return nb_bits;
