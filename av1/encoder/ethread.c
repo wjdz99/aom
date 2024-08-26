@@ -584,16 +584,36 @@ static bool lpf_mt_with_enc_enabled(int pipeline_lpf_mt_with_enc,
                                     const int filter_level[2]) {
   return pipeline_lpf_mt_with_enc && (filter_level[0] || filter_level[1]);
 }
+static inline void prepare_enc_workers_impl(AV1_COMP *cpi, int thread_id,
+                                            EncWorkerData *const thread_data);
 
-static int enc_row_mt_worker_hook(void *arg1, void *unused) {
+static int enc_row_mt_worker_hook(void *arg1, void *arg2) {
   EncWorkerData *const thread_data = (EncWorkerData *)arg1;
   AV1_COMP *const cpi = thread_data->cpi;
   int thread_id = thread_data->thread_id;
   AV1EncRowMultiThreadInfo *const enc_row_mt = &cpi->mt_info.enc_row_mt;
+
 #if CONFIG_MULTITHREAD
   pthread_mutex_t *enc_row_mt_mutex_ = enc_row_mt->mutex_;
+  _Atomic int *hook_init_number = (_Atomic int *)arg2;
+  // Initialize the thread itself when hook_init_number is not 0
+  if (*hook_init_number != 0) {
+    if (thread_id != 0) {
+      prepare_enc_workers_impl(cpi, thread_id, thread_data);
+      --*hook_init_number;
+      // Wait for other workers to also complete initialization
+      while (*hook_init_number != 0)
+        ;
+    } else {
+      while (*hook_init_number != 1)
+        ;
+      prepare_enc_workers_impl(cpi, thread_id, thread_data);
+      --*hook_init_number;
+    }
+  }
+
 #endif
-  (void)unused;
+  (void)arg2;
 
   struct aom_internal_error_info *const error_info = &thread_data->error_info;
   AV1LfSync *const lf_sync = thread_data->lf_sync;
@@ -744,17 +764,36 @@ static int enc_row_mt_worker_hook(void *arg1, void *unused) {
   return 1;
 }
 
-static int enc_worker_hook(void *arg1, void *unused) {
+static int enc_worker_hook(void *arg1, void *arg2) {
   EncWorkerData *const thread_data = (EncWorkerData *)arg1;
   AV1_COMP *const cpi = thread_data->cpi;
+  const AV1_COMMON *const cm = &cpi->common;
+  int thread_id = thread_data->thread_id;
+
+  _Atomic int *hook_init_number = (_Atomic int *)arg2;
+  // Initialize the thread itself when hook_init_number is not 0
+  if (*hook_init_number != 0) {
+    if (thread_id != 0) {
+      prepare_enc_workers_impl(cpi, thread_id, thread_data);
+      --*hook_init_number;
+      // Wait for other workers to also complete initialization
+      while (*hook_init_number != 0)
+        ;
+    } else {
+      while (*hook_init_number != 1)
+        ;
+      prepare_enc_workers_impl(cpi, thread_id, thread_data);
+      --*hook_init_number;
+    }
+  }
+
   MACROBLOCKD *const xd = &thread_data->td->mb.e_mbd;
   struct aom_internal_error_info *const error_info = &thread_data->error_info;
-  const AV1_COMMON *const cm = &cpi->common;
   const int tile_cols = cm->tiles.cols;
   const int tile_rows = cm->tiles.rows;
   int t;
 
-  (void)unused;
+  (void)arg2;
 
   xd->error_info = error_info;
 
@@ -1483,6 +1522,13 @@ static inline void launch_workers(MultiThreadInfo *const mt_info,
   }
 }
 
+static inline void nullify_worker_parameters2(MultiThreadInfo *const mt_info,
+                                              int num_workers) {
+  for (int i = num_workers - 1; i >= 0; i--) {
+    mt_info->workers[i].data2 = NULL;
+  }
+}
+
 static inline void sync_enc_workers(MultiThreadInfo *const mt_info,
                                     AV1_COMMON *const cm, int num_workers) {
   const AVxWorkerInterface *const winterface = aom_get_worker_interface();
@@ -1552,28 +1598,13 @@ static inline void accumulate_counters_enc_workers(AV1_COMP *cpi,
   }
 }
 
-static inline void prepare_enc_workers(AV1_COMP *cpi, AVxWorkerHook hook,
-                                       int num_workers) {
-  MultiThreadInfo *const mt_info = &cpi->mt_info;
-  AV1_COMMON *const cm = &cpi->common;
-  for (int i = num_workers - 1; i >= 0; i--) {
-    AVxWorker *const worker = &mt_info->workers[i];
-    EncWorkerData *const thread_data = &mt_info->tile_thr_data[i];
+static const int defer_to_hook_init_thread_number = 3;
 
-    worker->hook = hook;
-    worker->data1 = thread_data;
-    worker->data2 = NULL;
-
-    thread_data->thread_id = i;
-    // Set the starting tile for each thread.
-    thread_data->start = i;
-
-    thread_data->cpi = cpi;
-    if (i == 0) {
-      thread_data->td = &cpi->td;
-    } else {
-      thread_data->td = thread_data->original_td;
-    }
+static inline void prepare_enc_workers_impl(AV1_COMP *cpi, int thread_id,
+                                            EncWorkerData *const thread_data) {
+  if (thread_id != 0) {
+    thread_data->td = thread_data->original_td;
+    AV1_COMMON *const cm = &cpi->common;
 
     thread_data->td->intrabc_used = 0;
     thread_data->td->deltaq_used = 0;
@@ -1582,44 +1613,42 @@ static inline void prepare_enc_workers(AV1_COMP *cpi, AVxWorkerHook hook,
     thread_data->td->rd_counts.seg_tmp_pred_cost[1] = 0;
 
     // Before encoding a frame, copy the thread data from cpi.
-    if (thread_data->td != &cpi->td) {
-      thread_data->td->mb = cpi->td.mb;
-      thread_data->td->rd_counts = cpi->td.rd_counts;
-      thread_data->td->mb.obmc_buffer = thread_data->td->obmc_buffer;
+    thread_data->td->mb = cpi->td.mb;
+    thread_data->td->rd_counts = cpi->td.rd_counts;
+    thread_data->td->mb.obmc_buffer = thread_data->td->obmc_buffer;
 
-      for (int x = 0; x < 2; x++) {
-        for (int y = 0; y < 2; y++) {
-          memcpy(thread_data->td->hash_value_buffer[x][y],
-                 cpi->td.mb.intrabc_hash_info.hash_value_buffer[x][y],
-                 AOM_BUFFER_SIZE_FOR_BLOCK_HASH *
-                     sizeof(*thread_data->td->hash_value_buffer[0][0]));
-          thread_data->td->mb.intrabc_hash_info.hash_value_buffer[x][y] =
-              thread_data->td->hash_value_buffer[x][y];
-        }
+    for (int x = 0; x < 2; x++) {
+      for (int y = 0; y < 2; y++) {
+        memcpy(thread_data->td->hash_value_buffer[x][y],
+               cpi->td.mb.intrabc_hash_info.hash_value_buffer[x][y],
+               AOM_BUFFER_SIZE_FOR_BLOCK_HASH *
+                   sizeof(*thread_data->td->hash_value_buffer[0][0]));
+        thread_data->td->mb.intrabc_hash_info.hash_value_buffer[x][y] =
+            thread_data->td->hash_value_buffer[x][y];
       }
-      // Keep these conditional expressions in sync with the corresponding ones
-      // in accumulate_counters_enc_workers().
-      if (cpi->sf.inter_sf.mv_cost_upd_level != INTERNAL_COST_UPD_OFF) {
-        CHECK_MEM_ERROR(
-            cm, thread_data->td->mv_costs_alloc,
-            (MvCosts *)aom_malloc(sizeof(*thread_data->td->mv_costs_alloc)));
-        thread_data->td->mb.mv_costs = thread_data->td->mv_costs_alloc;
-        memcpy(thread_data->td->mb.mv_costs, cpi->td.mb.mv_costs,
-               sizeof(MvCosts));
-      }
-      if (cpi->sf.intra_sf.dv_cost_upd_level != INTERNAL_COST_UPD_OFF) {
-        // Reset dv_costs to NULL for worker threads when dv cost update is
-        // enabled so that only dv_cost_upd_level needs to be checked before the
-        // aom_free() call for the same.
-        thread_data->td->mb.dv_costs = NULL;
-        if (av1_need_dv_costs(cpi)) {
-          CHECK_MEM_ERROR(cm, thread_data->td->dv_costs_alloc,
-                          (IntraBCMVCosts *)aom_malloc(
-                              sizeof(*thread_data->td->dv_costs_alloc)));
-          thread_data->td->mb.dv_costs = thread_data->td->dv_costs_alloc;
-          memcpy(thread_data->td->mb.dv_costs, cpi->td.mb.dv_costs,
-                 sizeof(IntraBCMVCosts));
-        }
+    }
+    // Keep these conditional expressions in sync with the corresponding ones
+    // in accumulate_counters_enc_workers().
+    if (cpi->sf.inter_sf.mv_cost_upd_level != INTERNAL_COST_UPD_OFF) {
+      CHECK_MEM_ERROR(
+          cm, thread_data->td->mv_costs_alloc,
+          (MvCosts *)aom_malloc(sizeof(*thread_data->td->mv_costs_alloc)));
+      thread_data->td->mb.mv_costs = thread_data->td->mv_costs_alloc;
+      memcpy(thread_data->td->mb.mv_costs, cpi->td.mb.mv_costs,
+             sizeof(MvCosts));
+    }
+    if (cpi->sf.intra_sf.dv_cost_upd_level != INTERNAL_COST_UPD_OFF) {
+      // Reset dv_costs to NULL for worker threads when dv cost update is
+      // enabled so that only dv_cost_upd_level needs to be checked before the
+      // aom_free() call for the same.
+      thread_data->td->mb.dv_costs = NULL;
+      if (av1_need_dv_costs(cpi)) {
+        CHECK_MEM_ERROR(cm, thread_data->td->dv_costs_alloc,
+                        (IntraBCMVCosts *)aom_malloc(
+                            sizeof(*thread_data->td->dv_costs_alloc)));
+        thread_data->td->mb.dv_costs = thread_data->td->dv_costs_alloc;
+        memcpy(thread_data->td->mb.dv_costs, cpi->td.mb.dv_costs,
+               sizeof(IntraBCMVCosts));
       }
     }
     av1_alloc_mb_data(cpi, &thread_data->td->mb);
@@ -1633,26 +1662,65 @@ static inline void prepare_enc_workers(AV1_COMP *cpi, AVxWorkerHook hook,
       memcpy(thread_data->td->counts, &cpi->counts, sizeof(cpi->counts));
     }
 
-    if (i > 0) {
-      thread_data->td->mb.palette_buffer = thread_data->td->palette_buffer;
-      thread_data->td->mb.comp_rd_buffer = thread_data->td->comp_rd_buffer;
-      thread_data->td->mb.tmp_conv_dst = thread_data->td->tmp_conv_dst;
-      for (int j = 0; j < 2; ++j) {
-        thread_data->td->mb.tmp_pred_bufs[j] =
-            thread_data->td->tmp_pred_bufs[j];
-      }
-      thread_data->td->mb.pixel_gradient_info =
-          thread_data->td->pixel_gradient_info;
-
-      thread_data->td->mb.src_var_info_of_4x4_sub_blocks =
-          thread_data->td->src_var_info_of_4x4_sub_blocks;
-
-      thread_data->td->mb.e_mbd.tmp_conv_dst = thread_data->td->mb.tmp_conv_dst;
-      for (int j = 0; j < 2; ++j) {
-        thread_data->td->mb.e_mbd.tmp_obmc_bufs[j] =
-            thread_data->td->mb.tmp_pred_bufs[j];
-      }
+    thread_data->td->mb.palette_buffer = thread_data->td->palette_buffer;
+    thread_data->td->mb.comp_rd_buffer = thread_data->td->comp_rd_buffer;
+    thread_data->td->mb.tmp_conv_dst = thread_data->td->tmp_conv_dst;
+    for (int j = 0; j < 2; ++j) {
+      thread_data->td->mb.tmp_pred_bufs[j] = thread_data->td->tmp_pred_bufs[j];
     }
+    thread_data->td->mb.pixel_gradient_info =
+        thread_data->td->pixel_gradient_info;
+
+    thread_data->td->mb.src_var_info_of_4x4_sub_blocks =
+        thread_data->td->src_var_info_of_4x4_sub_blocks;
+
+    thread_data->td->mb.e_mbd.tmp_conv_dst = thread_data->td->mb.tmp_conv_dst;
+    for (int j = 0; j < 2; ++j) {
+      thread_data->td->mb.e_mbd.tmp_obmc_bufs[j] =
+          thread_data->td->mb.tmp_pred_bufs[j];
+    }
+  } else {
+    thread_data->td = &cpi->td;
+    thread_data->td->intrabc_used = 0;
+    thread_data->td->deltaq_used = 0;
+    thread_data->td->abs_sum_level = 0;
+    thread_data->td->rd_counts.seg_tmp_pred_cost[0] = 0;
+    thread_data->td->rd_counts.seg_tmp_pred_cost[1] = 0;
+
+    av1_alloc_mb_data(cpi, &thread_data->td->mb);
+
+    // Reset rtc counters.
+    av1_init_rtc_counters(&thread_data->td->mb);
+
+    thread_data->td->mb.palette_pixels = 0;
+  }
+}
+
+static inline void prepare_enc_workers(AV1_COMP *cpi, AVxWorkerHook hook,
+                                       int num_workers,
+                                       _Atomic int *hook_init_number) {
+  MultiThreadInfo *const mt_info = &cpi->mt_info;
+  for (int i = num_workers - 1; i >= 0; i--) {
+    AVxWorker *const worker = &mt_info->workers[i];
+    EncWorkerData *const thread_data = &mt_info->tile_thr_data[i];
+
+    worker->hook = hook;
+    worker->data1 = thread_data;
+    worker->data2 = hook_init_number;
+    thread_data->thread_id = i;
+    // Set the starting tile for each thread.
+    thread_data->start = i;
+
+    thread_data->cpi = cpi;
+
+    // When there are multiple parallels, we will execute the specific
+    // initialization in a hook to speed up the initialization. The current
+    // threshold we set is defer_to_hook_init_thread_number
+    if (num_workers >= defer_to_hook_init_thread_number) {
+      continue;
+    }
+
+    prepare_enc_workers_impl(cpi, i, thread_data);
   }
 }
 
@@ -1744,10 +1812,15 @@ void av1_encode_tiles_mt(AV1_COMP *cpi) {
   if (cpi->allocated_tiles < tile_cols * tile_rows) av1_alloc_tile_data(cpi);
 
   av1_init_tile_data(cpi);
-  num_workers = AOMMIN(num_workers, mt_info->num_workers);
+  num_workers =
+      AOMMIN(tile_cols * tile_rows, AOMMIN(num_workers, mt_info->num_workers));
 
-  prepare_enc_workers(cpi, enc_worker_hook, num_workers);
+  _Atomic int hook_init_number =
+      num_workers < defer_to_hook_init_thread_number ? 0 : num_workers;
+  prepare_enc_workers(cpi, enc_worker_hook, num_workers, &hook_init_number);
+
   launch_workers(&cpi->mt_info, num_workers);
+  nullify_worker_parameters2(&cpi->mt_info, num_workers);
   sync_enc_workers(&cpi->mt_info, cm, num_workers);
   accumulate_counters_enc_workers(cpi, num_workers);
 }
@@ -1973,11 +2046,15 @@ void av1_encode_tiles_row_mt(AV1_COMP *cpi) {
                              this_tile->tile_info.mi_col_end, tile_row);
     }
   }
-
+  num_workers = AOMMIN(tile_cols * tile_rows, num_workers);
   assign_tile_to_thread(thread_id_to_tile_id, tile_cols * tile_rows,
                         num_workers);
-  prepare_enc_workers(cpi, enc_row_mt_worker_hook, num_workers);
+  _Atomic int hook_init_number =
+      num_workers < defer_to_hook_init_thread_number ? 0 : num_workers;
+  prepare_enc_workers(cpi, enc_row_mt_worker_hook, num_workers,
+                      &hook_init_number);
   launch_workers(&cpi->mt_info, num_workers);
+  nullify_worker_parameters2(&cpi->mt_info, num_workers);
   sync_enc_workers(&cpi->mt_info, cm, num_workers);
   if (cm->delta_q_info.delta_lf_present_flag) update_delta_lf_for_row_mt(cpi);
   accumulate_counters_enc_workers(cpi, num_workers);
@@ -2050,7 +2127,8 @@ void av1_fp_encode_tiles_row_mt(AV1_COMP *cpi) {
     }
   }
 
-  num_workers = AOMMIN(num_workers, mt_info->num_workers);
+  num_workers =
+      AOMMIN(tile_cols * tile_rows, AOMMIN(num_workers, mt_info->num_workers));
   assign_tile_to_thread(thread_id_to_tile_id, tile_cols * tile_rows,
                         num_workers);
   fp_prepare_enc_workers(cpi, fp_enc_row_mt_worker_hook, num_workers);
