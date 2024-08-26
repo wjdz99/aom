@@ -34,6 +34,23 @@
       "parentUuid": "9145703f_ff83919f",
       "revId": "f4f08e5bb44ee0fc27f69302c1449e4691acf082",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e6e8d10e_a0287345",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-08-26T20:53:38Z",
+      "side": 1,
+      "message": "There are quite a few test failures, please have a look at the logs:\n\nhttps://build.aomedia.org/jenkins/job/libaom__per_commit-unit_test-sanitizers/29096/\n\nFor example:\n\n```\n[ RUN      ] AV1/AVxEncoderThreadRTTest.EncoderResultTest/29\n23:40:29 test_libaom: /var/jenkins/workspace/libaom__per_commit-compile_sanitizers/sanitizer/address/aom/av1/encoder/encodeframe_utils.c:1691: void av1_alloc_src_diff_buf(const struct AV1Common *, struct macroblock *): Assertion `!mb-\u003eplane[plane].src_diff\u0027 failed.\n...\n```",
+      "revId": "f4f08e5bb44ee0fc27f69302c1449e4691acf082",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
