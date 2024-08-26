@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "74dfadf6_bc140a71",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-08-26T20:06:55Z",
+      "side": 1,
+      "message": "James, Marco: Please review. Marco, please see the two questions for you.\n\nJonathan: Please suggest changes that summarize your team\u0027s contributions by posting comments in this CL.\n\nJingning, Ranjit, Roshan: FYI.",
+      "revId": "629bcb6ef443a52e4cb3f902a11d1cf1141690b1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5132fdca_fdc3b7d1",
+        "filename": "CHANGELOG",
+        "patchSetId": 2
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-08-26T20:06:55Z",
+      "side": 1,
+      "message": "Ranjit: This item comes from you. It covers the work of Rachel Barker and your team on enabling global motion.",
+      "revId": "629bcb6ef443a52e4cb3f902a11d1cf1141690b1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "75519198_09dfdf38",
+        "filename": "CHANGELOG",
+        "patchSetId": 2
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-08-26T20:06:55Z",
+      "side": 1,
+      "message": "Marco: Is this a duplicate of line 32?",
+      "revId": "629bcb6ef443a52e4cb3f902a11d1cf1141690b1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2eb763fc_54422093",
+        "filename": "CHANGELOG",
+        "patchSetId": 2
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-08-26T20:06:55Z",
+      "side": 1,
+      "message": "Marco: Is this a duplicate of line 47?",
+      "revId": "629bcb6ef443a52e4cb3f902a11d1cf1141690b1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
