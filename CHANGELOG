@@ -1,4 +1,4 @@
-2024-08-26 v3.10.0
+2024-08-27 v3.10.0
   This release includes new codec interfaces, compression efficiency and
   perceptual improvements, speedup and memory optimizations and many bug
   fixes. This release is ABI compatible with the last release.
@@ -35,6 +35,36 @@
     * RTC screen content speedups:
       * ~2x speedup for high motion content for speed 11.
       * ~2x speedup on key frame coding for speed >= 10.
+    * Arm: Significant uplifts in speed in this release (vs v3.9.1) have
+      come from tuning the various convolutions according to filter size
+      (doing 8-tap when only 2-tap is required is inefficient) and also
+      deploying Armv8.6 USMMLA instructions in 6-tap and 12-tap standard
+      bitdepth convolutions.
+      * Standard bitdepth RTC:
+        * cpu-used=5: +5%
+        * cpu-used=6: +4%
+        * cpu-used=7: +5%
+        * cpu-used=8: +4%
+        * cpu-used=9: +6%
+        * cpu-used=10: +6%
+      * Standard bitdepth VoD:
+        * cpu-used=0: +9%
+        * cpu-used=1: +12%
+        * cpu-used=2: +9%
+        * cpu-used=3: +3%
+        * cpu-used=4: +3%
+        * cpu-used=5: -9% (expected due to global motion changes)
+        * cpu-used=6: -3% (expected due to global motion changes)
+      * High bitdepth VoD:
+        * cpu-used=0: +4%
+        * cpu-used=1: +19%
+        * cpu-used=2: +23%
+        * cpu-used=3: +1%
+        * cpu-used=4: +1%
+        * cpu-used=5: -8% (expected due to global motion changes)
+        * cpu-used=6: -3% (expected due to global motion changes)
+      * Standard bitdepth 2x1 horizontal super-resolution/scaling
+        encoding: +101%
 
   - Other Improvements
     * Reduce bit rate overshoot on slide content.
