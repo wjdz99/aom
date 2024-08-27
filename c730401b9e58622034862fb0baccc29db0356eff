@@ -52,6 +52,24 @@
       "parentUuid": "1c7fc5f0_9ad15289",
       "revId": "c730401b9e58622034862fb0baccc29db0356eff",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "26f323a2_e0a34fc5",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 32
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-08-27T22:33:15Z",
+      "side": 1,
+      "message": "\u003e I could use cmake like this :\n\u003e cmake ../ -DCMAKE_AR\u003d/usr/bin/llvm-ar  -DCMAKE_RANLIB\u003d/usr/bin/llvm-ranlib -DCMAKE_C_COMPILER\u003dclang -DCMAKE_CXX_COMPILER\u003dclang++ -DCMAKE_C_FLAGS\u003d\"-O2 -ffp-exception-behavior\u003dstrict\" -DCMAKE_CXX_FLAGS\u003d\"-O2 -ffp-exception-behavior\u003dstrict  -stdlib\u003dlibc++\" -DCMAKE_EXE_LINKER_FLAGS\u003d\"-stdlib\u003dlibc++ -lc++abi\" -DCMAKE_BUILD_TYPE\u003dDebug -DENABLE_CCACHE\u003d1 -DSANITIZE\u003daddress\n\u003e \n\u003e after this : \n\u003e [address] $ /bin/bash -xe /var/jenkins/tmp/jenkins1298977864205605304.sh\n\u003e \n\u003e since I dont have this path or the .sh file, I could not reproduce,\n\u003e \n\u003e can you help here. to setup the system .\n\nThe script is just something temporary that\u0027s created to run the test. The executed commands are in the log prefixed by `+`:\n\n```\n00:39:20 + ./test_aom_rc --gtest_output\u003dxml:test_aom_rc_detail.xml\n00:39:20 Note: This is test shard 1 of 20.\n00:39:20 [\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d] Running 2 tests from 2 test suites.\n00:39:20 [----------] Global test environment set-up.\n00:39:20 [----------] 1 test from AV1/RcInterfaceTest\n00:39:20 [ RUN      ] AV1/RcInterfaceTest.OneLayer/0\n00:39:20 /var/jenkins/workspace/libaom__per_commit-compile_sanitizers/sanitizer/address/aom/test/encode_test_driver.h:109: Failure\n00:39:20 Expected equality of these values:\n00:39:20   AOM_CODEC_OK\n00:39:20     Which is: 0\n00:39:20   res\n00:39:20     Which is: 8\n00:39:20 content out of range [AOM_CONTENT_DEFAULT..AOM_CONTENT_INVALID - 1]\n...\n```",
+      "parentUuid": "1019b221_76bfb814",
+      "revId": "c730401b9e58622034862fb0baccc29db0356eff",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
