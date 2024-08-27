@@ -355,13 +355,16 @@ av1_enc_test() {
   fi
 
   if [ "${preset}" = "good" ]; then
-    if [ "${arch}" = "x86_64" ]; then
-      local min_cpu_used=0
-      local max_cpu_used=6
-    elif [ "${arch}" = "x86" ]; then
-      local min_cpu_used=2
-      local max_cpu_used=3
-    fi
+    case "${arch}" in
+      x86)
+        local min_cpu_used=2
+        local max_cpu_used=3
+        ;;
+      *)
+        local min_cpu_used=0
+        local max_cpu_used=6
+        ;;
+    esac
     local test_params=av1_encode_good_params
   elif [ "${preset}" = "rt" ]; then
     local min_cpu_used=5
