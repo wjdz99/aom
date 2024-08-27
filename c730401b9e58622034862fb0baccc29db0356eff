@@ -34,6 +34,24 @@
       "parentUuid": "fea4301c_81b2c6bb",
       "revId": "c730401b9e58622034862fb0baccc29db0356eff",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1019b221_76bfb814",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 32
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 33496
+      },
+      "writtenOn": "2024-08-27T08:16:04Z",
+      "side": 1,
+      "message": "I could use cmake like this :\ncmake ../ -DCMAKE_AR\u003d/usr/bin/llvm-ar  -DCMAKE_RANLIB\u003d/usr/bin/llvm-ranlib -DCMAKE_C_COMPILER\u003dclang -DCMAKE_CXX_COMPILER\u003dclang++ -DCMAKE_C_FLAGS\u003d\"-O2 -ffp-exception-behavior\u003dstrict\" -DCMAKE_CXX_FLAGS\u003d\"-O2 -ffp-exception-behavior\u003dstrict  -stdlib\u003dlibc++\" -DCMAKE_EXE_LINKER_FLAGS\u003d\"-stdlib\u003dlibc++ -lc++abi\" -DCMAKE_BUILD_TYPE\u003dDebug -DENABLE_CCACHE\u003d1 -DSANITIZE\u003daddress\n\nafter this : \n[address] $ /bin/bash -xe /var/jenkins/tmp/jenkins1298977864205605304.sh\n\nsince I dont have this path or the .sh file, I could not reproduce,\n\ncan you help here. to setup the system .",
+      "parentUuid": "1c7fc5f0_9ad15289",
+      "revId": "c730401b9e58622034862fb0baccc29db0356eff",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
