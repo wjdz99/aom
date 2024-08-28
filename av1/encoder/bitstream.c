@@ -3362,7 +3362,6 @@ uint32_t av1_write_obu_header(AV1LevelParams *const level_params,
       (obu_type == OBU_FRAME || obu_type == OBU_FRAME_HEADER))
     ++(*frame_header_count);
 
-  struct aom_write_bit_buffer wb = { dst, 0 };
   uint32_t size = 0;
 
   // The AV1 spec Version 1.0.0 with Errata 1 has the following requirements on
@@ -3389,17 +3388,19 @@ uint32_t av1_write_obu_header(AV1LevelParams *const level_params,
          obu_type == OBU_FRAME || obu_type == OBU_REDUNDANT_FRAME_HEADER);
   }
 
-  aom_wb_write_literal(&wb, 0, 1);  // forbidden bit.
-  aom_wb_write_literal(&wb, (int)obu_type, 4);
-  aom_wb_write_literal(&wb, obu_extension_flag, 1);
-  aom_wb_write_literal(&wb, 1, 1);  // obu_has_size_field
-  aom_wb_write_literal(&wb, 0, 1);  // reserved
+  const int obu_forbidden_bit = 0;
+  const int obu_has_size_field = 1;
+  const int obu_reserved_1bit = 0;
+  dst[0] = (obu_forbidden_bit << 7) | ((int)obu_type << 3) |
+           (obu_extension_flag << 2) | (obu_has_size_field << 1) |
+           obu_reserved_1bit;
+  size++;
 
   if (obu_extension_flag) {
-    aom_wb_write_literal(&wb, obu_extension & 0xFF, 8);
+    dst[1] = obu_extension & 0xFF;
+    size++;
   }
 
-  size = aom_wb_bytes_written(&wb);
   return size;
 }
 
