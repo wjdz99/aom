@@ -54,6 +54,46 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "45029b87_577f9b61",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 3443,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-08-29T19:10:46Z",
+      "side": 1,
+      "message": "This is preexisting, but a direct include of `\u003cstring.h\u003e` is missing.",
+      "range": {
+        "startLine": 3443,
+        "startChar": 2,
+        "endLine": 3443,
+        "endChar": 9
+      },
+      "revId": "3f8c646f9a958821ce66e6a43313e8b5cc158f9c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7e5839bd_c8faad5d",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 3447,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-08-29T19:10:46Z",
+      "side": 1,
+      "message": "Same doxygen comment here.",
+      "revId": "3f8c646f9a958821ce66e6a43313e8b5cc158f9c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "78fa04b0_767de5a2",
         "filename": "av1/encoder/bitstream.c",
         "patchSetId": 4
@@ -65,6 +105,23 @@
       "writtenOn": "2024-08-29T18:37:46Z",
       "side": 1,
       "message": "I try to use the same error message in this function to allow pooling of string literals.",
+      "revId": "3f8c646f9a958821ce66e6a43313e8b5cc158f9c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d2d70d7a_097a7a97",
+        "filename": "av1/encoder/bitstream.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-08-29T19:10:46Z",
+      "side": 1,
+      "message": "Since this isn\u0027t a doxygen block it won\u0027t be rendered by that tool. You can just have \u0027Deprecated\u0027.",
       "revId": "3f8c646f9a958821ce66e6a43313e8b5cc158f9c",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
