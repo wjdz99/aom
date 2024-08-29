@@ -75,6 +75,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "29882dea_4fb91067",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 3443,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-08-29T21:48:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "45029b87_577f9b61",
+      "range": {
+        "startLine": 3443,
+        "startChar": 2,
+        "endLine": 3443,
+        "endChar": 9
+      },
+      "revId": "3f8c646f9a958821ce66e6a43313e8b5cc158f9c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "7e5839bd_c8faad5d",
@@ -88,6 +112,24 @@
       "writtenOn": "2024-08-29T19:10:46Z",
       "side": 1,
       "message": "Same doxygen comment here.",
+      "revId": "3f8c646f9a958821ce66e6a43313e8b5cc158f9c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1936d73e_e3a43018",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 3447,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-08-29T21:48:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7e5839bd_c8faad5d",
       "revId": "3f8c646f9a958821ce66e6a43313e8b5cc158f9c",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -122,6 +164,24 @@
       "writtenOn": "2024-08-29T19:10:46Z",
       "side": 1,
       "message": "Since this isn\u0027t a doxygen block it won\u0027t be rendered by that tool. You can just have \u0027Deprecated\u0027.",
+      "revId": "3f8c646f9a958821ce66e6a43313e8b5cc158f9c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "15425cf2_fec22667",
+        "filename": "av1/encoder/bitstream.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-08-29T21:48:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d2d70d7a_097a7a97",
       "revId": "3f8c646f9a958821ce66e6a43313e8b5cc158f9c",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
