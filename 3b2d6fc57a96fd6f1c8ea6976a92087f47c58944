@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f8bf1e77_283e0957",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-08-29T15:08:41Z",
+      "side": 1,
+      "message": "Please file a bug report and add a `Bug:` line here.\n\nA bug report allows us to record additional info such as how to reproduce the bug. We can link to Eugene\u0027s CL (https://chromium-review.googlesource.com/c/chromium/src/+/5809671).",
+      "revId": "3b2d6fc57a96fd6f1c8ea6976a92087f47c58944",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9ad573a1_e4daeef0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-08-29T15:08:41Z",
+      "side": 1,
+      "message": "Hi Marco,\n\nThanks you for the bug fix. The fix looks correct. I have two suggestions.",
+      "revId": "3b2d6fc57a96fd6f1c8ea6976a92087f47c58944",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ae412cad_53344fdb",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 3735,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-08-29T15:08:41Z",
+      "side": 1,
+      "message": "Could you add a unit test? Hopefully it should be straightforward based on the test in Eugene\u0027s CL. The unit test will be helpful if we need to cherry-pick your bug fix to an older release branch.\n\nWe should also add tests that use an invalid ` AV1E_SET_SVC_REF_FRAME_CONFIG` and verify that libaom handles gracefully (ideally by returning an error from `aom_codec_control()` or `aom_codec_encode()`).",
+      "revId": "3b2d6fc57a96fd6f1c8ea6976a92087f47c58944",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
