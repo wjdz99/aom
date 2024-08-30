@@ -16,6 +16,24 @@
       "message": "Nit: Add a comment to explain why we don\u0027t test speed 0 for arm (because we run in qemu).",
       "revId": "228a49ada0009382537bb16d3e81ebc7017764f2",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5a3f5ccd_f4d11e91",
+        "filename": "test/av1_c_vs_simd_encode.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 360,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-08-30T18:08:06Z",
+      "side": 1,
+      "message": "Done. I also added a comment for x86 to explain Yunqing\u0027s earlier change.",
+      "parentUuid": "ebb63f9f_cbb469ce",
+      "revId": "228a49ada0009382537bb16d3e81ebc7017764f2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
