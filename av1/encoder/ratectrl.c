@@ -624,6 +624,15 @@ static int adjust_q_cbr(const AV1_COMP *cpi, int q, int active_worst_quality,
                          ? AOMMIN(8, AOMMAX(1, rc->q_1_frame / 16))
                          : AOMMIN(16, AOMMAX(1, rc->q_1_frame / 8));
   }
+  // For static content and stable buffer level: relax the limit
+  // on max_delta_down.
+  if (cpi->is_screen_content_type && cpi->sf.rt_sf.check_scene_detection &&
+      rc->frame_source_sad == 0 &&
+      p_rc->buffer_level > p_rc->optimal_buffer_level &&
+      cpi->oxcf.q_cfg.aq_mode == CYCLIC_REFRESH_AQ &&
+      cpi->cyclic_refresh->counter_encode_maxq_scene_change > 10) {
+    max_delta_down = AOMMAX(max_delta_down, 12);
+  }
   // If resolution changes or avg_frame_bandwidth significantly changed,
   // then set this flag to indicate change in target bits per macroblock.
   const int change_target_bits_mb =
