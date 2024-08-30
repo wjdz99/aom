@@ -624,6 +624,28 @@ static int adjust_q_cbr(const AV1_COMP *cpi, int q, int active_worst_quality,
                          ? AOMMIN(8, AOMMAX(1, rc->q_1_frame / 16))
                          : AOMMIN(16, AOMMAX(1, rc->q_1_frame / 8));
   }
+  // For screen static content with stable buffer level: relax the
+  // limit on max_delta_down. Only for high speeds levels for now to
+  // avoid bdrate regression.
+  if (cpi->is_screen_content_type && cpi->sf.rt_sf.check_scene_detection &&
+      cpi->oxcf.speed > 8 && rc->frame_source_sad == 0 && q > 35 &&
+      rc->static_since_last_scene_change &&
+      p_rc->buffer_level > p_rc->optimal_buffer_level &&
+      cpi->oxcf.q_cfg.aq_mode == CYCLIC_REFRESH_AQ &&
+      cpi->cyclic_refresh->counter_encode_maxq_scene_change > 4) {
+    const int qp_bias = 6;
+    int qp_delta = 4;
+    if (p_rc->buffer_level > (p_rc->optimal_buffer_level << 1)) {
+      qp_delta = 16;
+      q = q - qp_bias;
+    } else if (p_rc->buffer_level > ((3 * p_rc->optimal_buffer_level) >> 1)) {
+      qp_delta = 10;
+      q = q - (qp_bias >> 1);
+    } else if (p_rc->buffer_level > ((5 * p_rc->optimal_buffer_level) >> 2))
+      qp_delta = 6;
+    max_delta_down = AOMMAX(max_delta_down, qp_delta);
+  }
+
   // If resolution changes or avg_frame_bandwidth significantly changed,
   // then set this flag to indicate change in target bits per macroblock.
   const int change_target_bits_mb =
@@ -3307,7 +3329,11 @@ static void rc_scene_detection_onepass_rt(AV1_COMP *cpi,
   if (num_samples > 0)
     rc->percent_blocks_with_motion =
         ((num_samples - num_zero_temp_sad) * 100) / num_samples;
-  if (rc->high_source_sad) cpi->rc.frames_since_scene_change = 0;
+  if (rc->frame_source_sad > 0) rc->static_since_last_scene_change = 0;
+  if (rc->high_source_sad) {
+    cpi->rc.frames_since_scene_change = 0;
+    rc->static_since_last_scene_change = 1;
+  }
   // Update the high_motion_content_screen_rtc flag on TL0. Avoid the update
   // if too many consecutive frame drops occurred.
   const uint64_t thresh_high_motion = 9 * 64 * 64;
@@ -3704,6 +3730,7 @@ void av1_get_one_pass_rt_params(AV1_COMP *cpi, FRAME_TYPE *const frame_type,
     }
     rc->frame_number_encoded = 0;
     cpi->ppi->rtc_ref.non_reference_frame = 0;
+    rc->static_since_last_scene_change = 0;
   } else {
     *frame_type = INTER_FRAME;
     gf_group->update_type[cpi->gf_frame_index] = LF_UPDATE;
