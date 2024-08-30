@@ -2931,6 +2931,7 @@ static inline size_t get_bs_chunk_size(int tg_or_tile_size,
 
 // Initializes params required for pack bitstream tile.
 static void init_tile_pack_bs_params(AV1_COMP *const cpi, uint8_t *const dst,
+                                     size_t dst_size,
                                      struct aom_write_bit_buffer *saved_wb,
                                      PackBSParams *const pack_bs_params_arr,
                                      uint8_t obu_extn_header) {
@@ -2943,7 +2944,7 @@ static void init_tile_pack_bs_params(AV1_COMP *const cpi, uint8_t *const dst,
   // Tile group size in terms of number of tiles.
   const int tg_size_in_tiles = (num_tiles + num_tg_hdrs - 1) / num_tg_hdrs;
   uint8_t *tile_dst = dst;
-  uint8_t *tile_data_curr = dst;
+  size_t tile_dst_size = dst_size;
   // Max tile group count can not be more than MAX_TILES.
   int tg_size_mi[MAX_TILES] = { 0 };  // Size of tile group in mi units
   int tile_idx;
@@ -2999,14 +3000,20 @@ static void init_tile_pack_bs_params(AV1_COMP *const cpi, uint8_t *const dst,
     tg_buf_size[tg_idx] =
         get_bs_chunk_size(tg_size_mi[tg_idx], frame_size_mi, &remain_buf_size,
                           max_buf_size, is_last_tg);
+    if (tg_buf_size[tg_idx] > tile_dst_size) {
+      aom_internal_error(cm->error, AOM_CODEC_ERROR,
+                         "init_tile_pack_bs_params: output buffer full");
+    }
 
     pack_bs_params->dst = tile_dst;
     pack_bs_params->tile_data_curr = tile_dst;
+    pack_bs_params->tile_data_curr_size = tg_buf_size[tg_idx];
 
     // Write obu, tile group and frame header at first tile in the tile
     // group.
     av1_write_obu_tg_tile_headers(cpi, xd, pack_bs_params, tile_idx);
     tile_dst += tg_buf_size[tg_idx];
+    tile_dst_size -= tg_buf_size[tg_idx];
 
     // Exclude headers from tile group buffer size.
     tg_buf_size[tg_idx] -= pack_bs_params->curr_tg_hdr_size;
@@ -3014,6 +3021,8 @@ static void init_tile_pack_bs_params(AV1_COMP *const cpi, uint8_t *const dst,
   }
 
   tg_idx = 0;
+  tile_dst = NULL;
+  uint8_t *tile_data_curr = NULL;
   // Calculate bitstream buffer size of each tile in the tile group.
   for (tile_idx = 0; tile_idx < num_tiles; tile_idx++) {
     PackBSParams *const pack_bs_params = &pack_bs_params_arr[tile_idx];
@@ -3152,10 +3161,10 @@ static void prepare_pack_bs_workers(AV1_COMP *const cpi,
 // Accumulates data after pack bitsteam processing.
 static void accumulate_pack_bs_data(
     AV1_COMP *const cpi, const PackBSParams *const pack_bs_params_arr,
-    uint8_t *const dst, uint32_t *total_size, const FrameHeaderInfo *fh_info,
-    int *const largest_tile_id, unsigned int *max_tile_size,
-    uint32_t *const obu_header_size, uint8_t **tile_data_start,
-    const int num_workers) {
+    uint8_t *const dst, size_t dst_size, uint32_t *total_size,
+    const FrameHeaderInfo *fh_info, int *const largest_tile_id,
+    unsigned int *max_tile_size, uint32_t *const obu_header_size,
+    uint8_t **tile_data_start, const int num_workers) {
   const AV1_COMMON *const cm = &cpi->common;
   const CommonTileParams *const tiles = &cm->tiles;
   const int tile_count = tiles->cols * tiles->rows;
@@ -3163,6 +3172,7 @@ static void accumulate_pack_bs_data(
   size_t curr_tg_data_size = 0;
   int is_first_tg = 1;
   uint8_t *curr_tg_start = dst;
+  size_t curr_tg_start_size = dst_size;
   size_t src_offset = 0;
   size_t dst_offset = 0;
 
@@ -3174,6 +3184,7 @@ static void accumulate_pack_bs_data(
 
     if (pack_bs_params->new_tg) {
       curr_tg_start = dst + *total_size;
+      curr_tg_start_size = dst_size - *total_size;
       curr_tg_data_size = pack_bs_params->curr_tg_hdr_size;
       *tile_data_start += pack_bs_params->curr_tg_hdr_size;
       *obu_header_size = pack_bs_params->obu_header_size;
@@ -3192,10 +3203,11 @@ static void accumulate_pack_bs_data(
     if (tile_idx != 0) memmove(dst + dst_offset, dst + src_offset, tile_size);
 
     if (pack_bs_params->is_last_tile_in_tg)
-      av1_write_last_tile_info(
-          cpi, fh_info, pack_bs_params->saved_wb, &curr_tg_data_size,
-          curr_tg_start, &tile_size, tile_data_start, largest_tile_id,
-          &is_first_tg, *obu_header_size, pack_bs_params->obu_extn_header);
+      av1_write_last_tile_info(cpi, fh_info, pack_bs_params->saved_wb,
+                               &curr_tg_data_size, curr_tg_start,
+                               curr_tg_start_size, &tile_size, tile_data_start,
+                               largest_tile_id, &is_first_tg, *obu_header_size,
+                               pack_bs_params->obu_extn_header);
     src_offset += pack_bs_params->tile_buf_size;
     dst_offset += tile_size;
     *total_size += tile_size;
@@ -3209,12 +3221,15 @@ static void accumulate_pack_bs_data(
   }
 }
 
-void av1_write_tile_obu_mt(
-    AV1_COMP *const cpi, uint8_t *const dst, uint32_t *total_size,
-    struct aom_write_bit_buffer *saved_wb, uint8_t obu_extn_header,
-    const FrameHeaderInfo *fh_info, int *const largest_tile_id,
-    unsigned int *max_tile_size, uint32_t *const obu_header_size,
-    uint8_t **tile_data_start, const int num_workers) {
+void av1_write_tile_obu_mt(AV1_COMP *const cpi, uint8_t *const dst,
+                           size_t dst_size, uint32_t *total_size,
+                           struct aom_write_bit_buffer *saved_wb,
+                           uint8_t obu_extn_header,
+                           const FrameHeaderInfo *fh_info,
+                           int *const largest_tile_id,
+                           unsigned int *max_tile_size,
+                           uint32_t *const obu_header_size,
+                           uint8_t **tile_data_start, const int num_workers) {
   MultiThreadInfo *const mt_info = &cpi->mt_info;
 
   PackBSParams pack_bs_params[MAX_TILES];
@@ -3223,14 +3238,15 @@ void av1_write_tile_obu_mt(
   for (int tile_idx = 0; tile_idx < MAX_TILES; tile_idx++)
     pack_bs_params[tile_idx].total_size = &tile_size[tile_idx];
 
-  init_tile_pack_bs_params(cpi, dst, saved_wb, pack_bs_params, obu_extn_header);
+  init_tile_pack_bs_params(cpi, dst, dst_size, saved_wb, pack_bs_params,
+                           obu_extn_header);
   prepare_pack_bs_workers(cpi, pack_bs_params, pack_bs_worker_hook,
                           num_workers);
   launch_workers(mt_info, num_workers);
   sync_enc_workers(mt_info, &cpi->common, num_workers);
-  accumulate_pack_bs_data(cpi, pack_bs_params, dst, total_size, fh_info,
-                          largest_tile_id, max_tile_size, obu_header_size,
-                          tile_data_start, num_workers);
+  accumulate_pack_bs_data(cpi, pack_bs_params, dst, dst_size, total_size,
+                          fh_info, largest_tile_id, max_tile_size,
+                          obu_header_size, tile_data_start, num_workers);
 }
 
 // Deallocate memory for CDEF search multi-thread synchronization.
