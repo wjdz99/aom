@@ -51,7 +51,8 @@ typedef struct {
   TileBufferEnc buf;     // Structure to hold bitstream buffer and size
   uint32_t *total_size;  // Size of the bitstream buffer for the tile in bytes
   uint8_t *dst;          // Base address of tile bitstream buffer
-  uint8_t *tile_data_curr;   // Base address of tile-group bitstream buffer
+  uint8_t *tile_data_curr;     // Base address of tile-group bitstream buffer
+  size_t tile_data_curr_size;  // Size of tile-group bitstream buffer in bytes
   size_t tile_buf_size;      // Available bitstream buffer for the tile in bytes
   uint8_t obu_extn_header;   // Presence of OBU extension header
   uint32_t obu_header_size;  // Size of the OBU header
@@ -115,9 +116,10 @@ void av1_pack_tile_info(struct AV1_COMP *const cpi, struct ThreadData *const td,
 void av1_write_last_tile_info(
     struct AV1_COMP *const cpi, const FrameHeaderInfo *fh_info,
     struct aom_write_bit_buffer *saved_wb, size_t *curr_tg_data_size,
-    uint8_t *curr_tg_start, uint32_t *const total_size,
-    uint8_t **tile_data_start, int *const largest_tile_id,
-    int *const is_first_tg, uint32_t obu_header_size, uint8_t obu_extn_header);
+    uint8_t *curr_tg_start, size_t curr_tg_start_size,
+    uint32_t *const total_size, uint8_t **tile_data_start,
+    int *const largest_tile_id, int *const is_first_tg,
+    uint32_t obu_header_size, uint8_t obu_extn_header);
 
 /*!\brief Pack the bitstream for one frame
  *

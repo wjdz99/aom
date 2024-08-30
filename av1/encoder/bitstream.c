@@ -3753,7 +3753,7 @@ static void write_large_scale_tile_obu(
 
 // Packs information in the obu header for large scale tiles.
 static inline uint32_t pack_large_scale_tiles_in_tg_obus(
-    AV1_COMP *const cpi, uint8_t *const dst,
+    AV1_COMP *const cpi, uint8_t *const dst, size_t dst_size,
     struct aom_write_bit_buffer *saved_wb, uint8_t obu_extension_header,
     int *const largest_tile_id) {
   AV1_COMMON *const cm = &cpi->common;
@@ -3763,6 +3763,8 @@ static inline uint32_t pack_large_scale_tiles_in_tg_obus(
   unsigned int max_tile_col_size = 0;
   const int have_tiles = tiles->cols * tiles->rows > 1;
   uint8_t *data = dst;
+  // TODO: bug 42302568 - Use dst_size.
+  (void)dst_size;
 
   LargeTileFrameOBU lst_obu;
 
@@ -3858,15 +3860,16 @@ void av1_pack_tile_info(AV1_COMP *const cpi, ThreadData *const td,
 void av1_write_last_tile_info(
     AV1_COMP *const cpi, const FrameHeaderInfo *fh_info,
     struct aom_write_bit_buffer *saved_wb, size_t *curr_tg_data_size,
-    uint8_t *curr_tg_start, uint32_t *const total_size,
-    uint8_t **tile_data_start, int *const largest_tile_id,
-    int *const is_first_tg, uint32_t obu_header_size, uint8_t obu_extn_header) {
+    uint8_t *curr_tg_start, size_t curr_tg_start_size,
+    uint32_t *const total_size, uint8_t **tile_data_start,
+    int *const largest_tile_id, int *const is_first_tg,
+    uint32_t obu_header_size, uint8_t obu_extn_header) {
   // write current tile group size
   const size_t obu_payload_size = *curr_tg_data_size - obu_header_size;
-  const size_t length_field_size =
-      obu_memmove_unsafe(obu_header_size, obu_payload_size, curr_tg_start);
-  if (av1_write_uleb_obu_size_unsafe(obu_header_size, obu_payload_size,
-                                     curr_tg_start) != AOM_CODEC_OK) {
+  const size_t length_field_size = obu_memmove(
+      obu_header_size, obu_payload_size, curr_tg_start, curr_tg_start_size);
+  if (av1_write_uleb_obu_size(obu_header_size, obu_payload_size, curr_tg_start,
+                              curr_tg_start_size) != AOM_CODEC_OK) {
     aom_internal_error(cpi->common.error, AOM_CODEC_ERROR,
                        "av1_write_last_tile_info: output buffer full");
   }
@@ -3881,6 +3884,10 @@ void av1_write_last_tile_info(
 
   if (!(*is_first_tg) && cpi->common.features.error_resilient_mode) {
     // Make room for a duplicate Frame Header OBU.
+    if (fh_info->total_length + *curr_tg_data_size > curr_tg_start_size) {
+      aom_internal_error(cpi->common.error, AOM_CODEC_ERROR,
+                         "av1_write_last_tile_info: output buffer full");
+    }
     memmove(curr_tg_start + fh_info->total_length, curr_tg_start,
             *curr_tg_data_size);
 
@@ -3931,11 +3938,11 @@ void av1_accumulate_pack_bs_thread_data(AV1_COMP *const cpi,
 
 // Store information related to each default tile in the OBU header.
 static void write_tile_obu(
-    AV1_COMP *const cpi, uint8_t *const dst, uint32_t *total_size,
-    struct aom_write_bit_buffer *saved_wb, uint8_t obu_extn_header,
-    const FrameHeaderInfo *fh_info, int *const largest_tile_id,
-    unsigned int *max_tile_size, uint32_t *const obu_header_size,
-    uint8_t **tile_data_start) {
+    AV1_COMP *const cpi, uint8_t *const dst, size_t dst_size,
+    uint32_t *total_size, struct aom_write_bit_buffer *saved_wb,
+    uint8_t obu_extn_header, const FrameHeaderInfo *fh_info,
+    int *const largest_tile_id, unsigned int *max_tile_size,
+    uint32_t *const obu_header_size, uint8_t **tile_data_start) {
   AV1_COMMON *const cm = &cpi->common;
   MACROBLOCKD *const xd = &cpi->td.mb.e_mbd;
   const CommonTileParams *const tiles = &cm->tiles;
@@ -3947,6 +3954,7 @@ static void write_tile_obu(
   int tile_count = 0;
   size_t curr_tg_data_size = 0;
   uint8_t *tile_data_curr = dst;
+  size_t tile_data_curr_size = dst_size;
   int new_tg = 1;
   int is_first_tg = 1;
 
@@ -3959,6 +3967,7 @@ static void write_tile_obu(
       int is_last_tile_in_tg = 0;
       if (new_tg) {
         tile_data_curr = dst + *total_size;
+        tile_data_curr_size = dst_size - *total_size;
         tile_count = 0;
       }
       tile_count++;
@@ -3980,11 +3989,15 @@ static void write_tile_obu(
       pack_bs_params.saved_wb = saved_wb;
       pack_bs_params.tile_col = tile_col;
       pack_bs_params.tile_row = tile_row;
-      pack_bs_params.tile_data_curr = tile_data_curr;
+      pack_bs_params.tile_data_curr = NULL;
+      pack_bs_params.tile_data_curr_size = 0;
       pack_bs_params.total_size = total_size;
 
-      if (new_tg)
+      if (new_tg) {
+        pack_bs_params.tile_data_curr = tile_data_curr;
+        pack_bs_params.tile_data_curr_size = tile_data_curr_size;
         av1_write_obu_tg_tile_headers(cpi, xd, &pack_bs_params, tile_idx);
+      }
 
       av1_pack_tile_info(cpi, &cpi->td, &pack_bs_params);
 
@@ -4005,10 +4018,10 @@ static void write_tile_obu(
       }
 
       if (is_last_tile_in_tg)
-        av1_write_last_tile_info(cpi, fh_info, saved_wb, &curr_tg_data_size,
-                                 tile_data_curr, total_size, tile_data_start,
-                                 largest_tile_id, &is_first_tg,
-                                 *obu_header_size, obu_extn_header);
+        av1_write_last_tile_info(
+            cpi, fh_info, saved_wb, &curr_tg_data_size, tile_data_curr,
+            tile_data_curr_size, total_size, tile_data_start, largest_tile_id,
+            &is_first_tg, *obu_header_size, obu_extn_header);
       *total_size += (uint32_t)pack_bs_params.buf.size;
     }
   }
@@ -4105,7 +4118,7 @@ static int calc_pack_bs_mt_workers(const TileDataEnc *tile_data, int num_tiles,
 }
 
 static inline uint32_t pack_tiles_in_tg_obus(
-    AV1_COMP *const cpi, uint8_t *const dst,
+    AV1_COMP *const cpi, uint8_t *const dst, size_t dst_size,
     struct aom_write_bit_buffer *saved_wb, uint8_t obu_extension_header,
     const FrameHeaderInfo *fh_info, int *const largest_tile_id) {
   const CommonTileParams *const tiles = &cpi->common.tiles;
@@ -4122,13 +4135,14 @@ static inline uint32_t pack_tiles_in_tg_obus(
       cpi->mt_info.pack_bs_mt_enabled);
 
   if (num_workers > 1) {
-    av1_write_tile_obu_mt(cpi, dst, &total_size, saved_wb, obu_extension_header,
-                          fh_info, largest_tile_id, &max_tile_size,
-                          &obu_header_size, &tile_data_start, num_workers);
+    av1_write_tile_obu_mt(cpi, dst, dst_size, &total_size, saved_wb,
+                          obu_extension_header, fh_info, largest_tile_id,
+                          &max_tile_size, &obu_header_size, &tile_data_start,
+                          num_workers);
   } else {
-    write_tile_obu(cpi, dst, &total_size, saved_wb, obu_extension_header,
-                   fh_info, largest_tile_id, &max_tile_size, &obu_header_size,
-                   &tile_data_start);
+    write_tile_obu(cpi, dst, dst_size, &total_size, saved_wb,
+                   obu_extension_header, fh_info, largest_tile_id,
+                   &max_tile_size, &obu_header_size, &tile_data_start);
   }
 
   if (num_tiles > 1)
@@ -4143,8 +4157,6 @@ static uint32_t write_tiles_in_tg_obus(AV1_COMP *const cpi, uint8_t *const dst,
                                        uint8_t obu_extension_header,
                                        const FrameHeaderInfo *fh_info,
                                        int *const largest_tile_id) {
-  // TODO: bug 42302568 - Use dst_size.
-  (void)dst_size;
   AV1_COMMON *const cm = &cpi->common;
   const CommonTileParams *const tiles = &cm->tiles;
   *largest_tile_id = 0;
@@ -4163,10 +4175,10 @@ static uint32_t write_tiles_in_tg_obus(AV1_COMP *const cpi, uint8_t *const dst,
 
   if (tiles->large_scale)
     return pack_large_scale_tiles_in_tg_obus(
-        cpi, dst, saved_wb, obu_extension_header, largest_tile_id);
+        cpi, dst, dst_size, saved_wb, obu_extension_header, largest_tile_id);
 
-  return pack_tiles_in_tg_obus(cpi, dst, saved_wb, obu_extension_header,
-                               fh_info, largest_tile_id);
+  return pack_tiles_in_tg_obus(cpi, dst, dst_size, saved_wb,
+                               obu_extension_header, fh_info, largest_tile_id);
 }
 
 // Returns the number of bytes written on success. Returns 0 on failure.
