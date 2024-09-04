@@ -13,6 +13,7 @@
 # Use $AOM_TEST_TOOLS_COMMON_SH as a pseudo include guard.
 if [ -z "${AOM_TEST_TOOLS_COMMON_SH}" ]; then
 AOM_TEST_TOOLS_COMMON_SH=included
+TOOLS_COMMON_DIR=$(cd "$(dirname "$0")"; pwd)
 
 set -e
 devnull='> /dev/null 2>&1'
@@ -90,8 +91,7 @@ cmake_version() {
 # version used by the cmake build when git is unavailable.
 source_version() {
   if git --version > /dev/null 2>&1; then
-    (cd "$(dirname "${0}")"
-    git describe)
+    git -C "${TOOLS_COMMON_DIR}" describe
   else
     cmake_version
   fi
