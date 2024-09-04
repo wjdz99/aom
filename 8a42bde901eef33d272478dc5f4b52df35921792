@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e68cdb94_b8f82941",
+        "filename": "test/tools_common.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-09-04T21:27:49Z",
+      "side": 1,
+      "message": "Nit: Add a blank line to make it cleat that this line is not part of the pseudo include guard.\n\nIt seems that we can move this line after line 20, to be with the other variable assignments.",
+      "revId": "8a42bde901eef33d272478dc5f4b52df35921792",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1a87a8b4_4f8d512f",
+        "filename": "test/tools_common.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-09-04T21:27:49Z",
+      "side": 1,
+      "message": "Optional: Might be good to document that this variable is set to empty if the --show-program-output option is specified.\n\nThis can be done in a separate CL.",
+      "revId": "8a42bde901eef33d272478dc5f4b52df35921792",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "01426157_9512bfcc",
+        "filename": "test/tools_common.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-09-04T21:27:49Z",
+      "side": 1,
+      "message": "I am curious where the test changes the working directory.\n\nAlso, to check my understanding: the original code works if `${0}` is an absolute pathname. Correct?",
+      "revId": "8a42bde901eef33d272478dc5f4b52df35921792",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
