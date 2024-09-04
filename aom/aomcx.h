@@ -1281,7 +1281,11 @@ enum aome_enc_control_id {
   AV1E_SET_SVC_PARAMS = 132,
 
   /*!\brief Codec control function to set reference frame config:
-   * the ref_idx and the refresh flags for each buffer slot.
+   * the reference flags, which indicate which of the 7 possible references
+   * are used for prediction;
+   * the ref_idx, which maps a reference to one of the 8 buffer slots;
+   * and the refresh flags, which indicate if a buffer is updated/refreshed.
+   * Examples for usage (for RTC encoding) are in: examples/svc_encoder_rtc.c.
    * aom_svc_ref_frame_config_t* parameter
    */
   AV1E_SET_SVC_REF_FRAME_CONFIG = 133,
