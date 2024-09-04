@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4015af6b_51712245",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-09-04T23:18:12Z",
+      "side": 1,
+      "message": "I propose we formalize experimental features in the API so that we can let early adopters try them out and iterate, before we promote the new features to the stable API with backward compatibility guarantee.",
+      "revId": "f09df890e37181dd79ca77f10e3d678b83eb99eb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "132b7e36_f7de729a",
+        "filename": "aom/aom_codec.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 230,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-09-04T23:18:12Z",
+      "side": 1,
+      "message": "Right now only two `AOM_CODEC_USE_` macros are defined:\n\n```\naom/aom_encoder.h:#define AOM_CODEC_USE_PSNR 0x10000         /**\u003c Calculate PSNR on each frame */\naom/aom_encoder.h:#define AOM_CODEC_USE_HIGHBITDEPTH 0x40000 /**\u003c Use high bitdepth */\n```\n\nI allocated the bits among codec, decoder, and encoder so that these two `AOM_CODEC_USE_` macros conform to the allocation.",
+      "revId": "f09df890e37181dd79ca77f10e3d678b83eb99eb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
