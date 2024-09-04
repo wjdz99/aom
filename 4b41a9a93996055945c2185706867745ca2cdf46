@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9b824548_00433be8",
+        "filename": "aom_dsp/aom_dsp_rtcd_defs.pl",
+        "patchSetId": 58
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2024-09-04T17:34:22Z",
+      "side": 1,
+      "message": "maybe still good to keep line length to \u003c\u003d 80?",
+      "range": {
+        "startLine": 66,
+        "startChar": 0,
+        "endLine": 66,
+        "endChar": 103
+      },
+      "revId": "4b41a9a93996055945c2185706867745ca2cdf46",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "312c9e4f_e4d51f8c",
+        "filename": "aom_dsp/aom_dsp_rtcd_defs.pl",
+        "patchSetId": 58
+      },
+      "lineNbr": 448,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2024-09-04T17:34:22Z",
+      "side": 1,
+      "message": "keep line length \u003c\u003d 80",
+      "range": {
+        "startLine": 448,
+        "startChar": 0,
+        "endLine": 448,
+        "endChar": 101
+      },
+      "revId": "4b41a9a93996055945c2185706867745ca2cdf46",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "530c38cf_cbafc35e",
+        "filename": "av1/common/av1_rtcd_defs.pl",
+        "patchSetId": 58
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2024-09-04T17:34:22Z",
+      "side": 1,
+      "message": "line length \u003c\u003d 80",
+      "range": {
+        "startLine": 107,
+        "startChar": 0,
+        "endLine": 107,
+        "endChar": 101
+      },
+      "revId": "4b41a9a93996055945c2185706867745ca2cdf46",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b51e0711_665d5cab",
+        "filename": "av1/common/av1_rtcd_defs.pl",
+        "patchSetId": 58
+      },
+      "lineNbr": 523,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2024-09-04T17:34:22Z",
+      "side": 1,
+      "message": "same here",
+      "range": {
+        "startLine": 523,
+        "startChar": 0,
+        "endLine": 523,
+        "endChar": 151
+      },
+      "revId": "4b41a9a93996055945c2185706867745ca2cdf46",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
