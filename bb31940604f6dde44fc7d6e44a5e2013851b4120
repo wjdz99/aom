@@ -34,6 +34,24 @@
       "parentUuid": "977e4098_9a59da88",
       "revId": "bb31940604f6dde44fc7d6e44a5e2013851b4120",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7098cf1e_f94825d7",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 31817
+      },
+      "writtenOn": "2024-09-04T10:39:18Z",
+      "side": 1,
+      "message": "Unfortunately just by manual inspection and reasoning in this case. The accumulator is thankfully constant so will never be the critical path in an out-of-order micro-architecture with a sufficiently wide out of order window. It would be nice to have such a tool though!",
+      "parentUuid": "be02fa3b_4bbaeba0",
+      "revId": "bb31940604f6dde44fc7d6e44a5e2013851b4120",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ],
   "submitRequirementResults": [
