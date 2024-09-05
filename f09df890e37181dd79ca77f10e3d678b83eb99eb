@@ -33,6 +33,24 @@
       "message": "Right now only two `AOM_CODEC_USE_` macros are defined:\n\n```\naom/aom_encoder.h:#define AOM_CODEC_USE_PSNR 0x10000         /**\u003c Calculate PSNR on each frame */\naom/aom_encoder.h:#define AOM_CODEC_USE_HIGHBITDEPTH 0x40000 /**\u003c Use high bitdepth */\n```\n\nI allocated the bits among codec, decoder, and encoder so that these two `AOM_CODEC_USE_` macros conform to the allocation.",
       "revId": "f09df890e37181dd79ca77f10e3d678b83eb99eb",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "53bf7281_6bf349e8",
+        "filename": "aom/aom_codec.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 230,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-09-05T18:55:44Z",
+      "side": 1,
+      "message": "\u003e Right now only two `AOM_CODEC_USE_` macros are defined:\n\u003e \n\u003e ```\n\u003e aom/aom_encoder.h:#define AOM_CODEC_USE_PSNR 0x10000         /**\u003c Calculate PSNR on each frame */\n\u003e aom/aom_encoder.h:#define AOM_CODEC_USE_HIGHBITDEPTH 0x40000 /**\u003c Use high bitdepth */\n\u003e ```\n\u003e \n\u003e I allocated the bits among codec, decoder, and encoder so that these two `AOM_CODEC_USE_` macros conform to the allocation.\n\nThe decoder and encoder flags can overlap, but it\u0027s fine to keep them separate since we don\u0027t anticipate having too many.",
+      "parentUuid": "132b7e36_f7de729a",
+      "revId": "f09df890e37181dd79ca77f10e3d678b83eb99eb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
