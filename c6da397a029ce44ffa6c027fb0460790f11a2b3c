@@ -35,6 +35,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "01d21790_358d3066",
+        "filename": "aom/aomcx.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 1283,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2024-09-05T21:12:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a4cffb68_b4bf236f",
+      "revId": "c6da397a029ce44ffa6c027fb0460790f11a2b3c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "cbe346c1_78dde8af",
@@ -48,6 +66,24 @@
       "writtenOn": "2024-09-05T19:10:07Z",
       "side": 1,
       "message": "Nit: It may be clearer to change `reference[7]` to `reference[i]`, change `ref_idx[7]` to `ref_idx[i]`, and change `refresh[8]` to `refresh[i]`.\n\nI.e., in these comments we are referring an array element rather than an array, so using the index `i` suggests it is an array element. Also, `reference[7]` could be misinterpreted as the array element at index 7.",
+      "revId": "c6da397a029ce44ffa6c027fb0460790f11a2b3c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1c4300bd_b3157237",
+        "filename": "aom/aomcx.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 1730,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2024-09-05T21:12:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cbe346c1_78dde8af",
       "revId": "c6da397a029ce44ffa6c027fb0460790f11a2b3c",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
