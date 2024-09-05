@@ -20,6 +20,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "e23ff64d_ad3d4901",
+        "filename": "aom/aomcx.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 1287,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2024-09-05T18:52:09Z",
+      "side": 1,
+      "message": "Moved the commments to the struct members below.",
+      "parentUuid": "6fd526cd_d39818a3",
+      "revId": "0b04cc6282f6af90e528ec11e917fc96630e18cf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "a8629631_404079bd",
         "filename": "aom/aomcx.h",
         "patchSetId": 1
@@ -31,6 +49,24 @@
       "writtenOn": "2024-09-04T19:37:32Z",
       "side": 1,
       "message": "Please add that this is a boolean and should be set to 0 or 1.\n\nAlso explain what it means if this flag is set to 1.\n\nNote: I believe the term \"flag\" means a boolean flag. But it is a little ambiguous. Better to be explicit.",
+      "revId": "0b04cc6282f6af90e528ec11e917fc96630e18cf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5098d6ab_fb8da59e",
+        "filename": "aom/aomcx.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 1730,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2024-09-05T18:52:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a8629631_404079bd",
       "revId": "0b04cc6282f6af90e528ec11e917fc96630e18cf",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -48,6 +84,24 @@
       "writtenOn": "2024-09-04T19:37:32Z",
       "side": 1,
       "message": "Please add \"(0..7)\" after \"Buffer slot index\" to indicate the possible values of the buffer slot index.\n\nI believe there are eight buffer slots (based on the comment in line 1733), right?",
+      "revId": "0b04cc6282f6af90e528ec11e917fc96630e18cf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "05c1e4da_70f6b96b",
+        "filename": "aom/aomcx.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 1731,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2024-09-05T18:52:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e2672d0d_1c668c7f",
       "revId": "0b04cc6282f6af90e528ec11e917fc96630e18cf",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -101,6 +155,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "38f7a71d_dd41f83d",
+        "filename": "aom/aomcx.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 1732,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2024-09-05T18:52:09Z",
+      "side": 1,
+      "message": "There is no spec on it, this encoder control was carried over from libvpx-vp9 svc. There are examples in the sample encoder: examples/svc_encoder_rtc.c",
+      "parentUuid": "a9ea980c_4b7decf2",
+      "range": {
+        "startLine": 1732,
+        "startChar": 6,
+        "endLine": 1732,
+        "endChar": 13
+      },
+      "revId": "0b04cc6282f6af90e528ec11e917fc96630e18cf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "551e3a18_4d1ac0b2",
         "filename": "aom/aomcx.h",
         "patchSetId": 1
@@ -112,6 +190,24 @@
       "writtenOn": "2024-09-04T19:37:32Z",
       "side": 1,
       "message": "Please add that this is a boolean and should be set to 0 or 1.\n\nAlso explain what it means if this flag is 1.",
+      "revId": "0b04cc6282f6af90e528ec11e917fc96630e18cf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7bcbfc3f_aea011b8",
+        "filename": "aom/aomcx.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 1733,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2024-09-05T18:52:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "551e3a18_4d1ac0b2",
       "revId": "0b04cc6282f6af90e528ec11e917fc96630e18cf",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
