@@ -357,7 +357,8 @@ int av1_svc_primary_ref_frame(const AV1_COMP *const cpi) {
     // when set of enhancement layers are dropped (continued decoding starting
     // at next base TL0), so error_resilience can be off/0 for all layers.
     fb_idx = get_ref_frame_map_idx(cm, LAST_FRAME);
-    if (svc->spatial_layer_fb[fb_idx] == svc->spatial_layer_id &&
+    if (cpi->ppi->rtc_ref.reference[0] == 1 &&
+        svc->spatial_layer_fb[fb_idx] == svc->spatial_layer_id &&
         (svc->temporal_layer_fb[fb_idx] < svc->temporal_layer_id ||
          svc->temporal_layer_fb[fb_idx] == 0)) {
       primary_ref_frame = 0;  // LAST_FRAME: ref_frame - LAST_FRAME
