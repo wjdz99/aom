@@ -629,7 +629,7 @@ static void set_layer_pattern(
   // Set the reference map buffer idx for the 7 references:
   // LAST_FRAME (0), LAST2_FRAME(1), LAST3_FRAME(2), GOLDEN_FRAME(3),
   // BWDREF_FRAME(4), ALTREF2_FRAME(5), ALTREF_FRAME(6).
-  for (i = 0; i < INTER_REFS_PER_FRAME; i++) ref_frame_config->ref_idx[i] = i;
+  for (i = 0; i < INTER_REFS_PER_FRAME; i++) ref_frame_config->ref_idx[i] = 0;
   for (i = 0; i < INTER_REFS_PER_FRAME; i++) ref_frame_config->reference[i] = 0;
   for (i = 0; i < REF_FRAMES; i++) ref_frame_config->refresh[i] = 0;
 
@@ -754,7 +754,8 @@ static void set_layer_pattern(
         ref_frame_config->reference[SVC_LAST_FRAME] = 1;
       } else if ((superframe_cnt - 2) % 4 == 0) {
         layer_id->temporal_layer_id = 1;
-        // Middle layer (TL1): update LAST2, only reference LAST (TL0).
+        // Middle layer (TL1): update GOLDEN, only reference LAST (TL0).
+        ref_frame_config->ref_idx[SVC_GOLDEN_FRAME] = 1;
         ref_frame_config->refresh[1] = 1;
         ref_frame_config->reference[SVC_LAST_FRAME] = 1;
       } else if ((superframe_cnt - 3) % 4 == 0) {
@@ -762,8 +763,8 @@ static void set_layer_pattern(
         // Second top layer: no updates, only reference LAST.
         // Set buffer idx for LAST to slot 1, since that was the slot
         // updated in previous frame. So LAST is TL1 frame.
-        ref_frame_config->ref_idx[SVC_LAST_FRAME] = 1;
-        ref_frame_config->ref_idx[SVC_LAST2_FRAME] = 0;
+        for (i = 0; i < INTER_REFS_PER_FRAME; i++)
+          ref_frame_config->ref_idx[i] = 1;
         ref_frame_config->reference[SVC_LAST_FRAME] = 1;
       }
       break;
