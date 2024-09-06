@@ -3,6 +3,23 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "6d444cdc_f05e277c",
+        "filename": "aom_dsp/arm/intrapred_neon.c",
+        "patchSetId": 61
+      },
+      "lineNbr": 2081,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-09-06T22:59:30Z",
+      "side": 1,
+      "message": "Apply the following patch to this file:\n\n```\ndiff --git a/aom_dsp/arm/intrapred_neon.c b/aom_dsp/arm/intrapred_neon.c\nindex 973046cdc9..0a1b32b043 100644\n--- a/aom_dsp/arm/intrapred_neon.c\n+++ b/aom_dsp/arm/intrapred_neon.c\n@@ -2069,6 +2069,7 @@ void av1_dr_prediction_z2_neon(uint8_t *dst, ptrdiff_t stride, int bw, int bh,\n \n /* ---------------------P R E D I C T I O N   Z 3--------------------------- */\n \n+#if !CONFIG_REALTIME_ONLY || CONFIG_AV1_DECODER\n static AOM_FORCE_INLINE void z3_transpose_arrays_u8_16x4(const uint8x16_t *x,\n                                                          uint8x16x2_t *d) {\n   uint8x16x2_t w0 \u003d vzipq_u8(x[0], x[1]);\n@@ -2079,6 +2080,7 @@ static AOM_FORCE_INLINE void z3_transpose_arrays_u8_16x4(const uint8x16_t *x,\n   d[1] \u003d aom_reinterpretq_u8_u16_x2(vzipq_u16(vreinterpretq_u16_u8(w0.val[1]),\n                                               vreinterpretq_u16_u8(w1.val[1])));\n }\n+#endif  // !CONFIG_REALTIME_ONLY || CONFIG_AV1_DECODER\n \n static AOM_FORCE_INLINE void z3_transpose_arrays_u8_4x4(const uint8x8_t *x,\n                                                         uint8x8x2_t *d) {\n```",
+      "revId": "f3cf370b2fafec2cdab56900cd7eec11c95de7f2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "af03ca60_94d0f7ff",
         "filename": "test/av1_fwd_txfm2d_test.cc",
         "patchSetId": 61
