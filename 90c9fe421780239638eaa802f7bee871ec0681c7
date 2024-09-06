@@ -88,6 +88,24 @@
       "parentUuid": "8b1dc614_2f8f8287",
       "revId": "90c9fe421780239638eaa802f7bee871ec0681c7",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "42327e09_4268c4f4",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 3530,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-09-06T20:34:56Z",
+      "side": 1,
+      "message": "Why would lint warn about the `unsigned long` cast?",
+      "parentUuid": "9465927e_03132a95",
+      "revId": "90c9fe421780239638eaa802f7bee871ec0681c7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
