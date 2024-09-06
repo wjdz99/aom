@@ -3101,12 +3101,33 @@ static inline void write_uncompressed_header_obu(
         const int gld_ref = get_ref_frame_map_idx(cm, GOLDEN_FRAME);
         aom_wb_write_literal(wb, gld_ref, REF_FRAMES_LOG2);
       }
-
+      int num_references = 0;
+      if (cpi->ppi->rtc_ref.set_ref_frame_config) {
+        for (ref_frame = LAST_FRAME; ref_frame <= ALTREF_FRAME; ++ref_frame) {
+          if (cpi->ppi->rtc_ref.reference[ref_frame - 1] == 1) num_references++;
+        }
+      }
       for (ref_frame = LAST_FRAME; ref_frame <= ALTREF_FRAME; ++ref_frame) {
         assert(get_ref_frame_map_idx(cm, ref_frame) != INVALID_IDX);
-        if (!current_frame->frame_refs_short_signaling)
-          aom_wb_write_literal(wb, get_ref_frame_map_idx(cm, ref_frame),
-                               REF_FRAMES_LOG2);
+        if (!current_frame->frame_refs_short_signaling) {
+          if (cpi->ppi->rtc_ref.set_ref_frame_config && num_references == 1 &&
+              ref_frame > LAST_FRAME && cpi->ppi->rtc_ref.reference[0] == 1 &&
+              !cpi->rc.rtc_external_ratectrl) {
+            // For the usage of set_ref_frame_config, with LAST set as the
+            // only reference: if any of the other references are not used
+            // set their ref_map_idx to the LAST reference.
+            // Exclude rtc_external_raterctrl for now until the failing tests
+            // are resolved.
+            const int referenced = cpi->ppi->rtc_ref.reference[ref_frame - 1];
+            const int map_idx = referenced
+                                    ? get_ref_frame_map_idx(cm, ref_frame)
+                                    : cpi->ppi->rtc_ref.ref_idx[0];
+            aom_wb_write_literal(wb, map_idx, REF_FRAMES_LOG2);
+          } else {
+            aom_wb_write_literal(wb, get_ref_frame_map_idx(cm, ref_frame),
+                                 REF_FRAMES_LOG2);
+          }
+        }
         if (seq_params->frame_id_numbers_present_flag) {
           int i = get_ref_frame_map_idx(cm, ref_frame);
           int frame_id_len = seq_params->frame_id_length;
