@@ -87,6 +87,30 @@
       },
       "revId": "fea6d9b5c68d0cade5ce51c0bc0278e88b10519f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "69e641ba_0d6261a9",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 3461,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-09-07T18:39:47Z",
+      "side": 1,
+      "message": "Thank you for the careful review! It\u0027s important for these CLs. I really appreciate it.\n\n\u003e I think this would be based on the checks in av1_cx_iface.c:\n\u003e https://aomedia.googlesource.com/aom/+/d5265b173616ce62de231cd1b1eae853ad03641e/av1/av1_cx_iface.c#3081\n\u003e https://aomedia.googlesource.com/aom/+/d5265b173616ce62de231cd1b1eae853ad03641e/av1/av1_cx_iface.c#3099\n\nYes. Those two checks ensure that `ctx-\u003ecx_data_sz \u003c\u003d SIZE_MAX`. But we know more -- `ctx-\u003ecx_data_sz` is the size we passed to a successful `malloc()` call:\n\nhttps://aomedia.googlesource.com/aom/+/d5265b173616ce62de231cd1b1eae853ad03641e/av1/av1_cx_iface.c#3106\n\nIn practice, we know that size must be less than `SIZE_MAX / 2`.\n\nI have decided to use the safer form of the check, which avoids addition. Since I am not finished with adding output buffer bounds checks, we can\u0027t really assume subtraction is safe without checking. So I also check if subtraction is safe. But if that check fails, we have detected an output buffer overflow. So I added error messages to report that. In `obu_memmove()`, where we cannot call `aom_internal_error()`, I added an `assert(0)` if that check fails.",
+      "parentUuid": "50ff192d_1b15221c",
+      "range": {
+        "startLine": 3461,
+        "startChar": 12,
+        "endLine": 3461,
+        "endChar": 45
+      },
+      "revId": "fea6d9b5c68d0cade5ce51c0bc0278e88b10519f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
