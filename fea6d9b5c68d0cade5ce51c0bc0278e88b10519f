@@ -39,6 +39,30 @@
       },
       "revId": "fea6d9b5c68d0cade5ce51c0bc0278e88b10519f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a81ac4ee_89df7926",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 3461,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-09-07T00:07:33Z",
+      "side": 1,
+      "message": "Thanks for the comment. I considered this issue, and my justification is as follows.\n\n`move_offset` is equal to 2. I.e., the temporal delimiter OBU is always 2 bytes long.\n\n`ctx-\u003ecx_data_sz` is the size of an already allocated buffer. In practice it must be \u003c `SIZE_MAX / 2`. (This is a key part of the proof.)\n\nWe also know `cpi_data.frame_size \u003c\u003d ctx-\u003ecx_data_sz`. It follows that `cpi_data.frame_size \u003c SIZE_MAX / 2`.\n\nTherefore, `move_offset + cpi_data.frame_size \u003c 2 + SIZE_MAX / 2 \u003c SIZE_MAX`.\n\nPlease check my argument. Thanks.\n\nThis fact is not immediately obvious, so I wonder if we rewrite the check as follows:\n\n```\n        if (move_offset \u003e ctx-\u003ecx_data_sz - cpi_data.frame_size) {\n          aom_internal_error(\u0026ppi-\u003eerror, AOM_CODEC_ERROR, NULL);\n        }\n```\n\nThis form only requires `cpi_data.frame_size \u003c\u003d ctx-\u003ecx_data_sz`.",
+      "parentUuid": "7b7c79a6_ef3af0df",
+      "range": {
+        "startLine": 3461,
+        "startChar": 12,
+        "endLine": 3461,
+        "endChar": 45
+      },
+      "revId": "fea6d9b5c68d0cade5ce51c0bc0278e88b10519f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
