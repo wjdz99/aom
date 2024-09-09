@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bd2ce1a1_1ebd85e5",
+        "filename": "av1/encoder/svc_layercontext.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 483,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-09-09T21:06:54Z",
+      "side": 0,
+      "message": "Not sure if you wrote this as separate loops intentionally.",
+      "revId": "d5265b173616ce62de231cd1b1eae853ad03641e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
