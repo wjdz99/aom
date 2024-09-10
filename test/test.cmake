@@ -158,6 +158,7 @@ if(NOT BUILD_SHARED_LIBS)
 
   if(CONFIG_REALTIME_ONLY AND NOT CONFIG_AV1_DECODER)
     list(REMOVE_ITEM AOM_UNIT_TEST_COMMON_SOURCES
+                     "${AOM_ROOT}/test/cfl_test.cc"
                      "${AOM_ROOT}/test/hiprec_convolve_test.cc"
                      "${AOM_ROOT}/test/hiprec_convolve_test_util.cc"
                      "${AOM_ROOT}/test/hiprec_convolve_test_util.h")
