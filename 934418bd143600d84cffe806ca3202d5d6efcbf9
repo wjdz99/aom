@@ -24,6 +24,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "0765f016_e31efd00",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 26
+      },
+      "lineNbr": 3109,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2024-09-10T16:45:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4839a2bb_1fcba374",
+      "range": {
+        "startLine": 3109,
+        "startChar": 0,
+        "endLine": 3109,
+        "endChar": 37
+      },
+      "revId": "934418bd143600d84cffe806ca3202d5d6efcbf9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "922d380e_35f21d2a",
@@ -37,6 +61,30 @@
       "writtenOn": "2024-09-10T01:34:33Z",
       "side": 1,
       "message": "I don\u0027t think it\u0027s necessary to use a variable here since it\u0027s only used once.",
+      "range": {
+        "startLine": 3122,
+        "startChar": 22,
+        "endLine": 3122,
+        "endChar": 32
+      },
+      "revId": "934418bd143600d84cffe806ca3202d5d6efcbf9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "89173e5e_27a06b21",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 26
+      },
+      "lineNbr": 3122,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2024-09-10T16:45:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "922d380e_35f21d2a",
       "range": {
         "startLine": 3122,
         "startChar": 22,
