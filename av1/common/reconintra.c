@@ -1864,6 +1864,7 @@ void av1_predict_intra_block_facade(const AV1_COMMON *cm, MACROBLOCKD *xd,
       assert(block_size_high[plane_bsize] == tx_size_high[tx_size]);
     }
 #endif
+#if !CONFIG_REALTIME_ONLY || CONFIG_AV1_DECODER
     CFL_CTX *const cfl = &xd->cfl;
     CFL_PRED_TYPE pred_plane = get_cfl_pred_type(plane);
     if (!cfl->dc_pred_is_cached[pred_plane]) {
@@ -1880,6 +1881,7 @@ void av1_predict_intra_block_facade(const AV1_COMMON *cm, MACROBLOCKD *xd,
       cfl_load_dc_pred(xd, dst, dst_stride, tx_size, pred_plane);
     }
     av1_cfl_predict_block(xd, dst, dst_stride, tx_size, plane);
+#endif
     return;
   }
   av1_predict_intra_block(
