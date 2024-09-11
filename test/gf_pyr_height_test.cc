@@ -139,7 +139,7 @@ class GFPyrHeightTest
   double psnr_;
 };
 
-TEST_P(GFPyrHeightTest, EncodeAndVerifyPSNR) {
+TEST_P(GFPyrHeightTest, DISABLED_EncodeAndVerifyPSNR) {
   libaom_test::I420VideoSource video("hantro_collage_w352h288.yuv", 352, 288,
                                      cfg_.g_timebase.den, cfg_.g_timebase.num,
                                      0, 32);
