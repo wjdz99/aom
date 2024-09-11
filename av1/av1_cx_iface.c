@@ -2879,9 +2879,11 @@ static aom_codec_err_t encoder_init(aom_codec_ctx_t *ctx) {
       reduce_ratio(&priv->timestamp_ratio);
 
       set_encoder_config(&priv->oxcf, &priv->cfg, &priv->extra_cfg);
-      if (priv->oxcf.rc_cfg.mode != AOM_CBR &&
+      if (priv->oxcf.rc_cfg.mode != AOM_CBR && 0 &&
           priv->oxcf.pass == AOM_RC_ONE_PASS && priv->oxcf.mode == GOOD) {
         // Enable look ahead - enabled for AOM_Q, AOM_CQ, AOM_VBR
+        // Does not work for spatial layers, but no svc flag to disable at init,
+        // so use && 0 to disable for now.
         *num_lap_buffers =
             AOMMIN((int)priv->cfg.g_lag_in_frames,
                    AOMMIN(MAX_LAP_BUFFERS, priv->oxcf.kf_cfg.key_freq_max +
@@ -3895,11 +3897,26 @@ static aom_codec_err_t ctrl_set_svc_ref_frame_config(aom_codec_alg_priv_t *ctx,
       return AOM_CODEC_INVALID_PARAM;
     cpi->ppi->rtc_ref.reference[i] = data->reference[i];
     cpi->ppi->rtc_ref.ref_idx[i] = data->ref_idx[i];
+    for (int ss = 0; ss < cpi->svc.number_spatial_layers; ss++) {
+      cpi->ppi->rtc_ref.reference_arf[ss][i] = data->reference_arf[ss][i];
+      cpi->ppi->rtc_ref.ref_idx_arf[ss][i] = data->ref_idx_arf[ss][i];
+    }
   }
   for (unsigned int i = 0; i < REF_FRAMES; ++i) {
     if (data->refresh[i] != 0 && data->refresh[i] != 1)
       return AOM_CODEC_INVALID_PARAM;
     cpi->ppi->rtc_ref.refresh[i] = data->refresh[i];
+    for (int ss = 0; ss < cpi->svc.number_spatial_layers; ss++) {
+      cpi->ppi->rtc_ref.refresh_arf[ss][i] = data->refresh_arf[ss][i];
+    }
+  }
+  if (data->gop_interval > 4) {
+    cpi->ppi->rtc_ref.gop_interval = data->gop_interval;
+    cpi->ppi->rtc_ref.layer_depth = data->layer_depth;
+  } else {
+    // No future alt_ref, gop_interval too small.
+    cpi->ppi->rtc_ref.gop_interval = 0;
+    cpi->ppi->rtc_ref.layer_depth = 0;
   }
   cpi->svc.use_flexible_mode = 1;
   cpi->svc.ksvc_fixed_mode = 0;
