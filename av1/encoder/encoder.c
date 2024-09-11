@@ -3200,12 +3200,22 @@ static int encode_with_recode_loop_and_filter(AV1_COMP *cpi, size_t *size,
     cpi->do_update_frame_probs_interpfilter[i] = 0;
   }
 
+  GF_GROUP *gf_group = &cpi->ppi->gf_group;
+  if (cpi->ppi->rtc_ref.set_ref_frame_config && cpi->svc.spatial_layer_id > 0 &&
+      cpi->gf_frame_index == 0) {
+    cpi->common.current_frame.frame_type = INTER_FRAME;
+    gf_group->update_type[cpi->gf_frame_index] = LF_UPDATE;
+    gf_group->refbuf_state[cpi->gf_frame_index] = REFBUF_UPDATE;
+  }
+
   cpi->do_update_vbr_bits_off_target_fast = 0;
   int err;
 #if CONFIG_REALTIME_ONLY
   err = encode_without_recode(cpi);
 #else
-  if (cpi->sf.hl_sf.recode_loop == DISALLOW_RECODE)
+  if (cpi->sf.hl_sf.recode_loop == DISALLOW_RECODE ||
+      (cpi->oxcf.pass == AOM_RC_ONE_PASS && cpi->ppi->lap_enabled &&
+       cpi->svc.number_spatial_layers > 1))
     err = encode_without_recode(cpi);
   else
     err = encode_with_recode_loop(cpi, size, dest, dest_size);
@@ -4501,7 +4511,8 @@ static inline void update_gf_group_index(AV1_COMP *cpi) {
     if (cpi->gf_frame_index == MAX_STATIC_GF_GROUP_LENGTH)
       cpi->gf_frame_index = 0;
   } else {
-    ++cpi->gf_frame_index;
+    if (cpi->svc.spatial_layer_id == cpi->svc.number_spatial_layers - 1)
+      ++cpi->gf_frame_index;
   }
 }
 
@@ -4681,18 +4692,32 @@ void av1_post_encode_updates(AV1_COMP *const cpi,
     update_end_of_frame_stats(cpi);
   }
 
+  if (cpi->svc.number_spatial_layers) {
+    GF_GROUP *gf_group = &cpi->ppi->gf_group;
+    if (gf_group->update_type[cpi->gf_frame_index] == ARF_UPDATE)
+      cpi->svc.arf_encoded[cpi->svc.spatial_layer_id] = 1;
+    else
+      cpi->svc.arf_encoded[cpi->svc.spatial_layer_id] = 0;
+    if (cpi->gf_frame_index == 2)
+      cpi->svc.lf_encoded[cpi->svc.spatial_layer_id] = 1;
+    else
+      cpi->svc.lf_encoded[cpi->svc.spatial_layer_id] = 0;
+  }
+
 #if CONFIG_THREE_PASS
   if (cpi->oxcf.pass == AOM_RC_THIRD_PASS && cpi->third_pass_ctx) {
     av1_pop_third_pass_info(cpi->third_pass_ctx);
   }
 #endif
 
-  if (ppi->rtc_ref.set_ref_frame_config && !cpi->is_dropped_frame) {
+  if (ppi->rtc_ref.set_ref_frame_config && !cpi->is_dropped_frame &&
+      cpi->compressor_stage == ENCODE_STAGE) {
     av1_svc_update_buffer_slot_refreshed(cpi);
     av1_svc_set_reference_was_previous(cpi);
   }
 
-  if (ppi->use_svc) av1_save_layer_context(cpi);
+  if (ppi->use_svc && cpi->compressor_stage == ENCODE_STAGE)
+    av1_save_layer_context(cpi);
 
   // Note *size = 0 indicates a dropped frame for which psnr is not calculated
   if (ppi->b_calculate_psnr && cpi_data->frame_size > 0) {
@@ -4752,8 +4777,8 @@ int av1_get_compressed_data(AV1_COMP *cpi, AV1_COMP_DATA *const cpi_data) {
     aom_bitstream_queue_set_frame_write(cm->current_frame.frame_number);
   }
 #endif
-  if (cpi->ppi->use_svc) {
-    av1_one_pass_cbr_svc_start_layer(cpi);
+  if (cpi->ppi->use_svc && cpi->compressor_stage == ENCODE_STAGE) {
+    av1_one_pass_svc_start_layer(cpi);
   }
 
   cpi->is_dropped_frame = false;

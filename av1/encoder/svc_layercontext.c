@@ -236,7 +236,7 @@ void av1_restore_layer_context(AV1_COMP *const cpi) {
   cpi->rc = lc->rc;
   cpi->ppi->p_rc = lc->p_rc;
   cpi->oxcf.rc_cfg.target_bandwidth = lc->target_bandwidth;
-  cpi->gf_frame_index = 0;
+  if (cpi->oxcf.gf_cfg.lag_in_frames == 0) cpi->gf_frame_index = 0;
   cpi->mv_search_params.max_mv_magnitude = lc->max_mv_magnitude;
   if (cpi->mv_search_params.max_mv_magnitude == 0)
     cpi->mv_search_params.max_mv_magnitude = AOMMAX(cm->width, cm->height);
@@ -426,11 +426,25 @@ void av1_get_layer_resolution(const int width_org, const int height_org,
   *height_out = h;
 }
 
-void av1_one_pass_cbr_svc_start_layer(AV1_COMP *const cpi) {
+void av1_one_pass_svc_start_layer(AV1_COMP *const cpi) {
   SVC *const svc = &cpi->svc;
   AV1_COMMON *const cm = &cpi->common;
   LAYER_CONTEXT *lc = NULL;
   int width = 0, height = 0;
+
+  if (svc->number_spatial_layers > 1) {
+    GF_GROUP *gf_group = &cpi->ppi->gf_group;
+    if (svc->spatial_layer_id < svc->number_spatial_layers - 1 &&
+        gf_group->update_type[cpi->gf_frame_index] == ARF_UPDATE &&
+        cpi->gf_frame_index == 1 &&
+        svc->arf_encoded[svc->spatial_layer_id] == 1) {
+      svc->spatial_layer_id++;
+    } else if (gf_group->update_type[cpi->gf_frame_index - 1] == ARF_UPDATE &&
+               cpi->gf_frame_index == 2 && svc->lf_encoded[0] == 0) {
+      svc->spatial_layer_id = 0;
+    }
+  }
+
   lc = &svc->layer_context[svc->spatial_layer_id * svc->number_temporal_layers +
                            svc->temporal_layer_id];
   // Set the lower quality layer flag.
