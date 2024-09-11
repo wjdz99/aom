@@ -811,7 +811,7 @@ static double get_rate_correction_factor(const AV1_COMP *cpi, int width,
     rcf = rate_correction_factors_rflvl;
   } else {
     if ((refresh_frame->alt_ref_frame || refresh_frame->golden_frame) &&
-        !rc->is_src_frame_alt_ref && !cpi->ppi->use_svc &&
+        !rc->is_src_frame_alt_ref && !is_one_pass_lag0_reference_control(cpi) &&
         (cpi->oxcf.rc_cfg.mode != AOM_CBR ||
          cpi->oxcf.rc_cfg.gf_cbr_boost_pct > 20))
       rcf = rate_correction_factors_gfarfstd;
@@ -862,7 +862,7 @@ static void set_rate_correction_factor(AV1_COMP *cpi, int is_encode_stage,
     if (update_default_rcf) p_rc->rate_correction_factors[rf_lvl] = factor;
   } else {
     if ((refresh_frame->alt_ref_frame || refresh_frame->golden_frame) &&
-        !rc->is_src_frame_alt_ref && !cpi->ppi->use_svc &&
+        !rc->is_src_frame_alt_ref && !is_one_pass_lag0_reference_control(cpi) &&
         (cpi->oxcf.rc_cfg.mode != AOM_CBR ||
          cpi->oxcf.rc_cfg.gf_cbr_boost_pct > 20)) {
       p_rc->rate_correction_factors[GF_ARF_STD] = factor;
@@ -1080,6 +1080,9 @@ int av1_rc_regulate_q(const AV1_COMP *cpi, int target_bits_per_frame,
   const int target_bits_per_mb =
       (int)(((uint64_t)target_bits_per_frame << BPER_MB_NORMBITS) / MBs);
 
+  printf("regulate_q %d %d %d %d %d %f \n", target_bits_per_mb,
+         active_best_quality, active_worst_quality, width, height,
+         correction_factor);
   int q =
       find_closest_qindex_by_rate(target_bits_per_mb, cpi, correction_factor,
                                   active_best_quality, active_worst_quality);
@@ -1139,7 +1142,9 @@ static int calc_active_worst_quality_no_stats_vbr(const AV1_COMP *cpi) {
   const RATE_CONTROL *const rc = &cpi->rc;
   const PRIMARY_RATE_CONTROL *const p_rc = &cpi->ppi->p_rc;
   const RefreshFrameInfo *const refresh_frame = &cpi->refresh_frame;
-  const unsigned int curr_frame = cpi->common.current_frame.frame_number;
+  unsigned int curr_frame = cpi->common.current_frame.frame_number;
+  if (cpi->svc.number_spatial_layers > 1)
+    curr_frame = cpi->svc.current_superframe;
   int active_worst_quality;
   int last_q_key_frame;
   int last_q_inter_frame;
@@ -1155,6 +1160,12 @@ static int calc_active_worst_quality_no_stats_vbr(const AV1_COMP *cpi) {
   last_q_key_frame = p_rc->last_q[KEY_FRAME];
   last_q_inter_frame = p_rc->last_q[INTER_FRAME];
 #endif
+
+  if (cpi->ppi->use_svc && cpi->svc.spatial_layer_id > 0) {
+    const LAYER_CONTEXT *lc = &cpi->svc.layer_context[0];
+    const PRIMARY_RATE_CONTROL *const lp_rc = &lc->p_rc;
+    last_q_key_frame = lp_rc->last_q[KEY_FRAME];
+  }
 
   if (cpi->common.current_frame.frame_type == KEY_FRAME) {
     active_worst_quality =
@@ -1577,11 +1588,12 @@ static int rc_pick_q_and_bounds_no_stats(const AV1_COMP *cpi, int width,
           bit_depth);
       active_best_quality = AOMMAX(qindex + delta_qindex, rc->best_quality);
     } else {
-      // Use the lower of active_worst_quality and recent/average Q.
+      unsigned int curr_frame = current_frame->frame_number;
+      if (cpi->svc.number_spatial_layers > 1)
+        curr_frame = cpi->svc.current_superframe;
       active_best_quality =
-          (current_frame->frame_number > 1)
-              ? inter_minq[p_rc->avg_frame_qindex[INTER_FRAME]]
-              : inter_minq[p_rc->avg_frame_qindex[KEY_FRAME]];
+          (curr_frame > 1) ? inter_minq[p_rc->avg_frame_qindex[INTER_FRAME]]
+                           : inter_minq[p_rc->avg_frame_qindex[KEY_FRAME]];
       // For the constrained quality mode we don't want
       // q to fall below the cq level.
       if ((rc_mode == AOM_CQ) && (active_best_quality < cq_level)) {
@@ -2305,7 +2317,8 @@ void av1_rc_set_frame_target(AV1_COMP *cpi, int target, int width, int height) {
   rc->this_frame_target = target;
 
   // Modify frame size target when down-scaled.
-  if (av1_frame_scaled(cm) && cpi->oxcf.rc_cfg.mode != AOM_CBR) {
+  if (av1_frame_scaled(cm) && cpi->oxcf.rc_cfg.mode != AOM_CBR &&
+      cpi->svc.number_spatial_layers == 1) {
     rc->this_frame_target = saturate_cast_double_to_int(
         rc->this_frame_target *
         resize_rate_factor(&cpi->oxcf.frm_dim_cfg, width, height));
@@ -2354,6 +2367,12 @@ void av1_rc_postencode_update(AV1_COMP *cpi, uint64_t bytes_used) {
 
   // Update rate control heuristics
   rc->projected_frame_size = (int)(bytes_used << 3);
+
+  printf("%d %d postencode: %d %d %d ** %d %d %d *** %d %d \n", cm->show_frame,
+         current_frame->frame_type, cpi->common.current_frame.frame_number,
+         cpi->svc.spatial_layer_id, cpi->gf_frame_index, qindex,
+         rc->projected_frame_size, rc->avg_frame_bandwidth, cm->width,
+         cm->height);
 
   // Post encode loop adjustment of Q prediction.
   av1_rc_update_rate_correction_factors(cpi, 0, cm->width, cm->height);
@@ -2737,19 +2756,28 @@ int av1_calc_pframe_target_size_one_pass_vbr(
   const RATE_CONTROL *const rc = &cpi->rc;
   const PRIMARY_RATE_CONTROL *const p_rc = &cpi->ppi->p_rc;
   int64_t target;
+  if (cpi->oxcf.gf_cfg.lag_in_frames > 0) {
 #if USE_ALTREF_FOR_ONE_PASS
-  if (frame_update_type == KF_UPDATE || frame_update_type == GF_UPDATE ||
-      frame_update_type == ARF_UPDATE) {
-    target = ((int64_t)rc->avg_frame_bandwidth * p_rc->baseline_gf_interval *
-              af_ratio) /
-             (p_rc->baseline_gf_interval + af_ratio - 1);
-  } else {
-    target = ((int64_t)rc->avg_frame_bandwidth * p_rc->baseline_gf_interval) /
-             (p_rc->baseline_gf_interval + af_ratio - 1);
-  }
+    if (frame_update_type == KF_UPDATE || frame_update_type == GF_UPDATE ||
+        frame_update_type == ARF_UPDATE) {
+      target = ((int64_t)rc->avg_frame_bandwidth * p_rc->baseline_gf_interval *
+                af_ratio) /
+               (p_rc->baseline_gf_interval + af_ratio - 1);
+    } else {
+      target = ((int64_t)rc->avg_frame_bandwidth * p_rc->baseline_gf_interval) /
+               (p_rc->baseline_gf_interval + af_ratio - 1);
+    }
 #else
-  target = rc->avg_frame_bandwidth;
+    target = rc->avg_frame_bandwidth;
 #endif
+  } else {
+    if (rc->frames_till_gf_update_due == p_rc->baseline_gf_interval)
+      target = ((int64_t)rc->avg_frame_bandwidth * p_rc->baseline_gf_interval *
+                af_ratio) /
+               (p_rc->baseline_gf_interval + af_ratio - 1);
+    else
+      target = rc->avg_frame_bandwidth;
+  }
   return clamp_pframe_target_size(cpi, target, frame_update_type);
 }
 
@@ -2858,7 +2886,8 @@ static void set_golden_update(AV1_COMP *const cpi) {
                MAX_GF_INTERVAL_RT);
   else
     p_rc->baseline_gf_interval = FIXED_GF_INTERVAL_RT;
-  if (rc->avg_frame_low_motion && rc->avg_frame_low_motion < 40)
+  if (cpi->oxcf.rc_cfg.mode == AOM_VBR ||
+      (rc->avg_frame_low_motion && rc->avg_frame_low_motion < 40))
     p_rc->baseline_gf_interval = 16;
 }
 
@@ -2880,12 +2909,13 @@ static void set_baseline_gf_interval(AV1_COMP *cpi, FRAME_TYPE frame_type) {
           : 0;
   rc->frames_till_gf_update_due = p_rc->baseline_gf_interval;
   cpi->gf_frame_index = 0;
-  // SVC does not use GF as periodic boost.
-  // TODO(marpan): Find better way to disable this for SVC.
+  // SVC-CBR does not use GF as periodic boost.
   if (cpi->ppi->use_svc) {
     SVC *const svc = &cpi->svc;
-    p_rc->baseline_gf_interval = MAX_STATIC_GF_GROUP_LENGTH - 1;
-    p_rc->gfu_boost = 1;
+    if (cpi->oxcf.rc_cfg.mode == AOM_CBR) {
+      p_rc->baseline_gf_interval = MAX_STATIC_GF_GROUP_LENGTH - 1;
+      p_rc->gfu_boost = 1;
+    }
     p_rc->constrained_gf_group = 0;
     rc->frames_till_gf_update_due = p_rc->baseline_gf_interval;
     for (int layer = 0;
@@ -3701,10 +3731,6 @@ void av1_get_one_pass_rt_params(AV1_COMP *cpi, FRAME_TYPE *const frame_type,
         cpi->framerate > 1 ? round(cpi->framerate) : cpi->framerate;
     rc->max_consec_drop = saturate_cast_double_to_int(
         ceil(cpi->oxcf.rc_cfg.max_consec_drop_ms * framerate / 1000));
-  }
-  if (cpi->ppi->use_svc) {
-    av1_update_temporal_layer_framerate(cpi);
-    av1_restore_layer_context(cpi);
   }
   cpi->ppi->rtc_ref.bias_recovery_frame = set_flag_rps_bias_recovery_frame(cpi);
   // Set frame type.
