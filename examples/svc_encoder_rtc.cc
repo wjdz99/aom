@@ -289,7 +289,7 @@ static void parse_command_line(int argc, const char **argv_,
   app_input->output_obu = 0;
   app_input->decode = 1;
   enc_cfg->g_threads = 1;
-  enc_cfg->rc_end_usage = AOM_CBR;
+  enc_cfg->rc_end_usage = AOM_VBR;
 
   // process command line options
   argv = argv_dup(argc - 1, argv_ + 1);
@@ -1537,25 +1537,29 @@ int main(int argc, const char **argv) {
 
   // start with default encoder configuration
   aom_codec_err_t res = aom_codec_enc_config_default(aom_codec_av1_cx(), &cfg,
-                                                     AOM_USAGE_REALTIME);
+                                                     AOM_USAGE_GOOD_QUALITY/*AOM_USAGE_REALTIME*/);
   if (res != AOM_CODEC_OK) {
     die("Failed to get config: %s\n", aom_codec_err_to_string(res));
   }
 
   // Real time parameters.
-  cfg.g_usage = AOM_USAGE_REALTIME;
+  cfg.g_usage = AOM_USAGE_GOOD_QUALITY/*AOM_USAGE_REALTIME*/;
 
-  cfg.rc_end_usage = AOM_CBR;
-  cfg.rc_min_quantizer = 2;
-  cfg.rc_max_quantizer = 52;
-  cfg.rc_undershoot_pct = 50;
-  cfg.rc_overshoot_pct = 50;
+  cfg.rc_end_usage = AOM_VBR;
+  cfg.rc_min_quantizer = 0;
+  cfg.rc_max_quantizer = 63;
+  cfg.rc_undershoot_pct = 100;
+  cfg.rc_overshoot_pct = 100;
+  /*
   cfg.rc_buf_initial_sz = 600;
   cfg.rc_buf_optimal_sz = 600;
   cfg.rc_buf_sz = 1000;
+  */
   cfg.rc_resize_mode = 0;  // Set to RESIZE_DYNAMIC for dynamic resize.
-  cfg.g_lag_in_frames = 0;
-  cfg.kf_mode = AOM_KF_AUTO;
+  cfg.g_lag_in_frames = 15;
+  //cfg.kf_mode = AOM_KF_AUTO;
+  cfg.kf_max_dist = 160;
+  cfg.kf_min_dist = 0;
 
   parse_command_line(argc, argv, &app_input, &svc_params, &cfg);
 
@@ -1666,10 +1670,12 @@ int main(int argc, const char **argv) {
 #endif
 
   aom_codec_control(&codec, AOME_SET_CPUUSED, app_input.speed);
-  aom_codec_control(&codec, AV1E_SET_AQ_MODE, app_input.aq_mode ? 3 : 0);
+  // aom_codec_control(&codec, AV1E_SET_AQ_MODE, app_input.aq_mode ? 3 : 0);
   aom_codec_control(&codec, AV1E_SET_GF_CBR_BOOST_PCT, 0);
   aom_codec_control(&codec, AV1E_SET_ENABLE_CDEF, 1);
   aom_codec_control(&codec, AV1E_SET_LOOPFILTER_CONTROL, 1);
+  // Turn off RTC specific settings, use the defaults.
+  /*
   aom_codec_control(&codec, AV1E_SET_ENABLE_WARPED_MOTION, 0);
   aom_codec_control(&codec, AV1E_SET_ENABLE_OBMC, 0);
   aom_codec_control(&codec, AV1E_SET_ENABLE_GLOBAL_MOTION, 0);
@@ -1680,14 +1686,20 @@ int main(int argc, const char **argv) {
   aom_codec_control(&codec, AV1E_SET_MODE_COST_UPD_FREQ, 3);
   aom_codec_control(&codec, AV1E_SET_MV_COST_UPD_FREQ, 3);
   aom_codec_control(&codec, AV1E_SET_DV_COST_UPD_FREQ, 3);
+  */
   aom_codec_control(&codec, AV1E_SET_CDF_UPDATE_MODE, 1);
-
+  
+  aom_codec_control(&codec, AV1E_SET_ENABLE_TPL_MODEL, 0);
+  
   // Settings to reduce key frame encoding time.
+  // Turn off RTC specific settings, use the defaults.
+  /*
   aom_codec_control(&codec, AV1E_SET_ENABLE_CFL_INTRA, 0);
   aom_codec_control(&codec, AV1E_SET_ENABLE_SMOOTH_INTRA, 0);
   aom_codec_control(&codec, AV1E_SET_ENABLE_ANGLE_DELTA, 0);
   aom_codec_control(&codec, AV1E_SET_ENABLE_FILTER_INTRA, 0);
   aom_codec_control(&codec, AV1E_SET_INTRA_DEFAULT_TX_ONLY, 1);
+  */
 
   aom_codec_control(&codec, AV1E_SET_AUTO_TILES, 1);
 
@@ -1699,6 +1711,8 @@ int main(int argc, const char **argv) {
     aom_codec_control(&codec, AV1E_SET_ENABLE_INTRABC, 0);
   }
 
+  // Turn off RTC specific settings,
+  /*
   if (app_input.use_external_rc) {
     aom_codec_control(&codec, AV1E_SET_RTC_EXTERNAL_RC, 1);
   }
@@ -1709,6 +1723,10 @@ int main(int argc, const char **argv) {
                     AOM_FULL_SUPERFRAME_DROP);
 
   aom_codec_control(&codec, AV1E_SET_POSTENCODE_DROP_RTC, 1);
+  */
+
+  // Enable auto alt_ref
+  aom_codec_control(&codec, AOME_SET_ENABLEAUTOALTREF, 1);
 
   svc_params.number_spatial_layers = ss_number_layers;
   svc_params.number_temporal_layers = ts_number_layers;
@@ -1732,6 +1750,7 @@ int main(int argc, const char **argv) {
   aom_codec_control(&codec, AV1E_SET_SVC_PARAMS, &svc_params);
   // TODO(aomedia:3032): Configure KSVC in fixed mode.
 
+  /*
   // This controls the maximum target size of the key frame.
   // For generating smaller key frames, use a smaller max_intra_size_pct
   // value, like 100 or 200.
@@ -1740,6 +1759,7 @@ int main(int argc, const char **argv) {
     aom_codec_control(&codec, AOME_SET_MAX_INTRA_BITRATE_PCT,
                       max_intra_size_pct);
   }
+  */
 
   for (int lx = 0; lx < ts_number_layers * ss_number_layers; lx++) {
     cx_time_layer[lx] = 0;
@@ -1775,7 +1795,7 @@ int main(int argc, const char **argv) {
                           &use_svc_control, slx, is_key_frame,
                           (app_input.layering_mode == 10), app_input.speed);
         aom_codec_control(&codec, AV1E_SET_SVC_LAYER_ID, &layer_id);
-        if (use_svc_control) {
+        if (1 && use_svc_control) {
           aom_codec_control(&codec, AV1E_SET_SVC_REF_FRAME_CONFIG,
                             &ref_frame_config);
           aom_codec_control(&codec, AV1E_SET_SVC_REF_FRAME_COMP_PRED,

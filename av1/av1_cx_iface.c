@@ -3072,7 +3072,6 @@ static aom_codec_err_t encoder_encode(aom_codec_alg_priv_t *ctx,
 
   ppi->cpi->last_coded_width = ppi->cpi->oxcf.frm_dim_cfg.width;
   ppi->cpi->last_coded_height = ppi->cpi->oxcf.frm_dim_cfg.height;
-
   if (ppi->lap_enabled && cpi_lap == NULL &&
       ppi->cpi->oxcf.pass == AOM_RC_ONE_PASS)
     return AOM_CODEC_INVALID_PARAM;

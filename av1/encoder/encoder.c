@@ -952,7 +952,7 @@ void av1_change_config(struct AV1_COMP *cpi, const AV1EncoderConfig *oxcf,
     cpi->ext_flags.refresh_frame.update_pending = 0;
   cpi->ext_flags.refresh_frame_context_pending = 0;
 
-  if (cpi->ppi->use_svc)
+  if (0 && cpi->ppi->use_svc)
     av1_update_layer_context_change_config(cpi, rc_cfg->target_bandwidth);
 
   check_reset_rc_flag(cpi);
@@ -4753,7 +4753,7 @@ int av1_get_compressed_data(AV1_COMP *cpi, AV1_COMP_DATA *const cpi_data) {
   }
 #endif
   if (cpi->ppi->use_svc) {
-    av1_one_pass_cbr_svc_start_layer(cpi);
+    av1_one_pass_svc_start_layer(cpi);
   }
 
   cpi->is_dropped_frame = false;
