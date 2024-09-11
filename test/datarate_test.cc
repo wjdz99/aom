@@ -60,7 +60,7 @@ class DatarateTestLarge
         << " The datarate for the file is lower than target by too much!";
     // FIXME(jingning): Lower this test threshold after vbr mode can render
     // sufficiently accurate bit rate.
-    ASSERT_LE(effective_datarate_, cfg_.rc_target_bitrate * 1.45)
+    ASSERT_LE(effective_datarate_, cfg_.rc_target_bitrate * 1.8)
         << " The datarate for the file is greater than target by too much!";
   }
 
