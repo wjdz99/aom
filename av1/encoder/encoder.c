@@ -3204,6 +3204,13 @@ static int encode_with_recode_loop_and_filter(AV1_COMP *cpi, size_t *size,
     cpi->do_update_frame_probs_interpfilter[i] = 0;
   }
 
+  if (is_one_pass_lag_reference_control(cpi) && cpi->svc.spatial_layer_id > 0 &&
+      cpi->gf_frame_index == 0) {
+    cpi->common.current_frame.frame_type = INTER_FRAME;
+    cpi->ppi->gf_group.update_type[cpi->gf_frame_index] = LF_UPDATE;
+    cpi->ppi->gf_group.refbuf_state[cpi->gf_frame_index] = REFBUF_UPDATE;
+  }
+
   cpi->do_update_vbr_bits_off_target_fast = 0;
   int err;
 #if CONFIG_REALTIME_ONLY
@@ -4171,10 +4178,13 @@ int av1_receive_raw_frame(AV1_COMP *cpi, aom_enc_frame_flags_t frame_flags,
   }
 #endif  //  CONFIG_DENOISE
 
-  if (av1_lookahead_push(cpi->ppi->lookahead, sd, time_stamp, end_time,
-                         use_highbitdepth, cpi->alloc_pyramid, frame_flags)) {
-    aom_set_error(cm->error, AOM_CODEC_ERROR, "av1_lookahead_push() failed");
-    res = -1;
+  if (cpi->svc.spatial_layer_id == 0 ||
+      !is_one_pass_lag_reference_control(cpi)) {
+    if (av1_lookahead_push(cpi->ppi->lookahead, sd, time_stamp, end_time,
+                           use_highbitdepth, cpi->alloc_pyramid, frame_flags)) {
+      aom_set_error(cm->error, AOM_CODEC_ERROR, "av1_lookahead_push() failed");
+      res = -1;
+    }
   }
 #if CONFIG_INTERNAL_STATS
   aom_usec_timer_mark(&timer);
@@ -4505,7 +4515,8 @@ static inline void update_gf_group_index(AV1_COMP *cpi) {
     if (cpi->gf_frame_index == MAX_STATIC_GF_GROUP_LENGTH)
       cpi->gf_frame_index = 0;
   } else {
-    ++cpi->gf_frame_index;
+    if (cpi->svc.spatial_layer_id == cpi->svc.number_spatial_layers - 1)
+      ++cpi->gf_frame_index;
   }
 }
 
@@ -4685,6 +4696,19 @@ void av1_post_encode_updates(AV1_COMP *const cpi,
     update_end_of_frame_stats(cpi);
   }
 
+  if (is_one_pass_lag_reference_control(cpi) &&
+      cpi->svc.number_spatial_layers > 1) {
+    GF_GROUP *gf_group = &cpi->ppi->gf_group;
+    if (gf_group->update_type[cpi->gf_frame_index] == ARF_UPDATE)
+      cpi->svc.arf_encoded[cpi->svc.spatial_layer_id] = 1;
+    else
+      cpi->svc.arf_encoded[cpi->svc.spatial_layer_id] = 0;
+    if (cpi->gf_frame_index == 2)
+      cpi->svc.lf_encoded[cpi->svc.spatial_layer_id] = 1;
+    else
+      cpi->svc.lf_encoded[cpi->svc.spatial_layer_id] = 0;
+  }
+
 #if CONFIG_THREE_PASS
   if (cpi->oxcf.pass == AOM_RC_THIRD_PASS && cpi->third_pass_ctx) {
     av1_pop_third_pass_info(cpi->third_pass_ctx);
@@ -4757,7 +4781,7 @@ int av1_get_compressed_data(AV1_COMP *cpi, AV1_COMP_DATA *const cpi_data) {
   }
 #endif
   if (cpi->ppi->use_svc) {
-    av1_one_pass_cbr_svc_start_layer(cpi);
+    av1_one_pass_svc_start_layer(cpi);
   }
 
   cpi->is_dropped_frame = false;
