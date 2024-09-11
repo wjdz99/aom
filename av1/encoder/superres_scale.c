@@ -346,7 +346,7 @@ static size_params_type calculate_next_size_params(AV1_COMP *cpi) {
   size_params_type rsz = { frm_dim_cfg->width, frm_dim_cfg->height,
                            SCALE_NUMERATOR };
   int resize_denom = SCALE_NUMERATOR;
-  if (has_no_stats_stage(cpi) && cpi->ppi->use_svc &&
+  if ((has_no_stats_stage(cpi) || cpi->svc.number_spatial_layers > 1) &&
       (cpi->common.width != cpi->oxcf.frm_dim_cfg.width ||
        cpi->common.height != cpi->oxcf.frm_dim_cfg.height)) {
     rsz.resize_width = cpi->common.width;

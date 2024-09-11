@@ -813,9 +813,9 @@ static double get_rate_correction_factor(const AV1_COMP *cpi, int width,
     if ((refresh_frame->alt_ref_frame || refresh_frame->golden_frame) &&
         !rc->is_src_frame_alt_ref && !cpi->ppi->use_svc &&
         (cpi->oxcf.rc_cfg.mode != AOM_CBR ||
-         cpi->oxcf.rc_cfg.gf_cbr_boost_pct > 20))
+         cpi->oxcf.rc_cfg.gf_cbr_boost_pct > 20)) {
       rcf = rate_correction_factors_gfarfstd;
-    else
+    } else
       rcf = rate_correction_factors_internormal;
   }
   rcf *= resize_rate_factor(&cpi->oxcf.frm_dim_cfg, width, height);
@@ -1482,6 +1482,7 @@ static int rc_pick_q_and_bounds_no_stats(const AV1_COMP *cpi, int width,
   const AV1EncoderConfig *const oxcf = &cpi->oxcf;
   const RefreshFrameInfo *const refresh_frame = &cpi->refresh_frame;
   const enum aom_rc_mode rc_mode = oxcf->rc_cfg.mode;
+  GF_GROUP *gf_group = &cpi->ppi->gf_group;
 
   assert(has_no_stats_stage(cpi));
   assert(rc_mode == AOM_VBR ||
@@ -1540,7 +1541,9 @@ static int rc_pick_q_and_bounds_no_stats(const AV1_COMP *cpi, int width,
       }
     }
   } else if (!rc->is_src_frame_alt_ref &&
-             (refresh_frame->golden_frame || refresh_frame->alt_ref_frame)) {
+             (refresh_frame->golden_frame || refresh_frame->alt_ref_frame ||
+              (cpi->ppi->rtc_ref.set_ref_frame_config &&
+               gf_group->update_type[cpi->gf_frame_index] == ARF_UPDATE))) {
     // Use the lower of active_worst_quality and recent
     // average Q as basis for GF/ARF best Q limit unless last frame was
     // a key frame.
@@ -2305,7 +2308,8 @@ void av1_rc_set_frame_target(AV1_COMP *cpi, int target, int width, int height) {
   rc->this_frame_target = target;
 
   // Modify frame size target when down-scaled.
-  if (av1_frame_scaled(cm) && cpi->oxcf.rc_cfg.mode != AOM_CBR) {
+  if (av1_frame_scaled(cm) && cpi->oxcf.rc_cfg.mode != AOM_CBR &&
+      cpi->svc.number_spatial_layers == 1) {
     rc->this_frame_target =
         (int)(rc->this_frame_target *
               resize_rate_factor(&cpi->oxcf.frm_dim_cfg, width, height));
@@ -3707,10 +3711,6 @@ void av1_get_one_pass_rt_params(AV1_COMP *cpi, FRAME_TYPE *const frame_type,
         cpi->framerate > 1 ? round(cpi->framerate) : cpi->framerate;
     rc->max_consec_drop = saturate_cast_double_to_int(
         ceil(cpi->oxcf.rc_cfg.max_consec_drop_ms * framerate / 1000));
-  }
-  if (cpi->ppi->use_svc) {
-    av1_update_temporal_layer_framerate(cpi);
-    av1_restore_layer_context(cpi);
   }
   cpi->ppi->rtc_ref.bias_recovery_frame = set_flag_rps_bias_recovery_frame(cpi);
   // Set frame type.
