@@ -825,6 +825,8 @@ int av1_encodedframe_overshoot_cbr(struct AV1_COMP *cpi, int *q);
  */
 int av1_postencode_drop_cbr(struct AV1_COMP *cpi, size_t *size);
 
+void av1_rc_one_pass_lag_reference_control(struct AV1_COMP *cpi);
+
 #ifdef __cplusplus
 }  // extern "C"
 #endif

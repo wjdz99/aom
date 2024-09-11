@@ -110,6 +110,7 @@ typedef struct SVC {
   YV12_BUFFER_CONFIG source_last_TL0;
   int mi_cols_full_resoln;
   int mi_rows_full_resoln;
+  int reference_is_scaled[INTER_REFS_PER_FRAME];
   /*!\endcond */
 
   /*!
@@ -165,6 +166,18 @@ typedef struct SVC {
    * Flag to indicate if a previous spatial was dropped for the same superframe.
    */
   bool drop_spatial_layer[AOM_MAX_SS_LAYERS];
+
+  /*!
+   *
+   * Flag to indicate ARF is encoded for lookahead coding.
+   */
+  int arf_encoded[AOM_MAX_SS_LAYERS];
+
+  /*!
+   *
+   * Flag to indicate LF is encoded for lookahead coding.
+   */
+  int lf_encoded[AOM_MAX_SS_LAYERS];
 } SVC;
 
 struct AV1_COMP;
@@ -291,7 +304,7 @@ void av1_svc_reset_temporal_layers(struct AV1_COMP *const cpi, int is_key);
  *
  * \param[in]       cpi  Top level encoder structure
  */
-void av1_one_pass_cbr_svc_start_layer(struct AV1_COMP *const cpi);
+void av1_one_pass_svc_start_layer(struct AV1_COMP *const cpi);
 
 /*!\brief Get primary reference frame for current layer
  *
@@ -334,6 +347,9 @@ void av1_svc_update_buffer_slot_refreshed(struct AV1_COMP *const cpi);
 int av1_svc_get_min_ref_dist(const struct AV1_COMP *cpi);
 
 void av1_svc_set_reference_was_previous(struct AV1_COMP *cpi);
+
+void av1_svc_setup_one_pass_lag_reference_control(struct AV1_COMP *cpi,
+                                                  FRAME_TYPE *const frame_type);
 #ifdef __cplusplus
 }  // extern "C"
 #endif

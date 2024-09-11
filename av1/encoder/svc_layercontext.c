@@ -26,6 +26,7 @@ static void swap_ptr(void *a, void *b) {
 void av1_init_layer_context(AV1_COMP *const cpi) {
   AV1_COMMON *const cm = &cpi->common;
   const AV1EncoderConfig *const oxcf = &cpi->oxcf;
+  const RateControlCfg *const rc_cfg = &oxcf->rc_cfg;
   SVC *const svc = &cpi->svc;
   int mi_rows = cpi->common.mi_params.mi_rows;
   int mi_cols = cpi->common.mi_params.mi_cols;
@@ -56,10 +57,22 @@ void av1_init_layer_context(AV1_COMP *const cpi) {
       for (int i = 0; i < RATE_FACTOR_LEVELS; ++i) {
         lp_rc->rate_correction_factors[i] = 1.0;
       }
+      if (oxcf->rc_cfg.mode == AOM_VBR) {
+        for (int i = 0; i < RATE_FACTOR_LEVELS; ++i) {
+          lp_rc->rate_correction_factors[i] = 0.7;
+        }
+        lp_rc->rate_correction_factors[KF_STD] = 1.0;
+      }
       lc->target_bandwidth = lc->layer_target_bitrate;
       lp_rc->last_q[INTER_FRAME] = lrc->worst_quality;
       lp_rc->avg_frame_qindex[INTER_FRAME] = lrc->worst_quality;
       lp_rc->avg_frame_qindex[KEY_FRAME] = lrc->worst_quality;
+      if (oxcf->rc_cfg.mode == AOM_VBR) {
+        lp_rc->avg_frame_qindex[KEY_FRAME] =
+            (rc_cfg->worst_allowed_q + rc_cfg->best_allowed_q) / 2;
+        lp_rc->avg_frame_qindex[INTER_FRAME] =
+            (rc_cfg->worst_allowed_q + rc_cfg->best_allowed_q) / 2;
+      }
       lp_rc->buffer_level =
           oxcf->rc_cfg.starting_buffer_level_ms * lc->target_bandwidth / 1000;
       lp_rc->bits_off_target = lp_rc->buffer_level;
@@ -221,7 +234,7 @@ bool av1_check_ref_is_low_spatial_res_super_frame(AV1_COMP *const cpi,
 void av1_restore_layer_context(AV1_COMP *const cpi) {
   SVC *const svc = &cpi->svc;
   RTC_REF *const rtc_ref = &cpi->ppi->rtc_ref;
-  const AV1_COMMON *const cm = &cpi->common;
+  AV1_COMMON *const cm = &cpi->common;
   LAYER_CONTEXT *const lc = get_layer_context(cpi);
   const int old_frame_since_key = cpi->rc.frames_since_key;
   const int old_frame_to_key = cpi->rc.frames_to_key;
@@ -232,11 +245,14 @@ void av1_restore_layer_context(AV1_COMP *const cpi) {
   const int postencode_drop = cpi->rc.postencode_drop;
   const int static_since_last_scene_change =
       cpi->rc.static_since_last_scene_change;
+  const int gf_interval = cpi->ppi->p_rc.baseline_gf_interval;
+  int gfu_boost = cpi->ppi->p_rc.gfu_boost;
   // Restore layer rate control.
   cpi->rc = lc->rc;
   cpi->ppi->p_rc = lc->p_rc;
   cpi->oxcf.rc_cfg.target_bandwidth = lc->target_bandwidth;
-  cpi->gf_frame_index = 0;
+  if (cpi->oxcf.rc_cfg.mode == AOM_CBR && cpi->oxcf.gf_cfg.lag_in_frames == 0)
+    cpi->gf_frame_index = 0;
   cpi->mv_search_params.max_mv_magnitude = lc->max_mv_magnitude;
   if (cpi->mv_search_params.max_mv_magnitude == 0)
     cpi->mv_search_params.max_mv_magnitude = AOMMAX(cm->width, cm->height);
@@ -250,6 +266,8 @@ void av1_restore_layer_context(AV1_COMP *const cpi) {
   cpi->rc.max_consec_drop = max_consec_drop;
   cpi->rc.postencode_drop = postencode_drop;
   cpi->rc.static_since_last_scene_change = static_since_last_scene_change;
+  cpi->ppi->p_rc.baseline_gf_interval = gf_interval;
+  cpi->ppi->p_rc.gfu_boost = gfu_boost;
   // For spatial-svc, allow cyclic-refresh to be applied on the spatial layers,
   // for the base temporal layer.
   if (cpi->oxcf.q_cfg.aq_mode == CYCLIC_REFRESH_AQ &&
@@ -269,7 +287,8 @@ void av1_restore_layer_context(AV1_COMP *const cpi) {
   // refreshed (i.e., buffer slot holding that reference was refreshed) on the
   // previous spatial layer(s) at the same time (current_superframe).
   if (rtc_ref->set_ref_frame_config && svc->force_zero_mode_spatial_ref &&
-      cpi->sf.rt_sf.use_nonrd_pick_mode) {
+      cpi->sf.rt_sf.use_nonrd_pick_mode &&
+      !is_one_pass_lag_reference_control(cpi)) {
     if (av1_check_ref_is_low_spatial_res_super_frame(cpi, LAST_FRAME)) {
       svc->skip_mvsearch_last = 1;
     }
@@ -426,11 +445,28 @@ void av1_get_layer_resolution(const int width_org, const int height_org,
   *height_out = h;
 }
 
-void av1_one_pass_cbr_svc_start_layer(AV1_COMP *const cpi) {
+void av1_one_pass_svc_start_layer(AV1_COMP *const cpi) {
   SVC *const svc = &cpi->svc;
   AV1_COMMON *const cm = &cpi->common;
   LAYER_CONTEXT *lc = NULL;
   int width = 0, height = 0;
+
+  if (is_one_pass_lag_reference_control(cpi) &&
+      svc->number_spatial_layers > 1) {
+    GF_GROUP *gf_group = &cpi->ppi->gf_group;
+    if (svc->spatial_layer_id < svc->number_spatial_layers - 1 &&
+        gf_group->update_type[cpi->gf_frame_index] == ARF_UPDATE &&
+        cpi->gf_frame_index == 1 &&
+        svc->arf_encoded[svc->spatial_layer_id] == 1) {
+      svc->spatial_layer_id++;
+      cm->spatial_layer_id = svc->spatial_layer_id;
+    } else if (gf_group->update_type[cpi->gf_frame_index - 1] == ARF_UPDATE &&
+               cpi->gf_frame_index == 2 && svc->lf_encoded[0] == 0) {
+      svc->spatial_layer_id = 0;
+      cm->spatial_layer_id = 0;
+    }
+  }
+
   lc = &svc->layer_context[svc->spatial_layer_id * svc->number_temporal_layers +
                            svc->temporal_layer_id];
   // Set the lower quality layer flag.
@@ -717,6 +753,47 @@ void av1_svc_set_reference_was_previous(AV1_COMP *cpi) {
         const int ref_frame_map_idx = rtc_ref->ref_idx[i];
         if (rtc_ref->buffer_time_index[ref_frame_map_idx] == current_frame - 1)
           rtc_ref->reference_was_previous_frame = true;
+      }
+    }
+  }
+}
+
+void av1_svc_setup_one_pass_lag_reference_control(
+    AV1_COMP *cpi, FRAME_TYPE *const frame_type) {
+  GF_GROUP *const gf_group = &cpi->ppi->gf_group;
+  if (cpi->svc.spatial_layer_id > 0 && cpi->gf_frame_index == 0) {
+    *frame_type = INTER_FRAME;
+    cpi->common.current_frame.frame_type = INTER_FRAME;
+    cpi->ppi->gf_group.update_type[cpi->gf_frame_index] = LF_UPDATE;
+    cpi->ppi->gf_group.refbuf_state[cpi->gf_frame_index] = REFBUF_UPDATE;
+  }
+  if (cpi->gf_frame_index > 0) {
+    if (gf_group->update_type[cpi->gf_frame_index] == ARF_UPDATE) {
+      for (int i = 0; i < REF_FRAMES; i++) {
+        if (i < INTER_REFS_PER_FRAME) {
+          if (cpi->svc.spatial_layer_id == 0) {
+            cpi->ppi->rtc_ref.reference_tmp[i] = cpi->ppi->rtc_ref.reference[i];
+            cpi->ppi->rtc_ref.ref_idx_tmp[i] = cpi->ppi->rtc_ref.ref_idx[i];
+          }
+          cpi->ppi->rtc_ref.reference[i] =
+              cpi->ppi->rtc_ref.reference_arf[cpi->svc.spatial_layer_id][i];
+          cpi->ppi->rtc_ref.ref_idx[i] =
+              cpi->ppi->rtc_ref.ref_idx_arf[cpi->svc.spatial_layer_id][i];
+        }
+        if (cpi->svc.spatial_layer_id == 0) {
+          cpi->ppi->rtc_ref.refresh_tmp[i] = cpi->ppi->rtc_ref.refresh[i];
+        }
+        cpi->ppi->rtc_ref.refresh[i] =
+            cpi->ppi->rtc_ref.refresh_arf[cpi->svc.spatial_layer_id][i];
+      }
+    } else if (gf_group->update_type[cpi->gf_frame_index - 1] == ARF_UPDATE &&
+               cpi->svc.spatial_layer_id == 0) {
+      for (int i = 0; i < REF_FRAMES; i++) {
+        if (i < INTER_REFS_PER_FRAME) {
+          cpi->ppi->rtc_ref.reference[i] = cpi->ppi->rtc_ref.reference_tmp[i];
+          cpi->ppi->rtc_ref.ref_idx[i] = cpi->ppi->rtc_ref.ref_idx_tmp[i];
+        }
+        cpi->ppi->rtc_ref.refresh[i] = cpi->ppi->rtc_ref.refresh_tmp[i];
       }
     }
   }

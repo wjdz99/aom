@@ -136,6 +136,8 @@ typedef struct aom_codec_cx_pkt {
       int partition_id;
       /*!\brief size of the visible frame in this packet */
       size_t vis_frame_size;
+      /*!\brief size of the invisible frame per spatial layer */
+      size_t frame_size_sl_inv[4];
     } frame;                            /**< data for compressed frame packet */
     aom_fixed_buf_t twopass_stats;      /**< data for two-pass packet */
     aom_fixed_buf_t firstpass_mb_stats; /**< first pass mb packet */

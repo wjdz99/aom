@@ -2380,12 +2380,15 @@ static AOM_FORCE_INLINE void set_params_nonrd_pick_inter_mode(
   // Start at LAST_FRAME + 1.
   for (MV_REFERENCE_FRAME ref_frame_iter = LAST_FRAME + 1;
        ref_frame_iter <= ALTREF_FRAME; ++ref_frame_iter) {
-    if (search_state->use_ref_frame_mask[ref_frame_iter]) {
+    if (search_state->use_ref_frame_mask[ref_frame_iter] ||
+        cpi->svc.reference_is_scaled[ref_frame_iter - 1]) {
       find_predictors(cpi, x, ref_frame_iter, search_state->frame_mv,
                       search_state->yv12_mb, bsize, *force_skip_low_temp_var,
                       skip_pred_mv,
                       &search_state->use_scaled_ref_frame[ref_frame_iter]);
     }
+    if (cpi->svc.reference_is_scaled[ref_frame_iter - 1])
+      search_state->use_ref_frame_mask[ref_frame_iter] = 1;
   }
 }
 
@@ -2419,9 +2422,23 @@ static AOM_FORCE_INLINE bool skip_inter_mode_nonrd(
     }
     *is_single_pred = 0;
   } else {
-    *this_mode = ref_mode_set[idx].pred_mode;
-    *ref_frame = ref_mode_set[idx].ref_frame;
-    *ref_frame2 = NONE_FRAME;
+    if (is_one_pass_lag_reference_control(cpi) && svc->spatial_layer_id > 0) {
+      *this_mode = ref_mode_set_full[idx].pred_mode;
+      *ref_frame = ref_mode_set_full[idx].ref_frame;
+      *ref_frame2 = NONE_FRAME;
+      const int ref_frame_idx = *ref_frame - 1;
+      if (*ref_frame != LAST_FRAME && *ref_frame != GOLDEN_FRAME &&
+          *ref_frame != ALTREF_FRAME &&
+          cpi->svc.reference_is_scaled[ref_frame_idx] == 0)
+        return true;
+      else if (cpi->svc.reference_is_scaled[ref_frame_idx] &&
+               *this_mode != GLOBALMV)
+        return true;
+    } else {
+      *this_mode = ref_mode_set[idx].pred_mode;
+      *ref_frame = ref_mode_set[idx].ref_frame;
+      *ref_frame2 = NONE_FRAME;
+    }
   }
 
   if (segfeature_active(&cm->seg, segment_id, SEG_LVL_SKIP) &&
@@ -3203,7 +3220,10 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
   int best_early_term = 0;
   int force_skip_low_temp_var = 0;
   unsigned int sse_zeromv_norm = UINT_MAX;
-  const int num_inter_modes = NUM_INTER_MODES;
+  int num_inter_modes = NUM_INTER_MODES;
+  if (is_one_pass_lag_reference_control(cpi) && svc->spatial_layer_id > 0) {
+    num_inter_modes = NUM_INTER_MODES_FULL;
+  }
   const REAL_TIME_SPEED_FEATURES *const rt_sf = &cpi->sf.rt_sf;
   bool check_globalmv = rt_sf->check_globalmv_on_single_ref;
   PRED_BUFFER tmp_buffer[4];

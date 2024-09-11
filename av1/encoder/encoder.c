@@ -2714,6 +2714,30 @@ static int encode_without_recode(AV1_COMP *cpi) {
   start_timing(cpi, av1_encode_frame_time);
 #endif
 
+  for (int i = 0; i < INTER_REFS_PER_FRAME; i++)
+    cpi->svc.reference_is_scaled[i] = 0;
+  if (is_one_pass_lag_reference_control(cpi) && svc->spatial_layer_id > 0 &&
+      cm->current_frame.frame_number > 0) {
+    GF_GROUP *gf_group = &cpi->ppi->gf_group;
+    for (int i = 0; i < INTER_REFS_PER_FRAME; i++) {
+      int ref_frame_map_idx = cpi->ppi->rtc_ref.ref_idx[i];
+      int is_reference = cpi->ppi->rtc_ref.reference[i];
+      if (gf_group->update_type[cpi->gf_frame_index] == ARF_UPDATE) {
+        ref_frame_map_idx =
+            cpi->ppi->rtc_ref.ref_idx_arf[svc->spatial_layer_id][i];
+        is_reference =
+            cpi->ppi->rtc_ref.reference_arf[svc->spatial_layer_id][i];
+      }
+      struct scale_factors *const sf_ref =
+          get_ref_scale_factors(cm, ref_frame_map_idx + 1);
+      if (sf_ref->x_scale_fp == 8192 && sf_ref->y_scale_fp == 8192 &&
+          is_reference == 1) {
+        cpi->svc.reference_is_scaled[ref_frame_map_idx] = 1;
+        i = INTER_REFS_PER_FRAME;
+      }
+    }
+  }
+
   // Set the motion vector precision based on mv stats from the last coded
   // frame.
   if (!frame_is_intra_only(cm)) av1_pick_and_set_high_precision_mv(cpi, q);
@@ -3207,7 +3231,8 @@ static int encode_with_recode_loop_and_filter(AV1_COMP *cpi, size_t *size,
 #if CONFIG_REALTIME_ONLY
   err = encode_without_recode(cpi);
 #else
-  if (cpi->sf.hl_sf.recode_loop == DISALLOW_RECODE)
+  if (cpi->sf.hl_sf.recode_loop == DISALLOW_RECODE ||
+      is_one_pass_lag_reference_control(cpi))
     err = encode_without_recode(cpi);
   else
     err = encode_with_recode_loop(cpi, size, dest, dest_size);
@@ -4170,10 +4195,13 @@ int av1_receive_raw_frame(AV1_COMP *cpi, aom_enc_frame_flags_t frame_flags,
   }
 #endif  //  CONFIG_DENOISE
 
-  if (av1_lookahead_push(cpi->ppi->lookahead, sd, time_stamp, end_time,
-                         use_highbitdepth, cpi->alloc_pyramid, frame_flags)) {
-    aom_set_error(cm->error, AOM_CODEC_ERROR, "av1_lookahead_push() failed");
-    res = -1;
+  if (cpi->svc.spatial_layer_id == 0 ||
+      !is_one_pass_lag_reference_control(cpi)) {
+    if (av1_lookahead_push(cpi->ppi->lookahead, sd, time_stamp, end_time,
+                           use_highbitdepth, cpi->alloc_pyramid, frame_flags)) {
+      aom_set_error(cm->error, AOM_CODEC_ERROR, "av1_lookahead_push() failed");
+      res = -1;
+    }
   }
 #if CONFIG_INTERNAL_STATS
   aom_usec_timer_mark(&timer);
@@ -4504,7 +4532,8 @@ static inline void update_gf_group_index(AV1_COMP *cpi) {
     if (cpi->gf_frame_index == MAX_STATIC_GF_GROUP_LENGTH)
       cpi->gf_frame_index = 0;
   } else {
-    ++cpi->gf_frame_index;
+    if (cpi->svc.spatial_layer_id == cpi->svc.number_spatial_layers - 1)
+      ++cpi->gf_frame_index;
   }
 }
 
@@ -4684,6 +4713,19 @@ void av1_post_encode_updates(AV1_COMP *const cpi,
     update_end_of_frame_stats(cpi);
   }
 
+  if (is_one_pass_lag_reference_control(cpi) &&
+      cpi->svc.number_spatial_layers > 1) {
+    GF_GROUP *gf_group = &cpi->ppi->gf_group;
+    if (gf_group->update_type[cpi->gf_frame_index] == ARF_UPDATE)
+      cpi->svc.arf_encoded[cpi->svc.spatial_layer_id] = 1;
+    else
+      cpi->svc.arf_encoded[cpi->svc.spatial_layer_id] = 0;
+    if (cpi->gf_frame_index == 2)
+      cpi->svc.lf_encoded[cpi->svc.spatial_layer_id] = 1;
+    else
+      cpi->svc.lf_encoded[cpi->svc.spatial_layer_id] = 0;
+  }
+
 #if CONFIG_THREE_PASS
   if (cpi->oxcf.pass == AOM_RC_THIRD_PASS && cpi->third_pass_ctx) {
     av1_pop_third_pass_info(cpi->third_pass_ctx);
@@ -4756,7 +4798,7 @@ int av1_get_compressed_data(AV1_COMP *cpi, AV1_COMP_DATA *const cpi_data) {
   }
 #endif
   if (cpi->ppi->use_svc) {
-    av1_one_pass_cbr_svc_start_layer(cpi);
+    av1_one_pass_svc_start_layer(cpi);
   }
 
   cpi->is_dropped_frame = false;

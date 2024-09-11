@@ -2500,6 +2500,16 @@ typedef struct RTC_REF {
   int reference[INTER_REFS_PER_FRAME];
   int ref_idx[INTER_REFS_PER_FRAME];
   int refresh[REF_FRAMES];
+  // For lookahead ARF
+  int gop_interval;
+  int layer_depth;
+  int reference_arf[AOM_MAX_SS_LAYERS][INTER_REFS_PER_FRAME];
+  int ref_idx_arf[AOM_MAX_SS_LAYERS][INTER_REFS_PER_FRAME];
+  int refresh_arf[AOM_MAX_SS_LAYERS][REF_FRAMES];
+  int reference_tmp[INTER_REFS_PER_FRAME];
+  int ref_idx_tmp[INTER_REFS_PER_FRAME];
+  int refresh_tmp[REF_FRAMES];
+  //
   int set_ref_frame_config;
   int non_reference_frame;
   int ref_frame_comp[3];
@@ -2572,6 +2582,11 @@ typedef struct AV1_COMP_DATA {
    * Decide to pop the source for this frame from input buffer queue.
    */
   int pop_lookahead;
+
+  /*!
+   * Size of invisible frame per spatial layer.
+   */
+  size_t frame_size_sl_inv[AOM_MAX_SS_LAYERS];
 } AV1_COMP_DATA;
 
 /*!
@@ -4096,8 +4111,22 @@ static inline int has_no_stats_stage(const AV1_COMP *const cpi) {
 
 /*!\cond */
 
+static inline int is_one_pass_lag_reference_control(const AV1_COMP *cpi) {
+  return cpi->oxcf.pass == AOM_RC_ONE_PASS &&
+         cpi->oxcf.gf_cfg.lag_in_frames > 0 &&
+         cpi->ppi->rtc_ref.set_ref_frame_config;
+}
+
+static inline int is_one_pass_lag0_reference_control(const AV1_COMP *cpi) {
+  return cpi->oxcf.pass == AOM_RC_ONE_PASS &&
+         cpi->oxcf.gf_cfg.lag_in_frames == 0 &&
+         cpi->ppi->rtc_ref.set_ref_frame_config;
+}
+
 static inline int is_one_pass_rt_params(const AV1_COMP *cpi) {
-  return has_no_stats_stage(cpi) && cpi->oxcf.mode == REALTIME &&
+  return has_no_stats_stage(cpi) &&
+         (cpi->oxcf.mode == REALTIME ||
+          (cpi->oxcf.mode == GOOD && cpi->ppi->rtc_ref.set_ref_frame_config)) &&
          cpi->oxcf.gf_cfg.lag_in_frames == 0;
 }
 

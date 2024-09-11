@@ -1798,7 +1798,8 @@ static void set_rt_speed_features_framesize_independent(AV1_COMP *cpi,
   sf->rt_sf.mode_search_skip_flags |= FLAG_SKIP_INTRA_DIRMISMATCH;
   sf->rt_sf.num_inter_modes_for_tx_search = 5;
   sf->rt_sf.prune_inter_modes_using_temp_var = 1;
-  sf->rt_sf.use_real_time_ref_set = 1;
+  sf->rt_sf.use_real_time_ref_set =
+      (cpi->oxcf.gf_cfg.lag_in_frames == 0) ? 1 : 0;
   sf->rt_sf.use_simple_rd_model = 1;
   sf->rt_sf.prune_inter_modes_with_golden_ref = boosted ? 0 : 1;
   // TODO(any): This sf could be removed.

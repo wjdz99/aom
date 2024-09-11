@@ -119,6 +119,12 @@ void av1_configure_buffer_updates(AV1_COMP *const cpi,
       gf_group->update_type[cpi->gf_frame_index] = ARF_UPDATE;
     if (ext_refresh_frame_flags->bwd_ref_frame)
       gf_group->update_type[cpi->gf_frame_index] = INTNL_ARF_UPDATE;
+    if (is_one_pass_lag_reference_control(cpi) && type == ARF_UPDATE &&
+        ext_refresh_frame_flags->alt2_ref_frame &&
+        cpi->svc.spatial_layer_id == 0) {
+      refresh_frame->alt_ref_frame = 1;
+      gf_group->update_type[cpi->gf_frame_index] = ARF_UPDATE;
+    }
   }
 
   if (force_refresh_all)
@@ -368,6 +374,12 @@ static struct lookahead_entry *choose_frame_source(
   }
 
   *show_frame = *pop_lookahead;
+
+  if (is_one_pass_lag_reference_control(cpi) &&
+      cpi->svc.spatial_layer_id < cpi->svc.number_spatial_layers - 1 &&
+      gf_group->update_type[cpi->gf_frame_index] != ARF_UPDATE) {
+    *pop_lookahead = 0;
+  }
 
 #if CONFIG_FPMT_TEST
   if (cpi->ppi->fpmt_unit_test_cfg == PARALLEL_ENCODE) {
@@ -1352,6 +1364,9 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
   }
 #endif
 
+  if (is_one_pass_lag_reference_control(cpi))
+    av1_svc_setup_one_pass_lag_reference_control(cpi, &frame_params.frame_type);
+
   if (!is_stat_generation_stage(cpi)) {
     // TODO(jingning): fwd key frame always uses show existing frame?
     if (gf_group->update_type[cpi->gf_frame_index] == OVERLAY_UPDATE &&
@@ -1479,6 +1494,11 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
     cm->frame_presentation_time = (uint32_t)pts64;
   }
 
+  if (cpi->ppi->use_svc) {
+    av1_update_temporal_layer_framerate(cpi);
+    av1_restore_layer_context(cpi);
+  }
+
 #if CONFIG_COLLECT_COMPONENT_TIMING
   start_timing(cpi, av1_get_one_pass_rt_params_time);
 #endif
@@ -1588,6 +1608,9 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
                  use_rtc_reference_structure_one_layer(cpi)) {
         for (unsigned int i = 0; i < INTER_REFS_PER_FRAME; i++)
           cm->remapped_ref_idx[i] = cpi->ppi->rtc_ref.ref_idx[i];
+        if (is_one_pass_lag_reference_control(cpi) &&
+            cpi->svc.number_spatial_layers > 1)
+          cpi->rc.is_src_frame_alt_ref = 0;
       }
     }
 
@@ -1671,6 +1694,9 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
       is_intra_frame) {
     av1_set_screen_content_options(cpi, features);
   }
+
+  if (is_one_pass_lag_reference_control(cpi))
+    av1_rc_one_pass_lag_reference_control(cpi);
 
 #if CONFIG_REALTIME_ONLY
   if (av1_encode(cpi, dest, dest_size, &frame_input, &frame_params,

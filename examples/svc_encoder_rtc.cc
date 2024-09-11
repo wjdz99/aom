@@ -42,6 +42,8 @@
 #define OPTION_BUFFER_SIZE 1024
 #define MAX_NUM_SPATIAL_LAYERS 4
 
+#define GOOD_QUALITY 0
+
 typedef struct {
   const char *output_filename;
   char options[OPTION_BUFFER_SIZE];
@@ -309,8 +311,11 @@ static void parse_command_line(int argc, const char **argv_,
   app_input->output_obu = 0;
   app_input->decode = 1;
   enc_cfg->g_threads = 1;
+#if GOOD_QUALITY
+  enc_cfg->rc_end_usage = AOM_VBR;
+#else
   enc_cfg->rc_end_usage = AOM_CBR;
-
+#endif
   // process command line options
   argv = argv_dup(argc - 1, argv_ + 1);
   if (!argv) {
@@ -656,7 +661,7 @@ static void printout_rate_control_summary(struct RateControlMetrics *rc,
          rc->avg_st_encoding_bitrate, sqrt(rc->variance_st_encoding_bitrate),
          perc_fluctuation);
   if (frame_cnt - 1 != tot_num_frames)
-    die("Error: Number of input frames not equal to output!\n");
+    printf("WARNING Number of input frames not equal to output!\n");
 }
 
 // Layer pattern configuration.
@@ -664,7 +669,8 @@ static void set_layer_pattern(
     int layering_mode, int superframe_cnt, aom_svc_layer_id_t *layer_id,
     aom_svc_ref_frame_config_t *ref_frame_config,
     aom_svc_ref_frame_comp_pred_t *ref_frame_comp_pred, int *use_svc_control,
-    int spatial_layer_id, int is_key_frame, int ksvc_mode, int speed) {
+    int spatial_layer_id, int is_key_frame, int ksvc_mode, int speed,
+    int gop_interval) {
   // Setting this flag to 1 enables simplex example of
   // RPS (Reference Picture Selection) for 1 layer.
   int use_rps_example = 0;
@@ -682,23 +688,63 @@ static void set_layer_pattern(
   // Set the reference map buffer idx for the 7 references:
   // LAST_FRAME (0), LAST2_FRAME(1), LAST3_FRAME(2), GOLDEN_FRAME(3),
   // BWDREF_FRAME(4), ALTREF2_FRAME(5), ALTREF_FRAME(6).
-  for (i = 0; i < INTER_REFS_PER_FRAME; i++) ref_frame_config->ref_idx[i] = i;
-  for (i = 0; i < INTER_REFS_PER_FRAME; i++) ref_frame_config->reference[i] = 0;
-  for (i = 0; i < REF_FRAMES; i++) ref_frame_config->refresh[i] = 0;
+  for (i = 0; i < INTER_REFS_PER_FRAME; i++) {
+    ref_frame_config->ref_idx[i] = i;
+    ref_frame_config->reference[i] = 0;
+    for (int ss = 0; ss < AOM_MAX_SS_LAYERS; ss++) {
+      ref_frame_config->ref_idx_arf[ss][i] = i;
+      ref_frame_config->reference_arf[ss][i] = 0;
+    }
+  }
+  for (i = 0; i < REF_FRAMES; i++) {
+    ref_frame_config->refresh[i] = 0;
+    for (int ss = 0; ss < AOM_MAX_SS_LAYERS; ss++) {
+      ref_frame_config->refresh_arf[ss][i] = 0;
+    }
+  }
 
   if (ksvc_mode) {
     // Same pattern as case 9, but the reference strucutre will be constrained
     // below.
     layering_mode = 9;
   }
+
   switch (layering_mode) {
     case 0:
       if (use_rps_example == 0) {
         // 1-layer: update LAST on every frame, reference LAST.
         layer_id->temporal_layer_id = 0;
         layer_id->spatial_layer_id = 0;
-        ref_frame_config->refresh[0] = 1;
         ref_frame_config->reference[SVC_LAST_FRAME] = 1;
+        ref_frame_config->refresh[0] = 1;
+
+        // Example for 1 layer with lookahead.
+        if (gop_interval > 1) {
+          int frame_cnt = superframe_cnt - gop_interval + 1;
+          ref_frame_config->gop_interval = gop_interval;
+          ref_frame_config->layer_depth = 1;
+          ref_frame_config->reference[SVC_LAST_FRAME] = 1;
+          ref_frame_config->reference[SVC_GOLDEN_FRAME] = 1;
+          ref_frame_config->reference[SVC_ALTREF_FRAME] = 1;
+          if ((frame_cnt - 1) % gop_interval == 0) {
+            // On the ARF frame: for LAST following ARF.
+            ref_frame_config->refresh[0] = 1;
+            ref_frame_config->reference[SVC_LAST_FRAME] = 1;
+            ref_frame_config->reference[SVC_GOLDEN_FRAME] = 1;
+            ref_frame_config->reference[SVC_ALTREF_FRAME] = 1;
+            // For ARF
+            ref_frame_config->refresh_arf[0][6] = 1;
+            ref_frame_config->reference_arf[0][SVC_LAST_FRAME] = 1;
+            ref_frame_config->reference_arf[0][SVC_GOLDEN_FRAME] = 1;
+            ref_frame_config->reference_arf[0][SVC_ALTREF_FRAME] = 1;
+          } else if (frame_cnt % gop_interval == 0) {
+            // For GOLDEN
+            ref_frame_config->refresh[3] = 1;
+          } else {
+            // For LAST
+            ref_frame_config->refresh[0] = 1;
+          }
+        }
       } else {
         // Pattern of 2 references (ALTREF and GOLDEN) trailing
         // LAST by 4 and 8 frames, with some switching logic to
@@ -903,19 +949,93 @@ static void set_layer_pattern(
       break;
     case 5:
       // 2 spatial layers, 1 temporal.
-      layer_id->temporal_layer_id = 0;
-      if (layer_id->spatial_layer_id == 0) {
-        // Reference LAST, update LAST.
-        ref_frame_config->refresh[0] = 1;
-        ref_frame_config->reference[SVC_LAST_FRAME] = 1;
-      } else if (layer_id->spatial_layer_id == 1) {
-        // Reference LAST and GOLDEN. Set buffer_idx for LAST to slot 1
-        // and GOLDEN to slot 0. Update slot 1 (LAST).
-        ref_frame_config->ref_idx[SVC_LAST_FRAME] = 1;
-        ref_frame_config->ref_idx[SVC_GOLDEN_FRAME] = 0;
-        ref_frame_config->refresh[1] = 1;
-        ref_frame_config->reference[SVC_LAST_FRAME] = 1;
-        ref_frame_config->reference[SVC_GOLDEN_FRAME] = 1;
+      // Example for 2 layers with lookahead.
+      if (gop_interval == 0) {
+        layer_id->temporal_layer_id = 0;
+        if (layer_id->spatial_layer_id == 0) {
+          // Reference LAST, update LAST.
+          ref_frame_config->refresh[0] = 1;
+          ref_frame_config->reference[SVC_LAST_FRAME] = 1;
+        } else if (layer_id->spatial_layer_id == 1) {
+          // Reference LAST and GOLDEN. Set buffer_idx for LAST to slot 1
+          // and GOLDEN to slot 0. Update slot 1 (LAST).
+          ref_frame_config->ref_idx[SVC_LAST_FRAME] = 1;
+          ref_frame_config->ref_idx[SVC_GOLDEN_FRAME] = 0;
+          ref_frame_config->refresh[1] = 1;
+          ref_frame_config->reference[SVC_LAST_FRAME] = 1;
+          ref_frame_config->reference[SVC_GOLDEN_FRAME] = 1;
+        }
+      }
+      if (gop_interval > 1) {
+        int frame_cnt = superframe_cnt - gop_interval + 1;
+        ref_frame_config->gop_interval = gop_interval;
+        ref_frame_config->layer_depth = 1;
+
+        if ((frame_cnt - 1) % gop_interval == 0) {
+          // For LAST following the ARF.
+          if (layer_id->spatial_layer_id == 0) {
+            ref_frame_config->refresh[0] = 1;
+            ref_frame_config->reference[SVC_LAST_FRAME] = 1;
+            ref_frame_config->reference[SVC_LAST3_FRAME] = 1;
+            ref_frame_config->reference[SVC_ALTREF2_FRAME] = 1;
+          } else if (layer_id->spatial_layer_id == 1) {
+            // LAST is the temporal reference at same resolution,
+            // LAST2 is the spatial/low-resolution reference.
+            ref_frame_config->ref_idx[0] = 1;
+            ref_frame_config->ref_idx[1] = 0;
+            ref_frame_config->refresh[1] = 1;
+            ref_frame_config->reference[SVC_LAST_FRAME] = 1;
+            ref_frame_config->reference[SVC_LAST2_FRAME] = 1;
+            ref_frame_config->reference[SVC_GOLDEN_FRAME] = 1;
+            ref_frame_config->reference[SVC_ALTREF_FRAME] = 1;
+          }
+          // For ARF
+          ref_frame_config->refresh_arf[0][5] = 1;
+          ref_frame_config->reference_arf[0][SVC_LAST_FRAME] = 1;
+          ref_frame_config->reference_arf[0][SVC_LAST3_FRAME] = 1;
+          ref_frame_config->reference_arf[0][SVC_ALTREF2_FRAME] = 1;
+          ref_frame_config->ref_idx_arf[1][0] = 1;
+          ref_frame_config->refresh_arf[1][6] = 1;
+          ref_frame_config->reference_arf[1][SVC_LAST_FRAME] = 1;
+          ref_frame_config->reference_arf[1][SVC_GOLDEN_FRAME] = 1;
+          ref_frame_config->reference_arf[1][SVC_ALTREF2_FRAME] = 1;
+        } else if (frame_cnt % gop_interval == 0) {
+          // For GF
+          if (layer_id->spatial_layer_id == 0) {
+            ref_frame_config->refresh[2] = 1;
+            ref_frame_config->reference[SVC_LAST_FRAME] = 1;
+            ref_frame_config->reference[SVC_LAST3_FRAME] = 1;
+            ref_frame_config->reference[SVC_ALTREF2_FRAME] = 1;
+          } else if (layer_id->spatial_layer_id == 1) {
+            // LAST is the temporal reference at same resolution,
+            // LAST2 is the spatial/low-resolution reference.
+            ref_frame_config->ref_idx[0] = 1;
+            ref_frame_config->ref_idx[1] = 2;
+            ref_frame_config->refresh[3] = 1;
+            ref_frame_config->reference[SVC_LAST_FRAME] = 1;
+            ref_frame_config->reference[SVC_LAST2_FRAME] = 1;
+            ref_frame_config->reference[SVC_GOLDEN_FRAME] = 1;
+            ref_frame_config->reference[SVC_ALTREF_FRAME] = 1;
+          }
+        } else {
+          // LAST
+          if (layer_id->spatial_layer_id == 0) {
+            ref_frame_config->refresh[0] = 1;
+            ref_frame_config->reference[SVC_LAST_FRAME] = 1;
+            ref_frame_config->reference[SVC_LAST3_FRAME] = 1;
+            ref_frame_config->reference[SVC_ALTREF2_FRAME] = 1;
+          } else if (layer_id->spatial_layer_id == 1) {
+            // LAST is the temporal reference at same resolution,
+            // LAST2 is the spatial/low-resolution reference.
+            ref_frame_config->ref_idx[0] = 1;
+            ref_frame_config->ref_idx[1] = 0;
+            ref_frame_config->refresh[1] = 1;
+            ref_frame_config->reference[SVC_LAST_FRAME] = 1;
+            ref_frame_config->reference[SVC_LAST2_FRAME] = 1;
+            ref_frame_config->reference[SVC_GOLDEN_FRAME] = 1;
+            ref_frame_config->reference[SVC_ALTREF_FRAME] = 1;
+          }
+        }
       }
       break;
     case 6:
@@ -1717,6 +1837,49 @@ static void set_active_map(const aom_codec_enc_cfg_t *cfg,
   free(map.active_map);
 }
 
+static void writeout_stats(const aom_codec_cx_pkt_t *pkt,
+                           struct RateControlMetrics *rc, int frame_size,
+                           int shift, int spatial_layer_id,
+                           int temporal_layer_id, int ss_layers_write,
+                           int ts_number_layers, int output_obu,
+                           FILE **obu_files, AvxVideoWriter **outfile,
+                           AvxVideoWriter *total_layer_file,
+                           FILE *total_layer_obu_file, int pts, int *got_data) {
+  uint8_t *pkt_buf = static_cast<uint8_t *>(pkt->data.frame.buf) + shift;
+  for (int sl = spatial_layer_id; sl < ss_layers_write; ++sl) {
+    for (int tl = temporal_layer_id; tl < ts_number_layers; ++tl) {
+      int j = sl * ts_number_layers + tl;
+      if (output_obu) {
+        fwrite(pkt_buf, 1, frame_size, obu_files[j]);
+      } else {
+        aom_video_writer_write_frame(outfile[j],
+                                     reinterpret_cast<const uint8_t *>(pkt_buf),
+                                     frame_size, pts);
+      }
+      if (sl == spatial_layer_id)
+        rc->layer_encoding_bitrate[j] += 8.0 * frame_size;
+    }
+  }
+  *got_data = 1;
+  // Write everything into the top layer.
+  if (output_obu) {
+    fwrite(pkt_buf, 1, frame_size, total_layer_obu_file);
+  } else {
+    aom_video_writer_write_frame(total_layer_file,
+                                 reinterpret_cast<const uint8_t *>(pkt_buf),
+                                 frame_size, pts);
+  }
+  // Keep count of rate control stats per layer (for non-key).
+  if (!(pkt->data.frame.flags & AOM_FRAME_IS_KEY)) {
+    int j = spatial_layer_id * ts_number_layers + temporal_layer_id;
+    assert(j >= 0);
+    rc->layer_avg_frame_size[j] += 8.0 * frame_size;
+    rc->layer_avg_rate_mismatch[j] +=
+        fabs(8.0 * frame_size - rc->layer_pfb[j]) / rc->layer_pfb[j];
+    if (spatial_layer_id == 0) ++rc->layer_enc_frames[temporal_layer_id];
+  }
+}
+
 int main(int argc, const char **argv) {
   AppInput app_input;
   AvxVideoWriter *outfile[AOM_MAX_LAYERS] = { NULL };
@@ -1783,25 +1946,37 @@ int main(int argc, const char **argv) {
   exec_name = argv[0];
 
   // start with default encoder configuration
+#if GOOD_QUALITY
+  aom_codec_err_t res = aom_codec_enc_config_default(aom_codec_av1_cx(), &cfg,
+                                                     AOM_USAGE_GOOD_QUALITY);
+#else
   aom_codec_err_t res = aom_codec_enc_config_default(aom_codec_av1_cx(), &cfg,
                                                      AOM_USAGE_REALTIME);
+#endif
   if (res != AOM_CODEC_OK) {
     die("Failed to get config: %s\n", aom_codec_err_to_string(res));
   }
-
-  // Real time parameters.
-  cfg.g_usage = AOM_USAGE_REALTIME;
-
-  cfg.rc_end_usage = AOM_CBR;
+#if GOOD_QUALITY
+  cfg.g_usage = AOM_USAGE_GOOD_QUALITY;
+  cfg.rc_end_usage = AOM_VBR;
+  cfg.g_lag_in_frames = 10;
   cfg.rc_min_quantizer = 2;
   cfg.rc_max_quantizer = 52;
+#else
+  // Real time parameters.
+  cfg.g_usage = AOM_USAGE_REALTIME;
+  cfg.rc_end_usage = AOM_CBR;
+  cfg.g_lag_in_frames = 0;
+  cfg.rc_min_quantizer = 2;
+  cfg.rc_max_quantizer = 52;
+
+#endif
   cfg.rc_undershoot_pct = 50;
   cfg.rc_overshoot_pct = 50;
   cfg.rc_buf_initial_sz = 600;
   cfg.rc_buf_optimal_sz = 600;
   cfg.rc_buf_sz = 1000;
   cfg.rc_resize_mode = 0;  // Set to RESIZE_DYNAMIC for dynamic resize.
-  cfg.g_lag_in_frames = 0;
   cfg.kf_mode = AOM_KF_AUTO;
   cfg.g_w = 0;  // Force user to specify width and height for raw input.
   cfg.g_h = 0;
@@ -1921,28 +2096,31 @@ int main(int argc, const char **argv) {
 #endif
 
   aom_codec_control(&codec, AOME_SET_CPUUSED, app_input.speed);
-  aom_codec_control(&codec, AV1E_SET_AQ_MODE, app_input.aq_mode ? 3 : 0);
   aom_codec_control(&codec, AV1E_SET_GF_CBR_BOOST_PCT, 0);
   aom_codec_control(&codec, AV1E_SET_ENABLE_CDEF, 1);
   aom_codec_control(&codec, AV1E_SET_LOOPFILTER_CONTROL, 1);
+  aom_codec_control(&codec, AV1E_SET_ENABLE_TPL_MODEL, 0);
+  aom_codec_control(&codec, AV1E_SET_ENABLE_ORDER_HINT, 0);
+  if (cfg.g_lag_in_frames > 0)
+    aom_codec_control(&codec, AV1E_SET_MAX_REFERENCE_FRAMES, 7);
+#if !GOOD_QUALITY
+  aom_codec_control(&codec, AV1E_SET_AQ_MODE, app_input.aq_mode ? 3 : 0);
   aom_codec_control(&codec, AV1E_SET_ENABLE_WARPED_MOTION, 0);
   aom_codec_control(&codec, AV1E_SET_ENABLE_OBMC, 0);
   aom_codec_control(&codec, AV1E_SET_ENABLE_GLOBAL_MOTION, 0);
-  aom_codec_control(&codec, AV1E_SET_ENABLE_ORDER_HINT, 0);
-  aom_codec_control(&codec, AV1E_SET_ENABLE_TPL_MODEL, 0);
   aom_codec_control(&codec, AV1E_SET_DELTAQ_MODE, 0);
   aom_codec_control(&codec, AV1E_SET_COEFF_COST_UPD_FREQ, 3);
   aom_codec_control(&codec, AV1E_SET_MODE_COST_UPD_FREQ, 3);
   aom_codec_control(&codec, AV1E_SET_MV_COST_UPD_FREQ, 3);
   aom_codec_control(&codec, AV1E_SET_DV_COST_UPD_FREQ, 3);
-  aom_codec_control(&codec, AV1E_SET_CDF_UPDATE_MODE, 1);
-
-  // Settings to reduce key frame encoding time.
   aom_codec_control(&codec, AV1E_SET_ENABLE_CFL_INTRA, 0);
   aom_codec_control(&codec, AV1E_SET_ENABLE_SMOOTH_INTRA, 0);
   aom_codec_control(&codec, AV1E_SET_ENABLE_ANGLE_DELTA, 0);
   aom_codec_control(&codec, AV1E_SET_ENABLE_FILTER_INTRA, 0);
   aom_codec_control(&codec, AV1E_SET_INTRA_DEFAULT_TX_ONLY, 1);
+#endif
+
+  aom_codec_control(&codec, AV1E_SET_CDF_UPDATE_MODE, 1);
 
   aom_codec_control(&codec, AV1E_SET_AUTO_TILES, 1);
 
@@ -1953,6 +2131,8 @@ int main(int argc, const char **argv) {
     aom_codec_control(&codec, AV1E_SET_ENABLE_INTRABC, 0);
   }
 
+  // Turn off RTC specific settings,
+#if !GOOD_QUALITY
   if (app_input.use_external_rc) {
     aom_codec_control(&codec, AV1E_SET_RTC_EXTERNAL_RC, 1);
   }
@@ -1963,6 +2143,14 @@ int main(int argc, const char **argv) {
                     AOM_FULL_SUPERFRAME_DROP);
 
   aom_codec_control(&codec, AV1E_SET_POSTENCODE_DROP_RTC, 1);
+#endif
+
+  if (cfg.g_lag_in_frames > 0) {
+    // Enable auto alt_ref
+    aom_codec_control(&codec, AOME_SET_ENABLEAUTOALTREF,
+                      cfg.g_lag_in_frames > 0);
+    aom_codec_control(&codec, AOME_SET_ARNR_MAXFRAMES, 0);
+  }
 
   svc_params.number_spatial_layers = ss_number_layers;
   svc_params.number_temporal_layers = ts_number_layers;
@@ -1970,6 +2158,7 @@ int main(int argc, const char **argv) {
     svc_params.max_quantizers[i] = cfg.rc_max_quantizer;
     svc_params.min_quantizers[i] = cfg.rc_min_quantizer;
   }
+
   if (!app_input.scale_factors_explicitly_set) {
     for (i = 0; i < ss_number_layers; ++i) {
       svc_params.scaling_factor_num[i] = 1;
@@ -1985,9 +2174,11 @@ int main(int argc, const char **argv) {
       svc_params.scaling_factor_den[1] = 2;
     }
   }
+
   aom_codec_control(&codec, AV1E_SET_SVC_PARAMS, &svc_params);
   // TODO(aomedia:3032): Configure KSVC in fixed mode.
 
+#if !GOOD_QUALITY
   // This controls the maximum target size of the key frame.
   // For generating smaller key frames, use a smaller max_intra_size_pct
   // value, like 100 or 200.
@@ -1996,6 +2187,7 @@ int main(int argc, const char **argv) {
     aom_codec_control(&codec, AOME_SET_MAX_INTRA_BITRATE_PCT,
                       max_intra_size_pct);
   }
+#endif
 
   for (int lx = 0; lx < ts_number_layers * ss_number_layers; lx++) {
     cx_time_layer[lx] = 0;
@@ -2015,8 +2207,11 @@ int main(int argc, const char **argv) {
   while (frame_avail || got_data) {
     struct aom_usec_timer timer;
     frame_avail = read_frame(&(app_input.input_ctx[0]), &raw);
+    int slx_max = 1;
+    int gop_interval = cfg.g_lag_in_frames;
+    if (frame_cnt >= gop_interval - 1) slx_max = ss_number_layers;
     // Loop over spatial layers.
-    for (int slx = 0; slx < ss_number_layers; slx++) {
+    for (int slx = 0; slx < slx_max; slx++) {
       if (slx > 0 && app_input.input_ctx[slx].filename != NULL) {
         const int previous_layer_frame_avail = frame_avail;
         frame_avail = read_frame(&(app_input.input_ctx[slx]), &raw);
@@ -2024,7 +2219,6 @@ int main(int argc, const char **argv) {
           die("Mismatch in number of frames between spatial layer input files");
         }
       }
-
       aom_codec_iter_t iter = NULL;
       const aom_codec_cx_pkt_t *pkt;
       int layer = 0;
@@ -2034,10 +2228,10 @@ int main(int argc, const char **argv) {
       if (app_input.layering_mode >= 0) {
         // Set the reference/update flags, layer_id, and reference_map
         // buffer index.
-        set_layer_pattern(app_input.layering_mode, frame_cnt, &layer_id,
-                          &ref_frame_config, &ref_frame_comp_pred,
-                          &use_svc_control, slx, is_key_frame,
-                          (app_input.layering_mode == 10), app_input.speed);
+        set_layer_pattern(
+            app_input.layering_mode, frame_cnt, &layer_id, &ref_frame_config,
+            &ref_frame_comp_pred, &use_svc_control, slx, is_key_frame,
+            (app_input.layering_mode == 10), app_input.speed, gop_interval);
         aom_codec_control(&codec, AV1E_SET_SVC_LAYER_ID, &layer_id);
         if (use_svc_control) {
           aom_codec_control(&codec, AV1E_SET_SVC_REF_FRAME_CONFIG,
@@ -2196,48 +2390,37 @@ int main(int argc, const char **argv) {
       int ss_layers_write = (app_input.layering_mode == 11)
                                 ? layer_id.spatial_layer_id + 1
                                 : ss_number_layers;
+      int shift_size = 0;
       while ((pkt = aom_codec_get_cx_data(&codec, &iter))) {
         switch (pkt->kind) {
           case AOM_CODEC_CX_FRAME_PKT:
-            for (int sl = layer_id.spatial_layer_id; sl < ss_layers_write;
-                 ++sl) {
-              for (int tl = layer_id.temporal_layer_id; tl < ts_number_layers;
-                   ++tl) {
-                int j = sl * ts_number_layers + tl;
-                if (app_input.output_obu) {
-                  fwrite(pkt->data.frame.buf, 1, pkt->data.frame.sz,
-                         obu_files[j]);
-                } else {
-                  aom_video_writer_write_frame(
-                      outfile[j],
-                      reinterpret_cast<const uint8_t *>(pkt->data.frame.buf),
-                      pkt->data.frame.sz, pts);
-                }
-                if (sl == layer_id.spatial_layer_id)
-                  rc.layer_encoding_bitrate[j] += 8.0 * pkt->data.frame.sz;
+            if (pkt->data.frame.sz > pkt->data.frame.vis_frame_size &&
+                ss_number_layers > 1) {
+              // Invisible frame with spatial layers.
+              for (int sl = 0; sl < ss_number_layers; sl++) {
+                int size =
+                    static_cast<int>(pkt->data.frame.frame_size_sl_inv[sl]);
+                writeout_stats(pkt, &rc, size, shift_size, sl,
+                               layer_id.temporal_layer_id, ss_layers_write,
+                               ts_number_layers, app_input.output_obu,
+                               obu_files, outfile, total_layer_file,
+                               total_layer_obu_file, pts, &got_data);
+                shift_size += size;
               }
-            }
-            got_data = 1;
-            // Write everything into the top layer.
-            if (app_input.output_obu) {
-              fwrite(pkt->data.frame.buf, 1, pkt->data.frame.sz,
-                     total_layer_obu_file);
+              // Now do the visible frame
+              int size = static_cast<int>(pkt->data.frame.vis_frame_size);
+              writeout_stats(pkt, &rc, size, shift_size, slx,
+                             layer_id.temporal_layer_id, ss_layers_write,
+                             ts_number_layers, app_input.output_obu, obu_files,
+                             outfile, total_layer_file, total_layer_obu_file,
+                             pts, &got_data);
             } else {
-              aom_video_writer_write_frame(
-                  total_layer_file,
-                  reinterpret_cast<const uint8_t *>(pkt->data.frame.buf),
-                  pkt->data.frame.sz, pts);
-            }
-            // Keep count of rate control stats per layer (for non-key).
-            if (!(pkt->data.frame.flags & AOM_FRAME_IS_KEY)) {
-              int j = layer_id.spatial_layer_id * ts_number_layers +
-                      layer_id.temporal_layer_id;
-              assert(j >= 0);
-              rc.layer_avg_frame_size[j] += 8.0 * pkt->data.frame.sz;
-              rc.layer_avg_rate_mismatch[j] +=
-                  fabs(8.0 * pkt->data.frame.sz - rc.layer_pfb[j]) /
-                  rc.layer_pfb[j];
-              if (slx == 0) ++rc.layer_enc_frames[layer_id.temporal_layer_id];
+              int size = static_cast<int>(pkt->data.frame.sz);
+              writeout_stats(
+                  pkt, &rc, size, shift_size, layer_id.spatial_layer_id,
+                  layer_id.temporal_layer_id, ss_layers_write, ts_number_layers,
+                  app_input.output_obu, obu_files, outfile, total_layer_file,
+                  total_layer_obu_file, pts, &got_data);
             }
 
             if (rc_api) {
@@ -2283,7 +2466,6 @@ int main(int argc, const char **argv) {
                 die_codec(&decoder, "Failed to decode frame");
             }
 #endif
-
             break;
           case AOM_CODEC_PSNR_PKT:
             if (app_input.show_psnr) {
@@ -2329,6 +2511,13 @@ int main(int argc, const char **argv) {
   }
   printout_rate_control_summary(&rc, frame_cnt, ss_number_layers,
                                 ts_number_layers);
+  double total_encoded_bitrate = 0;
+  for (int slx = 0; slx < ss_number_layers; slx++) {
+    i = slx * ts_number_layers + ts_number_layers - 1;
+    total_encoded_bitrate += rc.layer_encoding_bitrate[i];
+  }
+  printf("*********\n");
+  printf("Total encoded bitrate %f \n", total_encoded_bitrate);
 
   printf("\n");
   for (int slx = 0; slx < ss_number_layers; slx++)
