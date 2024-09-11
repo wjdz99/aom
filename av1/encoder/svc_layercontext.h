@@ -291,7 +291,7 @@ void av1_svc_reset_temporal_layers(struct AV1_COMP *const cpi, int is_key);
  *
  * \param[in]       cpi  Top level encoder structure
  */
-void av1_one_pass_cbr_svc_start_layer(struct AV1_COMP *const cpi);
+void av1_one_pass_svc_start_layer(struct AV1_COMP *const cpi);
 
 /*!\brief Get primary reference frame for current layer
  *

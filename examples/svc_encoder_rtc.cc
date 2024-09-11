@@ -1537,13 +1537,13 @@ int main(int argc, const char **argv) {
 
   // start with default encoder configuration
   aom_codec_err_t res = aom_codec_enc_config_default(aom_codec_av1_cx(), &cfg,
-                                                     AOM_USAGE_REALTIME);
+                                                     AOM_USAGE_GOOD_QUALITY/*AOM_USAGE_REALTIME*/);
   if (res != AOM_CODEC_OK) {
     die("Failed to get config: %s\n", aom_codec_err_to_string(res));
   }
 
   // Real time parameters.
-  cfg.g_usage = AOM_USAGE_REALTIME;
+  cfg.g_usage = AOM_USAGE_GOOD_QUALITY/*AOM_USAGE_REALTIME*/;
 
   cfg.rc_end_usage = AOM_CBR;
   cfg.rc_min_quantizer = 2;
@@ -1554,7 +1554,7 @@ int main(int argc, const char **argv) {
   cfg.rc_buf_optimal_sz = 600;
   cfg.rc_buf_sz = 1000;
   cfg.rc_resize_mode = 0;  // Set to RESIZE_DYNAMIC for dynamic resize.
-  cfg.g_lag_in_frames = 0;
+  cfg.g_lag_in_frames = 15;
   cfg.kf_mode = AOM_KF_AUTO;
 
   parse_command_line(argc, argv, &app_input, &svc_params, &cfg);
@@ -1666,10 +1666,12 @@ int main(int argc, const char **argv) {
 #endif
 
   aom_codec_control(&codec, AOME_SET_CPUUSED, app_input.speed);
-  aom_codec_control(&codec, AV1E_SET_AQ_MODE, app_input.aq_mode ? 3 : 0);
+  // aom_codec_control(&codec, AV1E_SET_AQ_MODE, app_input.aq_mode ? 3 : 0);
   aom_codec_control(&codec, AV1E_SET_GF_CBR_BOOST_PCT, 0);
   aom_codec_control(&codec, AV1E_SET_ENABLE_CDEF, 1);
   aom_codec_control(&codec, AV1E_SET_LOOPFILTER_CONTROL, 1);
+  // Turn off RTC specific settings, use the defaults.
+  /*
   aom_codec_control(&codec, AV1E_SET_ENABLE_WARPED_MOTION, 0);
   aom_codec_control(&codec, AV1E_SET_ENABLE_OBMC, 0);
   aom_codec_control(&codec, AV1E_SET_ENABLE_GLOBAL_MOTION, 0);
@@ -1680,14 +1682,18 @@ int main(int argc, const char **argv) {
   aom_codec_control(&codec, AV1E_SET_MODE_COST_UPD_FREQ, 3);
   aom_codec_control(&codec, AV1E_SET_MV_COST_UPD_FREQ, 3);
   aom_codec_control(&codec, AV1E_SET_DV_COST_UPD_FREQ, 3);
+  */
   aom_codec_control(&codec, AV1E_SET_CDF_UPDATE_MODE, 1);
 
   // Settings to reduce key frame encoding time.
+  // Turn off RTC specific settings, use the defaults.
+  /*
   aom_codec_control(&codec, AV1E_SET_ENABLE_CFL_INTRA, 0);
   aom_codec_control(&codec, AV1E_SET_ENABLE_SMOOTH_INTRA, 0);
   aom_codec_control(&codec, AV1E_SET_ENABLE_ANGLE_DELTA, 0);
   aom_codec_control(&codec, AV1E_SET_ENABLE_FILTER_INTRA, 0);
   aom_codec_control(&codec, AV1E_SET_INTRA_DEFAULT_TX_ONLY, 1);
+  */
 
   aom_codec_control(&codec, AV1E_SET_AUTO_TILES, 1);
 
@@ -1699,6 +1705,8 @@ int main(int argc, const char **argv) {
     aom_codec_control(&codec, AV1E_SET_ENABLE_INTRABC, 0);
   }
 
+  // Turn off RTC specific settings,
+  /*
   if (app_input.use_external_rc) {
     aom_codec_control(&codec, AV1E_SET_RTC_EXTERNAL_RC, 1);
   }
@@ -1709,6 +1717,10 @@ int main(int argc, const char **argv) {
                     AOM_FULL_SUPERFRAME_DROP);
 
   aom_codec_control(&codec, AV1E_SET_POSTENCODE_DROP_RTC, 1);
+  */
+
+  // Enable auto alt_ref
+  aom_codec_control(&codec, AOME_SET_ENABLEAUTOALTREF, 1);
 
   svc_params.number_spatial_layers = ss_number_layers;
   svc_params.number_temporal_layers = ts_number_layers;
