@@ -3777,7 +3777,9 @@ void av1_get_one_pass_rt_params(AV1_COMP *cpi, FRAME_TYPE *const frame_type,
       cpi->src_sad_blk_64x64 = NULL;
     }
   }
-  if (*frame_type == KEY_FRAME && cpi->sf.rt_sf.rc_adjust_keyframe &&
+  if (((*frame_type == KEY_FRAME && cpi->sf.rt_sf.rc_adjust_keyframe &&
+       cpi->oxcf.rc_cfg.max_intra_bitrate_pct > 0) || 
+       (cpi->sf.rt_sf.rc_compute_spatial_var_sc && rc->high_source_sad)) &&
       svc->spatial_layer_id == 0 && cm->seq_params->bit_depth == 8 &&
       cpi->oxcf.rc_cfg.max_intra_bitrate_pct > 0)
     rc_spatial_act_keyframe_onepass_rt(cpi, frame_input->source->y_buffer,
@@ -3867,10 +3869,19 @@ int av1_encodedframe_overshoot_cbr(AV1_COMP *cpi, int *q) {
   if (cpi->svc.spatial_layer_id > 0 && inter_layer_pred_on) {
     *q = (cpi->rc.worst_quality + *q) >> 1;
   } else {
-    *q = (3 * cpi->rc.worst_quality + *q) >> 2;
-    // For screen content use the max-q set by the user to allow for less
-    // overshoot on slide changes.
-    if (is_screen_content) *q = cpi->rc.worst_quality;
+    if (cpi->sf.rt_sf.rc_compute_spatial_var_sc) {
+      // For easy scene changes used lower QP, otherwise set max-q.
+      if (cpi->rc.frame_source_sad < 100000 &&
+          cpi->rc.spatial_variance_keyframe < 50000)
+        *q = (cpi->rc.worst_quality + *q) >> 1;
+      else
+        *q = cpi->rc.worst_quality;
+    } else {
+      *q = (3 * cpi->rc.worst_quality + *q) >> 2;
+      // For screen content use the max-q set by the user to allow for less
+      // overshoot on slide changes.
+      if (is_screen_content) *q = cpi->rc.worst_quality;
+    }
   }
   // Adjust avg_frame_qindex, buffer_level, and rate correction factors, as
   // these parameters will affect QP selection for subsequent frames. If they
