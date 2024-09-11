@@ -366,8 +366,14 @@ static struct lookahead_entry *choose_frame_source(
     *pop_lookahead = 1;
     src_index = 0;
   }
-
   *show_frame = *pop_lookahead;
+
+  if (cpi->ppi->rtc_ref.set_ref_frame_config &&
+      cpi->oxcf.gf_cfg.lag_in_frames > 0 && cpi->oxcf.pass == AOM_RC_ONE_PASS &&
+      cpi->svc.spatial_layer_id < cpi->svc.number_spatial_layers - 1 &&
+      gf_group->update_type[cpi->gf_frame_index] != ARF_UPDATE) {
+    *pop_lookahead = 0;
+  }
 
 #if CONFIG_FPMT_TEST
   if (cpi->ppi->fpmt_unit_test_cfg == PARALLEL_ENCODE) {
@@ -379,6 +385,7 @@ static struct lookahead_entry *choose_frame_source(
         !is_stat_generation_stage(cpi))
       src_index = gf_group->src_offset[cpi->gf_frame_index];
   }
+
   if (*show_frame) {
     // show frame, pop from buffer
     // Get last frame source.
@@ -1352,6 +1359,46 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
   }
 #endif
 
+  if (cpi->ppi->rtc_ref.set_ref_frame_config &&
+      cpi->compressor_stage == ENCODE_STAGE && cpi->svc.spatial_layer_id > 0 &&
+      cpi->gf_frame_index == 0) {
+    cm->current_frame.frame_type = INTER_FRAME;
+    gf_group->update_type[cpi->gf_frame_index] = LF_UPDATE;
+    gf_group->refbuf_state[cpi->gf_frame_index] = REFBUF_UPDATE;
+  }
+
+  if (cpi->ppi->rtc_ref.set_ref_frame_config &&
+      cpi->compressor_stage == ENCODE_STAGE && cpi->gf_frame_index > 0) {
+    if (gf_group->update_type[cpi->gf_frame_index] == ARF_UPDATE) {
+      for (int i = 0; i < 8; i++) {
+        if (i < 7) {
+          if (cpi->svc.spatial_layer_id == 0) {
+            cpi->ppi->rtc_ref.reference_tmp[i] = cpi->ppi->rtc_ref.reference[i];
+            cpi->ppi->rtc_ref.ref_idx_tmp[i] = cpi->ppi->rtc_ref.ref_idx[i];
+          }
+          cpi->ppi->rtc_ref.reference[i] =
+              cpi->ppi->rtc_ref.reference_arf[cpi->svc.spatial_layer_id][i];
+          cpi->ppi->rtc_ref.ref_idx[i] =
+              cpi->ppi->rtc_ref.ref_idx_arf[cpi->svc.spatial_layer_id][i];
+        }
+        if (cpi->svc.spatial_layer_id == 0) {
+          cpi->ppi->rtc_ref.refresh_tmp[i] = cpi->ppi->rtc_ref.refresh[i];
+        }
+        cpi->ppi->rtc_ref.refresh[i] =
+            cpi->ppi->rtc_ref.refresh_arf[cpi->svc.spatial_layer_id][i];
+      }
+    } else if (gf_group->update_type[cpi->gf_frame_index - 1] == ARF_UPDATE &&
+               cpi->svc.spatial_layer_id == 0) {
+      for (int i = 0; i < 8; i++) {
+        if (i < 7) {
+          cpi->ppi->rtc_ref.reference[i] = cpi->ppi->rtc_ref.reference_tmp[i];
+          cpi->ppi->rtc_ref.ref_idx[i] = cpi->ppi->rtc_ref.ref_idx_tmp[i];
+        }
+        cpi->ppi->rtc_ref.refresh[i] = cpi->ppi->rtc_ref.refresh_tmp[i];
+      }
+    }
+  }
+
   if (!is_stat_generation_stage(cpi)) {
     // TODO(jingning): fwd key frame always uses show existing frame?
     if (gf_group->update_type[cpi->gf_frame_index] == OVERLAY_UPDATE &&
@@ -1477,6 +1524,11 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
     cm->frame_presentation_time = (uint32_t)pts64;
   }
 
+  if (cpi->ppi->use_svc && cpi->compressor_stage == ENCODE_STAGE) {
+    av1_update_temporal_layer_framerate(cpi);
+    av1_restore_layer_context(cpi);
+  }
+
 #if CONFIG_COLLECT_COMPONENT_TIMING
   start_timing(cpi, av1_get_one_pass_rt_params_time);
 #endif
@@ -1586,6 +1638,7 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
                  use_rtc_reference_structure_one_layer(cpi)) {
         for (unsigned int i = 0; i < INTER_REFS_PER_FRAME; i++)
           cm->remapped_ref_idx[i] = cpi->ppi->rtc_ref.ref_idx[i];
+        cpi->rc.is_src_frame_alt_ref = 0;
       }
     }
 
