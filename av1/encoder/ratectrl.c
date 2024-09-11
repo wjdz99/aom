@@ -781,6 +781,11 @@ static double get_rate_correction_factor(const AV1_COMP *cpi, int width,
   const RATE_CONTROL *const rc = &cpi->rc;
   const PRIMARY_RATE_CONTROL *const p_rc = &cpi->ppi->p_rc;
   const RefreshFrameInfo *const refresh_frame = &cpi->refresh_frame;
+  GF_GROUP *gf_group = &cpi->ppi->gf_group;
+  int refresh_arf_lag_svc_onepass =
+      (cpi->ppi->rtc_ref.set_ref_frame_config &&
+       cpi->svc.number_spatial_layers > 1 &&
+       gf_group->update_type[cpi->gf_frame_index] == ARF_UPDATE);
   double rcf;
   double rate_correction_factors_kfstd;
   double rate_correction_factors_gfarfstd;
@@ -810,12 +815,13 @@ static double get_rate_correction_factor(const AV1_COMP *cpi, int width,
             : p_rc->rate_correction_factors[rf_lvl];
     rcf = rate_correction_factors_rflvl;
   } else {
-    if ((refresh_frame->alt_ref_frame || refresh_frame->golden_frame) &&
-        !rc->is_src_frame_alt_ref && !cpi->ppi->use_svc &&
+    if ((refresh_frame->alt_ref_frame || refresh_frame->golden_frame ||
+         refresh_arf_lag_svc_onepass) &&
+        !rc->is_src_frame_alt_ref &&
         (cpi->oxcf.rc_cfg.mode != AOM_CBR ||
-         cpi->oxcf.rc_cfg.gf_cbr_boost_pct > 20))
+         cpi->oxcf.rc_cfg.gf_cbr_boost_pct > 20)) {
       rcf = rate_correction_factors_gfarfstd;
-    else
+    } else
       rcf = rate_correction_factors_internormal;
   }
   rcf *= resize_rate_factor(&cpi->oxcf.frm_dim_cfg, width, height);
@@ -843,7 +849,12 @@ static void set_rate_correction_factor(AV1_COMP *cpi, int is_encode_stage,
   RATE_CONTROL *const rc = &cpi->rc;
   PRIMARY_RATE_CONTROL *const p_rc = &cpi->ppi->p_rc;
   const RefreshFrameInfo *const refresh_frame = &cpi->refresh_frame;
+  GF_GROUP *gf_group = &cpi->ppi->gf_group;
   int update_default_rcf = 1;
+  int refresh_arf_lag_svc_onepass =
+      (cpi->ppi->rtc_ref.set_ref_frame_config &&
+       cpi->svc.number_spatial_layers > 1 &&
+       gf_group->update_type[cpi->gf_frame_index] == ARF_UPDATE);
   // Normalize RCF to account for the size-dependent scaling factor.
   factor /= resize_rate_factor(&cpi->oxcf.frm_dim_cfg, width, height);
 
@@ -861,8 +872,9 @@ static void set_rate_correction_factor(AV1_COMP *cpi, int is_encode_stage,
     }
     if (update_default_rcf) p_rc->rate_correction_factors[rf_lvl] = factor;
   } else {
-    if ((refresh_frame->alt_ref_frame || refresh_frame->golden_frame) &&
-        !rc->is_src_frame_alt_ref && !cpi->ppi->use_svc &&
+    if ((refresh_frame->alt_ref_frame || refresh_frame->golden_frame ||
+         refresh_arf_lag_svc_onepass) &&
+        !rc->is_src_frame_alt_ref &&
         (cpi->oxcf.rc_cfg.mode != AOM_CBR ||
          cpi->oxcf.rc_cfg.gf_cbr_boost_pct > 20)) {
       p_rc->rate_correction_factors[GF_ARF_STD] = factor;
@@ -1482,7 +1494,11 @@ static int rc_pick_q_and_bounds_no_stats(const AV1_COMP *cpi, int width,
   const AV1EncoderConfig *const oxcf = &cpi->oxcf;
   const RefreshFrameInfo *const refresh_frame = &cpi->refresh_frame;
   const enum aom_rc_mode rc_mode = oxcf->rc_cfg.mode;
-
+  GF_GROUP *gf_group = &cpi->ppi->gf_group;
+  int refresh_arf_lag_svc_onepass =
+      (cpi->ppi->rtc_ref.set_ref_frame_config &&
+       cpi->svc.number_spatial_layers > 1 &&
+       gf_group->update_type[cpi->gf_frame_index] == ARF_UPDATE);
   assert(has_no_stats_stage(cpi));
   assert(rc_mode == AOM_VBR ||
          (!USE_UNRESTRICTED_Q_IN_CQ_MODE && rc_mode == AOM_CQ) ||
@@ -1540,7 +1556,8 @@ static int rc_pick_q_and_bounds_no_stats(const AV1_COMP *cpi, int width,
       }
     }
   } else if (!rc->is_src_frame_alt_ref &&
-             (refresh_frame->golden_frame || refresh_frame->alt_ref_frame)) {
+             (refresh_frame->golden_frame || refresh_frame->alt_ref_frame ||
+              refresh_arf_lag_svc_onepass)) {
     // Use the lower of active_worst_quality and recent
     // average Q as basis for GF/ARF best Q limit unless last frame was
     // a key frame.
@@ -1587,6 +1604,8 @@ static int rc_pick_q_and_bounds_no_stats(const AV1_COMP *cpi, int width,
       if ((rc_mode == AOM_CQ) && (active_best_quality < cq_level)) {
         active_best_quality = cq_level;
       }
+      if (cpi->svc.spatial_layer_id > 0)
+        active_best_quality = AOMMAX(rc->best_quality, active_best_quality / 2);
     }
   }
 
@@ -2305,7 +2324,8 @@ void av1_rc_set_frame_target(AV1_COMP *cpi, int target, int width, int height) {
   rc->this_frame_target = target;
 
   // Modify frame size target when down-scaled.
-  if (av1_frame_scaled(cm) && cpi->oxcf.rc_cfg.mode != AOM_CBR) {
+  if (av1_frame_scaled(cm) && cpi->oxcf.rc_cfg.mode != AOM_CBR &&
+      cpi->svc.number_spatial_layers == 1) {
     rc->this_frame_target =
         (int)(rc->this_frame_target *
               resize_rate_factor(&cpi->oxcf.frm_dim_cfg, width, height));
@@ -3707,10 +3727,6 @@ void av1_get_one_pass_rt_params(AV1_COMP *cpi, FRAME_TYPE *const frame_type,
         cpi->framerate > 1 ? round(cpi->framerate) : cpi->framerate;
     rc->max_consec_drop = saturate_cast_double_to_int(
         ceil(cpi->oxcf.rc_cfg.max_consec_drop_ms * framerate / 1000));
-  }
-  if (cpi->ppi->use_svc) {
-    av1_update_temporal_layer_framerate(cpi);
-    av1_restore_layer_context(cpi);
   }
   cpi->ppi->rtc_ref.bias_recovery_frame = set_flag_rps_bias_recovery_frame(cpi);
   // Set frame type.
