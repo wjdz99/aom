@@ -1477,6 +1477,13 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
     cm->frame_presentation_time = (uint32_t)pts64;
   }
 
+  printf("start frame \n");
+  
+  if (cpi->ppi->use_svc) {
+    av1_update_temporal_layer_framerate(cpi);
+    av1_restore_layer_context(cpi);
+  }
+
 #if CONFIG_COLLECT_COMPONENT_TIMING
   start_timing(cpi, av1_get_one_pass_rt_params_time);
 #endif
