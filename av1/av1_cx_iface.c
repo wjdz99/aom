@@ -1308,10 +1308,7 @@ static void set_encoder_config(AV1EncoderConfig *oxcf,
   color_cfg->chroma_sample_position = extra_cfg->chroma_sample_position;
 
   // Set Group of frames configuration.
-  // Force lag_in_frames to 0 for REALTIME mode
-  gf_cfg->lag_in_frames = (oxcf->mode == REALTIME)
-                              ? 0
-                              : clamp(cfg->g_lag_in_frames, 0, MAX_LAG_BUFFERS);
+  gf_cfg->lag_in_frames = clamp(cfg->g_lag_in_frames, 0, MAX_LAG_BUFFERS);
   gf_cfg->enable_auto_arf = extra_cfg->enable_auto_alt_ref;
   gf_cfg->enable_auto_brf = extra_cfg->enable_auto_bwd_ref;
   gf_cfg->min_gf_interval = extra_cfg->min_gf_interval;
@@ -2883,8 +2880,12 @@ static aom_codec_err_t encoder_init(aom_codec_ctx_t *ctx) {
 
       set_encoder_config(&priv->oxcf, &priv->cfg, &priv->extra_cfg);
       if (priv->oxcf.rc_cfg.mode != AOM_CBR &&
+          priv->oxcf.rc_cfg.mode != AOM_VBR &&
+          priv->oxcf.rc_cfg.mode != AOM_Q &&
           priv->oxcf.pass == AOM_RC_ONE_PASS && priv->oxcf.mode == GOOD) {
-        // Enable look ahead - enabled for AOM_Q, AOM_CQ, AOM_VBR
+        // Enable look ahead - enabled for AOM_CQ.
+        // Does not work for spatial layers, but no svc flag to disable at init,
+        // so disable for now even for AOM_Q and VBR.
         *num_lap_buffers =
             AOMMIN((int)priv->cfg.g_lag_in_frames,
                    AOMMIN(MAX_LAP_BUFFERS, priv->oxcf.kf_cfg.key_freq_max +
@@ -3388,6 +3389,9 @@ static aom_codec_err_t encoder_encode(aom_codec_alg_priv_t *ctx,
       ppi->num_fp_contexts = av1_compute_num_fp_contexts(ppi, &cpi->oxcf);
     }
 
+    for (int sl = 0; sl < cpi->svc.number_spatial_layers; sl++)
+      cpi_data.frame_size_sl_inv[sl] = 0;
+
     // Get the next visible frame. Invisible frames get packed with the next
     // visible frame.
     while (cpi_data.cx_data_sz >= ctx->cx_data_sz / 2 && !is_frame_visible) {
@@ -3528,7 +3532,11 @@ static aom_codec_err_t encoder_encode(aom_codec_alg_priv_t *ctx,
       has_no_show_keyframe |=
           (!is_frame_visible &&
            cpi->common.current_frame.frame_type == KEY_FRAME);
+
+      if (!is_frame_visible)
+        cpi_data.frame_size_sl_inv[cpi->svc.spatial_layer_id] = cpi_data.frame_size;
     }
+
     if (is_frame_visible) {
       // Add the frame packet to the list of returned packets.
       aom_codec_cx_pkt_t pkt;
@@ -3561,6 +3569,9 @@ static aom_codec_err_t encoder_encode(aom_codec_alg_priv_t *ctx,
       pkt.data.frame.sz = ctx->pending_cx_data_sz;
       pkt.data.frame.partition_id = -1;
       pkt.data.frame.vis_frame_size = cpi_data.frame_size;
+      for (int sl = 0; sl < cpi->svc.number_spatial_layers; sl++) {
+        pkt.data.frame.frame_size_sl_inv[sl] = cpi_data.frame_size_sl_inv[sl];
+      }
 
       pkt.data.frame.pts = ticks_to_timebase_units(cpi_data.timestamp_ratio,
                                                    cpi_data.ts_frame_start) +
@@ -3894,11 +3905,26 @@ static aom_codec_err_t ctrl_set_svc_ref_frame_config(aom_codec_alg_priv_t *ctx,
       return AOM_CODEC_INVALID_PARAM;
     cpi->ppi->rtc_ref.reference[i] = data->reference[i];
     cpi->ppi->rtc_ref.ref_idx[i] = data->ref_idx[i];
+    for (int ss = 0; ss < cpi->svc.number_spatial_layers; ss++) {
+      cpi->ppi->rtc_ref.reference_arf[ss][i] = data->reference_arf[ss][i];
+      cpi->ppi->rtc_ref.ref_idx_arf[ss][i] = data->ref_idx_arf[ss][i];
+    }
   }
   for (unsigned int i = 0; i < REF_FRAMES; ++i) {
     if (data->refresh[i] != 0 && data->refresh[i] != 1)
       return AOM_CODEC_INVALID_PARAM;
     cpi->ppi->rtc_ref.refresh[i] = data->refresh[i];
+    for (int ss = 0; ss < cpi->svc.number_spatial_layers; ss++) {
+      cpi->ppi->rtc_ref.refresh_arf[ss][i] = data->refresh_arf[ss][i];
+    }
+  }
+  if (data->gop_interval > 4) {
+    cpi->ppi->rtc_ref.gop_interval = data->gop_interval;
+    cpi->ppi->rtc_ref.layer_depth = data->layer_depth;
+  } else {
+    // No future alt_ref, gop_interval too small.
+    cpi->ppi->rtc_ref.gop_interval = 0;
+    cpi->ppi->rtc_ref.layer_depth = 0;
   }
   cpi->svc.use_flexible_mode = 1;
   cpi->svc.ksvc_fixed_mode = 0;

@@ -119,6 +119,12 @@ void av1_configure_buffer_updates(AV1_COMP *const cpi,
       gf_group->update_type[cpi->gf_frame_index] = ARF_UPDATE;
     if (ext_refresh_frame_flags->bwd_ref_frame)
       gf_group->update_type[cpi->gf_frame_index] = INTNL_ARF_UPDATE;
+    if (is_one_pass_lag_reference_control(cpi) && type == ARF_UPDATE &&
+        ext_refresh_frame_flags->alt2_ref_frame &&
+        cpi->svc.spatial_layer_id == 0) {
+      refresh_frame->alt_ref_frame = 1;
+      gf_group->update_type[cpi->gf_frame_index] = ARF_UPDATE;
+    }
   }
 
   if (force_refresh_all)
@@ -368,6 +374,12 @@ static struct lookahead_entry *choose_frame_source(
   }
 
   *show_frame = *pop_lookahead;
+
+  if (is_one_pass_lag_reference_control(cpi) &&
+      cpi->svc.spatial_layer_id < cpi->svc.number_spatial_layers - 1 &&
+      gf_group->update_type[cpi->gf_frame_index] != ARF_UPDATE) {
+    *pop_lookahead = 0;
+  }
 
 #if CONFIG_FPMT_TEST
   if (cpi->ppi->fpmt_unit_test_cfg == PARALLEL_ENCODE) {
@@ -1352,6 +1364,37 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
   }
 #endif
 
+  if (is_one_pass_lag_reference_control(cpi) && cpi->gf_frame_index > 0) {
+    if (gf_group->update_type[cpi->gf_frame_index] == ARF_UPDATE) {
+      for (int i = 0; i < REF_FRAMES; i++) {
+        if (i < INTER_REFS_PER_FRAME) {
+          if (cpi->svc.spatial_layer_id == 0) {
+            cpi->ppi->rtc_ref.reference_tmp[i] = cpi->ppi->rtc_ref.reference[i];
+            cpi->ppi->rtc_ref.ref_idx_tmp[i] = cpi->ppi->rtc_ref.ref_idx[i];
+          }
+          cpi->ppi->rtc_ref.reference[i] =
+              cpi->ppi->rtc_ref.reference_arf[cpi->svc.spatial_layer_id][i];
+          cpi->ppi->rtc_ref.ref_idx[i] =
+              cpi->ppi->rtc_ref.ref_idx_arf[cpi->svc.spatial_layer_id][i];
+        }
+        if (cpi->svc.spatial_layer_id == 0) {
+          cpi->ppi->rtc_ref.refresh_tmp[i] = cpi->ppi->rtc_ref.refresh[i];
+        }
+        cpi->ppi->rtc_ref.refresh[i] =
+            cpi->ppi->rtc_ref.refresh_arf[cpi->svc.spatial_layer_id][i];
+      }
+    } else if (gf_group->update_type[cpi->gf_frame_index - 1] == ARF_UPDATE &&
+               cpi->svc.spatial_layer_id == 0) {
+      for (int i = 0; i < REF_FRAMES; i++) {
+        if (i < INTER_REFS_PER_FRAME) {
+          cpi->ppi->rtc_ref.reference[i] = cpi->ppi->rtc_ref.reference_tmp[i];
+          cpi->ppi->rtc_ref.ref_idx[i] = cpi->ppi->rtc_ref.ref_idx_tmp[i];
+        }
+        cpi->ppi->rtc_ref.refresh[i] = cpi->ppi->rtc_ref.refresh_tmp[i];
+      }
+    }
+  }
+
   if (!is_stat_generation_stage(cpi)) {
     // TODO(jingning): fwd key frame always uses show existing frame?
     if (gf_group->update_type[cpi->gf_frame_index] == OVERLAY_UPDATE &&
@@ -1479,6 +1522,11 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
     cm->frame_presentation_time = (uint32_t)pts64;
   }
 
+  if (cpi->ppi->use_svc) {
+    av1_update_temporal_layer_framerate(cpi);
+    av1_restore_layer_context(cpi);
+  }
+
 #if CONFIG_COLLECT_COMPONENT_TIMING
   start_timing(cpi, av1_get_one_pass_rt_params_time);
 #endif
@@ -1588,6 +1636,9 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
                  use_rtc_reference_structure_one_layer(cpi)) {
         for (unsigned int i = 0; i < INTER_REFS_PER_FRAME; i++)
           cm->remapped_ref_idx[i] = cpi->ppi->rtc_ref.ref_idx[i];
+        if (is_one_pass_lag_reference_control(cpi) &&
+            cpi->svc.number_spatial_layers > 1)
+          cpi->rc.is_src_frame_alt_ref = 0;
       }
     }
 
@@ -1670,6 +1721,26 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
       (oxcf->pass == AOM_RC_ONE_PASS || oxcf->pass >= AOM_RC_SECOND_PASS) &&
       is_intra_frame) {
     av1_set_screen_content_options(cpi, features);
+  }
+
+  if (is_one_pass_lag_reference_control(cpi)) {
+    int target;
+    const FRAME_UPDATE_TYPE cur_update_type =
+        gf_group->update_type[cpi->gf_frame_index];
+    if (oxcf->rc_cfg.mode == AOM_CBR) {
+      if (cur_update_type == KF_UPDATE) {
+        target = av1_calc_iframe_target_size_one_pass_cbr(cpi);
+      } else {
+        target = av1_calc_pframe_target_size_one_pass_cbr(cpi, cur_update_type);
+      }
+    } else {
+      if (cur_update_type == KF_UPDATE) {
+        target = av1_calc_iframe_target_size_one_pass_vbr(cpi);
+      } else {
+        target = av1_calc_pframe_target_size_one_pass_vbr(cpi, cur_update_type);
+      }
+    }
+    av1_rc_set_frame_target(cpi, target, cm->width, cm->height);
   }
 
 #if CONFIG_REALTIME_ONLY
