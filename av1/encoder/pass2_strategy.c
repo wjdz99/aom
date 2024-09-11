@@ -2186,7 +2186,7 @@ static void define_gf_group_pass0(AV1_COMP *cpi) {
   if (oxcf->q_cfg.aq_mode == CYCLIC_REFRESH_AQ) {
     av1_cyclic_refresh_set_golden_update(cpi);
   } else {
-    p_rc->baseline_gf_interval = p_rc->gf_intervals[p_rc->cur_gf_index];
+    p_rc->baseline_gf_interval = 10;//p_rc->gf_intervals[p_rc->cur_gf_index];
     rc->intervals_till_gf_calculate_due--;
     p_rc->cur_gf_index++;
   }
@@ -2201,14 +2201,15 @@ static void define_gf_group_pass0(AV1_COMP *cpi) {
   p_rc->constrained_gf_group =
       (p_rc->baseline_gf_interval >= rc->frames_to_key) ? 1 : 0;
 
-  gf_group->max_layer_depth_allowed = oxcf->gf_cfg.gf_max_pyr_height;
+  gf_group->max_layer_depth_allowed = 1;//oxcf->gf_cfg.gf_max_pyr_height;
 
   // Rare case when the look-ahead is less than the target GOP length, can't
   // generate ARF frame.
   if (p_rc->baseline_gf_interval > gf_cfg->lag_in_frames ||
       !is_altref_enabled(gf_cfg->lag_in_frames, gf_cfg->enable_auto_arf) ||
-      p_rc->baseline_gf_interval < rc->min_gf_interval)
+      p_rc->baseline_gf_interval < rc->min_gf_interval) {
     gf_group->max_layer_depth_allowed = 0;
+  }
 
   // Set up the structure of this Group-Of-Pictures (same as GF_GROUP)
   av1_gop_setup_structure(cpi);
@@ -2489,7 +2490,7 @@ static void define_gf_group(AV1_COMP *cpi, EncodeFrameParams *frame_params,
     cpi->gf_frame_index = 0;
   }
 
-  if (has_no_stats_stage(cpi)) {
+  if (1 || has_no_stats_stage(cpi)) {
     define_gf_group_pass0(cpi);
     return;
   }
