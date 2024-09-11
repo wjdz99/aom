@@ -1739,6 +1739,12 @@ typedef struct aom_svc_ref_frame_config {
   /*! Buffer slot index (0..7) for each of 7 references indexed above. */
   int ref_idx[7];
   int refresh[8]; /**< Refresh flag for each of the 8 buffer slots. */
+  // Additional arameters for lookahead.
+  int reference_arf[7];
+  int ref_idx_arf[7];
+  int refresh_arf[8];
+  int gop_interval;
+  int layer_depth;
 } aom_svc_ref_frame_config_t;
 
 /*!brief Parameters for setting ref frame compound prediction */

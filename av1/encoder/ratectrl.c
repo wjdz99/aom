@@ -3708,10 +3708,6 @@ void av1_get_one_pass_rt_params(AV1_COMP *cpi, FRAME_TYPE *const frame_type,
     rc->max_consec_drop = saturate_cast_double_to_int(
         ceil(cpi->oxcf.rc_cfg.max_consec_drop_ms * framerate / 1000));
   }
-  if (cpi->ppi->use_svc) {
-    av1_update_temporal_layer_framerate(cpi);
-    av1_restore_layer_context(cpi);
-  }
   cpi->ppi->rtc_ref.bias_recovery_frame = set_flag_rps_bias_recovery_frame(cpi);
   // Set frame type.
   if (set_key_frame(cpi, frame_flags)) {

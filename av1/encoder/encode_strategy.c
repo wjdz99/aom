@@ -731,7 +731,6 @@ static int denoise_and_encode(AV1_COMP *const cpi, uint8_t *const dest,
       get_frame_update_type(&cpi->ppi->gf_group, cpi->gf_frame_index);
   const int is_second_arf =
       av1_gop_is_second_arf(gf_group, cpi->gf_frame_index);
-
   // Decide whether to apply temporal filtering to the source frame.
   int apply_filtering =
       av1_is_temporal_filter_on(oxcf) && !is_stat_generation_stage(cpi);
@@ -1352,6 +1351,31 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
   }
 #endif
 
+  if (cpi->ppi->rtc_ref.set_ref_frame_config &&
+      cpi->compressor_stage ==  ENCODE_STAGE &&
+      cpi->gf_frame_index > 0) {
+    if (gf_group->update_type[cpi->gf_frame_index] == ARF_UPDATE) {
+      for (int i = 0; i < 8; i++) {
+        if ( i < 7) {
+          cpi->ppi->rtc_ref.reference_tmp[i] = cpi->ppi->rtc_ref.reference[i];
+          cpi->ppi->rtc_ref.ref_idx_tmp[i] = cpi->ppi->rtc_ref.ref_idx[i];
+          cpi->ppi->rtc_ref.reference[i] = cpi->ppi->rtc_ref.reference_arf[i];
+          cpi->ppi->rtc_ref.ref_idx[i] = cpi->ppi->rtc_ref.ref_idx_arf[i];
+        }
+        cpi->ppi->rtc_ref.refresh_tmp[i] = cpi->ppi->rtc_ref.refresh[i];
+        cpi->ppi->rtc_ref.refresh[i] = cpi->ppi->rtc_ref.refresh_arf[i];
+      }
+    } else if (gf_group->update_type[cpi->gf_frame_index - 1] == ARF_UPDATE) {
+      for (int i = 0; i < 8; i++) {
+        if ( i < 7) {
+          cpi->ppi->rtc_ref.reference[i] = cpi->ppi->rtc_ref.reference_tmp[i];
+          cpi->ppi->rtc_ref.ref_idx[i] = cpi->ppi->rtc_ref.ref_idx_tmp[i];
+        }
+        cpi->ppi->rtc_ref.refresh[i] = cpi->ppi->rtc_ref.refresh_tmp[i];
+      }
+    }
+  }
+
   if (!is_stat_generation_stage(cpi)) {
     // TODO(jingning): fwd key frame always uses show existing frame?
     if (gf_group->update_type[cpi->gf_frame_index] == OVERLAY_UPDATE &&
@@ -1475,6 +1499,11 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
     if (pts64 < 0 || pts64 > UINT32_MAX) return AOM_CODEC_ERROR;
 
     cm->frame_presentation_time = (uint32_t)pts64;
+  }
+
+  if (cpi->ppi->use_svc) {
+    av1_update_temporal_layer_framerate(cpi);
+    av1_restore_layer_context(cpi);
   }
 
 #if CONFIG_COLLECT_COMPONENT_TIMING

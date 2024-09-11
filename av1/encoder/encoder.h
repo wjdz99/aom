@@ -2494,6 +2494,14 @@ typedef struct RTC_REF {
   int reference[INTER_REFS_PER_FRAME];
   int ref_idx[INTER_REFS_PER_FRAME];
   int refresh[REF_FRAMES];
+  int reference_arf[INTER_REFS_PER_FRAME];
+  int ref_idx_arf[INTER_REFS_PER_FRAME];
+  int refresh_arf[REF_FRAMES];
+  int gop_interval;
+  int layer_depth;
+  int reference_tmp[INTER_REFS_PER_FRAME];
+  int ref_idx_tmp[INTER_REFS_PER_FRAME];
+  int refresh_tmp[REF_FRAMES];
   int set_ref_frame_config;
   int non_reference_frame;
   int ref_frame_comp[3];
@@ -4099,8 +4107,7 @@ static inline int has_no_stats_stage(const AV1_COMP *const cpi) {
 /*!\cond */
 
 static inline int is_one_pass_rt_params(const AV1_COMP *cpi) {
-  return has_no_stats_stage(cpi) && cpi->oxcf.mode == REALTIME &&
-         cpi->oxcf.gf_cfg.lag_in_frames == 0;
+  return has_no_stats_stage(cpi) && cpi->oxcf.gf_cfg.lag_in_frames == 0;
 }
 
 // Use default/internal reference structure for single-layer RTC.

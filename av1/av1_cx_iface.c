@@ -3895,12 +3895,23 @@ static aom_codec_err_t ctrl_set_svc_ref_frame_config(aom_codec_alg_priv_t *ctx,
       return AOM_CODEC_INVALID_PARAM;
     cpi->ppi->rtc_ref.reference[i] = data->reference[i];
     cpi->ppi->rtc_ref.ref_idx[i] = data->ref_idx[i];
+    cpi->ppi->rtc_ref.reference_arf[i] = data->reference_arf[i];
+    cpi->ppi->rtc_ref.ref_idx_arf[i] = data->ref_idx_arf[i];
   }
   for (unsigned int i = 0; i < REF_FRAMES; ++i) {
     if (data->refresh[i] != 0 && data->refresh[i] != 1)
       return AOM_CODEC_INVALID_PARAM;
     cpi->ppi->rtc_ref.refresh[i] = data->refresh[i];
+    cpi->ppi->rtc_ref.refresh_arf[i] = data->refresh_arf[i];
   }
+  if (data->gop_interval > 4) {
+    cpi->ppi->rtc_ref.gop_interval = data->gop_interval;
+    cpi->ppi->rtc_ref.layer_depth = data->layer_depth;
+  } else {
+    // No future alt_ref, gop_interval too small.
+    cpi->ppi->rtc_ref.gop_interval = 0;
+    cpi->ppi->rtc_ref.layer_depth = 0;
+  } 
   cpi->svc.use_flexible_mode = 1;
   cpi->svc.ksvc_fixed_mode = 0;
   return AOM_CODEC_OK;
