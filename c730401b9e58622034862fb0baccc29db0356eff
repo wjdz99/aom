@@ -106,6 +106,41 @@
       "parentUuid": "20794f80_ccad62c9",
       "revId": "c730401b9e58622034862fb0baccc29db0356eff",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "785e9d3c_47e7014f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 32
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 33496
+      },
+      "writtenOn": "2024-09-11T14:19:48Z",
+      "side": 1,
+      "message": "pradeep4@pradeep4-NUC11PAHi7:~/Documents/pradeep/repos_and_other/aom_no_changes/aom/build$ ./test_aom_rc \n[\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d] Running 36 tests from 2 test suites.\n[----------] Global test environment set-up.\n[----------] 16 tests from AV1/RcInterfaceTest\n[ RUN      ] AV1/RcInterfaceTest.OneLayer/0\n/home/pradeep4/Documents/pradeep/repos_and_other/aom_no_changes/aom/test/yuv_video_source.h:47: Failure\nExpected: (input_file_) !\u003d (nullptr), actual: NULL vs (nullptr)\nInput file open failed. Filename: niklas_640_480_30.yuv\n/home/pradeep4/Documents/pradeep/repos_and_other/aom_no_changes/aom/test/encode_test_driver.cc:195: Failure\nExpected: video-\u003eBegin() doesn\u0027t generate new fatal failures in the current thread.\n  Actual: it does.\n/home/pradeep4/Documents/pradeep/repos_and_other/aom_no_changes/aom/test/ratectrl_rtc_test.cc:194: Failure\nExpected: RunLoop(\u0026video) doesn\u0027t generate new fatal failures in the current thread.\n  Actual: it does.\n[  FAILED  ] AV1/RcInterfaceTest.OneLayer/0, where GetParam() \u003d (0x5bf3308951a0, 0) (2 ms)\n[ RUN      ] AV1/RcInterfaceTest.OneLayer/1\n/home/pradeep4/Documents/pradeep/repos_and_other/aom_no_changes/aom/test/yuv_video_source.h:47: Failure\nExpected: (input_file_) !\u003d (nullptr), actual: NULL vs (nullptr)\nInput file open failed. Filename: niklas_640_480_30.yuv\n/home/pradeep4/Documents/pradeep/repos_and_other/aom_no_changes/aom/test/encode_test_driver.cc:195: Failure\nExpected: video-\u003eBegin() doesn\u0027t generate new fatal failures in the current thread.\n\n[----------] 20 tests from AV1/RcExternMethodsInterfaceTest\n[ RUN      ] AV1/RcExternMethodsInterfaceTest.CreateAV1RateControlAV1Test/0\n[       OK ] AV1/RcExternMethodsInterfaceTest.CreateAV1RateControlAV1Test/0 (0 ms)\n[ RUN      ] AV1/RcExternMethodsInterfaceTest.CreateAV1RateControlAV1Test/1\n[       OK ] AV1/RcExternMethodsInterfaceTest.CreateAV1RateControlAV1Test/1 (0 ms)\n[ RUN      ] AV1/RcExternMethodsInterfaceTest.UpdateRateControllerAV1Test/0\n[       OK ] AV1/RcExternMethodsInterfaceTest.UpdateRateControllerAV1Test/0 (0 ms)\n[ RUN      ] AV1/RcExternMethodsInterfaceTest.UpdateRateControllerAV1Test/1\n[       OK ] AV1/RcExternMethodsInterfaceTest.UpdateRateControllerAV1Test/1 (0 ms)\n[ RUN      ] AV1/RcExternMethodsInterfaceTest.GetQpRateControllerAV1Test/0\n[       OK ] AV1/RcExternMethodsInterfaceTest.GetQpRateControllerAV1Test/0 (0 ms)\n[ RUN      ] AV1/RcExternMethodsInterfaceTest.GetQpRateControllerAV1Test/1\n[       OK ] AV1/RcExternMethodsInterfaceTest.GetQpRateControllerAV1Test/1 (0 ms)\n[ RUN      ] AV1/RcExternMethodsInterfaceTest.ComputeQPRateControllerAV1Test/0\n[       OK ] AV1/RcExternMethodsInterfaceTest.ComputeQPRateControllerAV1Test/0 (0 ms)\n[ RUN      ] AV1/RcExternMethodsInterfaceTest.ComputeQPRateControllerAV1Test/1\n[       OK ] AV1/RcExternMethodsInterfaceTest.ComputeQPRateControllerAV1Test/1 (0 ms)\n[ RUN      ] AV1/RcExternMethodsInterfaceTest.GetLoopFilterLevelRateControllerAV1Test/0\n[       OK ] AV1/RcExternMethodsInterfaceTest.GetLoopFilterLevelRateControllerAV1Test/0 (0 ms)\n[ RUN      ] AV1/RcExternMethodsInterfaceTest.GetLoopFilterLevelRateControllerAV1Test/1\n[       OK ] AV1/RcExternMethodsInterfaceTest.GetLoopFilterLevelRateControllerAV1Test/1 (0 ms)\n[ RUN      ] AV1/RcExternMethodsInterfaceTest.PostEncodeUpdateRateControllerAV1Test/0\n[       OK ] AV1/RcExternMethodsInterfaceTest.PostEncodeUpdateRateControllerAV1Test/0 (0 ms)\n[ RUN      ] AV1/RcExternMethodsInterfaceTest.PostEncodeUpdateRateControllerAV1Test/1\n[       OK ] AV1/RcExternMethodsInterfaceTest.PostEncodeUpdateRateControllerAV1Test/1 (0 ms)\n[ RUN      ] AV1/RcExternMethodsInterfaceTest.GetSegmenationDataRateControllerAV1Test/0\n[       OK ] AV1/RcExternMethodsInterfaceTest.GetSegmenationDataRateControllerAV1Test/0 (0 ms)\n[ RUN      ] AV1/RcExternMethodsInterfaceTest.GetSegmenationDataRateControllerAV1Test/1\n[       OK ] AV1/RcExternMethodsInterfaceTest.GetSegmenationDataRateControllerAV1Test/1 (0 ms)\n[ RUN      ] AV1/RcExternMethodsInterfaceTest.GetCdedInfoRateControllerAV1Test/0\n[       OK ] AV1/RcExternMethodsInterfaceTest.GetCdedInfoRateControllerAV1Test/0 (0 ms)\n[ RUN      ] AV1/RcExternMethodsInterfaceTest.GetCdedInfoRateControllerAV1Test/1\n[       OK ] AV1/RcExternMethodsInterfaceTest.GetCdedInfoRateControllerAV1Test/1 (0 ms)\n[ RUN      ] AV1/RcExternMethodsInterfaceTest.CreateAV1RateControlConfigAV1Test/0\n[       OK ] AV1/RcExternMethodsInterfaceTest.CreateAV1RateControlConfigAV1Test/0 (0 ms)\n[ RUN      ] AV1/RcExternMethodsInterfaceTest.CreateAV1RateControlConfigAV1Test/1\n[       OK ] AV1/RcExternMethodsInterfaceTest.CreateAV1RateControlConfigAV1Test/1 (0 ms)\n[ RUN      ] AV1/RcExternMethodsInterfaceTest.DestoryAV1RateControlRTCAV1Test/0\n[       OK ] AV1/RcExternMethodsInterfaceTest.DestoryAV1RateControlRTCAV1Test/0 (0 ms)\n[ RUN      ] AV1/RcExternMethodsInterfaceTest.DestoryAV1RateControlRTCAV1Test/1\n[       OK ] AV1/RcExternMethodsInterfaceTest.DestoryAV1RateControlRTCAV1Test/1 (0 ms)\n[----------] 20 tests from AV1/RcExternMethodsInterfaceTest (1 ms total)\n\n[----------] Global test environment tear-down\n[\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d] 36 tests from 2 test suites ran. (7 ms total)\n[  PASSED  ] 20 tests.\n[  FAILED  ] 16 tests, listed below:\n[  FAILED  ] AV1/RcInterfaceTest.OneLayer/0, where GetParam() \u003d (0x5bf3308951a0, 0)\n[  FAILED  ] AV1/RcInterfaceTest.OneLayer/1, where GetParam() \u003d (0x5bf3308951a0, 3)\n[  FAILED  ] AV1/RcInterfaceTest.OneLayerDropFramesCBR/0, where GetParam() \u003d (0x5bf3308951a0, 0)\n[  FAILED  ] AV1/RcInterfaceTest.OneLayerDropFramesCBR/1, where GetParam() \u003d (0x5bf3308951a0, 3)\n[  FAILED  ] AV1/RcInterfaceTest.OneLayerPeriodicKey/0, where GetParam() \u003d (0x5bf3308951a0, 0)\n[  FAILED  ] AV1/RcInterfaceTest.OneLayerPeriodicKey/1, where GetParam() \u003d (0x5bf3308951a0, 3)\n[  FAILED  ] AV1/RcInterfaceTest.OneLayerScreen/0, where GetParam() \u003d (0x5bf3308951a0, 0)\n[  FAILED  ] AV1/RcInterfaceTest.OneLayerScreen/1, where GetParam() \u003d (0x5bf3308951a0, 3)\n[  FAILED  ] AV1/RcInterfaceTest.Svc/0, where GetParam() \u003d (0x5bf3308951a0, 0)\n[  FAILED  ] AV1/RcInterfaceTest.Svc/1, where GetParam() \u003d (0x5bf3308951a0, 3)\n[  FAILED  ] AV1/RcInterfaceTest.SvcPeriodicKey/0, where GetParam() \u003d (0x5bf3308951a0, 0)\n[  FAILED  ] AV1/RcInterfaceTest.SvcPeriodicKey/1, where GetParam() \u003d (0x5bf3308951a0, 3)\n[  FAILED  ] AV1/RcInterfaceTest.SvcDynamicTemporal/0, where GetParam() \u003d (0x5bf3308951a0, 0)\n[  FAILED  ] AV1/RcInterfaceTest.SvcDynamicTemporal/1, where GetParam() \u003d (0x5bf3308951a0, 3)\n[  FAILED  ] AV1/RcInterfaceTest.SvcDynamicSpatial/0, where GetParam() \u003d (0x5bf3308951a0, 0)\n[  FAILED  ] AV1/RcInterfaceTest.SvcDynamicSpatial/1, where GetParam() \u003d (0x5bf3308951a0, 3)\n-- not able to reproduce with test_aom_rc executable.",
+      "parentUuid": "44c67a73_ab478fb8",
+      "revId": "c730401b9e58622034862fb0baccc29db0356eff",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5585e783_a2b3e875",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 32
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 33496
+      },
+      "writtenOn": "2024-09-11T14:19:48Z",
+      "side": 1,
+      "message": "could you please let me know what is exact test setup need to have.",
+      "revId": "c730401b9e58622034862fb0baccc29db0356eff",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
