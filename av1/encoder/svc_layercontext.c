@@ -426,7 +426,7 @@ void av1_get_layer_resolution(const int width_org, const int height_org,
   *height_out = h;
 }
 
-void av1_one_pass_cbr_svc_start_layer(AV1_COMP *const cpi) {
+void av1_one_pass_svc_start_layer(AV1_COMP *const cpi) {
   SVC *const svc = &cpi->svc;
   AV1_COMMON *const cm = &cpi->common;
   LAYER_CONTEXT *lc = NULL;

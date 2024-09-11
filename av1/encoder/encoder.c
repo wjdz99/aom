@@ -4752,8 +4752,8 @@ int av1_get_compressed_data(AV1_COMP *cpi, AV1_COMP_DATA *const cpi_data) {
     aom_bitstream_queue_set_frame_write(cm->current_frame.frame_number);
   }
 #endif
-  if (cpi->ppi->use_svc) {
-    av1_one_pass_cbr_svc_start_layer(cpi);
+  if (cpi->ppi->use_svc && cpi->compressor_stage == ENCODE_STAGE) {
+    av1_one_pass_svc_start_layer(cpi);
   }
 
   cpi->is_dropped_frame = false;
