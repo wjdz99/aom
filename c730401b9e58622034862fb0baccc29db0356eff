@@ -141,6 +141,24 @@
       "message": "could you please let me know what is exact test setup need to have.",
       "revId": "c730401b9e58622034862fb0baccc29db0356eff",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c2716b8f_5d8681da",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 32
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-09-11T19:31:58Z",
+      "side": 1,
+      "message": "\u003e pradeep4@pradeep4-NUC11PAHi7:~/Documents/pradeep/repos_and_other/aom_no_changes/aom/build$ ./test_aom_rc \n\u003e [\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d] Running 36 tests from 2 test suites.\n\u003e [----------] Global test environment set-up.\n\u003e [----------] 16 tests from AV1/RcInterfaceTest\n\u003e [ RUN      ] AV1/RcInterfaceTest.OneLayer/0\n\u003e /home/pradeep4/Documents/pradeep/repos_and_other/aom_no_changes/aom/test/yuv_video_source.h:47: Failure\n\u003e Expected: (input_file_) !\u003d (nullptr), actual: NULL vs (nullptr)\n\u003e Input file open failed. Filename: niklas_640_480_30.yuv\n\u003e \n\nSee https://aomedia.googlesource.com/aom/#downloading-the-test-data.",
+      "parentUuid": "785e9d3c_47e7014f",
+      "revId": "c730401b9e58622034862fb0baccc29db0356eff",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
