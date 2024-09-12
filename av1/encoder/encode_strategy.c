@@ -1463,9 +1463,11 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
 
   if (!frame_params.show_existing_frame) {
     if (cpi->film_grain_table) {
+#if !CONFIG_REALTIME_ONLY
       cm->cur_frame->film_grain_params_present = aom_film_grain_table_lookup(
           cpi->film_grain_table, *time_stamp, *time_end, 0 /* =erase */,
           &cm->film_grain_params);
+#endif
     } else {
       cm->cur_frame->film_grain_params_present =
           cm->seq_params->film_grain_params_present;
