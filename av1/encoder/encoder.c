@@ -4972,11 +4972,14 @@ AV1_COMP *av1_get_parallel_frame_enc_data(AV1_PRIMARY *const ppi,
   {
     AV1_COMP_DATA *data = &ppi->parallel_frames_data[cpi_idx - 1];
     assert(data->frame_size > 0);
-    assert(first_cpi_data->cx_data_sz > data->frame_size);
 
     first_cpi_data->lib_flags = data->lib_flags;
     first_cpi_data->ts_frame_start = data->ts_frame_start;
     first_cpi_data->ts_frame_end = data->ts_frame_end;
+    if (data->frame_size > first_cpi_data->cx_data_sz) {
+      aom_internal_error(&ppi->error, AOM_CODEC_ERROR,
+                         "first_cpi_data->cx_data buffer full");
+    }
     memcpy(first_cpi_data->cx_data, data->cx_data, data->frame_size);
     first_cpi_data->frame_size = data->frame_size;
     if (ppi->cpi->common.show_frame) {
@@ -5224,7 +5227,7 @@ int av1_get_quantizer(AV1_COMP *cpi) {
   return cpi->common.quant_params.base_qindex;
 }
 
-int av1_convert_sect5obus_to_annexb(uint8_t *buffer, size_t *frame_size) {
+int av1_convert_sect5obus_to_annexb(uint8_t *buffer, size_t  buffer_sz, size_t *frame_size) {
   size_t output_size = 0;
   size_t total_bytes_read = 0;
   size_t remaining_size = *frame_size;
@@ -5255,6 +5258,10 @@ int av1_convert_sect5obus_to_annexb(uint8_t *buffer, size_t *frame_size) {
     length_of_obu_size =
         aom_uleb_size_in_bytes((uint64_t)(obu_header_size + obu_payload_size));
 
+    if (length_of_obu_size + obu_header_size - obu_bytes_read >
+        buffer_sz - remaining_size - output_size) {
+      return AOM_CODEC_ERROR;
+    }
     // move the rest of data to new location
     memmove(buff_ptr + length_of_obu_size + obu_header_size,
             buff_ptr + obu_bytes_read, remaining_size - obu_bytes_read);
@@ -5263,7 +5270,7 @@ int av1_convert_sect5obus_to_annexb(uint8_t *buffer, size_t *frame_size) {
     // write the new obu size
     const uint64_t obu_size = obu_header_size + obu_payload_size;
     size_t coded_obu_size;
-    if (aom_uleb_encode(obu_size, sizeof(obu_size), buff_ptr,
+    if (aom_uleb_encode(obu_size, length_of_obu_size, buff_ptr,
                         &coded_obu_size) != 0) {
       return AOM_CODEC_ERROR;
     }
