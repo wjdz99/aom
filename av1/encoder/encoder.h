@@ -3880,7 +3880,8 @@ int av1_set_internal_size(AV1EncoderConfig *const oxcf,
 
 int av1_get_quantizer(struct AV1_COMP *cpi);
 
-int av1_convert_sect5obus_to_annexb(uint8_t *buffer, size_t *input_size);
+int av1_convert_sect5obus_to_annexb(uint8_t *buffer, size_t buffer_sz,
+                                    size_t *input_size);
 
 void av1_alloc_mb_wiener_var_pred_buf(AV1_COMMON *cm, ThreadData *td);
 
