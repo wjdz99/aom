@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "86f12026_a3df1213",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 599,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-09-16T20:55:26Z",
+      "side": 1,
+      "message": "This isn\u0027t portable, libaom supports the Microsoft Visual Studio compiler for instance:\n\n```\nav1\\encoder\\ethread.c(599): error C2065: \u0027_Atomic\u0027: undeclared identifier\nav1\\encoder\\ethread.c(599): error C2143: syntax error: missing \u0027;\u0027 before \u0027type\u0027\nav1\\encoder\\ethread.c(599): error C2065: \u0027_Atomic\u0027: undeclared identifier\nav1\\encoder\\ethread.c(599): error C2143: syntax error: missing \u0027)\u0027 before \u0027type\u0027\nav1\\encoder\\ethread.c(599): error C2059: syntax error: \u0027)\u0027\nav1\\encoder\\ethread.c(599): warning C4047: \u0027initializing\u0027: \u0027int *\u0027 differs in levels of indirection from \u0027int\u0027\nav1\\encoder\\ethread.c(773): error C2065: \u0027_Atomic\u0027: undeclared identifier\nav1\\encoder\\ethread.c(773): error C2143: syntax error: missing \u0027;\u0027 before \u0027type\u0027\nav1\\encoder\\ethread.c(773): error C2065: \u0027_Atomic\u0027: undeclared identifier\nav1\\encoder\\ethread.c(773): error C2143: syntax error: missing \u0027)\u0027 before \u0027type\u0027\nav1\\encoder\\ethread.c(773): error C2059: syntax error: \u0027)\u0027\nav1\\encoder\\ethread.c(773): warning C4047: \u0027initializing\u0027: \u0027int *\u0027 differs in levels of indirection from \u0027int\u0027\nav1\\encoder\\ethread.c(1703): error C2143: syntax error: missing \u0027)\u0027 before \u0027type\u0027\nav1\\encoder\\ethread.c(1703): error C2081: \u0027_Atomic\u0027: name in formal parameter list illegal\nav1\\encoder\\ethread.c(1703): error C2059: syntax error: \u0027)\u0027\nav1\\encoder\\ethread.c(1703): error C2085: \u0027hook_init_number\u0027: not in formal parameter list\nav1\\encoder\\ethread.c(1703): error C2143: syntax error: missing \u0027;\u0027 before \u0027{\u0027\nav1\\encoder\\ethread.c(1720): error C2065: \u0027hook_init_number\u0027: undeclared identifier\nav1\\encoder\\ethread.c(1720): error C2100: you cannot dereference an operand of type \u0027int\u0027\nav1\\encoder\\ethread.c(1721): error C2065: \u0027hook_init_number\u0027: undeclared identifier\nav1\\encoder\\ethread.c(1721): warning C4047: \u0027\u003d\u0027: \u0027void *\u0027 differs in levels of indirection from \u0027int\u0027\nav1\\encoder\\ethread.c(1820): error C2065: \u0027_Atomic\u0027: undeclared identifier\nav1\\encoder\\ethread.c(1820): error C2143: syntax error: missing \u0027;\u0027 before \u0027type\u0027\nav1\\encoder\\ethread.c(1822): warning C4047: \u0027function\u0027: \u0027int\u0027 differs in levels of indirection from \u0027int *\u0027\nav1\\encoder\\ethread.c(1822): warning C4024: \u0027prepare_enc_workers\u0027: different types for formal and actual parameter 4\nav1\\encoder\\ethread.c(2056): error C2065: \u0027_Atomic\u0027: undeclared identifier\nav1\\encoder\\ethread.c(2056): error C2143: syntax error: missing \u0027;\u0027 before \u0027type\u0027\nav1\\encoder\\ethread.c(2059): warning C4047: \u0027function\u0027: \u0027int\u0027 differs in levels of indirection from \u0027int *\u0027\nav1\\encoder\\ethread.c(2059): warning C4024: \u0027prepare_enc_workers\u0027: different types for formal and actual parameter 4\n[344/516] Building CXX object CMakeFiles\\svc_encoder_rtc.dir\\Debug\\examples\\svc_encoder_rtc.cc.obj\n\n```",
+      "range": {
+        "startLine": 599,
+        "startChar": 4,
+        "endLine": 599,
+        "endChar": 12
+      },
+      "revId": "513432fc5ae8dd47f7952d709fc7d313050d05b0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
