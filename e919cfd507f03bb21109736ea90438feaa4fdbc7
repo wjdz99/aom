@@ -16,6 +16,24 @@
       "message": "Hi James,\nWith this new implementation we now have a non-downsampling case that is much faster than the downsampling one. Would it be worth applying the same kind of algorithm for x86 (which exists in SVT-AV1) and removing the downsampling case altogether?",
       "revId": "e919cfd507f03bb21109736ea90438feaa4fdbc7",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "03973b6d_f67ab4c9",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-09-18T19:00:27Z",
+      "side": 1,
+      "message": "\u003e Hi James,\n\u003e With this new implementation we now have a non-downsampling case that is much faster than the downsampling one. Would it be worth applying the same kind of algorithm for x86 (which exists in SVT-AV1) and removing the downsampling case altogether?\n\nYes, that would be helpful. I don\u0027t know that there\u0027s anyone free to do the work, but I can file a bug after this lands to keep track.",
+      "parentUuid": "bb151502_470965b8",
+      "revId": "e919cfd507f03bb21109736ea90438feaa4fdbc7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
