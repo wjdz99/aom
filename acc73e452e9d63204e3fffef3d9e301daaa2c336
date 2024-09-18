@@ -16,6 +16,125 @@
       "message": "We have further studied the code outside `av1_pack_bitstream()` that needs handling for buffer bound checks. We have identified 2 sites where the bound checks are needed. The functions identified are as follow:\n* `av1_get_parallel_frame_enc_data()`\n* `av1_convert_sect5obus_to_annexb()`\n\nIn this CL we added appropriate checks inside above functions. Please review the CL.",
       "revId": "acc73e452e9d63204e3fffef3d9e301daaa2c336",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "95dd964f_5c85e54b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-09-18T00:26:17Z",
+      "side": 1,
+      "message": "Hi Mudassir,\n\nThanks a lot for the CL! I am not familiar with Annex B, so I didn\u0027t check the CL carefully. Here are some preliminary review comments. I will study Annex B and review this CL again tomorrow.",
+      "revId": "acc73e452e9d63204e3fffef3d9e301daaa2c336",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3dc6862a_a2a9c66d",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 3102,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-09-18T00:26:17Z",
+      "side": 1,
+      "message": "Note that we compute `data_sz` by multiplyng `uncompressed_frame_sz` with `multiplier` and making sure it is at least `kMinCompressedSize`.",
+      "revId": "acc73e452e9d63204e3fffef3d9e301daaa2c336",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "da5d9231_64ed819a",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 3104,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-09-18T00:26:17Z",
+      "side": 1,
+      "message": "Note that we use `data_sz` rather than `uncompressed_frame_sz` here,",
+      "revId": "acc73e452e9d63204e3fffef3d9e301daaa2c336",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bc2a731e_e0904e0d",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 3114,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-09-18T00:26:17Z",
+      "side": 1,
+      "message": "Should we set this to `data_sz` instead?\n\nNote: This is unrelated to the rest of the CL, so we can make this change in a separate CL.",
+      "revId": "acc73e452e9d63204e3fffef3d9e301daaa2c336",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "68d964dd_a6740c1a",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 4982,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-09-18T00:26:17Z",
+      "side": 1,
+      "message": "Nit/optional: Move this if statement before line 4976, so that we don\u0027t do wasted work before returning an error. But it is okay to leave the check here if you think this makes the purpose of the check clearer (to check if the `memcpy()` call is safe).",
+      "revId": "acc73e452e9d63204e3fffef3d9e301daaa2c336",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5f982bd6_611540ae",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 5234,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-09-18T00:26:17Z",
+      "side": 1,
+      "message": "IMPORTANT: We need to require that `remaining_size \u003c\u003d buffer_sz` here. If this condition is false, we cannot continue (the unsigned subtraction `buffer_sz - remaining_size` at line 5263 will wrap around) and must return an error.\n\nNote that if this condition fails, there is a bug -- the caller may have already overwritten the buffer, or passed an incorrect output buffer size.",
+      "revId": "acc73e452e9d63204e3fffef3d9e301daaa2c336",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fff9b2d2_581de754",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 3883,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-09-18T00:26:17Z",
+      "side": 1,
+      "message": "Nit: buffer_sz \u003d\u003e buffer_size\n\nto be consistent with the `input_size` parameter",
+      "revId": "acc73e452e9d63204e3fffef3d9e301daaa2c336",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
