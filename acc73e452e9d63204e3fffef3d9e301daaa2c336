@@ -103,6 +103,23 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "bd04f3e4_8bd5a1b2",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 5231,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-09-18T00:47:58Z",
+      "side": 1,
+      "message": "It is tricky to decide how much checking this function needs to do. We can assume (and document) that the input to this function is a valid encoded output from libaom\u0027s encoder. Under this assumption, the `obu_payload_size` can be assumed to be valid and won\u0027t exceed the end of the buffer.",
+      "revId": "acc73e452e9d63204e3fffef3d9e301daaa2c336",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "5f982bd6_611540ae",
@@ -116,6 +133,41 @@
       "writtenOn": "2024-09-18T00:26:17Z",
       "side": 1,
       "message": "IMPORTANT: We need to require that `remaining_size \u003c\u003d buffer_sz` here. If this condition is false, we cannot continue (the unsigned subtraction `buffer_sz - remaining_size` at line 5263 will wrap around) and must return an error.\n\nNote that if this condition fails, there is a bug -- the caller may have already overwritten the buffer, or passed an incorrect output buffer size.",
+      "revId": "acc73e452e9d63204e3fffef3d9e301daaa2c336",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3b9f8e2b_52c4d226",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 5234,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-09-18T00:47:58Z",
+      "side": 1,
+      "message": "Please see my comment at line 5231. Under that assumption, this condition shoud be true and we don\u0027t need to check it (or we can just assert it.)",
+      "parentUuid": "5f982bd6_611540ae",
+      "revId": "acc73e452e9d63204e3fffef3d9e301daaa2c336",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ab6cb5e8_f936ce1b",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 5285,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-09-18T00:47:58Z",
+      "side": 1,
+      "message": "IMPORTANT: We need to make sure the two subtractions in line 5263 do not wrap around.\n\nBut the wraparound probably will never happen under the assumption I described at line 5231. I need to think more about this.",
       "revId": "acc73e452e9d63204e3fffef3d9e301daaa2c336",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
