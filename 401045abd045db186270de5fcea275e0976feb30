@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ec62532e_7631dd03",
+        "filename": "av1/ratectrl_rtc.h",
+        "patchSetId": 34
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-09-18T01:57:30Z",
+      "side": 1,
+      "message": "This comment and `#else` are wrong. The only `#if` in this file is `#ifndef AOM_AV1_RATECTRL_RTC_H_` and an `#else` wouldn\u0027t make sense.",
+      "revId": "401045abd045db186270de5fcea275e0976feb30",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
