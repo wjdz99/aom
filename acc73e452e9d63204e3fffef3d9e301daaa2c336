@@ -86,6 +86,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "c13b2a60_f55dd11a",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 3114,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2024-09-18T16:32:30Z",
+      "side": 1,
+      "message": "We have submitted the separate [CL](https://aomedia-review.googlesource.com/c/aom/+/193521) addressing this comment. Please review the same.",
+      "parentUuid": "bc2a731e_e0904e0d",
+      "revId": "acc73e452e9d63204e3fffef3d9e301daaa2c336",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "68d964dd_a6740c1a",
@@ -99,6 +117,24 @@
       "writtenOn": "2024-09-18T00:26:17Z",
       "side": 1,
       "message": "Nit/optional: Move this if statement before line 4976, so that we don\u0027t do wasted work before returning an error. But it is okay to leave the check here if you think this makes the purpose of the check clearer (to check if the `memcpy()` call is safe).",
+      "revId": "acc73e452e9d63204e3fffef3d9e301daaa2c336",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a42453b9_635d07da",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 4982,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2024-09-18T16:32:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "68d964dd_a6740c1a",
       "revId": "acc73e452e9d63204e3fffef3d9e301daaa2c336",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -155,6 +191,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "48e1756b_0230d15d",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 5234,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2024-09-18T16:32:30Z",
+      "side": 1,
+      "message": "Acknowledged. We also feel it is safe to assume `remaining_size \u003c\u003d buffer_size` here. We have documented the same and added the assertion.",
+      "parentUuid": "3b9f8e2b_52c4d226",
+      "revId": "acc73e452e9d63204e3fffef3d9e301daaa2c336",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ab6cb5e8_f936ce1b",
@@ -172,6 +226,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e4681a0b_26b51bad",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 5285,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2024-09-18T16:32:30Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "ab6cb5e8_f936ce1b",
+      "revId": "acc73e452e9d63204e3fffef3d9e301daaa2c336",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "fff9b2d2_581de754",
@@ -185,6 +257,24 @@
       "writtenOn": "2024-09-18T00:26:17Z",
       "side": 1,
       "message": "Nit: buffer_sz \u003d\u003e buffer_size\n\nto be consistent with the `input_size` parameter",
+      "revId": "acc73e452e9d63204e3fffef3d9e301daaa2c336",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3b582f01_039d8920",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 3883,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2024-09-18T16:32:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fff9b2d2_581de754",
       "revId": "acc73e452e9d63204e3fffef3d9e301daaa2c336",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
