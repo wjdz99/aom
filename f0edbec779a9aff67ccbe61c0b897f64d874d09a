@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f8184779_937db279",
+        "filename": "av1/encoder/rc_utils.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-09-19T18:20:44Z",
+      "side": 1,
+      "message": "extra space",
+      "range": {
+        "startLine": 30,
+        "startChar": 38,
+        "endLine": 30,
+        "endChar": 39
+      },
+      "revId": "f0edbec779a9aff67ccbe61c0b897f64d874d09a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
