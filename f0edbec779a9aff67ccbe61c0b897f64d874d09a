@@ -22,6 +22,30 @@
       },
       "revId": "f0edbec779a9aff67ccbe61c0b897f64d874d09a",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5aed838b_3461741b",
+        "filename": "av1/encoder/rc_utils.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2024-09-19T18:43:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f8184779_937db279",
+      "range": {
+        "startLine": 30,
+        "startChar": 38,
+        "endLine": 30,
+        "endChar": 39
+      },
+      "revId": "f0edbec779a9aff67ccbe61c0b897f64d874d09a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
