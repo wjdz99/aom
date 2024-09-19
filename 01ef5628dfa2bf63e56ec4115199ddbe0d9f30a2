@@ -16,6 +16,24 @@
       "message": "Please confirm we can delete the commented-out code.",
       "revId": "01ef5628dfa2bf63e56ec4115199ddbe0d9f30a2",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a77d1728_04aa56e3",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 2488,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2024-09-19T17:10:57Z",
+      "side": 0,
+      "message": "we can remove this",
+      "parentUuid": "769bf26b_341b9de6",
+      "revId": "01ef5628dfa2bf63e56ec4115199ddbe0d9f30a2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
