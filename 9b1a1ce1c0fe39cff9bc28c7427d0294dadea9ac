@@ -53,6 +53,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "7b9fc653_e4d3676f",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 2311,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-09-19T17:47:55Z",
+      "side": 1,
+      "message": "My previous comment has a typo. I meant to say:\n\n\u003e If this `resize_rate_factor()` call returns a value \u003c\u003d 1.0 (which is implied by the comment \"when down-scaled\" at line 2307), then we don\u0027t need to change this code.\n\nThank you for pointing out that `resize_rate_factor()` is \u003e 1.0 here.",
+      "parentUuid": "2eda6121_586c18d1",
+      "revId": "9b1a1ce1c0fe39cff9bc28c7427d0294dadea9ac",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c3058428_96cd2534",
@@ -66,6 +84,24 @@
       "writtenOn": "2024-09-19T16:17:31Z",
       "side": 1,
       "message": "If this `resize_rate_factor()` may return a value \u003c 1.0, then we need this change.",
+      "revId": "9b1a1ce1c0fe39cff9bc28c7427d0294dadea9ac",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "45e001e3_78d64513",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 2424,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-09-19T17:47:55Z",
+      "side": 1,
+      "message": "As discussed in Chat, this `resize_rate_factor()` call is also \u003e\u003d 1.0, so the saturate cast is not necessary. We will keep the saturate cast here too to keep the code the same.",
+      "parentUuid": "c3058428_96cd2534",
       "revId": "9b1a1ce1c0fe39cff9bc28c7427d0294dadea9ac",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
