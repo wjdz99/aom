@@ -1,0 +1,123 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7754cd52_181bba19",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-09-20T00:29:53Z",
+      "side": 1,
+      "message": "Optional: add 361552711",
+      "revId": "9a7ec2eedb4b35d9322dc4f85dd6e8a875e313c9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c1d30522_b527d34d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-09-20T00:29:53Z",
+      "side": 1,
+      "message": "Hi Mudassir,\n\nI finished the review. I suggest a few small changes. I also wrote two other CLs while studying the relevant code.",
+      "revId": "9a7ec2eedb4b35d9322dc4f85dd6e8a875e313c9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "972a1895_f3951a6e",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 3493,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-09-20T00:29:53Z",
+      "side": 1,
+      "message": "It doesn\u0027t seem necessary to use the `curr_frame_size` temporary variable. I think we can just pass `\u0026cpi_data.frame_size` here.",
+      "revId": "9a7ec2eedb4b35d9322dc4f85dd6e8a875e313c9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "89c6a380_cd34482c",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 5233,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-09-20T00:29:53Z",
+      "side": 1,
+      "message": "Nit: Delete this comment.",
+      "revId": "9a7ec2eedb4b35d9322dc4f85dd6e8a875e313c9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "41844098_2bad6961",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 5266,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-09-20T00:29:53Z",
+      "side": 1,
+      "message": "I suggest rewriting this comparison as follows.\n\nLeft-hand side: the sum of the offset in the first argument and the third arguments to the `memmove()` call\n\n```\nlength_of_obu_size + obu_header_size + remaining_size - obu_bytes_read\n```\n\nRight-hand side: the available space at `buff_ptr`:\n\n```\nbuffer_size - output_size\n```\n\nNote that we did not prove that the sum on the left-hand side will not overflow. To address that concert, we can move `+ remaining_size - obu_bytes_read` from the left-hand side to the right-hand side. If we do this, then the comparison becomes:\n\nLeft-hand side:\n\n```\nlength_of_obu_size + obu_header_size\n```\n\nRight-hand side:\n\n```\nbuffer_size - output_size - (remaining_size - obu_bytes_read)\n```",
+      "revId": "9a7ec2eedb4b35d9322dc4f85dd6e8a875e313c9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "583475db_fbf17cc2",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 5278,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-09-20T00:29:53Z",
+      "side": 1,
+      "message": "Also fail if `coded_obu_size !\u003d length_of_obu_size`",
+      "revId": "9a7ec2eedb4b35d9322dc4f85dd6e8a875e313c9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1a7bcd4f_2a101180",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 3883,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-09-20T00:29:53Z",
+      "side": 1,
+      "message": "Add a WARNING comment that this function assumes the input buffer contains valid OBUs so it should not be called on untrusted input.",
+      "revId": "9a7ec2eedb4b35d9322dc4f85dd6e8a875e313c9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
