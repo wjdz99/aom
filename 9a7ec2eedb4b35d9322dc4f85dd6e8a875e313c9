@@ -35,6 +35,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "50ae8498_12127304",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-09-20T05:11:53Z",
+      "side": 1,
+      "message": "I have submitted those two CLs. You may need to rebase this CL after making the changes I suggested. Sorry about the inconvenience.",
+      "parentUuid": "c1d30522_b527d34d",
+      "revId": "9a7ec2eedb4b35d9322dc4f85dd6e8a875e313c9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "972a1895_f3951a6e",
