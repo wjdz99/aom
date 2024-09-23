@@ -16,6 +16,24 @@
       "message": "Is there some other guarantee that width is a multiple of 16? Otherwise this will overread / write, no?",
       "revId": "e66b43e35678e25b0d205e38eb892595a3f96031",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1dbc6b8d_45951fc6",
+        "filename": "av1/common/arm/resize_neon.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 31392
+      },
+      "writtenOn": "2024-09-23T13:32:44Z",
+      "side": 1,
+      "message": "In the definition of YV12_BUFFER_CONFIG it says that width and height is aligned to a multiple of 8. I think it is not a problem if we are overreading in this case, if we allocate memory for the frame buffer using the aom_alloc_frame_buffer there is extra memory created for the borders as well, the stride is set to be divisible by 32. In case of overwriting, at the end of the function the aom_extend_frame_borders will overwrite these values. We can also take into consideration that function itself is called with whole video frame size, and the most preferred sizes for video are a multiple of 16.",
+      "parentUuid": "41fab8de_a8464f88",
+      "revId": "e66b43e35678e25b0d205e38eb892595a3f96031",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
