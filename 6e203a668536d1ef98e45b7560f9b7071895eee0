@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3a2e9a02_9b03c873",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 5279,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-09-23T15:55:56Z",
+      "side": 1,
+      "message": "IMPORTANT: Change `\u0026\u0026` to `||`",
+      "revId": "6e203a668536d1ef98e45b7560f9b7071895eee0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
