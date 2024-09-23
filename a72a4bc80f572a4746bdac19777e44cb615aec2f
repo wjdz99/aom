@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bf0e2401_45b60e94",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-09-23T15:38:58Z",
+      "side": 1,
+      "message": "LGTM. Thanks!",
+      "revId": "a72a4bc80f572a4746bdac19777e44cb615aec2f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "beee397e_702c89c1",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 3118,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-09-23T15:38:58Z",
+      "side": 1,
+      "message": "Could you check if these two lines should also be executed when we reallocate `ppi-\u003eparallel_frames_data[i].cx_data` to a larger size?\n\nI am wondering if they only need to be initialized once. I am not familiar with the frame parallel encoding code, so I don\u0027t know what we should do here.\n\nThanks.\n\nUPDATE: I looked into this a little. I found that `frame_display_order_hint` is initialized to -1 here and then never used. So we can delete it.\n\nAs for `frame_size`, it is harder to analyze. But it seems that we will re-initialize it to 0 before using it, so we don\u0027t really need to initialize it to 0 here. Or we can say it is harmless to initialize it here. Please double check. Thanks!",
+      "range": {
+        "startLine": 3117,
+        "startChar": 0,
+        "endLine": 3118,
+        "endChar": 54
+      },
+      "revId": "a72a4bc80f572a4746bdac19777e44cb615aec2f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
