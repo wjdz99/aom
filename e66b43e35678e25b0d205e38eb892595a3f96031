@@ -70,6 +70,24 @@
       "parentUuid": "e17180ce_3df38e28",
       "revId": "e66b43e35678e25b0d205e38eb892595a3f96031",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4c38dbb0_d916a0de",
+        "filename": "av1/common/arm/resize_neon.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-09-24T19:39:51Z",
+      "side": 1,
+      "message": "\u003e Added the test case in the parent patch.\n\nThank you.",
+      "parentUuid": "d0f27d34_1ddee06d",
+      "revId": "e66b43e35678e25b0d205e38eb892595a3f96031",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
