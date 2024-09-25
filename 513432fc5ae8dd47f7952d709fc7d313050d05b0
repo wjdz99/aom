@@ -46,6 +46,30 @@
       },
       "revId": "513432fc5ae8dd47f7952d709fc7d313050d05b0",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "de6d8a4c_f6e98357",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 599,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-09-25T18:50:29Z",
+      "side": 1,
+      "message": "\u003e Hello reviewers,\n\u003e  \n\u003e I hope this message finds you well. I want to gently inform you that there will be a transition in the stewardship of the patch previously submitted, which focuses on \"Optimization of the Multithreading Preparation Phase.\" \n\u003e Zhiguo Zhou(zhiguo.zhou@intel.com) will be the role of the lead for this work and will be responsible for any subsequent updates or progress regarding this issue.\n\u003e If there are any procedures that need to be followed, please let us know. Thank you.\n\nNothing special is needed for someone to take over the change.",
+      "parentUuid": "a075b65f_18e2aedf",
+      "range": {
+        "startLine": 599,
+        "startChar": 4,
+        "endLine": 599,
+        "endChar": 12
+      },
+      "revId": "513432fc5ae8dd47f7952d709fc7d313050d05b0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
