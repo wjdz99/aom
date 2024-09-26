@@ -555,50 +555,20 @@ endif()
 if(CONFIG_REALTIME_ONLY)
   if(NOT CONFIG_AV1_DECODER)
     list(REMOVE_ITEM AOM_AV1_COMMON_SOURCES "${AOM_ROOT}/av1/common/cfl.c"
-                     "${AOM_ROOT}/av1/common/cfl.h"
-                     "${AOM_ROOT}/av1/common/restoration.c"
-                     "${AOM_ROOT}/av1/common/restoration.h"
-                     "${AOM_ROOT}/av1/common/warped_motion.c"
-                     "${AOM_ROOT}/av1/common/warped_motion.h")
+                     "${AOM_ROOT}/av1/common/cfl.h")
 
     list(REMOVE_ITEM AOM_AV1_COMMON_INTRIN_SSE2
-                     "${AOM_ROOT}/av1/common/x86/cfl_sse2.c"
-                     "${AOM_ROOT}/av1/common/x86/warp_plane_sse2.c"
-                     "${AOM_ROOT}/av1/common/x86/wiener_convolve_sse2.c")
-
-    list(REMOVE_ITEM AOM_AV1_COMMON_INTRIN_SSE4_1
-                     "${AOM_ROOT}/av1/common/x86/highbd_warp_plane_sse4.c"
-                     "${AOM_ROOT}/av1/common/x86/selfguided_sse4.c"
-                     "${AOM_ROOT}/av1/common/x86/warp_plane_sse4.c")
+                     "${AOM_ROOT}/av1/common/x86/cfl_sse2.c")
 
     list(
       REMOVE_ITEM AOM_AV1_COMMON_INTRIN_SSSE3
-                  "${AOM_ROOT}/av1/common/x86/cfl_ssse3.c"
-                  "${AOM_ROOT}/av1/common/x86/highbd_wiener_convolve_ssse3.c")
+                  "${AOM_ROOT}/av1/common/x86/cfl_ssse3.c")
 
     list(REMOVE_ITEM AOM_AV1_COMMON_INTRIN_AVX2
-                     "${AOM_ROOT}/av1/common/x86/cfl_avx2.c"
-                     "${AOM_ROOT}/av1/common/x86/highbd_warp_affine_avx2.c"
-                     "${AOM_ROOT}/av1/common/x86/highbd_wiener_convolve_avx2.c"
-                     "${AOM_ROOT}/av1/common/x86/selfguided_avx2.c"
-                     "${AOM_ROOT}/av1/common/x86/warp_plane_avx2.c"
-                     "${AOM_ROOT}/av1/common/x86/wiener_convolve_avx2.c")
+                     "${AOM_ROOT}/av1/common/x86/cfl_avx2.c")
 
     list(REMOVE_ITEM AOM_AV1_COMMON_INTRIN_NEON
-                     "${AOM_ROOT}/av1/common/arm/cfl_neon.c"
-                     "${AOM_ROOT}/av1/common/arm/highbd_warp_plane_neon.c"
-                     "${AOM_ROOT}/av1/common/arm/highbd_wiener_convolve_neon.c"
-                     "${AOM_ROOT}/av1/common/arm/selfguided_neon.c"
-                     "${AOM_ROOT}/av1/common/arm/warp_plane_neon.c"
-                     "${AOM_ROOT}/av1/common/arm/warp_plane_neon.h"
-                     "${AOM_ROOT}/av1/common/arm/wiener_convolve_neon.c")
-
-    list(REMOVE_ITEM AOM_AV1_COMMON_INTRIN_NEON_I8MM
-                     "${AOM_ROOT}/av1/common/arm/warp_plane_neon_i8mm.c")
-
-    list(REMOVE_ITEM AOM_AV1_COMMON_INTRIN_SVE
-                     "${AOM_ROOT}/av1/common/arm/highbd_warp_plane_sve.c"
-                     "${AOM_ROOT}/av1/common/arm/warp_plane_sve.c")
+                     "${AOM_ROOT}/av1/common/arm/cfl_neon.c")
   endif()
 
   list(REMOVE_ITEM AOM_AV1_ENCODER_INTRIN_SSE2
