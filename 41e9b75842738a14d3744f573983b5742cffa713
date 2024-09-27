@@ -16,6 +16,24 @@
       "message": "This will break the mac build for realtime encoder only again. We\u0027ll need to create stubs or split the exports file.",
       "revId": "41e9b75842738a14d3744f573983b5742cffa713",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f66e1cf2_628f9aa0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-09-27T21:50:47Z",
+      "side": 1,
+      "message": "We should evaluate the risk of actually breaking a client of the libaom shared library. I think the risk is near zero because:\n\n1. This client needs to use these film grain functions.\n2. This client needs to include the private libaom headers that declare these film grain functions. (This violates the rules of using a library.)\n3. This client needs to use the libaom shared library and is unable to switch to the libaom static library.\n\nTherefore I think it is safe to fix the incorrect export of those film grain functions. This is much simpler than creating stubs or splitting the exports file.",
+      "parentUuid": "79dd2daf_93137bec",
+      "revId": "41e9b75842738a14d3744f573983b5742cffa713",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
