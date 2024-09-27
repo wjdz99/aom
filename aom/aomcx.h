@@ -48,12 +48,6 @@ extern "C" {
  *@{
  */
 
-/*!\brief A single instance of the AV1 encoder.
- *\deprecated This access mechanism is provided for backwards compatibility;
- * prefer aom_codec_av1_cx().
- */
-extern aom_codec_iface_t aom_codec_av1_cx_algo;
-
 /*!\brief The interface to the AV1 encoder.
  */
 extern aom_codec_iface_t *aom_codec_av1_cx(void);
