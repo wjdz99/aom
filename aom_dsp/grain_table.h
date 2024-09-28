@@ -45,7 +45,6 @@ typedef struct aom_film_grain_table_entry_t {
 } aom_film_grain_table_entry_t;
 
 typedef struct {
-  int unused;
   aom_film_grain_table_entry_t *head;
   aom_film_grain_table_entry_t *tail;
 } aom_film_grain_table_t;

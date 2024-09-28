@@ -368,9 +368,9 @@ const aom_codec_cx_pkt_t *aom_codec_pkt_list_get(
 #include <setjmp.h>
 
 struct aom_internal_error_info {
-  aom_codec_err_t error_code;
   int has_detail;
   char detail[ARG_ERR_MSG_MAX_LEN];
+  aom_codec_err_t error_code;
   int setjmp;  // Boolean: whether 'jmp' is valid.
   jmp_buf jmp;
 };
