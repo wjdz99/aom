@@ -11,10 +11,14 @@
 
 #include "gtest/gtest.h"
 
+#include "config/aom_config.h"
+
 #include "aom/aom_codec.h"
 #include "aom/aom_image.h"
 #include "aom/internal/aom_image_internal.h"
+#if !CONFIG_SHARED
 #include "aom_scale/yv12config.h"
+#endif
 #include "av1/encoder/bitstream.h"
 #include "test/codec_factory.h"
 #include "test/encode_test_driver.h"
@@ -243,6 +247,7 @@ TEST(MetadataTest, RemoveMetadataFromImage) {
   aom_img_remove_metadata(nullptr);
 }
 
+#if !CONFIG_SHARED
 TEST(MetadataTest, CopyMetadataToFrameBuffer) {
   YV12_BUFFER_CONFIG yvBuf;
   yvBuf.metadata = nullptr;
@@ -274,6 +279,7 @@ TEST(MetadataTest, CopyMetadataToFrameBuffer) {
   aom_remove_metadata_from_frame_buffer(&yvBuf);
   aom_remove_metadata_from_frame_buffer(nullptr);
 }
+#endif  // !CONFIG_SHARED
 
 TEST(MetadataTest, GetMetadataFromImage) {
   aom_image_t image;
