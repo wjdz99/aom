@@ -16,6 +16,424 @@
       "message": "Hi James,  I could resolve all the pending. Please check. Now I think the last one is code reduction in test file. will check it . thanks",
       "revId": "3437c75bb5c313473101d5674e510129470d984a",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4ef5854b_7648b2e3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 45
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-10-08T18:47:37Z",
+      "side": 1,
+      "message": "This looks like it\u0027s getting a little closer.",
+      "revId": "3437c75bb5c313473101d5674e510129470d984a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5460afc2_f50ca58d",
+        "filename": "av1/ratectrl_rtc.cc",
+        "patchSetId": 45
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-10-08T18:47:37Z",
+      "side": 1,
+      "message": "add a blank line after `}`",
+      "revId": "3437c75bb5c313473101d5674e510129470d984a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7fcf3f55_e6cb3fc0",
+        "filename": "av1/ratectrl_rtc.cc",
+        "patchSetId": 45
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-10-08T18:47:37Z",
+      "side": 1,
+      "message": "add a blank line after `{`",
+      "revId": "3437c75bb5c313473101d5674e510129470d984a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d80cac91_3e750768",
+        "filename": "av1/ratectrl_rtc.cc",
+        "patchSetId": 45
+      },
+      "lineNbr": 397,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-10-08T18:47:37Z",
+      "side": 1,
+      "message": "add a blank line after `}`",
+      "fixSuggestions": [
+        {
+          "fixId": "c2d4c8bb_d5dc25ba",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "av1/ratectrl_rtc.cc",
+              "range": {
+                "startLine": 398,
+                "startChar": 0,
+                "endLine": 398,
+                "endChar": 0
+              },
+              "replacement": "\n"
+            }
+          ]
+        }
+      ],
+      "revId": "3437c75bb5c313473101d5674e510129470d984a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3544094e_995de5bf",
+        "filename": "av1/ratectrl_rtc.cc",
+        "patchSetId": 45
+      },
+      "lineNbr": 398,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-10-08T18:47:37Z",
+      "side": 1,
+      "message": "add a blank line after `{` to balance the blank line before `}` in this block.",
+      "fixSuggestions": [
+        {
+          "fixId": "f1e1dc30_8a65b29a",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "av1/ratectrl_rtc.cc",
+              "range": {
+                "startLine": 399,
+                "startChar": 0,
+                "endLine": 399,
+                "endChar": 0
+              },
+              "replacement": "\n"
+            }
+          ]
+        }
+      ],
+      "revId": "3437c75bb5c313473101d5674e510129470d984a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b0276011_bec169be",
+        "filename": "av1/ratectrl_rtc.cc",
+        "patchSetId": 45
+      },
+      "lineNbr": 400,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-10-08T18:47:37Z",
+      "side": 1,
+      "message": "There\u0027s no benefit to using a `std::unique_ptr` here, just return the result of `...::Create` directly.",
+      "fixSuggestions": [
+        {
+          "fixId": "36a1da2b_196dd6b7",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "av1/ratectrl_rtc.cc",
+              "range": {
+                "startLine": 400,
+                "startChar": 0,
+                "endLine": 403,
+                "endChar": 0
+              },
+              "replacement": "  return aom::AV1RateControlRTC::Create(*rc_cfg).release();\n"
+            }
+          ]
+        }
+      ],
+      "revId": "3437c75bb5c313473101d5674e510129470d984a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1fab1ffb_4653c981",
+        "filename": "av1/ratectrl_rtc.cc",
+        "patchSetId": 45
+      },
+      "lineNbr": 407,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-10-08T18:47:37Z",
+      "side": 1,
+      "message": "All pointers to these functions should be check to make sure they\u0027re not null.",
+      "revId": "3437c75bb5c313473101d5674e510129470d984a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f11b6ca0_0eaa6640",
+        "filename": "av1/ratectrl_rtc.h",
+        "patchSetId": 45
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-10-08T18:47:37Z",
+      "side": 1,
+      "message": "add a blank line after `#endif`",
+      "fixSuggestions": [
+        {
+          "fixId": "bb517536_09b5f35e",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "av1/ratectrl_rtc.h",
+              "range": {
+                "startLine": 23,
+                "startChar": 0,
+                "endLine": 23,
+                "endChar": 0
+              },
+              "replacement": "\n"
+            }
+          ]
+        }
+      ],
+      "revId": "3437c75bb5c313473101d5674e510129470d984a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "12aafd96_2d8685ed",
+        "filename": "av1/ratectrl_rtc.h",
+        "patchSetId": 45
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-10-08T18:47:37Z",
+      "side": 1,
+      "message": "These should be named `kFrameDropDecisionOk` and `kFrameDropDecisionDrop`",
+      "revId": "3437c75bb5c313473101d5674e510129470d984a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "63324e31_a917f70f",
+        "filename": "av1/ratectrl_rtc.h",
+        "patchSetId": 45
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-10-08T18:47:37Z",
+      "side": 1,
+      "message": "This is `#ifdef __cplusplus`, but elsewhere `defined(__cplusplus)` is used. Choose one and be consistent across the files. Also, remove the `#if ` from the comment here and throughout.",
+      "range": {
+        "startLine": 62,
+        "startChar": 11,
+        "endLine": 62,
+        "endChar": 35
+      },
+      "revId": "3437c75bb5c313473101d5674e510129470d984a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8bfdea8f_69e9ecb2",
+        "filename": "av1/ratectrl_rtc.h",
+        "patchSetId": 45
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-10-08T18:47:37Z",
+      "side": 1,
+      "message": "The `constexpr`s could remain for use in C++",
+      "revId": "3437c75bb5c313473101d5674e510129470d984a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4cf71957_e65909fa",
+        "filename": "av1/ratectrl_rtc.h",
+        "patchSetId": 45
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-10-08T18:47:37Z",
+      "side": 1,
+      "message": "structs default to public access, this can be removed.",
+      "revId": "3437c75bb5c313473101d5674e510129470d984a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c2455d9c_6e46623c",
+        "filename": "av1/ratectrl_rtc.h",
+        "patchSetId": 45
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-10-08T18:47:37Z",
+      "side": 1,
+      "message": "This can be a bool.\n\nJerome, it\u0027s inconsistent to have a default initializer for one field, but defer most other simple values to the constructor.",
+      "revId": "3437c75bb5c313473101d5674e510129470d984a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ec7a67b7_edb6ac5b",
+        "filename": "av1/ratectrl_rtc.h",
+        "patchSetId": 45
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-10-08T18:47:37Z",
+      "side": 1,
+      "message": "Nothing seems to free this and I think it can simply be an init call given you have `AV1RateControlRtcConfigInitDefault` earlier.",
+      "revId": "3437c75bb5c313473101d5674e510129470d984a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4b1b0560_86f18636",
+        "filename": "examples/svc_encoder_rtc.cc",
+        "patchSetId": 45
+      },
+      "lineNbr": 1743,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-10-08T18:47:37Z",
+      "side": 1,
+      "message": "This seems unrelated to the change. It should be in a separate change.",
+      "revId": "3437c75bb5c313473101d5674e510129470d984a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8055e893_1ad51bac",
+        "filename": "test/ratectrl_rtc_test.cc",
+        "patchSetId": 45
+      },
+      "lineNbr": 157,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-10-08T18:47:37Z",
+      "side": 1,
+      "message": "This file will always be compiled as C++. Remove this here and throughout.",
+      "fixSuggestions": [
+        {
+          "fixId": "5650494a_132ad84f",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "test/ratectrl_rtc_test.cc",
+              "range": {
+                "startLine": 157,
+                "startChar": 0,
+                "endLine": 158,
+                "endChar": 0
+              },
+              "replacement": ""
+            },
+            {
+              "path": "test/ratectrl_rtc_test.cc",
+              "range": {
+                "startLine": 159,
+                "startChar": 0,
+                "endLine": 162,
+                "endChar": 0
+              },
+              "replacement": ""
+            },
+            {
+              "path": "test/ratectrl_rtc_test.cc",
+              "range": {
+                "startLine": 572,
+                "startChar": 0,
+                "endLine": 573,
+                "endChar": 0
+              },
+              "replacement": ""
+            },
+            {
+              "path": "test/ratectrl_rtc_test.cc",
+              "range": {
+                "startLine": 574,
+                "startChar": 0,
+                "endLine": 577,
+                "endChar": 0
+              },
+              "replacement": ""
+            },
+            {
+              "path": "test/ratectrl_rtc_test.cc",
+              "range": {
+                "startLine": 593,
+                "startChar": 0,
+                "endLine": 594,
+                "endChar": 0
+              },
+              "replacement": ""
+            },
+            {
+              "path": "test/ratectrl_rtc_test.cc",
+              "range": {
+                "startLine": 595,
+                "startChar": 0,
+                "endLine": 598,
+                "endChar": 0
+              },
+              "replacement": ""
+            }
+          ]
+        }
+      ],
+      "revId": "3437c75bb5c313473101d5674e510129470d984a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
