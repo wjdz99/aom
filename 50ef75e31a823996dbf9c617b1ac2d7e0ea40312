@@ -16,6 +16,47 @@
       "message": "The last one, is pending, will resolve tomorrow. Please check others",
       "revId": "50ef75e31a823996dbf9c617b1ac2d7e0ea40312",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "068376b7_5485ff69",
+        "filename": "av1/ratectrl_rtc.h",
+        "patchSetId": 46
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2024-10-09T15:03:43Z",
+      "side": 1,
+      "message": "these two branches are exactly the same?",
+      "range": {
+        "startLine": 84,
+        "startChar": 0,
+        "endLine": 88,
+        "endChar": 29
+      },
+      "fixSuggestions": [
+        {
+          "fixId": "63a8f9c8_721268fa",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "av1/ratectrl_rtc.h",
+              "range": {
+                "startLine": 84,
+                "startChar": 0,
+                "endLine": 87,
+                "endChar": 0
+              },
+              "replacement": ""
+            }
+          ]
+        }
+      ],
+      "revId": "50ef75e31a823996dbf9c617b1ac2d7e0ea40312",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
