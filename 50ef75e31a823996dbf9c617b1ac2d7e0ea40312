@@ -20,6 +20,70 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "bbc4961f_ba39ae12",
+        "filename": "av1/ratectrl_rtc.h",
+        "patchSetId": 46
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-10-09T23:35:44Z",
+      "side": 1,
+      "message": "remove `#ifdef` from the comments (`// __cplusplus`)",
+      "range": {
+        "startLine": 22,
+        "startChar": 11,
+        "endLine": 22,
+        "endChar": 18
+      },
+      "fixSuggestions": [
+        {
+          "fixId": "f4e92115_87b682c4",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "av1/ratectrl_rtc.h",
+              "range": {
+                "startLine": 22,
+                "startChar": 0,
+                "endLine": 23,
+                "endChar": 0
+              },
+              "replacement": "#endif  // __cplusplus\n"
+            }
+          ]
+        }
+      ],
+      "revId": "50ef75e31a823996dbf9c617b1ac2d7e0ea40312",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "09c061c2_62393718",
+        "filename": "av1/ratectrl_rtc.h",
+        "patchSetId": 46
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-10-09T23:35:44Z",
+      "side": 1,
+      "message": "add `_`s between the words. For example: `AV1_MAX_LAYERS`.",
+      "range": {
+        "startLine": 71,
+        "startChar": 8,
+        "endLine": 71,
+        "endChar": 20
+      },
+      "revId": "50ef75e31a823996dbf9c617b1ac2d7e0ea40312",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "068376b7_5485ff69",
         "filename": "av1/ratectrl_rtc.h",
         "patchSetId": 46
@@ -55,6 +119,23 @@
           ]
         }
       ],
+      "revId": "50ef75e31a823996dbf9c617b1ac2d7e0ea40312",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "63a25d89_380f15a7",
+        "filename": "av1/ratectrl_rtc.h",
+        "patchSetId": 46
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-10-09T23:35:44Z",
+      "side": 1,
+      "message": "instead of a branch here you could define the `kAV1...` types to the macro versions or instead just define them that way to reduce the differences.",
       "revId": "50ef75e31a823996dbf9c617b1ac2d7e0ea40312",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
