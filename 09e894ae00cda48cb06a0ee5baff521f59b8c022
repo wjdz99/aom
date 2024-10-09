@@ -34,6 +34,24 @@
       ],
       "revId": "09e894ae00cda48cb06a0ee5baff521f59b8c022",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a658384a_6371eb1e",
+        "filename": "av1/ratectrl_rtc.cc",
+        "patchSetId": 45
+      },
+      "lineNbr": 383,
+      "author": {
+        "id": 33496
+      },
+      "writtenOn": "2024-10-09T13:55:58Z",
+      "side": 0,
+      "message": "I did not get this correctly, is it add a line, any way added the blank line",
+      "parentUuid": "93c76873_a549542c",
+      "revId": "09e894ae00cda48cb06a0ee5baff521f59b8c022",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
