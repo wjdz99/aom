@@ -16,6 +16,24 @@
       "message": "MSVC warns about this comparison:\n\n\u003e C:\\src\\aom.1\\aom\\examples\\svc_encoder_rtc.cc(1814): warning C4805: \u0027!\u003d\u0027: unsafe mix of type \u0027const bool\u0027 and type \u0027int\u0027 in operation\n\n`read_frame()` returns `int`, and `frame_avail` is of the `int` type. The simplest fix is to declare `previous_layer_frame_avail` as `int` in line 1812.",
       "revId": "09e894ae00cda48cb06a0ee5baff521f59b8c022",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b19d341c_92847808",
+        "filename": "examples/svc_encoder_rtc.cc",
+        "patchSetId": 7
+      },
+      "lineNbr": 1814,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-10-09T15:53:26Z",
+      "side": 1,
+      "message": "Done in https://aomedia-review.googlesource.com/c/aom/+/194001.",
+      "parentUuid": "c79af6f0_2ba3060d",
+      "revId": "09e894ae00cda48cb06a0ee5baff521f59b8c022",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
