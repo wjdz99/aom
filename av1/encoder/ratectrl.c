@@ -3219,7 +3219,7 @@ static void rc_scene_detection_onepass_rt(AV1_COMP *cpi,
     num_mi_rows = cpi->svc.mi_rows_full_resoln;
   }
   int num_zero_temp_sad = 0;
-  uint32_t min_thresh = 10000;
+  uint32_t min_thresh = 8000;
   if (cpi->sf.rt_sf.higher_thresh_scene_detection) {
     min_thresh = cm->width * cm->height <= 320 * 240 && cpi->framerate < 10.0
                      ? 50000
@@ -3230,8 +3230,7 @@ static void rc_scene_detection_onepass_rt(AV1_COMP *cpi,
   uint64_t avg_sad = 0;
   uint64_t tmp_sad = 0;
   int num_samples = 0;
-  const int thresh =
-      cm->width * cm->height <= 320 * 240 && cpi->framerate < 10.0 ? 5 : 6;
+  const int thresh = 5;
   // SAD is computed on 64x64 blocks
   const int sb_size_by_mb = (cm->seq_params->sb_size == BLOCK_128X128)
                                 ? (cm->seq_params->mib_size >> 1)
