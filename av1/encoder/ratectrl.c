@@ -341,11 +341,11 @@ static void update_buffer_level(AV1_COMP *cpi, int encoded_frame_size) {
   p_rc->bits_off_target =
       AOMMIN(p_rc->bits_off_target, p_rc->maximum_buffer_size);
   // For screen-content mode: don't let buffer level go below threshold,
-  // given here as -rc->maximum_ buffer_size, to allow buffer to come back
+  // given here as -4 * rc->maximum_ buffer_size, to allow buffer to come back
   // up sooner after slide change with big overshoot.
   if (cpi->oxcf.tune_cfg.content == AOM_CONTENT_SCREEN)
     p_rc->bits_off_target =
-        AOMMAX(p_rc->bits_off_target, -p_rc->maximum_buffer_size);
+        AOMMAX(p_rc->bits_off_target, -4 * p_rc->maximum_buffer_size);
   p_rc->buffer_level = p_rc->bits_off_target;
 
   if (cpi->ppi->use_svc)
