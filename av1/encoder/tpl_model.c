@@ -2148,9 +2148,27 @@ double av1_laplace_entropy(double q_step, double b, double zero_bin_ratio) {
   return r;
 }
 
-double av1_laplace_estimate_frame_rate(int q_index, int block_count,
-                                       const double *abs_coeff_mean,
-                                       int coeff_num) {
+#if CONFIG_BITRATE_ACCURACY
+/*!\brief  Compute the frame rate using transform block stats
+ *
+ * Assume each position i in the transform block is of Laplace distribution
+ * with mean absolute deviation abs_coeff_mean[i]
+ *
+ * Then we can use av1_laplace_entropy() to compute the expected frame
+ * rate.
+ *
+ *\ingroup tpl_modelling
+ *
+ * \param[in]    q_index         quantizer index
+ * \param[in]    block_count     number of transform blocks
+ * \param[in]    abs_coeff_mean  array of mean absolute deviation
+ * \param[in]    coeff_num       number of coefficients per transform block
+ *
+ * \return expected frame rate
+ */
+static double laplace_estimate_frame_rate(int q_index, int block_count,
+                                          const double *abs_coeff_mean,
+                                          int coeff_num) {
   double zero_bin_ratio = 2;
   double dc_q_step = av1_dc_quant_QTX(q_index, 0, AOM_BITS_8) / 4.;
   double ac_q_step = av1_ac_quant_QTX(q_index, 0, AOM_BITS_8) / 4.;
@@ -2165,6 +2183,7 @@ double av1_laplace_estimate_frame_rate(int q_index, int block_count,
   est_rate *= block_count;
   return est_rate;
 }
+#endif  // CONFIG_BITRATE_ACCURACY
 
 double av1_estimate_coeff_entropy(double q_step, double b,
                                   double zero_bin_ratio, int qcoeff) {
@@ -2328,7 +2347,7 @@ double av1_vbr_rc_info_estimate_gop_bitrate(
     if (frame_stats->ready) {
       int q_index = q_index_list[frame_index];
 
-      frame_bitrate = av1_laplace_estimate_frame_rate(
+      frame_bitrate = laplace_estimate_frame_rate(
           q_index, frame_stats->txfm_block_count, frame_stats->abs_coeff_mean,
           frame_stats->coeff_num);
     }
