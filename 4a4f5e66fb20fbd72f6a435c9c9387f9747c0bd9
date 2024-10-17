@@ -22,6 +22,30 @@
       },
       "revId": "4a4f5e66fb20fbd72f6a435c9c9387f9747c0bd9",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "315dd718_ad8e16e9",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 3250,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2024-10-17T16:47:59Z",
+      "side": 1,
+      "message": "No, had no intention of changing sum_sq_thresh.",
+      "parentUuid": "490a16d6_0313a675",
+      "range": {
+        "startLine": 3250,
+        "startChar": 11,
+        "endLine": 3250,
+        "endChar": 24
+      },
+      "revId": "4a4f5e66fb20fbd72f6a435c9c9387f9747c0bd9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
