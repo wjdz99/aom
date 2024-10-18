@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c29e7d69_9394d3c0",
+        "filename": "av1/encoder/pass2_strategy.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 2357,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-10-18T02:07:50Z",
+      "side": 1,
+      "message": "This could go in gop_structure.c, but it relies on a couple functions local to this file, so it would be unfortunate to expose them just to satisfy the split.",
+      "revId": "854c3aa3641cc2d92d15c3dbe76dcb1452ca2435",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
