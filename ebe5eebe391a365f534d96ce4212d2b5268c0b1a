@@ -52,6 +52,24 @@
       "parentUuid": "5c481339_7ded5a65",
       "revId": "ebe5eebe391a365f534d96ce4212d2b5268c0b1a",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "776f7e40_a6172bee",
+        "filename": "common/args_helper.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-10-19T02:35:57Z",
+      "side": 1,
+      "message": "I looked into this a little bit. This may not be as simple as it seems. For example, we call `arg_match_helper()` in an if-else-if-else-if-...-else chain. Each call assumes `arg.name` is initialized to NULL. So before  returns 0, it needs to reset `arg.name` to NULL for the next `arg_match_helper()` call.\n\nIt doesn\u0027t seem worthwhile to spend too much time on this. If this is taking more than 10 or 20 minutes, I suggest we just submit the current version.",
+      "parentUuid": "cad76506_45303bea",
+      "revId": "ebe5eebe391a365f534d96ce4212d2b5268c0b1a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
