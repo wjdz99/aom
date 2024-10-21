@@ -16,6 +16,24 @@
       "message": "It looks like keeping the name as is didn\u0027t help the `\\ref` command in doxygen. I\u0027ll take another look at this.",
       "revId": "2d7dd1a9a694f509ae6642e4ceffcd7ffac9d24c",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "105f8f78_c26f2108",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-10-21T18:16:50Z",
+      "side": 1,
+      "message": "\u003e It looks like keeping the name as is didn\u0027t help the `\\ref` command in doxygen. I\u0027ll take another look at this.\n\nThis is because we don\u0027t have `EXTRACT_STATIC` enabled in the doxygen configuration.",
+      "parentUuid": "d93e6687_d9ab2bd0",
+      "revId": "2d7dd1a9a694f509ae6642e4ceffcd7ffac9d24c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
