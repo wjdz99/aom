@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3db0459c_2ae4b513",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1996,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2024-10-21T16:49:47Z",
+      "side": 1,
+      "message": "can you rename it so it\u0027s more meaningful? it looks like this could be `norm_uv_sad_threshold` since `norm_uv_sad` is compared against it?",
+      "range": {
+        "startLine": 1996,
+        "startChar": 6,
+        "endLine": 1996,
+        "endChar": 17
+      },
+      "revId": "d8553ebbc7b74a68f5fa8fe021ab8724a5b0d8a7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f1a08641_5145156e",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1996,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2024-10-21T16:49:47Z",
+      "side": 1,
+      "message": "I think it\u0027s better to rename or at least add comments to each of these local variables what they\u0027re used for.",
+      "range": {
+        "startLine": 1993,
+        "startChar": 2,
+        "endLine": 1996,
+        "endChar": 23
+      },
+      "revId": "d8553ebbc7b74a68f5fa8fe021ab8724a5b0d8a7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
