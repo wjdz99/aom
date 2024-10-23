@@ -22,6 +22,30 @@
       },
       "revId": "2e6ab6bd44cf019b8bc824c9712756da7d7ad531",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "06d0e4ae_75c58e1b",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-10-23T22:19:48Z",
+      "side": 1,
+      "message": "\u003e nit: specify that it\u0027s used when height is \u003e\u003d 16?\n\nGood point. Done.",
+      "parentUuid": "1637379d_3e3dd6a3",
+      "range": {
+        "startLine": 10,
+        "startChar": 29,
+        "endLine": 10,
+        "endChar": 40
+      },
+      "revId": "2e6ab6bd44cf019b8bc824c9712756da7d7ad531",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
