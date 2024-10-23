@@ -86,6 +86,24 @@
       "parentUuid": "c6a775e4_35ce7749",
       "revId": "c4648b8ef9eb1913c3169a926f164088188cc322",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "06063fae_79f2ccef",
+        "filename": "av1/encoder/picklpf.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 221,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2024-10-23T18:14:27Z",
+      "side": 1,
+      "message": "Yes. I also found the same thing. If it is non zero, it means the trellis optimization is restrained. But no matter the value is 1 to 7.\n\nAfter this change, the sharpness will effectively change loop filter behaviors.",
+      "parentUuid": "1b922e75_5ae089fe",
+      "revId": "c4648b8ef9eb1913c3169a926f164088188cc322",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
