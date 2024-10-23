@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4dd8d25c_7e813b37",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-10-23T17:32:38Z",
+      "side": 1,
+      "message": "Cheng: Could you take a look at this CL? Thanks.\n\nI am not sure if it is correct to link `lf-\u003esharpness_level` to `cpi-\u003eoxcf.algo_cfg.sharpness`. Please see my comment below.",
+      "revId": "c4648b8ef9eb1913c3169a926f164088188cc322",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2798225d_13387859",
+        "filename": "av1/encoder/picklpf.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 221,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-10-23T17:32:38Z",
+      "side": 1,
+      "message": "`cpi-\u003eoxcf.algo_cfg.sharpness` is the value set by the codec control `AOME_SET_SHARPNESS`. Its range is 0..7.\n\n`lf-\u003esharpness_level` corresponds to the `loop_filter_sharpness` syntax element in the bitstream. Since `loop_filter_sharpness` is `f(3)`, its range is also 0..7.\n\nBut are `cpi-\u003eoxcf.algo_cfg.sharpness` and `lf-\u003esharpness_level` the same thing? The comment for `AOME_SET_SHARPNESS` does not mention loop filter at all:\n\n```\n  /*!\\brief Codec control function to set the sharpness parameter,\n   * unsigned int parameter.\n   *\n   * This parameter controls the level at which rate-distortion optimization of\n   * transform coefficients favours sharpness in the block.\n   *\n   * Valid range: 0..7. The default is 0. Values 1-7 will avoid eob and skip\n   * block optimization and will change rdmult in favour of block sharpness.\n   */\n  AOME_SET_SHARPNESS \u003d AOME_SET_ENABLEAUTOALTREF + 2,  // 16\n```",
+      "revId": "c4648b8ef9eb1913c3169a926f164088188cc322",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
