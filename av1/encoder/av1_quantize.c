@@ -864,7 +864,8 @@ static int adjust_hdr_cr_deltaq(int base_qindex) {
 }
 
 void av1_set_quantizer(AV1_COMMON *const cm, int min_qmlevel, int max_qmlevel,
-                       int q, int enable_chroma_deltaq, int enable_hdr_deltaq) {
+                       int q, int enable_chroma_deltaq, int enable_hdr_deltaq,
+                       bool is_allintra) {
   // quantizer has to be reinitialized with av1_init_quantizer() if any
   // delta_q changes.
   CommonQuantParams *quant_params = &cm->quant_params;
@@ -896,18 +897,33 @@ void av1_set_quantizer(AV1_COMMON *const cm, int min_qmlevel, int max_qmlevel,
     }
   }
 
-  quant_params->qmatrix_level_y =
-      aom_get_qmlevel(quant_params->base_qindex, min_qmlevel, max_qmlevel);
-  quant_params->qmatrix_level_u =
-      aom_get_qmlevel(quant_params->base_qindex + quant_params->u_ac_delta_q,
-                      min_qmlevel, max_qmlevel);
-
-  if (!cm->seq_params->separate_uv_delta_q)
-    quant_params->qmatrix_level_v = quant_params->qmatrix_level_u;
-  else
-    quant_params->qmatrix_level_v =
-        aom_get_qmlevel(quant_params->base_qindex + quant_params->v_ac_delta_q,
+  if (!is_allintra) {
+    quant_params->qmatrix_level_y =
+        aom_get_qmlevel(quant_params->base_qindex, min_qmlevel, max_qmlevel);
+    quant_params->qmatrix_level_u =
+        aom_get_qmlevel(quant_params->base_qindex + quant_params->u_ac_delta_q,
                         min_qmlevel, max_qmlevel);
+
+    if (!cm->seq_params->separate_uv_delta_q)
+      quant_params->qmatrix_level_v = quant_params->qmatrix_level_u;
+    else
+      quant_params->qmatrix_level_v = aom_get_qmlevel(
+          quant_params->base_qindex + quant_params->v_ac_delta_q, min_qmlevel,
+          max_qmlevel);
+  } else {
+    quant_params->qmatrix_level_y = aom_get_qmlevel_allintra(
+        quant_params->base_qindex, min_qmlevel, max_qmlevel);
+    quant_params->qmatrix_level_u = aom_get_qmlevel_allintra(
+        quant_params->base_qindex + quant_params->u_ac_delta_q, min_qmlevel,
+        max_qmlevel);
+
+    if (!cm->seq_params->separate_uv_delta_q)
+      quant_params->qmatrix_level_v = quant_params->qmatrix_level_u;
+    else
+      quant_params->qmatrix_level_v = aom_get_qmlevel_allintra(
+          quant_params->base_qindex + quant_params->v_ac_delta_q, min_qmlevel,
+          max_qmlevel);
+  }
 }
 
 // Table that converts 0-63 Q-range values passed in outside to the Qindex

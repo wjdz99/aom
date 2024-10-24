@@ -120,7 +120,7 @@ void av1_init_quantizer(EncQuantDequantParams *const enc_quant_dequant_params,
 
 void av1_set_quantizer(struct AV1Common *const cm, int min_qmlevel,
                        int max_qmlevel, int q, int enable_chroma_deltaq,
-                       int enable_hdr_deltaq);
+                       int enable_hdr_deltaq, bool is_allintra);
 
 int av1_quantizer_to_qindex(int quantizer);
 
