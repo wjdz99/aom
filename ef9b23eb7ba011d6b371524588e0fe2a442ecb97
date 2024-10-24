@@ -24,6 +24,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "814e4897_fca57161",
+        "filename": "CHANGELOG",
+        "patchSetId": 1
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2024-10-24T19:39:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0029499d_7b0c2dab",
+      "range": {
+        "startLine": 1,
+        "startChar": 0,
+        "endLine": 1,
+        "endChar": 4
+      },
+      "revId": "ef9b23eb7ba011d6b371524588e0fe2a442ecb97",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "2982e079_ab8ae489",
@@ -37,6 +61,30 @@
       "writtenOn": "2024-10-24T19:38:03Z",
       "side": 1,
       "message": "extra space",
+      "range": {
+        "startLine": 11,
+        "startChar": 41,
+        "endLine": 11,
+        "endChar": 42
+      },
+      "revId": "ef9b23eb7ba011d6b371524588e0fe2a442ecb97",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d46f8600_f3ef55b3",
+        "filename": "CHANGELOG",
+        "patchSetId": 1
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2024-10-24T19:39:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2982e079_ab8ae489",
       "range": {
         "startLine": 11,
         "startChar": 41,
@@ -83,6 +131,24 @@
       "writtenOn": "2024-10-24T19:38:03Z",
       "side": 1,
       "message": "There\u0027s only one newline after the last entry. I didn\u0027t check the rest of the file to see if it\u0027s consistent.",
+      "revId": "ef9b23eb7ba011d6b371524588e0fe2a442ecb97",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3a227652_1f905de4",
+        "filename": "CHANGELOG",
+        "patchSetId": 1
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2024-10-24T19:39:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6dbf4f11_a57da571",
       "revId": "ef9b23eb7ba011d6b371524588e0fe2a442ecb97",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
