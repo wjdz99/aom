@@ -72,6 +72,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f1d1453d_1e79e6fa",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2024-10-24T23:44:05Z",
+      "side": 1,
+      "message": "Thanks for the explanation. I will let Wan-Teh +2 when his comments are resolved.",
+      "parentUuid": "d90f17fb_1629c1e8",
+      "revId": "972aea3d61a12b1e68660a6cb1d88686d9a6e3cb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "4cd6cf86_0ac1514d",
