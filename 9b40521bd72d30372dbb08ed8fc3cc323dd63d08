@@ -33,6 +33,91 @@
       "message": "Luca: FYI. You worked on the use of quantization matrices before.",
       "revId": "9b40521bd72d30372dbb08ed8fc3cc323dd63d08",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8445418f_4b733831",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2868,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-10-24T22:12:39Z",
+      "side": 1,
+      "message": "Nit: \"from command line\" is not the only way. These can also be set by calling `aom_codec_control()` (see your changes to aom/aomcx.h).",
+      "revId": "9b40521bd72d30372dbb08ed8fc3cc323dd63d08",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "21b5c370_bf64334d",
+        "filename": "av1/common/quant_common.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-10-24T22:12:39Z",
+      "side": 1,
+      "message": "Nit/Optional: Move `_ALLINTRA` to the end of the macro names so that when we search for \"DEFAULT_QM_FIRST\", both \"DEFAULT_QM_FIRST\" and \"DEFAULT_QM_FIRST_ALLINTRA\" will be found.",
+      "revId": "9b40521bd72d30372dbb08ed8fc3cc323dd63d08",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b154fb28_cb738602",
+        "filename": "av1/common/quant_common.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-10-24T22:12:39Z",
+      "side": 1,
+      "message": "Document the rationale behind this. If this is the formula you referred to in the commit message, you can convert the following description to a comment:\n\n```\nThe formula was empirically derived by encoding the CID22 validation\ntestset for each QP/QM tuple, and building a convex hull that\nmaximizes SSIMU2 scores, and a final subjective visual quality pass\nas a sanity check.\n```",
+      "revId": "9b40521bd72d30372dbb08ed8fc3cc323dd63d08",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5cd75a89_8b7edcf9",
+        "filename": "av1/encoder/av1_quantize.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 928,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-10-24T22:12:39Z",
+      "side": 1,
+      "message": "Optional: The if and else blocks differ in whether `aom_get_qmlevel_allintra` or `aom_get_qmlevel` is called. I wonder if we should use a function pointer to avoid dupplication of code. Alternatively we could merge `aom_get_qmlevel_allintra` into `aom_get_qmlevel` with a `bool is_allintra` parameter.",
+      "revId": "9b40521bd72d30372dbb08ed8fc3cc323dd63d08",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fc16d435_53a827a3",
+        "filename": "av1/encoder/av1_quantize.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-10-24T22:12:39Z",
+      "side": 1,
+      "message": "Add `#include \u003cstdbool.h\u003e`. Separare it from line 15 with a blank line.",
+      "revId": "9b40521bd72d30372dbb08ed8fc3cc323dd63d08",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
