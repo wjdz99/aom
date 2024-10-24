@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "20cec321_88e2794d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-10-24T20:35:14Z",
+      "side": 1,
+      "message": "Jerome: I just realized that `AOM_CODEC_USE_PRESET` is marked as an experimental feature, so it\u0027s a little complicated to document. If this is too complicated, we can remove it from the release notes, or just promote it to be a regular feature.",
+      "revId": "388827a2adce0097c8c11dd190261e49a0d97774",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "31baa4d0_ffa1b3e8",
+        "filename": "CHANGELOG",
+        "patchSetId": 2
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-10-24T20:35:14Z",
+      "side": 1,
+      "message": "Nit: Change \"a codec interface\" to \"an experimental encoder initialization flag\".\n\nIMPORTANT: I introduced the notion of experimental features in this release. The `AOM_CODEC_USE_PRESET` flag is still marked as an experimental feature, so to use it one also needs to set the `AOM_CODEC_USE_EXPERIMENTAL` flag.\n\nThe idea of an experimental feature is to allow early adopters who opt out of backward compatibility to try it. In the next release we are supposed to either remove it and promote it to be a regular feature.",
+      "revId": "388827a2adce0097c8c11dd190261e49a0d97774",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "45ae5de7_a7a0545c",
+        "filename": "CHANGELOG",
+        "patchSetId": 2
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-10-24T20:35:14Z",
+      "side": 1,
+      "message": "It may be good to mention that the default values of some encoder options in the realtime usage mode changed. They were changed as part of the work on `AOM_CODEC_USE_PRESET` in https://aomedia-review.googlesource.com/c/aom/+/192786. Specifically:\n\n```\ndiff --git a/av1/av1_cx_iface.c b/av1/av1_cx_iface.c\nindex a13ba518af..f10f5fa122 100644\n--- a/av1/av1_cx_iface.c\n+++ b/av1/av1_cx_iface.c\n@@ -4757,12 +4814,12 @@ static const aom_codec_enc_cfg_t encoder_usage_cfg[] \u003d {\n       256,          // rc_target_bitrate\n       0,            // rc_min_quantizer\n       63,           // rc_max_quantizer\n-      25,           // rc_undershoot_pct\n-      25,           // rc_overshoot_pct\n+      50,           // rc_undershoot_pct\n+      50,           // rc_overshoot_pct\n \n-      6000,  // rc_buf_sz\n-      4000,  // rc_buf_initial_sz\n-      5000,  // rc_buf_optimal_sz\n+      1000,  // rc_buf_sz\n+      600,   // rc_buf_initial_sz\n+      600,   // rc_buf_optimal_sz\n \n       50,    // rc_2pass_vbr_bias_pct\n       0,     // rc_2pass_vbr_minsection_pct\n```\n\nNote: It may be good to take the opportunity to announce that for some encoder options, we may change their default values without notice, so applications that do not set those encoder options must be willing to use any default values set by libaom. On the other hand, the default values of some encoder options will never change, e.g., rc_min_quantizer\u003d0 and rc_max_quantizer\u003d63. Unfortunately we do not document these two categories of encoder options.",
+      "revId": "388827a2adce0097c8c11dd190261e49a0d97774",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c0a07184_6373653f",
+        "filename": "CHANGELOG",
+        "patchSetId": 2
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-10-24T20:35:14Z",
+      "side": 1,
+      "message": "Add \"It is an experimental feature. To use an experimental feature, you must set the AOM_CODEC_USE_EXPERIMENTAL flag and be prepared to recompile and relink your application when libaom is updated.\"",
+      "revId": "388827a2adce0097c8c11dd190261e49a0d97774",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
