@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bc08dee6_b5355038",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 2860,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-10-25T22:34:04Z",
+      "side": 1,
+      "message": "I just realized that lines 2869-2873 below are setting alternative default values of three options in `extra_cfg`. We have a new, experimental mechanism here, enabled by the `AOM_CODEC_USE_PRESET` flag. So we should consider using that mechanism instead. I think we should remove the experimental status of `AOM_CODEC_USE_PRESET` before we use it though.",
+      "revId": "3395f9a10eea586dfa2a30bc796fdd12d39185c0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "148bae3e_6bc165ac",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 2872,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-10-25T22:34:04Z",
+      "side": 1,
+      "message": "Julio: It would be good to add a comment to clarify why the special handling is restricted to the all-intra mode. There are two possible reasons:\n\n1. The special handling here only makes sense for key frames or all-intra mode.\n2. The special handling here may be helpful in general, but since we have only tested it in all-intra mode, we restrict it to all-intra mode to avoid introducing regressions in good-quality and realtime modes.\n\nIt would be good to acknowledge which one is the reason.",
+      "revId": "3395f9a10eea586dfa2a30bc796fdd12d39185c0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "72b868e7_a7f3362e",
+        "filename": "av1/common/quant_common.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-10-25T22:34:04Z",
+      "side": 1,
+      "message": "Julio: Another good thing to think about is whether tests could be added to detect that this is taking effect, and whether we could measure the effect of this. The tests will help defend your code and prevent us from breaking it when we modify libaom in the future.",
+      "revId": "3395f9a10eea586dfa2a30bc796fdd12d39185c0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
