@@ -1,0 +1,112 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8222f75a_bd3cce92",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-10-25T18:10:02Z",
+      "side": 1,
+      "message": "LGTM. I suggest some edits.",
+      "revId": "6c60bffba2daa2a4e10f123ac5492c41e93e835b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "945aaa4f_46fae427",
+        "filename": "CHANGELOG",
+        "patchSetId": 3
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-10-25T18:10:02Z",
+      "side": 1,
+      "message": "Nit: I suggest changing \"for RTC only build\" to \"for the AOM_USAGE_REALTIME mode\".\n\nDetails:\n\nThere are two kinds of encoder config options.\n1. The encoder config options set by `aom_codec_enc_init()` or `aom_codec_enc_config_set()`. These options are members of the `aom_codec_enc_cfg_t` struct.\n2. The encoder config options set by `aom_codec_control()` or `aom_codec_set_option()`. These options are members of the `ctx-\u003eextra_cfg` struct.\n\nThis release changes the default values of both kinds of encoder config options. The second kind is only changed for RTC only build (if we ignore the `AOM_CODEC_USE_PRESET` experimental feature). But the first kind is changed, for the `AOM_USAGE_REALTIME` mode, in both the regular and RTC only builds.",
+      "range": {
+        "startLine": 4,
+        "startChar": 73,
+        "endLine": 5,
+        "endChar": 12
+      },
+      "revId": "6c60bffba2daa2a4e10f123ac5492c41e93e835b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "daaff8b9_23698cfe",
+        "filename": "CHANGELOG",
+        "patchSetId": 3
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-10-25T18:10:02Z",
+      "side": 1,
+      "message": "Nit: add \"the\" before \"AOM_CODEC_USE_EXPERIMENTAL\".",
+      "revId": "6c60bffba2daa2a4e10f123ac5492c41e93e835b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d952de57_9f87249a",
+        "filename": "CHANGELOG",
+        "patchSetId": 3
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-10-25T18:10:02Z",
+      "side": 1,
+      "message": "Change:\n\n\u003e and recompile and relink your application when this release is used\n\nto:\n\n\u003e , and your application must be recompiled and relinked when libaom is upgraded to a future release",
+      "revId": "6c60bffba2daa2a4e10f123ac5492c41e93e835b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "42573361_60fc5e54",
+        "filename": "CHANGELOG",
+        "patchSetId": 3
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-10-25T18:10:02Z",
+      "side": 1,
+      "message": "Note: This comment is related to my comment at line 31. There are a lot of changes to the default values of this kind of encoder config options, so it is not practical to list the changes.",
+      "revId": "6c60bffba2daa2a4e10f123ac5492c41e93e835b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d336e4ca_7e216df6",
+        "filename": "CHANGELOG",
+        "patchSetId": 3
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-10-25T18:10:02Z",
+      "side": 1,
+      "message": "(Please see my comment at line 5 for details.)\n\nMove the new text that begins with \"more specifically\" to a new bullet point:\n\n```\n    * Change the default valuess of the following encoder config options\n      in the AOM_USAGE_REALTIME mode:\n      *  rc_overshoot_pct and rc_undershoot_pct are changed from 25 to 50\n      *  rc_buf_sz is changed from 6000 to 1000\n      *  rc_buf_initial_sz is changed from 4000 to 600\n      *  rc_buf_optimal_sz is changed from 5000 to 600\n```",
+      "revId": "6c60bffba2daa2a4e10f123ac5492c41e93e835b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
