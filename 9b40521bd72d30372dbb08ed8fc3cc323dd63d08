@@ -35,6 +35,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "1f097e22_0a136f97",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 3678645
+      },
+      "writtenOn": "2024-10-25T05:08:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a8b0e99_9d4f6385",
+      "revId": "9b40521bd72d30372dbb08ed8fc3cc323dd63d08",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e4f3f927_b5daea50",
@@ -48,6 +66,24 @@
       "writtenOn": "2024-10-24T22:17:43Z",
       "side": 1,
       "message": "Does \"flat QM\" mean QM is not used (i.e., `--enable-qm\u003d0`)?",
+      "revId": "9b40521bd72d30372dbb08ed8fc3cc323dd63d08",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6fa2d837_0fe42f45",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 3678645
+      },
+      "writtenOn": "2024-10-25T05:08:02Z",
+      "side": 1,
+      "message": "Correct, QM level 15 is the \u0027flat\u0027 QM, and is equivalent to not using QMs at all. I\u0027ve edited the commit message so it\u0027s clearer what we\u0027re comparing here.",
+      "parentUuid": "e4f3f927_b5daea50",
       "revId": "9b40521bd72d30372dbb08ed8fc3cc323dd63d08",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -86,6 +122,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "9ac81102_50e2f7be",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2868,
+      "author": {
+        "id": 3678645
+      },
+      "writtenOn": "2024-10-25T05:08:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8445418f_4b733831",
+      "revId": "9b40521bd72d30372dbb08ed8fc3cc323dd63d08",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "21b5c370_bf64334d",
@@ -99,6 +153,24 @@
       "writtenOn": "2024-10-24T22:12:39Z",
       "side": 1,
       "message": "Nit/Optional: Move `_ALLINTRA` to the end of the macro names so that when we search for \"DEFAULT_QM_FIRST\", both \"DEFAULT_QM_FIRST\" and \"DEFAULT_QM_FIRST_ALLINTRA\" will be found.",
+      "revId": "9b40521bd72d30372dbb08ed8fc3cc323dd63d08",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "67993b0f_8fcdcd14",
+        "filename": "av1/common/quant_common.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 3678645
+      },
+      "writtenOn": "2024-10-25T05:08:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "21b5c370_bf64334d",
       "revId": "9b40521bd72d30372dbb08ed8fc3cc323dd63d08",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -120,6 +192,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a3cf8791_d23def7e",
+        "filename": "av1/common/quant_common.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 3678645
+      },
+      "writtenOn": "2024-10-25T05:08:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b154fb28_cb738602",
+      "revId": "9b40521bd72d30372dbb08ed8fc3cc323dd63d08",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "5cd75a89_8b7edcf9",
@@ -137,6 +227,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "821ba5ae_db3a8102",
+        "filename": "av1/encoder/av1_quantize.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 928,
+      "author": {
+        "id": 3678645
+      },
+      "writtenOn": "2024-10-25T05:08:02Z",
+      "side": 1,
+      "message": "Yeah, this was bothering me a bit too. I\u0027ve convinced myself that using a function pointer looks like the cleanest approach here.",
+      "parentUuid": "5cd75a89_8b7edcf9",
+      "revId": "9b40521bd72d30372dbb08ed8fc3cc323dd63d08",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "fc16d435_53a827a3",
@@ -150,6 +258,24 @@
       "writtenOn": "2024-10-24T22:12:39Z",
       "side": 1,
       "message": "Add `#include \u003cstdbool.h\u003e`. Separare it from line 15 with a blank line.",
+      "revId": "9b40521bd72d30372dbb08ed8fc3cc323dd63d08",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "565b01ac_b347d8db",
+        "filename": "av1/encoder/av1_quantize.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 3678645
+      },
+      "writtenOn": "2024-10-25T05:08:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fc16d435_53a827a3",
       "revId": "9b40521bd72d30372dbb08ed8fc3cc323dd63d08",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
