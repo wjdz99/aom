@@ -666,6 +666,8 @@ static void parse_global_config(struct AvxEncoderConfig *global, char ***argv) {
       global->usage = AOM_USAGE_REALTIME;  // Real-time usage
     } else if (arg_match(&arg, &g_av1_codec_arg_defs.ai_dl, argi)) {
       global->usage = AOM_USAGE_ALL_INTRA;  // All intra usage
+    } else if (arg_match(&arg, &g_av1_codec_arg_defs.sp_dl, argi)) {
+      global->usage = AOM_USAGE_STILL_PICTURE;  // Still picture usage
     } else if (arg_match(&arg, &g_av1_codec_arg_defs.use_nv12, argi)) {
       global->color_type = NV12;
     } else if (arg_match(&arg, &g_av1_codec_arg_defs.use_yv12, argi)) {
