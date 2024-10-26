@@ -20,6 +20,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "25187bfb_bb376442",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 2860,
+      "author": {
+        "id": 3678645
+      },
+      "writtenOn": "2024-10-26T04:22:47Z",
+      "side": 1,
+      "message": "I\u0027m definitely interested in using `AOM_CODEC_USE_PRESET`, especially because that\u0027d be perfect for the new `still-picture` mode.\n\nIn that case, I could define a new \u0027usage\u0027 (e.g. `--stillpicture`) with relevant defaults (sharpness, tune ssim, delta-q, etc), so we\u0027ll end up with a super clean declarative implementation instead of explicit overrides.\n\nHow close are we at removing experimental status of `AOM_CODEC_USE_PRESET`? If we\u0027re, like, less than a couple weeks away, I\u0027ll work on CLs for all-intra and still-picture to fully leverage `AOM_CODEC_USE_PRESET`.",
+      "parentUuid": "bc08dee6_b5355038",
+      "revId": "3395f9a10eea586dfa2a30bc796fdd12d39185c0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "148bae3e_6bc165ac",
         "filename": "av1/av1_cx_iface.c",
         "patchSetId": 4
@@ -37,6 +55,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "3c689007_ed91b740",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 2872,
+      "author": {
+        "id": 3678645
+      },
+      "writtenOn": "2024-10-26T04:22:47Z",
+      "side": 1,
+      "message": "Sounds good. In this case, the reason is 2). I\u0027ll follow up with a CL.",
+      "parentUuid": "148bae3e_6bc165ac",
+      "revId": "3395f9a10eea586dfa2a30bc796fdd12d39185c0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "72b868e7_a7f3362e",
         "filename": "av1/common/quant_common.h",
         "patchSetId": 4
@@ -48,6 +84,24 @@
       "writtenOn": "2024-10-25T22:34:04Z",
       "side": 1,
       "message": "Julio: Another good thing to think about is whether tests could be added to detect that this is taking effect, and whether we could measure the effect of this. The tests will help defend your code and prevent us from breaking it when we modify libaom in the future.",
+      "revId": "3395f9a10eea586dfa2a30bc796fdd12d39185c0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1f2f38d1_e3732ee0",
+        "filename": "av1/common/quant_common.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 3678645
+      },
+      "writtenOn": "2024-10-26T04:22:47Z",
+      "side": 1,
+      "message": "Good idea. I\u0027ll add tests to exercise this case.",
+      "parentUuid": "72b868e7_a7f3362e",
       "revId": "3395f9a10eea586dfa2a30bc796fdd12d39185c0",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
