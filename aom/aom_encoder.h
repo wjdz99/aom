@@ -1016,6 +1016,9 @@ aom_fixed_buf_t *aom_codec_get_global_headers(aom_codec_ctx_t *ctx);
 #define AOM_USAGE_REALTIME 1u
 /*!\brief usage parameter analogous to AV1 all intra mode. */
 #define AOM_USAGE_ALL_INTRA 2u
+/*!\brief usage parameter analogous to AV1 all intra mode, with optimized
+ * defaults for still picture encoding. */
+#define AOM_USAGE_STILL_PICTURE 3u
 
 /*!\brief Encode a frame
  *

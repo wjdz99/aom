@@ -680,7 +680,7 @@ static aom_codec_err_t validate_config(aom_codec_alg_priv_t *ctx,
 #if CONFIG_REALTIME_ONLY
   RANGE_CHECK(cfg, g_usage, AOM_USAGE_REALTIME, AOM_USAGE_REALTIME);
 #else
-  RANGE_CHECK_HI(cfg, g_usage, AOM_USAGE_ALL_INTRA);
+  RANGE_CHECK_HI(cfg, g_usage, AOM_USAGE_STILL_PICTURE);
 #endif
   RANGE_CHECK_HI(cfg, g_threads, MAX_NUM_THREADS);
   RANGE_CHECK(cfg, rc_end_usage, AOM_VBR, AOM_Q);
@@ -691,7 +691,8 @@ static aom_codec_err_t validate_config(aom_codec_alg_priv_t *ctx,
   RANGE_CHECK_HI(cfg, rc_dropframe_thresh, 100);
   RANGE_CHECK(cfg, g_pass, AOM_RC_ONE_PASS, AOM_RC_THIRD_PASS);
   RANGE_CHECK_HI(cfg, g_lag_in_frames, MAX_LAG_BUFFERS);
-  if (cfg->g_usage == AOM_USAGE_ALL_INTRA) {
+  if (cfg->g_usage == AOM_USAGE_ALL_INTRA ||
+      cfg->g_usage == AOM_USAGE_STILL_PICTURE) {
     RANGE_CHECK_HI(cfg, g_lag_in_frames, 0);
     RANGE_CHECK_HI(cfg, kf_max_dist, 0);
   }
@@ -1090,6 +1091,9 @@ static void set_encoder_config(AV1EncoderConfig *oxcf,
   switch (cfg->g_usage) {
     case AOM_USAGE_REALTIME: oxcf->mode = REALTIME; break;
     case AOM_USAGE_ALL_INTRA: oxcf->mode = ALLINTRA; break;
+    // Still picture usage is allintra mode (+ optimized defaults for subjective
+    // still picture quality)
+    case AOM_USAGE_STILL_PICTURE: oxcf->mode = ALLINTRA; break;
     default: oxcf->mode = GOOD; break;
   }
 
@@ -2619,8 +2623,10 @@ static aom_codec_err_t ctrl_set_loopfilter_control(aom_codec_alg_priv_t *ctx,
 static aom_codec_err_t ctrl_set_skip_postproc_filtering(
     aom_codec_alg_priv_t *ctx, va_list args) {
   // Skipping the application of post-processing filters is allowed only
-  // for ALLINTRA mode.
-  if (ctx->cfg.g_usage != AOM_USAGE_ALL_INTRA) return AOM_CODEC_INCAPABLE;
+  // for ALLINTRA mode (ALL_INTRA and STILL_PICTURE usages).
+  if (ctx->cfg.g_usage != AOM_USAGE_ALL_INTRA &&
+      ctx->cfg.g_usage != AOM_USAGE_STILL_PICTURE)
+    return AOM_CODEC_INCAPABLE;
   struct av1_extracfg extra_cfg = ctx->extra_cfg;
   extra_cfg.skip_postproc_filtering =
       CAST(AV1E_SET_SKIP_POSTPROC_FILTERING, args);
@@ -2863,14 +2869,24 @@ static aom_codec_err_t encoder_init(aom_codec_ctx_t *ctx) {
     // Special handling:
     // By default, if omitted: --enable-cdef=1, --qm-min=5, and --qm-max=9
     // Here we set its default values to 0, 4, and 10 respectively when
-    // --allintra is turned on.
+    // either --allintra or --stillimage is turned on.
     // However, if users set --enable-cdef, --qm-min, or --qm-max, either from
     // the command line or aom_codec_control(), the encoder still respects it.
-    if (priv->cfg.g_usage == AOM_USAGE_ALL_INTRA) {
+    if (priv->cfg.g_usage == AOM_USAGE_ALL_INTRA ||
+        priv->cfg.g_usage == AOM_USAGE_STILL_PICTURE) {
       priv->extra_cfg.enable_cdef = 0;
       priv->extra_cfg.qm_min = DEFAULT_QM_FIRST_ALLINTRA;
       priv->extra_cfg.qm_max = DEFAULT_QM_LAST_ALLINTRA;
     }
+    // Still picture uses optimized defaults that help increase subjective
+    // quality when encoding still pictures. Still picture defaults can always
+    // be overriden by callers.
+    if (priv->cfg.g_usage == AOM_USAGE_STILL_PICTURE) {
+      priv->extra_cfg.enable_qm = 1;
+      priv->extra_cfg.sharpness = 7;
+      priv->extra_cfg.tuning = AOM_TUNE_SSIM;
+    }
+
     av1_initialize_enc(priv->cfg.g_usage, priv->cfg.rc_end_usage);
 
     res = validate_config(priv, &priv->cfg, &priv->extra_cfg);
@@ -4854,6 +4870,76 @@ static const aom_codec_enc_cfg_t encoder_usage_cfg[] = {
       AOM_USAGE_ALL_INTRA,  // g_usage - all intra usage
       0,                    // g_threads
       0,                    // g_profile
+
+      320,         // g_w
+      240,         // g_h
+      0,           // g_limit
+      0,           // g_forced_max_frame_width
+      0,           // g_forced_max_frame_height
+      AOM_BITS_8,  // g_bit_depth
+      8,           // g_input_bit_depth
+
+      { 1, 30 },  // g_timebase
+
+      0,  // g_error_resilient
+
+      AOM_RC_ONE_PASS,  // g_pass
+
+      0,  // g_lag_in_frames
+
+      0,                // rc_dropframe_thresh
+      RESIZE_NONE,      // rc_resize_mode
+      SCALE_NUMERATOR,  // rc_resize_denominator
+      SCALE_NUMERATOR,  // rc_resize_kf_denominator
+
+      AOM_SUPERRES_NONE,  // rc_superres_mode
+      SCALE_NUMERATOR,    // rc_superres_denominator
+      SCALE_NUMERATOR,    // rc_superres_kf_denominator
+      63,                 // rc_superres_qthresh
+      32,                 // rc_superres_kf_qthresh
+
+      AOM_Q,        // rc_end_usage
+      { NULL, 0 },  // rc_twopass_stats_in
+      { NULL, 0 },  // rc_firstpass_mb_stats_in
+      256,          // rc_target_bitrate
+      0,            // rc_min_quantizer
+      63,           // rc_max_quantizer
+      25,           // rc_undershoot_pct
+      25,           // rc_overshoot_pct
+
+      6000,  // rc_buf_sz
+      4000,  // rc_buf_initial_sz
+      5000,  // rc_buf_optimal_sz
+
+      50,    // rc_2pass_vbr_bias_pct
+      0,     // rc_2pass_vbr_minsection_pct
+      2000,  // rc_2pass_vbr_maxsection_pct
+
+      // keyframing settings (kf)
+      0,                       // fwd_kf_enabled
+      AOM_KF_DISABLED,         // kf_mode
+      0,                       // kf_min_dist
+      0,                       // kf_max_dist
+      0,                       // sframe_dist
+      1,                       // sframe_mode
+      0,                       // large_scale_tile
+      0,                       // monochrome
+      0,                       // full_still_picture_hdr
+      0,                       // save_as_annexb
+      0,                       // tile_width_count
+      0,                       // tile_height_count
+      { 0 },                   // tile_widths
+      { 0 },                   // tile_heights
+      0,                       // use_fixed_qp_offsets
+      { -1, -1, -1, -1, -1 },  // fixed_qp_offsets
+      { 0, 128, 128, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0,   0,   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },  // encoder_cfg
+  },
+  {
+      // NOLINT
+      AOM_USAGE_STILL_PICTURE,  // g_usage - still picture usage
+      0,                        // g_threads
+      0,                        // g_profile
 
       320,         // g_w
       240,         // g_h

@@ -161,6 +161,7 @@ const av1_codec_arg_definitions_t g_av1_codec_arg_defs = {
   .good_dl = ARG_DEF(NULL, "good", 0, "Use Good Quality Deadline"),
   .rt_dl = ARG_DEF(NULL, "rt", 0, "Use Realtime Quality Deadline"),
   .ai_dl = ARG_DEF(NULL, "allintra", 0, "Use all intra mode"),
+  .sp_dl = ARG_DEF(NULL, "stillpicture", 0, "Use still picture mode"),
   .quietarg = ARG_DEF("q", "quiet", 0, "Do not print encode progress"),
   .verbosearg = ARG_DEF("v", "verbose", 0, "Show encoder parameters"),
   .psnrarg = ARG_DEF(
@@ -197,7 +198,8 @@ const av1_codec_arg_definitions_t g_av1_codec_arg_defs = {
                                         "Chroma subsampling y value"),
 
   .usage = ARG_DEF("u", "usage", 1,
-                   "Usage profile number to use (0: good, 1: rt, 2: allintra)"),
+                   "Usage profile number to use (0: good, 1: rt, 2: allintra, "
+                   "3: stillpicture)"),
   .threads = ARG_DEF("t", "threads", 1, "Max number of threads to use"),
   .profile = ARG_DEF(NULL, "profile", 1, "Bitstream profile number to use"),
   .width = ARG_DEF("w", "width", 1, "Frame width"),
