@@ -16,6 +16,24 @@
       "message": "Looking at https://aomedia-review.googlesource.com/c/aom/+/194303, I think the preference might have been the preset method, rather than a new usage; it\u0027s a little confusing to have all-intra (which is mostly used for still pictures) and a still picture usage. I\u0027ll let Wan-Teh elaborate.\n\nIn general, with any change to add a preset or usage the tests should be extended to cover them. See `test/allintra_end_to_end_test.cc` for example.",
       "revId": "25c9cc3ab86aef5d55d1d9deb0a528b1478a6a15",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c0102588_1b5b8494",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-10-28T22:13:14Z",
+      "side": 1,
+      "message": "James is right. I was suggesting using the preset method with the `AOM_USAGE_ALL_INTRA` usage.\n\nJingning (cc\u0027ed) added the `AOM_USAGE_ALL_INTRA` usage for AVIF still images. Although the name \"all intra\" suggests that this usage can also be used for all-intra videos, it is intended for still pictures. You can treat `AOM_USAGE_ALL_INTRA` as if it were named `AOM_USAGE_STILL_PICTURE`.\n\nWe should re-evaluate this if you need to make `AOM_USAGE_ALL_INTRA` unsuitable for all-intra videos. Do you anticipate this will happen? It\u0027s not clear why we might need to treat still pictures and all-intra videos differently...\n\nNote: We can always encode all-intra videos with the `AOM_USAGE_GOOD_QUALITY` usage and the `--kf_max_dist\u003d0` option. So it is not really a problem to make `AOM_USAGE_ALL_INTRA` unsuitable for all-intra videos.",
+      "parentUuid": "8ebd36db_fc2650c1",
+      "revId": "25c9cc3ab86aef5d55d1d9deb0a528b1478a6a15",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
