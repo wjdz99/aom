@@ -66,6 +66,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "b639ca06_202bba72",
+        "filename": "av1/ratectrl_rtc.cc",
+        "patchSetId": 50
+      },
+      "lineNbr": 332,
+      "author": {
+        "id": 33496
+      },
+      "writtenOn": "2024-10-29T13:45:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "88a922a2_df596b33",
+      "revId": "dcd5bd84f671ba21ad6042a0a5be038e190459e9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "fedad06c_bafb53e1",
@@ -79,6 +97,24 @@
       "writtenOn": "2024-10-28T17:46:49Z",
       "side": 1,
       "message": "remove this change to keep the diff focused.",
+      "revId": "dcd5bd84f671ba21ad6042a0a5be038e190459e9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8dbc7b65_d2a51771",
+        "filename": "av1/ratectrl_rtc.cc",
+        "patchSetId": 50
+      },
+      "lineNbr": 386,
+      "author": {
+        "id": 33496
+      },
+      "writtenOn": "2024-10-29T13:45:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fedad06c_bafb53e1",
       "revId": "dcd5bd84f671ba21ad6042a0a5be038e190459e9",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -124,6 +160,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "23c6dc1d_24a43114",
+        "filename": "av1/ratectrl_rtc.cc",
+        "patchSetId": 50
+      },
+      "lineNbr": 418,
+      "author": {
+        "id": 33496
+      },
+      "writtenOn": "2024-10-29T13:45:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "67d5cedd_f4819932",
+      "range": {
+        "startLine": 418,
+        "startChar": 36,
+        "endLine": 418,
+        "endChar": 41
+      },
+      "revId": "dcd5bd84f671ba21ad6042a0a5be038e190459e9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "16a867dc_2b094128",
@@ -155,6 +215,24 @@
           ]
         }
       ],
+      "revId": "dcd5bd84f671ba21ad6042a0a5be038e190459e9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1596491e_8bd4709e",
+        "filename": "av1/ratectrl_rtc.cc",
+        "patchSetId": 50
+      },
+      "lineNbr": 424,
+      "author": {
+        "id": 33496
+      },
+      "writtenOn": "2024-10-29T13:45:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "16a867dc_2b094128",
       "revId": "dcd5bd84f671ba21ad6042a0a5be038e190459e9",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -194,6 +272,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "2d309a49_f7d26350",
+        "filename": "av1/ratectrl_rtc.cc",
+        "patchSetId": 50
+      },
+      "lineNbr": 430,
+      "author": {
+        "id": 33496
+      },
+      "writtenOn": "2024-10-29T13:45:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "515d7288_031ec649",
+      "revId": "dcd5bd84f671ba21ad6042a0a5be038e190459e9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "00c055da_9cd78538",
@@ -207,6 +303,24 @@
       "writtenOn": "2024-10-28T17:46:49Z",
       "side": 1,
       "message": "`controller` could be `nullptr`",
+      "revId": "dcd5bd84f671ba21ad6042a0a5be038e190459e9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f23ad9f6_0cf0374d",
+        "filename": "av1/ratectrl_rtc.cc",
+        "patchSetId": 50
+      },
+      "lineNbr": 436,
+      "author": {
+        "id": 33496
+      },
+      "writtenOn": "2024-10-29T13:45:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "00c055da_9cd78538",
       "revId": "dcd5bd84f671ba21ad6042a0a5be038e190459e9",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -228,6 +342,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "cac5030c_3fbcf06f",
+        "filename": "av1/ratectrl_rtc.cc",
+        "patchSetId": 50
+      },
+      "lineNbr": 445,
+      "author": {
+        "id": 33496
+      },
+      "writtenOn": "2024-10-29T13:45:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "997bf7d0_795e1335",
+      "revId": "dcd5bd84f671ba21ad6042a0a5be038e190459e9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "043d04ec_4e787369",
@@ -241,6 +373,24 @@
       "writtenOn": "2024-10-28T17:46:49Z",
       "side": 1,
       "message": "`controller` could be `nullptr`.",
+      "revId": "dcd5bd84f671ba21ad6042a0a5be038e190459e9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "412f0b9d_9d3659e5",
+        "filename": "av1/ratectrl_rtc.cc",
+        "patchSetId": 50
+      },
+      "lineNbr": 449,
+      "author": {
+        "id": 33496
+      },
+      "writtenOn": "2024-10-29T13:45:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "043d04ec_4e787369",
       "revId": "dcd5bd84f671ba21ad6042a0a5be038e190459e9",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -292,6 +442,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "8904a1d1_691976fb",
+        "filename": "av1/ratectrl_rtc.h",
+        "patchSetId": 50
+      },
+      "lineNbr": 173,
+      "author": {
+        "id": 33496
+      },
+      "writtenOn": "2024-10-29T13:45:50Z",
+      "side": 1,
+      "message": "I didnt get the motivation behind this, could you explain.",
+      "parentUuid": "73579702_f8f74545",
+      "revId": "dcd5bd84f671ba21ad6042a0a5be038e190459e9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "1baca64f_c18cd67b",
         "filename": "examples/svc_encoder_rtc.cc",
         "patchSetId": 50
@@ -309,6 +477,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "f7df29fb_d22bfde0",
+        "filename": "examples/svc_encoder_rtc.cc",
+        "patchSetId": 50
+      },
+      "lineNbr": 1446,
+      "author": {
+        "id": 33496
+      },
+      "writtenOn": "2024-10-29T13:45:50Z",
+      "side": 1,
+      "message": "I didnt get this, could you explain . \nThe  structure AV1RateControlRtcConfig is now out of the namespace aom, did you mean using aom::AV1RateControlRtcConfig",
+      "parentUuid": "1baca64f_c18cd67b",
+      "revId": "dcd5bd84f671ba21ad6042a0a5be038e190459e9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "06e26994_13d4bb4c",
         "filename": "test/ratectrl_rtc_test.cc",
         "patchSetId": 50
@@ -320,6 +506,24 @@
       "writtenOn": "2024-10-28T17:46:49Z",
       "side": 1,
       "message": "This is a C++ module, in most cases, except when testing the C interface, it can use the C++ interface.",
+      "revId": "dcd5bd84f671ba21ad6042a0a5be038e190459e9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "aad1fefa_3e53a13f",
+        "filename": "test/ratectrl_rtc_test.cc",
+        "patchSetId": 50
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 33496
+      },
+      "writtenOn": "2024-10-29T13:45:50Z",
+      "side": 1,
+      "message": "The enum frame_params_ is kept outside the aom name space, hence it is now looking like c. if we bring it back compiling the code the header file with gcc, g++ could be problem\nit was earlier like:  layer_frame_cnt_ % key_int \u003d\u003d 0 ? aom::kKeyFrame : aom::kInterFrame;",
+      "parentUuid": "06e26994_13d4bb4c",
       "revId": "dcd5bd84f671ba21ad6042a0a5be038e190459e9",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
