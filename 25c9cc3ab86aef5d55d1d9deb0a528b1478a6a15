@@ -34,6 +34,24 @@
       "parentUuid": "8ebd36db_fc2650c1",
       "revId": "25c9cc3ab86aef5d55d1d9deb0a528b1478a6a15",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a826c93f_8549790f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 3678645
+      },
+      "writtenOn": "2024-10-29T03:23:13Z",
+      "side": 1,
+      "message": "Got you James and Wan-Teh, your explanations makes sense. I\u0027m good with keeping everything under `AOM_USAGE_ALL_INTRA` if that\u0027s how it\u0027s been internally handled so far -- I just wasn\u0027t aware of that specific distinction until now.\n\nI don\u0027t anticipate any current or proposed improvements to be unsuitable for all-intra. I do expect bit allocation to significantly change with the new defaults (mostly in the form of low-contrast zones getting relatively more bits over high-contrast zones), but AFAICT all-intra doesn\u0027t by itself impose any additional rate-control constraints. Let me know if I might be missing anything.\n\nI\u0027ll close this CL, and that folds the new defaults into `AOM_USAGE_ALL_INTRA`.",
+      "parentUuid": "c0102588_1b5b8494",
+      "revId": "25c9cc3ab86aef5d55d1d9deb0a528b1478a6a15",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ],
   "submitRequirementResults": [
