@@ -2861,21 +2861,27 @@ static aom_codec_err_t encoder_init(aom_codec_ctx_t *ctx) {
     }
     priv->extra_cfg = default_extra_cfg[extra_cfg_idx];
     // Special handling:
-    // By default, if omitted: --enable-cdef=1, --qm-min=5, and --qm-max=9
-    // Here we set its default values to 0, 4, and 10 respectively when
-    // --allintra is turned on.
-    // However, if users set --enable-cdef, --qm-min, or --qm-max, either from
-    // the command line or aom_codec_control(), the encoder still respects it.
+    // The following defaults were chosen to enhance the subjective quality and
+    // SSIMULACRA2 scores of images. They are also expected to benefit actual
+    // all-intra video sequences (to some degree), so they're grouped together
+    // here. Callers can always override these settings from the command line,
+    // or by using aom_codec_control().
     if (priv->cfg.g_usage == AOM_USAGE_ALL_INTRA) {
       // CDEF has been found to blur images, so it's disabled in all-intra mode
       priv->extra_cfg.enable_cdef = 0;
-      // These QM min/max values have been found to be optimal for images,
+      // These QM settings have been found to be optimal for images,
       // when used with an alternative QM formula (see
-      // aom_get_qmlevel_allintra()).
-      // These values could also be beneficial for other usage modes, but
-      // further testing is required.
+      // aom_get_qmlevel_allintra()). These values could also be beneficial for
+      // other usage modes, but further testing is required.
+      priv->extra_cfg.enable_qm = 1;
       priv->extra_cfg.qm_min = DEFAULT_QM_FIRST_ALLINTRA;
       priv->extra_cfg.qm_max = DEFAULT_QM_LAST_ALLINTRA;
+      // We can turn on loop filter sharpness, as frames do not have to serve as
+      // references to others
+      priv->extra_cfg.sharpness = 7;
+      // Tune SSIM helps allocate bits more evenly within images, increasing
+      // quality consistency
+      priv->extra_cfg.tuning = AOM_TUNE_SSIM;
     }
     av1_initialize_enc(priv->cfg.g_usage, priv->cfg.rc_end_usage);
 
