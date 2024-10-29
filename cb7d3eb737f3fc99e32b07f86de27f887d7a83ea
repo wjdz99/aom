@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d340c3e7_87419109",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 3678645
+      },
+      "writtenOn": "2024-10-29T21:22:08Z",
+      "side": 1,
+      "message": "LGTM, thanks Wan-Teh! I\u0027ll rebase my CL once this one\u0027s in.",
+      "revId": "cb7d3eb737f3fc99e32b07f86de27f887d7a83ea",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
