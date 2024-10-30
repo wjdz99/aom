@@ -142,6 +142,30 @@
       },
       "revId": "4eff769ddcca1baead77080534a7e52ec9b77213",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6438f4fd_50e1a8c5",
+        "filename": "test/monochrome_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 184,
+      "author": {
+        "id": 3678645
+      },
+      "writtenOn": "2024-10-30T20:24:56Z",
+      "side": 1,
+      "message": "\u003e \u003e \u003e \u003e \u003e Wan-Teh: I took a look, and I\u0027ve noticed some interesting rate control differences before and after adding `AOM_CODEC_USE_PRESET`, which makes me think there might be a legit bug in realtime+monochrome with presets that\u0027s worth being looked into.\n\u003e \u003e \u003e \u003e \u003e \n\u003e \u003e \u003e \u003e \u003e For example, when running `AV1/MonochromeRealtimeTest.TestMonochromeEncoding/0`, the first frame pkt size is `15500` without presets, but it\u0027s only `898` with them, which seems way too low.\n\u003e \u003e \u003e \u003e \u003e \n\u003e \u003e \u003e \u003e \u003e The 30-frame encoded part (panning trees and a sky) appears to benefit from encoding a high-quality key frame, then relying on prediction to encode the panning and still hit the bitrate limit, so that\u0027s the most likely reason why PSNR is being hit this bad.\n\u003e \u003e \u003e \u003e \u003e \n\u003e \u003e \u003e \u003e \u003e For the purposes of my work (allintra), is it okay if I remove `AOM_CODEC_USE_PRESET` init flag for this test to get me unblocked, so someone else look at realtime?\n\u003e \u003e \u003e \u003e \n\u003e \u003e \u003e \u003e Yes, this should be OK. From what Wan-Teh was saying `AOM_CODEC_USE_PRESET` should be the default for realtime encodes when `CONFIG_REALTIME_ONLY\u003d1`, but this test is excluded since it has a mix of other modes (this can be fixed). To move forward file a bug at https://aomedia.issues.chromium.org and add a TODO here referencing it.\n\u003e \u003e \u003e \n\u003e \u003e \u003e Actually I\u0027ll file a bug while enabling this test in the realtime only mode, then you can rebase afterward.\n\u003e \u003e \n\u003e \u003e https://aomedia.issues.chromium.org/376504476\n\u003e \n\u003e https://aomedia-review.googlesource.com/c/aom/+/194501\n\nSounds good, thanks James for looking into this!",
+      "parentUuid": "13666dce_3d53fc81",
+      "range": {
+        "startLine": 181,
+        "startChar": 0,
+        "endLine": 184,
+        "endChar": 40
+      },
+      "revId": "4eff769ddcca1baead77080534a7e52ec9b77213",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
