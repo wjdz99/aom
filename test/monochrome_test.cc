@@ -26,7 +26,10 @@ const double kMaxPsnr = 100.0;
 // kPsnrThreshold represents the psnr threshold used to validate the quality of
 // the first frame. The indices correspond to one/two-pass, allintra and
 // realtime encoding modes.
-const double kPsnrThreshold[3] = { 29.0, 41.5, 41.5 };
+// TODO: bug https://crbug.com/aomedia/375221136 - tighten up allintra
+// thresholds once all SSIMU2/subjective quality improvements have landed, and
+// scores have stabilized
+const double kPsnrThreshold[3] = { 29.0, 38.5, 41.5 };
 
 // kPsnrFluctuation represents the maximum allowed psnr fluctuation w.r.t first
 // frame. The indices correspond to one/two-pass, allintra and realtime
