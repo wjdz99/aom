@@ -445,6 +445,9 @@ list(APPEND AOM_AV1_ENCODER_INTRIN_SSE4_2
 
 list(APPEND AOM_AV1_COMMON_INTRIN_VSX "${AOM_ROOT}/av1/common/ppc/cfl_ppc.c")
 
+list(APPEND AOM_AV1_COMMON_INTRIN_RVV
+            "${AOM_ROOT}/av1/common/riscv/cdef_block_rvv.c")
+
 if(CONFIG_THREE_PASS)
   list(APPEND AOM_AV1_ENCODER_SOURCES "${AOM_ROOT}/av1/encoder/thirdpass.c"
               "${AOM_ROOT}/av1/encoder/thirdpass.h")
@@ -821,6 +824,17 @@ function(setup_av1_targets)
                                     "AOM_AV1_COMMON_INTRIN_VSX")
     endif()
   endif()
+
+  if(HAVE_RVV)
+    add_intrinsics_object_library("${AOM_RVV_INTRIN_FLAG}" "rvv"
+                                  "aom_av1_common" "AOM_AV1_COMMON_INTRIN_RVV")
+    if(CONFIG_AV1_ENCODER)
+      add_intrinsics_object_library("${AOM_RVV_INTRIN_FLAG}" "rvv"
+                                    "aom_av1_encoder"
+                                    "AOM_AV1_ENCODER_INTRIN_RVV")
+    endif()
+  endif()
+
 
   # Pass the new lib targets up to the parent scope instance of
   # $AOM_LIB_TARGETS.
