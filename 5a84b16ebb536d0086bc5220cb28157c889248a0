@@ -88,6 +88,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "8d146366_9ca286b3",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 2859,
+      "author": {
+        "id": 3678645
+      },
+      "writtenOn": "2024-10-30T01:34:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f7fd6575_80a08dfc",
+      "revId": "5a84b16ebb536d0086bc5220cb28157c889248a0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "74184abf_46e23d59",
@@ -105,6 +123,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f148d03c_702076cc",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 2866,
+      "author": {
+        "id": 3678645
+      },
+      "writtenOn": "2024-10-30T01:34:22Z",
+      "side": 1,
+      "message": "In this case it\u0027s the latter. Now that the CL is using a preset, that section became redundant so I removed it.",
+      "parentUuid": "74184abf_46e23d59",
+      "revId": "5a84b16ebb536d0086bc5220cb28157c889248a0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d60bb8c9_ffaf752b",
@@ -118,6 +154,24 @@
       "writtenOn": "2024-10-29T21:02:58Z",
       "side": 1,
       "message": "Nit: libaom (the C library) doesn\u0027t really have a command line. Here \"the command line\" is referring to the command line of the aomenc program.\n\nI suggest writing this comment from the perspective of the libaom library and changing \"from the command line, or by using aom_codec_control()\" to \"by using aom_codec_set_option() or aom_codec_control()\".",
+      "revId": "5a84b16ebb536d0086bc5220cb28157c889248a0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "05e3b195_847c7caa",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 2868,
+      "author": {
+        "id": 3678645
+      },
+      "writtenOn": "2024-10-30T01:34:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d60bb8c9_ffaf752b",
       "revId": "5a84b16ebb536d0086bc5220cb28157c889248a0",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -158,6 +212,48 @@
         "endLine": 2881,
         "endChar": 36
       },
+      "revId": "5a84b16ebb536d0086bc5220cb28157c889248a0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "09f0ff48_57e1dacc",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 2881,
+      "author": {
+        "id": 3678645
+      },
+      "writtenOn": "2024-10-30T01:34:22Z",
+      "side": 1,
+      "message": "Correct, sharpness 7 does help SSIMU2 (and subjective quality) a bit over other the other sharpness levels.\n\nFor the record, I also tried with no loop filter turned on at all, but that does harm quality in the low to mid-high range.",
+      "parentUuid": "c825d1a7_30781936",
+      "range": {
+        "startLine": 2881,
+        "startChar": 6,
+        "endLine": 2881,
+        "endChar": 36
+      },
+      "revId": "5a84b16ebb536d0086bc5220cb28157c889248a0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "dbdaf360_9febb5ce",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 2881,
+      "author": {
+        "id": 3678645
+      },
+      "writtenOn": "2024-10-30T01:34:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5bcccad5_252af8fe",
       "revId": "5a84b16ebb536d0086bc5220cb28157c889248a0",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -210,6 +306,24 @@
       "side": 1,
       "message": "Yeah, I think it\u0027d best to leave the change here. That way, behavior is consistent, no matter the caller (e.g. `aomenc` through a YUV pipe, or `libaom-av1` with `ffmpeg`).",
       "parentUuid": "14178df5_0cd64989",
+      "revId": "5a84b16ebb536d0086bc5220cb28157c889248a0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d9b51ac2_e74a6fe9",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 2884,
+      "author": {
+        "id": 3678645
+      },
+      "writtenOn": "2024-10-30T01:34:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "640c56e8_167d268f",
       "revId": "5a84b16ebb536d0086bc5220cb28157c889248a0",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
