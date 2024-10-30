@@ -1512,6 +1512,7 @@ static void initialize_encoder(struct stream_state *stream,
 
   flags |= (global->show_psnr >= 1) ? AOM_CODEC_USE_PSNR : 0;
   flags |= stream->config.use_16bit_internal ? AOM_CODEC_USE_HIGHBITDEPTH : 0;
+  flags |= AOM_CODEC_USE_PRESET;
 
   /* Construct Encoder Context */
   aom_codec_enc_init(&stream->encoder, global->codec, &stream->config.cfg,
