@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6290deb6_042412ed",
+        "filename": "test/monochrome_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-10-30T21:22:58Z",
+      "side": 1,
+      "message": "This blank line isn\u0027t necessary. \"gtest/gtest.h\" doesn\u0027t need to be in its own group.",
+      "revId": "277a4f76f6d69bfe73b829a5e8d6d1a71b549606",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cd4ca00f_aa2547b0",
+        "filename": "test/monochrome_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 184,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-10-30T21:22:58Z",
+      "side": 1,
+      "message": "Please try the following patch for this file (against origin/main, TODO comment omitted):\n\n```\ndiff --git a/test/monochrome_test.cc b/test/monochrome_test.cc\nindex ca180f6994..e5550ee788 100644\n--- a/test/monochrome_test.cc\n+++ b/test/monochrome_test.cc\n@@ -11,7 +11,10 @@\n \n #include \u003cclimits\u003e\n #include \u003cvector\u003e\n+\n #include \"gtest/gtest.h\"\n+\n+#include \"config/aom_config.h\"\n #include \"test/codec_factory.h\"\n #include \"test/encode_test_driver.h\"\n #include \"test/i420_video_source.h\"\n@@ -120,6 +123,7 @@ class MonochromeTest\n   double frame0_psnr_y_;\n };\n \n+#if !CONFIG_REALTIME_ONLY\n TEST_P(MonochromeTest, TestMonochromeEncoding) {\n   ::libaom_test::I420VideoSource video(\"hantro_collage_w352h288.yuv\", 352, 288,\n                                        30, 1, 0, 5);\n@@ -173,9 +177,15 @@ TEST_P(MonochromeAllIntraTest, TestMonochromeEncoding) {\n   }\n }\n \n+#endif  // !CONFIG_REALTIME_ONLY\n+\n class MonochromeRealtimeTest : public MonochromeTest {};\n \n+#if CONFIG_REALTIME_ONLY\n+TEST_P(MonochromeRealtimeTest, DISABLED_TestMonochromeEncoding) {\n+#else\n TEST_P(MonochromeRealtimeTest, TestMonochromeEncoding) {\n+#endif\n   ::libaom_test::I420VideoSource video(\"hantro_collage_w352h288.yuv\", 352, 288,\n                                        30, 1, 0, 30);\n   init_flags_ \u003d AOM_CODEC_USE_PSNR;\n@@ -197,6 +207,7 @@ TEST_P(MonochromeRealtimeTest, TestMonochromeEncoding) {\n   }\n }\n \n+#if !CONFIG_REALTIME_ONLY\n AV1_INSTANTIATE_TEST_SUITE(MonochromeTest,\n                            ::testing::Values(::libaom_test::kOnePassGood,\n                                              ::libaom_test::kTwoPassGood),\n@@ -207,6 +218,7 @@ AV1_INSTANTIATE_TEST_SUITE(MonochromeAllIntraTest,\n                            ::testing::Values(::libaom_test::kAllIntra),\n                            ::testing::Values(0, 1),   // lossless\n                            ::testing::Values(6, 9));  // cpu_used\n+#endif  // !CONFIG_REALTIME_ONLY\n \n AV1_INSTANTIATE_TEST_SUITE(MonochromeRealtimeTest,\n                            ::testing::Values(::libaom_test::kRealTime),\n```",
+      "revId": "277a4f76f6d69bfe73b829a5e8d6d1a71b549606",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
