@@ -25,6 +25,9 @@ const unsigned int kCqLevel = 18;
 
 // List of psnr thresholds for different test combinations
 // keys: test-mode, cpu-used, sharpness.
+// TODO: bug https://crbug.com/aomedia/375221136 - tighten up allintra
+// thresholds once all SSIMU2/subjective quality improvements have landed, and
+// scores have stabilized
 const std::unordered_map<
     int, std::unordered_map<int, std::unordered_map<int, double>>>
     kPsnrThreshold = { { static_cast<int>(::libaom_test::kTwoPassGood),
@@ -32,9 +35,9 @@ const std::unordered_map<
                            { 4, { { 2, 37.5 }, { 5, 37.5 } } },
                            { 6, { { 2, 37.3 }, { 5, 37.3 } } } } },
                        { static_cast<int>(::libaom_test::kAllIntra),
-                         { { 3, { { 2, 42.2 }, { 5, 42.2 } } },
-                           { 6, { { 2, 41.8 }, { 4, 41.9 }, { 5, 41.9 } } },
-                           { 9, { { 2, 40.9 }, { 5, 40.9 } } } } } };
+                         { { 3, { { 2, 39.2 }, { 5, 39.2 } } },
+                           { 6, { { 2, 38.8 }, { 4, 38.9 }, { 5, 38.9 } } },
+                           { 9, { { 2, 37.9 }, { 5, 37.9 } } } } } };
 
 // This class is used to test sharpness parameter configured through control
 // call using AOME_SET_SHARPNESS for different encoder configurations.
@@ -93,7 +96,7 @@ class SharpnessTest
   }
 
   void DoTest() {
-    init_flags_ = AOM_CODEC_USE_PSNR;
+    init_flags_ = AOM_CODEC_USE_PSNR | AOM_CODEC_USE_PRESET;
 
     std::unique_ptr<libaom_test::VideoSource> video(
         new libaom_test::Y4mVideoSource("paris_352_288_30.y4m", 0, kFrames));
