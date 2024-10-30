@@ -29,7 +29,10 @@ const double kMaxPsnr = 100.0;
 // kPsnrThreshold represents the psnr threshold used to validate the quality of
 // the first frame. The indices correspond to one/two-pass, allintra and
 // realtime encoding modes.
-const double kPsnrThreshold[3] = { 29.0, 41.5, 41.5 };
+// TODO: bug https://crbug.com/aomedia/375221136 - tighten up allintra
+// thresholds once all SSIMU2/subjective quality improvements have landed, and
+// scores have stabilized
+const double kPsnrThreshold[3] = { 29.0, 38.5, 41.5 };
 
 // kPsnrFluctuation represents the maximum allowed psnr fluctuation w.r.t first
 // frame. The indices correspond to one/two-pass, allintra and realtime
@@ -128,7 +131,7 @@ TEST_P(MonochromeTest, TestMonochromeEncoding) {
   ::libaom_test::I420VideoSource video("hantro_collage_w352h288.yuv", 352, 288,
                                        30, 1, 0, 5);
 
-  init_flags_ = AOM_CODEC_USE_PSNR;
+  init_flags_ = AOM_CODEC_USE_PSNR | AOM_CODEC_USE_PRESET;
 
   cfg_.rc_buf_initial_sz = 500;
   cfg_.rc_buf_optimal_sz = 600;
@@ -163,7 +166,7 @@ class MonochromeAllIntraTest : public MonochromeTest {};
 TEST_P(MonochromeAllIntraTest, TestMonochromeEncoding) {
   ::libaom_test::I420VideoSource video("hantro_collage_w352h288.yuv", 352, 288,
                                        30, 1, 0, 5);
-  init_flags_ = AOM_CODEC_USE_PSNR;
+  init_flags_ = AOM_CODEC_USE_PSNR | AOM_CODEC_USE_PRESET;
   // Set monochrome encoding flag
   cfg_.monochrome = 1;
   ASSERT_NO_FATAL_FAILURE(RunLoop(&video));

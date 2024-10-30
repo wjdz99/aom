@@ -29,12 +29,15 @@ const unsigned int kFrames = 10;
 const int kBitrate = 500;
 const unsigned int kCqLevel = 18;
 // List of psnr thresholds for speed settings 0-8 and 4 encoding modes
+// TODO: bug https://crbug.com/aomedia/375221136 - tighten up allintra
+// thresholds once all SSIMU2/subjective quality improvements have landed, and
+// scores have stabilized
 const double kPsnrThreshold[][4] = {
-  { 34.9, 44.4, 39.5, 41.9 }, { 34.9, 44.4, 39.5, 41.9 },
-  { 34.9, 44.4, 39.4, 41.9 }, { 34.9, 44.4, 39.1, 41.8 },
-  { 34.9, 44.4, 39.1, 41.8 }, { 34.9, 44.29, 38.5, 41.8 },
-  { 34.9, 44.3, 38.5, 41.3 }, { 34.9, 44.3, 38.5, 40.8 },
-  { 34.9, 44.3, 38.5, 40.8 }
+  { 34.9, 44.4, 39.5, 38.9 }, { 34.9, 44.4, 39.5, 38.9 },
+  { 34.9, 44.4, 39.4, 38.9 }, { 34.9, 44.4, 39.1, 38.8 },
+  { 34.9, 44.4, 39.1, 38.8 }, { 34.9, 44.29, 38.5, 38.8 },
+  { 34.9, 44.3, 38.5, 38.3 }, { 34.9, 44.3, 38.5, 37.8 },
+  { 34.9, 44.3, 38.5, 37.8 }
 };
 
 typedef struct {
@@ -147,7 +150,7 @@ class EndToEndTest
     cfg_.g_profile = test_video_param_.profile;
     cfg_.g_input_bit_depth = test_video_param_.input_bit_depth;
     cfg_.g_bit_depth = test_video_param_.bit_depth;
-    init_flags_ = AOM_CODEC_USE_PSNR;
+    init_flags_ = AOM_CODEC_USE_PSNR | AOM_CODEC_USE_PRESET;
     if (cfg_.g_bit_depth > 8) init_flags_ |= AOM_CODEC_USE_HIGHBITDEPTH;
 
     std::unique_ptr<libaom_test::VideoSource> video;

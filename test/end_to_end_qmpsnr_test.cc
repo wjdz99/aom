@@ -25,8 +25,11 @@ namespace {
 const unsigned int kFrames = 10;
 const unsigned int kCqLevel = 18;
 // List of ssim thresholds for speed settings 0-8 with all intra encoding mode.
-const double kSsimThreshold[] = { 83.4, 83.4, 83.4, 83.3, 83.3,
-                                  83.0, 82.3, 81.1, 81.1 };
+// TODO: bug https://crbug.com/aomedia/375221136 - tighten up allintra
+// thresholds once all SSIMU2/subjective quality improvements have landed, and
+// scores have stabilized
+const double kSsimThreshold[] = { 81.9, 81.9, 81.9, 81.8, 81.8,
+                                  81.5, 80.8, 79.6, 79.6 };
 
 typedef struct {
   const char *filename;
@@ -155,6 +158,7 @@ class EndToEndQMPSNRTest
     cfg_.g_profile = test_video_param_.profile;
     cfg_.g_input_bit_depth = test_video_param_.input_bit_depth;
     cfg_.g_bit_depth = test_video_param_.bit_depth;
+    init_flags_ = AOM_CODEC_USE_PRESET;
     if (cfg_.g_bit_depth > 8) init_flags_ |= AOM_CODEC_USE_HIGHBITDEPTH;
 
     std::unique_ptr<libaom_test::VideoSource> video(
