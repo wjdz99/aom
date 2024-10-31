@@ -11,10 +11,7 @@
 
 #include <climits>
 #include <vector>
-
 #include "gtest/gtest.h"
-
-#include "config/aom_config.h"
 #include "test/codec_factory.h"
 #include "test/encode_test_driver.h"
 #include "test/i420_video_source.h"
@@ -55,6 +52,8 @@ class MonochromeTest
       encoder->Control(AOME_SET_CPUUSED, GET_PARAM(3));
       if (mode_ == ::libaom_test::kAllIntra) {
         encoder->Control(AOME_SET_CQ_LEVEL, kCqLevel);
+      } else if (mode_ == ::libaom_test::kRealTime) {
+        encoder->Control(AOME_SET_MAX_INTRA_BITRATE_PCT, 10000);
       }
       if (lossless_) {
         encoder->Control(AV1E_SET_LOSSLESS, 1);
@@ -176,19 +175,11 @@ TEST_P(MonochromeAllIntraTest, TestMonochromeEncoding) {
     EXPECT_EQ(*iter, initial_chroma_value);
   }
 }
-
-#endif  // !CONFIG_REALTIME_ONLY
+#endif
 
 class MonochromeRealtimeTest : public MonochromeTest {};
 
-#if CONFIG_REALTIME_ONLY
-// TODO: https://crbug.com/aomedia/376504476 - Enable this test after large
-// PSNR differences are resolved in this configuration.
-#define MAYBE_TestMonochromeEncoding DISABLED_TestMonochromeEncoding
-#else
-#define MAYBE_TestMonochromeEncoding TestMonochromeEncoding
-#endif
-TEST_P(MonochromeRealtimeTest, MAYBE_TestMonochromeEncoding) {
+TEST_P(MonochromeRealtimeTest, TestMonochromeEncoding) {
   ::libaom_test::I420VideoSource video("hantro_collage_w352h288.yuv", 352, 288,
                                        30, 1, 0, 30);
   init_flags_ = AOM_CODEC_USE_PSNR;
@@ -221,7 +212,7 @@ AV1_INSTANTIATE_TEST_SUITE(MonochromeAllIntraTest,
                            ::testing::Values(::libaom_test::kAllIntra),
                            ::testing::Values(0, 1),   // lossless
                            ::testing::Values(6, 9));  // cpu_used
-#endif                                                // !CONFIG_REALTIME_ONLY
+#endif
 
 AV1_INSTANTIATE_TEST_SUITE(MonochromeRealtimeTest,
                            ::testing::Values(::libaom_test::kRealTime),
