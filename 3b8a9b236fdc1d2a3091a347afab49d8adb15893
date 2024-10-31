@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "99f42811_47764391",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-10-31T19:36:38Z",
+      "side": 1,
+      "message": "Just curious: why does a huge max_intra_rate avoid setting a high QP on the first frame?",
+      "revId": "3b8a9b236fdc1d2a3091a347afab49d8adb15893",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bac16e85_408b6423",
+        "filename": "test/monochrome_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-10-31T19:36:38Z",
+      "side": 1,
+      "message": "The default value of AOME_SET_MAX_INTRA_BITRATE_PCT is either 0 (in regular build) or 300 (in realtime-only build).\n\n10000 is a huge value. Should we just set this to 0? Why is 300 not big enough?",
+      "revId": "3b8a9b236fdc1d2a3091a347afab49d8adb15893",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
