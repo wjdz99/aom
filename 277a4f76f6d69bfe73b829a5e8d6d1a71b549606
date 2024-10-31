@@ -72,6 +72,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "44381490_532e15cb",
+        "filename": "test/monochrome_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-10-31T02:14:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c013d8ef_441df4ce",
+      "revId": "277a4f76f6d69bfe73b829a5e8d6d1a71b549606",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "cd4ca00f_aa2547b0",
@@ -121,6 +139,24 @@
       "side": 1,
       "message": "I see. We can use the `MAYBE_TestMonochromeEncoding` method:\n\nhttps://source.chromium.org/search?q\u003d%22,%20MAYBE_%22\u0026ss\u003dchromium",
       "parentUuid": "2950bf9d_3bcebf15",
+      "revId": "277a4f76f6d69bfe73b829a5e8d6d1a71b549606",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "95791661_7e084ebc",
+        "filename": "test/monochrome_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 184,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-10-31T02:14:05Z",
+      "side": 1,
+      "message": "\u003e I see. We can use the `MAYBE_TestMonochromeEncoding` method:\n\u003e \n\u003e https://source.chromium.org/search?q\u003d%22,%20MAYBE_%22\u0026ss\u003dchromium\n\nI hadn\u0027t noticed that, done.",
+      "parentUuid": "ccff127d_2856bd15",
       "revId": "277a4f76f6d69bfe73b829a5e8d6d1a71b549606",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
