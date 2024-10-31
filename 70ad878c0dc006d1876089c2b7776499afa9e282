@@ -16,6 +16,24 @@
       "message": "It is better to resolve the root cause of the significant regression shown in the unit test, instead of loosening the unit test target.",
       "revId": "70ad878c0dc006d1876089c2b7776499afa9e282",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e6855e17_fa7a10f2",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 3678645
+      },
+      "writtenOn": "2024-10-31T17:41:41Z",
+      "side": 1,
+      "message": "Hi Jingning, I\u0027d like to give you some context about this CL.\n\nI\u0027m currently working on https://aomedia.issues.chromium.org/issues/375221136. For this, I have several changes (ported from SVT-AV1-PSY\u0027s Still Picture tune) for allintra mode that are *expected* to impact PSNR and SSIM scores, in exchange of improved SSIMULACRA2 scores and subjective quality.\n\nThe CL lowers the allintra unit test targets so any failures would point to actual regressions, instead of just being the effect of my new changes. I want to avoid a cycle where targets have to be frequently adjusted with each individual change, as that wouldn\u0027t be time well spent. We\u0027ll always make sure we\u0027re actually not regressing quality with SSIMULACRA2 metric checks for each change.\n\nLet me know if you have any questions. Frank Galligan or Wan-Teh Chang also know about the overall effort, if you want to talk with somebody from the Google side to fill you in the details.",
+      "parentUuid": "ae9de510_4d365408",
+      "revId": "70ad878c0dc006d1876089c2b7776499afa9e282",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
