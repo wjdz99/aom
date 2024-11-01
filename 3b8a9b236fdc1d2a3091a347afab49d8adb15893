@@ -69,6 +69,23 @@
       "parentUuid": "bac16e85_408b6423",
       "revId": "3b8a9b236fdc1d2a3091a347afab49d8adb15893",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9f68bd2d_c41d9e4e",
+        "filename": "test/monochrome_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 205,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-11-01T23:55:24Z",
+      "side": 1,
+      "message": "We need to put lines 199-201 inside `#if CONFIG_AV1_DECODER`, because the `DecompressedFrameHook()` method is only called if that is true.\n\nApply the following patch:\n\n```\ndiff --git a/test/monochrome_test.cc b/test/monochrome_test.cc\nindex 826b68d8e4..78afd4f960 100644\n--- a/test/monochrome_test.cc\n+++ b/test/monochrome_test.cc\n@@ -196,6 +196,7 @@ TEST_P(MonochromeRealtimeTest, TestMonochromeEncoding) {\n   cfg_.rc_buf_optimal_sz \u003d 5000;\n   ASSERT_NO_FATAL_FAILURE(RunLoop(\u0026video));\n \n+#if CONFIG_AV1_DECODER\n   // Check that the chroma planes are equal across all frames\n   std::vector\u003cint\u003e::const_iterator iter \u003d chroma_value_list_.begin();\n   int initial_chroma_value \u003d *iter;\n@@ -203,6 +204,7 @@ TEST_P(MonochromeRealtimeTest, TestMonochromeEncoding) {\n     // Check that all decoded frames have the same constant chroma planes.\n     EXPECT_EQ(*iter, initial_chroma_value);\n   }\n+#endif\n }\n \n #if !CONFIG_REALTIME_ONLY\n```",
+      "revId": "3b8a9b236fdc1d2a3091a347afab49d8adb15893",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ],
   "submitRequirementResults": [
