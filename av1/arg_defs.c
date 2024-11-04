@@ -140,6 +140,11 @@ static const struct arg_enum_list color_primaries_enum[] = {
   { "ebu3213", AOM_CICP_CP_EBU_3213 },
   { NULL, 0 }
 };
+
+static const struct arg_enum_list option_set_enum[] = {
+  { "ssimulacra2", AV1_OPTION_SET_SSIMULACRA2 },
+  { NULL, 0 }
+};
 #endif  // CONFIG_AV1_ENCODER
 
 const av1_codec_arg_definitions_t g_av1_codec_arg_defs = {
@@ -703,5 +708,8 @@ const av1_codec_arg_definitions_t g_av1_codec_arg_defs = {
       ARG_DEF(NULL, "sb-qp-sweep", 1,
               "When set to 1, enable the superblock level qp sweep for a "
               "given lambda to minimize the rdcost."),
+  .option_set =
+      ARG_DEF_ENUM(NULL, "option-set", 1,
+                   "Predefined set of encoder options to use", option_set_enum),
 #endif  // CONFIG_AV1_ENCODER
 };

@@ -28,6 +28,12 @@ enum TestDecodeFatality {
   TEST_DECODE_WARN,
 };
 
+typedef enum av1_option_set {
+  // This option set improves the SSIMULACRA 2 score and subjective quality.
+  // NOTE: Restricted to all intra mode.
+  AV1_OPTION_SET_SSIMULACRA2,
+} av1_option_set_t;
+
 typedef struct av1_codec_arg_definitions {
   arg_def_t help;
   arg_def_t debugmode;
@@ -236,6 +242,7 @@ typedef struct av1_codec_arg_definitions {
   arg_def_t strict_level_conformance;
   arg_def_t kf_max_pyr_height;
   arg_def_t sb_qp_sweep;
+  arg_def_t option_set;
 #endif  // CONFIG_AV1_ENCODER
 } av1_codec_arg_definitions_t;
 

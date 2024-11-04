@@ -4457,6 +4457,17 @@ static aom_codec_err_t encoder_set_option(aom_codec_alg_priv_t *ctx,
   } else if (arg_match_helper(&arg, &g_av1_codec_arg_defs.sb_qp_sweep, argv,
                               err_string)) {
     extra_cfg.sb_qp_sweep = arg_parse_int_helper(&arg, err_string);
+  } else if (arg_match_helper(&arg, &g_av1_codec_arg_defs.option_set, argv,
+                              err_string)) {
+    const av1_option_set_t option_set = arg_parse_enum_helper(&arg, err_string);
+    if (option_set == AV1_OPTION_SET_SSIMULACRA2) {
+      if (ctx->cfg.g_usage != AOM_USAGE_ALL_INTRA) {
+        err = AOM_CODEC_INCAPABLE;
+      } else {
+        extra_cfg.enable_qm = 1;
+        // TODO: bug 375221136 - set other options in extra_cfg.
+      }
+    }
   } else if (arg_match_helper(&arg, &g_av1_codec_arg_defs.kf_max_pyr_height,
                               argv, err_string)) {
     extra_cfg.kf_max_pyr_height = arg_parse_int_helper(&arg, err_string);
