@@ -192,6 +192,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "dab11262_450e926c",
+        "filename": "test/av1_get_qmlevel_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 3678645
+      },
+      "writtenOn": "2024-11-04T20:42:31Z",
+      "side": 1,
+      "message": "Fix applied.",
+      "parentUuid": "7b476780_f7960c2a",
+      "range": {
+        "startLine": 21,
+        "startChar": 2,
+        "endLine": 21,
+        "endChar": 5
+      },
+      "revId": "6b28510f99238ffae78005a4ba97abf077df7cc2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a3d9cf1d_6c313200",
@@ -243,6 +267,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "cd396908_a53a531b",
+        "filename": "test/av1_get_qmlevel_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 3678645
+      },
+      "writtenOn": "2024-11-04T20:42:31Z",
+      "side": 1,
+      "message": "For the regular formula, they could be greater than or equal, but they cannot be less than. Only for the extremes (qindex 1 and 255) we can guarantee them to be strictly greater than (iff `QM_MIN` \u003c `QM_MAX`).",
+      "parentUuid": "a3d9cf1d_6c313200",
+      "range": {
+        "startLine": 37,
+        "startChar": 2,
+        "endLine": 37,
+        "endChar": 11
+      },
+      "revId": "6b28510f99238ffae78005a4ba97abf077df7cc2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "cf6588b7_c119cad3",
@@ -280,6 +328,30 @@
           ]
         }
       ],
+      "revId": "6b28510f99238ffae78005a4ba97abf077df7cc2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1864b666_d323ba6c",
+        "filename": "test/av1_get_qmlevel_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 3678645
+      },
+      "writtenOn": "2024-11-04T20:42:31Z",
+      "side": 1,
+      "message": "For the allintra formula, they could be less than or equal, but they cannot be greater than. Only for the extremes (qindex 1 and 255) we can guarantee them to be strictly less than (iff QM_MIN \u003c QM_MAX).",
+      "parentUuid": "cf6588b7_c119cad3",
+      "range": {
+        "startLine": 85,
+        "startChar": 2,
+        "endLine": 85,
+        "endChar": 11
+      },
       "revId": "6b28510f99238ffae78005a4ba97abf077df7cc2",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
