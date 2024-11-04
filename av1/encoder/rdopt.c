@@ -71,6 +71,10 @@
 #include "av1/encoder/tx_search.h"
 #include "av1/encoder/var_based_part.h"
 
+// Temp test
+double intra_rd_variance_factor(const AV1_COMP *cpi, MACROBLOCK *x,
+                                BLOCK_SIZE bs);
+
 #define LAST_NEW_MV_INDEX 6
 
 // Mode_threshold multiplication factor table for prune_inter_modes_if_skippable
@@ -3050,9 +3054,33 @@ static int64_t handle_inter_mode(
         IMPLIES(!av1_check_newmv_joint_nonzero(cm, x), ret_val == INT64_MAX));
 
     if (ret_val != INT64_MAX) {
-      int64_t tmp_rd = RDCOST(x->rdmult, rd_stats->rate, rd_stats->dist);
+      //int64_t tmp_rd = RDCOST(x->rdmult, rd_stats->rate, rd_stats->dist);
+      int64_t tmp_rd;
       const THR_MODES mode_enum = get_prediction_mode_idx(
           mbmi->mode, mbmi->ref_frame[0], mbmi->ref_frame[1]);
+      double ird_var_factor = intra_rd_variance_factor(cpi, x, bsize);
+      //double ird_var_factor = 1.0;
+
+      if (mbmi->ref_frame[1] == -1) {
+        int block_size =
+            (int)block_size_wide[bsize] * (int)block_size_high[bsize];
+        int64_t mod_dist = rd_stats->dist;
+
+        if (block_size >= 16) {
+          int64_t thresh = (int64_t)(2 * sqrt((double)rd_stats->dist * block_size));
+          //block_size *= 8;
+          thresh = (thresh > block_size) ? thresh : block_size;
+          if (mod_dist > thresh)
+            mod_dist -= thresh;
+          else
+            mod_dist = 0;
+          rd_stats->dist = mod_dist;
+        }
+      }
+      tmp_rd =
+          (int64_t)((double)RDCOST(x->rdmult, rd_stats->rate, rd_stats->dist) * ird_var_factor);
+      //tmp_rd = RDCOST(x->rdmult, rd_stats->rate, rd_stats->dist);
+
       // Collect mode stats for multiwinner mode processing
       store_winner_mode_stats(&cpi->common, x, mbmi, rd_stats, rd_stats_y,
                               rd_stats_uv, mode_enum, NULL, bsize, tmp_rd,
@@ -3098,7 +3126,38 @@ static int64_t handle_inter_mode(
          sizeof(best_blk_skip[0]) * xd->height * xd->width);
   av1_copy_array(xd->tx_type_map, best_tx_type_map, xd->height * xd->width);
 
-  rd_stats->rdcost = RDCOST(x->rdmult, rd_stats->rate, rd_stats->dist);
+  {
+    int block_size = (int)block_size_wide[bsize] * (int)block_size_high[bsize];
+    int64_t mod_dist = rd_stats->dist;
+    /* if (block_size > 256) {
+      int64_t thresh = (int64_t)(4.0 * sqrt((double)rd_stats->dist));
+      block_size *= 4;
+      thresh = (thresh > block_size) ? thresh : block_size;
+      if (mod_dist > thresh)
+        mod_dist -= thresh;
+      else
+        mod_dist = 0;
+      rd_stats->dist = mod_dist;
+    }*/
+
+    /* if (mbmi->ref_frame[1] == -1) {
+      int block_size =
+          (int)block_size_wide[bsize] * (int)block_size_high[bsize];
+      int64_t mod_dist = rd_stats->dist;
+
+      if (block_size >= 64) {
+        int64_t thresh = (int64_t)(sqrt((double)rd_stats->dist * block_size));
+        //block_size *= 8;
+        thresh = (thresh > block_size) ? thresh : block_size;
+        if (mod_dist > thresh)
+          mod_dist -= thresh;
+        else
+          mod_dist = 0;
+        rd_stats->dist = mod_dist;
+      }
+    }*/
+    rd_stats->rdcost = RDCOST(x->rdmult, rd_stats->rate, rd_stats->dist);
+  }
 
   return rd_stats->rdcost;
 }
@@ -5641,6 +5700,7 @@ static inline void skip_intra_modes_in_interframe(
     int64_t inter_cost, int64_t intra_cost) {
   MACROBLOCKD *const xd = &x->e_mbd;
   const int comp_pred = search_state->best_mbmode.ref_frame[1] > INTRA_FRAME;
+
   if (sf->rt_sf.prune_intra_mode_based_on_mv_range &&
       bsize > sf->part_sf.max_intra_bsize && !comp_pred) {
     const MV best_mv = search_state->best_mbmode.mv[0].as_mv;
@@ -6024,6 +6084,7 @@ void av1_rd_pick_inter_mode(struct AV1_COMP *cpi, struct TileDataEnc *tile_data,
         ref_best_rd, tmp_buf, &x->comp_rd_buffer, &best_est_rd, do_tx_search,
         inter_modes_info, &motion_mode_cand, skip_rd, &inter_cost_info_from_tpl,
         &this_yrd);
+
 #if CONFIG_COLLECT_COMPONENT_TIMING
     end_timing(cpi, handle_inter_mode_time);
 #endif

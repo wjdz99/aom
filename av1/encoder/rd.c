@@ -774,6 +774,7 @@ void av1_initialize_rd_consts(AV1_COMP *cpi) {
       cpi->ppi->gf_group.update_type[cpi->gf_frame_index], layer_depth,
       boost_index, frame_type, cpi->oxcf.q_cfg.use_fixed_qp_offsets,
       is_stat_consumption_stage(cpi));
+  //rd->RDMULT = rd->RDMULT * 2;
 #if CONFIG_RD_COMMAND
   if (cpi->oxcf.pass == 2) {
     const RD_COMMAND *rd_command = &cpi->rd_command;

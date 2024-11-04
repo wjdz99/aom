@@ -179,9 +179,10 @@ static void compute_avg_log_variance(const AV1_COMP *const cpi, MACROBLOCK *x,
 
 // Returns a factor to be applied to the RD value based on how well the
 // reconstructed block variance matches the source variance.
-static double intra_rd_variance_factor(const AV1_COMP *cpi, MACROBLOCK *x,
-                                       BLOCK_SIZE bs) {
-  double threshold = INTRA_RD_VAR_THRESH(cpi->oxcf.speed);
+double intra_rd_variance_factor(const AV1_COMP *cpi, MACROBLOCK *x,
+                                BLOCK_SIZE bs) {
+  double threshold = 1.0;  // INTRA_RD_VAR_THRESH(cpi->oxcf.speed);
+
   // For non-positive threshold values, the comparison of source and
   // reconstructed variances with threshold evaluates to false
   // (src_var < threshold/rec_var < threshold) as these metrics are greater than
@@ -202,8 +203,8 @@ static double intra_rd_variance_factor(const AV1_COMP *cpi, MACROBLOCK *x,
 
   if (avg_log_src_variance >= avg_log_recon_variance) {
     var_diff = (avg_log_src_variance - avg_log_recon_variance);
-    if ((var_diff > 0.5) && (avg_log_recon_variance < threshold)) {
-      variance_rd_factor = 1.0 + ((var_diff * 2) / avg_log_src_variance);
+    if ((var_diff > 0.05) && (avg_log_recon_variance < threshold)) {
+      variance_rd_factor = 1.0 + ((var_diff * 5) / avg_log_src_variance);
     }
   } else {
     var_diff = (avg_log_recon_variance - avg_log_src_variance);
@@ -211,9 +212,22 @@ static double intra_rd_variance_factor(const AV1_COMP *cpi, MACROBLOCK *x,
       variance_rd_factor = 1.0 + (var_diff / (2 * avg_log_src_variance));
     }
   }
+  /*
+    if (avg_log_src_variance >= avg_log_recon_variance) {
+    var_diff = (avg_log_src_variance - avg_log_recon_variance);
+    if ((var_diff > 0.05) && (avg_log_recon_variance < threshold)) {
+      variance_rd_factor = 1.0 + ((var_diff * 5) / avg_log_src_variance);
+    }
+  } else {
+    var_diff = (avg_log_recon_variance - avg_log_src_variance);
+    if ((var_diff > 0.05) && (avg_log_src_variance < threshold)) {
+      variance_rd_factor = 1.0 + (var_diff / (2 * avg_log_src_variance));
+    }
+  }*/
 
   // Limit adjustment;
-  variance_rd_factor = AOMMIN(3.0, variance_rd_factor);
+  variance_rd_factor = AOMMIN(6.0, variance_rd_factor);
+  //variance_rd_factor = AOMMIN(6.0, variance_rd_factor);
 
   return variance_rd_factor;
 }

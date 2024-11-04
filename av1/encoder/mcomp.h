@@ -247,8 +247,10 @@ static inline void av1_set_mv_col_limits(
 static inline void av1_set_mv_limits(
     const CommonModeInfoParams *const mi_params, FullMvLimits *mv_limits,
     int mi_row, int mi_col, int mi_height, int mi_width, int border) {
-  av1_set_mv_row_limits(mi_params, mv_limits, mi_row, mi_height, border);
-  av1_set_mv_col_limits(mi_params, mv_limits, mi_col, mi_width, border);
+  //av1_set_mv_row_limits(mi_params, mv_limits, mi_row, mi_height, border);
+  //av1_set_mv_col_limits(mi_params, mv_limits, mi_col, mi_width, border);
+  av1_set_mv_row_limits(mi_params, mv_limits, mi_row, mi_height, 0);
+  av1_set_mv_col_limits(mi_params, mv_limits, mi_col, mi_width, 0);
 }
 
 void av1_set_mv_search_range(FullMvLimits *mv_limits, const MV *mv);

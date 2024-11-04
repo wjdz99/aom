@@ -722,6 +722,8 @@ static int sb_qp_sweep(AV1_COMP *const cpi, ThreadData *td,
   av1_invalid_rd_stats(&rdc_winner);
 
   int best_qindex = td->mb.rdmult_delta_qindex;
+  //const int start = cm->current_frame.frame_type == KEY_FRAME ? -4 : -4;
+  //const int end = cm->current_frame.frame_type == KEY_FRAME ? 0 : 0;
   const int start = cm->current_frame.frame_type == KEY_FRAME ? -20 : -12;
   const int end = cm->current_frame.frame_type == KEY_FRAME ? 20 : 12;
   const int step = cm->delta_q_info.delta_q_res;
