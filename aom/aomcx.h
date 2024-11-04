@@ -1665,6 +1665,12 @@ typedef enum {
  *
  * Changes the encoder to tune for certain types of input material.
  *
+ * \note
+ * AOM_TUNE_SSIMULACRA2 is restricted to all intra mode (AOM_USAGE_ALL_INTRA).
+ *
+ * \note
+ * Setting this option may cause some other options to be set. Set this option
+ * as early as possible to avoid overriding the options set earlier.
  */
 typedef enum {
   AOM_TUNE_PSNR = 0,
@@ -1676,6 +1682,11 @@ typedef enum {
   AOM_TUNE_VMAF_NEG_MAX_GAIN = 7,
   AOM_TUNE_BUTTERAUGLI = 8,
   AOM_TUNE_VMAF_SALIENCY_MAP = 9,
+/*!\brief Allows detection of the presence of AOM_TUNE_SSIMULACRA2 at compile
+ * time.
+ */
+#define AOM_HAVE_TUNE_SSIMULACRA2 1
+  AOM_TUNE_SSIMULACRA2 = 10,
 } aom_tune_metric;
 
 /*!\brief Distortion metric to use for RD optimization.

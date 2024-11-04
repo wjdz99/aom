@@ -849,7 +849,7 @@ static aom_codec_err_t validate_config(aom_codec_alg_priv_t *ctx,
   }
 #endif
 
-  RANGE_CHECK(extra_cfg, tuning, AOM_TUNE_PSNR, AOM_TUNE_VMAF_SALIENCY_MAP);
+  RANGE_CHECK(extra_cfg, tuning, AOM_TUNE_PSNR, AOM_TUNE_SSIMULACRA2);
 
   RANGE_CHECK(extra_cfg, dist_metric, AOM_DIST_METRIC_PSNR,
               AOM_DIST_METRIC_QM_PSNR);
@@ -1788,6 +1788,11 @@ static aom_codec_err_t ctrl_set_tuning(aom_codec_alg_priv_t *ctx,
                                        va_list args) {
   struct av1_extracfg extra_cfg = ctx->extra_cfg;
   extra_cfg.tuning = CAST(AOME_SET_TUNING, args);
+  if (extra_cfg.tuning == AOM_TUNE_SSIMULACRA2) {
+    if (ctx->cfg.g_usage != AOM_USAGE_ALL_INTRA) return AOM_CODEC_INCAPABLE;
+    extra_cfg.enable_qm = 1;
+    // TODO: bug 375221136 - set other options in extra_cfg.
+  }
   return update_extra_cfg(ctx, &extra_cfg);
 }
 
@@ -4099,6 +4104,14 @@ static aom_codec_err_t encoder_set_option(aom_codec_alg_priv_t *ctx,
   } else if (arg_match_helper(&arg, &g_av1_codec_arg_defs.tune_metric, argv,
                               err_string)) {
     extra_cfg.tuning = arg_parse_enum_helper(&arg, err_string);
+    if (extra_cfg.tuning == AOM_TUNE_SSIMULACRA2) {
+      if (ctx->cfg.g_usage != AOM_USAGE_ALL_INTRA) {
+        err = AOM_CODEC_INCAPABLE;
+      } else {
+        extra_cfg.enable_qm = 1;
+        // TODO: bug 375221136 - set other options in extra_cfg.
+      }
+    }
   }
 #if CONFIG_TUNE_VMAF
   else if (arg_match_helper(&arg, &g_av1_codec_arg_defs.vmaf_model_path, argv,
