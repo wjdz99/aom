@@ -1,0 +1,287 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7b476780_f7960c2a",
+        "filename": "test/av1_get_qmlevel_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2024-11-04T19:48:16Z",
+      "side": 1,
+      "message": "Nit: Please add const to these local variables.",
+      "range": {
+        "startLine": 21,
+        "startChar": 2,
+        "endLine": 21,
+        "endChar": 5
+      },
+      "fixSuggestions": [
+        {
+          "fixId": "9f8e81b2_bca9a9bf",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "test/av1_get_qmlevel_test.cc",
+              "range": {
+                "startLine": 21,
+                "startChar": 0,
+                "endLine": 23,
+                "endChar": 0
+              },
+              "replacement": "  const int qindex_1_qmlevel \u003d\n      aom_get_qmlevel(1, DEFAULT_QM_FIRST, DEFAULT_QM_LAST);\n  const int qindex_60_qmlevel \u003d\n"
+            },
+            {
+              "path": "test/av1_get_qmlevel_test.cc",
+              "range": {
+                "startLine": 24,
+                "startChar": 0,
+                "endLine": 25,
+                "endChar": 0
+              },
+              "replacement": "  const int qindex_120_qmlevel \u003d\n"
+            },
+            {
+              "path": "test/av1_get_qmlevel_test.cc",
+              "range": {
+                "startLine": 26,
+                "startChar": 0,
+                "endLine": 27,
+                "endChar": 0
+              },
+              "replacement": "  const int qindex_180_qmlevel \u003d\n"
+            },
+            {
+              "path": "test/av1_get_qmlevel_test.cc",
+              "range": {
+                "startLine": 28,
+                "startChar": 0,
+                "endLine": 29,
+                "endChar": 0
+              },
+              "replacement": "  const int qindex_255_qmlevel \u003d\n"
+            },
+            {
+              "path": "test/av1_get_qmlevel_test.cc",
+              "range": {
+                "startLine": 44,
+                "startChar": 0,
+                "endLine": 45,
+                "endChar": 0
+              },
+              "replacement": "  const int qindex_1_qmlevel_belowfirst \u003d\n"
+            },
+            {
+              "path": "test/av1_get_qmlevel_test.cc",
+              "range": {
+                "startLine": 46,
+                "startChar": 0,
+                "endLine": 47,
+                "endChar": 0
+              },
+              "replacement": "  const int qindex_255_qmlevel_belowfirst \u003d\n"
+            },
+            {
+              "path": "test/av1_get_qmlevel_test.cc",
+              "range": {
+                "startLine": 55,
+                "startChar": 0,
+                "endLine": 56,
+                "endChar": 0
+              },
+              "replacement": "  const int qindex_1_qmlevel_abovelast \u003d\n"
+            },
+            {
+              "path": "test/av1_get_qmlevel_test.cc",
+              "range": {
+                "startLine": 57,
+                "startChar": 0,
+                "endLine": 58,
+                "endChar": 0
+              },
+              "replacement": "  const int qindex_255_qmlevel_abovelast \u003d\n"
+            },
+            {
+              "path": "test/av1_get_qmlevel_test.cc",
+              "range": {
+                "startLine": 68,
+                "startChar": 0,
+                "endLine": 71,
+                "endChar": 0
+              },
+              "replacement": "  const int qindex_1_qmlevel \u003d aom_get_qmlevel_allintra(\n      1, DEFAULT_QM_FIRST_ALLINTRA, DEFAULT_QM_LAST_ALLINTRA);\n  const int qindex_60_qmlevel \u003d aom_get_qmlevel_allintra(\n"
+            },
+            {
+              "path": "test/av1_get_qmlevel_test.cc",
+              "range": {
+                "startLine": 72,
+                "startChar": 0,
+                "endLine": 73,
+                "endChar": 0
+              },
+              "replacement": "  const int qindex_120_qmlevel \u003d aom_get_qmlevel_allintra(\n"
+            },
+            {
+              "path": "test/av1_get_qmlevel_test.cc",
+              "range": {
+                "startLine": 74,
+                "startChar": 0,
+                "endLine": 75,
+                "endChar": 0
+              },
+              "replacement": "  const int qindex_180_qmlevel \u003d aom_get_qmlevel_allintra(\n"
+            },
+            {
+              "path": "test/av1_get_qmlevel_test.cc",
+              "range": {
+                "startLine": 76,
+                "startChar": 0,
+                "endLine": 77,
+                "endChar": 0
+              },
+              "replacement": "  const int qindex_255_qmlevel \u003d aom_get_qmlevel_allintra(\n"
+            },
+            {
+              "path": "test/av1_get_qmlevel_test.cc",
+              "range": {
+                "startLine": 92,
+                "startChar": 0,
+                "endLine": 93,
+                "endChar": 0
+              },
+              "replacement": "  const int qindex_1_qmlevel_belowfirst \u003d\n"
+            },
+            {
+              "path": "test/av1_get_qmlevel_test.cc",
+              "range": {
+                "startLine": 94,
+                "startChar": 0,
+                "endLine": 95,
+                "endChar": 0
+              },
+              "replacement": "  const int qindex_255_qmlevel_belowfirst \u003d\n"
+            },
+            {
+              "path": "test/av1_get_qmlevel_test.cc",
+              "range": {
+                "startLine": 103,
+                "startChar": 0,
+                "endLine": 104,
+                "endChar": 0
+              },
+              "replacement": "  const int qindex_1_qmlevel_abovelast \u003d\n"
+            },
+            {
+              "path": "test/av1_get_qmlevel_test.cc",
+              "range": {
+                "startLine": 105,
+                "startChar": 0,
+                "endLine": 106,
+                "endChar": 0
+              },
+              "replacement": "  const int qindex_255_qmlevel_abovelast \u003d\n"
+            }
+          ]
+        }
+      ],
+      "revId": "6b28510f99238ffae78005a4ba97abf077df7cc2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a3d9cf1d_6c313200",
+        "filename": "test/av1_get_qmlevel_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2024-11-04T19:48:16Z",
+      "side": 1,
+      "message": "Are they strictly greater?",
+      "range": {
+        "startLine": 37,
+        "startChar": 2,
+        "endLine": 37,
+        "endChar": 11
+      },
+      "fixSuggestions": [
+        {
+          "fixId": "9f57aa5e_8cd3c7b1",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "test/av1_get_qmlevel_test.cc",
+              "range": {
+                "startLine": 37,
+                "startChar": 0,
+                "endLine": 41,
+                "endChar": 0
+              },
+              "replacement": "  ASSERT_GT(qindex_255_qmlevel, qindex_180_qmlevel);\n  ASSERT_GT(qindex_180_qmlevel, qindex_120_qmlevel);\n  ASSERT_GT(qindex_120_qmlevel, qindex_60_qmlevel);\n  ASSERT_GT(qindex_60_qmlevel, qindex_1_qmlevel);\n"
+            },
+            {
+              "path": "test/av1_get_qmlevel_test.cc",
+              "range": {
+                "startLine": 85,
+                "startChar": 0,
+                "endLine": 89,
+                "endChar": 0
+              },
+              "replacement": "  ASSERT_LT(qindex_255_qmlevel, qindex_180_qmlevel);\n  ASSERT_LT(qindex_180_qmlevel, qindex_120_qmlevel);\n  ASSERT_LT(qindex_120_qmlevel, qindex_60_qmlevel);\n  ASSERT_LT(qindex_60_qmlevel, qindex_1_qmlevel);\n"
+            }
+          ]
+        }
+      ],
+      "revId": "6b28510f99238ffae78005a4ba97abf077df7cc2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cf6588b7_c119cad3",
+        "filename": "test/av1_get_qmlevel_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2024-11-04T19:48:16Z",
+      "side": 1,
+      "message": "Are they strictly smaller?",
+      "range": {
+        "startLine": 85,
+        "startChar": 2,
+        "endLine": 85,
+        "endChar": 11
+      },
+      "fixSuggestions": [
+        {
+          "fixId": "a1758b91_cacb8023",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "test/av1_get_qmlevel_test.cc",
+              "range": {
+                "startLine": 85,
+                "startChar": 0,
+                "endLine": 90,
+                "endChar": 0
+              },
+              "replacement": "  ASSERT_GE(qindex_255_qmlevel, qindex_180_qmlevel);\n  ASSERT_GE(qindex_180_qmlevel, qindex_120_qmlevel);\n  ASSERT_GE(qindex_120_qmlevel, qindex_60_qmlevel);\n  ASSERT_GE(qindex_60_qmlevel, qindex_1_qmlevel);\n  ASSERT_GT(qindex_255_qmlevel, qindex_1_qmlevel);\n"
+            }
+          ]
+        }
+      ],
+      "revId": "6b28510f99238ffae78005a4ba97abf077df7cc2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
