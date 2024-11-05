@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "112d69fc_00effb3e",
+        "filename": "test/av1_get_qmlevel_test.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-11-05T19:48:52Z",
+      "side": 1,
+      "message": "Nit: Delete this? I don\u0027t see anything in this file that requires \u003cstdlib.h\u003e.",
+      "revId": "6e2357a83ffe2b642f552c2a89e5e4991187c12e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "84e765f7_cb9391db",
+        "filename": "test/av1_get_qmlevel_test.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-11-05T19:48:52Z",
+      "side": 1,
+      "message": "Replace this with \"av1/common/quant_common.h\".\n\n\"av1/common/quant_common.h\" declares the `aom_get_qmlevel()` and `aom_get_qmlevel_allintra()` functions and defines the `DEFAULT_QM_*` macros used in this file.",
+      "revId": "6e2357a83ffe2b642f552c2a89e5e4991187c12e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bcf9d5b0_ad96bd34",
+        "filename": "test/av1_get_qmlevel_test.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-11-05T19:48:52Z",
+      "side": 1,
+      "message": "Nit: `ASSERT_EQ` failures are fatal and abort the test, while `EXPECT_EQ` failures are not fatal and the test will keep executing.\n\nFor independent checks, it is often more appropriate to use `EXPECT_EQ`, because it allows us to run all the checks and see which ones fail at once.\n\nI think all the `ASSERT_*` in this file can be replaced by `EXPECT_*`.\n\nNote: Here is an example of a case where `ASSERT_*` is appropriate:\n\nSuppose you want to check if all the elements in an array are zero.\n\nWe first check if the array size is the expected value. And then we check if each array element is equal to 0 in a for loop.\n\nThe check for array size should use `ASSERT_EQ`, because if this check fails, the for loop may go beyond the end of the array.",
+      "revId": "6e2357a83ffe2b642f552c2a89e5e4991187c12e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e0300db1_233c6a57",
+        "filename": "test/av1_get_qmlevel_test.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-11-05T19:48:52Z",
+      "side": 1,
+      "message": "IMPORTANT: This test is named \"Regular\", but it starts to call `aom_get_qmlevel_allintra()` from this point on. Is this a copy-and-paste-error?",
+      "revId": "6e2357a83ffe2b642f552c2a89e5e4991187c12e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "87b94a46_26942f7b",
+        "filename": "test/test.cmake",
+        "patchSetId": 2
+      },
+      "lineNbr": 193,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-11-05T19:48:52Z",
+      "side": 1,
+      "message": "Nit/optional: Since the functions being tested are named \"aom_get_qmlevel\", I wonder if this file should be named \"aom_get_qmlevel_test.cc\".\n\nAlternative we can omit the prefix to avoid this issue: get_qmlevel_test.cc.",
+      "revId": "6e2357a83ffe2b642f552c2a89e5e4991187c12e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
