@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "66ff3987_336a237e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-11-05T23:20:27Z",
+      "side": 1,
+      "message": "Julio: I suggest some simple changes.\n\nCheng: Please see my question in av1/encoder/pickcdef.c. Thanks.",
+      "revId": "6e25be878508fff364b5862ab072920481577946",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "33be7c76_796fd7cf",
+        "filename": "av1/arg_defs.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 340,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-11-05T23:20:27Z",
+      "side": 1,
+      "message": "Nit: Change \"levels\" to \"values\", or omit it.",
+      "revId": "6e25be878508fff364b5862ab072920481577946",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ec94417a_2177228f",
+        "filename": "av1/encoder/pickcdef.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 833,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-11-05T23:20:27Z",
+      "side": 1,
+      "message": "I think we should also check that we are in a mode/state where `cpi-\u003eoxcf.rc_cfg.cq_level` is used, e.g., the rate-control mode (`cpi-\u003eoxcf.rc_cfg.mode`) is `AOM_Q` or `AOM_CQ`, or the usage is all-intra mode (`cpi-\u003eoxcf.mode \u003d\u003d ALLINTRA`) because the comment at line 829-830 says \"still pictures\".\n\nDo you agree?",
+      "revId": "6e25be878508fff364b5862ab072920481577946",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9011b0f8_77799bc8",
+        "filename": "av1/encoder/pickcdef.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-11-05T23:20:27Z",
+      "side": 1,
+      "message": "Nit: This comment and the help message in av1/arg_defs.c should have essentially the same information.\n\nNow we have:\n\n```\nenable only for high QP levels\n```\n\nvs.\n\n```\nEnable CDEF adaptively on frame qindex\n```\n\nThe former has slightly more information.",
+      "revId": "6e25be878508fff364b5862ab072920481577946",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
