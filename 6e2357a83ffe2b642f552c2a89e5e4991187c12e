@@ -54,6 +54,57 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "2b50e544_947fbb53",
+        "filename": "test/av1_get_qmlevel_test.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-11-05T20:02:17Z",
+      "side": 1,
+      "message": "Nit/optional: I don\u0027t understand what it means for a QM to be steep or flat (see line 85 below). No need to explain more if this is common knowledge to people familiar with quantization matrices.",
+      "revId": "6e2357a83ffe2b642f552c2a89e5e4991187c12e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "15e37b68_9fa8a749",
+        "filename": "test/av1_get_qmlevel_test.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-11-05T20:02:17Z",
+      "side": 1,
+      "message": "Nit: add \"QM\" before \"levels\". Make the same change to line 85.",
+      "revId": "6e2357a83ffe2b642f552c2a89e5e4991187c12e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "aafc0b1b_b75407d2",
+        "filename": "test/av1_get_qmlevel_test.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-11-05T20:02:17Z",
+      "side": 1,
+      "message": "Optional: It would be good to add a comment to `aom_get_qmlevel()` in av1/common/quant_common.h to point out that it is an increasing function in `qindex`.",
+      "revId": "6e2357a83ffe2b642f552c2a89e5e4991187c12e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "e0300db1_233c6a57",
         "filename": "test/av1_get_qmlevel_test.cc",
         "patchSetId": 2
@@ -65,6 +116,23 @@
       "writtenOn": "2024-11-05T19:48:52Z",
       "side": 1,
       "message": "IMPORTANT: This test is named \"Regular\", but it starts to call `aom_get_qmlevel_allintra()` from this point on. Is this a copy-and-paste-error?",
+      "revId": "6e2357a83ffe2b642f552c2a89e5e4991187c12e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "380dfade_e73d363b",
+        "filename": "test/av1_get_qmlevel_test.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-11-05T20:02:17Z",
+      "side": 1,
+      "message": "Optional: It would be good to add a comment to `aom_get_qmlevel_allintra()` in av1/common/quant_common.h to point out that it is a decreasing function in `qindex`.",
       "revId": "6e2357a83ffe2b642f552c2a89e5e4991187c12e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
