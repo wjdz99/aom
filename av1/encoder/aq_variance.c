@@ -169,6 +169,50 @@ int av1_compute_q_from_energy_level_deltaq_mode(const AV1_COMP *const cpi,
   }
   return base_qindex + qindex_delta;
 }
+
+int variance_comp_int(const void *a, const void *b) {
+  return (int)*(uint16_t *)a - *(uint16_t *)b;
+}
+
+int av1_get_block_variance_boost(const AV1_COMP *cpi, MACROBLOCK *x) {
+  DECLARE_ALIGNED(64, static const uint16_t,
+                  av1_highbd_all_zeros[MAX_SB_SIZE]) = { 0 };
+  DECLARE_ALIGNED(64, static const uint8_t, av1_all_zeros[MAX_SB_SIZE]) = { 0 };
+
+  MACROBLOCKD *xd = &x->e_mbd;
+  unsigned int sse;
+  // Octile is currently hard-coded and optimized for still pictures. In the
+  // future, we can expose it as a parameter that can be fine-tuned by the
+  // caller.
+  const int octile = 5;
+  int variances[64];
+
+  for (int i = 0; i < 64; i += 8) {
+    for (int j = 0; j < 64; j += 8) {
+      int i_idx = i / 8;
+      int j_idx = j / 8;
+      if (is_cur_buf_hbd(xd)) {
+        variances[i_idx * 8 + j_idx] = cpi->ppi->fn_ptr[BLOCK_8X8].vf(
+            x->plane[0].src.buf + i * x->plane[0].src.stride + j,
+            x->plane[0].src.stride, CONVERT_TO_BYTEPTR(av1_highbd_all_zeros), 0,
+            &sse);
+      } else {
+        variances[i_idx * 8 + j_idx] = cpi->ppi->fn_ptr[BLOCK_8X8].vf(
+            x->plane[0].src.buf + i * x->plane[0].src.stride + j,
+            x->plane[0].src.stride, av1_all_zeros, 0, &sse);
+      }
+    }
+  }
+
+  // Order the 8x8 SB values from smallest to largest variance.
+  qsort(&variances, 64, sizeof(uint16_t), variance_comp_int);
+
+  // Take the 8x8 variance value in the specified octile.
+  assert(octile >= 1 && octile <= 8);
+  const int variance = variances[octile * 8 - 1];
+
+  return variance;
+}
 #endif  // !CONFIG_REALTIME_ONLY
 
 int av1_log_block_var(const AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bs) {

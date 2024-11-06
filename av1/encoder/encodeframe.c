@@ -287,6 +287,8 @@ static inline void setup_delta_q(AV1_COMP *const cpi, ThreadData *td,
     current_qindex = av1_get_sbq_user_rating_based(cpi, mi_row, mi_col);
   } else if (cpi->oxcf.q_cfg.enable_hdr_deltaq) {
     current_qindex = av1_get_q_for_hdr(cpi, x, sb_size, mi_row, mi_col);
+  } else if (cpi->oxcf.q_cfg.deltaq_mode == DELTA_Q_VARIANCE_BOOST) {
+    current_qindex = av1_get_sbq_variance_boost(cpi, x);
   }
 
   x->rdmult_cur_qindex = current_qindex;
@@ -1754,6 +1756,27 @@ static void free_block_hash_buffers(uint32_t *block_hash_values[2][2],
   }
 }
 
+/*!\brief Gets delta_q_res value for variance boost modulation.
+ */
+static int aom_get_variance_boost_delta_q_res(int qindex) {
+  // delta_q overhead becomes proportionally bigger the higher the qindex, and
+  // qstep jumps between qindexes become bigger the lower the qindex, so
+  // dynamically increase delta_q_res granularity as qindex decreases.
+  int delta_q_res = 1;
+
+  if (qindex >= 160) {
+    delta_q_res = 8;
+  } else if (qindex >= 120) {
+    delta_q_res = 4;
+  } else if (qindex >= 80) {
+    delta_q_res = 2;
+  } else {
+    delta_q_res = 1;
+  }
+
+  return delta_q_res;
+}
+
 /*!\brief Encoder setup(only for the current frame), encoding, and recontruction
  * for a single frame
  *
@@ -1922,6 +1945,9 @@ static inline void encode_frame_internal(AV1_COMP *cpi) {
       cm->delta_q_info.delta_q_res = DEFAULT_DELTA_Q_RES_PERCEPTUAL;
     else if (deltaq_mode == DELTA_Q_HDR)
       cm->delta_q_info.delta_q_res = DEFAULT_DELTA_Q_RES_PERCEPTUAL;
+    else if (deltaq_mode == DELTA_Q_VARIANCE_BOOST)
+      cm->delta_q_info.delta_q_res =
+          aom_get_variance_boost_delta_q_res(quant_params->base_qindex);
     // Set delta_q_present_flag before it is used for the first time
     cm->delta_q_info.delta_lf_res = DEFAULT_DELTA_LF_RES;
     cm->delta_q_info.delta_q_present_flag = deltaq_mode != NO_DELTA_Q;
