@@ -1328,6 +1328,10 @@ typedef struct macroblock {
   //! Threshold on the number of colors for testing palette mode.
   int color_palette_thresh;
 
+  // Used in REALTIME code: flag to indicate if fixed partition is used and
+  // color_sensitivity is not set.
+  int fixed_partition_color_not_set;
+
   //! The buffer used by search_tx_type() to swap dqcoeff in macroblockd_plane
   // so we can keep dqcoeff of the best tx_type.
   tran_low_t *dqcoeff_buf;
