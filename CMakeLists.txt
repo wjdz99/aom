@@ -26,6 +26,7 @@ if("${AOM_ROOT}" STREQUAL "${AOM_CONFIG_DIR}")
 endif()
 
 project(AOM C CXX)
+set(CMAKE_CXX_STANDARD 17)
 
 # GENERATED source property global visibility.
 if(POLICY CMP0118)
@@ -200,7 +201,9 @@ list(APPEND AOM_ENCODER_APP_UTIL_SOURCES
             "${AOM_ROOT}/common/y4minput.c"
             "${AOM_ROOT}/common/y4minput.h"
             "${AOM_ROOT}/examples/encoder_util.h"
-            "${AOM_ROOT}/examples/encoder_util.c")
+            "${AOM_ROOT}/examples/encoder_util.c"
+            "${AOM_ROOT}/examples/multilayer_metadata.h"
+            "${AOM_ROOT}/examples/multilayer_metadata.cc")
 
 list(APPEND AOM_ENCODER_STATS_SOURCES "${AOM_ROOT}/stats/aomstats.c"
             "${AOM_ROOT}/stats/aomstats.h" "${AOM_ROOT}/stats/rate_hist.c"
@@ -402,6 +405,7 @@ if(ENABLE_EXAMPLES OR ENABLE_TESTS OR ENABLE_TOOLS)
   if(CONFIG_AV1_ENCODER)
     add_library(aom_encoder_app_util OBJECT ${AOM_ENCODER_APP_UTIL_SOURCES})
     set_property(TARGET ${example} PROPERTY FOLDER examples)
+    set_property(TARGET aom_encoder_app_util PROPERTY CXX_STANDARD 17)
   endif()
 endif()
 
