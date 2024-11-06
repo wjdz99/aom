@@ -1975,7 +1975,8 @@ static void set_color_sensitivity(AV1_COMP *cpi, MACROBLOCK *x,
   const int subsampling_y = cpi->common.seq_params->subsampling_y;
   const int source_sad_nonrd = x->content_state_sb.source_sad_nonrd;
   const int high_res = cpi->common.width * cpi->common.height >= 640 * 360;
-  if (bsize == cpi->common.seq_params->sb_size) {
+  if (bsize == cpi->common.seq_params->sb_size &&
+      !x->fixed_partition_color_not_set) {
     // At superblock level color_sensitivity is already set to 0, 1, or 2.
     // 2 is middle/uncertain level. To avoid additional sad
     // computations when bsize = sb_size force level 2 to 1 (certain color)
@@ -2035,8 +2036,10 @@ static void set_color_sensitivity(AV1_COMP *cpi, MACROBLOCK *x,
   for (int plane = AOM_PLANE_U; plane < num_planes; ++plane) {
     // Always check if level = 2. If level = 0 check again for
     // motion areas for higher resolns, where color artifacts
-    // are more noticeable.
+    // are more noticeable. Always check if
+    // x->fixed_partition_color_not_set is set.
     if (x->color_sensitivity[COLOR_SENS_IDX(plane)] == 2 ||
+        x->fixed_partition_color_not_set ||
         (x->color_sensitivity[COLOR_SENS_IDX(plane)] == 0 &&
          source_sad_nonrd >= kMedSad && high_res)) {
       struct macroblock_plane *const p = &x->plane[plane];
