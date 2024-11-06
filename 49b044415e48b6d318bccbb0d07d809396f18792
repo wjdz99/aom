@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7deb0cea_601937fe",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-11-06T18:40:39Z",
+      "side": 1,
+      "message": "James, Julio: Please take a preliminary look at this CL and see if it is what you have in mind. Thanks!",
+      "revId": "49b044415e48b6d318bccbb0d07d809396f18792",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
