@@ -200,7 +200,9 @@ list(APPEND AOM_ENCODER_APP_UTIL_SOURCES
             "${AOM_ROOT}/common/y4minput.c"
             "${AOM_ROOT}/common/y4minput.h"
             "${AOM_ROOT}/examples/encoder_util.h"
-            "${AOM_ROOT}/examples/encoder_util.c")
+            "${AOM_ROOT}/examples/encoder_util.c"
+            "${AOM_ROOT}/examples/multilayer_metadata.h"
+            "${AOM_ROOT}/examples/multilayer_metadata.cc")
 
 list(APPEND AOM_ENCODER_STATS_SOURCES "${AOM_ROOT}/stats/aomstats.c"
             "${AOM_ROOT}/stats/aomstats.h" "${AOM_ROOT}/stats/rate_hist.c"
