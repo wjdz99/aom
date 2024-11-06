@@ -112,6 +112,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "83e734dc_710c7281",
+        "filename": "aom/aomcx.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 1689,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-11-06T21:01:55Z",
+      "side": 1,
+      "message": "I can give a three-part answer.\n\n1. Some constants are defined as macros, e.g., `AOM_USAGE_ALL_INTRA`. So we can use the C preprocessor `defined` operator to check for the presence of these macros.\n\n2. For each codec control ID `FOO` (which is an enum constant), we also define a macro `AOM_CTRL_FOO`. We can test that macro for the presence of the codec control ID.\n\n3. For any other constant defined as an enum constant, we will need to add a corresponding feature-detection macro. Right now there is only one: `AOM_HAVE_IMG_FMT_NV12`. So `AOM_HAVE_TUNE_SSIMULACRA2` will be the second one.\n\nNote: If libaom has version number macros, we can also detect a feature at compile time by checking the version number macros. But we haven\u0027t added version number macros yet (https://crbug.com/aomedia/42301696).",
+      "parentUuid": "b3357737_71bdfbe5",
+      "range": {
+        "startLine": 1688,
+        "startChar": 0,
+        "endLine": 1689,
+        "endChar": 28
+      },
+      "revId": "49b044415e48b6d318bccbb0d07d809396f18792",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "4b48f99e_d85f65f3",
