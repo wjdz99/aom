@@ -1788,8 +1788,19 @@ static aom_codec_err_t handle_tuning(aom_codec_alg_priv_t *ctx,
                                      struct av1_extracfg *extra_cfg) {
   if (extra_cfg->tuning == AOM_TUNE_SSIMULACRA2) {
     if (ctx->cfg.g_usage != AOM_USAGE_ALL_INTRA) return AOM_CODEC_INCAPABLE;
+    // These QM settings have been found to be optimal for images, when used
+    // with an alternative QM formula (see aom_get_qmlevel_allintra()). These
+    // values could also be beneficial for other usage modes, but further
+    // testing is required.
     extra_cfg->enable_qm = 1;
-    // TODO: bug 375221136 - set other options in extra_cfg.
+    extra_cfg->qm_min = DEFAULT_QM_FIRST_ALLINTRA;
+    extra_cfg->qm_max = DEFAULT_QM_LAST_ALLINTRA;
+    // We can turn on loop filter sharpness, as frames do not have to serve as
+    // references to others.
+    extra_cfg->sharpness = 7;
+    // CDEF_ALL has been found to blur images at high quality QPs, so let's use
+    // a version that adapts on QP.
+    extra_cfg->enable_cdef = CDEF_ADAPTIVE;
   }
   return AOM_CODEC_OK;
 }

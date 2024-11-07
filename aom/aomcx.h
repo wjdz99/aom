@@ -1670,6 +1670,10 @@ typedef enum {
  * Setting the tuning option to AOM_TUNE_SSIMULACRA2 causes the following
  * options to be set (expressed as command-line options):
  *   * --enable-qm=1
+ *   * --qm-min=4
+ *   * --qm-max=10
+ *   * --sharpness=7
+ *   * --enable-cdef=3
  */
 typedef enum {
   AOM_TUNE_PSNR = 0,
