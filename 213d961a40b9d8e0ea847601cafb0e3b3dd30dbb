@@ -16,6 +16,40 @@
       "message": "Wan-Teh: I rebased my changes so the new defaults are now set with the ssimulacra2 tune.",
       "revId": "213d961a40b9d8e0ea847601cafb0e3b3dd30dbb",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8d4e7869_e30ea6f9",
+        "filename": "aom/aomcx.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 1692,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-11-07T18:35:19Z",
+      "side": 1,
+      "message": "Please add a comment to describe `AOM_TUNE_SSIMULACRA2`. I am sorry I forgot to add this comment when I added `AOM_TUNE_SSIMULACRA2`.\n\nThe comment should describe two things:\n1. A concise definition of AOM_TUNE_SSIMULACRA2. (This part is intended for libaom users and maintainers.) My [earlier attempt](https://aomedia-review.googlesource.com/c/aom/+/194662/1/av1/arg_defs.h) was \"improves the SSIMULACRA 2 score and subjective quality.\" The description in the commit message also looks good: \"increase image quality and\nconsistency, guided by the SSIMULACRA2 metric and subjective\nquality checks.\"\n2. Note that it shares the rdmult code for AOM_TUNE_SSIM. (This part is intended for libaom maintainers.) This explains changes like this one: https://aomedia-review.googlesource.com/c/aom/+/194662/5/av1/encoder/encoder.c",
+      "revId": "213d961a40b9d8e0ea847601cafb0e3b3dd30dbb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "51c6c4c0_eeb13950",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 1800,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-11-07T18:35:19Z",
+      "side": 1,
+      "message": "Cheng: Please review this.",
+      "revId": "213d961a40b9d8e0ea847601cafb0e3b3dd30dbb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
