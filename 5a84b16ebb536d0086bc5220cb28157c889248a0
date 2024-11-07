@@ -53,6 +53,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "bcea2a39_bd7424b1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 3678645
+      },
+      "writtenOn": "2024-11-07T02:08:15Z",
+      "side": 1,
+      "message": "No longer relevant as we moved away from presets. As tests rely on allintra (without the `ssimulacra` tune, metrics will be untouched.",
+      "parentUuid": "36dc787e_b1d3dffe",
+      "revId": "5a84b16ebb536d0086bc5220cb28157c889248a0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b81e7736_2c181777",
