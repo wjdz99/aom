@@ -39,6 +39,30 @@
       },
       "revId": "cbb9a815dcda23eca3a0fdcff111638fb4d05110",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c7e27314_f9c15fab",
+        "filename": "av1/arg_defs.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 340,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-11-07T00:11:11Z",
+      "side": 1,
+      "message": "I found that \"qindex\" is already used in this file. So marked this resolved.\n\nWould still be interested in replacing \"qindex\" with a more user-friendly term.",
+      "parentUuid": "07a14fe8_f7280e1f",
+      "range": {
+        "startLine": 340,
+        "startChar": 27,
+        "endLine": 340,
+        "endChar": 33
+      },
+      "revId": "cbb9a815dcda23eca3a0fdcff111638fb4d05110",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
