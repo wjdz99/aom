@@ -37,6 +37,29 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "722636ff_064f596c",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 1791,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2024-11-07T18:50:10Z",
+      "side": 1,
+      "message": "Optimal might be too strong, especially it is tuned for a special dataset.\nHow about being more specific: \"found to be beneficial for SIMMULACRA2 scores for images\".",
+      "range": {
+        "startLine": 1791,
+        "startChar": 44,
+        "endLine": 1791,
+        "endChar": 54
+      },
+      "revId": "213d961a40b9d8e0ea847601cafb0e3b3dd30dbb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "51c6c4c0_eeb13950",
         "filename": "av1/av1_cx_iface.c",
         "patchSetId": 5
