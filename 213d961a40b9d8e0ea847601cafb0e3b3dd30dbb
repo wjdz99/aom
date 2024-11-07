@@ -58,6 +58,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "54e044b3_bce75507",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 1791,
+      "author": {
+        "id": 3678645
+      },
+      "writtenOn": "2024-11-07T20:06:41Z",
+      "side": 1,
+      "message": "The new QM function has been beneficial for other datasets (CID22, GB82), and some of our subjective quality evaluations (PSY team and a few others in the community), but I\u0027ll soften the claim.",
+      "parentUuid": "722636ff_064f596c",
+      "range": {
+        "startLine": 1791,
+        "startChar": 44,
+        "endLine": 1791,
+        "endChar": 54
+      },
+      "revId": "213d961a40b9d8e0ea847601cafb0e3b3dd30dbb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "51c6c4c0_eeb13950",
@@ -106,6 +130,24 @@
       "side": 1,
       "message": "It seems that we should leave this unchanged, because the use of `aom_get_qmlevel_allintra()` is currently guarded by `cpi-\u003eoxcf.mode \u003d\u003d ALLINTRA`, without checking if --tune\u003dssimulacra2 is enabled.\n\nThe important thing is to avoid setting a default value in both places.",
       "parentUuid": "212a195b_2ca017b5",
+      "revId": "213d961a40b9d8e0ea847601cafb0e3b3dd30dbb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "06b82526_fda65d02",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 2899,
+      "author": {
+        "id": 3678645
+      },
+      "writtenOn": "2024-11-07T20:06:41Z",
+      "side": 1,
+      "message": "\u003e It seems that we should leave this unchanged, because the use of `aom_get_qmlevel_allintra()` is currently guarded by `cpi-\u003eoxcf.mode \u003d\u003d ALLINTRA`, without checking if --tune\u003dssimulacra2 is enabled.\n\nThis is correct. For `--tune-ssimulacra2`, the code snippet above checks if `usage \u003d\u003d AOM_USAGE_ALL_INTRA`, which sets `enable-cdef \u003d 0`, then the code that parses the tune runs and sets `enable-cdef \u003d 3` if `tune \u003d\u003d AOM_TUNE_SSIMULACRA2`.\n\nI double-checked with aomenc this is what\u0027s happening in practice.\n\n\u003e The important thing is to avoid setting a default value in both places.\n\nIn this particular case, I think the checks should stay in their corresponding places, right? Because the allintra special handling happens before parsing the `extra_cfg`, and the ssimu2 tune special handling has to happen afterwards, as `tune` itself is an `extra_cfg` parameter.",
+      "parentUuid": "c93db496_9d16d6b5",
       "revId": "213d961a40b9d8e0ea847601cafb0e3b3dd30dbb",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
