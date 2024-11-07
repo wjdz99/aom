@@ -35,6 +35,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "8c1ce451_8fb9ec51",
+        "filename": "aom/aomcx.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 1692,
+      "author": {
+        "id": 3678645
+      },
+      "writtenOn": "2024-11-07T20:32:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8d4e7869_e30ea6f9",
+      "revId": "213d961a40b9d8e0ea847601cafb0e3b3dd30dbb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "722636ff_064f596c",
@@ -95,6 +113,24 @@
       "writtenOn": "2024-11-07T18:35:19Z",
       "side": 1,
       "message": "Cheng: Please review this.",
+      "revId": "213d961a40b9d8e0ea847601cafb0e3b3dd30dbb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8cacc53c_1e79568f",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 1800,
+      "author": {
+        "id": 3678645
+      },
+      "writtenOn": "2024-11-07T20:32:19Z",
+      "side": 1,
+      "message": "BTW, here\u0027s the previous convo on sharpness for reference: \n\nhttps://aomedia-review.googlesource.com/c/aom/+/194421/comment/c825d1a7_30781936/\n\nWe should be good by setting sharpness to 7. It increases SSIMU2 and subjective quality a bit, and the deblocker still has enough liberty to improve areas that otherwise would cause jarring block edge artifacts.",
+      "parentUuid": "51c6c4c0_eeb13950",
       "revId": "213d961a40b9d8e0ea847601cafb0e3b3dd30dbb",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -166,6 +202,24 @@
       "side": 1,
       "message": "Oh, I see what you mean now. The new formula IS enabled for allintra, so the min and max values don\u0027t have to be defined in the tune section (as they\u0027re redundant). I\u0027ll go revert those.",
       "parentUuid": "06b82526_fda65d02",
+      "revId": "213d961a40b9d8e0ea847601cafb0e3b3dd30dbb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ad042dfa_65306070",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 2899,
+      "author": {
+        "id": 3678645
+      },
+      "writtenOn": "2024-11-07T20:32:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9ecf9a27_e2a0149f",
       "revId": "213d961a40b9d8e0ea847601cafb0e3b3dd30dbb",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
