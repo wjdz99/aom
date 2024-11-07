@@ -24,6 +24,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "9b62b9c4_a17a02b0",
+        "filename": "av1/encoder/block.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 1331,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2024-11-07T17:55:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b0f3094f_4f740a71",
+      "range": {
+        "startLine": 1331,
+        "startChar": 23,
+        "endLine": 1331,
+        "endChar": 27
+      },
+      "revId": "c287b127161c67eb811a58c26641990d6c3d5013",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "f3bfd11b_a27725b3",
@@ -65,6 +89,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f26abbc4_c4dffaac",
+        "filename": "av1/encoder/block.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 1333,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2024-11-07T17:55:43Z",
+      "side": 1,
+      "message": "I renamed the flag to: x-\u003eforce_color_check_block_level, which I think is better.",
+      "parentUuid": "f3bfd11b_a27725b3",
+      "range": {
+        "startLine": 1333,
+        "startChar": 6,
+        "endLine": 1333,
+        "endChar": 35
+      },
+      "revId": "c287b127161c67eb811a58c26641990d6c3d5013",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b3001a40_78337d66",
@@ -78,6 +126,30 @@
       "writtenOn": "2024-11-07T15:20:38Z",
       "side": 1,
       "message": "this is the reason why I suggest to rename the flag as `fixed_partition_color_set`... It feels not straight forward to \"check xxxx_not_set set\"..",
+      "range": {
+        "startLine": 2040,
+        "startChar": 0,
+        "endLine": 2040,
+        "endChar": 47
+      },
+      "revId": "c287b127161c67eb811a58c26641990d6c3d5013",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b3a56a94_1ef2919a",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 2040,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2024-11-07T17:55:43Z",
+      "side": 1,
+      "message": "Renamed the flag.",
+      "parentUuid": "b3001a40_78337d66",
       "range": {
         "startLine": 2040,
         "startChar": 0,
