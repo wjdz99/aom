@@ -258,6 +258,24 @@
       "parentUuid": "ad042dfa_65306070",
       "revId": "213d961a40b9d8e0ea847601cafb0e3b3dd30dbb",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "97dcc586_d6265957",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 2899,
+      "author": {
+        "id": 3678645
+      },
+      "writtenOn": "2024-11-07T22:40:18Z",
+      "side": 1,
+      "message": "Got you, we\u0027re on the same page then. `qm_min` and `qm_max` are set to `DEFAULT_QM_FIRST_ALLINTRA` and `DEFAULT_QM_LAST_ALLINTRA` are now set only under the allintra usage check.",
+      "parentUuid": "22649031_9d7a8832",
+      "revId": "213d961a40b9d8e0ea847601cafb0e3b3dd30dbb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
