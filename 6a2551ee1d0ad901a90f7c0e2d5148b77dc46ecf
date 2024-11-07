@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "24d16797_ebf76b7c",
+        "filename": "av1/encoder/block.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 1332,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2024-11-07T19:45:58Z",
+      "side": 1,
+      "message": "I think there needs to be another `!` here to comply with doxygen format for multi line comments:\n\nhttps://www.doxygen.nl/manual/docblocks.html",
+      "range": {
+        "startLine": 1332,
+        "startChar": 4,
+        "endLine": 1332,
+        "endChar": 5
+      },
+      "revId": "6a2551ee1d0ad901a90f7c0e2d5148b77dc46ecf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
