@@ -1797,6 +1797,8 @@ static aom_codec_err_t handle_tuning(aom_codec_alg_priv_t *ctx,
     // CDEF_ALL has been found to blur images at high quality QPs, so let's use
     // a version that adapts on QP.
     extra_cfg->enable_cdef = CDEF_ADAPTIVE;
+    // Enable "Variance Boost" deltaq mode, optimized for images.
+    extra_cfg->deltaq_mode = DELTA_Q_VARIANCE_BOOST;
   }
   return AOM_CODEC_OK;
 }
