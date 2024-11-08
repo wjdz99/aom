@@ -164,6 +164,21 @@ double av1_convert_qindex_to_q(int qindex, aom_bit_depth_t bit_depth) {
   }
 }
 
+// Converts a quantizer (q) to a qindex.
+int av1_convert_q_to_qindex(double q, aom_bit_depth_t bit_depth) {
+  int qindex;
+
+  // Find the first qindex that matches or exceeds q.
+  // Note: this operation can also be done with a binary search, as
+  // av1_convert_qindex_to_q() is monotonically increasing with respect to
+  // increasing q.
+  for (qindex = MINQ; qindex <= MAXQ; ++qindex) {
+    if (av1_convert_qindex_to_q(qindex, bit_depth) >= q) break;
+  }
+
+  return qindex;
+}
+
 // Gets the appropriate bpmb enumerator based on the frame and content type
 static int get_bpmb_enumerator(FRAME_TYPE frame_type,
                                const int is_screen_content_type) {
