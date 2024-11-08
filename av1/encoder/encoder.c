@@ -2647,7 +2647,8 @@ static int encode_without_recode(AV1_COMP *cpi) {
 
   av1_set_quantizer(cm, q_cfg->qm_minlevel, q_cfg->qm_maxlevel, q,
                     q_cfg->enable_chroma_deltaq, q_cfg->enable_hdr_deltaq,
-                    cpi->oxcf.mode == ALLINTRA);
+                    cpi->oxcf.mode == ALLINTRA, cpi->source->subsampling_x,
+                    cpi->source->subsampling_y);
   av1_set_speed_features_qindex_dependent(cpi, cpi->oxcf.speed);
   av1_init_quantizer(&cpi->enc_quant_dequant_params, &cm->quant_params,
                      cm->seq_params->bit_depth);
@@ -2662,7 +2663,8 @@ static int encode_without_recode(AV1_COMP *cpi) {
     if (av1_encodedframe_overshoot_cbr(cpi, &q)) {
       av1_set_quantizer(cm, q_cfg->qm_minlevel, q_cfg->qm_maxlevel, q,
                         q_cfg->enable_chroma_deltaq, q_cfg->enable_hdr_deltaq,
-                        cpi->oxcf.mode == ALLINTRA);
+                        cpi->oxcf.mode == ALLINTRA, cpi->source->subsampling_x,
+                        cpi->source->subsampling_y);
       av1_set_speed_features_qindex_dependent(cpi, cpi->oxcf.speed);
       av1_init_quantizer(&cpi->enc_quant_dequant_params, &cm->quant_params,
                          cm->seq_params->bit_depth);
@@ -2967,7 +2969,8 @@ static int encode_with_recode_loop(AV1_COMP *cpi, size_t *size, uint8_t *dest,
 
     av1_set_quantizer(cm, q_cfg->qm_minlevel, q_cfg->qm_maxlevel, q,
                       q_cfg->enable_chroma_deltaq, q_cfg->enable_hdr_deltaq,
-                      oxcf->mode == ALLINTRA);
+                      oxcf->mode == ALLINTRA, cpi->source->subsampling_x,
+                      cpi->source->subsampling_y);
     av1_set_speed_features_qindex_dependent(cpi, oxcf->speed);
     av1_init_quantizer(&cpi->enc_quant_dequant_params, &cm->quant_params,
                        cm->seq_params->bit_depth);
