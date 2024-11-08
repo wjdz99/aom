@@ -22,6 +22,9 @@
 
 #define MB_WIENER_MT_UNIT_SIZE BLOCK_64X64
 
+#define VAR_BOOST_MAX_DELTAQ_RANGE 80
+#define VAR_BOOST_MAX_BOOST 8
+
 void av1_init_mb_wiener_var_buffer(AV1_COMP *cpi);
 
 void av1_calc_mb_wiener_var_row(AV1_COMP *const cpi, MACROBLOCK *x,
@@ -42,5 +45,9 @@ void av1_init_mb_ur_var_buffer(AV1_COMP *cpi);
 void av1_set_mb_ur_variance(AV1_COMP *cpi);
 
 int av1_get_sbq_user_rating_based(AV1_COMP *const cpi, int mi_row, int mi_col);
+
+#if !CONFIG_REALTIME_ONLY
+int av1_get_sbq_variance_boost(AV1_COMP *const cpi, MACROBLOCK *x);
+#endif
 
 #endif  // AOM_AV1_ENCODER_ALLINTRA_VIS_H_
