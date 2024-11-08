@@ -1672,6 +1672,7 @@ typedef enum {
  *   * --enable-qm=1
  *   * --sharpness=7
  *   * --enable-cdef=3
+ *   * --deltaq-mode=6
  */
 typedef enum {
   AOM_TUNE_PSNR = 0,

@@ -164,6 +164,26 @@ double av1_convert_qindex_to_q(int qindex, aom_bit_depth_t bit_depth) {
   }
 }
 
+int av1_compute_qdelta_fp(double qstart, double qtarget,
+                          aom_bit_depth_t bit_depth) {
+  int start_index = MAXQ;
+  int target_index = MAXQ;
+  int i;
+
+  // Convert the start q value to an index.
+  for (i = MINQ; i < MAXQ; ++i) {
+    start_index = i;
+    if (av1_convert_qindex_to_q(i, bit_depth) >= qstart) break;
+  }
+  // Convert the q target to an index.
+  for (i = MINQ; i < MAXQ; ++i) {
+    target_index = i;
+    if (av1_convert_qindex_to_q(i, bit_depth) >= qtarget) break;
+  }
+
+  return target_index - start_index;
+}
+
 // Gets the appropriate bpmb enumerator based on the frame and content type
 static int get_bpmb_enumerator(FRAME_TYPE frame_type,
                                const int is_screen_content_type) {
