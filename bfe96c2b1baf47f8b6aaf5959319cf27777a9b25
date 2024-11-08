@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b0cdc0b2_15792c4d",
+        "filename": "CMakeLists.txt",
+        "patchSetId": 18
+      },
+      "lineNbr": 205,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-11-08T15:37:02Z",
+      "side": 1,
+      "message": "Please add a `CONFIG_CWG_E050` cmake option (which defines the same-named C preprocessor macro), and guard the new code under this cmake option and macro. The reason is that CWG-E050 is still a proposal, so it should not appear in regular builds of libaom.\n\n`CONFIG_CWG_C013` can be used as an example.",
+      "revId": "bfe96c2b1baf47f8b6aaf5959319cf27777a9b25",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0414b721_fe29a01f",
+        "filename": "CMakeLists.txt",
+        "patchSetId": 18
+      },
+      "lineNbr": 527,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-11-08T15:37:02Z",
+      "side": 1,
+      "message": "libaom requires only C++11 (or C++14?) now. It is best to follow Google Open Source Support Policies\u0027 [Foundational C++ Support Table]( https://github.com/google/oss-policies-info/blob/main/foundational-cxx-support-matrix.md#foundational-c-support) and require no more than C++14. Can the use of C++17 features (`std::optional`) be avoided?",
+      "revId": "bfe96c2b1baf47f8b6aaf5959319cf27777a9b25",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f438eb26_0504cf47",
+        "filename": "examples/multilayer_metadata.h",
+        "patchSetId": 18
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-11-08T15:37:02Z",
+      "side": 1,
+      "message": "If these types will eventually be used by the libaom library, it would be good to define them as C types.",
+      "revId": "bfe96c2b1baf47f8b6aaf5959319cf27777a9b25",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
