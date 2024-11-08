@@ -30,6 +30,7 @@
 #include "av1/encoder/hybrid_fwd_txfm.h"
 #include "av1/encoder/model_rd.h"
 #include "av1/encoder/rdopt_utils.h"
+#include "av1/encoder/aq_variance.h"
 
 #define MB_WIENER_PRED_BLOCK_SIZE BLOCK_128X128
 #define MB_WIENER_PRED_BUF_STRIDE 128
@@ -1055,3 +1056,44 @@ int av1_get_sbq_user_rating_based(AV1_COMP *const cpi, int mi_row, int mi_col) {
 
   return qindex;
 }
+
+#if !CONFIG_REALTIME_ONLY
+int av1_get_sbq_variance_boost(AV1_COMP *const cpi, MACROBLOCK *x) {
+  AV1_COMMON *const cm = &cpi->common;
+  const int base_qindex = cm->quant_params.base_qindex;
+  const aom_bit_depth_t bit_depth = cm->seq_params->bit_depth;
+
+  // Variance Boost only supports 64x64 SBs.
+  assert(cm->seq_params->sb_size == BLOCK_64X64);
+
+  // Strength is currently hard-coded and optimized for still pictures. In the
+  // future, we might want to expose this as a parameter that can be fine-tuned by the caller.
+  const int strength = 3;
+  int variance = av1_get_block_variance_boost(cpi, x);
+
+  // Variance = 0 areas are either completely flat patches or have very fine
+  // gradients. Boost these blocks as if they have a variance of 1.
+  if (variance == 0) {
+    variance = 1;
+  }
+
+  // Compute a boost based on a fast-growing formula.
+  // High and medium variance SBs essentially get no boost, while lower variance
+  // SBs get increasingly stronger boosts.
+  assert(strength >= 1 && strength <= 4);
+
+  // Still picture curve, with variance crossover point at 1024.
+  double qstep_ratio = 0.15 * strength * (-log2((double)variance) + 10) + 1;
+  qstep_ratio = fclamp(qstep_ratio, 1, VAR_BOOST_MAX_QSTEP_RATIO_BOOST);
+
+  double base_q = av1_convert_qindex_to_q(base_qindex, bit_depth);
+  double target_q = (int)(base_q / qstep_ratio);
+  int boost =
+      (int)((base_qindex + 544) *
+            -av1_compute_qdelta_fp(base_q, target_q, bit_depth) / (255 + 1024));
+  boost = AOMMIN(VAR_BOOST_MAX_DELTAQ_RANGE, boost);
+
+  int sb_qindex = clamp(base_qindex - boost, MINQ + 1, MAXQ);
+  return sb_qindex;
+}
+#endif
