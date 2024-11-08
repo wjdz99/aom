@@ -20,6 +20,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "7d1d58e8_a25664de",
+        "filename": "CMakeLists.txt",
+        "patchSetId": 18
+      },
+      "lineNbr": 205,
+      "author": {
+        "id": 26789
+      },
+      "writtenOn": "2024-11-08T15:46:13Z",
+      "side": 1,
+      "message": "This is just a tool in the examples/ directory. Is it really necessary to have a compile flag?",
+      "parentUuid": "b0cdc0b2_15792c4d",
+      "revId": "bfe96c2b1baf47f8b6aaf5959319cf27777a9b25",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "0414b721_fe29a01f",
         "filename": "CMakeLists.txt",
         "patchSetId": 18
@@ -37,6 +55,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "9705c95e_931ef65f",
+        "filename": "CMakeLists.txt",
+        "patchSetId": 18
+      },
+      "lineNbr": 527,
+      "author": {
+        "id": 26789
+      },
+      "writtenOn": "2024-11-08T15:46:13Z",
+      "side": 1,
+      "message": "I was not aware of the c++14 policy. Again, this is just the examples/ directory so I thought it might be fine and std::optional makes the code nicer but I can do without it",
+      "parentUuid": "0414b721_fe29a01f",
+      "revId": "bfe96c2b1baf47f8b6aaf5959319cf27777a9b25",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "f438eb26_0504cf47",
         "filename": "examples/multilayer_metadata.h",
         "patchSetId": 18
@@ -48,6 +84,24 @@
       "writtenOn": "2024-11-08T15:37:02Z",
       "side": 1,
       "message": "If these types will eventually be used by the libaom library, it would be good to define them as C types.",
+      "revId": "bfe96c2b1baf47f8b6aaf5959319cf27777a9b25",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e939ff6a_43d0cafa",
+        "filename": "examples/multilayer_metadata.h",
+        "patchSetId": 18
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 26789
+      },
+      "writtenOn": "2024-11-08T15:46:13Z",
+      "side": 1,
+      "message": "I was not planning on using them in libaom. libaom currently doesn\u0027t have any fancy apis for reading this kind of metadata, it only provides raw bytes, so I was going to do the same for now.",
+      "parentUuid": "f438eb26_0504cf47",
       "revId": "bfe96c2b1baf47f8b6aaf5959319cf27777a9b25",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
