@@ -22,6 +22,30 @@
       },
       "revId": "86bc542b0d6656f4fda56f04eef2188d102c1300",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9ac4d5dd_9befbf0b",
+        "filename": "av1/encoder/av1_quantize.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 882,
+      "author": {
+        "id": 3678645
+      },
+      "writtenOn": "2024-11-09T02:54:40Z",
+      "side": 1,
+      "message": "Correct. The intuition behind boosting chroma q in 4:2:0 is that, as resolution is halved in both the x and y axes, the underlying transform frequencies are scaled to be **double** the size compared to their 4:4:4 chroma equivalents. This means chroma q in 4:2:0 needs to be adjusted to more closely match 4:4:4 q.\n\nHere\u0027s a good example where chroma boosting helps preserve color and avoid smudging in 4:2:0: https://slow.pics/c/8xwoZClW. In this comparison, `SVT-AV1-PSY` uses the boost formula implemented in this CL, while `AOM 420` doesn\u0027t. PSY pic\u0027s color reproduction is closer to `AOM 444` than `AOM 420` is to. SSIMULACRA2 picks up on this fact and assigns higher scores to pictures with better color reproduction.\n\nI\u0027ll expand on the comment to explain the equation and method behind the chroma boosting.",
+      "parentUuid": "af5d9f3d_f71051f9",
+      "range": {
+        "startLine": 882,
+        "startChar": 8,
+        "endLine": 882,
+        "endChar": 77
+      },
+      "revId": "86bc542b0d6656f4fda56f04eef2188d102c1300",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
