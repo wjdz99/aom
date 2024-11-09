@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "af5d9f3d_f71051f9",
+        "filename": "av1/encoder/av1_quantize.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 882,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2024-11-09T01:32:55Z",
+      "side": 1,
+      "message": "This means a lower q is used for chroma channel?\nCould you add more explanation for the equation and method behind it?",
+      "range": {
+        "startLine": 882,
+        "startChar": 8,
+        "endLine": 882,
+        "endChar": 77
+      },
+      "revId": "86bc542b0d6656f4fda56f04eef2188d102c1300",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
