@@ -1672,6 +1672,7 @@ typedef enum {
  *   * --enable-qm=1
  *   * --sharpness=7
  *   * --enable-cdef=3
+ *   * --dist-metric=qm-psnr
  */
 typedef enum {
   AOM_TUNE_PSNR = 0,
