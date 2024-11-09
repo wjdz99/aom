@@ -1671,6 +1671,7 @@ typedef enum {
  * options to be set (expressed as command-line options):
  *   * --enable-qm=1
  *   * --sharpness=7
+ *   * --dist-metric=qm-psnr
  *   * --enable-cdef=3
  *   * --enable-chroma-deltaq=1
  */
