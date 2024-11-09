@@ -1,5 +1,23 @@
 {
-  "comments": [],
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3bb5d813_8eec25b4",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2992,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-11-09T19:37:28Z",
+      "side": 1,
+      "message": "The crash on Windows occurs inside this `check_and_free_string()` call. If the preset feature is enabled and usage is `AOM_USAGE_REALTIME`, then we should use `default_extra_cfg[1]` instead of `default_extra_cfg[0]` here.\n\nApparently string pooling is enabled by default in GCC and Clang. We could work around this bug by enabling string pooling in MSVC (with the `/GF` flag). I think we should use the `/GF` flag anyway.",
+      "revId": "a433a392e47d941203f524d4e63de5f745031200",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ],
   "submitRequirementResults": [
     {
       "submitRequirement": {
