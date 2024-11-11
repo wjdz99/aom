@@ -94,6 +94,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "c2a80e40_119ccd94",
+        "filename": "av1/encoder/av1_quantize.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2024-11-11T22:53:01Z",
+      "side": 1,
+      "message": "I have found that any frame buffer\u0027s subsampling info, e.g., cpi-\u003esource-\u003esubsampling_x and cpi-\u003esource-\u003esubsampling_y are set up in the function aom_alloc_frame_buffer by cm-\u003eseq_params-\u003esubsampling_x and cm-\u003eseq_params-\u003esubsampling_y.\n\nSo, without digging into whether cpi-\u003esource is setup. It is always better to get from cm-\u003eseq_params.",
+      "parentUuid": "1cc2df22_3bbcb50a",
+      "revId": "23b43378ff76b6fd297cc2229657dfb70d397c0d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "910766a6_ce0a8b1a",
         "filename": "av1/encoder/firstpass.c",
         "patchSetId": 2
