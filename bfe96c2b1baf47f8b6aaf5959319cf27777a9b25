@@ -36,6 +36,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "9e7bf9fd_ab7544b1",
+        "filename": "CMakeLists.txt",
+        "patchSetId": 18
+      },
+      "lineNbr": 205,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-11-11T03:47:44Z",
+      "side": 1,
+      "message": "I recommend adding this flag. Also, CWG-E050 will need to be implemented in libaom (the reference implementation of AV1) at least on the decoder side, so we will need to add this flag eventually.",
+      "parentUuid": "7d1d58e8_a25664de",
+      "revId": "bfe96c2b1baf47f8b6aaf5959319cf27777a9b25",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "0414b721_fe29a01f",
@@ -89,6 +107,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "3a9d8d70_f83e9cc2",
+        "filename": "CMakeLists.txt",
+        "patchSetId": 18
+      },
+      "lineNbr": 527,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-11-11T03:47:44Z",
+      "side": 1,
+      "message": "Thanks for the report, Martin. Maryla has fixed this in https://aomedia-review.googlesource.com/c/aom/+/194841.",
+      "parentUuid": "1c0e3599_389e97d3",
+      "revId": "bfe96c2b1baf47f8b6aaf5959319cf27777a9b25",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "f438eb26_0504cf47",
@@ -120,6 +156,24 @@
       "side": 1,
       "message": "I was not planning on using them in libaom. libaom currently doesn\u0027t have any fancy apis for reading this kind of metadata, it only provides raw bytes, so I was going to do the same for now.",
       "parentUuid": "f438eb26_0504cf47",
+      "revId": "bfe96c2b1baf47f8b6aaf5959319cf27777a9b25",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7af0e1b8_ef5dfc1a",
+        "filename": "examples/multilayer_metadata.h",
+        "patchSetId": 18
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-11-11T03:47:44Z",
+      "side": 1,
+      "message": "Thanks for the reply.",
+      "parentUuid": "e939ff6a_43d0cafa",
       "revId": "bfe96c2b1baf47f8b6aaf5959319cf27777a9b25",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
