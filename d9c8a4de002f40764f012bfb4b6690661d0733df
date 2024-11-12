@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bb63ee8e_65a4efa9",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 26789
+      },
+      "writtenOn": "2024-11-12T18:07:53Z",
+      "side": 1,
+      "message": "Wan-Teh, I tried making as few changes as possible as I find having many preprocessor statements to worsen code quality, but let me know if you want more code behind the flag...",
+      "revId": "d9c8a4de002f40764f012bfb4b6690661d0733df",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
