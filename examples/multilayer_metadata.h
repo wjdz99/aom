@@ -1,3 +1,5 @@
+// Experimental multilayer metadata defined in CWG-E050.
+
 #ifndef AOM_EXAMPLES_MULTILAYER_METADATA_H_
 #define AOM_EXAMPLES_MULTILAYER_METADATA_H_
 
