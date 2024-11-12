@@ -18,6 +18,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ca95657f_58efb8c2",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 3678645
+      },
+      "writtenOn": "2024-11-12T04:05:04Z",
+      "side": 1,
+      "message": "Thank you Wan-Teh for looking at this! I\u0027ve addressed all of your comments and Cheng\u0027s.",
+      "parentUuid": "eede5469_cd56a149",
+      "revId": "23b43378ff76b6fd297cc2229657dfb70d397c0d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "98739d4e_575f2f70",
@@ -31,6 +49,24 @@
       "writtenOn": "2024-11-11T19:09:55Z",
       "side": 1,
       "message": "IMPORTANT: This will cause us to use `chroma_delta_q\u003d0` for 4:4:4 and 4:2:2. The original code uses 2. Is this change intended? Should we initialize `chroma_delta_q` to 2 instead, which could also be used by the code at lines 896-900.",
+      "revId": "23b43378ff76b6fd297cc2229657dfb70d397c0d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fc8c91ad_4dfd93bf",
+        "filename": "av1/encoder/av1_quantize.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 877,
+      "author": {
+        "id": 3678645
+      },
+      "writtenOn": "2024-11-12T04:05:04Z",
+      "side": 1,
+      "message": "The `chroma_delta_q\u003d0` change is indeed intended for the SSIMULACRA2 tune, as my testing so far has been without `chroma_delta_q`, and I want to preserve that behavior for 4:4:4 and 4:2:2.\n\nThat said, I realized that I might end up finding different offsets for 4:4:4 and 4:2:2 (others than the original `2`), that we want to set just for the SSIMULACRA2 tune. I modified the code it now checks for both ALLINTRA mode *and* SSIMULACRA2 tune.\n\nI also added a `TODO` to remind myself I need to find the 4:4:4 and 4:2:2 offsets.",
+      "parentUuid": "98739d4e_575f2f70",
       "revId": "23b43378ff76b6fd297cc2229657dfb70d397c0d",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -58,6 +94,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "984b96a6_7e263928",
+        "filename": "av1/encoder/av1_quantize.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 882,
+      "author": {
+        "id": 3678645
+      },
+      "writtenOn": "2024-11-12T04:05:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5acbceaa_a21c1acd",
+      "range": {
+        "startLine": 882,
+        "startChar": 30,
+        "endLine": 882,
+        "endChar": 37
+      },
+      "revId": "23b43378ff76b6fd297cc2229657dfb70d397c0d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b068f4df_c97477ba",
@@ -71,6 +131,24 @@
       "writtenOn": "2024-11-11T19:09:55Z",
       "side": 1,
       "message": "If I understand the AV1 spec correcty, these four fields are encoded in the bitstream as `su(1+6)` (see the `read_delta_q()` function in Section 5.9.13 (Delta quantizer syntax) in the AV1 spec. So -16 should be in the range of`su(1+6)`, right?",
+      "revId": "23b43378ff76b6fd297cc2229657dfb70d397c0d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5edc1a8e_e5211e3b",
+        "filename": "av1/encoder/av1_quantize.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 894,
+      "author": {
+        "id": 3678645
+      },
+      "writtenOn": "2024-11-12T04:05:04Z",
+      "side": 1,
+      "message": "Correct, `chroma_delta_q` fields can go as low as `-64` or as high as `63`.",
+      "parentUuid": "b068f4df_c97477ba",
       "revId": "23b43378ff76b6fd297cc2229657dfb70d397c0d",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -110,6 +188,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "3c04702b_77b8e662",
+        "filename": "av1/encoder/av1_quantize.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 3678645
+      },
+      "writtenOn": "2024-11-12T04:05:04Z",
+      "side": 1,
+      "message": "Thanks for digging into this! I changed every instance to use `cm-\u003eseq_params-\u003esubsampling_x` and `cm-\u003eseq_params-\u003esubsampling_y`, and deleted `subsampling_x` and `subsampling_y` from the function signature.",
+      "parentUuid": "c2a80e40_119ccd94",
+      "revId": "23b43378ff76b6fd297cc2229657dfb70d397c0d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "910766a6_ce0a8b1a",
@@ -123,6 +219,24 @@
       "writtenOn": "2024-11-11T19:09:55Z",
       "side": 1,
       "message": "Note that we are getting `subsampling_x` and `subsampling_y` from different sructs in lines 1372 and line 1375. We should be consistent at least within the same function.",
+      "revId": "23b43378ff76b6fd297cc2229657dfb70d397c0d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "07875e2d_d33e9566",
+        "filename": "av1/encoder/firstpass.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1376,
+      "author": {
+        "id": 3678645
+      },
+      "writtenOn": "2024-11-12T04:05:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "910766a6_ce0a8b1a",
       "revId": "23b43378ff76b6fd297cc2229657dfb70d397c0d",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
