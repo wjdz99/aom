@@ -53,6 +53,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "51293cd5_c864c87e",
+        "filename": "av1/arg_defs.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 556,
+      "author": {
+        "id": 3678645
+      },
+      "writtenOn": "2024-11-12T23:42:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "701c230d_a84f18ed",
+      "revId": "31b8dbfa50cf420b04daa650cbfa6c143d294db6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "aeafd106_0db6ec3b",
@@ -66,6 +84,42 @@
       "writtenOn": "2024-11-12T00:39:23Z",
       "side": 1,
       "message": "Nit: List this header in alphabetical order.",
+      "revId": "31b8dbfa50cf420b04daa650cbfa6c143d294db6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "82cc51dd_0b8cfc1f",
+        "filename": "av1/encoder/allintra_vis.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 3678645
+      },
+      "writtenOn": "2024-11-12T23:42:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "aeafd106_0db6ec3b",
+      "revId": "31b8dbfa50cf420b04daa650cbfa6c143d294db6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d64818ce_0fb748ee",
+        "filename": "av1/encoder/allintra_vis.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 3678645
+      },
+      "writtenOn": "2024-11-12T23:42:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "aeafd106_0db6ec3b",
       "revId": "31b8dbfa50cf420b04daa650cbfa6c143d294db6",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -87,6 +141,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "cf26210e_725f3f00",
+        "filename": "av1/encoder/allintra_vis.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 1061,
+      "author": {
+        "id": 3678645
+      },
+      "writtenOn": "2024-11-12T23:42:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5f88938e_f90dfa95",
+      "revId": "31b8dbfa50cf420b04daa650cbfa6c143d294db6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "01da2fbf_8c61bc45",
@@ -104,6 +176,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "21f86b61_e440cf06",
+        "filename": "av1/encoder/allintra_vis.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 1083,
+      "author": {
+        "id": 3678645
+      },
+      "writtenOn": "2024-11-12T23:42:10Z",
+      "side": 1,
+      "message": "Good catch! I added this assert as a follow-up from Cheng\u0027s comment, but I ended up typo\u0027ing the comparison in the process...",
+      "parentUuid": "01da2fbf_8c61bc45",
+      "revId": "31b8dbfa50cf420b04daa650cbfa6c143d294db6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "f539c430_e96ff15c",
@@ -117,6 +207,24 @@
       "writtenOn": "2024-11-12T00:39:23Z",
       "side": 1,
       "message": "Nit: Add `.0` to all the `double` constants.",
+      "revId": "31b8dbfa50cf420b04daa650cbfa6c143d294db6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "275f8c52_ff365bd6",
+        "filename": "av1/encoder/allintra_vis.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 1092,
+      "author": {
+        "id": 3678645
+      },
+      "writtenOn": "2024-11-12T23:42:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f539c430_e96ff15c",
       "revId": "31b8dbfa50cf420b04daa650cbfa6c143d294db6",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -155,6 +263,42 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a1ebf668_40945f6c",
+        "filename": "av1/encoder/allintra_vis.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 1105,
+      "author": {
+        "id": 3678645
+      },
+      "writtenOn": "2024-11-12T23:42:10Z",
+      "side": 1,
+      "message": "Obviated with the refactor to `av1_convert_q_to_qindex()`.",
+      "parentUuid": "337a6011_8483c51c",
+      "revId": "31b8dbfa50cf420b04daa650cbfa6c143d294db6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9136162c_599660b1",
+        "filename": "av1/encoder/allintra_vis.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 1105,
+      "author": {
+        "id": 3678645
+      },
+      "writtenOn": "2024-11-12T23:42:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3efb6945_57ebbb1a",
+      "revId": "31b8dbfa50cf420b04daa650cbfa6c143d294db6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "94ba88cb_4cb21cdd",
@@ -168,6 +312,24 @@
       "writtenOn": "2024-11-12T00:39:23Z",
       "side": 1,
       "message": "Why is `MINQ` excluded? Is it because `MINQ` is lossless compression?",
+      "revId": "31b8dbfa50cf420b04daa650cbfa6c143d294db6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3e021289_3f1bda29",
+        "filename": "av1/encoder/allintra_vis.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 1108,
+      "author": {
+        "id": 3678645
+      },
+      "writtenOn": "2024-11-12T23:42:10Z",
+      "side": 1,
+      "message": "Correct. Variance Boost was written to always operate in the lossy compression domain. I added a comment to clarify the check.\n\nShould there be special considerations for to lossless block handling? My understanding is that QP 0 starts with a base qindex of 4, and adding `--lossless` makes libaom bypass running the delta-q code path altogether.",
+      "parentUuid": "94ba88cb_4cb21cdd",
       "revId": "31b8dbfa50cf420b04daa650cbfa6c143d294db6",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -223,6 +385,60 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "935af75a_0a118f1e",
+        "filename": "av1/encoder/allintra_vis.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 3678645
+      },
+      "writtenOn": "2024-11-12T23:42:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "dd2015ec_30e4805c",
+      "revId": "31b8dbfa50cf420b04daa650cbfa6c143d294db6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "db9e6206_b667e9a3",
+        "filename": "av1/encoder/allintra_vis.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 3678645
+      },
+      "writtenOn": "2024-11-12T23:42:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4387f6aa_ad3b22c1",
+      "revId": "31b8dbfa50cf420b04daa650cbfa6c143d294db6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "00064581_6c02130f",
+        "filename": "av1/encoder/allintra_vis.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 3678645
+      },
+      "writtenOn": "2024-11-12T23:42:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6ddd37fe_49a936b2",
+      "revId": "31b8dbfa50cf420b04daa650cbfa6c143d294db6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "df1a7fc3_bdf5a514",
@@ -236,6 +452,24 @@
       "writtenOn": "2024-11-12T00:39:23Z",
       "side": 1,
       "message": "Include \u003cstdlib.h\u003e for `qsort()`.",
+      "revId": "31b8dbfa50cf420b04daa650cbfa6c143d294db6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "80ea3946_92ce4383",
+        "filename": "av1/encoder/aq_variance.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 3678645
+      },
+      "writtenOn": "2024-11-12T23:42:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "df1a7fc3_bdf5a514",
       "revId": "31b8dbfa50cf420b04daa650cbfa6c143d294db6",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -257,6 +491,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "5844c2c8_dff11495",
+        "filename": "av1/encoder/aq_variance.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 173,
+      "author": {
+        "id": 3678645
+      },
+      "writtenOn": "2024-11-12T23:42:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b744e059_65d0cef6",
+      "revId": "31b8dbfa50cf420b04daa650cbfa6c143d294db6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "adea8b91_86978102",
@@ -270,6 +522,24 @@
       "writtenOn": "2024-11-12T00:39:23Z",
       "side": 1,
       "message": "1. Nit: Cast to `const int *`\n\n2. Please use the `compare_ints` example code in https://en.cppreference.com/w/c/algorithm/qsort",
+      "revId": "31b8dbfa50cf420b04daa650cbfa6c143d294db6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "22658482_0df5925b",
+        "filename": "av1/encoder/aq_variance.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 174,
+      "author": {
+        "id": 3678645
+      },
+      "writtenOn": "2024-11-12T23:42:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "adea8b91_86978102",
       "revId": "31b8dbfa50cf420b04daa650cbfa6c143d294db6",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -291,6 +561,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "5c9c6d58_724a937c",
+        "filename": "av1/encoder/aq_variance.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 177,
+      "author": {
+        "id": 3678645
+      },
+      "writtenOn": "2024-11-12T23:42:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "df7c3054_00d62e11",
+      "revId": "31b8dbfa50cf420b04daa650cbfa6c143d294db6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "4a7a12e8_3ac06df7",
@@ -304,6 +592,24 @@
       "writtenOn": "2024-11-12T00:39:23Z",
       "side": 1,
       "message": "Nit: Add `const`:\n\n```\n  const MACROBLOCKD *xd \u003d \u0026x-\u003ee_mbd;\n```",
+      "revId": "31b8dbfa50cf420b04daa650cbfa6c143d294db6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d044ff6a_bdbd9821",
+        "filename": "av1/encoder/aq_variance.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 182,
+      "author": {
+        "id": 3678645
+      },
+      "writtenOn": "2024-11-12T23:42:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4a7a12e8_3ac06df7",
       "revId": "31b8dbfa50cf420b04daa650cbfa6c143d294db6",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -325,6 +631,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "c839305c_34d98aa6",
+        "filename": "av1/encoder/aq_variance.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 187,
+      "author": {
+        "id": 3678645
+      },
+      "writtenOn": "2024-11-12T23:42:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e42fcebc_1ff7bc8f",
+      "revId": "31b8dbfa50cf420b04daa650cbfa6c143d294db6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "8be5f57f_6b45a2de",
@@ -338,6 +662,24 @@
       "writtenOn": "2024-11-12T00:39:23Z",
       "side": 1,
       "message": "IMPORTANT: Since the `vf` function pointer returns `unsigned int`, should this be declared as `unsigned int`?\n\nIf so, this function should also return `unsigned int`.",
+      "revId": "31b8dbfa50cf420b04daa650cbfa6c143d294db6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c90dee08_7b9ad30a",
+        "filename": "av1/encoder/aq_variance.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 188,
+      "author": {
+        "id": 3678645
+      },
+      "writtenOn": "2024-11-12T23:42:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8be5f57f_6b45a2de",
       "revId": "31b8dbfa50cf420b04daa650cbfa6c143d294db6",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -359,6 +701,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "6ef5fd24_168f31b6",
+        "filename": "av1/encoder/aq_variance.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 192,
+      "author": {
+        "id": 3678645
+      },
+      "writtenOn": "2024-11-12T23:42:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "37e12709_44f2210d",
+      "revId": "31b8dbfa50cf420b04daa650cbfa6c143d294db6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b180d509_8f229c8a",
@@ -372,6 +732,24 @@
       "writtenOn": "2024-11-12T00:39:23Z",
       "side": 1,
       "message": "Replace `i_idx * 8` by `i`.",
+      "revId": "31b8dbfa50cf420b04daa650cbfa6c143d294db6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8fb1fce1_7a2e2ce1",
+        "filename": "av1/encoder/aq_variance.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 195,
+      "author": {
+        "id": 3678645
+      },
+      "writtenOn": "2024-11-12T23:42:10Z",
+      "side": 1,
+      "message": "So, those two actually represent different concepts.\n\nThe `8` in `variances[i_idx * 8 + j_idx]` means that there are 8 subblocks within the 64px superblock alongside its width, and the `8` in `i \u003d i_idx * 8` means that each subblock is 8px wide. These two constants just happen to coincide in magnitude here.\n\nI made these two `8`s named constants so it\u0027s more obvious to tell what\u0027s going on under the hood.",
+      "parentUuid": "b180d509_8f229c8a",
       "revId": "31b8dbfa50cf420b04daa650cbfa6c143d294db6",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -393,6 +771,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "5dbee3ab_0825b57e",
+        "filename": "av1/encoder/aq_variance.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 200,
+      "author": {
+        "id": 3678645
+      },
+      "writtenOn": "2024-11-12T23:42:10Z",
+      "side": 1,
+      "message": "This is a great question. The answer is: rounding/using double values might be better, or might not.\n\nSVT-AV1\u0027s version of Variance Boost also truncates variances, so for porting reasons I\u0027m also truncating them in this version too.\n\nThat said, leveraging the full precision variances might help efficiency slightly, so I left a TODO so I can investigate it later as a tweak.",
+      "parentUuid": "0737ad7d_2a643460",
+      "revId": "31b8dbfa50cf420b04daa650cbfa6c143d294db6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e5fe7c72_de29de12",
@@ -410,6 +806,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a4cdc86b_8b5d3ae3",
+        "filename": "av1/encoder/aq_variance.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 207,
+      "author": {
+        "id": 3678645
+      },
+      "writtenOn": "2024-11-12T23:42:10Z",
+      "side": 1,
+      "message": "I\u0027ll defer unifying both blocks for now, but I factored the variance function pointer part `cpi-\u003eppi-\u003efn_ptr[BLOCK_4X4].vf` out, in line with James\u0027s CL: https://aomedia-review.googlesource.com/c/aom/+/194961/1/av1/encoder/aq_variance.c#b204.",
+      "parentUuid": "e5fe7c72_de29de12",
+      "revId": "31b8dbfa50cf420b04daa650cbfa6c143d294db6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c6a0dbb0_2997f6fd",
@@ -423,6 +837,24 @@
       "writtenOn": "2024-11-12T00:39:23Z",
       "side": 1,
       "message": "Delete this declaration. This function is only used in av1/encoder/aq_variance.c. It should be a static function in that file.",
+      "revId": "31b8dbfa50cf420b04daa650cbfa6c143d294db6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a8c881fe_288543c8",
+        "filename": "av1/encoder/aq_variance.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 3678645
+      },
+      "writtenOn": "2024-11-12T23:42:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c6a0dbb0_2997f6fd",
       "revId": "31b8dbfa50cf420b04daa650cbfa6c143d294db6",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -450,6 +882,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "56ee7108_03d265ef",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 1767,
+      "author": {
+        "id": 3678645
+      },
+      "writtenOn": "2024-11-12T23:42:10Z",
+      "side": 1,
+      "message": "I overhauled that section. The explanation should be much clearer now. Let me know if you still have any questions after reading it.",
+      "parentUuid": "ad20e768_aa8d630a",
+      "range": {
+        "startLine": 1765,
+        "startChar": 0,
+        "endLine": 1767,
+        "endChar": 70
+      },
+      "revId": "31b8dbfa50cf420b04daa650cbfa6c143d294db6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ca070427_83a1eb03",
@@ -463,6 +919,24 @@
       "writtenOn": "2024-11-12T00:39:23Z",
       "side": 1,
       "message": "Should we add \"for all intra mode\" as in line 168?",
+      "revId": "31b8dbfa50cf420b04daa650cbfa6c143d294db6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cd1b89a7_49bd92a0",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 170,
+      "author": {
+        "id": 3678645
+      },
+      "writtenOn": "2024-11-12T23:42:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ca070427_83a1eb03",
       "revId": "31b8dbfa50cf420b04daa650cbfa6c143d294db6",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -501,6 +975,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "cccb3d20_82fde006",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 175,
+      "author": {
+        "id": 3678645
+      },
+      "writtenOn": "2024-11-12T23:42:10Z",
+      "side": 1,
+      "message": "Nope, both `start_index` and `target_index` could be `MAXQ`. This is also an issue with the original SVT-AV1 function this was modeled from, so this was a great catch.\n\nFixed with the refactor to `av1_convert_q_to_qindex()`.",
+      "parentUuid": "a11aa105_33956444",
+      "revId": "31b8dbfa50cf420b04daa650cbfa6c143d294db6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "9da7f810_2efc51bc",
@@ -518,6 +1010,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "c3007b56_699c5965",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 182,
+      "author": {
+        "id": 3678645
+      },
+      "writtenOn": "2024-11-12T23:42:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9da7f810_2efc51bc",
+      "revId": "31b8dbfa50cf420b04daa650cbfa6c143d294db6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "0af1f573_30ee8d7b",
@@ -531,6 +1041,24 @@
       "writtenOn": "2024-11-12T00:39:23Z",
       "side": 1,
       "message": "Add a function comment that briefly describes what this function does:\n\nhttps://google.github.io/styleguide/cppguide.html#Function_Comments\n\nNote: I suggest replacing this function with an `av1_convert_q_to_qindex()` function. See my comment at av1/encoder/ratectrl.c:182.",
+      "revId": "31b8dbfa50cf420b04daa650cbfa6c143d294db6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "27959a51_e91ea846",
+        "filename": "av1/encoder/ratectrl.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 592,
+      "author": {
+        "id": 3678645
+      },
+      "writtenOn": "2024-11-12T23:42:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0af1f573_30ee8d7b",
       "revId": "31b8dbfa50cf420b04daa650cbfa6c143d294db6",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
