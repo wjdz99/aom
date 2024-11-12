@@ -20,6 +20,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "3fd375f5_3ecb4b94",
+        "filename": "av1/encoder/aq_variance.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 177,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-11-12T02:42:14Z",
+      "side": 1,
+      "message": "\u003e Cheng, James: Do you think we can declare these two arrays with size 4, since they are passed to a variance function that operates on a block of width 4 (line 207 and line 212)?\n\nThat sounds reasonable. I wonder if the code in the loop changed or this was copied from elsewhere.",
+      "parentUuid": "3561bc0b_a61e15fc",
+      "revId": "a6c705bf288a24923b957c7876bb395161f7c497",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "b3aa26ab_1ea0f4e1",
         "filename": "av1/encoder/aq_variance.c",
         "patchSetId": 1
@@ -31,6 +49,23 @@
       "writtenOn": "2024-11-12T00:01:52Z",
       "side": 1,
       "message": "Julio: The `av1_get_block_variance_boost()` function in your [Variance Boost CL](https://aomedia-review.googlesource.com/c/aom/+/194721) is modeled after this function. I will be asking you to make the same changes to `av1_get_block_variance_boost()`.",
+      "revId": "a6c705bf288a24923b957c7876bb395161f7c497",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e5422271_692a1208",
+        "filename": "av1/encoder/aq_variance.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 204,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-11-12T02:42:14Z",
+      "side": 1,
+      "message": "Seems I should have made a more complete pass:\n\nhttps://aomedia-review.googlesource.com/c/aom/+/194341",
       "revId": "a6c705bf288a24923b957c7876bb395161f7c497",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
