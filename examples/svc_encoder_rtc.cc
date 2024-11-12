@@ -135,17 +135,36 @@ static const arg_def_t bitdepth_arg = ARG_DEF_ENUM(
 #endif  // CONFIG_AV1_HIGHBITDEPTH
 
 static const arg_def_t *svc_args[] = {
-  &frames_arg,          &outputfile,     &width_arg,
-  &height_arg,          &timebase_arg,   &bitrate_arg,
-  &spatial_layers_arg,  &kf_dist_arg,    &scale_factors_arg,
-  &min_q_arg,           &max_q_arg,      &temporal_layers_arg,
-  &layering_mode_arg,   &threads_arg,    &aqmode_arg,
+  &frames_arg,
+  &outputfile,
+  &width_arg,
+  &height_arg,
+  &timebase_arg,
+  &bitrate_arg,
+  &spatial_layers_arg,
+  &kf_dist_arg,
+  &scale_factors_arg,
+  &min_q_arg,
+  &max_q_arg,
+  &temporal_layers_arg,
+  &layering_mode_arg,
+  &threads_arg,
+  &aqmode_arg,
 #if CONFIG_AV1_HIGHBITDEPTH
   &bitdepth_arg,
 #endif
-  &speed_arg,           &bitrates_arg,   &dropframe_thresh_arg,
-  &error_resilient_arg, &output_obu_arg, &test_decode_arg,
-  &tune_content_arg,    &psnr_arg,       NULL,
+  &speed_arg,
+  &bitrates_arg,
+  &dropframe_thresh_arg,
+  &error_resilient_arg,
+  &output_obu_arg,
+  &test_decode_arg,
+  &tune_content_arg,
+  &psnr_arg,
+#if CONFIG_CWG_E050
+  &multilayer_metadata_file_arg,
+#endif
+  NULL,
 };
 
 #define zero(Dest) memset(&(Dest), 0, sizeof(Dest))
@@ -402,8 +421,10 @@ static void parse_command_line(int argc, const char **argv_,
       app_input->show_psnr = 1;
     } else if (arg_match(&arg, &ext_rc_arg, argi)) {
       app_input->use_external_rc = true;
+#if CONFIG_CWG_E050
     } else if (arg_match(&arg, &multilayer_metadata_file_arg, argi)) {
       app_input->multilayer_metadata_file = arg.val;
+#endif
     } else {
       ++argj;
     }
