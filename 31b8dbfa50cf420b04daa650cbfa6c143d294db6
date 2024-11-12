@@ -1,6 +1,414 @@
 {
   "comments": [
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e81bc5b8_6f1aadca",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-11-12T00:39:23Z",
+      "side": 1,
+      "message": "Julio: I read everything once, although I don\u0027t really understand `av1_get_sbq_variance_boost()`. Sorry about the many comments. Hopefully most of the comments are easy to address.",
+      "revId": "31b8dbfa50cf420b04daa650cbfa6c143d294db6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "701c230d_a84f18ed",
+        "filename": "av1/arg_defs.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 556,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-11-12T00:39:23Z",
+      "side": 1,
+      "message": "Nit: Change \"allintra\" to \"all intra\"",
+      "revId": "31b8dbfa50cf420b04daa650cbfa6c143d294db6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "aeafd106_0db6ec3b",
+        "filename": "av1/encoder/allintra_vis.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-11-12T00:39:23Z",
+      "side": 1,
+      "message": "Nit: List this header in alphabetical order.",
+      "revId": "31b8dbfa50cf420b04daa650cbfa6c143d294db6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5f88938e_f90dfa95",
+        "filename": "av1/encoder/allintra_vis.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 1061,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-11-12T00:39:23Z",
+      "side": 1,
+      "message": "1. Add `const` to `cpi`:\n\n```\nconst AV1_COMP *cpi\n```\n\n\n2. Nit: Add `const` to `x`:\n\n```\nconst MACROBLOCK *x\n```",
+      "revId": "31b8dbfa50cf420b04daa650cbfa6c143d294db6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "01da2fbf_8c61bc45",
+        "filename": "av1/encoder/allintra_vis.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 1083,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-11-12T00:39:23Z",
+      "side": 1,
+      "message": "IMPORTANT: Should we assert `variance \u003e\u003d 1`?",
+      "revId": "31b8dbfa50cf420b04daa650cbfa6c143d294db6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f539c430_e96ff15c",
+        "filename": "av1/encoder/allintra_vis.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 1092,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-11-12T00:39:23Z",
+      "side": 1,
+      "message": "Nit: Add `.0` to all the `double` constants.",
+      "revId": "31b8dbfa50cf420b04daa650cbfa6c143d294db6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3efb6945_57ebbb1a",
+        "filename": "av1/encoder/allintra_vis.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 1105,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-11-12T00:39:23Z",
+      "side": 1,
+      "message": "Nit: I think it looks nicer to move the negative sign to the front of the expression.",
+      "revId": "31b8dbfa50cf420b04daa650cbfa6c143d294db6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "337a6011_8483c51c",
+        "filename": "av1/encoder/allintra_vis.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 1105,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-11-12T00:39:23Z",
+      "side": 1,
+      "message": "I suggest we pass `base_qindex` (instead of `base_q`) to `av1_compute_qdelta_fp()`, otherwise we will waste time inverting `base_q` back to `base_qindex`.",
+      "revId": "31b8dbfa50cf420b04daa650cbfa6c143d294db6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "94ba88cb_4cb21cdd",
+        "filename": "av1/encoder/allintra_vis.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 1108,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-11-12T00:39:23Z",
+      "side": 1,
+      "message": "Why is `MINQ` excluded? Is it because `MINQ` is lossless compression?",
+      "revId": "31b8dbfa50cf420b04daa650cbfa6c143d294db6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4387f6aa_ad3b22c1",
+        "filename": "av1/encoder/allintra_vis.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-11-12T00:39:23Z",
+      "side": 1,
+      "message": "Move these two definitions into av1/encoder/allintra_vis.c because these two constants are only used in that file.",
+      "revId": "31b8dbfa50cf420b04daa650cbfa6c143d294db6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "dd2015ec_30e4805c",
+        "filename": "av1/encoder/allintra_vis.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-11-12T00:39:23Z",
+      "side": 1,
+      "message": "Nit: Document these two constants?",
+      "revId": "31b8dbfa50cf420b04daa650cbfa6c143d294db6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6ddd37fe_49a936b2",
+        "filename": "av1/encoder/allintra_vis.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-11-12T00:39:23Z",
+      "side": 1,
+      "message": "Nit: Define `VAR_BOOST_MAX_BOOST` as a `double` constant `8.0`",
+      "revId": "31b8dbfa50cf420b04daa650cbfa6c143d294db6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "df1a7fc3_bdf5a514",
+        "filename": "av1/encoder/aq_variance.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-11-12T00:39:23Z",
+      "side": 1,
+      "message": "Include \u003cstdlib.h\u003e for `qsort()`.",
+      "revId": "31b8dbfa50cf420b04daa650cbfa6c143d294db6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b744e059_65d0cef6",
+        "filename": "av1/encoder/aq_variance.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 173,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-11-12T00:39:23Z",
+      "side": 1,
+      "message": "1. Declare this function as static.\n\n2. Add a function comment:\nhttps://google.github.io/styleguide/cppguide.html#Function_Comments",
+      "revId": "31b8dbfa50cf420b04daa650cbfa6c143d294db6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "adea8b91_86978102",
+        "filename": "av1/encoder/aq_variance.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 174,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-11-12T00:39:23Z",
+      "side": 1,
+      "message": "1. Nit: Cast to `const int *`\n\n2. Please use the `compare_ints` example code in https://en.cppreference.com/w/c/algorithm/qsort",
+      "revId": "31b8dbfa50cf420b04daa650cbfa6c143d294db6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "df7c3054_00d62e11",
+        "filename": "av1/encoder/aq_variance.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 177,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-11-12T00:39:23Z",
+      "side": 1,
+      "message": "Nit: Add `const` to `x`:\n\n```\nconst MACROBLOCK *x\n```",
+      "revId": "31b8dbfa50cf420b04daa650cbfa6c143d294db6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4a7a12e8_3ac06df7",
+        "filename": "av1/encoder/aq_variance.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 182,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-11-12T00:39:23Z",
+      "side": 1,
+      "message": "Nit: Add `const`:\n\n```\n  const MACROBLOCKD *xd \u003d \u0026x-\u003ee_mbd;\n```",
+      "revId": "31b8dbfa50cf420b04daa650cbfa6c143d294db6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e42fcebc_1ff7bc8f",
+        "filename": "av1/encoder/aq_variance.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 187,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-11-12T00:39:23Z",
+      "side": 1,
+      "message": "Could you add a comment to justify the 5th octile?",
+      "revId": "31b8dbfa50cf420b04daa650cbfa6c143d294db6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8be5f57f_6b45a2de",
+        "filename": "av1/encoder/aq_variance.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 188,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-11-12T00:39:23Z",
+      "side": 1,
+      "message": "IMPORTANT: Since the `vf` function pointer returns `unsigned int`, should this be declared as `unsigned int`?\n\nIf so, this function should also return `unsigned int`.",
+      "revId": "31b8dbfa50cf420b04daa650cbfa6c143d294db6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "37e12709_44f2210d",
+        "filename": "av1/encoder/aq_variance.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 192,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-11-12T00:39:23Z",
+      "side": 1,
+      "message": "Nit: Move this outside the `j_idx` for loop.",
+      "revId": "31b8dbfa50cf420b04daa650cbfa6c143d294db6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b180d509_8f229c8a",
+        "filename": "av1/encoder/aq_variance.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 195,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-11-12T00:39:23Z",
+      "side": 1,
+      "message": "Replace `i_idx * 8` by `i`.",
+      "revId": "31b8dbfa50cf420b04daa650cbfa6c143d294db6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0737ad7d_2a643460",
+        "filename": "av1/encoder/aq_variance.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 200,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-11-12T00:39:23Z",
+      "side": 1,
+      "message": "IMPORTANT: Should we divide by 64 with rounding? I.e., `(n + 32) / 64`\n\nAlternatively, do not divide by 64 here. Wait until the end of the function, divide the return value `variance` by 64.0 (note the `.0`), and declare the function\u0027s return type as `double`.",
+      "revId": "31b8dbfa50cf420b04daa650cbfa6c143d294db6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e5fe7c72_de29de12",
+        "filename": "av1/encoder/aq_variance.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 207,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-11-12T00:39:23Z",
+      "side": 1,
+      "message": "The `if` and `else` blocks differ in only the all-zeros argument. It would be good to make that a variable and avoid duplicating code.",
+      "revId": "31b8dbfa50cf420b04daa650cbfa6c143d294db6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c6a0dbb0_2997f6fd",
+        "filename": "av1/encoder/aq_variance.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-11-12T00:39:23Z",
+      "side": 1,
+      "message": "Delete this declaration. This function is only used in av1/encoder/aq_variance.c. It should be a static function in that file.",
+      "revId": "31b8dbfa50cf420b04daa650cbfa6c143d294db6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ad20e768_aa8d630a",
@@ -20,6 +428,91 @@
         "endLine": 1767,
         "endChar": 70
       },
+      "revId": "31b8dbfa50cf420b04daa650cbfa6c143d294db6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ca070427_83a1eb03",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 170,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-11-12T00:39:23Z",
+      "side": 1,
+      "message": "Should we add \"for all intra mode\" as in line 168?",
+      "revId": "31b8dbfa50cf420b04daa650cbfa6c143d294db6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7c57ae5c_a4fc3b8d",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 170,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-11-12T00:39:23Z",
+      "side": 1,
+      "message": "Note that these initial values don\u0027t mattter because they are overwritten by the for loops below.",
+      "revId": "31b8dbfa50cf420b04daa650cbfa6c143d294db6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a11aa105_33956444",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 175,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-11-12T00:39:23Z",
+      "side": 1,
+      "message": "IMPORTANT: `start_index` is at most `MAXQ - 1` and is never `MAXQ`. Is this correct?",
+      "revId": "31b8dbfa50cf420b04daa650cbfa6c143d294db6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9da7f810_2efc51bc",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 182,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-11-12T00:39:23Z",
+      "side": 1,
+      "message": "Convert this for loop to an `av1_convert_q_to_qindex()` function:\n\n```\nint av1_convert_q_to_qindex(double q, aom_bit_depth_t bit_depth);\n```\n\nAdd a comment to note that this can be done with a binary search because the `av1_convert_qindex_to_q()` function is monotonically increasing (please verify this). But don\u0027t convert it to a binary seach unless you are confident that you did it correctly.\n\nNote: We don\u0027t really need the `av1_compute_qdelta_fp()` function, because the caller already has `start_index`. See my comment at av1/encoder/allintra_vis.c:1105.",
+      "revId": "31b8dbfa50cf420b04daa650cbfa6c143d294db6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0af1f573_30ee8d7b",
+        "filename": "av1/encoder/ratectrl.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 592,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-11-12T00:39:23Z",
+      "side": 1,
+      "message": "Add a function comment that briefly describes what this function does:\n\nhttps://google.github.io/styleguide/cppguide.html#Function_Comments\n\nNote: I suggest replacing this function with an `av1_convert_q_to_qindex()` function. See my comment at av1/encoder/ratectrl.c:182.",
       "revId": "31b8dbfa50cf420b04daa650cbfa6c143d294db6",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
