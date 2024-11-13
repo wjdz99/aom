@@ -43,8 +43,9 @@ struct AlphaInformation {
 // representation at write time.
 struct DepthRepresentationElement {
   bool sign_flag;
-  uint8_t exponent;  // [0, 126]
+  uint8_t exponent;  // [0, 126] (biased exponent)
   uint32_t mantissa;
+  uint16_t mantissa_len;  // [1, 32]
 };
 
 struct DepthInformation {
@@ -61,27 +62,29 @@ struct DepthInformation {
 
 enum MultilayerUseCase {
   MULTILAYER_USE_CASE_UNSPECIFIED = 0,
-  MULTILAYER_USE_CASE_ALPHA = 1,
-  MULTILAYER_USE_CASE_DEPTH = 2,
-  MULTILAYER_USE_CASE_STEREO = 3,
-  MULTILAYER_USE_CASE_STEREO_ALPHA_GLOBAL = 4,
-  MULTILAYER_USE_CASE_STEREO_DEPTH_GLOBAL = 5,
-  MULTILAYER_USE_CASE_STEREO_ALPHA = 6,
-  MULTILAYER_USE_CASE_STEREO_DEPTH = 7,
-  MULTILAYER_USE_CASE_444 = 8,
-  MULTILAYER_USE_CASE_420_444 = 9,
-  MULTILAYER_USE_CASE_444_ALPHA = 10,
-  MULTILAYER_USE_CASE_444_DEPTH = 11,
+  MULTILAYER_USE_CASE_GLOBAL_ALPHA = 1,
+  MULTILAYER_USE_CASE_GLOBAL_DEPTH = 2,
+  MULTILAYER_USE_CASE_ALPHA = 3,
+  MULTILAYER_USE_CASE_DEPTH = 4,
+  MULTILAYER_USE_CASE_STEREO = 5,
+  MULTILAYER_USE_CASE_STEREO_GLOBAL_ALPHA = 6,
+  MULTILAYER_USE_CASE_STEREO_GLOBAL_DEPTH = 7,
+  MULTILAYER_USE_CASE_STEREO_ALPHA = 8,
+  MULTILAYER_USE_CASE_STEREO_DEPTH = 9,
+  MULTILAYER_USE_CASE_444_GLOBAL_ALPHA = 10,
+  MULTILAYER_USE_CASE_444_GLOBAL_DEPTH = 11,
+  MULTILAYER_USE_CASE_444 = 12,
+  MULTILAYER_USE_CASE_420_444 = 13,
 };
 
 enum LayerType {
-  MULTIALYER_LAYER_TYPE_UNSPECIFIED = 0,
-  MULTIALYER_LAYER_TYPE_TEXTURE = 1,
-  MULTIALYER_LAYER_TYPE_TEXTURE_1 = 2,
-  MULTIALYER_LAYER_TYPE_TEXTURE_2 = 3,
-  MULTIALYER_LAYER_TYPE_TEXTURE_3 = 4,
-  MULTIALYER_LAYER_TYPE_ALPHA = 5,
-  MULTIALYER_LAYER_TYPE_DEPTH = 6,
+  MULTILAYER_LAYER_TYPE_UNSPECIFIED = 0,
+  MULTILAYER_LAYER_TYPE_TEXTURE = 1,
+  MULTILAYER_LAYER_TYPE_TEXTURE_1 = 2,
+  MULTILAYER_LAYER_TYPE_TEXTURE_2 = 3,
+  MULTILAYER_LAYER_TYPE_TEXTURE_3 = 4,
+  MULTILAYER_LAYER_TYPE_ALPHA = 5,
+  MULTILAYER_LAYER_TYPE_DEPTH = 6,
 };
 
 enum MultilayerMetadataScope {
@@ -108,9 +111,9 @@ struct LayerMetadata {
 
   std::pair<ColorProperties, bool> layer_color_description;
 
-  // Relevant for MULTIALYER_LAYER_TYPE_ALPHA with SCOPE_GLOBAL or SCOPE_MIXED.
+  // Relevant for MULTILAYER_LAYER_TYPE_ALPHA with scope >= SCOPE_GLOBAL.
   AlphaInformation global_alpha_info;
-  // Relevant for MULTIALYER_LAYER_TYPE_DEPTH with SCOPE_GLOBAL or SCOPE_MIXED.
+  // Relevant for MULTILAYER_LAYER_TYPE_DEPTH with scope => SCOPE_GLOBAL.
   DepthInformation global_depth_info;
 };
 
@@ -123,8 +126,7 @@ struct MultilayerMetadata {
 // Terminates the process in case of error.
 // The metadata is expected to be in a subset of the YAML format supporting
 // simple lists and maps with integer values, and comments.
-// Does very little validation on the metadata, e.g. does not check that the
-// values are in the correct range.
+// Checks that the metadata is valid.
 MultilayerMetadata parse_multilayer_file(const char *metadata_path);
 
 // Prints the multilayer metadata to stdout for debugging.
