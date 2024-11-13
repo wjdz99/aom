@@ -85,6 +85,24 @@
       "message": "Seems that there is no test coverage for temporal layers with frame_dropping in external RC lib. The only test with frame_dropping for RC lib is RunOneLayerDropFramesCBR, which is single layer.",
       "revId": "5994b691c4d061c767cba4d7ddffb6d2573e41ea",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "360e6a18_1631d062",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 28763
+      },
+      "writtenOn": "2024-11-13T08:28:00Z",
+      "side": 1,
+      "message": "Jerome, currently the frame would be dropped if the return value is `aom::FrameDropDecision::kDrop`, see https://source.chromium.org/chromium/chromium/src/+/main:media/gpu/vaapi/av1_vaapi_video_encoder_delegate.cc;drc\u003d9c1d4b495c1ebadeda004c9b741e11a6f035b9e7;l\u003d514",
+      "parentUuid": "49706376_7198a1f2",
+      "revId": "5994b691c4d061c767cba4d7ddffb6d2573e41ea",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
