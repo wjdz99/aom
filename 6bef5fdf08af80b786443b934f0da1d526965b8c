@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f1a5e0df_425d4ff8",
+        "filename": "av1/encoder/tx_search.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1102,
+      "author": {
+        "id": 3678645
+      },
+      "writtenOn": "2024-11-13T03:27:11Z",
+      "side": 1,
+      "message": "Luca: I implemented the missing `HBD QM-PSNR` function, which was literally a merge of the `8-bit QM-PSNR` and `HBD PSNR` functions. \n\nI gave it a test by running subset1, and I\u0027m getting gains similar to `8-bit PSNR` -\u003e `8-bit QM-PSNR`. Let me know if there\u0027s anything I might need to address.",
+      "range": {
+        "startLine": 1071,
+        "startChar": 0,
+        "endLine": 1102,
+        "endChar": 6
+      },
+      "revId": "6bef5fdf08af80b786443b934f0da1d526965b8c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
