@@ -1,0 +1,242 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f9734c8d_d26dcb21",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 9
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-11-13T23:56:04Z",
+      "side": 1,
+      "message": "Nit: Add \"Daala\u0027s\"",
+      "revId": "d11dd2e3f5d4ec0a34ec74b009cbb4e4abfe5f40",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0e1496d0_e5344d68",
+        "filename": "av1/encoder/allintra_vis.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 1097,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-11-13T23:56:04Z",
+      "side": 1,
+      "message": "Nit: Change 1 to 1.0.",
+      "revId": "d11dd2e3f5d4ec0a34ec74b009cbb4e4abfe5f40",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "13bbddcc_357895f7",
+        "filename": "av1/encoder/allintra_vis.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 1109,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-11-13T23:56:04Z",
+      "side": 1,
+      "message": "Should we call `round()` before casting to `int`?",
+      "revId": "d11dd2e3f5d4ec0a34ec74b009cbb4e4abfe5f40",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "47381998_60b7c10d",
+        "filename": "av1/encoder/allintra_vis.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 1113,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-11-13T23:56:04Z",
+      "side": 1,
+      "message": "Add \", so MINQ is excluded\"",
+      "revId": "d11dd2e3f5d4ec0a34ec74b009cbb4e4abfe5f40",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "49afef10_794efbb8",
+        "filename": "av1/encoder/aq_variance.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-11-13T23:56:04Z",
+      "side": 1,
+      "message": "Move these two constants into `av1_get_block_variance_boost()` because they are used only in that function. And shorten the names, e.g., omit the `VAR_BOOST_` prefix, and perhaps omit the `_DIM`.",
+      "revId": "d11dd2e3f5d4ec0a34ec74b009cbb4e4abfe5f40",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "788ff66e_25bc9a05",
+        "filename": "av1/encoder/aq_variance.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 178,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-11-13T23:56:04Z",
+      "side": 1,
+      "message": "Nit: Change this comment to:\n\n```\n// Comparer used by qsort() to order an array of unsigned int from smallest to largest.\n```",
+      "revId": "d11dd2e3f5d4ec0a34ec74b009cbb4e4abfe5f40",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "37c40d99_b216971d",
+        "filename": "av1/encoder/aq_variance.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 179,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-11-13T23:56:04Z",
+      "side": 1,
+      "message": "Nit: Remove \"variance_\" from the function name. It is not relevant.",
+      "revId": "d11dd2e3f5d4ec0a34ec74b009cbb4e4abfe5f40",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6221038c_58b84b5b",
+        "filename": "av1/encoder/aq_variance.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 202,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-11-13T23:56:04Z",
+      "side": 1,
+      "message": "Should we replace 64 with `VAR_BOOST_SUBBLOCKS_IN_SB_DIM * VAR_BOOST_SUBBLOCKS_IN_SB_DIM`?",
+      "revId": "d11dd2e3f5d4ec0a34ec74b009cbb4e4abfe5f40",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "90cc23c3_a579e6e0",
+        "filename": "av1/encoder/aq_variance.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 229,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-11-13T23:56:04Z",
+      "side": 1,
+      "message": "Nit: Omit the `\u0026` before `variances`",
+      "revId": "d11dd2e3f5d4ec0a34ec74b009cbb4e4abfe5f40",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1c2afe59_10ddb2fc",
+        "filename": "av1/encoder/aq_variance.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 233,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-11-13T23:56:04Z",
+      "side": 1,
+      "message": "Should we replace 8 with `VAR_BOOST_SUBBLOCKS_IN_SB_DIM` in these two lines?",
+      "revId": "d11dd2e3f5d4ec0a34ec74b009cbb4e4abfe5f40",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "24af6709_33143beb",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 167,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-11-13T23:56:04Z",
+      "side": 1,
+      "message": "Nit/optional: change \"quantizer (q)\" to \"real Q value\"\n\nI actually don\u0027t know what `q` is. I got the \"real Q value\" description from the following comment in `av1_convert_qindex_to_q()`:\n\n```\n// These functions use formulaic calculations to make playing with the\n// quantizer tables easier. If necessary they can be replaced by lookup\n// tables if and when things settle down in the experimental bitstream\ndouble av1_convert_qindex_to_q(int qindex, aom_bit_depth_t bit_depth) {\n  // Convert the index to a real Q value (scaled down to match old Q values)\n  switch (bit_depth) {\n    case AOM_BITS_8: return av1_ac_quant_QTX(qindex, 0, bit_depth) / 4.0;\n    case AOM_BITS_10: return av1_ac_quant_QTX(qindex, 0, bit_depth) / 16.0;\n    case AOM_BITS_12: return av1_ac_quant_QTX(qindex, 0, bit_depth) / 64.0;\n    default:\n      assert(0 \u0026\u0026 \"bit_depth should be AOM_BITS_8, AOM_BITS_10 or AOM_BITS_12\");\n      return -1.0;\n  }\n}\n```\n\nSince the function comment says \"quantizer tables\", I guess `q` is the quantizer.",
+      "revId": "d11dd2e3f5d4ec0a34ec74b009cbb4e4abfe5f40",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "52354a4f_817d9480",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 167,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-11-13T23:56:04Z",
+      "side": 1,
+      "message": "Nit/optional: The Style Guide recommends placing the function comment before the function declaration in the header file. This is not consistently followed in libaom.",
+      "revId": "d11dd2e3f5d4ec0a34ec74b009cbb4e4abfe5f40",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8f6fa5bf_93226762",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 174,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-11-13T23:56:04Z",
+      "side": 1,
+      "message": "Typo: q \u003d\u003e qindex\n\nThe input variable of `av1_convert_qindex_to_q()` is `qindex`.",
+      "revId": "d11dd2e3f5d4ec0a34ec74b009cbb4e4abfe5f40",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e2337957_8ca5c668",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 176,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-11-13T23:56:04Z",
+      "side": 1,
+      "message": "If we don\u0027t exit the for loop from this break statement, `qindex` will be equal to `MAXQ + 1` when the for loop terminates. We need to handle that case.",
+      "revId": "d11dd2e3f5d4ec0a34ec74b009cbb4e4abfe5f40",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
