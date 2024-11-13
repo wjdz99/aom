@@ -41,6 +41,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "3a72ea2d_942adbdf",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1801,
+      "author": {
+        "id": 3678645
+      },
+      "writtenOn": "2024-11-13T23:10:41Z",
+      "side": 1,
+      "message": "Actually, it should read \"adjust chroma quality\", as it can technically chroma could be de-boosted, which I suspect it\u0027ll be the case for 4:4:4.",
+      "parentUuid": "8f5da7e1_eb55289b",
+      "range": {
+        "startLine": 1801,
+        "startChar": 7,
+        "endLine": 1801,
+        "endChar": 19
+      },
+      "revId": "919c2a5c71d562fda00b5a0dd4f65cdf9a46fbac",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "6a3f41a7_db49040e",
@@ -54,6 +78,30 @@
       "writtenOn": "2024-11-13T20:31:56Z",
       "side": 1,
       "message": "Nit: name this parameter \"tuning\" (the name currently used for variables of this type in libaom).",
+      "range": {
+        "startLine": 868,
+        "startChar": 57,
+        "endLine": 868,
+        "endChar": 61
+      },
+      "revId": "919c2a5c71d562fda00b5a0dd4f65cdf9a46fbac",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a781c71e_385ac0a2",
+        "filename": "av1/encoder/av1_quantize.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 868,
+      "author": {
+        "id": 3678645
+      },
+      "writtenOn": "2024-11-13T23:10:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6a3f41a7_db49040e",
       "range": {
         "startLine": 868,
         "startChar": 57,
@@ -81,6 +129,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f4976046_e3df0c58",
+        "filename": "av1/encoder/av1_quantize.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 885,
+      "author": {
+        "id": 3678645
+      },
+      "writtenOn": "2024-11-13T23:10:41Z",
+      "side": 1,
+      "message": "Yep, those are separate paragraphs.",
+      "parentUuid": "786c54e6_3e7c1fa3",
+      "revId": "919c2a5c71d562fda00b5a0dd4f65cdf9a46fbac",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d966acbf_f3544243",
@@ -94,6 +160,24 @@
       "writtenOn": "2024-11-13T20:31:56Z",
       "side": 1,
       "message": "Nit: offsets \u003d\u003e chroma_delta_q values?\n\nBetween 4:4:4 and 4:2:2, 4:4:4 is much more important. Please find offsets for 4:4:4 first.",
+      "revId": "919c2a5c71d562fda00b5a0dd4f65cdf9a46fbac",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3083c349_980dc699",
+        "filename": "av1/encoder/av1_quantize.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 894,
+      "author": {
+        "id": 3678645
+      },
+      "writtenOn": "2024-11-13T23:10:41Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "d966acbf_f3544243",
       "revId": "919c2a5c71d562fda00b5a0dd4f65cdf9a46fbac",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -115,6 +199,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "9d381272_75e1fbb1",
+        "filename": "av1/encoder/av1_quantize.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 929,
+      "author": {
+        "id": 3678645
+      },
+      "writtenOn": "2024-11-13T23:10:41Z",
+      "side": 1,
+      "message": "Correct, `aom_get_qmlevel_allintra()` is good for all all intra scenarios.",
+      "parentUuid": "e1b7c043_bb74dadb",
+      "revId": "919c2a5c71d562fda00b5a0dd4f65cdf9a46fbac",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "70ea7c68_e4ecc4d6",
@@ -132,6 +234,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "5dfa6b61_2d125eae",
+        "filename": "av1/encoder/av1_quantize.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 3678645
+      },
+      "writtenOn": "2024-11-13T23:10:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "70ea7c68_e4ecc4d6",
+      "revId": "919c2a5c71d562fda00b5a0dd4f65cdf9a46fbac",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "60c1e350_9d7c6e6f",
@@ -145,6 +265,30 @@
       "writtenOn": "2024-11-13T20:31:56Z",
       "side": 1,
       "message": "Nit: Use the `oxcf` local variable: `oxcf-\u003etune_cfg.tuning`",
+      "range": {
+        "startLine": 1131,
+        "startChar": 46,
+        "endLine": 1131,
+        "endChar": 71
+      },
+      "revId": "919c2a5c71d562fda00b5a0dd4f65cdf9a46fbac",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b74a4d61_f1ba19dc",
+        "filename": "av1/encoder/encoder_utils.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1131,
+      "author": {
+        "id": 3678645
+      },
+      "writtenOn": "2024-11-13T23:10:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "60c1e350_9d7c6e6f",
       "range": {
         "startLine": 1131,
         "startChar": 46,
