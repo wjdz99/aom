@@ -1,6 +1,23 @@
 {
   "comments": [
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ee874b59_2e340049",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2024-11-13T22:28:14Z",
+      "side": 1,
+      "message": "A general question:\nWhen dist-metric\u003dqm-psnr is turned on for tune\u003dssimulacra2, the proper qm level is also selected, that is why the metric could proveid gains on ssimulacra2.\nIf the qm level is not proper, we can\u0027t get the gains.\n\nIs my understanding correct?",
+      "revId": "6bef5fdf08af80b786443b934f0da1d526965b8c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "19a55ffc_4f59cfec",
