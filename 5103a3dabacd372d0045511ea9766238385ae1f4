@@ -35,6 +35,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e7247019_fd02f609",
+        "filename": "aom/aomcx.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 1137,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-11-14T21:53:18Z",
+      "side": 1,
+      "message": "Please do this in a follow-up CL.",
+      "parentUuid": "d3dcca9c_81f58870",
+      "revId": "5103a3dabacd372d0045511ea9766238385ae1f4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "480e3852_df14c4d2",
@@ -66,6 +84,24 @@
       "side": 1,
       "message": "Agreed, it looks cleaner if those conditions are reversed. Is it okay if I change this (and adding the VB appendix link) with a follow-up CL?",
       "parentUuid": "480e3852_df14c4d2",
+      "revId": "5103a3dabacd372d0045511ea9766238385ae1f4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6b81a245_9ef4d61d",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 174,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-11-14T21:53:18Z",
+      "side": 1,
+      "message": "Yes, this is fine. I may post additional suggestions for this CL later.",
+      "parentUuid": "9b8ffc84_c6e77f89",
       "revId": "5103a3dabacd372d0045511ea9766238385ae1f4",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
