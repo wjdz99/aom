@@ -281,11 +281,11 @@ const av1_codec_arg_definitions_t g_av1_codec_arg_defs = {
   .save_as_annexb = ARG_DEF(NULL, "annexb", 1, "Save as Annex-B"),
   .noise_sens = ARG_DEF(NULL, "noise-sensitivity", 1,
                         "Noise sensitivity (frames to blur)"),
-  .sharpness =
-      ARG_DEF(NULL, "sharpness", 1,
-              "Bias towards block sharpness in rate-distortion optimization of "
-              "transform coefficients and (in allintra mode only) reduce block "
-              "edge filtering for better sharpness (0..7), default is 0"),
+  .sharpness = ARG_DEF(
+      NULL, "sharpness", 1,
+      "Bias towards block sharpness in rate-distortion optimization of "
+      "transform coefficients and (in all intra mode only) reduce block "
+      "edge filtering for better sharpness (0..7), default is 0"),
   .static_thresh =
       ARG_DEF(NULL, "static-thresh", 1, "Motion detection threshold"),
   .auto_altref =
@@ -464,10 +464,10 @@ const av1_codec_arg_definitions_t g_av1_codec_arg_defs = {
               "Enable quantisation matrices (0: false (default), 1: true)"),
   .qm_min = ARG_DEF(
       NULL, "qm-min", 1,
-      "Min quant matrix flatness (0..15), default is 5 (4 for allintra mode)"),
-  .qm_max = ARG_DEF(
-      NULL, "qm-max", 1,
-      "Max quant matrix flatness (0..15), default is 9 (10 for allintra mode)"),
+      "Min quant matrix flatness (0..15), default is 5 (4 for all intra mode)"),
+  .qm_max = ARG_DEF(NULL, "qm-max", 1,
+                    "Max quant matrix flatness (0..15), default is 9 (10 for "
+                    "all intra mode)"),
   .reduced_tx_type_set = ARG_DEF(NULL, "reduced-tx-type-set", 1,
                                  "Use reduced set of transform types"),
   .use_intra_dct_only =
@@ -676,7 +676,7 @@ const av1_codec_arg_definitions_t g_av1_codec_arg_defs = {
 
   .auto_intra_tools_off = ARG_DEF(
       NULL, "auto-intra-tools-off", 1,
-      "Automatically turn off several intra coding tools for allintra mode; "
+      "Automatically turn off several intra coding tools for all intra mode; "
       "only in effect if --deltaq-mode=3"),
 
   .two_pass_input =
