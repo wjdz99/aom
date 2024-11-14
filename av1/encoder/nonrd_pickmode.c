@@ -2010,7 +2010,11 @@ static void set_color_sensitivity(AV1_COMP *cpi, MACROBLOCK *x,
     }
     if (cpi->rc.percent_blocks_with_motion > 90 &&
         cpi->rc.frame_source_sad > 10000 && source_sad_nonrd > kLowSad) {
+<<<<<<< HEAD   (37a438 Boost chroma on 4:2:0 content with `tune=ssimulacra2`)
       // Aggressive setting for color_sensitivity for this content.
+=======
+      // Aggressive setting for color_sensitiivty for this content.
+>>>>>>> BRANCH (d6f30a Remove experimental feature AOM_CODEC_USE_PRESET)
       shift = 10;
       norm_uv_sad_thresh = 0;
       norm_uv_sad_thresh2 = 0;

@@ -109,6 +109,7 @@ TEST(EncodeAPI, InvalidControlId) {
   EXPECT_EQ(AOM_CODEC_OK, aom_codec_destroy(&enc));
 }
 
+<<<<<<< HEAD   (37a438 Boost chroma on 4:2:0 content with `tune=ssimulacra2`)
 TEST(EncodeAPI, TuneSsimulacra2NotAllIntra) {
   aom_codec_iface_t *iface = aom_codec_av1_cx();
   aom_codec_enc_cfg_t cfg;
@@ -124,6 +125,8 @@ TEST(EncodeAPI, TuneSsimulacra2NotAllIntra) {
   ASSERT_EQ(aom_codec_destroy(&enc), AOM_CODEC_OK);
 }
 
+=======
+>>>>>>> BRANCH (d6f30a Remove experimental feature AOM_CODEC_USE_PRESET)
 void EncodeSetSFrameOnFirstFrame(aom_img_fmt fmt, aom_codec_flags_t flag) {
   constexpr int kWidth = 2;
   constexpr int kHeight = 128;
