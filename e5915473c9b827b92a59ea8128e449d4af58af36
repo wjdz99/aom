@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d3409f47_f257d3ff",
+        "filename": "av1/encoder/tx_search.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 1090,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-11-14T19:10:37Z",
+      "side": 1,
+      "message": "Note: This is just a comment, not a request for change, because existing code has this issue.\n\nTo detect overflow while avoiding undefined behavior, we need to do it this way:\n\n```\n    int64_t error_term \u003d (dd * dd + (1 \u003c\u003c (2 * AOM_QM_BITS - 1))) \u003e\u003e (2 * AOM_QM_BITS);\n    assert(error \u003c\u003d INT64_MAX - error_term);\n    error +\u003d error_term;\n```\n\nThis assumes `error_term` is nonnegative (which is true).\n\nAnother option is to assert that the comment at lines 1088-1089 is true:\n\n```\n    int64_t error_term \u003d (dd * dd + (1 \u003c\u003c (2 * AOM_QM_BITS - 1))) \u003e\u003e (2 * AOM_QM_BITS);\n    assert(error_term \u003e\u003e 54 \u003d\u003d 0);\n    error +\u003d error_term;\n```",
+      "revId": "e5915473c9b827b92a59ea8128e449d4af58af36",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}

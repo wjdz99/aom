@@ -162,6 +162,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "7f08400f_0f15963b",
+        "filename": "av1/encoder/tx_search.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1078,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-11-14T19:10:37Z",
+      "side": 1,
+      "message": "Julio: It is fine to have a function that supports all three bit depths of AV1 when libaom is built with `CONFIG_AV1_HIGHBITDEPTH\u003d0`, provided that `xd-\u003ebd` is set to 8.\n\nI think some other code in libaom will fail if `xd-\u003ebd` is not set to 8 when libaom is built with `CONFIG_AV1_HIGHBITDEPTH\u003d0`.",
+      "parentUuid": "f7c8ad03_d82acc93",
+      "revId": "6bef5fdf08af80b786443b934f0da1d526965b8c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "b4d66684_8273ac87",
         "filename": "av1/encoder/tx_search.c",
         "patchSetId": 3
@@ -191,6 +209,24 @@
       "side": 1,
       "message": "Correct. It\u0027s a check where if the overflow were to happen, and the compiler treats integer overflows as wrapping around to negative numbers, this assertion would trigger.",
       "parentUuid": "b4d66684_8273ac87",
+      "revId": "6bef5fdf08af80b786443b934f0da1d526965b8c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9ac97295_6e74d39e",
+        "filename": "av1/encoder/tx_search.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1095,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-11-14T19:10:37Z",
+      "side": 1,
+      "message": "Thanks for the confirmation. Since signed integer overflow is undefined behavior, pedantically we need to detect this without allowing it to occur. I will suggest the pedantic alternative.\n\nUPDATE: I see you copied this assertion from existing code. Don\u0027t worry about this then. We should deal with this separately.",
+      "parentUuid": "57365e76_b88e2743",
       "revId": "6bef5fdf08af80b786443b934f0da1d526965b8c",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
