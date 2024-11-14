@@ -185,9 +185,10 @@ unsigned int av1_get_block_variance_boost(const AV1_COMP *cpi,
 #define SUBBLOCKS_IN_SB_DIM 8
 #define SUBBLOCKS_IN_SB 64
 #define SUBBLOCK_SIZE 8
-  DECLARE_ALIGNED(16, static const uint16_t,
+  DECLARE_ALIGNED(SUBBLOCK_SIZE, static const uint16_t,
                   av1_highbd_all_zeros[MAX_SB_SIZE]) = { 0 };
-  DECLARE_ALIGNED(16, static const uint8_t, av1_all_zeros[MAX_SB_SIZE]) = { 0 };
+  DECLARE_ALIGNED(SUBBLOCK_SIZE, static const uint8_t,
+                  av1_all_zeros[MAX_SB_SIZE]) = { 0 };
 
   const MACROBLOCKD *xd = &x->e_mbd;
   unsigned int sse;
