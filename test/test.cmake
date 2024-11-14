@@ -131,6 +131,10 @@ if(CONFIG_REALTIME_ONLY)
                    "${AOM_ROOT}/test/gf_pyr_height_test.cc"
                    "${AOM_ROOT}/test/horz_superres_test.cc"
                    "${AOM_ROOT}/test/level_test.cc"
+<<<<<<< HEAD   (f6f2de Adjust temporal filter strength for better visual quality)
+=======
+                   "${AOM_ROOT}/test/monochrome_test.cc"
+>>>>>>> BRANCH (d6f30a Remove experimental feature AOM_CODEC_USE_PRESET)
                    "${AOM_ROOT}/test/postproc_filters_test.cc"
                    "${AOM_ROOT}/test/sharpness_test.cc")
 endif()

@@ -34,3 +34,9 @@ text aom_uleb_decode
 text aom_uleb_encode
 text aom_uleb_encode_fixed_size
 text aom_uleb_size_in_bytes
+<<<<<<< HEAD   (f6f2de Adjust temporal filter strength for better visual quality)
+=======
+text aom_wb_bytes_written
+text aom_wb_write_bit
+text aom_wb_write_literal
+>>>>>>> BRANCH (d6f30a Remove experimental feature AOM_CODEC_USE_PRESET)
