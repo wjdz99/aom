@@ -18,6 +18,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "f31eb895_26038ca9",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-11-14T18:27:50Z",
+      "side": 1,
+      "message": "Optional: Since you haven\u0027t pushed the v3.11.0 tag, we can still update the date in the CHANGELOG and retag v3.11.0.\n\nAnother optional change is to cherry-pick https://aomedia-review.googlesource.com/c/aom/+/194921.",
+      "parentUuid": "b3ceba22_f0bcb256",
+      "revId": "ec1086b747007b63b7c6728c354f439ae43459d6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "b043b5b7_815c71ed",
