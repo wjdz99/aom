@@ -18,6 +18,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "69aa8444_b109c1dc",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 9
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 3678645
+      },
+      "writtenOn": "2024-11-14T01:24:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f9734c8d_d26dcb21",
+      "revId": "d11dd2e3f5d4ec0a34ec74b009cbb4e4abfe5f40",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "0e1496d0_e5344d68",
@@ -31,6 +49,24 @@
       "writtenOn": "2024-11-13T23:56:04Z",
       "side": 1,
       "message": "Nit: Change 1 to 1.0.",
+      "revId": "d11dd2e3f5d4ec0a34ec74b009cbb4e4abfe5f40",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "928b18ee_103bf275",
+        "filename": "av1/encoder/allintra_vis.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 1097,
+      "author": {
+        "id": 3678645
+      },
+      "writtenOn": "2024-11-14T01:24:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0e1496d0_e5344d68",
       "revId": "d11dd2e3f5d4ec0a34ec74b009cbb4e4abfe5f40",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -52,6 +88,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "02bc7ec3_b4134bf9",
+        "filename": "av1/encoder/allintra_vis.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 1109,
+      "author": {
+        "id": 3678645
+      },
+      "writtenOn": "2024-11-14T01:24:27Z",
+      "side": 1,
+      "message": "I\u0027ll run this locally to confirm, but it does make sense to round here.",
+      "parentUuid": "13bbddcc_357895f7",
+      "revId": "d11dd2e3f5d4ec0a34ec74b009cbb4e4abfe5f40",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "47381998_60b7c10d",
@@ -65,6 +119,24 @@
       "writtenOn": "2024-11-13T23:56:04Z",
       "side": 1,
       "message": "Add \", so MINQ is excluded\"",
+      "revId": "d11dd2e3f5d4ec0a34ec74b009cbb4e4abfe5f40",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0fbac2a0_8e222442",
+        "filename": "av1/encoder/allintra_vis.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 1113,
+      "author": {
+        "id": 3678645
+      },
+      "writtenOn": "2024-11-14T01:24:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "47381998_60b7c10d",
       "revId": "d11dd2e3f5d4ec0a34ec74b009cbb4e4abfe5f40",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -86,6 +158,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "b55db8da_c95eb4e1",
+        "filename": "av1/encoder/aq_variance.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 3678645
+      },
+      "writtenOn": "2024-11-14T01:24:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "49afef10_794efbb8",
+      "revId": "d11dd2e3f5d4ec0a34ec74b009cbb4e4abfe5f40",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "788ff66e_25bc9a05",
@@ -99,6 +189,24 @@
       "writtenOn": "2024-11-13T23:56:04Z",
       "side": 1,
       "message": "Nit: Change this comment to:\n\n```\n// Comparer used by qsort() to order an array of unsigned int from smallest to largest.\n```",
+      "revId": "d11dd2e3f5d4ec0a34ec74b009cbb4e4abfe5f40",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "87be7ac1_7298001b",
+        "filename": "av1/encoder/aq_variance.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 178,
+      "author": {
+        "id": 3678645
+      },
+      "writtenOn": "2024-11-14T01:24:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "788ff66e_25bc9a05",
       "revId": "d11dd2e3f5d4ec0a34ec74b009cbb4e4abfe5f40",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -120,6 +228,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "89bf35ef_746d950c",
+        "filename": "av1/encoder/aq_variance.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 179,
+      "author": {
+        "id": 3678645
+      },
+      "writtenOn": "2024-11-14T01:24:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "37c40d99_b216971d",
+      "revId": "d11dd2e3f5d4ec0a34ec74b009cbb4e4abfe5f40",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "6221038c_58b84b5b",
@@ -133,6 +259,24 @@
       "writtenOn": "2024-11-13T23:56:04Z",
       "side": 1,
       "message": "Should we replace 64 with `VAR_BOOST_SUBBLOCKS_IN_SB_DIM * VAR_BOOST_SUBBLOCKS_IN_SB_DIM`?",
+      "revId": "d11dd2e3f5d4ec0a34ec74b009cbb4e4abfe5f40",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "80221d6f_5b6a675b",
+        "filename": "av1/encoder/aq_variance.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 202,
+      "author": {
+        "id": 3678645
+      },
+      "writtenOn": "2024-11-14T01:24:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6221038c_58b84b5b",
       "revId": "d11dd2e3f5d4ec0a34ec74b009cbb4e4abfe5f40",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -154,6 +298,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "56d00383_eb8a65d9",
+        "filename": "av1/encoder/aq_variance.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 229,
+      "author": {
+        "id": 3678645
+      },
+      "writtenOn": "2024-11-14T01:24:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "90cc23c3_a579e6e0",
+      "revId": "d11dd2e3f5d4ec0a34ec74b009cbb4e4abfe5f40",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "1c2afe59_10ddb2fc",
@@ -167,6 +329,24 @@
       "writtenOn": "2024-11-13T23:56:04Z",
       "side": 1,
       "message": "Should we replace 8 with `VAR_BOOST_SUBBLOCKS_IN_SB_DIM` in these two lines?",
+      "revId": "d11dd2e3f5d4ec0a34ec74b009cbb4e4abfe5f40",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c70b4f1f_427db573",
+        "filename": "av1/encoder/aq_variance.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 233,
+      "author": {
+        "id": 3678645
+      },
+      "writtenOn": "2024-11-14T01:24:27Z",
+      "side": 1,
+      "message": "In this case, the first `8` should stay as is, because there will always be eight octiles by definition, no matter how many subblocks we\u0027re processing.\n\nThe second one is technically: `(SUBBLOCKS_IN_SB) / 8` so I\u0027ll go make that change.",
+      "parentUuid": "1c2afe59_10ddb2fc",
       "revId": "d11dd2e3f5d4ec0a34ec74b009cbb4e4abfe5f40",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -205,6 +385,42 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "36a1d10e_fc1ed814",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 167,
+      "author": {
+        "id": 3678645
+      },
+      "writtenOn": "2024-11-14T01:24:27Z",
+      "side": 1,
+      "message": "Hmm, I find \"real Q value\" descriptor to be much more confusing, as it implies qindexes aren\u0027t \"real\", which isn\u0027t the case.\n\nFrom looking at other comments that deal with `q`, I think I should omit the \"real\" part and just leave it at \"Q value\".",
+      "parentUuid": "24af6709_33143beb",
+      "revId": "d11dd2e3f5d4ec0a34ec74b009cbb4e4abfe5f40",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "17db46fb_3d5724cb",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 167,
+      "author": {
+        "id": 3678645
+      },
+      "writtenOn": "2024-11-14T01:24:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "52354a4f_817d9480",
+      "revId": "d11dd2e3f5d4ec0a34ec74b009cbb4e4abfe5f40",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "8f6fa5bf_93226762",
@@ -222,6 +438,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "706ac0ab_97526047",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 174,
+      "author": {
+        "id": 3678645
+      },
+      "writtenOn": "2024-11-14T01:24:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8f6fa5bf_93226762",
+      "revId": "d11dd2e3f5d4ec0a34ec74b009cbb4e4abfe5f40",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e2337957_8ca5c668",
@@ -235,6 +469,24 @@
       "writtenOn": "2024-11-13T23:56:04Z",
       "side": 1,
       "message": "If we don\u0027t exit the for loop from this break statement, `qindex` will be equal to `MAXQ + 1` when the for loop terminates. We need to handle that case.",
+      "revId": "d11dd2e3f5d4ec0a34ec74b009cbb4e4abfe5f40",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "aa1b847d_4af9f915",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 176,
+      "author": {
+        "id": 3678645
+      },
+      "writtenOn": "2024-11-14T01:24:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e2337957_8ca5c668",
       "revId": "d11dd2e3f5d4ec0a34ec74b009cbb4e4abfe5f40",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
