@@ -1,0 +1,135 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e014cf36_3e6bded3",
+        "filename": "av1/encoder/allintra_vis.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 1078,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-11-14T23:33:17Z",
+      "side": 1,
+      "message": "Change \"int\" to \"unsigned int\"",
+      "revId": "c1842f7dd2d8707c63eb60b2ee0b48792e303432",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "69d86376_4c8f9ee0",
+        "filename": "av1/encoder/allintra_vis.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 1088,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-11-14T23:33:17Z",
+      "side": 1,
+      "message": "Now that `variance` is an unsigned type, we can delete this assertion because this condition is guaranteed by the if statement immediately above.",
+      "range": {
+        "startLine": 1086,
+        "startChar": 0,
+        "endLine": 1088,
+        "endChar": 24
+      },
+      "revId": "c1842f7dd2d8707c63eb60b2ee0b48792e303432",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c1c26ed8_069f66c3",
+        "filename": "av1/encoder/allintra_vis.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 1096,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-11-14T23:33:17Z",
+      "side": 1,
+      "message": "Since `strength \u003c\u003d 4` and `variance \u003e\u003d 1` (which implies `log2((double)variance) \u003e\u003d 0`, this expression is at most 0.15 * 4 * 10.0 + 1.0 \u003d 7.0.\n\nTherefore, it will never exceed the current value of `VAR_BOOST_MAX_BOOST` (8.0).\n\nIs my analysis correct?\n\nSo the next line could be simplified to\n\n```\n  qstep_ratio \u003d AOMMAX(qstep_ratio, 1.0);\n```\n\nI think it is fine to keep the use of `fclamp()`, in case we modify the code here. I just wanted to confirm that I understand this code correctly.",
+      "revId": "c1842f7dd2d8707c63eb60b2ee0b48792e303432",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bb446b6f_777376df",
+        "filename": "av1/encoder/allintra_vis.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 1109,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-11-14T23:33:17Z",
+      "side": 1,
+      "message": "Remove this minus sign and change `target_qindex - base_qindex` to `base_qindex - target_qindex` in the next line.\n\nI believe `target_qindex` is less than `base_qindex`. So `target_qindex - base_qindex` is always negative.",
+      "revId": "c1842f7dd2d8707c63eb60b2ee0b48792e303432",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2b3b53dc_45876382",
+        "filename": "av1/encoder/allintra_vis.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 1110,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-11-14T23:33:17Z",
+      "side": 1,
+      "message": "Replace `(255.0 + 1024.0)` with the sum to avoid interpreting this as 2^8 - 1 + 2^10 incorrectly.",
+      "range": {
+        "startLine": 1110,
+        "startChar": 59,
+        "endLine": 1110,
+        "endChar": 73
+      },
+      "revId": "c1842f7dd2d8707c63eb60b2ee0b48792e303432",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fd7b4e75_3dfbffa9",
+        "filename": "av1/encoder/allintra_vis.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 1115,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-11-14T23:33:17Z",
+      "side": 1,
+      "message": "Since `boost` is positive, we should not need to clamp `base_qindex - boost` from above. We should be able to replace this with:\n\n```\n  int sb_qindex \u003d AOMMAX(base_qindex - boost, MINQ + 1);\n```",
+      "revId": "c1842f7dd2d8707c63eb60b2ee0b48792e303432",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2fc791d1_a02fe9b6",
+        "filename": "av1/encoder/aq_variance.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 190,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-11-14T23:33:17Z",
+      "side": 1,
+      "message": "We should be able to change the size of these two arrays to 8, to match `BLOCK_8X8` in line 208.",
+      "revId": "c1842f7dd2d8707c63eb60b2ee0b48792e303432",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
