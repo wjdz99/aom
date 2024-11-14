@@ -48,6 +48,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "b8011f89_39d255cb",
+        "filename": "av1/encoder/allintra_vis.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 1079,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-11-14T21:04:29Z",
+      "side": 1,
+      "message": "This is not consistent in libaom. I suggest following the prevalent style in the function or the file you modify.\n\nNote: In my experience, the style Cheng suggested seems more common, especially in older code.",
+      "parentUuid": "4c24f8fe_e9eb9686",
+      "range": {
+        "startLine": 1077,
+        "startChar": 2,
+        "endLine": 1079,
+        "endChar": 3
+      },
+      "revId": "d0a49b02a7499ad642e524d637be0b00c5693613",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "697f99f2_aa227a95",

@@ -439,6 +439,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "8f2f560c_c7de17ae",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 167,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-11-14T21:04:29Z",
+      "side": 1,
+      "message": "I was also confused by what \"real\" means. Here it means the Q value is a real number (i.e., a floating-point number) as opposed to an integer.",
+      "parentUuid": "36a1d10e_fc1ed814",
+      "revId": "d11dd2e3f5d4ec0a34ec74b009cbb4e4abfe5f40",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "8f6fa5bf_93226762",

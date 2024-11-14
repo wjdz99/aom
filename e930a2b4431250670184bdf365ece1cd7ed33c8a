@@ -69,6 +69,24 @@
       "parentUuid": "22bccc4c_3e6153b5",
       "revId": "e930a2b4431250670184bdf365ece1cd7ed33c8a",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cf7c6ef8_e0e9b939",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1800,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-11-14T21:04:29Z",
+      "side": 1,
+      "message": "Understood. But we don\u0027t usually capitalize the names of algorithms, e.g., depth-first search and gradient descent.",
+      "parentUuid": "f16240b7_348837e7",
+      "revId": "e930a2b4431250670184bdf365ece1cd7ed33c8a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
