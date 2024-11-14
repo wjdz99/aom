@@ -1063,6 +1063,11 @@ int av1_get_sbq_user_rating_based(AV1_COMP *const cpi, int mi_row, int mi_col) {
 }
 
 #if !CONFIG_REALTIME_ONLY
+
+// Variance Boost: a variance adaptive quantization implementation
+// SVT-AV1 appendix with an overview and a graphical, step-by-step explanation
+// of the implementation
+// https://gitlab.com/AOMediaCodec/SVT-AV1/-/blob/master/Docs/Appendix-Variance-Boost.md
 int av1_get_sbq_variance_boost(const AV1_COMP *cpi, const MACROBLOCK *x) {
   const AV1_COMMON *cm = &cpi->common;
   const int base_qindex = cm->quant_params.base_qindex;
