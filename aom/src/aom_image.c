@@ -14,6 +14,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "aom/aom_codec.h"
 #include "aom/aom_image.h"
 #include "aom/aom_integer.h"
 #include "aom/internal/aom_image_internal.h"
@@ -378,6 +379,14 @@ int aom_img_add_metadata(aom_image_t *img, uint32_t type, const uint8_t *data,
   if (!img->metadata) {
     img->metadata = aom_img_metadata_array_alloc(0);
     if (!img->metadata) return -1;
+  }
+  // Some metadata types are not allowed to be layer specific, according to
+  // the Table in Section 6.7.1 of the AV1 specifiction.
+  if ((insert_flag & 0x10) && (type == OBU_METADATA_TYPE_HDR_CLL ||
+                               type == OBU_METADATA_TYPE_HDR_MDCV ||
+                               type == OBU_METADATA_TYPE_SCALABILITY ||
+                               type == OBU_METADATA_TYPE_TIMECODE)) {
+    return -1;
   }
   aom_metadata_t *metadata =
       aom_img_metadata_alloc(type, data, sz, insert_flag);

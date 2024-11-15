@@ -154,17 +154,28 @@ typedef enum aom_chroma_sample_position {
  *
  * While encoding, when metadata is added to an aom_image via
  * aom_img_add_metadata(), the flag passed along with the metadata will
- * determine where the metadata OBU will be placed in the encoded OBU stream.
+ * determine where the metadata OBU will be placed in the encoded OBU stream,
+ * and whether it's layer-specific metadata (OBU header will specify the
+ * temporal and spatial layer ids).
  * Metadata will be emitted into the output stream within the next temporal unit
  * if it satisfies the specified insertion flag.
  *
  * During decoding, when the library encounters a metadata OBU, it is always
  * flagged as AOM_MIF_ANY_FRAME and emitted with the next output aom_image.
+ *
+ * Currently, the first 4 bits are reserved for the metadata location (in the
+ * range 0..15), and the 5th bit is used to tell if it's layer-specific.
  */
 typedef enum aom_metadata_insert_flags {
   AOM_MIF_NON_KEY_FRAME = 0, /**< Adds metadata if it's not keyframe */
   AOM_MIF_KEY_FRAME = 1,     /**< Adds metadata only if it's a keyframe */
-  AOM_MIF_ANY_FRAME = 2      /**< Adds metadata to any type of frame */
+  AOM_MIF_ANY_FRAME = 2,     /**< Adds metadata to any type of frame */
+  AOM_MIF_NON_KEY_FRAME_LAYER_SPECIFIC =
+      16, /**< Adds layer-specific metadata if it's not keyframe */
+  AOM_MIF_KEY_FRAME_LAYER_SPECIFIC =
+      17, /**< Adds layer-specific metadata only if it's a keyframe */
+  AOM_MIF_ANY_FRAME_LAYER_SPECIFIC =
+      18 /**< Adds layer-specific metadata to any type of frame */
 } aom_metadata_insert_flags_t;
 
 /*!\brief Array of aom_metadata structs for an image. */
