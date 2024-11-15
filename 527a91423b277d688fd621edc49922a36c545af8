@@ -20,6 +20,23 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "5db9fd67_1cc407ae",
+        "filename": "av1/encoder/av1_quantize.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 890,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-11-15T22:21:42Z",
+      "side": 1,
+      "message": "Should we also describe below how the decrease ramp-down was determined?",
+      "revId": "527a91423b277d688fd621edc49922a36c545af8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "65238a8a_8a673e8f",
         "filename": "av1/encoder/av1_quantize.c",
         "patchSetId": 3
@@ -31,6 +48,23 @@
       "writtenOn": "2024-11-15T21:54:35Z",
       "side": 1,
       "message": "Nit: decrease ramp-down \u003d\u003e ramp-down of chroma decrease ?\n\nThe important thing is to add \"chroma\" to clarify what \"decrease\" refers to.",
+      "revId": "527a91423b277d688fd621edc49922a36c545af8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a3317094_14c77efc",
+        "filename": "av1/encoder/av1_quantize.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 904,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-11-15T22:21:42Z",
+      "side": 1,
+      "message": "Does \"score better\" mean \"get better SSIMULACRS2 scores\"?\n\nWhat does \"in an absolute sense\" mean here?",
       "revId": "527a91423b277d688fd621edc49922a36c545af8",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
