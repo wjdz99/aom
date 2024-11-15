@@ -48,7 +48,6 @@
 #include "common/args_helper.h"
 
 struct av1_extracfg {
-  unsigned int usage;  // Same as g_usage in aom_codec_enc_cfg_t
   int cpu_used;
   unsigned int enable_auto_alt_ref;
   unsigned int enable_auto_bwd_ref;
@@ -214,10 +213,8 @@ struct av1_extracfg {
   int sb_qp_sweep;
 };
 
-static const struct av1_extracfg default_extra_cfg[] = {
 #if !CONFIG_REALTIME_ONLY
-  {
-      AOM_USAGE_GOOD_QUALITY,  // usage
+static const struct av1_extracfg default_extra_cfg = {
       0,                       // cpu_used
       1,                       // enable_auto_alt_ref
       0,                       // enable_auto_bwd_ref
@@ -367,10 +364,10 @@ static const struct av1_extracfg default_extra_cfg[] = {
       0,               // strict_level_conformance
       -1,              // kf_max_pyr_height
       0,               // sb_qp_sweep
-  },
-#endif  // !CONFIG_REALTIME_ONLY
-  {
-      AOM_USAGE_REALTIME,  // usage
+};
+#else
+// Some settings are changed for realtime only build.
+static const struct av1_extracfg default_extra_cfg = {
       10,                  // cpu_used
       1,                   // enable_auto_alt_ref
       0,                   // enable_auto_bwd_ref
@@ -520,8 +517,8 @@ static const struct av1_extracfg default_extra_cfg[] = {
       0,               // strict_level_conformance
       -1,              // kf_max_pyr_height
       0,               // sb_qp_sweep
-  },
 };
+#endif
 
 struct aom_codec_alg_priv {
   aom_codec_priv_t base;
@@ -1524,7 +1521,7 @@ static void set_encoder_config(AV1EncoderConfig *oxcf,
 
 AV1EncoderConfig av1_get_encoder_config(const aom_codec_enc_cfg_t *cfg) {
   AV1EncoderConfig oxcf;
-  struct av1_extracfg extra_cfg = default_extra_cfg[0];
+  struct av1_extracfg extra_cfg = default_extra_cfg;
   set_encoder_config(&oxcf, cfg, &extra_cfg);
   return oxcf;
 }
@@ -2382,7 +2379,7 @@ static aom_codec_err_t ctrl_set_vmaf_model_path(aom_codec_alg_priv_t *ctx,
   struct av1_extracfg extra_cfg = ctx->extra_cfg;
   const char *str = CAST(AV1E_SET_VMAF_MODEL_PATH, args);
   const aom_codec_err_t ret = allocate_and_set_string(
-      str, default_extra_cfg[0].vmaf_model_path, &extra_cfg.vmaf_model_path,
+      str, default_extra_cfg.vmaf_model_path, &extra_cfg.vmaf_model_path,
       ctx->ppi->error.detail);
   if (ret != AOM_CODEC_OK) return ret;
   return update_extra_cfg(ctx, &extra_cfg);
@@ -2393,7 +2390,7 @@ static aom_codec_err_t ctrl_set_partition_info_path(aom_codec_alg_priv_t *ctx,
   struct av1_extracfg extra_cfg = ctx->extra_cfg;
   const char *str = CAST(AV1E_SET_PARTITION_INFO_PATH, args);
   const aom_codec_err_t ret = allocate_and_set_string(
-      str, default_extra_cfg[0].partition_info_path,
+      str, default_extra_cfg.partition_info_path,
       &extra_cfg.partition_info_path, ctx->ppi->error.detail);
   if (ret != AOM_CODEC_OK) return ret;
   return update_extra_cfg(ctx, &extra_cfg);
@@ -2412,7 +2409,7 @@ static aom_codec_err_t ctrl_set_rate_distribution_info(
   struct av1_extracfg extra_cfg = ctx->extra_cfg;
   const char *str = CAST(AV1E_SET_RATE_DISTRIBUTION_INFO, args);
   const aom_codec_err_t ret = allocate_and_set_string(
-      str, default_extra_cfg[0].rate_distribution_info,
+      str, default_extra_cfg.rate_distribution_info,
       &extra_cfg.rate_distribution_info, ctx->ppi->error.detail);
   if (ret != AOM_CODEC_OK) return ret;
   return update_extra_cfg(ctx, &extra_cfg);
@@ -2438,7 +2435,7 @@ static aom_codec_err_t ctrl_set_film_grain_table(aom_codec_alg_priv_t *ctx,
     ERROR("film_grain removed from realtime only build.");
 #endif
     const aom_codec_err_t ret = allocate_and_set_string(
-        str, default_extra_cfg[0].film_grain_table_filename,
+        str, default_extra_cfg.film_grain_table_filename,
         &extra_cfg.film_grain_table_filename, ctx->ppi->error.detail);
     if (ret != AOM_CODEC_OK) return ret;
   }
@@ -2867,7 +2864,7 @@ static aom_codec_err_t encoder_init(aom_codec_ctx_t *ctx) {
     priv->cfg = *ctx->config.enc;
     ctx->config.enc = &priv->cfg;
 
-    priv->extra_cfg = default_extra_cfg[0];
+    priv->extra_cfg = default_extra_cfg;
     // Special handling:
     // By default, if omitted: --enable-cdef=1, --qm-min=5, and --qm-max=9
     // Here we set its default values to 0, 4, and 10 respectively when
@@ -2990,18 +2987,18 @@ static void check_and_free_string(const char *default_str, const char **ptr) {
 
 static void destroy_extra_config(struct av1_extracfg *extra_cfg) {
 #if CONFIG_TUNE_VMAF
-  check_and_free_string(default_extra_cfg[0].vmaf_model_path,
+  check_and_free_string(default_extra_cfg.vmaf_model_path,
                         &extra_cfg->vmaf_model_path);
 #endif
-  check_and_free_string(default_extra_cfg[0].two_pass_output,
+  check_and_free_string(default_extra_cfg.two_pass_output,
                         &extra_cfg->two_pass_output);
-  check_and_free_string(default_extra_cfg[0].two_pass_output,
+  check_and_free_string(default_extra_cfg.two_pass_output,
                         &extra_cfg->second_pass_log);
-  check_and_free_string(default_extra_cfg[0].partition_info_path,
+  check_and_free_string(default_extra_cfg.partition_info_path,
                         &extra_cfg->partition_info_path);
-  check_and_free_string(default_extra_cfg[0].rate_distribution_info,
+  check_and_free_string(default_extra_cfg.rate_distribution_info,
                         &extra_cfg->rate_distribution_info);
-  check_and_free_string(default_extra_cfg[0].film_grain_table_filename,
+  check_and_free_string(default_extra_cfg.film_grain_table_filename,
                         &extra_cfg->film_grain_table_filename);
 }
 
@@ -4115,14 +4112,14 @@ static aom_codec_err_t encoder_set_option(aom_codec_alg_priv_t *ctx,
 #if CONFIG_TUNE_VMAF
   else if (arg_match_helper(&arg, &g_av1_codec_arg_defs.vmaf_model_path, argv,
                             err_string)) {
-    err = allocate_and_set_string(value, default_extra_cfg[0].vmaf_model_path,
+    err = allocate_and_set_string(value, default_extra_cfg.vmaf_model_path,
                                   &extra_cfg.vmaf_model_path, err_string);
   }
 #endif
   else if (arg_match_helper(&arg, &g_av1_codec_arg_defs.partition_info_path,
                             argv, err_string)) {
     err =
-        allocate_and_set_string(value, default_extra_cfg[0].partition_info_path,
+        allocate_and_set_string(value, default_extra_cfg.partition_info_path,
                                 &extra_cfg.partition_info_path, err_string);
   } else if (arg_match_helper(&arg,
                               &g_av1_codec_arg_defs.enable_rate_guide_deltaq,
@@ -4133,7 +4130,7 @@ static aom_codec_err_t encoder_set_option(aom_codec_alg_priv_t *ctx,
                               &g_av1_codec_arg_defs.rate_distribution_info,
                               argv, err_string)) {
     err = allocate_and_set_string(
-        value, default_extra_cfg[0].rate_distribution_info,
+        value, default_extra_cfg.rate_distribution_info,
         &extra_cfg.rate_distribution_info, err_string);
   } else if (arg_match_helper(&arg, &g_av1_codec_arg_defs.dist_metric, argv,
                               err_string)) {
@@ -4252,7 +4249,7 @@ static aom_codec_err_t encoder_set_option(aom_codec_alg_priv_t *ctx,
       extra_cfg.film_grain_table_filename = value;
     } else {
       err = allocate_and_set_string(
-          value, default_extra_cfg[0].film_grain_table_filename,
+          value, default_extra_cfg.film_grain_table_filename,
           &extra_cfg.film_grain_table_filename, err_string);
     }
   } else if (arg_match_helper(&arg, &g_av1_codec_arg_defs.cdf_update_mode, argv,
@@ -4450,11 +4447,11 @@ static aom_codec_err_t encoder_set_option(aom_codec_alg_priv_t *ctx,
     extra_cfg.fwd_kf_dist = arg_parse_int_helper(&arg, err_string);
   } else if (arg_match_helper(&arg, &g_av1_codec_arg_defs.two_pass_output, argv,
                               err_string)) {
-    err = allocate_and_set_string(value, default_extra_cfg[0].two_pass_output,
+    err = allocate_and_set_string(value, default_extra_cfg.two_pass_output,
                                   &extra_cfg.two_pass_output, err_string);
   } else if (arg_match_helper(&arg, &g_av1_codec_arg_defs.second_pass_log, argv,
                               err_string)) {
-    err = allocate_and_set_string(value, default_extra_cfg[0].second_pass_log,
+    err = allocate_and_set_string(value, default_extra_cfg.second_pass_log,
                                   &extra_cfg.second_pass_log, err_string);
   } else if (arg_match_helper(&arg, &g_av1_codec_arg_defs.loopfilter_control,
                               argv, err_string)) {
