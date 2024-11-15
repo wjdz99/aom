@@ -33,6 +33,24 @@
       "message": "Wan-Teh: just double-checking on the scope of the changes. Would this CL be limited to \"user-facing\" strings? (public headers, arg defs), or will it also deal with other parts of the libaom codebase?\n\nThe reason I ask is because I found some more occurrences of \"allintra\" outside these two files, like in `encoder.c`:\n\n```\n  // The buffers \u0027tmp_pred_bufs[]\u0027 and \u0027comp_rd_buffer\u0027 are used in inter frames\n  // to store intermediate inter mode prediction results and are not required\n  // for allintra encoding mode. Hence, the memory allocations for these buffers\n  // are avoided for allintra encoding mode\n```",
       "revId": "9d2a52e92aed2986ff1f85bbf230b00d74973f8f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b320726c_af12c530",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-11-15T00:18:46Z",
+      "side": 1,
+      "message": "No. I am restricting this CL to user-facing strings such as comments in public headers and help messages.\n\nI can abandon this CL if you think this is not worth fixing.",
+      "parentUuid": "5de1dfe7_be196054",
+      "revId": "9d2a52e92aed2986ff1f85bbf230b00d74973f8f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
