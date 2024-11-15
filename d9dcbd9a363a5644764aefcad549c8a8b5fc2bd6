@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6a12f206_2caa6366",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-11-15T21:06:58Z",
+      "side": 1,
+      "message": "LGTM.\n\nCheng: Please review. Thanks!",
+      "revId": "d9dcbd9a363a5644764aefcad549c8a8b5fc2bd6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ba95cb2b_5d3675a2",
+        "filename": "av1/encoder/aq_variance.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 190,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-11-15T21:06:58Z",
+      "side": 1,
+      "message": "Optional: We can try reducing the alignment of this array to 8 bytes because this array is only 8-byte long.",
+      "revId": "d9dcbd9a363a5644764aefcad549c8a8b5fc2bd6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
