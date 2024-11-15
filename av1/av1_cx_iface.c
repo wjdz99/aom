@@ -2494,6 +2494,11 @@ static aom_codec_err_t ctrl_set_deltaq_mode(aom_codec_alg_priv_t *ctx,
     ERROR("Delta Q mode can't be enabled in realtime only build.");
   }
 #endif
+  // Variance Boost is currently only supported for ALLINTRA mode.
+  if (deltaq_arg == DELTA_Q_VARIANCE_BOOST && ctx->cfg.g_usage != ALLINTRA) {
+    return AOM_CODEC_INCAPABLE;
+  }
+
   extra_cfg.deltaq_mode = deltaq_arg;
   return update_extra_cfg(ctx, &extra_cfg);
 }
