@@ -11,6 +11,8 @@
 
 #include "gtest/gtest.h"
 
+#include <string>
+
 #include "aom/aom_codec.h"
 #include "aom/aom_image.h"
 #include "aom/internal/aom_image_internal.h"
@@ -29,14 +31,13 @@ const uint8_t kMetadataPayloadT35[kMetadataPayloadSizeT35] = {
   0x0C, 0x0D, 0x0E, 0x0F, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17
 };
 
-#if !CONFIG_REALTIME_ONLY
 const size_t kMetadataPayloadSizeCll = 4;
 const uint8_t kMetadataPayloadCll[kMetadataPayloadSizeCll] = { 0xB5, 0x01, 0x02,
                                                                0x03 };
 
 const size_t kMetadataObuSizeT35 = 28;
 const uint8_t kMetadataObuT35[kMetadataObuSizeT35] = {
-  0x2A, 0x1A, 0x02, 0xB5, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06,
+  0x2A, 0x1A, 0x04, 0xB5, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06,
   0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F, 0x10,
   0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x80
 };
@@ -50,6 +51,7 @@ const size_t kMetadataObuSizeCll = 8;
 const uint8_t kMetadataObuCll[kMetadataObuSizeCll] = { 0x2A, 0x06, 0x01, 0xB5,
                                                        0x01, 0x02, 0x03, 0x80 };
 
+#if !CONFIG_REALTIME_ONLY
 class MetadataEncodeTest
     : public ::libaom_test::CodecTestWithParam<libaom_test::TestMode>,
       public ::libaom_test::EncoderTest {
@@ -61,88 +63,80 @@ class MetadataEncodeTest
   void SetUp() override { InitializeConfig(GET_PARAM(1)); }
 
   void PreEncodeFrameHook(::libaom_test::VideoSource *video,
-                          ::libaom_test::Encoder * /*encoder*/) override {
-    aom_image_t *current_frame = video->img();
-    if (current_frame) {
-      if (current_frame->metadata) aom_img_remove_metadata(current_frame);
-      ASSERT_EQ(aom_img_add_metadata(current_frame, OBU_METADATA_TYPE_ITUT_T35,
-                                     kMetadataPayloadT35, 0, AOM_MIF_ANY_FRAME),
-                -1);
-      ASSERT_EQ(aom_img_add_metadata(current_frame, OBU_METADATA_TYPE_ITUT_T35,
-                                     nullptr, kMetadataPayloadSizeT35,
-                                     AOM_MIF_ANY_FRAME),
-                -1);
-      ASSERT_EQ(aom_img_add_metadata(current_frame, OBU_METADATA_TYPE_ITUT_T35,
-                                     nullptr, 0, AOM_MIF_ANY_FRAME),
-                -1);
-      ASSERT_EQ(
-          aom_img_add_metadata(current_frame, OBU_METADATA_TYPE_ITUT_T35,
-                               kMetadataPayloadT35, kMetadataPayloadSizeT35,
-                               AOM_MIF_ANY_FRAME),
-          0);
-
-      ASSERT_EQ(
-          aom_img_add_metadata(current_frame, OBU_METADATA_TYPE_HDR_MDCV,
-                               kMetadataPayloadT35, kMetadataPayloadSizeT35,
-                               AOM_MIF_KEY_FRAME),
-          0);
-
-      ASSERT_EQ(
-          aom_img_add_metadata(current_frame, OBU_METADATA_TYPE_HDR_CLL,
-                               kMetadataPayloadCll, kMetadataPayloadSizeCll,
-                               AOM_MIF_KEY_FRAME),
-          0);
+                          ::libaom_test::Encoder *encoder) override {
+    if (video->frame() == 0) {
+      encoder->Control(AOME_SET_CPUUSED, 6);
     }
+    aom_image_t *current_frame = video->img();
+    if (!current_frame) {
+      return;
+    }
+    if (current_frame->metadata) aom_img_remove_metadata(current_frame);
+    // invalid: size is 0
+    ASSERT_EQ(aom_img_add_metadata(current_frame, OBU_METADATA_TYPE_ITUT_T35,
+                                   kMetadataPayloadT35, 0, AOM_MIF_ANY_FRAME),
+              -1);
+    // invalid: data is nullptr
+    ASSERT_EQ(
+        aom_img_add_metadata(current_frame, OBU_METADATA_TYPE_ITUT_T35, nullptr,
+                             kMetadataPayloadSizeT35, AOM_MIF_ANY_FRAME),
+        -1);
+    // invalid: size is 0 and data is nullptr
+    ASSERT_EQ(aom_img_add_metadata(current_frame, OBU_METADATA_TYPE_ITUT_T35,
+                                   nullptr, 0, AOM_MIF_ANY_FRAME),
+              -1);
+    ASSERT_EQ(aom_img_add_metadata(current_frame, OBU_METADATA_TYPE_ITUT_T35,
+                                   kMetadataPayloadT35, kMetadataPayloadSizeT35,
+                                   AOM_MIF_ANY_FRAME),
+              0);
+
+    ASSERT_EQ(aom_img_add_metadata(current_frame, OBU_METADATA_TYPE_HDR_MDCV,
+                                   kMetadataPayloadT35, kMetadataPayloadSizeT35,
+                                   AOM_MIF_KEY_FRAME),
+              0);
+
+    ASSERT_EQ(aom_img_add_metadata(current_frame, OBU_METADATA_TYPE_HDR_CLL,
+                                   kMetadataPayloadCll, kMetadataPayloadSizeCll,
+                                   AOM_MIF_KEY_FRAME),
+              0);
   }
 
   void FramePktHook(const aom_codec_cx_pkt_t *pkt) override {
     if (pkt->kind == AOM_CODEC_CX_FRAME_PKT) {
-      const size_t bitstream_size = pkt->data.frame.sz;
-      const uint8_t *bitstream =
-          static_cast<const uint8_t *>(pkt->data.frame.buf);
-      // look for valid metadatas in bitstream
-      bool itut_t35_metadata_found = false;
-      if (bitstream_size >= kMetadataObuSizeT35) {
-        for (size_t i = 0; i <= bitstream_size - kMetadataObuSizeT35; ++i) {
-          if (memcmp(bitstream + i, kMetadataObuT35, kMetadataObuSizeT35) ==
-              0) {
-            itut_t35_metadata_found = true;
-          }
-        }
-      }
-      ASSERT_EQ(itut_t35_metadata_found, 1u);
+      const bool is_key_frame = (num_seen_frame_pkts_ % cfg_.kf_max_dist) == 0;
+      ++num_seen_frame_pkts_;
 
-      // Testing for HDR MDCV metadata
-      bool hdr_mdcv_metadata_found = false;
-      if (bitstream_size >= kMetadataObuSizeMdcv) {
-        for (size_t i = 0; i <= bitstream_size - kMetadataObuSizeMdcv; ++i) {
-          if (memcmp(bitstream + i, kMetadataObuMdcv, kMetadataObuSizeMdcv) ==
-              0) {
-            hdr_mdcv_metadata_found = true;
-          }
-        }
-      }
-      ASSERT_TRUE(hdr_mdcv_metadata_found);
+      const std::string bitstream(
+          static_cast<const char *>(pkt->data.frame.buf), pkt->data.frame.sz);
+      // Look for valid metadatas in bitstream.
+      const bool itut_t35_metadata_found =
+          bitstream.find(reinterpret_cast<const char *>(kMetadataObuT35), 0,
+                         kMetadataObuSizeT35) != std::string::npos;
+      const bool hdr_mdcv_metadata_found =
+          bitstream.find(reinterpret_cast<const char *>(kMetadataObuMdcv), 0,
+                         kMetadataObuSizeMdcv) != std::string::npos;
+      const bool hdr_cll_metadata_found =
+          bitstream.find(reinterpret_cast<const char *>(kMetadataObuCll), 0,
+                         kMetadataObuSizeCll) != std::string::npos;
 
-      // Testing for HDR CLL metadata
-      bool hdr_cll_metadata_found = false;
-      if (bitstream_size >= kMetadataObuSizeCll) {
-        for (size_t i = 0; i <= bitstream_size - kMetadataObuSizeCll; ++i) {
-          if (memcmp(bitstream + i, kMetadataObuCll, kMetadataObuSizeCll) ==
-              0) {
-            hdr_cll_metadata_found = true;
-          }
-        }
-      }
-      ASSERT_TRUE(hdr_cll_metadata_found);
+      EXPECT_TRUE(itut_t35_metadata_found);
+      EXPECT_EQ(hdr_mdcv_metadata_found, is_key_frame);
+      EXPECT_EQ(hdr_cll_metadata_found, is_key_frame);
     }
   }
 
   void DecompressedFrameHook(const aom_image_t &img,
                              aom_codec_pts_t /*pts*/) override {
+    const bool is_key_frame =
+        (num_decompressed_frames_ % cfg_.kf_max_dist) == 0;
+    ++num_decompressed_frames_;
+
     ASSERT_NE(img.metadata, nullptr);
 
-    ASSERT_EQ(img.metadata->sz, 3u);
+    ASSERT_EQ(img.metadata->sz, is_key_frame ? 3 : 1);
+
+    ASSERT_EQ(OBU_METADATA_TYPE_ITUT_T35,
+              img.metadata->metadata_array[0]->type);
 
     for (size_t i = 0; i < img.metadata->sz - 1; ++i) {
       ASSERT_EQ(kMetadataPayloadSizeT35, img.metadata->metadata_array[i]->sz);
@@ -152,17 +146,27 @@ class MetadataEncodeTest
           0);
     }
 
-    ASSERT_EQ(kMetadataPayloadSizeCll, img.metadata->metadata_array[2]->sz);
-    EXPECT_EQ(
-        memcmp(kMetadataPayloadCll, img.metadata->metadata_array[2]->payload,
-               kMetadataPayloadSizeCll),
-        0);
+    if (is_key_frame) {
+      ASSERT_EQ(OBU_METADATA_TYPE_HDR_MDCV,
+                img.metadata->metadata_array[1]->type);
+      ASSERT_EQ(OBU_METADATA_TYPE_HDR_CLL,
+                img.metadata->metadata_array[2]->type);
+
+      ASSERT_EQ(kMetadataPayloadSizeCll, img.metadata->metadata_array[2]->sz);
+      EXPECT_EQ(
+          memcmp(kMetadataPayloadCll, img.metadata->metadata_array[2]->payload,
+                 kMetadataPayloadSizeCll),
+          0);
+    }
   }
+
+  int num_seen_frame_pkts_ = 0;
+  int num_decompressed_frames_ = 0;
 };
 
 TEST_P(MetadataEncodeTest, TestMetadataEncoding) {
   ::libaom_test::I420VideoSource video("hantro_collage_w352h288.yuv", 352, 288,
-                                       30, 1, 0, 5);
+                                       30, 1, 0, 10);
   init_flags_ = AOM_CODEC_USE_PSNR;
 
   cfg_.g_w = 352;
@@ -175,14 +179,10 @@ TEST_P(MetadataEncodeTest, TestMetadataEncoding) {
   cfg_.rc_max_quantizer = 56;
   cfg_.rc_undershoot_pct = 50;
   cfg_.rc_overshoot_pct = 50;
-  cfg_.rc_end_usage = AOM_CBR;
   cfg_.kf_mode = AOM_KF_AUTO;
   cfg_.g_lag_in_frames = 1;
-  cfg_.kf_min_dist = cfg_.kf_max_dist = 3000;
-  // Enable dropped frames.
-  cfg_.rc_dropframe_thresh = 1;
-  // Disable error_resilience mode.
-  cfg_.g_error_resilient = 0;
+  cfg_.kf_min_dist = cfg_.kf_max_dist = 5;
+  cfg_.rc_dropframe_thresh = 0;
   // Run at low bitrate.
   cfg_.rc_target_bitrate = 40;
 
@@ -192,7 +192,182 @@ TEST_P(MetadataEncodeTest, TestMetadataEncoding) {
 AV1_INSTANTIATE_TEST_SUITE(MetadataEncodeTest,
                            ::testing::Values(::libaom_test::kOnePassGood));
 #endif  // !CONFIG_REALTIME_ONLY
+
+class MetadataMultilayerEncodeTest
+    : public ::libaom_test::CodecTestWithParam<libaom_test::TestMode>,
+      public ::libaom_test::EncoderTest {
+ protected:
+  MetadataMultilayerEncodeTest() : EncoderTest(GET_PARAM(0)) {}
+
+  ~MetadataMultilayerEncodeTest() override = default;
+
+  static const int kNumSpatialLayers = 3;
+
+  void SetUp() override { InitializeConfig(GET_PARAM(1)); }
+
+  int GetNumSpatialLayers() override { return kNumSpatialLayers; }
+
+  void initialize_svc(aom_svc_params *svc_params) {
+    svc_params->number_spatial_layers = kNumSpatialLayers;
+    svc_params->number_temporal_layers = 1;
+    for (int i = 0; i < kNumSpatialLayers; ++i) {
+      svc_params->max_quantizers[i] = 60;
+      svc_params->min_quantizers[i] = 2;
+    }
+
+    svc_params->framerate_factor[0] = 1;
+
+    svc_params->layer_target_bitrate[0] = 30 * cfg_.rc_target_bitrate / 100;
+    svc_params->layer_target_bitrate[1] = 60 * cfg_.rc_target_bitrate / 100;
+    svc_params->layer_target_bitrate[2] = cfg_.rc_target_bitrate;
+
+    svc_params->scaling_factor_num[0] = 1;
+    svc_params->scaling_factor_den[0] = 4;
+    svc_params->scaling_factor_num[1] = 1;
+    svc_params->scaling_factor_den[1] = 2;
+    svc_params->scaling_factor_num[2] = 1;
+    svc_params->scaling_factor_den[2] = 1;
+  }
+
+  void PreEncodeFrameHook(::libaom_test::VideoSource *video,
+                          ::libaom_test::Encoder *encoder) override {
+    aom_image_t *current_frame = video->img();
+    if (!current_frame) {
+      return;
+    }
+
+    // video->frame() is called every superframe, so we should condition
+    // this on num_encoded_frames_ = 0, so we only do this once on the very
+    // first frame.
+    aom_svc_params svc_params = {};
+    if (video->frame() == 0 && num_encoded_frames_ == 0) {
+      encoder->Control(AOME_SET_CPUUSED, 6);
+      initialize_svc(&svc_params);
+      encoder->Control(AV1E_SET_SVC_PARAMS, &svc_params);
+    }
+
+    const int spatial_layer_id = num_encoded_frames_ % 3;
+    aom_svc_layer_id_t layer_id = { spatial_layer_id, 0 };
+    encoder->Control(AV1E_SET_SVC_LAYER_ID, &layer_id);
+
+    if (current_frame->metadata) aom_img_remove_metadata(current_frame);
+
+    // Layer-specific ITU T35 metadata.
+    ASSERT_EQ(aom_img_add_metadata(
+                  current_frame, OBU_METADATA_TYPE_ITUT_T35,
+                  kMetadataPayloadT35, kMetadataPayloadSizeT35,
+                  (aom_metadata_insert_flags_t)(AOM_MIF_ANY_FRAME |
+                                                AOM_MIF_LAYER_SPECIFIC)),
+              0);
+
+    ASSERT_EQ(aom_img_add_metadata(current_frame, OBU_METADATA_TYPE_HDR_MDCV,
+                                   kMetadataPayloadT35, kMetadataPayloadSizeT35,
+                                   AOM_MIF_KEY_FRAME),
+              0);
+
+    ASSERT_EQ(aom_img_add_metadata(current_frame, OBU_METADATA_TYPE_HDR_CLL,
+                                   kMetadataPayloadCll, kMetadataPayloadSizeCll,
+                                   AOM_MIF_KEY_FRAME),
+              0);
+
+    num_encoded_frames_++;
+  }
+
+  void FramePktHook(const aom_codec_cx_pkt_t *pkt) override {
+    if (pkt->kind == AOM_CODEC_CX_FRAME_PKT) {
+      const bool is_key_frame = (num_seen_frame_pkts_ == 0);
+      const int spatial_layer_id = (num_seen_frame_pkts_ % kNumSpatialLayers);
+      ++num_seen_frame_pkts_;
+
+      const std::string bitstream(
+          static_cast<const char *>(pkt->data.frame.buf), pkt->data.frame.sz);
+
+      // Change expected ITU T.35 metadata to add the layer id.
+      const uint8_t obu_extension_header = (spatial_layer_id << 3);
+      std::string expected_t35_metadata = std::string(
+          reinterpret_cast<const char *>(kMetadataObuT35), kMetadataObuSizeT35);
+      // Set obu_extension_flag.
+      expected_t35_metadata[0] = (expected_t35_metadata[0] | (1 << 2));
+      // Add obu_extension_header.
+      expected_t35_metadata.insert(1, 1, obu_extension_header);
+
+      // Look for valid metadatas in bitstream.
+      const bool itut_t35_metadata_found =
+          bitstream.find(expected_t35_metadata) != std::string::npos;
+      const bool hdr_mdcv_metadata_found =
+          bitstream.find(reinterpret_cast<const char *>(kMetadataObuMdcv), 0,
+                         kMetadataObuSizeMdcv) != std::string::npos;
+      const bool hdr_cll_metadata_found =
+          bitstream.find(reinterpret_cast<const char *>(kMetadataObuCll), 0,
+                         kMetadataObuSizeCll) != std::string::npos;
+
+      EXPECT_TRUE(itut_t35_metadata_found);
+      EXPECT_EQ(hdr_mdcv_metadata_found, is_key_frame);
+      EXPECT_EQ(hdr_cll_metadata_found, is_key_frame);
+    }
+  }
+
+  void DecompressedFrameHook(const aom_image_t &img,
+                             aom_codec_pts_t /*pts*/) override {
+    const bool is_key_frame = (num_decompressed_frames_ == 0);
+
+    ++num_decompressed_frames_;
+
+    ASSERT_NE(img.metadata, nullptr);
+
+    ASSERT_EQ(img.metadata->sz, is_key_frame ? 3 : 1);
+
+    ASSERT_EQ(OBU_METADATA_TYPE_ITUT_T35,
+              img.metadata->metadata_array[0]->type);
+
+    for (size_t i = 0; i < img.metadata->sz - 1; ++i) {
+      ASSERT_EQ(kMetadataPayloadSizeT35, img.metadata->metadata_array[i]->sz);
+      EXPECT_EQ(
+          memcmp(kMetadataPayloadT35, img.metadata->metadata_array[i]->payload,
+                 kMetadataPayloadSizeT35),
+          0);
+    }
+
+    if (is_key_frame) {
+      ASSERT_EQ(OBU_METADATA_TYPE_HDR_MDCV,
+                img.metadata->metadata_array[1]->type);
+      ASSERT_EQ(OBU_METADATA_TYPE_HDR_CLL,
+                img.metadata->metadata_array[2]->type);
+
+      ASSERT_EQ(kMetadataPayloadSizeCll, img.metadata->metadata_array[2]->sz);
+      EXPECT_EQ(
+          memcmp(kMetadataPayloadCll, img.metadata->metadata_array[2]->payload,
+                 kMetadataPayloadSizeCll),
+          0);
+    }
+  }
+
+  int num_encoded_frames_ = 0;
+  int num_seen_frame_pkts_ = 0;
+  int num_decompressed_frames_ = 0;
+  std::string buffer_;
+};
+
 }  // namespace
+
+TEST_P(MetadataMultilayerEncodeTest, Test) {
+  cfg_.rc_buf_initial_sz = 500;
+  cfg_.rc_buf_optimal_sz = 500;
+  cfg_.rc_buf_sz = 1000;
+  cfg_.rc_dropframe_thresh = 0;
+  cfg_.rc_min_quantizer = 0;
+  cfg_.rc_max_quantizer = 63;
+  cfg_.g_lag_in_frames = 0;
+  cfg_.g_error_resilient = 0;
+  cfg_.rc_target_bitrate = 1200;
+
+  ::libaom_test::I420VideoSource video("hantro_collage_w352h288.yuv", 352, 288,
+                                       30, 1, 0, /*limit=*/10);
+  ASSERT_NO_FATAL_FAILURE(RunLoop(&video));
+}
+
+AV1_INSTANTIATE_TEST_SUITE(MetadataMultilayerEncodeTest,
+                           ::testing::Values(::libaom_test::kRealTime));
 
 TEST(MetadataTest, MetadataAllocation) {
   aom_metadata_t *metadata =
@@ -229,6 +404,33 @@ TEST(MetadataTest, AddMetadataToImage) {
                                  kMetadataPayloadT35, kMetadataPayloadSizeT35,
                                  AOM_MIF_ANY_FRAME),
             -1);
+}
+
+TEST(MetadataTest, AddLayerSpecificMetadataToImage) {
+  aom_image_t image;
+  image.metadata = nullptr;
+
+  ASSERT_EQ(aom_img_add_metadata(
+                &image, OBU_METADATA_TYPE_ITUT_T35, kMetadataPayloadT35,
+                kMetadataPayloadSizeT35,
+                (aom_metadata_insert_flags_t)(AOM_MIF_ANY_FRAME |
+                                              AOM_MIF_LAYER_SPECIFIC)),
+            0);
+  aom_img_metadata_array_free(image.metadata);
+}
+
+TEST(MetadataTest, AddLayerSpecificMetadataToImageNotAllowed) {
+  aom_image_t image;
+  image.metadata = nullptr;
+
+  // OBU_METADATA_TYPE_HDR_CLL cannot be layer specific.
+  ASSERT_EQ(aom_img_add_metadata(
+                &image, OBU_METADATA_TYPE_HDR_CLL, kMetadataPayloadT35,
+                kMetadataPayloadSizeT35,
+                (aom_metadata_insert_flags_t)(AOM_MIF_ANY_FRAME |
+                                              AOM_MIF_LAYER_SPECIFIC)),
+            -1);
+  aom_img_metadata_array_free(image.metadata);
 }
 
 TEST(MetadataTest, RemoveMetadataFromImage) {
