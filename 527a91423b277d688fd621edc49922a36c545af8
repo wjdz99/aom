@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8f97d463_4d43e080",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-11-15T21:54:35Z",
+      "side": 1,
+      "message": "Nit: In the commit message (and possibly in comments in the source code), clarify what about chroma we are decreasing. I think we are decreasing chroma quality. Or we can say \"Increase AC chroma delta_q\".",
+      "revId": "527a91423b277d688fd621edc49922a36c545af8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "65238a8a_8a673e8f",
+        "filename": "av1/encoder/av1_quantize.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 903,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-11-15T21:54:35Z",
+      "side": 1,
+      "message": "Nit: decrease ramp-down \u003d\u003e ramp-down of chroma decrease ?\n\nThe important thing is to add \"chroma\" to clarify what \"decrease\" refers to.",
+      "revId": "527a91423b277d688fd621edc49922a36c545af8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
