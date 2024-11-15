@@ -435,59 +435,59 @@ static const struct av1_extracfg default_extra_cfg = {
   NULL,                         // film_grain_table_filename
   0,                            // motion_vector_unit_test
 #if CONFIG_FPMT_TEST
-  0,                            // fpmt_unit_test
+  0,  // fpmt_unit_test
 #endif
-  1,                            // CDF update mode
-  0,                            // enable rectangular partitions
-  0,                            // enable ab shape partitions
-  0,                            // enable 1:4 and 4:1 partitions
-  4,                            // min_partition_size
-  128,                          // max_partition_size
-  0,                            // enable intra edge filter
-  0,                            // frame order hint
-  0,                            // enable 64-pt transform usage
-  1,                            // enable flip and identity transform
-  1,                            // enable rectangular transform usage
-  0,                            // dist-wtd compound
-  3,                            // max_reference_frames
-  0,                            // enable_reduced_reference_set
-  0,                            // enable_ref_frame_mvs sequence level
-  0,                            // allow ref_frame_mvs frame level
-  0,                            // enable masked compound at sequence level
-  0,                            // enable one sided compound at sequence level
-  0,                            // enable interintra compound at sequence level
-  0,                            // enable smooth interintra mode
-  0,                            // enable difference-weighted compound
-  0,                            // enable interinter wedge compound
-  0,                            // enable interintra wedge compound
-  0,                            // enable_global_motion usage
-  0,                            // enable_warped_motion at sequence level
-  0,                            // allow_warped_motion at frame level
-  0,                            // enable filter intra at sequence level
-  0,                            // enable smooth intra modes usage for sequence
-  0,                            // enable Paeth intra mode usage for sequence
-  0,                            // enable CFL uv intra mode usage for sequence
-  1,   // enable directional intra mode usage for sequence
-  1,   // enable D45 to D203 intra mode usage for sequence
-  0,   // superres
-  0,   // enable overlay
-  1,   // enable palette
-  0,   // enable intrabc
-  0,   // enable angle delta
+  1,    // CDF update mode
+  0,    // enable rectangular partitions
+  0,    // enable ab shape partitions
+  0,    // enable 1:4 and 4:1 partitions
+  4,    // min_partition_size
+  128,  // max_partition_size
+  0,    // enable intra edge filter
+  0,    // frame order hint
+  0,    // enable 64-pt transform usage
+  1,    // enable flip and identity transform
+  1,    // enable rectangular transform usage
+  0,    // dist-wtd compound
+  3,    // max_reference_frames
+  0,    // enable_reduced_reference_set
+  0,    // enable_ref_frame_mvs sequence level
+  0,    // allow ref_frame_mvs frame level
+  0,    // enable masked compound at sequence level
+  0,    // enable one sided compound at sequence level
+  0,    // enable interintra compound at sequence level
+  0,    // enable smooth interintra mode
+  0,    // enable difference-weighted compound
+  0,    // enable interinter wedge compound
+  0,    // enable interintra wedge compound
+  0,    // enable_global_motion usage
+  0,    // enable_warped_motion at sequence level
+  0,    // allow_warped_motion at frame level
+  0,    // enable filter intra at sequence level
+  0,    // enable smooth intra modes usage for sequence
+  0,    // enable Paeth intra mode usage for sequence
+  0,    // enable CFL uv intra mode usage for sequence
+  1,    // enable directional intra mode usage for sequence
+  1,    // enable D45 to D203 intra mode usage for sequence
+  0,    // superres
+  0,    // enable overlay
+  1,    // enable palette
+  0,    // enable intrabc
+  0,    // enable angle delta
 #if CONFIG_DENOISE
   0,   // noise_level
   32,  // noise_block_size
   1,   // enable_dnl_denoising
 #endif
-  0,   // chroma_subsampling_x
-  0,   // chroma_subsampling_y
-  0,   // reduced_tx_type_set
-  0,   // use_intra_dct_only
-  0,   // use_inter_dct_only
-  1,   // use_intra_default_tx_only
-  1,   // enable_tx_size_search
-  0,   // quant_b_adapt
-  0,   // vbr_corpus_complexity_lap
+  0,  // chroma_subsampling_x
+  0,  // chroma_subsampling_y
+  0,  // reduced_tx_type_set
+  0,  // use_intra_dct_only
+  0,  // use_inter_dct_only
+  1,  // use_intra_default_tx_only
+  1,  // enable_tx_size_search
+  0,  // quant_b_adapt
+  0,  // vbr_corpus_complexity_lap
   {
       SEQ_LEVEL_MAX, SEQ_LEVEL_MAX, SEQ_LEVEL_MAX, SEQ_LEVEL_MAX, SEQ_LEVEL_MAX,
       SEQ_LEVEL_MAX, SEQ_LEVEL_MAX, SEQ_LEVEL_MAX, SEQ_LEVEL_MAX, SEQ_LEVEL_MAX,
@@ -3498,7 +3498,8 @@ static aom_codec_err_t encoder_encode(aom_codec_alg_priv_t *ctx,
         obu_header_size = av1_write_obu_header(
             &ppi->level_params, &cpi->frame_header_count,
             OBU_TEMPORAL_DELIMITER,
-            ppi->seq_params.has_nonzero_operating_point_idc, 0, ctx->cx_data);
+            ppi->seq_params.has_nonzero_operating_point_idc,
+            /*is_layer_specific_obu=*/false, 0, ctx->cx_data);
         if (obu_header_size != 1) {
           aom_internal_error(&ppi->error, AOM_CODEC_ERROR, NULL);
         }
