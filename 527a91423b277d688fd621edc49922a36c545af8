@@ -113,6 +113,24 @@
       "message": "Does \"score better\" mean \"get better SSIMULACRS2 scores\"?\n\nWhat does \"in an absolute sense\" mean here?",
       "revId": "527a91423b277d688fd621edc49922a36c545af8",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c97efe43_60a8faaa",
+        "filename": "av1/encoder/av1_quantize.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 904,
+      "author": {
+        "id": 3678645
+      },
+      "writtenOn": "2024-11-16T01:24:46Z",
+      "side": 1,
+      "message": "If you encode something with (lossy) QP 0, the best SSIMU2 score you can ever get (by definition) is with no chroma delta_q adjustment, because otherwise the encoder will necessarily have to throw out more chroma information, resulting in a scoring loss. Unlike with QMs, the scoring difference between chroma delta_q on and off at QP 0 can be significant, at around ~1 SSIMU2 point (because of a lower absolute score ceiling, not efficiency-per-bitrate reasons).\n\nAll of the above means that there needs to be a way to keep QP 0 \"maximum quality\". However, we also don\u0027t want to turn on/off chroma delta_q adjustment within any two consecutive QPs, because resulting file size differences can be very big and unexpected by the user. The ramp-down allows a compromise between preserving the QP 0 \"highest-score-no-matter-what\" behavior, while smoothly and incrementally enabling AC chroma boosting as QP increases, so files encoded at the SSIMU2 ~90 level still benefit from the efficiency improvements.\n\nHope this makes sense.",
+      "parentUuid": "a3317094_14c77efc",
+      "revId": "527a91423b277d688fd621edc49922a36c545af8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
