@@ -18,6 +18,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "24717fcb_878cb386",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 3678645
+      },
+      "writtenOn": "2024-11-18T22:08:46Z",
+      "side": 1,
+      "message": "Will do, thanks for the confirmation.",
+      "parentUuid": "00010e66_06f71e46",
+      "revId": "3226e88417188b68cb16bf15c62516ed9b51bebe",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "4a20e73c_f6493a5e",
@@ -31,6 +49,24 @@
       "writtenOn": "2024-11-18T21:55:04Z",
       "side": 1,
       "message": "Remove this paragraph.",
+      "revId": "3226e88417188b68cb16bf15c62516ed9b51bebe",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "35b5fbad_fc617728",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 3678645
+      },
+      "writtenOn": "2024-11-18T22:08:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4a20e73c_f6493a5e",
       "revId": "3226e88417188b68cb16bf15c62516ed9b51bebe",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
