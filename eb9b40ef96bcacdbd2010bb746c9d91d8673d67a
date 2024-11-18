@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0072700b_95b283ef",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 682,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-11-18T20:30:55Z",
+      "side": 1,
+      "message": "Nit: Avoid the abbreviation \"AI\". How about just \"deltaq_mode \u003d 3\"?\n\nAlternatively we can use something based on the description of DELTA_Q_PERCEPTUAL_AI in comments \"Perceptual quality opt for all intra mode\" or help message \"key frame visual quality\".",
+      "revId": "eb9b40ef96bcacdbd2010bb746c9d91d8673d67a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
