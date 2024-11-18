@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "00010e66_06f71e46",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-11-18T21:55:04Z",
+      "side": 1,
+      "message": "The DeltaqModeTest.DeltaqMode3MultiThread test failed. I suggest undoing the deltaq-mode\u003d3 changes in this CL.",
+      "revId": "3226e88417188b68cb16bf15c62516ed9b51bebe",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4a20e73c_f6493a5e",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-11-18T21:55:04Z",
+      "side": 1,
+      "message": "Remove this paragraph.",
+      "revId": "3226e88417188b68cb16bf15c62516ed9b51bebe",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
