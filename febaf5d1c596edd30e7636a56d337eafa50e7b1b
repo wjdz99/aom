@@ -151,6 +151,24 @@
       "parentUuid": "2a6344d6_913f4725",
       "revId": "febaf5d1c596edd30e7636a56d337eafa50e7b1b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1135e3d9_d6401a59",
+        "filename": "av1/encoder/av1_quantize.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 908,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-11-18T20:54:28Z",
+      "side": 1,
+      "message": "I thought you may have written it this way for clarity. The reason I suggested removing this was that comments like \"Raising chroma AC delta_q by 24\" were written with respect to the initialization of chroma delta_q to 0 at lines 877-878.  (Otherwise we would have written the quoted comment as \"Setting chroma AC delta_q to 24\".) So we could leave chroma DC delta_q at its initial value.",
+      "parentUuid": "9d6e35e0_b32573c6",
+      "revId": "febaf5d1c596edd30e7636a56d337eafa50e7b1b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
