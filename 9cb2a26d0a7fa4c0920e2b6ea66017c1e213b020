@@ -3,6 +3,40 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "d2f5da57_dc42a8c5",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 2500,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-11-18T18:16:32Z",
+      "side": 1,
+      "message": "I suggest moving this check into the `validate_config()` function, which is called by `update_extra_cfg()` (called at line 2503). Otherwise we need to duplicate this check in `encoder_set_option()` at line 4212.\n\nCheng: should we also restrict `DELTA_Q_PERCEPTUAL_AI` to all intra mode?",
+      "revId": "9cb2a26d0a7fa4c0920e2b6ea66017c1e213b020",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c78f51f2_16a43c43",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 4212,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-11-18T18:16:32Z",
+      "side": 1,
+      "message": "`--deltaq-mode\u003d6` can also be set here (by calling `aom_codec_set_option()`.",
+      "revId": "9cb2a26d0a7fa4c0920e2b6ea66017c1e213b020",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "958d2fe7_1d7c138b",
         "filename": "av1/encoder/encoder_utils.c",
         "patchSetId": 1
@@ -14,6 +48,30 @@
       "writtenOn": "2024-11-15T23:02:34Z",
       "side": 1,
       "message": "Note to reviewer: I split this check into its own because Variance Boost only supports 64x64 superblocks, while the other delta_q modes above can support 128x128 superblocks, but they\u0027re configured to use 64x64 superblocks for all intra mode.",
+      "range": {
+        "startLine": 838,
+        "startChar": 0,
+        "endLine": 840,
+        "endChar": 3
+      },
+      "revId": "9cb2a26d0a7fa4c0920e2b6ea66017c1e213b020",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ce90c9d7_214a9cce",
+        "filename": "av1/encoder/encoder_utils.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 840,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-11-18T18:16:32Z",
+      "side": 1,
+      "message": "I believe those two delta_q modes only work in all intra mode. One of them, `DELTA_Q_PERCEPTUAL_AI`, even encodes \"AI\" in its name.\n\n`DELTA_Q_USER_RATING_BASED` has only been used in all intra mode for images and key frames. Although the original author had plans to extend it to video, he has since left our team, so this is unlikely to happen.",
+      "parentUuid": "958d2fe7_1d7c138b",
       "range": {
         "startLine": 838,
         "startChar": 0,
