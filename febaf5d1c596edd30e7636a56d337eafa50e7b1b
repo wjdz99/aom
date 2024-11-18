@@ -24,6 +24,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "cf771428_edb71c8f",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 3678645
+      },
+      "writtenOn": "2024-11-18T20:36:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fe59773b_1d6a455b",
+      "range": {
+        "startLine": 9,
+        "startChar": 0,
+        "endLine": 9,
+        "endChar": 8
+      },
+      "revId": "febaf5d1c596edd30e7636a56d337eafa50e7b1b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "11e69187_80a2a066",
@@ -37,6 +61,24 @@
       "writtenOn": "2024-11-18T20:06:22Z",
       "side": 1,
       "message": "Nit: It is still not clear what \"chroma boost\" and \"chroma decrease\" mean, i.e., what is it about chroma that is boosted or decreased.\n\nhttps://www.quora.com/What-is-chroma-boost-in-mobile",
+      "revId": "febaf5d1c596edd30e7636a56d337eafa50e7b1b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bdbfee98_1db49fcc",
+        "filename": "av1/encoder/av1_quantize.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 882,
+      "author": {
+        "id": 3678645
+      },
+      "writtenOn": "2024-11-18T20:36:57Z",
+      "side": 1,
+      "message": "I rephrased those sections so it\u0027s now clear the concepts they\u0027re referring to.",
+      "parentUuid": "11e69187_80a2a066",
       "revId": "febaf5d1c596edd30e7636a56d337eafa50e7b1b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -58,6 +100,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "85368df2_75ccba71",
+        "filename": "av1/encoder/av1_quantize.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 903,
+      "author": {
+        "id": 3678645
+      },
+      "writtenOn": "2024-11-18T20:36:57Z",
+      "side": 1,
+      "message": "QP 0 (without `--lossless`) is lossy, and currently appears to be aliased to QP 1 (both result in the exact same file sizes).",
+      "parentUuid": "587249b8_e36448cd",
+      "revId": "febaf5d1c596edd30e7636a56d337eafa50e7b1b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "2a6344d6_913f4725",
@@ -71,6 +131,24 @@
       "writtenOn": "2024-11-18T20:06:22Z",
       "side": 1,
       "message": "Nit/optional: This can be omitted.",
+      "revId": "febaf5d1c596edd30e7636a56d337eafa50e7b1b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9d6e35e0_b32573c6",
+        "filename": "av1/encoder/av1_quantize.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 908,
+      "author": {
+        "id": 3678645
+      },
+      "writtenOn": "2024-11-18T20:36:57Z",
+      "side": 1,
+      "message": "I\u0027d like to keep it explicitly set, to drive the point that it\u0027s intentional we\u0027re not adjusting chroma DC delta_q for 4:4:4, instead of just inheriting the initialized value.",
+      "parentUuid": "2a6344d6_913f4725",
       "revId": "febaf5d1c596edd30e7636a56d337eafa50e7b1b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
