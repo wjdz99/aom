@@ -168,6 +168,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "6c0383b4_2f928d9d",
+        "filename": "av1/encoder/tpl_model.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1383,
+      "author": {
+        "id": 3678645
+      },
+      "writtenOn": "2024-11-19T22:14:53Z",
+      "side": 1,
+      "message": "Currently, `AOM_TUNE_SSIMULACRA2` does indeed only work for all intra mode (and expected to stay that way at least over the near future).\n\nIf we\u0027re worried about the TPL model having to worry about knowing the tuning before (what `av1_compute_rd_mult()` takes a decision on, not whether it\u0027s using all intra mode, in this particular case), I could provide an overload of the function that assumes no `rdmult` tweaks are needed just for TPL.\n\nAlternatively, I could modify `av1_compute_rd_mult()` so it passes a boolean (e.g. `bool bias_rdo`) instead, and have all TPL calls pass in `false`. But this leaks an implementation detail to its callers, so this suggestion isn\u0027t 100% tight either.\n\nWhat do you think?",
+      "parentUuid": "39079987_6615fda3",
+      "range": {
+        "startLine": 1383,
+        "startChar": 38,
+        "endLine": 1383,
+        "endChar": 63
+      },
+      "revId": "35af40b788dea6dc42830994d533d86adf7a2c51",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "4f56be3c_ae6bca1a",
         "filename": "av1/encoder/txb_rdopt.c",
         "patchSetId": 3
