@@ -192,6 +192,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "dcc88a38_6a67dbfd",
+        "filename": "av1/encoder/tpl_model.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1383,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2024-11-19T22:29:45Z",
+      "side": 1,
+      "message": "I think there is an easier way.\nWe can add an assertion here and document TPL be in all intra mode. For example:\n\nassert(cpi-\u003eoxcf.tune_cfg.tuning !\u003d AOM_TUNE_SSIMULACRA2 \u0026\u0026 cpi-\u003eoxcf.mode !\u003d ALLINTRA);",
+      "parentUuid": "6c0383b4_2f928d9d",
+      "range": {
+        "startLine": 1383,
+        "startChar": 38,
+        "endLine": 1383,
+        "endChar": 63
+      },
+      "revId": "35af40b788dea6dc42830994d533d86adf7a2c51",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "4f56be3c_ae6bca1a",
         "filename": "av1/encoder/txb_rdopt.c",
         "patchSetId": 3
@@ -257,6 +281,24 @@
       "side": 1,
       "message": "Sure thing, the two changes were counterintuitive for me at first too, but they make sense after some analysis in aomanalyzer:\n\n1. The change in rd.c that increases rdmult has the effect of biasing RDO decisions towards picking transform types/sizes/partitions that lie on the lower bitrate side. The main side effect is that the encoder ends up picking the next largest transforms slightly more often (e.g. one 16x16 block instead of four 8x8 blocks).\n\n2. The trellis change then acts as a \"counterweight\" to the decrease in bitrate expenditure by 1., and biases the encoder towards keeping more coefficients on average (from the larger blocks due to 1.), increasing bitrate.\n\nEach change in isolation doesn\u0027t really make a dent on image quality, but when both are combined, bitrate allocation is modified between blocks/coefficients in a way that slightly increases overall quality (mostly in texture detail preservation), once file sizes are normalized.",
       "parentUuid": "68e69f50_735c6ae7",
+      "revId": "35af40b788dea6dc42830994d533d86adf7a2c51",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b0695513_ea3eb61f",
+        "filename": "av1/encoder/txb_rdopt.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 342,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2024-11-19T22:29:45Z",
+      "side": 1,
+      "message": "Thanks for the explanation.\n\nThe explanation of 1 and 2 makes perfect sense to me.\nYou also mentioned that either of them do not make much change on image quality. But a combination works. This observation is interesting. \n\nCould you please put the comment around rshift so that we know the change is a joint effect? Thanks.",
+      "parentUuid": "6aaf67cd_904befa0",
       "revId": "35af40b788dea6dc42830994d533d86adf7a2c51",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
