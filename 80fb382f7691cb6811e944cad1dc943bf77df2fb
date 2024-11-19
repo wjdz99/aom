@@ -39,6 +39,88 @@
       },
       "revId": "80fb382f7691cb6811e944cad1dc943bf77df2fb",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d30a3d4e_fde99efd",
+        "filename": "av1/common/quant_common.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2024-11-19T21:44:03Z",
+      "side": 1,
+      "message": "Please specify this function is for 4:4:4 subsampling, even though one might be able to figure it out from the function name, or context.\n\nSuggest change:\n// Chroma QM levels for 4:4:4 subsampling tuned for SSIMULACRA 2.",
+      "range": {
+        "startLine": 92,
+        "startChar": 3,
+        "endLine": 92,
+        "endChar": 47
+      },
+      "fixSuggestions": [
+        {
+          "fixId": "7593d152_8ba36dce",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "av1/common/quant_common.h",
+              "range": {
+                "startLine": 92,
+                "startChar": 0,
+                "endLine": 93,
+                "endChar": 0
+              },
+              "replacement": "// Chroma QM levels for 4:4:4 subsampling tuned for SSIMULACRA 2 tune\n"
+            }
+          ]
+        }
+      ],
+      "revId": "80fb382f7691cb6811e944cad1dc943bf77df2fb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "26cc7e99_66205902",
+        "filename": "av1/common/quant_common.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2024-11-19T21:44:03Z",
+      "side": 1,
+      "message": "Suggestion:\nIf someone is not very familiar with the QM levels, they can not immediately figure out the meaning of QM levels.\n\nCould you add some brief description such that one can easily get the basic idea of the function?\n\nFor example, low QM levels mean more homogeneous quantization, high QM levels mean more skewed quantization?\n\nIf such documentation already exists somewhere, we can also just refer to that.\n\nThat could help the readers or future developers.",
+      "range": {
+        "startLine": 118,
+        "startChar": 3,
+        "endLine": 118,
+        "endChar": 24
+      },
+      "fixSuggestions": [
+        {
+          "fixId": "522b1d04_d419be07",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "av1/common/quant_common.h",
+              "range": {
+                "startLine": 96,
+                "startChar": 0,
+                "endLine": 97,
+                "endChar": 0
+              },
+              "replacement": "// check. This is a decreasing function in qindex. The QM levels are\n// 2, 3, 4, 5, 6, 7, 8, 9, 10.\n"
+            }
+          ]
+        }
+      ],
+      "revId": "80fb382f7691cb6811e944cad1dc943bf77df2fb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
