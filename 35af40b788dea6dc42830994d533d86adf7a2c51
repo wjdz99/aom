@@ -20,6 +20,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "e184a203_0e769276",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 3678645
+      },
+      "writtenOn": "2024-11-19T23:49:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b25b9e2e_67a307a2",
+      "revId": "35af40b788dea6dc42830994d533d86adf7a2c51",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "5280274f_cc3bee4f",
         "filename": "/PATCHSET_LEVEL",
         "patchSetId": 3
@@ -52,6 +70,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "edfef9da_ee42007b",
+        "filename": "av1/encoder/rd.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 410,
+      "author": {
+        "id": 3678645
+      },
+      "writtenOn": "2024-11-19T23:49:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "db2ec2f8_d44d1f83",
+      "revId": "35af40b788dea6dc42830994d533d86adf7a2c51",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "387bf4ac_0b925253",
@@ -65,6 +101,24 @@
       "writtenOn": "2024-11-19T21:08:30Z",
       "side": 1,
       "message": "IMPORTANT: Cast to `int64_t`, not `int`. See the code above.\n\nUnless `rdmult` is very close to `INT64_MAX`, we can also just do integer arithmetic:\n\n```\n    rdmult \u003d rdmult * weight / 128;\n```",
+      "revId": "35af40b788dea6dc42830994d533d86adf7a2c51",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "21eb5875_5f3c905b",
+        "filename": "av1/encoder/rd.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 411,
+      "author": {
+        "id": 3678645
+      },
+      "writtenOn": "2024-11-19T23:49:23Z",
+      "side": 1,
+      "message": "Good eye, changed cast to `int64_t`.\n\nIf it\u0027s okay, I\u0027ll keep the calculation in `double` precision, to keep it in line with the other frame type adjustments above.",
+      "parentUuid": "387bf4ac_0b925253",
       "revId": "35af40b788dea6dc42830994d533d86adf7a2c51",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -86,6 +140,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "21b89ece_0065ca68",
+        "filename": "av1/encoder/rd.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 441,
+      "author": {
+        "id": 3678645
+      },
+      "writtenOn": "2024-11-19T23:49:23Z",
+      "side": 1,
+      "message": "I think it makes sense to guard it in a similar way. A pre-scaled `rdmult` that it\u0027s below `INT_MAX` can potentially overflow once scaled by `rd_layer_depth_factor[]`, where its factors are always over unity, and the ARF boost can only make `rdmult` even larger.",
+      "parentUuid": "28089a3a_a3e286b2",
+      "revId": "35af40b788dea6dc42830994d533d86adf7a2c51",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ef1a3dcb_6a77491b",
@@ -99,6 +171,24 @@
       "writtenOn": "2024-11-19T21:08:30Z",
       "side": 1,
       "message": "Nit: Remove the `int` cast. `av1_compute_rd_mult()` returns an `int`.",
+      "revId": "35af40b788dea6dc42830994d533d86adf7a2c51",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "afa44ded_c1006487",
+        "filename": "av1/encoder/rd.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 496,
+      "author": {
+        "id": 3678645
+      },
+      "writtenOn": "2024-11-19T23:49:23Z",
+      "side": 1,
+      "message": "In this case, the expression is casting (`av1_compute_rd_mult() / beta`), where `beta` is a `double`, so the explicit cast to `int` is needed to avoid an implicit conversion compiler warning.",
+      "parentUuid": "ef1a3dcb_6a77491b",
       "revId": "35af40b788dea6dc42830994d533d86adf7a2c51",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -126,6 +216,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "fe3b7499_6e186d26",
+        "filename": "av1/encoder/rd.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 235,
+      "author": {
+        "id": 3678645
+      },
+      "writtenOn": "2024-11-19T23:49:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "700bae9f_07a5c65e",
+      "range": {
+        "startLine": 235,
+        "startChar": 36,
+        "endLine": 235,
+        "endChar": 49
+      },
+      "revId": "35af40b788dea6dc42830994d533d86adf7a2c51",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "9d3a14d8_be66270f",
@@ -139,6 +253,24 @@
       "writtenOn": "2024-11-19T21:08:30Z",
       "side": 1,
       "message": "Remove the `int` cast.",
+      "revId": "35af40b788dea6dc42830994d533d86adf7a2c51",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3dd9de4b_0b6ff412",
+        "filename": "av1/encoder/tpl_model.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1379,
+      "author": {
+        "id": 3678645
+      },
+      "writtenOn": "2024-11-19T23:49:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9d3a14d8_be66270f",
       "revId": "35af40b788dea6dc42830994d533d86adf7a2c51",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -204,6 +336,30 @@
       "side": 1,
       "message": "I think there is an easier way.\nWe can add an assertion here and document TPL be in all intra mode. For example:\n\nassert(cpi-\u003eoxcf.tune_cfg.tuning !\u003d AOM_TUNE_SSIMULACRA2 \u0026\u0026 cpi-\u003eoxcf.mode !\u003d ALLINTRA);",
       "parentUuid": "6c0383b4_2f928d9d",
+      "range": {
+        "startLine": 1383,
+        "startChar": 38,
+        "endLine": 1383,
+        "endChar": 63
+      },
+      "revId": "35af40b788dea6dc42830994d533d86adf7a2c51",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e8b0e89c_2668d85e",
+        "filename": "av1/encoder/tpl_model.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1383,
+      "author": {
+        "id": 3678645
+      },
+      "writtenOn": "2024-11-19T23:49:23Z",
+      "side": 1,
+      "message": "Done, let me know if the check looks good.",
+      "parentUuid": "dcc88a38_6a67dbfd",
       "range": {
         "startLine": 1383,
         "startChar": 38,
@@ -303,6 +459,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "4f130aa2_93c31a7d",
+        "filename": "av1/encoder/txb_rdopt.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 342,
+      "author": {
+        "id": 3678645
+      },
+      "writtenOn": "2024-11-19T23:49:23Z",
+      "side": 1,
+      "message": "Sounds good, I like that idea.",
+      "parentUuid": "b0695513_ea3eb61f",
+      "revId": "35af40b788dea6dc42830994d533d86adf7a2c51",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "df089711_a913d7fd",
@@ -316,6 +490,24 @@
       "writtenOn": "2024-11-19T21:08:30Z",
       "side": 1,
       "message": "IMPORTANT: The 2 here looks like the rounding term for `rshift` of 2.\n\ngit history supports this. The code originally looked like `(... + 2) \u003e\u003e 2`. In https://aomedia-review.googlesource.com/c/aom/+/60901, the right shift amount was changed to a complicated expression, but the rounding term was not updated. That complicated expression eventually became `rshift`.\n\nSo, we should replace the 2 by `(1 \u003c\u003c rshift) \u003e\u003e 1`. Better to store it in a variable named `rounding`. There is actually a macro that does right shift with rounding in libaom...",
+      "revId": "35af40b788dea6dc42830994d533d86adf7a2c51",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ffb61e55_79294ddf",
+        "filename": "av1/encoder/txb_rdopt.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 347,
+      "author": {
+        "id": 3678645
+      },
+      "writtenOn": "2024-11-19T23:49:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "df089711_a913d7fd",
       "revId": "35af40b788dea6dc42830994d533d86adf7a2c51",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
