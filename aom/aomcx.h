@@ -732,7 +732,7 @@ enum aome_enc_control_id {
    * are determined.
    *
    * By default, the encoder sets this minimum at level 5 (4 in all intra
-   * mode).
+   * mode, and 2 for SSIMULACRA 2 tune).
    */
   AV1E_SET_QM_MIN = 64,
 
@@ -744,7 +744,7 @@ enum aome_enc_control_id {
    * control sets the maximum level of flatness possible.
    *
    * By default, the encoder sets this maximum at level 9 (10 in all intra
-   * mode)
+   * mode and SSIMULACRA 2 tune)
    */
   AV1E_SET_QM_MAX = 65,
 
@@ -1672,6 +1672,8 @@ typedef enum {
  * Setting the tuning option to AOM_TUNE_SSIMULACRA2 causes the following
  * options to be set (expressed as command-line options):
  *   * --enable-qm=1
+ *   * --qm-min=2
+ *   * --qm-max=10
  *   * --sharpness=7
  *   * --dist-metric=qm-psnr
  *   * --enable-cdef=3
