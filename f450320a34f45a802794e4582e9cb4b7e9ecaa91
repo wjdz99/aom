@@ -3,6 +3,40 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "c3040e95_9ec2febe",
+        "filename": "aom/aomcx.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 747,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-11-20T22:51:57Z",
+      "side": 1,
+      "message": "Undo the changes for SSIMULACRA 2 tune. The qm-min and qm-max values that we set for SSIMULACRA 2 tune are not considered default values, so they don\u0027t need to be documented here. We document them at lines 1675.\n\nDetails: Default values are the values set during encoder initialization. Default values can depend on the usage (good quality, realtime, or all intra) because the usage is passed to `aom_codec_enc_init()`, but default values cannot depend on the tune metric.\n\nClearly this is a gray area. My goal is to simplify the documentation of default values, so I am using this definition of default values to justify omitting the changes for SSIMULACRA 2 tune.",
+      "revId": "f450320a34f45a802794e4582e9cb4b7e9ecaa91",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ceff2e40_729fe1e5",
+        "filename": "av1/arg_defs.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 470,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-11-20T22:51:57Z",
+      "side": 1,
+      "message": "Undo the changes for SSIMULACRA 2 tune.",
+      "revId": "f450320a34f45a802794e4582e9cb4b7e9ecaa91",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "272ce50c_17f6f548",
         "filename": "av1/common/quant_common.h",
         "patchSetId": 2
