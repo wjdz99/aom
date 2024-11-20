@@ -193,6 +193,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "87dd254b_5e6a2010",
+        "filename": "av1/encoder/rd.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 496,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-11-20T23:52:18Z",
+      "side": 1,
+      "message": "You\u0027re right. I missed the `/ beta` at the end of the expression. No wonder there is an opening parenthesis `(` after the `int` cast.",
+      "parentUuid": "afa44ded_c1006487",
+      "revId": "35af40b788dea6dc42830994d533d86adf7a2c51",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "700bae9f_07a5c65e",
@@ -507,6 +525,24 @@
       "writtenOn": "2024-11-19T23:49:23Z",
       "side": 1,
       "message": "Done",
+      "parentUuid": "df089711_a913d7fd",
+      "revId": "35af40b788dea6dc42830994d533d86adf7a2c51",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8321da0d_0216dfcd",
+        "filename": "av1/encoder/txb_rdopt.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 347,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-11-20T23:52:18Z",
+      "side": 1,
+      "message": "More git history of this code: You can see the original `(... + 2) \u003e\u003e 2` clearly in https://aomedia-review.googlesource.com/c/aom/+/33569.",
       "parentUuid": "df089711_a913d7fd",
       "revId": "35af40b788dea6dc42830994d533d86adf7a2c51",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
