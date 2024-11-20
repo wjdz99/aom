@@ -43,6 +43,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "3b617588_3320a0c6",
+        "filename": "av1/common/quant_common.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-11-20T00:04:20Z",
+      "side": 1,
+      "message": "If this is the case, we can just change `DEFAULT_QM_FIRST_ALLINTRA` to 2 and not add `DEFAULT_QM_FIRST_SSIMULACRA2` and `DEFAULT_QM_LAST_SSIMULACRA2`, right?",
+      "parentUuid": "af773c99_532c63d2",
+      "range": {
+        "startLine": 41,
+        "startChar": 0,
+        "endLine": 42,
+        "endChar": 38
+      },
+      "revId": "80fb382f7691cb6811e944cad1dc943bf77df2fb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "d30a3d4e_fde99efd",
         "filename": "av1/common/quant_common.h",
         "patchSetId": 1
@@ -119,6 +143,23 @@
           ]
         }
       ],
+      "revId": "80fb382f7691cb6811e944cad1dc943bf77df2fb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5b84a026_625264ec",
+        "filename": "av1/encoder/av1_quantize.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 948,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-11-20T00:04:20Z",
+      "side": 1,
+      "message": "Nit: Rename this variable `get_luma_qmlevel`?",
       "revId": "80fb382f7691cb6811e944cad1dc943bf77df2fb",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
