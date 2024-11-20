@@ -16,6 +16,24 @@
       "message": "The procedure you used to determine this function seems exactly the same as the procesure you used to determine the `aom_get_qmlevel_allintra()` function (see lines 65-69). If so, then these two functions should be used under the same condition, either\n\n- in all intra mode (regardless of the tune metric), or\n- in all intra mode and SSIMULACRA 2 tune.\n\nIs my understanding correct?",
       "revId": "f450320a34f45a802794e4582e9cb4b7e9ecaa91",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ef450b8f_0d031f4b",
+        "filename": "av1/common/quant_common.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 3678645
+      },
+      "writtenOn": "2024-11-20T22:19:34Z",
+      "side": 1,
+      "message": "You\u0027re correct in that the procedure itself was the same between `aom_get_qmlevel_allintra()` and this new formula.\n\nHowever, there was the situation where using the original `aom_get_qmlevel()` for all intra just plain didn\u0027t make sense (because of the qindex -\u003e QM level graph growing the wrong way), so it followed we enabled it for the all intra mode.\n\nFor the 4:4:4 chroma formula however, we\u0027re effectively rebalancing bit allocation so luma gets a bit more of the share of budget relative to chroma. While this is good for SSIMULACRA 2 (and also benefits overall quality to my eyes), I can\u0027t guarantee this will be beneficial for other metrics, especially weighted YUV PSNR/SSIM metrics that might expect the chroma planes to score better so the weighted average is higher.\n\nHope this explains the reasoning.",
+      "parentUuid": "272ce50c_17f6f548",
+      "revId": "f450320a34f45a802794e4582e9cb4b7e9ecaa91",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
