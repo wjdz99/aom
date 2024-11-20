@@ -18,6 +18,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "50937e4f_e20f5ac5",
+        "filename": "aom/aomcx.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 747,
+      "author": {
+        "id": 3678645
+      },
+      "writtenOn": "2024-11-20T23:21:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c3040e95_9ec2febe",
+      "revId": "f450320a34f45a802794e4582e9cb4b7e9ecaa91",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ceff2e40_729fe1e5",
@@ -31,6 +49,24 @@
       "writtenOn": "2024-11-20T22:51:57Z",
       "side": 1,
       "message": "Undo the changes for SSIMULACRA 2 tune.",
+      "revId": "f450320a34f45a802794e4582e9cb4b7e9ecaa91",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a3e04e23_732c7148",
+        "filename": "av1/arg_defs.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 470,
+      "author": {
+        "id": 3678645
+      },
+      "writtenOn": "2024-11-20T23:21:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ceff2e40_729fe1e5",
       "revId": "f450320a34f45a802794e4582e9cb4b7e9ecaa91",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
