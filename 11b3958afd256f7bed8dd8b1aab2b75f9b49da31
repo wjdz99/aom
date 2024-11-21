@@ -75,6 +75,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "453a34fd_8fa6aa3f",
+        "filename": "av1/ratectrl_rtc.h",
+        "patchSetId": 52
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 33496
+      },
+      "writtenOn": "2024-11-21T11:49:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d32b0886_b35c92e5",
+      "range": {
+        "startLine": 53,
+        "startChar": 0,
+        "endLine": 75,
+        "endChar": 0
+      },
+      "revId": "11b3958afd256f7bed8dd8b1aab2b75f9b49da31",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b90e088e_bfd1121b",
@@ -88,6 +112,30 @@
       "writtenOn": "2024-11-19T16:45:12Z",
       "side": 1,
       "message": "this struct is now out of `namespace aom` for C++, as well as the constants above and enums. Which will need significant changes in chrome when this gets rolled in.\n\nIt\u0027s better to keep the C++ code in the scope of `namespace aom` so there\u0027s no behavior change for C++ in chrome.",
+      "range": {
+        "startLine": 76,
+        "startChar": 0,
+        "endLine": 76,
+        "endChar": 32
+      },
+      "revId": "11b3958afd256f7bed8dd8b1aab2b75f9b49da31",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1a25ba97_5a123ca6",
+        "filename": "av1/ratectrl_rtc.h",
+        "patchSetId": 52
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 33496
+      },
+      "writtenOn": "2024-11-21T11:49:35Z",
+      "side": 1,
+      "message": "This is done to make the file compiled in both c and c++. As per previous review. Let me know if this needs to be modified again. \nIf this needs to be in c++ then , for C compilation for this header file only, it will replica of this structure under only C. And again under c++ one copy.",
+      "parentUuid": "b90e088e_bfd1121b",
       "range": {
         "startLine": 76,
         "startChar": 0,
