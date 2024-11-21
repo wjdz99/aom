@@ -22,6 +22,30 @@
       },
       "revId": "3f8a73cdf4b2755744a9d1c081f8d9163d948d47",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f926f6b5_44e2312d",
+        "filename": "av1/encoder/txb_rdopt.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 351,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-11-21T20:07:29Z",
+      "side": 0,
+      "message": "Yes, that\u0027s correct.\n\nThe macro expansion needs to have extra parentheses (around the two arguments and around the whole expression).",
+      "parentUuid": "8f6da7ec_a3bb8bc1",
+      "range": {
+        "startLine": 346,
+        "startChar": 0,
+        "endLine": 351,
+        "endChar": 13
+      },
+      "revId": "3f8a73cdf4b2755744a9d1c081f8d9163d948d47",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
