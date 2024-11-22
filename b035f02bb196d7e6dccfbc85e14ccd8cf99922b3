@@ -16,6 +16,131 @@
       "message": "I will review the new patchset tomorrow.",
       "revId": "b035f02bb196d7e6dccfbc85e14ccd8cf99922b3",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "41211eb5_5874a7a2",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 23
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-11-22T21:16:27Z",
+      "side": 1,
+      "message": "I only skimmed through some of the code because the CL is quite long. I think some of the type casts could be avoided by declaring the variables with a different type or using the C99 `%zu` format for `size_t`, but we can clean that up later if we want to.",
+      "revId": "b035f02bb196d7e6dccfbc85e14ccd8cf99922b3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a5767fed_50cc245b",
+        "filename": "examples/multilayer_metadata.cc",
+        "patchSetId": 23
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-11-22T21:16:27Z",
+      "side": 1,
+      "message": "Nit: 0 \u003d\u003e false",
+      "revId": "b035f02bb196d7e6dccfbc85e14ccd8cf99922b3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "17e1986b_315edf3d",
+        "filename": "examples/multilayer_metadata.cc",
+        "patchSetId": 23
+      },
+      "lineNbr": 346,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-11-22T21:16:27Z",
+      "side": 1,
+      "message": "Nit/optional: This `int` cast (of a `uint16_t` value) is not needed because integer promotion does that automatically. See \"integer promotion\" in https://en.cppreference.com/w/c/language/conversion.",
+      "revId": "b035f02bb196d7e6dccfbc85e14ccd8cf99922b3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "15f28080_3f55be3d",
+        "filename": "examples/multilayer_metadata.cc",
+        "patchSetId": 23
+      },
+      "lineNbr": 871,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-11-22T21:16:27Z",
+      "side": 1,
+      "message": "Optional: We can use the `%zu` format to print a `size_t` variable. `%zu` is a C99 feature, but it was not supported by some MinGW configurations that use the old MSVC C runtime library (CRT). I remember we no longer need to support those MinGW configurations now.",
+      "range": {
+        "startLine": 871,
+        "startChar": 18,
+        "endLine": 871,
+        "endChar": 20
+      },
+      "revId": "b035f02bb196d7e6dccfbc85e14ccd8cf99922b3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b0bf1706_d63815ff",
+        "filename": "examples/multilayer_metadata.h",
+        "patchSetId": 23
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-11-22T21:16:27Z",
+      "side": 1,
+      "message": "Optional: It would be better to return a success/failure status and avoid terminating the process on error. Can do this later.",
+      "revId": "b035f02bb196d7e6dccfbc85e14ccd8cf99922b3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cba054ad_2b9cc69f",
+        "filename": "examples/svc_encoder_rtc.cc",
+        "patchSetId": 23
+      },
+      "lineNbr": 1397,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-11-22T21:16:27Z",
+      "side": 1,
+      "message": "Nit: Change the two occurrences of `%d` to `%u` because `data` and `offset` are `uint32_t` now.",
+      "revId": "b035f02bb196d7e6dccfbc85e14ccd8cf99922b3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7c21c306_8b5ca90c",
+        "filename": "examples/svc_encoder_rtc.cc",
+        "patchSetId": 23
+      },
+      "lineNbr": 1398,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-11-22T21:16:27Z",
+      "side": 1,
+      "message": "We need to cast the first operand to `uint64_t`, otherwise the sum is `uint32_t` and may overflow.\n\n```\n((uint64_t)max + offset)\n```\n\nThe outer parentheses could be omitted.",
+      "revId": "b035f02bb196d7e6dccfbc85e14ccd8cf99922b3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
