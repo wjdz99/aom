@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5c7fc4d1_7b84873a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 3738561
+      },
+      "writtenOn": "2024-11-22T02:48:11Z",
+      "side": 1,
+      "message": "Comment removed by: James Zern; Reason: spam",
+      "revId": "44b2702c065db1f0a799e931f2853f7a1cb1ea9f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
