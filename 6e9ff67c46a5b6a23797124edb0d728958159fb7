@@ -1,0 +1,239 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "323ce1af_a152ec93",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-11-22T00:04:39Z",
+      "side": 1,
+      "message": "I still wanted to read this CL again because I am not familiar with this code. Sorry about posting many comments. Most of them are comment changes. Please read the comment at aom/aom_image.h:179 first, and then check my analysis at aom/aom_image.h:177. Thanks.",
+      "revId": "6e9ff67c46a5b6a23797124edb0d728958159fb7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4ebaa1db_87259e83",
+        "filename": "aom/aom_image.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 158,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-11-22T00:04:39Z",
+      "side": 1,
+      "message": "Nit: change \"layer id\" to \"temporal and spatial layer ids\".",
+      "range": {
+        "startLine": 158,
+        "startChar": 66,
+        "endLine": 158,
+        "endChar": 74
+      },
+      "revId": "6e9ff67c46a5b6a23797124edb0d728958159fb7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7bec1b7b_ccbef18d",
+        "filename": "aom/aom_image.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 158,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-11-22T00:04:39Z",
+      "side": 1,
+      "message": "Nit: add \"header\" after \"OBU\"",
+      "range": {
+        "startLine": 158,
+        "startChar": 45,
+        "endLine": 158,
+        "endChar": 48
+      },
+      "revId": "6e9ff67c46a5b6a23797124edb0d728958159fb7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4c045c23_1528703d",
+        "filename": "aom/aom_image.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 165,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-11-22T00:04:39Z",
+      "side": 1,
+      "message": "Nit: Add \" (in the range 0..15)\" after \"metadata location\".",
+      "range": {
+        "startLine": 165,
+        "startChar": 52,
+        "endLine": 165,
+        "endChar": 69
+      },
+      "revId": "6e9ff67c46a5b6a23797124edb0d728958159fb7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d8d5c745_61f45b3c",
+        "filename": "aom/aom_image.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 170,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-11-22T00:04:39Z",
+      "side": 1,
+      "message": "Nit: binary \u003d\u003e bitwise",
+      "range": {
+        "startLine": 170,
+        "startChar": 57,
+        "endLine": 170,
+        "endChar": 63
+      },
+      "revId": "6e9ff67c46a5b6a23797124edb0d728958159fb7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "32efd6cf_407be138",
+        "filename": "aom/aom_image.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 171,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-11-22T00:04:39Z",
+      "side": 1,
+      "message": "Nit: add `_t` after `aom_metadata_insert_flags`.",
+      "range": {
+        "startLine": 171,
+        "startChar": 4,
+        "endLine": 171,
+        "endChar": 29
+      },
+      "revId": "6e9ff67c46a5b6a23797124edb0d728958159fb7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8d77fdca_33aeeff9",
+        "filename": "aom/aom_image.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 177,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-11-22T00:04:39Z",
+      "side": 1,
+      "message": "Existing `aom_img_add_metadata()` calls in libaom clients don\u0027t know about the new `AOM_MIF_LAYER_SPECIFIC` flag, so the metadata OBUs they add will be treated as non-layer-specific after this CL is submitted. Since currently-defined metadata OBUs are not layer-specific except ITU-T T.35 metadata OBUs (see the `is_layer_specific_obu()` function in https://aomedia-review.googlesource.com/c/aom/+/139587/5), this shoud be fine.",
+      "revId": "6e9ff67c46a5b6a23797124edb0d728958159fb7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d5d4338b_cd769c59",
+        "filename": "aom/aom_image.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 178,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-11-22T00:04:39Z",
+      "side": 1,
+      "message": "I understand we added `AOM_MIF_LAYER_SPECIFIC` to this enum type to avoid adding a new parameter to `aom_img_add_metadata()`, which will break backward compatibility.\n\nBut this creates a new problem: we may pass `AOM_MIF_ANY_FRAME | AOM_MIF_LAYER_SPECIFIC` as the `aom_metadata_insert_flags_t insert_flag` parameter to `aom_img_add_metadata()`, but that value is not a valid value of the `aom_metadata_insert_flags_t` enum type. C++ will complain about this and that\u0027s why we need a `aom_metadata_insert_flags_t` cast in metadata_test.cc.\n\nA solution to this problem is to add new enum constants that represent the combos:\n\n```\ntypedef enum aom_metadata_insert_flags {\n  AOM_MIF_NON_KEY_FRAME \u003d 0,    // not layer specific\n  AOM_MIF_KEY_FRAME \u003d 1,        // not layer specific\n  AOM_MIF_ANY_FRAME \u003d 2,        // not layer specific\n  AOM_MIF_NON_KEY_FRAME_LAYER_SPECIFIC \u003d 16,    // layer specific\n  AOM_MIF_KEY_FRAME_LAYER_SPECIFIC \u003d 17,        // layer specific\n  AOM_MIF_ANY_FRAME_LAYER_SPECIFIC \u003d 18,        // layer specific\n} aom_metadata_insert_flags_t;\n```",
+      "revId": "6e9ff67c46a5b6a23797124edb0d728958159fb7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ee497d35_1348046f",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 3382,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-11-22T00:04:39Z",
+      "side": 1,
+      "message": "I added the `is_layer_specific_obu` parameter before but removed it in https://aomedia-review.googlesource.com/c/aom/+/191103. It is fine to add it back.",
+      "range": {
+        "startLine": 3382,
+        "startChar": 30,
+        "endLine": 3382,
+        "endChar": 57
+      },
+      "revId": "6e9ff67c46a5b6a23797124edb0d728958159fb7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "871145b3_d6b8c657",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 3392,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-11-22T00:04:39Z",
+      "side": 1,
+      "message": "This is the latest release. We need to replace this with something like \"the draft update\" or \"the proposed update\".",
+      "range": {
+        "startLine": 3392,
+        "startChar": 18,
+        "endLine": 3392,
+        "endChar": 45
+      },
+      "revId": "6e9ff67c46a5b6a23797124edb0d728958159fb7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8453976b_c46918f2",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 3406,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-11-22T00:04:39Z",
+      "side": 1,
+      "message": "This comment is an excerpt from the AV1 spec (the latest release). It justifies the original code. We need to replace this comment with an excerpt from the draft/proposed update to the AV1 spec to justify the new code.",
+      "range": {
+        "startLine": 3400,
+        "startChar": 0,
+        "endLine": 3406,
+        "endChar": 24
+      },
+      "revId": "6e9ff67c46a5b6a23797124edb0d728958159fb7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
