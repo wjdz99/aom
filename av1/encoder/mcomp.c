@@ -3342,7 +3342,6 @@ int av1_return_max_sub_pixel_mv(MACROBLOCKD *xd, const AV1_COMMON *const cm,
   (void)cm;
   (void)start_mv;
   (void)start_mv_stats;
-  (void)sse1;
   (void)distortion;
   (void)last_mv_search_list;
 
@@ -3352,6 +3351,7 @@ int av1_return_max_sub_pixel_mv(MACROBLOCKD *xd, const AV1_COMMON *const cm,
   bestmv->row = mv_limits->row_max;
   bestmv->col = mv_limits->col_max;
 
+  *sse1 = 0;
   unsigned int besterr = 0;
 
   // In the sub-pel motion search, if hp is not used, then the last bit of mv
@@ -3371,7 +3371,6 @@ int av1_return_min_sub_pixel_mv(MACROBLOCKD *xd, const AV1_COMMON *const cm,
   (void)cm;
   (void)start_mv;
   (void)start_mv_stats;
-  (void)sse1;
   (void)distortion;
   (void)last_mv_search_list;
 
@@ -3381,6 +3380,7 @@ int av1_return_min_sub_pixel_mv(MACROBLOCKD *xd, const AV1_COMMON *const cm,
   bestmv->row = mv_limits->row_min;
   bestmv->col = mv_limits->col_min;
 
+  *sse1 = 0;
   unsigned int besterr = 0;
   // In the sub-pel motion search, if hp is not used, then the last bit of mv
   // has to be 0.
