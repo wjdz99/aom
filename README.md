@@ -7,7 +7,6 @@ README.md                {#LREADME}
     - [Prerequisites](#prerequisites)
     - [Get the code](#get-the-code)
     - [Basics](#basic-build)
-    - [Configuration options](#configuration-options)
     - [Dylib builds](#dylib-builds)
     - [Debugging](#debugging)
     - [Cross compiling](#cross-compiling)

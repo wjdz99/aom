@@ -2452,9 +2452,6 @@ void av1_encode_frame(AV1_COMP *cpi) {
       skip_mode_info->skip_mode_allowed = 0;
       skip_mode_info->skip_mode_flag = 0;
     }
-    if (skip_mode_info->skip_mode_flag && rdc->skip_mode_used_flag == 0)
-      skip_mode_info->skip_mode_flag = 0;
-
     if (!cm->tiles.large_scale) {
       if (features->tx_mode == TX_MODE_SELECT &&
           cpi->td.mb.txfm_search_info.txb_split_count == 0)
