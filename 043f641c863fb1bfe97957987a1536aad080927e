@@ -87,6 +87,30 @@
       },
       "revId": "043f641c863fb1bfe97957987a1536aad080927e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bea88b18_3ad35bb3",
+        "filename": "av1/encoder/mcomp.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 3354,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2024-11-25T17:16:35Z",
+      "side": 1,
+      "message": "These values are invalid anyway. As long as it passes valgrind, this should be ok.",
+      "parentUuid": "f863ca1c_41a6d265",
+      "range": {
+        "startLine": 3354,
+        "startChar": 2,
+        "endLine": 3354,
+        "endChar": 12
+      },
+      "revId": "043f641c863fb1bfe97957987a1536aad080927e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
