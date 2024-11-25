@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d9d80ad6_fa4b2f9f",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 9
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-11-25T22:32:24Z",
+      "side": 1,
+      "message": "Nit/optional: I suggest moving this bug fix to a separate CL. Don\u0027t worry about this if it is difficult or doesn\u0027t make sense to separate the bug fix from this CL.",
+      "revId": "af3353d1674464c40d44b584239789543fff0d9b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e87ee782_aa265129",
+        "filename": "aom/aom_image.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 190,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-11-25T22:32:24Z",
+      "side": 1,
+      "message": "[Note: The idea I proposed in this comment may be immature and the general issue of how to send a metadata OBU to the libaom encoder should be investigated further. This is why I suggest we move parts of this CL to separate CLs so they can be submitted first.]\n\nI just realized that there is another way to indicate whether a metadata OBU is layer-specific or not. We can add a new function, tentatively named `aom_img_add_metadata_v2`, that takes an `int is_layer_specific_obu` parameter:\n\n```\nint aom_img_add_metadata_v2(aom_image_t *img, uint32_t type, const uint8_t *data,\n                            size_t sz, aom_metadata_insert_flags_t insert_flag,\n                            int is_layer_specific_obu);\n```\n\nAnd then we add a new `int is_layer_specific_obu` field to the end of the `aom_metadata_t` struct:\n\n```\ntypedef struct aom_metadata {\n  uint32_t type;                           /**\u003c Metadata type */\n  uint8_t *payload;                        /**\u003c Metadata payload data */\n  size_t sz;                               /**\u003c Metadata payload size */\n  aom_metadata_insert_flags_t insert_flag; /**\u003c Metadata insertion flag */\n  int is_layer_specific_obu;               /**\u003c Whether metadata is layer-specific */\n} aom_metadata_t;\n```\n\nNote: We have avoided the use of the `bool` type in the libaom public headers. That\u0027s why the `is_layer_specific_obu` boolean is declared as `int`.\n\nWe can extend the `aom_metadata_t` struct without breaking backward compatibility because the `aom_metadata_t` struct is always allocated by libaom.\n\nNote: Although the `aom_metadata_t` struct allocation function `aom_img_metadata_alloc()` is exported, that was a mistake; it should have been an internal function.\n\nThis solution seems cleaner than modifying the `aom_metadata_insert_flags_t` enum type.",
+      "revId": "af3353d1674464c40d44b584239789543fff0d9b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "07a078e8_60c29fbd",
+        "filename": "av1/encoder/bitstream.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-11-25T22:32:24Z",
+      "side": 1,
+      "message": "Nit: I suggest moving the addition of the `is_layer_specific_obu` parameter to `av1_write_obu_header()` to a separate CL. This part seems independent enough.",
+      "revId": "af3353d1674464c40d44b584239789543fff0d9b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
