@@ -3093,14 +3093,21 @@ static unsigned int estimate_scroll_motion(
   // Increase the search if last two frames were dropped.
   // Values set based on screen test set.
   int search_size_width = 96;
-  int search_size_height = cpi->rc.drop_count_consec > 1 ? 224 : 192;
+  int search_size_height = cpi->rc.drop_count_consec > 1 ? 600 : 512;
   // Adjust based on boundary.
   if ((pos_col - search_size_width < -border) ||
       (pos_col + search_size_width > cm->width + border))
     search_size_width = border;
+  /*
   if ((pos_row - search_size_height < -border) ||
       (pos_row + search_size_height > cm->height + border))
     search_size_height = border;
+  */
+  if (pos_row - search_size_height < -border)
+    search_size_height = pos_row + border;
+  if (pos_row + search_size_height > cm->height + border)
+    search_size_height = cm->height + border - pos_row;
+
   const uint8_t *ref_buf;
   const int row_norm_factor = mi_size_high_log2[bsize] + 1;
   const int col_norm_factor = 3 + (bw >> 5);
@@ -3886,9 +3893,11 @@ int av1_encodedframe_overshoot_cbr(AV1_COMP *cpi, int *q) {
   // these parameters will affect QP selection for subsequent frames. If they
   // have settled down to a very different (low QP) state, then not adjusting
   // them may cause next frame to select low QP and overshoot again.
+  if (p_rc->avg_frame_qindex[INTER_FRAME] < (cpi->rc.worst_quality >> 1)) {
+    p_rc->buffer_level = p_rc->optimal_buffer_level;
+    p_rc->bits_off_target = p_rc->optimal_buffer_level;
+  }
   p_rc->avg_frame_qindex[INTER_FRAME] = *q;
-  p_rc->buffer_level = p_rc->optimal_buffer_level;
-  p_rc->bits_off_target = p_rc->optimal_buffer_level;
   // Reset rate under/over-shoot flags.
   cpi->rc.rc_1_frame = 0;
   cpi->rc.rc_2_frame = 0;
