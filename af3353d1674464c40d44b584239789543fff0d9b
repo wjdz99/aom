@@ -37,6 +37,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "50822d97_a11677fd",
+        "filename": "aom/aom_image.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 190,
+      "author": {
+        "id": 26789
+      },
+      "writtenOn": "2024-11-26T13:14:23Z",
+      "side": 1,
+      "message": "I thought about this too but it seemed less intrusive to me to just reuse the insert_flag parameter, which seems fairly appropriate for this use in my opinion. \nHowever, this is not my library so if you prefer a different function or some other solution, I\u0027ll update the patch. In the \"new function\" scenario, would the current function be deprecated? And what would be a better name for aom_img_add_metadata_v2?\n\nAnother option would be to add a `aom_img_add_layer_specific_metadata()` function without any extra parameter.\n\nYet another solution is to not implement an API for this at all. For most metadata types, the spec says whether it\u0027s layer specific or not so it can be hard coded. This only one where it cannot be known in advance is ITUT T35, but I doubt many people need this, so it\u0027s not a critical feature. I implemented it anyway because it was convenient for me to experiment with the new CWG-E050 metadata types, and I thought it could provide more flexibility in general for future types and the \"user private\" section of the metadata type enum (although it\u0027s not super clear to me how it\u0027s supposed to be used).\n\nAnother suggestion from Yannis was to implement the layer specific bit (as in the first version of this patch, i.e. the 5th bit in aom_metadata_insert_flags) but to NOT add it to the API. This way it\u0027s an experimental/secret feature that I can use for my own needs but that is not at all guaranteed to keep working.",
+      "parentUuid": "e87ee782_aa265129",
+      "revId": "af3353d1674464c40d44b584239789543fff0d9b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "07a078e8_60c29fbd",
         "filename": "av1/encoder/bitstream.h",
         "patchSetId": 9
