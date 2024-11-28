@@ -3886,9 +3886,11 @@ int av1_encodedframe_overshoot_cbr(AV1_COMP *cpi, int *q) {
   // these parameters will affect QP selection for subsequent frames. If they
   // have settled down to a very different (low QP) state, then not adjusting
   // them may cause next frame to select low QP and overshoot again.
+  if (p_rc->avg_frame_qindex[INTER_FRAME] < (cpi->rc.worst_quality >> 1)) {
+    p_rc->buffer_level = p_rc->optimal_buffer_level;
+    p_rc->bits_off_target = p_rc->optimal_buffer_level;
+  }
   p_rc->avg_frame_qindex[INTER_FRAME] = *q;
-  p_rc->buffer_level = p_rc->optimal_buffer_level;
-  p_rc->bits_off_target = p_rc->optimal_buffer_level;
   // Reset rate under/over-shoot flags.
   cpi->rc.rc_1_frame = 0;
   cpi->rc.rc_2_frame = 0;
@@ -3921,9 +3923,11 @@ int av1_encodedframe_overshoot_cbr(AV1_COMP *cpi, int *q) {
       LAYER_CONTEXT *lc = &svc->layer_context[layer];
       RATE_CONTROL *lrc = &lc->rc;
       PRIMARY_RATE_CONTROL *lp_rc = &lc->p_rc;
+      if (lp_rc->avg_frame_qindex[INTER_FRAME] < (lrc->worst_quality >> 1)) {
+        lp_rc->buffer_level = lp_rc->optimal_buffer_level;
+        lp_rc->bits_off_target = lp_rc->optimal_buffer_level;
+      }
       lp_rc->avg_frame_qindex[INTER_FRAME] = *q;
-      lp_rc->buffer_level = lp_rc->optimal_buffer_level;
-      lp_rc->bits_off_target = lp_rc->optimal_buffer_level;
       lrc->rc_1_frame = 0;
       lrc->rc_2_frame = 0;
       lp_rc->rate_correction_factors[INTER_NORMAL] = rate_correction_factor;
