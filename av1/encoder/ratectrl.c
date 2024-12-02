@@ -3094,13 +3094,22 @@ static unsigned int estimate_scroll_motion(
   // Values set based on screen test set.
   int search_size_width = 96;
   int search_size_height = cpi->rc.drop_count_consec > 1 ? 224 : 192;
+  int search_size_width_top = search_size_width;
+  int search_size_width_bottom = search_size_width;
+  int search_size_height_top = search_size_height;
+  int search_size_height_bottom = search_size_height;
   // Adjust based on boundary.
-  if ((pos_col - search_size_width < -border) ||
-      (pos_col + search_size_width > cm->width + border))
-    search_size_width = border;
-  if ((pos_row - search_size_height < -border) ||
-      (pos_row + search_size_height > cm->height + border))
-    search_size_height = border;
+  if (pos_col - search_size_width < -border)
+    search_size_width_top = pos_col + border;
+  if (pos_col + search_size_width > cm->width + border)
+    search_size_width_bottom = cm->width + border - pos_col;
+  search_size_width = AOMMIN(search_size_width_top, search_size_width_bottom);
+  if (pos_row - search_size_height < -border)
+    search_size_height_top = pos_row + border;
+  if (pos_row + search_size_height > cm->height + border)
+    search_size_height_bottom = cm->height + border - pos_row;
+  search_size_height =
+      AOMMIN(search_size_height_top, search_size_height_bottom);
   const uint8_t *ref_buf;
   const int row_norm_factor = mi_size_high_log2[bsize] + 1;
   const int col_norm_factor = 3 + (bw >> 5);

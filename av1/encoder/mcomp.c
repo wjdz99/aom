@@ -2103,13 +2103,22 @@ unsigned int av1_int_pro_motion_estimation(const AV1_COMP *cpi, MACROBLOCK *x,
   const int border = (cpi->oxcf.border_in_pixels >> 4) << 4;
   int search_size_width = me_search_size_col;
   int search_size_height = me_search_size_row;
+  int search_size_width_top = me_search_size_col;
+  int search_size_width_bottom = me_search_size_col;
+  int search_size_height_top = me_search_size_row;
+  int search_size_height_bottom = me_search_size_row;
   // Adjust based on boundary.
-  if (((mi_col << 2) - search_size_width < -border) ||
-      ((mi_col << 2) + search_size_width > cm->width + border))
-    search_size_width = border;
-  if (((mi_row << 2) - search_size_height < -border) ||
-      ((mi_row << 2) + search_size_height > cm->height + border))
-    search_size_height = border;
+  if ((mi_col << 2) - search_size_width < -border)
+    search_size_width_top = (mi_col << 2) + border;
+  if ((mi_col << 2) + search_size_width > cm->width + border)
+    search_size_width_bottom = cm->width + border - (mi_col << 2);
+  search_size_width = AOMMIN(search_size_width_top, search_size_width_bottom);
+  if ((mi_row << 2) - search_size_height < -border)
+    search_size_height_top = (mi_row << 2) + border;
+  if ((mi_row << 2) + search_size_height > cm->height + border)
+    search_size_height_bottom = cm->height + border - (mi_row << 2);
+  search_size_height =
+      AOMMIN(search_size_height_top, search_size_height_bottom);
   const int src_stride = x->plane[0].src.stride;
   const int ref_stride = xd->plane[0].pre[0].stride;
   uint8_t const *ref_buf, *src_buf;
