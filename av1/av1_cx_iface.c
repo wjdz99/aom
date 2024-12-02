@@ -1239,7 +1239,7 @@ static void set_encoder_config(AV1EncoderConfig *oxcf,
   // Set cost update frequency configuration.
   oxcf->cost_upd_freq.coeff = (COST_UPDATE_TYPE)extra_cfg->coeff_cost_upd_freq;
   oxcf->cost_upd_freq.mode = (COST_UPDATE_TYPE)extra_cfg->mode_cost_upd_freq;
-  // Avoid MV cost update for allintra encoding mode.
+  // Avoid MV cost update for all-intra encoding mode.
   oxcf->cost_upd_freq.mv = (cfg->kf_max_dist != 0)
                                ? (COST_UPDATE_TYPE)extra_cfg->mv_cost_upd_freq
                                : COST_UPD_OFF;
