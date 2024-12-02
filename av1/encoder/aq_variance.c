@@ -182,9 +182,11 @@ static int comp_unsigned_int(const void *a, const void *b) {
 
 unsigned int av1_get_variance_boost_block_variance(const AV1_COMP *cpi,
                                                    const MACROBLOCK *x) {
-#define SUBBLOCKS_IN_SB_DIM 8
-#define SUBBLOCKS_IN_SB 64
+#define SUPERBLOCK_SIZE 64
 #define SUBBLOCK_SIZE 8
+#define SUBBLOCKS_IN_SB_DIM (SUPERBLOCK_SIZE / SUBBLOCK_SIZE)
+#define SUBBLOCKS_IN_SB (SUBBLOCKS_IN_SB_DIM * SUBBLOCKS_IN_SB_DIM)
+#define SUBBLOCKS_IN_OCTILE (SUBBLOCKS_IN_SB / 8)
   DECLARE_ALIGNED(16, static const uint16_t,
                   av1_highbd_all_zeros[SUBBLOCK_SIZE]) = { 0 };
   DECLARE_ALIGNED(16, static const uint8_t,
@@ -224,9 +226,20 @@ unsigned int av1_get_variance_boost_block_variance(const AV1_COMP *cpi,
   // Order the 8x8 SB values from smallest to largest variance.
   qsort(variances, SUBBLOCKS_IN_SB, sizeof(unsigned int), comp_unsigned_int);
 
-  // Take the 8x8 variance value in the specified octile.
+  // Sample three 8x8 variance values: at the specified octile, previous octile,
+  // and next octile. Make sure superblock indexes are always within bounds.
   assert(octile >= 1 && octile <= 8);
-  const unsigned int variance = variances[octile * (SUBBLOCKS_IN_SB / 8) - 1];
+  const int middle_index = octile * SUBBLOCKS_IN_OCTILE - 1;
+  const int lower_index = AOMMAX(0, middle_index - SUBBLOCKS_IN_OCTILE);
+  const int upper_index =
+      AOMMIN(SUBBLOCKS_IN_SB - 1, middle_index + SUBBLOCKS_IN_OCTILE);
+
+  // Weigh the three variances in a 2:1:1 ratio. This allows for smoother
+  // delta-q transitions among superblocks with mixed-variance features.
+  const unsigned int variance =
+      ((variances[middle_index] * 2) + variances[lower_index] +
+       variances[upper_index]) /
+      4;
 
   return variance;
 }
