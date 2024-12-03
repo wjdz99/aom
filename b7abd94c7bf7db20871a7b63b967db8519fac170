@@ -1,6 +1,23 @@
 {
   "comments": [
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "01cddce1_545e9dd8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 3678645
+      },
+      "writtenOn": "2024-12-03T16:27:23Z",
+      "side": 1,
+      "message": "Wan-Teh: I\u0027ve addressed all comments. Will push another Changeset once Gerrit is fixed.",
+      "revId": "b7abd94c7bf7db20871a7b63b967db8519fac170",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "2bae85b2_dd4eb860",
@@ -14,6 +31,24 @@
       "writtenOn": "2024-12-03T00:19:48Z",
       "side": 1,
       "message": "Optional: It seems that the minimum index should be `SUBBLOCKS_IN_OCTILE - 1` instead of 0, if we consistently use the last subblock in each octile as the representative of the octile.",
+      "revId": "b7abd94c7bf7db20871a7b63b967db8519fac170",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0d9f04cc_df5ed20b",
+        "filename": "av1/encoder/aq_variance.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 233,
+      "author": {
+        "id": 3678645
+      },
+      "writtenOn": "2024-12-03T16:27:23Z",
+      "side": 1,
+      "message": "I like this idea. This would make octile 1 sampling (low: 1, mid: 1, up: 2) be \"symmetrical\" with octile 8, the other extreme (low: 7, mid: 8, up: 8).",
+      "parentUuid": "2bae85b2_dd4eb860",
       "revId": "b7abd94c7bf7db20871a7b63b967db8519fac170",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -35,6 +70,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "7dd34c13_68666090",
+        "filename": "av1/encoder/aq_variance.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 237,
+      "author": {
+        "id": 3678645
+      },
+      "writtenOn": "2024-12-03T16:27:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d51def2a_dfa55998",
+      "revId": "b7abd94c7bf7db20871a7b63b967db8519fac170",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c6373c6c_a913a6c3",
@@ -48,6 +101,24 @@
       "writtenOn": "2024-12-03T00:19:48Z",
       "side": 1,
       "message": "Nit: Add 2 to the numerator if we want rounding.",
+      "revId": "b7abd94c7bf7db20871a7b63b967db8519fac170",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "54348498_5658b4ab",
+        "filename": "av1/encoder/aq_variance.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 242,
+      "author": {
+        "id": 3678645
+      },
+      "writtenOn": "2024-12-03T16:27:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c6373c6c_a913a6c3",
       "revId": "b7abd94c7bf7db20871a7b63b967db8519fac170",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
