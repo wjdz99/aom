@@ -168,6 +168,30 @@
       },
       "revId": "11b3958afd256f7bed8dd8b1aab2b75f9b49da31",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9027aee0_625d75b5",
+        "filename": "av1/ratectrl_rtc.h",
+        "patchSetId": 52
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2024-12-03T15:15:35Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "fef5c8fb_8cc990a5",
+      "range": {
+        "startLine": 76,
+        "startChar": 0,
+        "endLine": 76,
+        "endChar": 32
+      },
+      "revId": "11b3958afd256f7bed8dd8b1aab2b75f9b49da31",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
