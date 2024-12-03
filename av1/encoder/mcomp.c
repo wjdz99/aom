@@ -2005,7 +2005,7 @@ int av1_vector_match(const int16_t *ref, const int16_t *src, int bwl,
   int this_sad;
   int d;
   int center, offset = 0;
-  int bw = search_size << 1;
+  int bw = search_size;
 
   if (full_search) {
     for (d = 0; d <= bw; d++) {
@@ -2099,17 +2099,28 @@ unsigned int av1_int_pro_motion_estimation(const AV1_COMP *cpi, MACROBLOCK *x,
   const int full_search = is_screen;
   const bool screen_scroll_superblock =
       is_screen && bsize == cm->seq_params->sb_size;
-  // Keep border a multiple of 16.
-  const int border = (cpi->oxcf.border_in_pixels >> 4) << 4;
   int search_size_width = me_search_size_col;
   int search_size_height = me_search_size_row;
   // Adjust based on boundary.
-  if (((mi_col << 2) - search_size_width < -border) ||
-      ((mi_col << 2) + search_size_width > cm->width + border))
-    search_size_width = border;
-  if (((mi_row << 2) - search_size_height < -border) ||
-      ((mi_row << 2) + search_size_height > cm->height + border))
-    search_size_height = border;
+  int search_size_width_left = me_search_size_col;
+  int search_size_width_right = me_search_size_col;
+  int search_size_width_tot = me_search_size_col << 1;
+  int search_size_height_top = me_search_size_row;
+  int search_size_height_bottom = me_search_size_row;
+  int search_size_height_tot = me_search_size_row << 1;
+  // Adjust based on boundary.
+  if ((mi_col << 2) - search_size_width < 0)
+    search_size_width_left = (mi_col << 2);
+  if ((mi_col << 2) + search_size_width > cm->width)
+    search_size_width_right = cm->width - (mi_col << 2);
+  search_size_width_tot = search_size_width_left + search_size_width_right;
+
+  if ((mi_row << 2) - search_size_height < 0)
+    search_size_height_top = (mi_row << 2);
+  if ((mi_row << 2) + search_size_height > cm->height)
+    search_size_height_bottom = cm->height - (mi_row << 2);
+  search_size_height_tot = search_size_height_top + search_size_height_bottom;
+
   const int src_stride = x->plane[0].src.stride;
   const int ref_stride = xd->plane[0].pre[0].stride;
   uint8_t const *ref_buf, *src_buf;
@@ -2148,8 +2159,8 @@ unsigned int av1_int_pro_motion_estimation(const AV1_COMP *cpi, MACROBLOCK *x,
     }
     return best_sad;
   }
-  const int width_ref_buf = (search_size_width << 1) + bw;
-  const int height_ref_buf = (search_size_height << 1) + bh;
+  const int width_ref_buf = search_size_width_tot + bw;
+  const int height_ref_buf = search_size_height_tot + bh;
   int16_t *hbuf = (int16_t *)aom_malloc(width_ref_buf * sizeof(*hbuf));
   int16_t *vbuf = (int16_t *)aom_malloc(height_ref_buf * sizeof(*vbuf));
   int16_t *src_hbuf = (int16_t *)aom_malloc(bw * sizeof(*src_hbuf));
@@ -2164,12 +2175,12 @@ unsigned int av1_int_pro_motion_estimation(const AV1_COMP *cpi, MACROBLOCK *x,
   }
 
   // Set up prediction 1-D reference set for rows.
-  ref_buf = xd->plane[0].pre[0].buf - search_size_width;
+  ref_buf = xd->plane[0].pre[0].buf - search_size_width_left;
   aom_int_pro_row(hbuf, ref_buf, ref_stride, width_ref_buf, bh,
                   row_norm_factor);
 
   // Set up prediction 1-D reference set for cols
-  ref_buf = xd->plane[0].pre[0].buf - search_size_height * ref_stride;
+  ref_buf = xd->plane[0].pre[0].buf - search_size_height_top * ref_stride;
   aom_int_pro_col(vbuf, ref_buf, ref_stride, bw, height_ref_buf,
                   col_norm_factor);
 
@@ -2181,10 +2192,10 @@ unsigned int av1_int_pro_motion_estimation(const AV1_COMP *cpi, MACROBLOCK *x,
   // Find the best match per 1-D search
   best_int_mv->as_fullmv.col =
       av1_vector_match(hbuf, src_hbuf, mi_size_wide_log2[bsize],
-                       search_size_width, full_search, &best_sad_col);
+                       search_size_width_tot, full_search, &best_sad_col);
   best_int_mv->as_fullmv.row =
       av1_vector_match(vbuf, src_vbuf, mi_size_high_log2[bsize],
-                       search_size_height, full_search, &best_sad_row);
+                       search_size_height_tot, full_search, &best_sad_row);
 
   // For screen: select between horiz or vert motion.
   if (is_screen) {

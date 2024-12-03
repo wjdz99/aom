@@ -3087,25 +3087,35 @@ static unsigned int estimate_scroll_motion(
   const int bw = block_size_wide[bsize];
   const int bh = block_size_high[bsize];
   const int full_search = 1;
-  // Keep border a multiple of 16.
-  const int border = (cpi->oxcf.border_in_pixels >> 4) << 4;
   // Make search_size_height larger to capture more common vertical scroll.
   // Increase the search if last two frames were dropped.
   // Values set based on screen test set.
   int search_size_width = 96;
   int search_size_height = cpi->rc.drop_count_consec > 1 ? 224 : 192;
   // Adjust based on boundary.
-  if ((pos_col - search_size_width < -border) ||
-      (pos_col + search_size_width > cm->width + border))
-    search_size_width = border;
-  if ((pos_row - search_size_height < -border) ||
-      (pos_row + search_size_height > cm->height + border))
-    search_size_height = border;
+  int search_size_width_left = search_size_width;
+  int search_size_width_right = search_size_width;
+  int search_size_width_tot = search_size_width << 1;
+  int search_size_height_top = search_size_height;
+  int search_size_height_bottom = search_size_height;
+  int search_size_height_tot = search_size_height << 1;
+  // Adjust based on boundary.
+  if (pos_col - search_size_width < 0)
+    search_size_width_left = pos_col;
+  if (pos_col + search_size_width > cm->width)
+    search_size_width_right = cm->width - pos_col;
+  search_size_width_tot = search_size_width_left + search_size_width_right;
+
+  if (pos_row - search_size_height < 0)
+    search_size_height_top = pos_row;
+  if (pos_row + search_size_height > cm->height)
+    search_size_height_bottom = cm->height - pos_row;
+  search_size_height_tot = search_size_height_top + search_size_height_bottom;
   const uint8_t *ref_buf;
   const int row_norm_factor = mi_size_high_log2[bsize] + 1;
   const int col_norm_factor = 3 + (bw >> 5);
-  const int ref_buf_width = (search_size_width << 1) + bw;
-  const int ref_buf_height = (search_size_height << 1) + bh;
+  const int ref_buf_width = search_size_width_tot + bw;
+  const int ref_buf_height = search_size_height_tot + bh;
   int16_t *hbuf = (int16_t *)aom_malloc(ref_buf_width * sizeof(*hbuf));
   int16_t *vbuf = (int16_t *)aom_malloc(ref_buf_height * sizeof(*vbuf));
   int16_t *src_hbuf = (int16_t *)aom_malloc(bw * sizeof(*src_hbuf));
@@ -3119,11 +3129,11 @@ static unsigned int estimate_scroll_motion(
                        "Failed to allocate hbuf, vbuf, src_hbuf, or src_vbuf");
   }
   // Set up prediction 1-D reference set for rows.
-  ref_buf = last_src_buf - search_size_width;
+  ref_buf = last_src_buf - search_size_width_left;
   aom_int_pro_row(hbuf, ref_buf, ref_stride, ref_buf_width, bh,
                   row_norm_factor);
   // Set up prediction 1-D reference set for cols
-  ref_buf = last_src_buf - search_size_height * ref_stride;
+  ref_buf = last_src_buf - search_size_height_top * ref_stride;
   aom_int_pro_col(vbuf, ref_buf, ref_stride, bw, ref_buf_height,
                   col_norm_factor);
   // Set up src 1-D reference set
@@ -3134,10 +3144,10 @@ static unsigned int estimate_scroll_motion(
   // Find the best match per 1-D search
   *best_intmv_col =
       av1_vector_match(hbuf, src_hbuf, mi_size_wide_log2[bsize],
-                       search_size_width, full_search, &best_sad_col);
+                       search_size_width_tot, full_search, &best_sad_col);
   *best_intmv_row =
       av1_vector_match(vbuf, src_vbuf, mi_size_high_log2[bsize],
-                       search_size_height, full_search, &best_sad_row);
+                       search_size_height_tot, full_search, &best_sad_row);
   if (best_sad_col < best_sad_row) {
     *best_intmv_row = 0;
     best_sad = best_sad_col;
