@@ -52,6 +52,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "703d291e_fdd2b24e",
+        "filename": "examples/multilayer_metadata.cc",
+        "patchSetId": 23
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 26789
+      },
+      "writtenOn": "2024-12-04T17:25:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a5767fed_50cc245b",
+      "revId": "b035f02bb196d7e6dccfbc85e14ccd8cf99922b3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "17e1986b_315edf3d",
@@ -65,6 +83,24 @@
       "writtenOn": "2024-11-22T21:16:27Z",
       "side": 1,
       "message": "Nit/optional: This `int` cast (of a `uint16_t` value) is not needed because integer promotion does that automatically. See \"integer promotion\" in https://en.cppreference.com/w/c/language/conversion.",
+      "revId": "b035f02bb196d7e6dccfbc85e14ccd8cf99922b3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e83583da_067fe5e2",
+        "filename": "examples/multilayer_metadata.cc",
+        "patchSetId": 23
+      },
+      "lineNbr": 346,
+      "author": {
+        "id": 26789
+      },
+      "writtenOn": "2024-12-04T17:25:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "17e1986b_315edf3d",
       "revId": "b035f02bb196d7e6dccfbc85e14ccd8cf99922b3",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -92,6 +128,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ea402c96_a3912992",
+        "filename": "examples/multilayer_metadata.cc",
+        "patchSetId": 23
+      },
+      "lineNbr": 871,
+      "author": {
+        "id": 26789
+      },
+      "writtenOn": "2024-12-04T17:25:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "15f28080_3f55be3d",
+      "range": {
+        "startLine": 871,
+        "startChar": 18,
+        "endLine": 871,
+        "endChar": 20
+      },
+      "revId": "b035f02bb196d7e6dccfbc85e14ccd8cf99922b3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b0bf1706_d63815ff",
@@ -105,6 +165,24 @@
       "writtenOn": "2024-11-22T21:16:27Z",
       "side": 1,
       "message": "Optional: It would be better to return a success/failure status and avoid terminating the process on error. Can do this later.",
+      "revId": "b035f02bb196d7e6dccfbc85e14ccd8cf99922b3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "80f4f1e6_51eadb55",
+        "filename": "examples/multilayer_metadata.h",
+        "patchSetId": 23
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 26789
+      },
+      "writtenOn": "2024-12-04T17:25:04Z",
+      "side": 1,
+      "message": "Done. I agree it\u0027s better, but calling die() was just much easier... Returning a boolean allows unit testing failure cases though.",
+      "parentUuid": "b0bf1706_d63815ff",
       "revId": "b035f02bb196d7e6dccfbc85e14ccd8cf99922b3",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -126,6 +204,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "0a61bf2a_69de5ddc",
+        "filename": "examples/svc_encoder_rtc.cc",
+        "patchSetId": 23
+      },
+      "lineNbr": 1397,
+      "author": {
+        "id": 26789
+      },
+      "writtenOn": "2024-12-04T17:25:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cba054ad_2b9cc69f",
+      "revId": "b035f02bb196d7e6dccfbc85e14ccd8cf99922b3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "7c21c306_8b5ca90c",
@@ -139,6 +235,24 @@
       "writtenOn": "2024-11-22T21:16:27Z",
       "side": 1,
       "message": "We need to cast the first operand to `uint64_t`, otherwise the sum is `uint32_t` and may overflow.\n\n```\n((uint64_t)max + offset)\n```\n\nThe outer parentheses could be omitted.",
+      "revId": "b035f02bb196d7e6dccfbc85e14ccd8cf99922b3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f4ed9688_b895eec4",
+        "filename": "examples/svc_encoder_rtc.cc",
+        "patchSetId": 23
+      },
+      "lineNbr": 1398,
+      "author": {
+        "id": 26789
+      },
+      "writtenOn": "2024-12-04T17:25:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7c21c306_8b5ca90c",
       "revId": "b035f02bb196d7e6dccfbc85e14ccd8cf99922b3",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
