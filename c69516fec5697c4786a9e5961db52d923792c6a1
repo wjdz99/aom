@@ -1,6 +1,69 @@
 {
   "comments": [
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "45271b5c_bd12784d",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 53
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-12-04T20:08:21Z",
+      "side": 1,
+      "message": "\u0027This change allows ...",
+      "revId": "c69516fec5697c4786a9e5961db52d923792c6a1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "be053f58_2ce14807",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 53
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-12-04T20:08:21Z",
+      "side": 1,
+      "message": "remove the \u0027-\u0027",
+      "range": {
+        "startLine": 10,
+        "startChar": 6,
+        "endLine": 10,
+        "endChar": 7
+      },
+      "revId": "c69516fec5697c4786a9e5961db52d923792c6a1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8ca5b995_6d00af03",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 53
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-12-04T20:08:21Z",
+      "side": 1,
+      "message": "This sentence doesn\u0027t really follow. I guess you mean it simplifies loading the library with `dlopen`? (due to the C naming convention)",
+      "range": {
+        "startLine": 11,
+        "startChar": 8,
+        "endLine": 12,
+        "endChar": 14
+      },
+      "revId": "c69516fec5697c4786a9e5961db52d923792c6a1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "c04e8e2d_5a545213",
@@ -65,6 +128,260 @@
       "writtenOn": "2024-12-03T15:16:28Z",
       "side": 1,
       "message": "We are experiencing some problems with Gerrit at the moment. No CLs can be submitted. This will be submitted after this problem gets resolved.",
+      "revId": "c69516fec5697c4786a9e5961db52d923792c6a1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d9db8627_dcbf7da6",
+        "filename": "av1/ratectrl_rtc.cc",
+        "patchSetId": 53
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-12-04T20:08:21Z",
+      "side": 1,
+      "message": "Change this to be `if (config \u003d\u003d nullptr) return;` to reduce the indentation.",
+      "fixSuggestions": [
+        {
+          "fixId": "53a11dca_4f6ba458",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "av1/ratectrl_rtc.cc",
+              "range": {
+                "startLine": 30,
+                "startChar": 0,
+                "endLine": 64,
+                "endChar": 0
+              },
+              "replacement": "  if (config \u003d\u003d nullptr) return;\n  config-\u003eis_screen \u003d false;\n  config-\u003ewidth \u003d 1280;\n  config-\u003eheight \u003d 720;\n  config-\u003emax_quantizer \u003d 63;\n  config-\u003emin_quantizer \u003d 2;\n  config-\u003etarget_bandwidth \u003d 1000;\n  config-\u003ebuf_initial_sz \u003d 600;\n  config-\u003ebuf_optimal_sz \u003d 600;\n  config-\u003ebuf_sz \u003d 1000;\n  config-\u003eundershoot_pct \u003d 50;\n  config-\u003eovershoot_pct \u003d 50;\n  config-\u003emax_intra_bitrate_pct \u003d 50;\n  config-\u003emax_inter_bitrate_pct \u003d 0;\n  config-\u003eframe_drop_thresh \u003d 0;\n  config-\u003emax_consec_drop_ms \u003d 0;\n  config-\u003eframerate \u003d 30.0;\n  config-\u003ess_number_layers \u003d 1;\n  config-\u003ets_number_layers \u003d 1;\n  config-\u003eaq_mode \u003d 0;\n  av1_zero(config-\u003elayer_target_bitrate);\n  config-\u003elayer_target_bitrate[0] \u003d static_cast\u003cint\u003e(config-\u003etarget_bandwidth);\n  av1_zero(config-\u003ets_rate_decimator);\n  config-\u003ets_rate_decimator[0] \u003d 1;\n  av1_zero(config-\u003emax_quantizers);\n  av1_zero(config-\u003emin_quantizers);\n  av1_zero(config-\u003escaling_factor_den);\n  av1_zero(config-\u003escaling_factor_num);\n  config-\u003escaling_factor_num[0] \u003d 1;\n  config-\u003escaling_factor_den[0] \u003d 1;\n  config-\u003emax_quantizers[0] \u003d config-\u003emax_quantizer;\n  config-\u003emin_quantizers[0] \u003d config-\u003emin_quantizer;\n"
+            }
+          ]
+        }
+      ],
+      "revId": "c69516fec5697c4786a9e5961db52d923792c6a1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "dfd62b5f_24b5d875",
+        "filename": "av1/ratectrl_rtc.cc",
+        "patchSetId": 53
+      },
+      "lineNbr": 336,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-12-04T20:08:21Z",
+      "side": 1,
+      "message": "Remove this cosmetic change.",
+      "revId": "c69516fec5697c4786a9e5961db52d923792c6a1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f46d1739_a555efdf",
+        "filename": "av1/ratectrl_rtc.cc",
+        "patchSetId": 53
+      },
+      "lineNbr": 345,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-12-04T20:08:21Z",
+      "side": 1,
+      "message": "Remove this cosmetic change.",
+      "revId": "c69516fec5697c4786a9e5961db52d923792c6a1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bc562351_b1cc4b31",
+        "filename": "av1/ratectrl_rtc.cc",
+        "patchSetId": 53
+      },
+      "lineNbr": 403,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-12-04T20:08:21Z",
+      "side": 1,
+      "message": "Check `rc_cfg`.",
+      "fixSuggestions": [
+        {
+          "fixId": "131713ce_ea417a24",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "av1/ratectrl_rtc.cc",
+              "range": {
+                "startLine": 403,
+                "startChar": 0,
+                "endLine": 403,
+                "endChar": 0
+              },
+              "replacement": "  if (rc_cfg \u003d\u003d nullptr) return nullptr;\n"
+            }
+          ]
+        }
+      ],
+      "revId": "c69516fec5697c4786a9e5961db52d923792c6a1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5a7be5b5_8b3c86f4",
+        "filename": "av1/ratectrl_rtc.cc",
+        "patchSetId": 53
+      },
+      "lineNbr": 427,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-12-04T20:08:21Z",
+      "side": 1,
+      "message": "remove the `else`. It isn\u0027t needed if the other branch returns and matches the code in the next function.",
+      "fixSuggestions": [
+        {
+          "fixId": "f6f23f1f_a84caf5b",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "av1/ratectrl_rtc.cc",
+              "range": {
+                "startLine": 427,
+                "startChar": 0,
+                "endLine": 430,
+                "endChar": 0
+              },
+              "replacement": ""
+            },
+            {
+              "path": "av1/ratectrl_rtc.cc",
+              "range": {
+                "startLine": 431,
+                "startChar": 0,
+                "endLine": 431,
+                "endChar": 0
+              },
+              "replacement": "  return reinterpret_cast\u003caom::AV1RateControlRTC *\u003e(controller)\n      -\u003eGetLoopfilterLevel();\n"
+            }
+          ]
+        }
+      ],
+      "revId": "c69516fec5697c4786a9e5961db52d923792c6a1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "423f232c_d1dfe93a",
+        "filename": "av1/ratectrl_rtc.cc",
+        "patchSetId": 53
+      },
+      "lineNbr": 443,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-12-04T20:08:21Z",
+      "side": 1,
+      "message": "make this one line to match some of the other functions like `av1_ratecontrol_rtc_update`.",
+      "fixSuggestions": [
+        {
+          "fixId": "252ccbf0_fedf22d3",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "av1/ratectrl_rtc.cc",
+              "range": {
+                "startLine": 443,
+                "startChar": 0,
+                "endLine": 446,
+                "endChar": 0
+              },
+              "replacement": "  if (controller \u003d\u003d nullptr) return;\n"
+            }
+          ]
+        }
+      ],
+      "revId": "c69516fec5697c4786a9e5961db52d923792c6a1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d1629710_2f95388d",
+        "filename": "av1/ratectrl_rtc.cc",
+        "patchSetId": 53
+      },
+      "lineNbr": 465,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-12-04T20:08:21Z",
+      "side": 1,
+      "message": "`create` in the name makes this sound like an allocation is being done, maybe use `init` instead.",
+      "fixSuggestions": [
+        {
+          "fixId": "8d978c8d_60ee231a",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "av1/ratectrl_rtc.cc",
+              "range": {
+                "startLine": 465,
+                "startChar": 0,
+                "endLine": 466,
+                "endChar": 0
+              },
+              "replacement": "void av1_ratecontrol_rtc_init_ratecontrol_config(\n"
+            }
+          ]
+        }
+      ],
+      "revId": "c69516fec5697c4786a9e5961db52d923792c6a1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "328c5ef2_aa1f81c9",
+        "filename": "test/ratectrl_rtc_test.cc",
+        "patchSetId": 53
+      },
+      "lineNbr": 539,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-12-04T20:08:21Z",
+      "side": 1,
+      "message": "add a blank line between the functions",
+      "fixSuggestions": [
+        {
+          "fixId": "06d1866c_af672ac9",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "test/ratectrl_rtc_test.cc",
+              "range": {
+                "startLine": 540,
+                "startChar": 0,
+                "endLine": 540,
+                "endChar": 0
+              },
+              "replacement": "\n"
+            }
+          ]
+        }
+      ],
       "revId": "c69516fec5697c4786a9e5961db52d923792c6a1",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
