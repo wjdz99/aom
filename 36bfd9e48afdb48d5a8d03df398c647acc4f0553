@@ -1,0 +1,266 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "258e0815_d1743fc7",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-12-04T22:31:39Z",
+      "side": 1,
+      "message": "LGTM. I am sorry I wrote many comments because I read the changes to the test carefully to educate myself about metadata OBUs. Most of them are minor.",
+      "revId": "36bfd9e48afdb48d5a8d03df398c647acc4f0553",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1982bc27_4809fe9f",
+        "filename": "av1/common/resize.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1264,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-12-04T22:31:39Z",
+      "side": 1,
+      "message": "Optional: frame \u003d\u003e buffer\n\nSee line 1228.",
+      "revId": "36bfd9e48afdb48d5a8d03df398c647acc4f0553",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b2e6f22d_34d1b5cb",
+        "filename": "test/metadata_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-12-04T22:31:39Z",
+      "side": 1,
+      "message": "`num_seen_frame_pkts_` is only used in this test. We can detect whether `pkt` is a key frame by testing `pkt-\u003edata.frame.flags \u0026 AOM_FRAME_IS_KEY`. So we don\u0027t need to add the `num_seen_frame_pkts_` member.",
+      "revId": "36bfd9e48afdb48d5a8d03df398c647acc4f0553",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e8e90199_231584bc",
+        "filename": "test/metadata_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-12-04T22:31:39Z",
+      "side": 1,
+      "message": "Ideally we should use `std::string_view` to avoid copying `pkt` data, but that requires C++17.",
+      "revId": "36bfd9e48afdb48d5a8d03df398c647acc4f0553",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "71b91b5c_8d95e91b",
+        "filename": "test/metadata_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-12-04T22:31:39Z",
+      "side": 1,
+      "message": "T35 \u003d\u003e Mdcv",
+      "range": {
+        "startLine": 156,
+        "startChar": 35,
+        "endLine": 156,
+        "endChar": 39
+      },
+      "revId": "36bfd9e48afdb48d5a8d03df398c647acc4f0553",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "573b965e_73f0b63d",
+        "filename": "test/metadata_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 172,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-12-04T22:31:39Z",
+      "side": 1,
+      "message": "Nit: Add `private:` before this line, if the data members can be private.",
+      "revId": "36bfd9e48afdb48d5a8d03df398c647acc4f0553",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4f2a81b2_ca8407bf",
+        "filename": "test/metadata_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 194,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-12-04T22:31:39Z",
+      "side": 1,
+      "message": "Nit/optional: 0 is the default for `rc_dropframe_thresh`, so this can be omitted.",
+      "revId": "36bfd9e48afdb48d5a8d03df398c647acc4f0553",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bbf50716_2f603908",
+        "filename": "test/metadata_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 219,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-12-04T22:31:39Z",
+      "side": 1,
+      "message": "Nit: This method probably should be named `InitializeSvc` or `InitializeSVC` to match the naming convention of the other methods.\n\nAlso this method could be a private method.",
+      "range": {
+        "startLine": 219,
+        "startChar": 7,
+        "endLine": 219,
+        "endChar": 21
+      },
+      "revId": "36bfd9e48afdb48d5a8d03df398c647acc4f0553",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fd099bcd_1936685f",
+        "filename": "test/metadata_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 248,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-12-04T22:31:39Z",
+      "side": 1,
+      "message": "\"video-\u003eframe() is called every superframe\" is not clear. We should change \"called\" to \"incremented\" or \"updated\".\n\n\nAlternatively (but less clear), we could say \"video-\u003eNext() is called every superframe\", because this is apparently referring to the `video-\u003eNext()` call (which increments `video-\u003eframe()`) in the following code in encode_test_driver.cc:\n\n```\n    int number_spatial_layers \u003d GetNumSpatialLayers();\n\n    bool again;\n    for (again \u003d true; again; video-\u003eNext()) {\n      again \u003d (video-\u003eimg() !\u003d nullptr);\n\n      for (int sl \u003d 0; sl \u003c number_spatial_layers; sl++) {\n        PreEncodeFrameHook(video, encoder.get());\n```\n\nNote: This comment is copied from svc_datarate_test.cc. We should make the same clarification there.",
+      "revId": "36bfd9e48afdb48d5a8d03df398c647acc4f0553",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "aa4240f4_968734f6",
+        "filename": "test/metadata_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 284,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-12-04T22:31:39Z",
+      "side": 1,
+      "message": "`num_seen_frame_pkts_` is only used in this test. We can detect whether `pkt` is a key frame by testing `pkt-\u003edata.frame.flags \u0026 AOM_FRAME_IS_KEY`. So we don\u0027t need to add the `num_seen_frame_pkts_` member.",
+      "revId": "36bfd9e48afdb48d5a8d03df398c647acc4f0553",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b67e3e83_34a63bdf",
+        "filename": "test/metadata_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 331,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-12-04T22:31:39Z",
+      "side": 1,
+      "message": "T35 \u003d\u003e Mdcv",
+      "range": {
+        "startLine": 331,
+        "startChar": 37,
+        "endLine": 331,
+        "endChar": 40
+      },
+      "revId": "36bfd9e48afdb48d5a8d03df398c647acc4f0553",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3ce1b8a1_9706a59d",
+        "filename": "test/metadata_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 344,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-12-04T22:31:39Z",
+      "side": 1,
+      "message": "Nit: Add `private:` before this line, if the data members can be private.",
+      "revId": "36bfd9e48afdb48d5a8d03df398c647acc4f0553",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9a2ca012_98202766",
+        "filename": "test/metadata_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 348,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-12-04T22:31:39Z",
+      "side": 1,
+      "message": "Delete this. It is not used.",
+      "revId": "36bfd9e48afdb48d5a8d03df398c647acc4f0553",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "405ee797_cd0a9b4d",
+        "filename": "test/metadata_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 358,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-12-04T22:31:39Z",
+      "side": 1,
+      "message": "Nit/optional: These three lines could be omitted because these are the default values.",
+      "range": {
+        "startLine": 356,
+        "startChar": 0,
+        "endLine": 358,
+        "endChar": 29
+      },
+      "revId": "36bfd9e48afdb48d5a8d03df398c647acc4f0553",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
