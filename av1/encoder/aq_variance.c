@@ -207,10 +207,8 @@ unsigned int av1_get_variance_boost_block_variance(const AV1_COMP *cpi,
                                  : av1_all_zeros;
   unsigned int variances[SUBBLOCKS_IN_SB];
 
-  // TODO: bug https://crbug.com/aomedia/375221136 - the current implementation
-  // truncates variances to integers during normalization, similar to SVT-AV1's
-  // counterpart. A possible improvement would be to use rounding: `(n + 32) /
-  // 64`, or just return variances as doubles.
+  // Calculate subblock variances. Truncating values to integers was found to
+  // perform better than rounding, or returning them as doubles.
   aom_variance_fn_t vf = cpi->ppi->fn_ptr[BLOCK_8X8].vf;
   for (int subb_i = 0; subb_i < SUBBLOCKS_IN_SB_DIM; subb_i++) {
     int i = subb_i * SUBBLOCK_SIZE;
