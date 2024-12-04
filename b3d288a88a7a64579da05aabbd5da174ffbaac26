@@ -50,6 +50,30 @@
       ],
       "revId": "b3d288a88a7a64579da05aabbd5da174ffbaac26",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "781d295e_6d63413a",
+        "filename": "av1/common/quant_common.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 3678645
+      },
+      "writtenOn": "2024-12-04T20:23:06Z",
+      "side": 1,
+      "message": "Great questions.\n\nSo, the original formula `aom_get_qmlevel_allintra()` was indeed tuned for SSIMULACRA2. However, after realizing that using the `aom_get_qmlevel()` formula made zero sense for all intra content in general (due to the increasing vs. decreasing function in qindex nature), we essentially \"promoted\" `aom_get_qmlevel_allintra()` to run in all intra mode (independently of the tuning), if the user enables QMs.\n\nWith this new QM formula however, we\u0027re explicitly altering chroma vs. luma bit ratio distribution, in a way that I can\u0027t guarantee metrics like PSNR YUV or SSIM YUV won\u0027t regress. This means it\u0027s best for us to keep using `aom_get_qmlevel_allintra()` for all intra mode outside the SSIMULACRA 2 tune.\n\nFor reference, a similar case happened with the chroma 444 formula: https://aomedia-review.googlesource.com/c/aom/+/195261.",
+      "parentUuid": "dc6c3f45_afb83e01",
+      "range": {
+        "startLine": 111,
+        "startChar": 18,
+        "endLine": 111,
+        "endChar": 50
+      },
+      "revId": "b3d288a88a7a64579da05aabbd5da174ffbaac26",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
