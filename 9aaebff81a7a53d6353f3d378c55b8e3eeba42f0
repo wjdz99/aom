@@ -1,0 +1,579 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8444e486_d8d6f291",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 56
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-12-05T18:21:55Z",
+      "side": 1,
+      "message": "change",
+      "range": {
+        "startLine": 9,
+        "startChar": 5,
+        "endLine": 9,
+        "endChar": 12
+      },
+      "revId": "9aaebff81a7a53d6353f3d378c55b8e3eeba42f0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a8eb4807_0249a91f",
+        "filename": "av1/ratectrl_rtc.cc",
+        "patchSetId": 56
+      },
+      "lineNbr": 342,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-12-05T18:21:55Z",
+      "side": 1,
+      "message": "remove this cosmetic change",
+      "revId": "9aaebff81a7a53d6353f3d378c55b8e3eeba42f0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6240117f_bdc7556f",
+        "filename": "av1/ratectrl_rtc.cc",
+        "patchSetId": 56
+      },
+      "lineNbr": 464,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-12-05T18:21:55Z",
+      "side": 1,
+      "message": "add a blank line after the function to balance the opening one in this block",
+      "fixSuggestions": [
+        {
+          "fixId": "977cb69b_ff93d421",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "av1/ratectrl_rtc.cc",
+              "range": {
+                "startLine": 465,
+                "startChar": 0,
+                "endLine": 465,
+                "endChar": 0
+              },
+              "replacement": "\n"
+            }
+          ]
+        }
+      ],
+      "revId": "9aaebff81a7a53d6353f3d378c55b8e3eeba42f0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a01e8ff4_d195e1ae",
+        "filename": "test/ratectrl_rtc_test.cc",
+        "patchSetId": 56
+      },
+      "lineNbr": 500,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-12-05T18:21:55Z",
+      "side": 1,
+      "message": "I think the AV1 suffix can be dropped for now since that is the only option in this library.",
+      "range": {
+        "startLine": 500,
+        "startChar": 31,
+        "endLine": 500,
+        "endChar": 34
+      },
+      "fixSuggestions": [
+        {
+          "fixId": "68f57f50_09a956b0",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "test/ratectrl_rtc_test.cc",
+              "range": {
+                "startLine": 500,
+                "startChar": 0,
+                "endLine": 510,
+                "endChar": 0
+              },
+              "replacement": "  void TestCreateAV1RateControl();\n  void TestUpdateRateControl();\n  void TestGetLoopFilterLevelRateControl();\n  void TestPostEncodeUpdateRateControl();\n  void TestGetQPRateControl();\n  void TestComputeQPRateControl();\n  void TestGetSegmenationDataRateControl();\n  void TestGetCdedInfoRateControl();\n  void TestCreateAV1RateControlConfig();\n  void TestDestoryAV1RateControlRTC();\n"
+            },
+            {
+              "path": "test/ratectrl_rtc_test.cc",
+              "range": {
+                "startLine": 541,
+                "startChar": 0,
+                "endLine": 542,
+                "endChar": 0
+              },
+              "replacement": "void RcExternMethodsInterfaceTest::TestCreateAV1RateControl() {\n"
+            },
+            {
+              "path": "test/ratectrl_rtc_test.cc",
+              "range": {
+                "startLine": 549,
+                "startChar": 0,
+                "endLine": 550,
+                "endChar": 0
+              },
+              "replacement": "void RcExternMethodsInterfaceTest::TestUpdateRateControl() {\n"
+            },
+            {
+              "path": "test/ratectrl_rtc_test.cc",
+              "range": {
+                "startLine": 559,
+                "startChar": 0,
+                "endLine": 560,
+                "endChar": 0
+              },
+              "replacement": "void RcExternMethodsInterfaceTest::TestGetQPRateControl() {\n"
+            },
+            {
+              "path": "test/ratectrl_rtc_test.cc",
+              "range": {
+                "startLine": 576,
+                "startChar": 0,
+                "endLine": 577,
+                "endChar": 0
+              },
+              "replacement": "void RcExternMethodsInterfaceTest::TestComputeQPRateControl() {\n"
+            },
+            {
+              "path": "test/ratectrl_rtc_test.cc",
+              "range": {
+                "startLine": 590,
+                "startChar": 0,
+                "endLine": 591,
+                "endChar": 0
+              },
+              "replacement": "void RcExternMethodsInterfaceTest::TestGetLoopFilterLevelRateControl() {\n"
+            },
+            {
+              "path": "test/ratectrl_rtc_test.cc",
+              "range": {
+                "startLine": 610,
+                "startChar": 0,
+                "endLine": 611,
+                "endChar": 0
+              },
+              "replacement": "void RcExternMethodsInterfaceTest::TestPostEncodeUpdateRateControl() {\n"
+            },
+            {
+              "path": "test/ratectrl_rtc_test.cc",
+              "range": {
+                "startLine": 619,
+                "startChar": 0,
+                "endLine": 620,
+                "endChar": 0
+              },
+              "replacement": "void RcExternMethodsInterfaceTest::TestGetSegmenationDataRateControl() {\n"
+            },
+            {
+              "path": "test/ratectrl_rtc_test.cc",
+              "range": {
+                "startLine": 631,
+                "startChar": 0,
+                "endLine": 632,
+                "endChar": 0
+              },
+              "replacement": "void RcExternMethodsInterfaceTest::TestGetCdedInfoRateControl() {\n"
+            },
+            {
+              "path": "test/ratectrl_rtc_test.cc",
+              "range": {
+                "startLine": 647,
+                "startChar": 0,
+                "endLine": 648,
+                "endChar": 0
+              },
+              "replacement": "void RcExternMethodsInterfaceTest::TestCreateAV1RateControlConfig() {\n"
+            },
+            {
+              "path": "test/ratectrl_rtc_test.cc",
+              "range": {
+                "startLine": 660,
+                "startChar": 0,
+                "endLine": 661,
+                "endChar": 0
+              },
+              "replacement": "void RcExternMethodsInterfaceTest::TestDestoryAV1RateControlRTC() {\n"
+            },
+            {
+              "path": "test/ratectrl_rtc_test.cc",
+              "range": {
+                "startLine": 683,
+                "startChar": 0,
+                "endLine": 685,
+                "endChar": 0
+              },
+              "replacement": "TEST_P(RcExternMethodsInterfaceTest, CreateAV1RateControlTest) {\n  TestCreateAV1RateControl();\n"
+            },
+            {
+              "path": "test/ratectrl_rtc_test.cc",
+              "range": {
+                "startLine": 687,
+                "startChar": 0,
+                "endLine": 689,
+                "endChar": 0
+              },
+              "replacement": "TEST_P(RcExternMethodsInterfaceTest, UpdateRateControllerTest) {\n  TestUpdateRateControl();\n"
+            },
+            {
+              "path": "test/ratectrl_rtc_test.cc",
+              "range": {
+                "startLine": 691,
+                "startChar": 0,
+                "endLine": 693,
+                "endChar": 0
+              },
+              "replacement": "TEST_P(RcExternMethodsInterfaceTest, GetQpRateControllerTest) {\n  TestGetQPRateControl();\n"
+            },
+            {
+              "path": "test/ratectrl_rtc_test.cc",
+              "range": {
+                "startLine": 695,
+                "startChar": 0,
+                "endLine": 697,
+                "endChar": 0
+              },
+              "replacement": "TEST_P(RcExternMethodsInterfaceTest, ComputeQPRateControllerTest) {\n  TestComputeQPRateControl();\n"
+            },
+            {
+              "path": "test/ratectrl_rtc_test.cc",
+              "range": {
+                "startLine": 699,
+                "startChar": 0,
+                "endLine": 701,
+                "endChar": 0
+              },
+              "replacement": "TEST_P(RcExternMethodsInterfaceTest, GetLoopFilterLevelRateControllerTest) {\n  TestGetLoopFilterLevelRateControl();\n"
+            },
+            {
+              "path": "test/ratectrl_rtc_test.cc",
+              "range": {
+                "startLine": 703,
+                "startChar": 0,
+                "endLine": 705,
+                "endChar": 0
+              },
+              "replacement": "TEST_P(RcExternMethodsInterfaceTest, PostEncodeUpdateRateControllerTest) {\n  TestPostEncodeUpdateRateControl();\n"
+            },
+            {
+              "path": "test/ratectrl_rtc_test.cc",
+              "range": {
+                "startLine": 707,
+                "startChar": 0,
+                "endLine": 709,
+                "endChar": 0
+              },
+              "replacement": "TEST_P(RcExternMethodsInterfaceTest, GetSegmenationDataRateControllerTest) {\n  TestGetSegmenationDataRateControl();\n"
+            },
+            {
+              "path": "test/ratectrl_rtc_test.cc",
+              "range": {
+                "startLine": 711,
+                "startChar": 0,
+                "endLine": 713,
+                "endChar": 0
+              },
+              "replacement": "TEST_P(RcExternMethodsInterfaceTest, GetCdedInfoRateControllerTest) {\n  TestGetCdedInfoRateControl();\n"
+            },
+            {
+              "path": "test/ratectrl_rtc_test.cc",
+              "range": {
+                "startLine": 715,
+                "startChar": 0,
+                "endLine": 717,
+                "endChar": 0
+              },
+              "replacement": "TEST_P(RcExternMethodsInterfaceTest, CreateAV1RateControlConfigTest) {\n  TestCreateAV1RateControlConfig();\n"
+            },
+            {
+              "path": "test/ratectrl_rtc_test.cc",
+              "range": {
+                "startLine": 720,
+                "startChar": 0,
+                "endLine": 721,
+                "endChar": 0
+              },
+              "replacement": "  TestDestoryAV1RateControlRTC();\n"
+            }
+          ]
+        }
+      ],
+      "revId": "9aaebff81a7a53d6353f3d378c55b8e3eeba42f0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ce8f89d7_e3be7f9a",
+        "filename": "test/ratectrl_rtc_test.cc",
+        "patchSetId": 56
+      },
+      "lineNbr": 506,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-12-05T18:21:55Z",
+      "side": 1,
+      "message": "`Segmentation`",
+      "range": {
+        "startLine": 506,
+        "startChar": 14,
+        "endLine": 506,
+        "endChar": 25
+      },
+      "fixSuggestions": [
+        {
+          "fixId": "82d71851_321acfb5",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "test/ratectrl_rtc_test.cc",
+              "range": {
+                "startLine": 506,
+                "startChar": 0,
+                "endLine": 507,
+                "endChar": 0
+              },
+              "replacement": "  void TestGetSegmentationDataRateControlAV1();\n"
+            },
+            {
+              "path": "test/ratectrl_rtc_test.cc",
+              "range": {
+                "startLine": 619,
+                "startChar": 0,
+                "endLine": 620,
+                "endChar": 0
+              },
+              "replacement": "void RcExternMethodsInterfaceTest::TestGetSegmentationDataRateControlAV1() {\n"
+            },
+            {
+              "path": "test/ratectrl_rtc_test.cc",
+              "range": {
+                "startLine": 707,
+                "startChar": 0,
+                "endLine": 709,
+                "endChar": 0
+              },
+              "replacement": "TEST_P(RcExternMethodsInterfaceTest, GetSegmentationDataRateControllerAV1Test) {\n  TestGetSegmentationDataRateControlAV1();\n"
+            }
+          ]
+        }
+      ],
+      "revId": "9aaebff81a7a53d6353f3d378c55b8e3eeba42f0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f968471e_a3a63316",
+        "filename": "test/ratectrl_rtc_test.cc",
+        "patchSetId": 56
+      },
+      "lineNbr": 509,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-12-05T18:21:55Z",
+      "side": 1,
+      "message": "`Destroy`",
+      "range": {
+        "startLine": 509,
+        "startChar": 11,
+        "endLine": 509,
+        "endChar": 18
+      },
+      "fixSuggestions": [
+        {
+          "fixId": "6798eeb3_5612ed63",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "test/ratectrl_rtc_test.cc",
+              "range": {
+                "startLine": 509,
+                "startChar": 0,
+                "endLine": 510,
+                "endChar": 0
+              },
+              "replacement": "  void TestDestroyAV1RateControlRTCAV1();\n"
+            },
+            {
+              "path": "test/ratectrl_rtc_test.cc",
+              "range": {
+                "startLine": 660,
+                "startChar": 0,
+                "endLine": 661,
+                "endChar": 0
+              },
+              "replacement": "void RcExternMethodsInterfaceTest::TestDestroyAV1RateControlRTCAV1() {\n"
+            },
+            {
+              "path": "test/ratectrl_rtc_test.cc",
+              "range": {
+                "startLine": 719,
+                "startChar": 0,
+                "endLine": 721,
+                "endChar": 0
+              },
+              "replacement": "TEST_P(RcExternMethodsInterfaceTest, DestroyAV1RateControlRTCAV1Test) {\n  TestDestroyAV1RateControlRTCAV1();\n"
+            }
+          ]
+        }
+      ],
+      "revId": "9aaebff81a7a53d6353f3d378c55b8e3eeba42f0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6ccb24e7_f8502a18",
+        "filename": "test/ratectrl_rtc_test.cc",
+        "patchSetId": 56
+      },
+      "lineNbr": 571,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-12-05T18:21:55Z",
+      "side": 1,
+      "message": "swap these parameters",
+      "range": {
+        "startLine": 571,
+        "startChar": 14,
+        "endLine": 571,
+        "endChar": 19
+      },
+      "fixSuggestions": [
+        {
+          "fixId": "05ffdc69_d0050874",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "test/ratectrl_rtc_test.cc",
+              "range": {
+                "startLine": 571,
+                "startChar": 0,
+                "endLine": 572,
+                "endChar": 0
+              },
+              "replacement": "    ASSERT_NE(qp, 0);  // 0 is invalid for qp\n"
+            }
+          ]
+        }
+      ],
+      "revId": "9aaebff81a7a53d6353f3d378c55b8e3eeba42f0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4986b704_4226d21b",
+        "filename": "test/ratectrl_rtc_test.cc",
+        "patchSetId": 56
+      },
+      "lineNbr": 631,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-12-05T18:21:55Z",
+      "side": 1,
+      "message": "`Cdef`",
+      "range": {
+        "startLine": 631,
+        "startChar": 42,
+        "endLine": 631,
+        "endChar": 46
+      },
+      "fixSuggestions": [
+        {
+          "fixId": "85348d88_95f35888",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "test/ratectrl_rtc_test.cc",
+              "range": {
+                "startLine": 507,
+                "startChar": 0,
+                "endLine": 508,
+                "endChar": 0
+              },
+              "replacement": "  void TestGetCdefInfoRateControlAV1();\n"
+            },
+            {
+              "path": "test/ratectrl_rtc_test.cc",
+              "range": {
+                "startLine": 631,
+                "startChar": 0,
+                "endLine": 632,
+                "endChar": 0
+              },
+              "replacement": "void RcExternMethodsInterfaceTest::TestGetCdefInfoRateControlAV1() {\n"
+            },
+            {
+              "path": "test/ratectrl_rtc_test.cc",
+              "range": {
+                "startLine": 712,
+                "startChar": 0,
+                "endLine": 713,
+                "endChar": 0
+              },
+              "replacement": "  TestGetCdefInfoRateControlAV1();\n"
+            }
+          ]
+        }
+      ],
+      "revId": "9aaebff81a7a53d6353f3d378c55b8e3eeba42f0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d7fcc488_2f50fd43",
+        "filename": "test/ratectrl_rtc_test.cc",
+        "patchSetId": 56
+      },
+      "lineNbr": 725,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-12-05T18:21:55Z",
+      "side": 1,
+      "message": "add a blank line here to balance the one opening this block",
+      "fixSuggestions": [
+        {
+          "fixId": "ec004617_cf74759e",
+          "description": "prompt_to_edit API",
+          "replacements": [
+            {
+              "path": "test/ratectrl_rtc_test.cc",
+              "range": {
+                "startLine": 726,
+                "startChar": 0,
+                "endLine": 726,
+                "endChar": 0
+              },
+              "replacement": "\n"
+            }
+          ]
+        }
+      ],
+      "revId": "9aaebff81a7a53d6353f3d378c55b8e3eeba42f0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
