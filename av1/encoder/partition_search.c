@@ -744,7 +744,8 @@ void av1_set_offsets(const AV1_COMP *const cpi, const TileInfo *const tile,
 
 static inline void hybrid_intra_mode_search(AV1_COMP *cpi, MACROBLOCK *const x,
                                             RD_STATS *rd_cost, BLOCK_SIZE bsize,
-                                            PICK_MODE_CONTEXT *ctx) {
+                                            PICK_MODE_CONTEXT *ctx, int mi_col,
+                                            int mi_row) {
   int use_rdopt = 0;
   const int hybrid_intra_pickmode = cpi->sf.rt_sf.hybrid_intra_pickmode;
   // Use rd pick for intra mode search based on block size and variance.
@@ -758,7 +759,7 @@ static inline void hybrid_intra_mode_search(AV1_COMP *cpi, MACROBLOCK *const x,
   if (use_rdopt)
     av1_rd_pick_intra_mode_sb(cpi, x, rd_cost, bsize, ctx, INT64_MAX);
   else
-    av1_nonrd_pick_intra_mode(cpi, x, rd_cost, bsize, ctx);
+    av1_nonrd_pick_intra_mode(cpi, x, rd_cost, bsize, ctx, mi_col, mi_row);
 }
 
 // For real time/allintra row-mt enabled multi-threaded encoding with cost
@@ -2309,7 +2310,7 @@ static void pick_sb_modes_nonrd(AV1_COMP *const cpi, TileDataEnc *tile_data,
 #if CONFIG_COLLECT_COMPONENT_TIMING
     start_timing(cpi, hybrid_intra_mode_search_time);
 #endif
-    hybrid_intra_mode_search(cpi, x, rd_cost, bsize, ctx);
+    hybrid_intra_mode_search(cpi, x, rd_cost, bsize, ctx, mi_col, mi_row);
 #if CONFIG_COLLECT_COMPONENT_TIMING
     end_timing(cpi, hybrid_intra_mode_search_time);
 #endif
