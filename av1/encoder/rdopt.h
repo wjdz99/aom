@@ -121,7 +121,8 @@ void av1_rd_pick_inter_mode(struct AV1_COMP *cpi, struct TileDataEnc *tile_data,
  * corresponding to the best mode found.
  */
 void av1_nonrd_pick_intra_mode(AV1_COMP *cpi, MACROBLOCK *x, RD_STATS *rd_cost,
-                               BLOCK_SIZE bsize, PICK_MODE_CONTEXT *ctx);
+                               BLOCK_SIZE bsize, PICK_MODE_CONTEXT *ctx,
+                               int mi_col, int mi_row);
 
 /*!\brief AV1 inter mode selection based on Non-RD optimized model.
  *
