@@ -18,6 +18,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "6eb1a74b_124d209d",
+        "filename": "test/metadata_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 26789
+      },
+      "writtenOn": "2024-12-05T14:29:21Z",
+      "side": 0,
+      "message": "Previously, only the first frame (which is obviously a keyframe) was getting decoded, all the other frames were dropped because of the `rc_dropframe_thresh` setting and the default speed. The test broke when I added `encoder-\u003eControl(AOME_SET_CPUUSED, 6);` because some frames were no longer droppped.",
+      "parentUuid": "b31b3df6_55095eef",
+      "revId": "6a1c55623805960d2a3ec0545e91263cf16441db",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "6a469b65_0d07a1bb",
@@ -31,6 +49,24 @@
       "writtenOn": "2024-12-04T22:31:39Z",
       "side": 0,
       "message": "Just curious: Why is this deleted?",
+      "revId": "6a1c55623805960d2a3ec0545e91263cf16441db",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "aca25d21_f1ed8cb5",
+        "filename": "test/metadata_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 178,
+      "author": {
+        "id": 26789
+      },
+      "writtenOn": "2024-12-05T14:29:21Z",
+      "side": 0,
+      "message": "Because usage is already set elsewhere, in the test instantiation:\n\n```\nAV1_INSTANTIATE_TEST_SUITE(MetadataEncodeTest,\n                           ::testing::Values(::libaom_test::kOnePassGood));\n```\n\nSee also https://aomedia.googlesource.com/aom/+/6a1c55623805960d2a3ec0545e91263cf16441db/test/encode_test_driver.cc#87\n\nMoreover the two values contradicted eachother.",
+      "parentUuid": "6a469b65_0d07a1bb",
       "revId": "6a1c55623805960d2a3ec0545e91263cf16441db",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }

@@ -35,6 +35,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ee06d59b_4c00e9ef",
+        "filename": "av1/common/resize.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1264,
+      "author": {
+        "id": 26789
+      },
+      "writtenOn": "2024-12-05T14:29:21Z",
+      "side": 1,
+      "message": "The other message refers to allocating the buffer for the resized frame, but here I think it\u0027s clearer to use \u0027frame\u0027.",
+      "parentUuid": "1982bc27_4809fe9f",
+      "revId": "36bfd9e48afdb48d5a8d03df398c647acc4f0553",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b2e6f22d_34d1b5cb",
@@ -54,6 +72,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "f6c78095_99e57f49",
+        "filename": "test/metadata_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 26789
+      },
+      "writtenOn": "2024-12-05T14:29:21Z",
+      "side": 1,
+      "message": "Thanks, I couldn\u0027t figure out how to tell if it was a keyframe.",
+      "parentUuid": "b2e6f22d_34d1b5cb",
+      "revId": "36bfd9e48afdb48d5a8d03df398c647acc4f0553",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "e8e90199_231584bc",
         "filename": "test/metadata_test.cc",
         "patchSetId": 4
@@ -65,6 +101,24 @@
       "writtenOn": "2024-12-04T22:31:39Z",
       "side": 1,
       "message": "Ideally we should use `std::string_view` to avoid copying `pkt` data, but that requires C++17.",
+      "revId": "36bfd9e48afdb48d5a8d03df398c647acc4f0553",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cb189de7_defeb22d",
+        "filename": "test/metadata_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 26789
+      },
+      "writtenOn": "2024-12-05T14:29:21Z",
+      "side": 1,
+      "message": "Yup.",
+      "parentUuid": "e8e90199_231584bc",
       "revId": "36bfd9e48afdb48d5a8d03df398c647acc4f0553",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -92,6 +146,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "926b485e_45ffc7a3",
+        "filename": "test/metadata_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 26789
+      },
+      "writtenOn": "2024-12-05T14:29:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "71b91b5c_8d95e91b",
+      "range": {
+        "startLine": 156,
+        "startChar": 35,
+        "endLine": 156,
+        "endChar": 39
+      },
+      "revId": "36bfd9e48afdb48d5a8d03df398c647acc4f0553",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "573b965e_73f0b63d",
@@ -109,6 +187,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "4b60a2a9_1b721251",
+        "filename": "test/metadata_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 172,
+      "author": {
+        "id": 26789
+      },
+      "writtenOn": "2024-12-05T14:29:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "573b965e_73f0b63d",
+      "revId": "36bfd9e48afdb48d5a8d03df398c647acc4f0553",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "4f2a81b2_ca8407bf",
@@ -122,6 +218,24 @@
       "writtenOn": "2024-12-04T22:31:39Z",
       "side": 1,
       "message": "Nit/optional: 0 is the default for `rc_dropframe_thresh`, so this can be omitted.",
+      "revId": "36bfd9e48afdb48d5a8d03df398c647acc4f0553",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e42b8679_f5e827a0",
+        "filename": "test/metadata_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 194,
+      "author": {
+        "id": 26789
+      },
+      "writtenOn": "2024-12-05T14:29:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4f2a81b2_ca8407bf",
       "revId": "36bfd9e48afdb48d5a8d03df398c647acc4f0553",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -149,6 +263,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "2015b601_91ea9079",
+        "filename": "test/metadata_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 219,
+      "author": {
+        "id": 26789
+      },
+      "writtenOn": "2024-12-05T14:29:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bbf50716_2f603908",
+      "range": {
+        "startLine": 219,
+        "startChar": 7,
+        "endLine": 219,
+        "endChar": 21
+      },
+      "revId": "36bfd9e48afdb48d5a8d03df398c647acc4f0553",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "fd099bcd_1936685f",
@@ -162,6 +300,24 @@
       "writtenOn": "2024-12-04T22:31:39Z",
       "side": 1,
       "message": "\"video-\u003eframe() is called every superframe\" is not clear. We should change \"called\" to \"incremented\" or \"updated\".\n\n\nAlternatively (but less clear), we could say \"video-\u003eNext() is called every superframe\", because this is apparently referring to the `video-\u003eNext()` call (which increments `video-\u003eframe()`) in the following code in encode_test_driver.cc:\n\n```\n    int number_spatial_layers \u003d GetNumSpatialLayers();\n\n    bool again;\n    for (again \u003d true; again; video-\u003eNext()) {\n      again \u003d (video-\u003eimg() !\u003d nullptr);\n\n      for (int sl \u003d 0; sl \u003c number_spatial_layers; sl++) {\n        PreEncodeFrameHook(video, encoder.get());\n```\n\nNote: This comment is copied from svc_datarate_test.cc. We should make the same clarification there.",
+      "revId": "36bfd9e48afdb48d5a8d03df398c647acc4f0553",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8b364f2d_d9c31f44",
+        "filename": "test/metadata_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 248,
+      "author": {
+        "id": 26789
+      },
+      "writtenOn": "2024-12-05T14:29:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fd099bcd_1936685f",
       "revId": "36bfd9e48afdb48d5a8d03df398c647acc4f0553",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -183,6 +339,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "88572273_55946453",
+        "filename": "test/metadata_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 252,
+      "author": {
+        "id": 26789
+      },
+      "writtenOn": "2024-12-05T14:29:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bf561f46_091a52bf",
+      "revId": "36bfd9e48afdb48d5a8d03df398c647acc4f0553",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "aa4240f4_968734f6",
@@ -196,6 +370,24 @@
       "writtenOn": "2024-12-04T22:31:39Z",
       "side": 1,
       "message": "`num_seen_frame_pkts_` is only used in this test. We can detect whether `pkt` is a key frame by testing `pkt-\u003edata.frame.flags \u0026 AOM_FRAME_IS_KEY`. So we don\u0027t need to add the `num_seen_frame_pkts_` member.",
+      "revId": "36bfd9e48afdb48d5a8d03df398c647acc4f0553",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cda23496_c4975765",
+        "filename": "test/metadata_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 284,
+      "author": {
+        "id": 26789
+      },
+      "writtenOn": "2024-12-05T14:29:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "aa4240f4_968734f6",
       "revId": "36bfd9e48afdb48d5a8d03df398c647acc4f0553",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -223,6 +415,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "b24ee020_718316bc",
+        "filename": "test/metadata_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 331,
+      "author": {
+        "id": 26789
+      },
+      "writtenOn": "2024-12-05T14:29:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b67e3e83_34a63bdf",
+      "range": {
+        "startLine": 331,
+        "startChar": 37,
+        "endLine": 331,
+        "endChar": 40
+      },
+      "revId": "36bfd9e48afdb48d5a8d03df398c647acc4f0553",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "3ce1b8a1_9706a59d",
@@ -236,6 +452,24 @@
       "writtenOn": "2024-12-04T22:31:39Z",
       "side": 1,
       "message": "Nit: Add `private:` before this line, if the data members can be private.",
+      "revId": "36bfd9e48afdb48d5a8d03df398c647acc4f0553",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "142a3eeb_d1858d2e",
+        "filename": "test/metadata_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 344,
+      "author": {
+        "id": 26789
+      },
+      "writtenOn": "2024-12-05T14:29:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3ce1b8a1_9706a59d",
       "revId": "36bfd9e48afdb48d5a8d03df398c647acc4f0553",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -257,6 +491,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "9f9fbd6f_918529b0",
+        "filename": "test/metadata_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 348,
+      "author": {
+        "id": 26789
+      },
+      "writtenOn": "2024-12-05T14:29:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a2ca012_98202766",
+      "revId": "36bfd9e48afdb48d5a8d03df398c647acc4f0553",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "405ee797_cd0a9b4d",
@@ -270,6 +522,30 @@
       "writtenOn": "2024-12-04T22:31:39Z",
       "side": 1,
       "message": "Nit/optional: These three lines could be omitted because these are the default values.",
+      "range": {
+        "startLine": 356,
+        "startChar": 0,
+        "endLine": 358,
+        "endChar": 29
+      },
+      "revId": "36bfd9e48afdb48d5a8d03df398c647acc4f0553",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8142538b_f36f14e5",
+        "filename": "test/metadata_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 358,
+      "author": {
+        "id": 26789
+      },
+      "writtenOn": "2024-12-05T14:29:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "405ee797_cd0a9b4d",
       "range": {
         "startLine": 356,
         "startChar": 0,
