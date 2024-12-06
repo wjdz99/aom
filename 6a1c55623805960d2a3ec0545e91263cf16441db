@@ -69,6 +69,24 @@
       "parentUuid": "6a469b65_0d07a1bb",
       "revId": "6a1c55623805960d2a3ec0545e91263cf16441db",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c27c152f_a3431676",
+        "filename": "test/metadata_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 178,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-12-06T00:18:07Z",
+      "side": 0,
+      "message": "I wonder if you confused \"usage\" with \"rc_end_usage\".\n\n\"Usage\" has three possible values: AOM_USAGE_GOOD_QUALITY, AOM_USAGE_REALTIME, and AOM_USAGE_ALL_INTRA.\n\n\"rc_end_usage\" means the rate control mode and has four possible values:\n\n```\n/*!\\brief Rate control mode */\nenum aom_rc_mode {\n  AOM_VBR, /**\u003c Variable Bit Rate (VBR) mode */\n  AOM_CBR, /**\u003c Constant Bit Rate (CBR) mode */\n  AOM_CQ,  /**\u003c Constrained Quality (CQ)  mode */\n  AOM_Q,   /**\u003c Constant Quality (Q) mode */\n};\n```\n\nHere are the default \"rc_end_usage\" for each of the three \"usage\" values:\n\n* AOM_USAGE_GOOD_QUALITY: AOM_VBR\n* AOM_USAGE_REALTIME: AOM_CBR\n* AOM_USAGE_ALL_INTRA: AOM_Q\n\nIf MetadataEncodeTest is only run with :libaom_test::kOnePassGood, then the default is AOM_VBR, so removing this line changes the behavior.",
+      "parentUuid": "aca25d21_f1ed8cb5",
+      "revId": "6a1c55623805960d2a3ec0545e91263cf16441db",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
