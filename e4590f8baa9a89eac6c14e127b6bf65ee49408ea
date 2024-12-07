@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9e4596f5_e8d65a05",
+        "filename": "av1/encoder/aq_variance.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 237,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-12-07T00:03:42Z",
+      "side": 1,
+      "message": "ClangTidy warns:\n\nno header providing \"AOMMAX\" is directly included\n\nno header providing \"AOMMIN\" is directly included",
+      "revId": "e4590f8baa9a89eac6c14e127b6bf65ee49408ea",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "337cedf8_29b8218d",
+        "filename": "av1/encoder/nonrd_opt.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 587,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-12-07T00:03:42Z",
+      "side": 1,
+      "message": "ClangTidy warns:\n\nno header providing \"PICK_MODE_CONTEXT\" is directly included",
+      "revId": "e4590f8baa9a89eac6c14e127b6bf65ee49408ea",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
