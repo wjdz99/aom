@@ -50,6 +50,24 @@
       "message": "This is an unusual way to reduce the strengths by slightly more than a half. Note that the results are not increasing, and there are gaps. Is this intended?\n\nPlease see the following short program I wrote to calculate the results. I don\u0027t know the range of CDEF strengths, so I just use 0..255 in the program.\n\n```\n$ cat cdef_strengths.c\n#include \u003cstdio.h\u003e\n\n#define CDEF_SEC_STRENGTHS 4\n\nint main(void) {\n  for (int luma_strength \u003d 0; luma_strength \u003c 256; luma_strength++) {\n    const int new_pri_luma_strength \u003d\n        (luma_strength / CDEF_SEC_STRENGTHS) \u003e\u003e 1;\n    const int new_sec_luma_strength \u003d\n        (luma_strength % CDEF_SEC_STRENGTHS) \u003e\u003e 1;\n    const int new_luma_strength \u003d\n        new_pri_luma_strength * CDEF_SEC_STRENGTHS + new_sec_luma_strength;\n    printf(\"%d, \", new_luma_strength);\n    if ((luma_strength + 1) % (CDEF_SEC_STRENGTHS * 2) \u003d\u003d 0) {\n      printf(\"\\n\");\n    }\n  }\n  return 0;\n}\n$ clang -Weverything cdef_strengths.c -o cdef_strengths\n$ ./cdef_strengths\n0, 0, 1, 1, 0, 0, 1, 1, \n4, 4, 5, 5, 4, 4, 5, 5, \n8, 8, 9, 9, 8, 8, 9, 9, \n12, 12, 13, 13, 12, 12, 13, 13, \n16, 16, 17, 17, 16, 16, 17, 17, \n20, 20, 21, 21, 20, 20, 21, 21, \n24, 24, 25, 25, 24, 24, 25, 25, \n28, 28, 29, 29, 28, 28, 29, 29, \n32, 32, 33, 33, 32, 32, 33, 33, \n36, 36, 37, 37, 36, 36, 37, 37, \n40, 40, 41, 41, 40, 40, 41, 41, \n44, 44, 45, 45, 44, 44, 45, 45, \n48, 48, 49, 49, 48, 48, 49, 49, \n52, 52, 53, 53, 52, 52, 53, 53, \n56, 56, 57, 57, 56, 56, 57, 57, \n60, 60, 61, 61, 60, 60, 61, 61, \n64, 64, 65, 65, 64, 64, 65, 65, \n68, 68, 69, 69, 68, 68, 69, 69, \n72, 72, 73, 73, 72, 72, 73, 73, \n76, 76, 77, 77, 76, 76, 77, 77, \n80, 80, 81, 81, 80, 80, 81, 81, \n84, 84, 85, 85, 84, 84, 85, 85, \n88, 88, 89, 89, 88, 88, 89, 89, \n92, 92, 93, 93, 92, 92, 93, 93, \n96, 96, 97, 97, 96, 96, 97, 97, \n100, 100, 101, 101, 100, 100, 101, 101, \n104, 104, 105, 105, 104, 104, 105, 105, \n108, 108, 109, 109, 108, 108, 109, 109, \n112, 112, 113, 113, 112, 112, 113, 113, \n116, 116, 117, 117, 116, 116, 117, 117, \n120, 120, 121, 121, 120, 120, 121, 121, \n124, 124, 125, 125, 124, 124, 125, 125, \n```",
       "revId": "76f8e977c5dc6f52636686a25ccc479ce8d40b89",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "670d95d2_71f095bb",
+        "filename": "av1/encoder/pickcdef.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 989,
+      "author": {
+        "id": 3678645
+      },
+      "writtenOn": "2024-12-07T05:33:54Z",
+      "side": 1,
+      "message": "That number progression looks correct to me.\n\nBasically, CDEF supports two types of strengths: primary (4 bits: `[0-15]`) and secondary (2 bits: `[0-3]`). These two strengths are then \"packed\" into a single integer value and signaled as follows:\n\n`p4,p3,p2,p1,s2,s1`\n\n...where the \"p\"s represent the primary strength bits, and the \"s\"s represent the secondary strength bits.\n\nDue to the two right-shifts by 1, reduced strength CDEF shrinks the range of primary strengths down to `[0-7]` and secondary strengths down to just `[0-1]`. Once these two strengths are re-packed into one integer, the possible values adopt the form of:\n\n`0,p4,p3,p2,0,s2`.\n\nThis has the following consequences:\n1. Because the least-significant bit is dropped for both the pri and sec strengths, four packed full strength CDEF values map to just one reduced strength value. e.g. `[0, 1, 4, 5]` all map to `[0]`.\n2. Because the least-significant bit is dropped for the pri strength, packed reduced strength values become non-monotonic with respect to full strength values. e.g. `[3, 4]` become `[1, 0]`.\n3. Because the most-significant bit for the secondary strength will always be 0, some reduced strength packed values (like 2 or 3) will never occur.\n\nThese consequences explain why e.g. `[0, 1, 2, 3, 4, 5, 6, 7]` become `[0, 0, 1, 1, 0, 0, 1, 1]`.\n\nI hope this explains what\u0027s happening under the hood.",
+      "parentUuid": "5e6c4343_ec7f7889",
+      "revId": "76f8e977c5dc6f52636686a25ccc479ce8d40b89",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
