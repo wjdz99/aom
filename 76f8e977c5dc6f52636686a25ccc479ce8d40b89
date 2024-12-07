@@ -127,6 +127,24 @@
       "parentUuid": "670d95d2_71f095bb",
       "revId": "76f8e977c5dc6f52636686a25ccc479ce8d40b89",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d2cc2907_663cc3ab",
+        "filename": "av1/encoder/pickcdef.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 989,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-12-07T16:27:51Z",
+      "side": 1,
+      "message": "In other words, I wonder if we should perform this step from the AV1 spec:\n\n```\n        if ( cdef_y_sec_strength[i] \u003d\u003d 3 )     \n            cdef_y_sec_strength[i] +\u003d 1\n```\n\nbefore we reduce it with `\u003e\u003e 1`.\n\nRegardless of your answer, it is fine to submit the current formulas first.",
+      "parentUuid": "65c2a1f1_979da3d4",
+      "revId": "76f8e977c5dc6f52636686a25ccc479ce8d40b89",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
