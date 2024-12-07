@@ -1,6 +1,29 @@
 {
   "comments": [
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "f3011b8c_ae317174",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 6
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-12-07T16:24:32Z",
+      "side": 1,
+      "message": "This summary should become a comment somewhere, for example at the definition of CDEF_ADAPTIVE.\n\nNote: I wrote this comment yesterday but somehow neglected to publish it. Sorry!",
+      "range": {
+        "startLine": 18,
+        "startChar": 0,
+        "endLine": 21,
+        "endChar": 28
+      },
+      "revId": "76f8e977c5dc6f52636686a25ccc479ce8d40b89",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "32e76568_01ca1bed",
@@ -84,6 +107,24 @@
       "side": 1,
       "message": "That number progression looks correct to me.\n\nBasically, CDEF supports two types of strengths: primary (4 bits: `[0-15]`) and secondary (2 bits: `[0-3]`). These two strengths are then \"packed\" into a single integer value and signaled as follows:\n\n`p4,p3,p2,p1,s2,s1`\n\n...where the \"p\"s represent the primary strength bits, and the \"s\"s represent the secondary strength bits.\n\nDue to the two right-shifts by 1, reduced strength CDEF shrinks the range of primary strengths down to `[0-7]` and secondary strengths down to just `[0-1]`. Once these two strengths are re-packed into one integer, the possible values adopt the form of:\n\n`0,p4,p3,p2,0,s2`.\n\nThis has the following consequences:\n1. Because the least-significant bit is dropped for both the pri and sec strengths, four packed full strength CDEF values map to just one reduced strength value. e.g. `[0, 1, 4, 5]` all map to `[0]`.\n2. Because the least-significant bit is dropped for the pri strength, packed reduced strength values become non-monotonic with respect to full strength values. e.g. `[3, 4]` become `[1, 0]`.\n3. Because the most-significant bit for the secondary strength will always be 0, some reduced strength packed values (like 2 or 3) will never occur.\n\nThese consequences explain why e.g. `[0, 1, 2, 3, 4, 5, 6, 7]` become `[0, 0, 1, 1, 0, 0, 1, 1]`.\n\nI hope this explains what\u0027s happening under the hood.",
       "parentUuid": "5e6c4343_ec7f7889",
+      "revId": "76f8e977c5dc6f52636686a25ccc479ce8d40b89",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "65c2a1f1_979da3d4",
+        "filename": "av1/encoder/pickcdef.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 989,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-12-07T16:24:32Z",
+      "side": 1,
+      "message": "Thanks a lot for the clear explanation! I am sorry that I misunderstood this. I didn\u0027t realize it is a packed format and the two components are independent.\n\nI found that the encoded value of 3 for the secondary strength actually means 4:\n\n```\n        cdef_y_pri_strength[i]\tf(4)\n        cdef_y_sec_strength[i]\tf(2)\n        if ( cdef_y_sec_strength[i] \u003d\u003d 3 )\t \n            cdef_y_sec_strength[i] +\u003d 1\n```\n\nI.e., the actual secondary strength values are 0, 1, 2, 4.\n\nSo we reduce the actual secondary strength value of 4 to 1. Please confirm this is intended.",
+      "parentUuid": "670d95d2_71f095bb",
       "revId": "76f8e977c5dc6f52636686a25ccc479ce8d40b89",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
