@@ -26,6 +26,30 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "9a9760c2_ac43153a",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 6
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 3678645
+      },
+      "writtenOn": "2024-12-08T03:16:24Z",
+      "side": 1,
+      "message": "No worries! I added this bit to the comment that sets adaptive CDEF in  `handle_tuning()`, as it seemed like the best place.",
+      "parentUuid": "f3011b8c_ae317174",
+      "range": {
+        "startLine": 18,
+        "startChar": 0,
+        "endLine": 21,
+        "endChar": 28
+      },
+      "revId": "76f8e977c5dc6f52636686a25ccc479ce8d40b89",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "32e76568_01ca1bed",
         "filename": "/PATCHSET_LEVEL",
         "patchSetId": 6
@@ -143,6 +167,24 @@
       "side": 1,
       "message": "In other words, I wonder if we should perform this step from the AV1 spec:\n\n```\n        if ( cdef_y_sec_strength[i] \u003d\u003d 3 )     \n            cdef_y_sec_strength[i] +\u003d 1\n```\n\nbefore we reduce it with `\u003e\u003e 1`.\n\nRegardless of your answer, it is fine to submit the current formulas first.",
       "parentUuid": "65c2a1f1_979da3d4",
+      "revId": "76f8e977c5dc6f52636686a25ccc479ce8d40b89",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "75fafb51_021a54da",
+        "filename": "av1/encoder/pickcdef.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 989,
+      "author": {
+        "id": 3678645
+      },
+      "writtenOn": "2024-12-08T03:16:24Z",
+      "side": 1,
+      "message": "Good point, glad that you brought this up. I did forget that a sec value of 3 actually stands for a sec strength of 4.\n\nI just tested +1-ing sec strength 3, and it turns out that for subset1, speeds 4 to 6 never use sec strength \"4\" (so files before and after are essentially equal), and speed 3 seems to use it rarely enough that SSIMULACRA 2 scores are around noise level. So it doesn\u0027t seem to be any benefit adding the extra +1 `if` condition for reduced CDEF.",
+      "parentUuid": "d2cc2907_663cc3ab",
       "revId": "76f8e977c5dc6f52636686a25ccc479ce8d40b89",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
