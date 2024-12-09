@@ -18,6 +18,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "078a2b65_243e657c",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 9
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 26789
+      },
+      "writtenOn": "2024-12-09T15:06:32Z",
+      "side": 1,
+      "message": "Done in https://aomedia-review.googlesource.com/c/aom/+/195501",
+      "parentUuid": "d9d80ad6_fa4b2f9f",
+      "revId": "af3353d1674464c40d44b584239789543fff0d9b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e87ee782_aa265129",
@@ -66,6 +84,24 @@
       "writtenOn": "2024-11-25T22:32:24Z",
       "side": 1,
       "message": "Nit: I suggest moving the addition of the `is_layer_specific_obu` parameter to `av1_write_obu_header()` to a separate CL. This part seems independent enough.",
+      "revId": "af3353d1674464c40d44b584239789543fff0d9b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "362c3765_68413171",
+        "filename": "av1/encoder/bitstream.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 26789
+      },
+      "writtenOn": "2024-12-09T15:06:32Z",
+      "side": 1,
+      "message": "Done here. I meant to do this in a separate cl but it seems I overwrote this one by accident. So I guess I can submit this one first and then make API changes in another cl.",
+      "parentUuid": "07a078e8_60c29fbd",
       "revId": "af3353d1674464c40d44b584239789543fff0d9b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
