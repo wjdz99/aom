@@ -1413,7 +1413,8 @@ static void write_depth_representation_element(
     die("Invalid mantissan_len %d\n", element.first.mantissa_len);
   }
   write_literal(buffer, element.first.mantissa_len - 1, 5);
-  write_literal(buffer, element.first.mantissa, element.first.mantissa_len);
+  write_literal(buffer, element.first.mantissa,
+                static_cast<uint8_t>(element.first.mantissa_len));
 }
 
 static void write_color_properties(
