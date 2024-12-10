@@ -16,6 +16,24 @@
       "message": "It is interesting to know that SSIMULACRA2 doesn\u0027t handle 422 format well. Do we have good test materials for 422 format?",
       "revId": "4e594a124541d3fc22634e9fbb44bf247169dfab",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "123a3ffd_a81e5c0a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 3678645
+      },
+      "writtenOn": "2024-12-10T21:44:41Z",
+      "side": 1,
+      "message": "Yeah, I was surprised too, because SSIMULACRA 2 does seem to work well for both 444 and 420 material, as in maximizing scores does agree with my personal perception w.r.t luma/chroma allocation.\n\nThe only interesting material for 422 (and any other subsampling mode) I have is this picture: https://0x0.st/X3On.png. It\u0027s a large picture that contains significant luma and chroma noise. Imbalances among YUV channels show up as noise not being encoded consistently. For example, luma noise being faithfully encoded, but chroma noise being completely eliminated, or vice versa.\n\nOtherwise, recently I\u0027ve just been sampling random pictures from subset1 or CLIC.",
+      "parentUuid": "96fa7473_ec98d98c",
+      "revId": "4e594a124541d3fc22634e9fbb44bf247169dfab",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
