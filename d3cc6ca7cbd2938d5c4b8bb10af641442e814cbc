@@ -16,6 +16,24 @@
       "message": "This field is documented as `[1, 32]`. It\u0027s not clear why it\u0027s a `uint16_t`. Were you trying to keep the size of the struct down? Should it be `uint8_t` instead?",
       "revId": "d3cc6ca7cbd2938d5c4b8bb10af641442e814cbc",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "eaff526d_1a0425e5",
+        "filename": "examples/svc_encoder_rtc.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 1417,
+      "author": {
+        "id": 26789
+      },
+      "writtenOn": "2024-12-10T12:44:37Z",
+      "side": 1,
+      "message": "Good question. I can indeed be a uint8_t.",
+      "parentUuid": "12797ca1_d8a89e35",
+      "revId": "d3cc6ca7cbd2938d5c4b8bb10af641442e814cbc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
