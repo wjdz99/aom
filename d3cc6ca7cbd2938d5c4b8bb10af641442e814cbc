@@ -52,6 +52,24 @@
       "parentUuid": "eaff526d_1a0425e5",
       "revId": "d3cc6ca7cbd2938d5c4b8bb10af641442e814cbc",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3709cf7a_48184b42",
+        "filename": "examples/svc_encoder_rtc.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 1417,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-12-10T20:11:22Z",
+      "side": 1,
+      "message": "The corresponding syntax element in the CWG-E050 proposal is `dre_mantissa_len_minus1`, defined as `f(5)`. So `uint8_t` is enough.",
+      "parentUuid": "b887dbd2_24e0bfaa",
+      "revId": "d3cc6ca7cbd2938d5c4b8bb10af641442e814cbc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
