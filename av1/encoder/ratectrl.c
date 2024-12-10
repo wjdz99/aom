@@ -3091,7 +3091,7 @@ static unsigned int estimate_scroll_motion(
   // Make search_size_height larger to capture more common vertical scroll.
   // Increase the search if last two frames were dropped.
   // Values set based on screen test set.
-  int search_size_width = 96;
+  int search_size_width = 160;
   int search_size_height = (cpi->rc.drop_count_consec > 1)
                                ? (cpi->rc.frame_source_sad > 20000) ? 512 : 224
                                : 192;
@@ -3334,7 +3334,7 @@ static void rc_scene_detection_onepass_rt(AV1_COMP *cpi,
     cpi->rc.high_motion_content_screen_rtc = 0;
     if (cpi->oxcf.speed >= 11 &&
         cpi->oxcf.tune_cfg.content == AOM_CONTENT_SCREEN &&
-        rc->percent_blocks_with_motion > 40 &&
+        rc->percent_blocks_with_motion > 60 &&
         rc->prev_avg_source_sad > thresh_high_motion &&
         rc->avg_source_sad > thresh_high_motion &&
         rc->avg_frame_low_motion < 60 && unscaled_src->y_width >= 1280 &&
