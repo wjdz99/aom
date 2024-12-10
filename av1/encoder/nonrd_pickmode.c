@@ -3524,9 +3524,10 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
                             &this_mode_pred, &search_state.best_rdc,
                             best_pickmode, ctx, &best_intra_sad_norm);
 
+  // TODO(marpan): Revisit/adjust this skip condition.
   int skip_idtx_palette = (x->color_sensitivity[COLOR_SENS_IDX(AOM_PLANE_U)] ||
                            x->color_sensitivity[COLOR_SENS_IDX(AOM_PLANE_V)]) &&
-                          x->content_state_sb.source_sad_nonrd != kZeroSad &&
+                          x->content_state_sb.source_sad_nonrd < kHighSad &&
                           !cpi->rc.high_source_sad;
 
   bool try_palette = enable_palette(
