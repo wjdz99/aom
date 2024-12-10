@@ -896,7 +896,7 @@ bool double_to_depth_representation_element(
   assert(v >= 1.0 && v < 2.0);
   v -= 1.0;
   uint32_t mantissa = 0;
-  uint16_t mantissa_len = 0;
+  uint8_t mantissa_len = 0;
   constexpr uint16_t kMaxMantissaLen = 32;
   do {
     const int bit = (v >= 0.5);

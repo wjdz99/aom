@@ -56,7 +56,7 @@ struct DepthRepresentationElement {
   bool sign_flag;
   uint8_t exponent;  // [0, 126] (biased exponent)
   uint32_t mantissa;
-  uint16_t mantissa_len;  // [1, 32]
+  uint8_t mantissa_len;  // [1, 32]
 };
 
 struct DepthInformation {
