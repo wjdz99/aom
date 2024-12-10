@@ -12,6 +12,8 @@
 #ifndef AOM_AV1_RATECTRL_RTC_H_
 #define AOM_AV1_RATECTRL_RTC_H_
 
+#include <stddef.h>
+
 #include <cstdint>
 #include <memory>
 
