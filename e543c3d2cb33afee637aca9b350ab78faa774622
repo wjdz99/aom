@@ -34,6 +34,24 @@
       "parentUuid": "e2855d31_055e2ec5",
       "revId": "e543c3d2cb33afee637aca9b350ab78faa774622",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ea275a28_f3bdecdc",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 12
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-12-11T18:12:24Z",
+      "side": 1,
+      "message": "With libaom CLs I usually modify the commit message locally with `git commit -a --amend` and then push a new patchset to Gerrit. I only use the UI to modify the commit message of someone else\u0027s CL.\n\nIn Chromium I found that the commit message of the CL starts with the local commit message, and then it diverges. I edit the commit message of a Chromium CL using `git cl upload --edit-description`.",
+      "parentUuid": "35c69b8c_b6d98a07",
+      "revId": "e543c3d2cb33afee637aca9b350ab78faa774622",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
