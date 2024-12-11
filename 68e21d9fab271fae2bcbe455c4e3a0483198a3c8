@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7618a90c_66ec8643",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 3350,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2024-12-11T15:52:55Z",
+      "side": 1,
+      "message": "Add comments here what `pts` `fac` and `shift` do",
+      "range": {
+        "startLine": 3348,
+        "startChar": 8,
+        "endLine": 3350,
+        "endChar": 24
+      },
+      "revId": "68e21d9fab271fae2bcbe455c4e3a0483198a3c8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "91fee376_83d1dc52",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 3358,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2024-12-11T15:52:55Z",
+      "side": 1,
+      "message": "`pos_col` and `pos_row` can be `const`",
+      "range": {
+        "startLine": 3358,
+        "startChar": 14,
+        "endLine": 3358,
+        "endChar": 21
+      },
+      "revId": "68e21d9fab271fae2bcbe455c4e3a0483198a3c8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
