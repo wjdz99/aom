@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "42c2fa9a_29019b9c",
+        "filename": "av1/ratectrl_rtc.h",
+        "patchSetId": 59
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-12-11T22:26:14Z",
+      "side": 1,
+      "message": "If this function is intended to be called from C code, it should be declared with `extern \"C\"`.\n\nIf this function is intended to be called from C++ code only, it probably should be moved into the `aom` namespace.\n\nIf this function will only be called by the `AV1RateControlRtcConfig` constructor, it should become a file-static function in av1/ratectrl_rtc.cc.",
+      "revId": "c1f1605f9e61b0e9452ce9f6c6356aafde5ac770",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
