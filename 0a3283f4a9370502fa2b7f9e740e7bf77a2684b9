@@ -34,6 +34,24 @@
       "parentUuid": "5581dff4_1df9bedc",
       "revId": "0a3283f4a9370502fa2b7f9e740e7bf77a2684b9",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9d3ef5db_608048db",
+        "filename": "av1/encoder/pickcdef.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 974,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-12-11T03:53:50Z",
+      "side": 1,
+      "message": "Yes, thanks for the reply. This is a matter of preference -- more code vs. more comment. Either one is fine here.\n\nIf we add +1, we have a nice-looking reduction by half of sec strength: 4-\u003e2-\u003e1-\u003e0. And it won\u0027t raise the question -- did you forget that 3 is actually 4?",
+      "parentUuid": "5a8bb576_ed732ae7",
+      "revId": "0a3283f4a9370502fa2b7f9e740e7bf77a2684b9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
