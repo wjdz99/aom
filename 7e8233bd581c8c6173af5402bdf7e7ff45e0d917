@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d6fad780_9226bc1b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-12-12T22:55:19Z",
+      "side": 1,
+      "message": "Thanks for the fix!",
+      "revId": "7e8233bd581c8c6173af5402bdf7e7ff45e0d917",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "79f322b5_3483f347",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1818,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-12-12T22:55:19Z",
+      "side": 1,
+      "message": "Should we make the same change to the following documentation in aom/aomcx.h?\n\n```\n * Setting the tuning option to AOM_TUNE_SSIMULACRA2 causes the following\n * options to be set (expressed as command-line options):\n ...\n *   * --enable-chroma-deltaq\u003d1\n *   * --deltaq-mode\u003d6\n```",
+      "revId": "7e8233bd581c8c6173af5402bdf7e7ff45e0d917",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
