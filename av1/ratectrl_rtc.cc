@@ -27,6 +27,8 @@
 #include "av1/encoder/rc_utils.h"
 #include "av1/encoder/svc_layercontext.h"
 
+namespace {
+
 void AV1RateControlRtcConfigInitDefault(AV1RateControlRtcConfig *config) {
   if (config == nullptr) return;
   config->is_screen = false;
@@ -61,6 +63,8 @@ void AV1RateControlRtcConfigInitDefault(AV1RateControlRtcConfig *config) {
   config->max_quantizers[0] = config->max_quantizer;
   config->min_quantizers[0] = config->min_quantizer;
 }
+
+}  // namespace
 
 AV1RateControlRtcConfig::AV1RateControlRtcConfig() {
   AV1RateControlRtcConfigInitDefault(this);
@@ -456,9 +460,7 @@ AV1CdefInfo av1_ratecontrol_rtc_get_cdef_info(void *controller) {
 
 void av1_ratecontrol_rtc_init_ratecontrol_config(
     AV1RateControlRtcConfig *config) {
-  if (config) {
-    *config = AV1RateControlRtcConfig();
-  }
+  AV1RateControlRtcConfigInitDefault(config);
 }
 
 }  // extern "C"
