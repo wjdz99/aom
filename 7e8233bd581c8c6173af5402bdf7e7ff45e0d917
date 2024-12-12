@@ -67,6 +67,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "2a968c3e_ff12b0ed",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1816,
+      "author": {
+        "id": 3678645
+      },
+      "writtenOn": "2024-12-12T23:57:32Z",
+      "side": 1,
+      "message": "Early returning is an option too. This does result in a behavioral difference with how the tune interacts with lossless, especially with codec control.\n\nLet\u0027s say we set lossless to 1, then the SSIMULACRA2 tune, then we turn off lossless. With the current CL, all of the optimized defaults will be set (except for chroma delta q). With the proposed idea, only the rdmult tweaks (from the tune) will stay enabled.\n\nIn this case, should libaom do its due diligence alerting the caller that the tune\u0027s optimized settings won\u0027t be set? Should we call `handle_tuning` when lossless is set to 0 to set the optimized settings again? I just want to make sure I\u0027m following the pattern that makes the most sense for libaom.",
+      "parentUuid": "5c910e00_87315823",
+      "range": {
+        "startLine": 1816,
+        "startChar": 9,
+        "endLine": 1816,
+        "endChar": 28
+      },
+      "revId": "7e8233bd581c8c6173af5402bdf7e7ff45e0d917",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "79f322b5_3483f347",
         "filename": "av1/av1_cx_iface.c",
         "patchSetId": 1
