@@ -106,10 +106,13 @@ struct AV1RateControlRtcConfig {
   int scaling_factor_num[kAV1MaxSpatialLayers];
   int scaling_factor_den[kAV1MaxSpatialLayers];
 };
+
 void AV1RateControlRtcConfigInitDefault(struct AV1RateControlRtcConfig *config);
 
 #ifdef __cplusplus
 namespace aom {
+
+using RateControlRtcConfig = struct AV1RateControlRtcConfig;
 
 class AV1RateControlRTC {
  public:
