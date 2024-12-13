@@ -159,6 +159,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "49192ba3_536243a2",
+        "filename": "av1/ratectrl_rtc.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2024-12-13T20:15:17Z",
+      "side": 1,
+      "message": "\u003e Maybe we should replace `av1_` prefix in C functions here with `aom_`?\n\nThat could work, but initially I hoping to match the class name.",
+      "parentUuid": "8f5377cb_218c9473",
+      "revId": "b6b09e5fafffaa13b988f9e9b4234c65db9aca76",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "1417e03e_27ec7e8c",
