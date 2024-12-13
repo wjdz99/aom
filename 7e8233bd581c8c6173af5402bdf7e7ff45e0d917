@@ -115,6 +115,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "54c7aabf_dbda5bb4",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1816,
+      "author": {
+        "id": 3678645
+      },
+      "writtenOn": "2024-12-13T17:54:22Z",
+      "side": 1,
+      "message": "Got you Wan-Teh! Just wanted to make sure I can be of help in the best way possible 😁.\n\nAnother related point to consider: for `avifenc`, I wouldn\u0027t recommend using `--tune\u003dssimulacra2` for encoding alpha in general. Lossy alpha has different perceptual requirements that haven\u0027t been tested with `--tune\u003dssimulacra2`.\n\nMy educated guess is that some optimizations (e.g. loop-filter sharpness) could actually be visually harmful as they could encourage creating transparency discontinuities within the alpha \"mask\", leaking spurious chroma and luma information that\u0027s not meant to be seen by the user.",
+      "parentUuid": "8834f8dc_aa92a641",
+      "range": {
+        "startLine": 1816,
+        "startChar": 9,
+        "endLine": 1816,
+        "endChar": 28
+      },
+      "revId": "7e8233bd581c8c6173af5402bdf7e7ff45e0d917",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "79f322b5_3483f347",
         "filename": "av1/av1_cx_iface.c",
         "patchSetId": 1
