@@ -35,6 +35,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ec526c59_733b83f5",
+        "filename": "av1/ratectrl_rtc.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2024-12-13T18:19:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b7c1820d_7b5b0bc7",
+      "revId": "b6b09e5fafffaa13b988f9e9b4234c65db9aca76",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b5502507_4a63ca4e",
@@ -48,6 +66,24 @@
       "writtenOn": "2024-12-13T18:12:11Z",
       "side": 1,
       "message": "Nit: `struct` can be omitted in C++.",
+      "revId": "b6b09e5fafffaa13b988f9e9b4234c65db9aca76",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3ac649e0_2f108140",
+        "filename": "av1/ratectrl_rtc.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2024-12-13T18:19:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b5502507_4a63ca4e",
       "revId": "b6b09e5fafffaa13b988f9e9b4234c65db9aca76",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -69,6 +105,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "30c3ba7d_3517c1ce",
+        "filename": "av1/ratectrl_rtc.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2024-12-13T18:19:00Z",
+      "side": 1,
+      "message": "The use of prefix in libaom is fairly inconsistent - some functions use `aom` and some use `av1`...",
+      "parentUuid": "a15550bc_9b411790",
+      "revId": "b6b09e5fafffaa13b988f9e9b4234c65db9aca76",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "1417e03e_27ec7e8c",
@@ -82,6 +136,24 @@
       "writtenOn": "2024-12-13T18:12:11Z",
       "side": 1,
       "message": "Use `aom::` instead (as you do in line 2031) since we are in C++.",
+      "revId": "b6b09e5fafffaa13b988f9e9b4234c65db9aca76",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b9a6e9c4_05414836",
+        "filename": "examples/svc_encoder_rtc.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 1670,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2024-12-13T18:19:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1417e03e_27ec7e8c",
       "revId": "b6b09e5fafffaa13b988f9e9b4234c65db9aca76",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
