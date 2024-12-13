@@ -29,7 +29,7 @@
 
 namespace {
 
-void AV1RateControlRtcConfigInitDefault(AV1RateControlRtcConfig *config) {
+void AV1RateControlRtcConfigInitDefault(AomAV1RateControlRtcConfig *config) {
   if (config == nullptr) return;
   config->width = 1280;
   config->height = 720;
@@ -66,7 +66,7 @@ void AV1RateControlRtcConfigInitDefault(AV1RateControlRtcConfig *config) {
 
 }  // namespace
 
-AV1RateControlRtcConfig::AV1RateControlRtcConfig() {
+AomAV1RateControlRtcConfig::AomAV1RateControlRtcConfig() {
   AV1RateControlRtcConfigInitDefault(this);
 }
 
@@ -398,7 +398,7 @@ void AV1RateControlRTC::PostEncodeUpdate(uint64_t encoded_frame_size) {
 
 extern "C" {
 
-void *av1_ratecontrol_rtc_create(const AV1RateControlRtcConfig *rc_cfg) {
+void *av1_ratecontrol_rtc_create(const AomAV1RateControlRtcConfig *rc_cfg) {
   if (rc_cfg == nullptr) return nullptr;
   return aom::AV1RateControlRTC::Create(*rc_cfg).release();
 }
@@ -407,8 +407,8 @@ void av1_ratecontrol_rtc_destroy(void *controller) {
   delete reinterpret_cast<aom::AV1RateControlRTC *>(controller);
 }
 
-bool av1_ratecontrol_rtc_update(void *controller,
-                                const struct AV1RateControlRtcConfig *rc_cfg) {
+bool av1_ratecontrol_rtc_update(
+    void *controller, const struct AomAV1RateControlRtcConfig *rc_cfg) {
   if (controller == nullptr || rc_cfg == nullptr) return false;
 
   return reinterpret_cast<aom::AV1RateControlRTC *>(controller)
@@ -459,7 +459,7 @@ AV1CdefInfo av1_ratecontrol_rtc_get_cdef_info(void *controller) {
 }
 
 void av1_ratecontrol_rtc_init_ratecontrol_config(
-    AV1RateControlRtcConfig *config) {
+    AomAV1RateControlRtcConfig *config) {
   AV1RateControlRtcConfigInitDefault(config);
 }
 
