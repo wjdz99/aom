@@ -110,6 +110,8 @@ struct AV1RateControlRtcConfig {
 #ifdef __cplusplus
 namespace aom {
 
+using RateControlRtcConfig = struct AV1RateControlRtcConfig;
+
 class AV1RateControlRTC {
  public:
   static std::unique_ptr<AV1RateControlRTC> Create(
