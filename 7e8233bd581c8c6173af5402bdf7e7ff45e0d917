@@ -91,6 +91,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "8834f8dc_aa92a641",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1816,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-12-13T17:12:24Z",
+      "side": 1,
+      "message": "Julio: First, you don\u0027t need to fix bug 383595066 today. I will reassign the bug.\n\nThere are several ways to fix the bug, including working around it in libavif, disallowing `--tune\u003dssimulacra2` in lossless mode, and removing the following check in libaom (if we conclude the check doesn\u0027t make sense):\n\n```\n  if (extra_cfg-\u003elossless) {\n    ...\n    if (extra_cfg-\u003eenable_chroma_deltaq)\n      ERROR(\"Only --enable_chroma_deltaq\u003d0 can be used with --lossless\u003d1.\");\n  }\n```\n\nSo it is not clear how to proceed.\n\nThe reason Cheng and I suggested early returning is that the current change can fix `--lossless --tune\u003dssimulacra2` but cannot fix `--tune\u003dssimulacra2 --lossless`. If we content ourselves with only fixing `--lossless --tune\u003dssimulacra2`, then we also don\u0027t need to set the encoder options that aren\u0027t used in lossless mode. Also, someone who reads this function but doesn\u0027t know about the check I quoted above is likely to wonder why we only skip setting `--enable-chroma-deltaq\u003d1` in lossless mode. Early returning will avoid that potential question.\n\nNote: The following tests can be incorporated into this CL to test the fix and to show the limitation of the fix (need to change the expected status to an error).\n\n```\ndiff --git a/test/encode_api_test.cc b/test/encode_api_test.cc\nindex 8d6803d71d..63dbc39a07 100644\n--- a/test/encode_api_test.cc\n+++ b/test/encode_api_test.cc\n@@ -124,6 +124,38 @@ TEST(EncodeAPI, TuneSsimulacra2NotAllIntra) {\n   ASSERT_EQ(aom_codec_destroy(\u0026enc), AOM_CODEC_OK);\n }\n \n+TEST(EncodeAPI, TuneSsimulacra2ThenLossless) {\n+  aom_codec_iface_t *iface \u003d aom_codec_av1_cx();\n+  aom_codec_enc_cfg_t cfg;\n+  ASSERT_EQ(aom_codec_enc_config_default(iface, \u0026cfg, AOM_USAGE_ALL_INTRA),\n+            AOM_CODEC_OK);\n+\n+  aom_codec_ctx_t enc;\n+  ASSERT_EQ(aom_codec_enc_init(\u0026enc, iface, \u0026cfg, 0), AOM_CODEC_OK);\n+\n+  ASSERT_EQ(aom_codec_control(\u0026enc, AOME_SET_TUNING, AOM_TUNE_SSIMULACRA2),\n+            AOM_CODEC_OK);\n+  ASSERT_EQ(aom_codec_control(\u0026enc, AV1E_SET_LOSSLESS, 1), AOM_CODEC_OK);\n+\n+  ASSERT_EQ(aom_codec_destroy(\u0026enc), AOM_CODEC_OK);\n+}\n+\n+TEST(EncodeAPI, LosslessThenTuneSsimulacra2) {\n+  aom_codec_iface_t *iface \u003d aom_codec_av1_cx();\n+  aom_codec_enc_cfg_t cfg;\n+  ASSERT_EQ(aom_codec_enc_config_default(iface, \u0026cfg, AOM_USAGE_ALL_INTRA),\n+            AOM_CODEC_OK);\n+\n+  aom_codec_ctx_t enc;\n+  ASSERT_EQ(aom_codec_enc_init(\u0026enc, iface, \u0026cfg, 0), AOM_CODEC_OK);\n+\n+  ASSERT_EQ(aom_codec_control(\u0026enc, AV1E_SET_LOSSLESS, 1), AOM_CODEC_OK);\n+  ASSERT_EQ(aom_codec_control(\u0026enc, AOME_SET_TUNING, AOM_TUNE_SSIMULACRA2),\n+            AOM_CODEC_OK);\n+\n+  ASSERT_EQ(aom_codec_destroy(\u0026enc), AOM_CODEC_OK);\n+}\n+\n void EncodeSetSFrameOnFirstFrame(aom_img_fmt fmt, aom_codec_flags_t flag) {\n   constexpr int kWidth \u003d 2;\n   constexpr int kHeight \u003d 128;\n```",
+      "parentUuid": "2a968c3e_ff12b0ed",
+      "range": {
+        "startLine": 1816,
+        "startChar": 9,
+        "endLine": 1816,
+        "endChar": 28
+      },
+      "revId": "7e8233bd581c8c6173af5402bdf7e7ff45e0d917",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "79f322b5_3483f347",
         "filename": "av1/av1_cx_iface.c",
         "patchSetId": 1
