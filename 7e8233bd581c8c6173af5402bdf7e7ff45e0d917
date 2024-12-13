@@ -137,6 +137,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "bbbac595_c8bc4f96",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1816,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-12-13T18:00:41Z",
+      "side": 1,
+      "message": "I understand you wanted to help, and I really appreciate that.\n\nThank you for recommending against using `--tune\u003dssimulacra2` for encoding alpha. This means we should pass `-a color:tune\u003dssimulacra2` (note the `color:` restriction) to `avifenc.",
+      "parentUuid": "54c7aabf_dbda5bb4",
+      "range": {
+        "startLine": 1816,
+        "startChar": 9,
+        "endLine": 1816,
+        "endChar": 28
+      },
+      "revId": "7e8233bd581c8c6173af5402bdf7e7ff45e0d917",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "79f322b5_3483f347",
