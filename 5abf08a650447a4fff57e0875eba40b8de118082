@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d7a921dc_9c9b6122",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-12-16T15:23:27Z",
+      "side": 1,
+      "message": "LGTM. Thanks!",
+      "revId": "5abf08a650447a4fff57e0875eba40b8de118082",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7ba617e8_e75116a5",
+        "filename": "examples/multilayer_metadata.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-12-16T15:23:27Z",
+      "side": 1,
+      "message": "I searched for \"std::\" in this file and verified that it uses only `std::pair` and `std::vector`, which are declared in these two headers.",
+      "revId": "5abf08a650447a4fff57e0875eba40b8de118082",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
