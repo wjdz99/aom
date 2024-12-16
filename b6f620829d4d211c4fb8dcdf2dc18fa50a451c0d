@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4e87bd88_c4e3b43c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-12-16T18:37:10Z",
+      "side": 1,
+      "message": "LGTM.",
+      "revId": "b6f620829d4d211c4fb8dcdf2dc18fa50a451c0d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "67382ef8_5f22ceac",
+        "filename": "av1/ratectrl_rtc.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-12-16T18:37:10Z",
+      "side": 1,
+      "message": "Optional: This is a suggestion for a follow-up CL.\n\nIt is common in C code to define typedefs for struct and enum types so that they can be used without the keyword `struct` or `enum`:\n\n```\ntypedef struct FooBar {\n  ...\n} FooBar;\n\ntypedef enum FooBaz {\n  ...\n} FooBaz;\n```\n\nWe can consider adding these typedefs to make the C code less verbose.",
+      "revId": "b6f620829d4d211c4fb8dcdf2dc18fa50a451c0d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
