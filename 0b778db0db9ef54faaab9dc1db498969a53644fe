@@ -35,6 +35,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "c97404f4_7862ca5a",
+        "filename": "av1/ratectrl_rtc.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 435,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2024-12-17T17:52:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8ab00233_03287d15",
+      "revId": "0b778db0db9ef54faaab9dc1db498969a53644fe",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "6a09010e_b5a6f7bb",
@@ -48,6 +66,24 @@
       "writtenOn": "2024-12-17T17:13:22Z",
       "side": 1,
       "message": "We can consider keeping the enum tag `AomFrameType` so that both `enum AomFrameType` and `AomFrameType` can be used:\n\n```\ntypedef enum AomFrameType { kAomKeyFrame, kAomInterFrame } AomFrameType;\n```\n\nJerome, James: do you have a preference?",
+      "revId": "0b778db0db9ef54faaab9dc1db498969a53644fe",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "16e905dd_cfdd827e",
+        "filename": "av1/ratectrl_rtc.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2024-12-17T17:52:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6a09010e_b5a6f7bb",
       "revId": "0b778db0db9ef54faaab9dc1db498969a53644fe",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -69,6 +105,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "dd13a276_cf71ac03",
+        "filename": "av1/ratectrl_rtc.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2024-12-17T17:52:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f086b442_83d28783",
+      "revId": "0b778db0db9ef54faaab9dc1db498969a53644fe",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "3fb4030c_4bf9a8d7",
@@ -82,6 +136,24 @@
       "writtenOn": "2024-12-17T17:13:22Z",
       "side": 1,
       "message": "Since this is a test of the C API, I suggest we use the C names in this test: `kAomKeyFrame`, `AomFrameDropDecision`, `kAomFrameDropDecisionOk`.\n\nMake the same changes to all the tests of the C API below. I am sorry I didn\u0027t notice this in previous reviews.",
+      "revId": "0b778db0db9ef54faaab9dc1db498969a53644fe",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e818b42b_41dfb9be",
+        "filename": "test/ratectrl_rtc_test.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 574,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2024-12-17T17:52:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3fb4030c_4bf9a8d7",
       "revId": "0b778db0db9ef54faaab9dc1db498969a53644fe",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
