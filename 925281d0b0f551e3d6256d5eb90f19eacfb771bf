@@ -60,6 +60,30 @@
       ],
       "revId": "925281d0b0f551e3d6256d5eb90f19eacfb771bf",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "20f6d4c4_c4ff6a03",
+        "filename": "test/ratectrl_rtc_test.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 621,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-12-17T20:09:44Z",
+      "side": 1,
+      "message": "Here we are testing the C API, so we should use the C type names. However, I suggest we add typedefs for the struct types so that the `struct` keyword can be omitted in C code as well:\n\n```\ntypedef struct AomAV1SegmentationData {\n  ...\n} AomAV1SegmentationData;\n```\n\nThis can be done in a separate CL.",
+      "parentUuid": "28ca323e_501374fe",
+      "range": {
+        "startLine": 621,
+        "startChar": 2,
+        "endLine": 621,
+        "endChar": 8
+      },
+      "revId": "925281d0b0f551e3d6256d5eb90f19eacfb771bf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
