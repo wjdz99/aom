@@ -89,7 +89,7 @@ class RcInterfaceTest : public ::libaom_test::EncoderTest,
       key_int = key_interval_ * rc_cfg_.ss_number_layers;
     }
     frame_params_.frame_type =
-        layer_frame_cnt_ % key_int == 0 ? kKeyFrame : kInterFrame;
+        layer_frame_cnt_ % key_int == 0 ? aom::kKeyFrame : aom::kInterFrame;
     encoder_exit_ = video->frame() == kNumFrames;
     frame_flags_ = 0;
 
@@ -134,7 +134,7 @@ class RcInterfaceTest : public ::libaom_test::EncoderTest,
         // (not used here) we can set the frame flags to predict off the 2x2
         // reference instead,
         frame_flags_ = AOM_EFLAG_FORCE_KF;
-        frame_params_.frame_type = kKeyFrame;
+        frame_params_.frame_type = aom::kKeyFrame;
         ASSERT_TRUE(rc_api_->UpdateRateControl(rc_cfg_));
       }
     }
@@ -154,7 +154,7 @@ class RcInterfaceTest : public ::libaom_test::EncoderTest,
       superframe_cnt_++;
     int qp;
     encoder->Control(AOME_GET_LAST_QUANTIZER, &qp);
-    if (rc_api_->ComputeQP(frame_params_) == FrameDropDecision::kOk) {
+    if (rc_api_->ComputeQP(frame_params_) == aom::kFrameDropDecisionOk) {
       ASSERT_EQ(rc_api_->GetQP(), qp) << "at frame " << frame_cnt_ - 1;
       int encoder_lpf_level;
       encoder->Control(AOME_GET_LOOPFILTER_LEVEL, &encoder_lpf_level);
@@ -559,14 +559,14 @@ void RcExternMethodsInterfaceTest::TestUpdateRateControl() {
 void RcExternMethodsInterfaceTest::TestGetQPRateControl() {
   frame_params_.spatial_layer_id = 0;
   frame_params_.temporal_layer_id = 0;
-  frame_params_.frame_type = kKeyFrame;
+  frame_params_.frame_type = aom::kKeyFrame;
 
   void *controller = av1_ratecontrol_rtc_create(&rc_cfg_);
   ASSERT_NE(controller, nullptr);
 
-  const FrameDropDecision decision =
+  const aom::FrameDropDecision decision =
       av1_ratecontrol_rtc_compute_qp(controller, &frame_params_);
-  if (decision == FrameDropDecision::kOk) {
+  if (decision == aom::kFrameDropDecisionOk) {
     int qp = av1_ratecontrol_rtc_get_qp(controller);
     ASSERT_NE(qp, 0);  // 0 is invalid for qp
   }
@@ -576,14 +576,14 @@ void RcExternMethodsInterfaceTest::TestGetQPRateControl() {
 void RcExternMethodsInterfaceTest::TestComputeQPRateControl() {
   frame_params_.spatial_layer_id = 0;
   frame_params_.temporal_layer_id = 0;
-  frame_params_.frame_type = kKeyFrame;
+  frame_params_.frame_type = aom::kKeyFrame;
 
   void *controller = av1_ratecontrol_rtc_create(&rc_cfg_);
   ASSERT_NE(controller, nullptr);
 
-  const FrameDropDecision decision =
+  const aom::FrameDropDecision decision =
       av1_ratecontrol_rtc_compute_qp(controller, &frame_params_);
-  ASSERT_EQ(decision, FrameDropDecision::kOk);
+  ASSERT_EQ(decision, aom::kFrameDropDecisionOk);
   av1_ratecontrol_rtc_destroy(controller);
 }
 
