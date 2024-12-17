@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "232cbe0e_ad4fe500",
+        "filename": "av1/ratectrl_rtc.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-12-17T18:29:22Z",
+      "side": 1,
+      "message": "Nit: Also restore the enum tag `AomFrameDropDecision` here.",
+      "revId": "17fb4a1ae31fe2e0361645ddadbfd2096cd8c0d1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8e54fc46_b2805998",
+        "filename": "test/ratectrl_rtc_test.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 562,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-12-17T18:29:22Z",
+      "side": 1,
+      "message": "Nit: aom::kKeyFrame \u003d\u003e kAomKeyFrame",
+      "revId": "17fb4a1ae31fe2e0361645ddadbfd2096cd8c0d1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
