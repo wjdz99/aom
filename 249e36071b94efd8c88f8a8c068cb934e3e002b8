@@ -22,6 +22,30 @@
       },
       "revId": "249e36071b94efd8c88f8a8c068cb934e3e002b8",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "21c61d29_484459a6",
+        "filename": "av1/ratectrl_rtc.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-12-17T17:13:22Z",
+      "side": 1,
+      "message": "The enum constant names actually became a little shorter in C++ code, because the constants in an enum class must be qualified with the enum class\u0027s name.\n\n```\nBefore: FrameDropDecision::kOk\nAfter:  kFrameDropDecisionOk\n```\n\nSo the downside is that there are syntax changes, so client code needs to be modified.",
+      "parentUuid": "2034c37d_d79f6beb",
+      "range": {
+        "startLine": 117,
+        "startChar": 28,
+        "endLine": 117,
+        "endChar": 48
+      },
+      "revId": "249e36071b94efd8c88f8a8c068cb934e3e002b8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
