@@ -56,17 +56,10 @@ typedef enum AomFrameDropDecision {
   kAomFrameDropDecisionDrop,  // Frame is dropped.
 } AomFrameDropDecision;
 
-#ifdef __cplusplus
 // These constants come from AV1 spec.
-static constexpr size_t kAV1MaxLayers = 32;
-static constexpr size_t kAV1MaxTemporalLayers = 8;
-static constexpr size_t kAV1MaxSpatialLayers = 4;
-#else
-// These constants come from AV1 spec.
-#define kAV1MaxLayers 32
-#define kAV1MaxTemporalLayers 8
-#define kAV1MaxSpatialLayers 4
-#endif  // __cplusplus
+#define kAomMaxLayers 32
+#define kAomMaxTemporalLayers 8
+#define kAomMaxSpatialLayers 4
 
 struct AomAV1RateControlRtcConfig {
 #ifdef __cplusplus
@@ -91,17 +84,17 @@ struct AomAV1RateControlRtcConfig {
   int frame_drop_thresh;
   int max_consec_drop_ms;
   double framerate;
-  int layer_target_bitrate[kAV1MaxLayers];
-  int ts_rate_decimator[kAV1MaxTemporalLayers];
+  int layer_target_bitrate[kAomMaxLayers];
+  int ts_rate_decimator[kAomMaxTemporalLayers];
   int aq_mode;
   // Number of spatial layers
   int ss_number_layers;
   // Number of temporal layers
   int ts_number_layers;
-  int max_quantizers[kAV1MaxLayers];
-  int min_quantizers[kAV1MaxLayers];
-  int scaling_factor_num[kAV1MaxSpatialLayers];
-  int scaling_factor_den[kAV1MaxSpatialLayers];
+  int max_quantizers[kAomMaxLayers];
+  int min_quantizers[kAomMaxLayers];
+  int scaling_factor_num[kAomMaxSpatialLayers];
+  int scaling_factor_den[kAomMaxSpatialLayers];
 };
 
 #ifdef __cplusplus
