@@ -18,6 +18,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "245169d0_9e6b736e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 59
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-12-18T15:08:36Z",
+      "side": 1,
+      "message": "Hi Pradeep,\n\nThanks for the reply. My colleague Jerome has taken care of these changes. Please see my responses to the other comments.",
+      "parentUuid": "a175edb4_b6185878",
+      "revId": "c1f1605f9e61b0e9452ce9f6c6356aafde5ac770",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "16175949_15b9c1ea",
@@ -35,6 +53,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "45291b62_96f1bb87",
+        "filename": "av1/ratectrl_rtc.h",
+        "patchSetId": 59
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-12-18T15:08:36Z",
+      "side": 1,
+      "message": "Done in https://aomedia-review.googlesource.com/c/aom/+/196161.\n\nNote: We decided to use `Aom` as the unique prefix in the C API, to match the `aom::` namespace in the C++ API.",
+      "parentUuid": "16175949_15b9c1ea",
+      "revId": "c1f1605f9e61b0e9452ce9f6c6356aafde5ac770",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "9eff67b3_af3d8a31",
@@ -48,6 +84,24 @@
       "writtenOn": "2024-12-11T23:18:04Z",
       "side": 1,
       "message": "Add the `AV1` prefix to the enum type name: `AV1FrameDropDecision`.",
+      "revId": "c1f1605f9e61b0e9452ce9f6c6356aafde5ac770",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ece5f613_4625a2ed",
+        "filename": "av1/ratectrl_rtc.h",
+        "patchSetId": 59
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-12-18T15:08:36Z",
+      "side": 1,
+      "message": "Done in https://aomedia-review.googlesource.com/c/aom/+/196161.",
+      "parentUuid": "9eff67b3_af3d8a31",
       "revId": "c1f1605f9e61b0e9452ce9f6c6356aafde5ac770",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -86,6 +140,42 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "6aa1a418_dc000892",
+        "filename": "av1/ratectrl_rtc.h",
+        "patchSetId": 59
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-12-18T15:08:36Z",
+      "side": 1,
+      "message": "Done in https://aomedia-review.googlesource.com/c/aom/+/196161.",
+      "parentUuid": "93f19aad_3003263f",
+      "revId": "c1f1605f9e61b0e9452ce9f6c6356aafde5ac770",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b94d7318_100e4d89",
+        "filename": "av1/ratectrl_rtc.h",
+        "patchSetId": 59
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-12-18T15:08:36Z",
+      "side": 1,
+      "message": "Done in https://aomedia-review.googlesource.com/c/aom/+/196161.",
+      "parentUuid": "0b136546_ba3fd5c6",
+      "revId": "c1f1605f9e61b0e9452ce9f6c6356aafde5ac770",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "f5e4360e_aa51fbdf",
@@ -99,6 +189,24 @@
       "writtenOn": "2024-12-11T23:18:04Z",
       "side": 1,
       "message": "Optional: One way to define these constants for both C and C++ is to use an anonymous enum:\n\n```\nenum {\n kAV1MaxLayers \u003d 32,\n  kAV1MaxTemporalLayers \u003d 8,\n  kAV1MaxSpatialLayers \u003d 4,\n};\n```",
+      "revId": "c1f1605f9e61b0e9452ce9f6c6356aafde5ac770",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7542e148_4d6c55b7",
+        "filename": "av1/ratectrl_rtc.h",
+        "patchSetId": 59
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-12-18T15:08:36Z",
+      "side": 1,
+      "message": "Done in https://aomedia-review.googlesource.com/c/aom/+/196201.",
+      "parentUuid": "f5e4360e_aa51fbdf",
       "revId": "c1f1605f9e61b0e9452ce9f6c6356aafde5ac770",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
