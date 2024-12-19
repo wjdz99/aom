@@ -36,6 +36,23 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "7cf7fc20_07e1c748",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 59
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 33496
+      },
+      "writtenOn": "2024-12-19T10:04:21Z",
+      "side": 1,
+      "message": "Hi Wah-Teh Chang, saw your question on mail. This code will be integrated to Libmebo a wrapper for BRC then to Libva utils. Finally it will be used by Libva. Let me know if you have suggestions.",
+      "revId": "c1f1605f9e61b0e9452ce9f6c6356aafde5ac770",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "16175949_15b9c1ea",
