@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "95ed2c8e_ad63a17b",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1917,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-12-20T20:06:52Z",
+      "side": 1,
+      "message": "We check the actual frame width and height here. I reuse this error code and error message below.",
+      "revId": "3be63ff25068e3ed5db986527115fbd073fbc2da",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
