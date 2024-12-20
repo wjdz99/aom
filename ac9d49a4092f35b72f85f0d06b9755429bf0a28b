@@ -75,6 +75,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "4c88d299_1c0fda00",
+        "filename": "av1/ratectrl_rtc.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2024-12-20T22:01:32Z",
+      "side": 1,
+      "message": "The corresponding `ComputeQP()` method is not const (line 141). It should not be declared as const because it modifies the struct pointed to by its `cpi_` member.",
+      "parentUuid": "b0d31141_b77727eb",
+      "revId": "ac9d49a4092f35b72f85f0d06b9755429bf0a28b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "3971a956_9d9fa216",
