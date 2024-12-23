@@ -3090,7 +3090,7 @@ static unsigned int estimate_scroll_motion(
   const int border = (cpi->oxcf.border_in_pixels >> 4) << 4;
   // Values set based on screen test set.
   int search_size_height = (cpi->rc.frame_source_sad > 20000) ? 512 : 192;
-  int search_size_width = (cpi->rc.frame_source_sad > 20000) ? 512 : 160;
+  int search_size_width = (cpi->rc.frame_source_sad > 20000) ? 512 : 192;
   // Adjust based on boundary.
   if ((pos_col - search_size_width < -border) ||
       (pos_col + search_size_width > cm->width + border))
@@ -3149,6 +3149,50 @@ static unsigned int estimate_scroll_motion(
   return best_sad;
 }
 
+static int fast_detection_scroll(
+    const AV1_COMP *cpi, YV12_BUFFER_CONFIG const *const unscaled_src,
+    YV12_BUFFER_CONFIG const *const unscaled_last_src, int src_ystride,
+    int last_src_ystride) {
+  uint8_t *src_y;
+  uint8_t *last_src_y;
+  // Only allow for 8 bit-depth for now.
+  if (cpi->common.seq_params->bit_depth != 8) return 0;
+  // Compute fast coarse/global motion for 128x128 superblock centered
+  // at middle of frame, and one to the upper left and one to lower right.
+  // to determine if motion is scroll. Only test 3 points (pts) for now.
+  for (int pts = 0; pts < 3; pts++) {
+    // fac and shift are used to move the center block for the other
+    // two points (pts).
+    int fac = 1;
+    int shift = 1;
+    if (pts == 1) {
+      fac = 1;
+      shift = 2;
+    } else if (pts == 2) {
+      fac = 3;
+      shift = 2;
+    }
+    const int pos_col = (fac * unscaled_src->y_width >> shift) - 64;
+    const int pos_row = (fac * unscaled_src->y_height >> shift) - 64;
+    if (pos_col >= 0 && pos_col < unscaled_src->y_width - 64 && pos_row >= 0 &&
+        pos_row < unscaled_src->y_height - 64) {
+      src_y = unscaled_src->y_buffer + pos_row * src_ystride + pos_col;
+      last_src_y =
+          unscaled_last_src->y_buffer + pos_row * last_src_ystride + pos_col;
+      int best_intmv_col = 0;
+      int best_intmv_row = 0;
+      unsigned int y_sad = estimate_scroll_motion(
+          cpi, src_y, last_src_y, src_ystride, last_src_ystride, BLOCK_128X128,
+          pos_col, pos_row, &best_intmv_col, &best_intmv_row);
+      if (y_sad < 100 &&
+          (abs(best_intmv_col) > 16 || abs(best_intmv_row) > 16)) {
+        return 1;
+      }
+    }
+  }
+  return 0;
+}
+
 /*!\brief Check for scene detection, for 1 pass real-time mode.
  *
  * Compute average source sad (temporal sad: between current source and
@@ -3178,6 +3222,8 @@ static void rc_scene_detection_onepass_rt(AV1_COMP *cpi,
   int last_src_height;
   int width = cm->width;
   int height = cm->height;
+  int scroll_detected_frame_level = 0;
+  int scroll_tested = 0;
   if (cpi->svc.number_spatial_layers > 1) {
     width = cpi->oxcf.frm_dim_cfg.width;
     height = cpi->oxcf.frm_dim_cfg.height;
@@ -3322,6 +3368,13 @@ static void rc_scene_detection_onepass_rt(AV1_COMP *cpi,
   if (rc->high_source_sad) {
     cpi->rc.frames_since_scene_change = 0;
     rc->static_since_last_scene_change = 1;
+    if (cpi->oxcf.tune_cfg.content == AOM_CONTENT_SCREEN &&
+        cpi->svc.temporal_layer_id == 0 && unscaled_src->y_width >= 1280 &&
+        unscaled_src->y_height >= 720) {
+      scroll_detected_frame_level = fast_detection_scroll(
+          cpi, unscaled_src, unscaled_last_src, src_ystride, last_src_ystride);
+      scroll_tested = 1;
+    }
   }
   // Update the high_motion_content_screen_rtc flag on TL0. Avoid the update
   // if too many consecutive frame drops occurred.
@@ -3336,43 +3389,12 @@ static void rc_scene_detection_onepass_rt(AV1_COMP *cpi,
         rc->avg_frame_low_motion < 60 && unscaled_src->y_width >= 1280 &&
         unscaled_src->y_height >= 720) {
       cpi->rc.high_motion_content_screen_rtc = 1;
-      // Compute fast coarse/global motion for 128x128 superblock centered
-      // at middle of frame, and one to the upper left and one to lower right.
-      // to determine if motion is scroll. Only test 3 points (pts) for now.
-      // TODO(marpan): Only allow for 8 bit-depth for now.
-      if (cm->seq_params->bit_depth == 8) {
-        for (int pts = 0; pts < 3; pts++) {
-          // fac and shift are used to move the center block for the other
-          // two points (pts).
-          int fac = 1;
-          int shift = 1;
-          if (pts == 1) {
-            fac = 1;
-            shift = 2;
-          } else if (pts == 2) {
-            fac = 3;
-            shift = 2;
-          }
-          const int pos_col = (fac * unscaled_src->y_width >> shift) - 64;
-          const int pos_row = (fac * unscaled_src->y_height >> shift) - 64;
-          if (pos_col >= 0 && pos_col < unscaled_src->y_width - 64 &&
-              pos_row >= 0 && pos_row < unscaled_src->y_height - 64) {
-            src_y = unscaled_src->y_buffer + pos_row * src_ystride + pos_col;
-            last_src_y = unscaled_last_src->y_buffer +
-                         pos_row * last_src_ystride + pos_col;
-            int best_intmv_col = 0;
-            int best_intmv_row = 0;
-            unsigned int y_sad = estimate_scroll_motion(
-                cpi, src_y, last_src_y, src_ystride, last_src_ystride,
-                BLOCK_128X128, pos_col, pos_row, &best_intmv_col,
-                &best_intmv_row);
-            if (y_sad < 100 &&
-                (abs(best_intmv_col) > 16 || abs(best_intmv_row) > 16)) {
-              cpi->rc.high_motion_content_screen_rtc = 0;
-              break;
-            }
-          }
-        }
+      if (scroll_tested && scroll_detected_frame_level) {
+        cpi->rc.high_motion_content_screen_rtc = 0;
+      } else {
+        if (fast_detection_scroll(cpi, unscaled_src, unscaled_last_src,
+                                  src_ystride, last_src_ystride))
+          cpi->rc.high_motion_content_screen_rtc = 0;
       }
     }
     // Pass the flag value to all layer frames.
